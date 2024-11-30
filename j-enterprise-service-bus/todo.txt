@@ -1,0 +1,4 @@
+- update ObjectSpecification:
+	. manage enum fields as leafs
+	. manage list fields
+	. manage abstract field types

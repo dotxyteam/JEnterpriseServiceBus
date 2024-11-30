@@ -2,6 +2,7 @@ package com.otk.jesb;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -37,10 +38,10 @@ public class PlanEditor {
 		s1.setDiagramY(100);
 		ActivityBuilder ab1 = new ActivityBuilder();
 		s1.setActivityBuilder(ab1);
-		ab1.setActivityClassName(JDBCQueryActivity.class.getName());
-		ab1.getFieldInitialisers().add(new ActivityBuilder.FieldInitialiser("connection", false, c));
-		ab1.getFieldInitialisers().add(new ActivityBuilder.FieldInitialiser("statement", false,
-				"SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES"));
+		ab1.setObjectClassName(JDBCQueryActivity.class.getName());
+		ab1.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("connection", c));
+		ab1.getFieldInitializers().add(
+				new ActivityBuilder.FieldInitializer("statement", "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES"));
 
 		Step s2 = new Step();
 		plan.getSteps().add(s2);
@@ -49,16 +50,14 @@ public class PlanEditor {
 		s2.setDiagramY(100);
 		ActivityBuilder ab2 = new ActivityBuilder();
 		s2.setActivityBuilder(ab2);
-		ab2.setActivityClassName(WriteFileActivity.class.getName());
-		ab2.getFieldInitialisers().add(new ActivityBuilder.FieldInitialiser("filePath", false, "tmp/test.txt"));
-		ab2.getFieldInitialisers().add(new ActivityBuilder.FieldInitialiser("text", true,
-				""
-				+ "StringBuilder s = new StringBuilder();\n"
-				+ "for(com.otk.zeroplanb.JDBCQueryActivity.JDBCQueryActivityResultRow row: a.getRows()){\n"
-				+ "  s.append(row.getCellValue(\"TABLE_NAME\") + \", \");\n"
-				+ "}\n"
-				+ "return s.toString();"));
-		
+		ab2.setObjectClassName(WriteFileActivity.class.getName());
+		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("filePath", "tmp/test.txt"));
+		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("text",
+				new ActivityBuilder.FieldValueScript("" + "StringBuilder s = new StringBuilder();\n"
+						+ "for(com.otk.jesb.JDBCQueryActivity.JDBCQueryActivityResultRow row: a.getRows()){\n"
+						+ "  s.append(row.getCellValue(\"TABLE_NAME\") + \", \");\n" + "}\n"
+						+ "return s.toString();")));
+
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
 		t1.setEndStep(s2);
@@ -71,6 +70,10 @@ public class PlanEditor {
 		frame.setVisible(true);
 	}
 
+	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
+			.getProperty(PlanEditor.class.getPackageName() + ".alternateUICustomizationsFileDirectory");
+	private static final String GUI_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
+
 	private Plan plan;
 	private JDiagram diagram;
 	private Form form;
@@ -78,13 +81,13 @@ public class PlanEditor {
 	public PlanEditor(Plan plan) {
 		this.plan = plan;
 	}
-	
+
 	public Component createComponent() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		diagram = createDiagram();
 		panel.add(diagram, BorderLayout.CENTER);
-		panel.add(form=createForm(), BorderLayout.WEST);
+		panel.add(form = createForm(), BorderLayout.WEST);
 		form.getModificationStack().addListener(new AbstractSimpleModificationListener() {
 			@Override
 			protected void handleAnyEvent(IModification modification) {
@@ -145,7 +148,21 @@ public class PlanEditor {
 	}
 
 	protected Form createForm() {
-		return new SwingCustomizer(new CustomizedUI(), "data.icu").createForm(plan);
+		CustomizedUI ui = new CustomizedUI();
+		SwingCustomizer renderer;
+		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
+			renderer = new SwingCustomizer(ui,
+					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME);
+		} else {
+			try {
+				ui.getInfoCustomizations()
+						.loadFromStream(getClass().getResourceAsStream("/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME), null);
+			} catch (IOException e) {
+				throw new AssertionError(e);
+			}
+			renderer = new SwingCustomizer(ui);
+		}
+		return renderer.createForm(plan);
 	}
 
 }
