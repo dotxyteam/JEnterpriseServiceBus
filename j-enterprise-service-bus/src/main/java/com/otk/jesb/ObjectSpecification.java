@@ -8,6 +8,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.otk.jesb.Plan.ExecutionContext.Property;
+
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -67,16 +69,29 @@ public class ObjectSpecification {
 			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
 			List<Object> itemList = new ArrayList<Object>();
 			for (ListItemInitializer listItemInitializer : listItemInitializers) {
-				Object itemValue;
-				if (listItemInitializer.getItemValue() instanceof DynamicValue) {
-					itemValue = Utils.executeScript(((DynamicValue) listItemInitializer.getItemValue()).getScript(),
-							context);
-				} else if (listItemInitializer.getItemValue() instanceof ObjectSpecification) {
-					itemValue = ((ObjectSpecification) listItemInitializer.getItemValue()).build(context);
+				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
+				if (itemReplication != null) {
+					Object iterationListValue = Utils.interpretValue(itemReplication.getIterationListValue(), context);
+					if (iterationListValue == null) {
+						throw new AssertionError("Cannot replicate item: Iteration list value is null");
+					}
+					ITypeInfo iterationListTypeInfo = reflectionUI
+							.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, iterationListValue.getClass(), null));
+					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
+						throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
+								+ iterationListValue + "'");
+					}
+					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
+					for (Object iterationVariableValue : iterationListArray) {
+						Plan.ExecutionContext iterationContext = new Plan.ExecutionContext(context,
+								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue));
+						Object itemValue = Utils.interpretValue(listItemInitializer.getItemValue(), iterationContext);
+						itemList.add(itemValue);
+					}
 				} else {
-					itemValue = listItemInitializer.getItemValue();
+					Object itemValue = Utils.interpretValue(listItemInitializer.getItemValue(), context);
+					itemList.add(itemValue);
 				}
-				itemList.add(itemValue);
 			}
 			if (listTypeInfo.canReplaceContent()) {
 				object = objectClass.getConstructor().newInstance();
@@ -98,15 +113,7 @@ public class ObjectSpecification {
 			if (fieldInitialiser == null) {
 				continue;
 			}
-			Object fieldValue;
-			if (fieldInitialiser.getFieldValue() instanceof DynamicValue) {
-				fieldValue = Utils.executeScript(((DynamicValue) fieldInitialiser.getFieldValue()).getScript(),
-						context);
-			} else if (fieldInitialiser.getFieldValue() instanceof ObjectSpecification) {
-				fieldValue = ((ObjectSpecification) fieldInitialiser.getFieldValue()).build(context);
-			} else {
-				fieldValue = fieldInitialiser.getFieldValue();
-			}
+			Object fieldValue = Utils.interpretValue(fieldInitialiser.getFieldValue(), context);
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -164,6 +171,7 @@ public class ObjectSpecification {
 	public static class ListItemInitializer {
 
 		private Object itemValue;
+		private ListItemReplication itemReplication;
 
 		public ListItemInitializer() {
 		}
@@ -178,6 +186,59 @@ public class ObjectSpecification {
 
 		public void setItemValue(Object itemValue) {
 			this.itemValue = itemValue;
+		}
+
+		public ListItemReplication getItemReplication() {
+			return itemReplication;
+		}
+
+		public void setItemReplication(ListItemReplication itemReplication) {
+			this.itemReplication = itemReplication;
+		}
+
+	}
+
+	public static class ListItemReplication {
+
+		private String iterationVariableName = "current";
+		private Object iterationListValue = new ArrayList<Object>();
+
+		public String getIterationVariableName() {
+			return iterationVariableName;
+		}
+
+		public void setIterationVariableName(String iterationVariableName) {
+			this.iterationVariableName = iterationVariableName;
+		}
+
+		public Object getIterationListValue() {
+			return iterationListValue;
+		}
+
+		public void setIterationListValue(Object iterationListValue) {
+			this.iterationListValue = iterationListValue;
+		}
+
+		public static class IterationVariable implements Property {
+
+			private ListItemReplication itemReplication;
+			private Object iterationVariableValue;
+
+			public IterationVariable(ListItemReplication itemReplication, Object iterationVariableValue) {
+				this.itemReplication = itemReplication;
+				this.iterationVariableValue = iterationVariableValue;
+			}
+
+			@Override
+			public Object getValue() {
+				return iterationVariableValue;
+			}
+
+			@Override
+			public String getName() {
+				return itemReplication.getIterationVariableName();
+			}
+
 		}
 
 	}
@@ -206,9 +267,9 @@ public class ObjectSpecification {
 
 		List<FacadeNode> getChildren();
 
-		boolean isConcreteNode();
+		boolean isConcrete();
 
-		void setConcreteNode(boolean b);
+		void setConcrete(boolean b);
 
 	}
 
@@ -227,17 +288,17 @@ public class ObjectSpecification {
 		}
 
 		@Override
-		public boolean isConcreteNode() {
+		public boolean isConcrete() {
 			if (parent != null) {
-				return parent.isConcreteNode();
+				return parent.isConcrete();
 			}
 			return true;
 		}
 
 		@Override
-		public void setConcreteNode(boolean b) {
+		public void setConcrete(boolean b) {
 			if (parent != null) {
-				parent.setConcreteNode(b);
+				parent.setConcrete(b);
 			}
 		}
 
@@ -376,21 +437,21 @@ public class ObjectSpecification {
 		}
 
 		@Override
-		public boolean isConcreteNode() {
-			if (!parent.isConcreteNode()) {
+		public boolean isConcrete() {
+			if (!parent.isConcrete()) {
 				return false;
 			}
 			return getFieldInitializer() != null;
 		}
 
 		@Override
-		public void setConcreteNode(boolean b) {
-			if (b == isConcreteNode()) {
+		public void setConcrete(boolean b) {
+			if (b == isConcrete()) {
 				return;
 			}
 			if (b) {
-				if (!parent.isConcreteNode()) {
-					parent.setConcreteNode(true);
+				if (!parent.isConcrete()) {
+					parent.setConcrete(true);
 				}
 				parent.getObjectSpecification().getFieldInitializers().add(new FieldInitializer(fieldName, fieldValue));
 			} else {
@@ -404,13 +465,7 @@ public class ObjectSpecification {
 			if (fieldInitializer == null) {
 				return null;
 			}
-			if (fieldInitializer.getFieldValue() instanceof DynamicValue) {
-				return ValueMode.DYNAMIC_VALUE;
-			} else if (fieldInitializer.getFieldValue() instanceof ObjectSpecification) {
-				return ValueMode.OBJECT_SPECIFICATION;
-			} else {
-				return ValueMode.STATIC_VALUE;
-			}
+			return Utils.getValueMode(fieldInitializer.getFieldValue());
 		}
 
 		public void setFieldValueMode(ValueMode valueMode) {
@@ -505,6 +560,24 @@ public class ObjectSpecification {
 			return index;
 		}
 
+		public ListItemReplicationFacade getItemReplicationFacade() {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return null;
+			}
+			return (listItemInitializer.getItemReplication() == null) ? null
+					: new ListItemReplicationFacade(listItemInitializer.getItemReplication());
+		}
+
+		public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return;
+			}
+			listItemInitializer.setItemReplication(
+					(itemReplicationFacade == null) ? null : itemReplicationFacade.getListItemReplication());
+		}
+
 		public Object getItemValue() {
 			ListItemInitializer listItemInitializer = getListItemInitializer();
 			if (listItemInitializer == null) {
@@ -530,13 +603,7 @@ public class ObjectSpecification {
 			if (listItemInitializer == null) {
 				return null;
 			}
-			if (listItemInitializer.getItemValue() instanceof DynamicValue) {
-				return ValueMode.DYNAMIC_VALUE;
-			} else if (listItemInitializer.getItemValue() instanceof ObjectSpecification) {
-				return ValueMode.OBJECT_SPECIFICATION;
-			} else {
-				return ValueMode.STATIC_VALUE;
-			}
+			return Utils.getValueMode(listItemInitializer.getItemValue());
 		}
 
 		public void setItemValueMode(ValueMode valueMode) {
@@ -617,21 +684,21 @@ public class ObjectSpecification {
 		}
 
 		@Override
-		public boolean isConcreteNode() {
-			if (!parent.isConcreteNode()) {
+		public boolean isConcrete() {
+			if (!parent.isConcrete()) {
 				return false;
 			}
 			return getListItemInitializer() != null;
 		}
 
 		@Override
-		public void setConcreteNode(boolean b) {
-			if (b == isConcreteNode()) {
+		public void setConcrete(boolean b) {
+			if (b == isConcrete()) {
 				return;
 			}
 			if (b) {
-				if (!parent.isConcreteNode()) {
-					parent.setConcreteNode(true);
+				if (!parent.isConcrete()) {
+					parent.setConcrete(true);
 				}
 				parent.getObjectSpecification().getListItemInitializers().add(index,
 						new ListItemInitializer(itemValue));
@@ -652,9 +719,59 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return "[" + index + "]";
+			return "[" + index + "]" + ((getItemReplicationFacade() != null) ? "*" : "");
 		}
 
+	}
+
+	public static class ListItemReplicationFacade {
+
+		private ListItemReplication listItemReplication;
+
+		public ListItemReplicationFacade() {
+			this.listItemReplication = new ListItemReplication();
+		}
+
+		public ListItemReplicationFacade(ListItemReplication listItemReplication) {
+			this.listItemReplication = listItemReplication;
+		}
+
+		public ListItemReplication getListItemReplication() {
+			return listItemReplication;
+		}
+
+		public String getIterationVariableName() {
+			return listItemReplication.getIterationVariableName();
+		}
+
+		public void setIterationVariableName(String iterationVariableName) {
+			listItemReplication.setIterationVariableName(iterationVariableName);
+		}
+
+		public Object getIterationListValue() {
+			return listItemReplication.getIterationListValue();
+		}
+
+		public void setIterationListValue(Object iterationListValue) {
+			listItemReplication.setIterationListValue(iterationListValue);
+		}
+
+		public ValueMode getIterationListValueMode() {
+			return Utils.getValueMode(listItemReplication.getIterationListValue());
+		}
+
+		public void setIterationListValueMode(ValueMode valueMode) {
+			Object iterationListValue;
+			if (valueMode == ValueMode.DYNAMIC_VALUE) {
+				String scriptContent = "return new java.util.ArrayList<Object>();";
+				iterationListValue = new DynamicValue(scriptContent);
+			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+				iterationListValue = new ObjectSpecification(ArrayList.class.getName());
+			} else {
+				iterationListValue = new ArrayList<Object>();
+			}
+			listItemReplication.setIterationListValue(iterationListValue);
+		}
 	}
 
 }

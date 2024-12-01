@@ -85,15 +85,31 @@ public class Plan implements FolderContent {
 	private void execute(Step step, ExecutionContext context) throws Exception {
 		Activity activity = step.getActivityBuilder().build(context);
 		Activity.Result activityResult = activity.execute();
-		context.getStepOccurrences().add(new StepOccurrence(step, activityResult));
+		context.getProperties().add(new StepOccurrence(step, activityResult));
 	}
 
 	public static class ExecutionContext {
 
-		private List<StepOccurrence> stepOccurrences = new ArrayList<StepOccurrence>();
+		private List<Property> properties = new ArrayList<Property>();
 
-		public List<StepOccurrence> getStepOccurrences() {
-			return stepOccurrences;
+		public ExecutionContext() {
+		}
+
+		public ExecutionContext(ExecutionContext parentContext, Property newProperty) {
+			properties.addAll(parentContext.getProperties());
+			properties.add(newProperty);
+		}
+
+		public List<Property> getProperties() {
+			return properties;
+		}
+
+		public interface Property {
+
+			Object getValue();
+
+			String getName();
+
 		}
 
 	}

@@ -4,3 +4,26 @@
 	. manage abstract field types
 	. manage get-only fields
 	. add for-each, choose, if, ...
+	. manage constructors
+- add XML support
+	. generate automatically classes from XSD to parse and render ???
+- enhance the diagram editor
+- add things like groups (for repetition, etc) and conditionnal transitions for steps
+- comment the code
+- add built-in activities (file, jdbc, jms, data format, .. activities)
+- allow to map fields graphically 
+- allow to create and organize plans
+- allow to create and share resources (JDBCConnection, etc)
+- allow to start plan execution on event (timer, file poller, etc)
+- allow to extend the framework by adding custom activities
+- allow to debug
+- allow to deploy and execute a project outside of the designer in a production environment
+- allow to monitor the execution of deployed projects
+- offer windows and linux versions
+- change the JRE/JDK: use OpenJDK or ...
+- strategy: 
+	. focus on an original main feature and make it work
+	. implement quickly and minimally all the other features
+	. release a first version
+	. advertise
+	. improve the features
