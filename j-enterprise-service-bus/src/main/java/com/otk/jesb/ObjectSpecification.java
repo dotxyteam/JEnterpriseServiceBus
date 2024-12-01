@@ -1,6 +1,8 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,11 +51,10 @@ public class ObjectSpecification {
 				continue;
 			}
 			Object fieldValue;
-			if (fieldInitialiser.getFieldValue() instanceof FieldValueScript) {
-				fieldValue = Utils.executeScript(((FieldValueScript) fieldInitialiser.getFieldValue()).getContent(),
+			if (fieldInitialiser.getFieldValue() instanceof DynamicValue) {
+				fieldValue = Utils.executeScript(((DynamicValue) fieldInitialiser.getFieldValue()).getScript(),
 						context);
-			}
-			else if (fieldInitialiser.getFieldValue() instanceof ObjectSpecification) {
+			} else if (fieldInitialiser.getFieldValue() instanceof ObjectSpecification) {
 				fieldValue = ((ObjectSpecification) fieldInitialiser.getFieldValue()).build(context);
 			} else {
 				fieldValue = fieldInitialiser.getFieldValue();
@@ -112,23 +113,22 @@ public class ObjectSpecification {
 
 	}
 
-	public static class FieldValueScript {
-		private String content;
+	public static class DynamicValue {
+		private String script;
 
-		public FieldValueScript() {
+		public DynamicValue() {
 		}
 
-		public FieldValueScript(String content) {
-			super();
-			this.content = content;
+		public DynamicValue(String content) {
+			this.script = content;
 		}
 
-		public String getContent() {
-			return content;
+		public String getScript() {
+			return script;
 		}
 
-		public void setContent(String content) {
-			this.content = content;
+		public void setScript(String script) {
+			this.script = script;
 		}
 
 	}
@@ -171,6 +171,22 @@ public class ObjectSpecification {
 			for (IFieldInfo field : typeInfo.getFields()) {
 				result.add(new FieldInitializerFacade(this, field.getName()));
 			}
+			Collections.sort(result, new Comparator<FacadeNode>() {
+				@Override
+				public int compare(FacadeNode o1, FacadeNode o2) {
+					FieldInitializerFacade fif1 = (FieldInitializerFacade) o1;
+					FieldInitializerFacade fif2 = (FieldInitializerFacade) o2;
+					if (Utils.isComplexType(fif1.getFieldInfo().getType())
+							&& !Utils.isComplexType(fif2.getFieldInfo().getType())) {
+						return 1;
+					} else if (!Utils.isComplexType(fif1.getFieldInfo().getType())
+							&& Utils.isComplexType(fif2.getFieldInfo().getType())) {
+						return -1;
+					} else {
+						return fif1.getFieldInfo().getName().compareTo(fif2.getFieldInfo().getName());
+					}
+				}
+			});
 			return result;
 		}
 
@@ -184,7 +200,7 @@ public class ObjectSpecification {
 	public static class FieldInitializerFacade implements FacadeNode {
 
 		public enum ValueMode {
-			VALUE, SCRIPT, SPECIFICATION
+			STATIC_VALUE, DYNAMIC_VALUE, OBJECT_SPECIFICATION
 		}
 
 		private ObjectSpecificationFacade parent;
@@ -208,14 +224,14 @@ public class ObjectSpecification {
 
 		private Object createDefaultFieldValue() {
 			IFieldInfo field = getFieldInfo();
-			if (field.getType().isPrimitive() || field.getType().getName().equals(String.class.getName())) {
+			if (!Utils.isComplexType(field.getType())) {
 				return ReflectionUIUtils.createDefaultInstance(field.getType());
 			} else {
 				return new ObjectSpecification(field.getType().getName());
 			}
 		}
 
-		private IFieldInfo getFieldInfo() {
+		public IFieldInfo getFieldInfo() {
 			Class<?> objectClass;
 			try {
 				objectClass = Class.forName(parent.getObjectSpecification().getObjectClassName());
@@ -270,12 +286,12 @@ public class ObjectSpecification {
 			if (fieldInitializer == null) {
 				return null;
 			}
-			if (fieldInitializer.getFieldValue() instanceof FieldValueScript) {
-				return ValueMode.SCRIPT;
+			if (fieldInitializer.getFieldValue() instanceof DynamicValue) {
+				return ValueMode.DYNAMIC_VALUE;
 			} else if (fieldInitializer.getFieldValue() instanceof ObjectSpecification) {
-				return ValueMode.SPECIFICATION;
+				return ValueMode.OBJECT_SPECIFICATION;
 			} else {
-				return ValueMode.VALUE;
+				return ValueMode.STATIC_VALUE;
 			}
 		}
 
@@ -288,20 +304,20 @@ public class ObjectSpecification {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
-			if (valueMode == ValueMode.SCRIPT) {
+			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
-				if (field.getType().isPrimitive() || field.getType().getName().equals(String.class.getName())) {
+				if (!Utils.isComplexType(field.getType())) {
 					Object defaultValue = ReflectionUIUtils.createDefaultInstance(field.getType());
 					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
 							: String.valueOf(defaultValue)) + ";";
 				} else {
 					scriptContent = "return null;";
 				}
-				fieldValue = new FieldValueScript(scriptContent);
-			} else if (valueMode == ValueMode.SPECIFICATION) {
+				fieldValue = new DynamicValue(scriptContent);
+			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
 				fieldValue = new ObjectSpecification(field.getType().getName());
 			} else {
-				if (field.getType().isPrimitive() || field.getType().getName().equals(String.class.getName())) {
+				if (!Utils.isComplexType(field.getType())) {
 					fieldValue = ReflectionUIUtils.createDefaultInstance(field.getType());
 				} else {
 					fieldValue = null;

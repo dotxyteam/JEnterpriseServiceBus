@@ -10,21 +10,33 @@ public class ObjectSpecificationTest {
 	public static void main(String[] args) {
 		new SwingCustomizer(new CustomizedUI(),
 				"src/test/resources/" + ObjectSpecificationTest.class.getSimpleName() + ".icu").openObjectDialog(null,
-						new ObjectSpecificationFacade(null,
-								new ObjectSpecification(Tree.class.getName())));
+						new ObjectSpecificationFacade(null, new ObjectSpecification(Tree.class.getName())));
 	}
 
 	public static class Tree {
 
-		private String value;
+		public enum EnumValue {
+			ENUM_ITEM1, ENUM_ITEM2, ENUM_ITEM3
+		};
+
+		private String stringValue;
+		private EnumValue enumValue;
 		private Tree child;
 
-		public String getValue() {
-			return value;
+		public String getStringValue() {
+			return stringValue;
 		}
 
-		public void setValue(String value) {
-			this.value = value;
+		public void setStringValue(String stringValue) {
+			this.stringValue = stringValue;
+		}
+
+		public EnumValue getEnumValue() {
+			return enumValue;
+		}
+
+		public void setEnumValue(EnumValue enumValue) {
+			this.enumValue = enumValue;
 		}
 
 		public Tree getChild() {

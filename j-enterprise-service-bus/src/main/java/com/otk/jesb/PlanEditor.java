@@ -53,7 +53,7 @@ public class PlanEditor {
 		ab2.setObjectClassName(WriteFileActivity.class.getName());
 		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("text",
-				new ActivityBuilder.FieldValueScript("" + "StringBuilder s = new StringBuilder();\n"
+				new ActivityBuilder.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
 						+ "for(com.otk.jesb.JDBCQueryActivity.JDBCQueryActivityResultRow row: a.getRows()){\n"
 						+ "  s.append(row.getCellValue(\"TABLE_NAME\") + \", \");\n" + "}\n"
 						+ "return s.toString();")));

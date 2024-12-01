@@ -2,6 +2,9 @@ package com.otk.jesb;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.util.ClassUtils;
 
 public class Utils {
 
@@ -12,6 +15,20 @@ public class Utils {
 		}
 		GroovyShell shell = new GroovyShell(binding);
 		return shell.evaluate(code);
+	}
+
+	public static boolean isComplexType(ITypeInfo type) {
+		try {
+			if (ClassUtils.isPrimitiveClassOrWrapperOrString(ClassUtils.forNameEvenIfPrimitive(type.getName()))) {
+				return false;
+			}
+			if (type instanceof IEnumerationTypeInfo) {
+				return false;
+			}
+			return true;
+		} catch (ClassNotFoundException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 }
