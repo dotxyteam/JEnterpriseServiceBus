@@ -1,5 +1,7 @@
 package com.otk.jesb;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,8 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.PublicFieldInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -16,12 +21,17 @@ public class ObjectSpecification {
 
 	private String objectClassName;
 	private List<FieldInitializer> fieldInitializers = new ArrayList<FieldInitializer>();
+	private List<ListItemInitializer> listItemInitializers = new ArrayList<ListItemInitializer>();
 
 	public ObjectSpecification() {
 	}
 
 	public ObjectSpecification(String objectClassName) {
 		this.objectClassName = objectClassName;
+	}
+
+	public ObjectSpecificationFacade getFacade() {
+		return new ObjectSpecificationFacade(null, this);
 	}
 
 	public String getObjectClassName() {
@@ -40,12 +50,50 @@ public class ObjectSpecification {
 		this.fieldInitializers = fieldInitializers;
 	}
 
+	public List<ListItemInitializer> getListItemInitializers() {
+		return listItemInitializers;
+	}
+
+	public void setListItemInitializers(List<ListItemInitializer> listItemInitializers) {
+		this.listItemInitializers = listItemInitializers;
+	}
+
 	public Object build(Plan.ExecutionContext context) throws Exception {
 		Class<?> objectClass = Class.forName(objectClassName);
-		Object object = objectClass.getConstructor().newInstance();
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+		Object object;
+		if (typeInfo instanceof IListTypeInfo) {
+			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
+			List<Object> itemList = new ArrayList<Object>();
+			for (ListItemInitializer listItemInitializer : listItemInitializers) {
+				Object itemValue;
+				if (listItemInitializer.getItemValue() instanceof DynamicValue) {
+					itemValue = Utils.executeScript(((DynamicValue) listItemInitializer.getItemValue()).getScript(),
+							context);
+				} else if (listItemInitializer.getItemValue() instanceof ObjectSpecification) {
+					itemValue = ((ObjectSpecification) listItemInitializer.getItemValue()).build(context);
+				} else {
+					itemValue = listItemInitializer.getItemValue();
+				}
+				itemList.add(itemValue);
+			}
+			if (listTypeInfo.canReplaceContent()) {
+				object = objectClass.getConstructor().newInstance();
+				listTypeInfo.replaceContent(object, itemList.toArray());
+			} else if (listTypeInfo.canInstanciateFromArray()) {
+				object = listTypeInfo.fromArray(itemList.toArray());
+			} else {
+				throw new AssertionError("Cannot initialize list of type " + listTypeInfo
+						+ ": Cannot replace instance content or instanciate from array");
+			}
+		} else {
+			object = objectClass.getConstructor().newInstance();
+		}
 		for (IFieldInfo field : typeInfo.getFields()) {
+			if (field.isGetOnly()) {
+				continue;
+			}
 			FieldInitializer fieldInitialiser = getFieldInitializer(field.getName());
 			if (fieldInitialiser == null) {
 				continue;
@@ -113,6 +161,27 @@ public class ObjectSpecification {
 
 	}
 
+	public static class ListItemInitializer {
+
+		private Object itemValue;
+
+		public ListItemInitializer() {
+		}
+
+		public ListItemInitializer(Object itemValue) {
+			this.itemValue = itemValue;
+		}
+
+		public Object getItemValue() {
+			return itemValue;
+		}
+
+		public void setItemValue(Object itemValue) {
+			this.itemValue = itemValue;
+		}
+
+	}
+
 	public static class DynamicValue {
 		private String script;
 
@@ -137,20 +206,47 @@ public class ObjectSpecification {
 
 		List<FacadeNode> getChildren();
 
+		boolean isConcreteNode();
+
+		void setConcreteNode(boolean b);
+
 	}
 
 	public static class ObjectSpecificationFacade implements FacadeNode {
 
-		private FieldInitializerFacade parent;
+		private FacadeNode parent;
 		private ObjectSpecification objectSpecification;
 
-		public ObjectSpecificationFacade(FieldInitializerFacade parent, ObjectSpecification objectSpecification) {
+		public ObjectSpecificationFacade(FacadeNode parent, ObjectSpecification objectSpecification) {
 			this.parent = parent;
 			this.objectSpecification = objectSpecification;
 		}
 
-		public FieldInitializerFacade getParent() {
+		public FacadeNode getParent() {
 			return parent;
+		}
+
+		@Override
+		public boolean isConcreteNode() {
+			if (parent != null) {
+				return parent.isConcreteNode();
+			}
+			return true;
+		}
+
+		@Override
+		public void setConcreteNode(boolean b) {
+			if (parent != null) {
+				parent.setConcreteNode(b);
+			}
+		}
+
+		public String getObjectClassName() {
+			return objectSpecification.getObjectClassName();
+		}
+
+		public void setObjectClassName(String objectClassName) {
+			objectSpecification.setObjectClassName(objectClassName);
 		}
 
 		public ObjectSpecification getObjectSpecification() {
@@ -169,22 +265,46 @@ public class ObjectSpecification {
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
 			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
 			for (IFieldInfo field : typeInfo.getFields()) {
+				if (field.isGetOnly()) {
+					continue;
+				}
 				result.add(new FieldInitializerFacade(this, field.getName()));
+			}
+			if (typeInfo instanceof IListTypeInfo) {
+				int i = 0;
+				for (; i < objectSpecification.getListItemInitializers().size();) {
+					result.add(new ListItemInitializerFacade(this, i));
+					i++;
+				}
+				result.add(new ListItemInitializerFacade(this, i));
 			}
 			Collections.sort(result, new Comparator<FacadeNode>() {
 				@Override
 				public int compare(FacadeNode o1, FacadeNode o2) {
-					FieldInitializerFacade fif1 = (FieldInitializerFacade) o1;
-					FieldInitializerFacade fif2 = (FieldInitializerFacade) o2;
-					if (Utils.isComplexType(fif1.getFieldInfo().getType())
-							&& !Utils.isComplexType(fif2.getFieldInfo().getType())) {
+					if ((o1 instanceof FieldInitializerFacade) && (o2 instanceof ListItemInitializerFacade)) {
 						return 1;
-					} else if (!Utils.isComplexType(fif1.getFieldInfo().getType())
-							&& Utils.isComplexType(fif2.getFieldInfo().getType())) {
+					} else if ((o1 instanceof ListItemInitializerFacade) && (o2 instanceof FieldInitializerFacade)) {
 						return -1;
+					} else if ((o1 instanceof FieldInitializerFacade) && (o2 instanceof FieldInitializerFacade)) {
+						FieldInitializerFacade fif1 = (FieldInitializerFacade) o1;
+						FieldInitializerFacade fif2 = (FieldInitializerFacade) o2;
+						if (Utils.isComplexType(fif1.getFieldInfo().getType())
+								&& !Utils.isComplexType(fif2.getFieldInfo().getType())) {
+							return 1;
+						} else if (!Utils.isComplexType(fif1.getFieldInfo().getType())
+								&& Utils.isComplexType(fif2.getFieldInfo().getType())) {
+							return -1;
+						} else {
+							return fif1.getFieldInfo().getName().compareTo(fif2.getFieldInfo().getName());
+						}
+					} else if ((o1 instanceof ListItemInitializerFacade) && (o2 instanceof ListItemInitializerFacade)) {
+						ListItemInitializerFacade liif1 = (ListItemInitializerFacade) o1;
+						ListItemInitializerFacade liif2 = (ListItemInitializerFacade) o2;
+						return Integer.valueOf(liif1.getIndex()).compareTo(Integer.valueOf(liif2.getIndex()));
 					} else {
-						return fif1.getFieldInfo().getName().compareTo(fif2.getFieldInfo().getName());
+						throw new AssertionError();
 					}
+
 				}
 			});
 			return result;
@@ -192,16 +312,16 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return objectSpecification.getObjectClassName();
+			return "<" + objectSpecification.getObjectClassName() + ">";
 		}
 
 	}
 
-	public static class FieldInitializerFacade implements FacadeNode {
+	public enum ValueMode {
+		STATIC_VALUE, DYNAMIC_VALUE, OBJECT_SPECIFICATION
+	}
 
-		public enum ValueMode {
-			STATIC_VALUE, DYNAMIC_VALUE, OBJECT_SPECIFICATION
-		}
+	public static class FieldInitializerFacade implements FacadeNode {
 
 		private ObjectSpecificationFacade parent;
 		private String fieldName;
@@ -255,24 +375,22 @@ public class ObjectSpecification {
 			this.fieldName = fieldName;
 		}
 
+		@Override
 		public boolean isConcreteNode() {
-			if (parent.getParent() != null) {
-				if (!parent.getParent().isConcreteNode()) {
-					return false;
-				}
+			if (!parent.isConcreteNode()) {
+				return false;
 			}
 			return getFieldInitializer() != null;
 		}
 
+		@Override
 		public void setConcreteNode(boolean b) {
 			if (b == isConcreteNode()) {
 				return;
 			}
 			if (b) {
-				if (parent.getParent() != null) {
-					if (!parent.getParent().isConcreteNode()) {
-						parent.getParent().setConcreteNode(true);
-					}
+				if (!parent.isConcreteNode()) {
+					parent.setConcreteNode(true);
 				}
 				parent.getObjectSpecification().getFieldInitializers().add(new FieldInitializer(fieldName, fieldValue));
 			} else {
@@ -281,7 +399,7 @@ public class ObjectSpecification {
 			}
 		}
 
-		public ValueMode getValueMode() {
+		public ValueMode getFieldValueMode() {
 			FieldInitializer fieldInitializer = getFieldInitializer();
 			if (fieldInitializer == null) {
 				return null;
@@ -295,12 +413,12 @@ public class ObjectSpecification {
 			}
 		}
 
-		public void setValueMode(ValueMode valueMode) {
+		public void setFieldValueMode(ValueMode valueMode) {
 			FieldInitializer fieldInitializer = getFieldInitializer();
 			if (fieldInitializer == null) {
 				return;
 			}
-			if (valueMode == getValueMode()) {
+			if (valueMode == getFieldValueMode()) {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
@@ -339,6 +457,10 @@ public class ObjectSpecification {
 			if (fieldInitializer == null) {
 				return;
 			}
+			IFieldInfo field = getFieldInfo();
+			if ((value == null) && (field.getType().isPrimitive())) {
+				throw new AssertionError("Cannot set null to primitive field");
+			}
 			fieldInitializer.setFieldValue(value);
 		}
 
@@ -354,6 +476,183 @@ public class ObjectSpecification {
 		@Override
 		public String toString() {
 			return fieldName;
+		}
+
+	}
+
+	public static class ListItemInitializerFacade implements FacadeNode {
+
+		private ObjectSpecificationFacade parent;
+		private int index;
+		private Object itemValue;
+
+		public ListItemInitializerFacade(ObjectSpecificationFacade parent, int index) {
+			this.parent = parent;
+			this.index = index;
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				this.itemValue = createDefaultItemValue();
+			} else {
+				this.itemValue = listItemInitializer.getItemValue();
+			}
+		}
+
+		public ObjectSpecificationFacade getParent() {
+			return parent;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
+		public Object getItemValue() {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return null;
+			}
+			return listItemInitializer.getItemValue();
+		}
+
+		public void setItemValue(Object value) {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return;
+			}
+			ITypeInfo itemType = getItemType();
+			if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
+				throw new AssertionError("Cannot add null item to primitive item list");
+			}
+			listItemInitializer.setItemValue(value);
+		}
+
+		public ValueMode getItemValueMode() {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return null;
+			}
+			if (listItemInitializer.getItemValue() instanceof DynamicValue) {
+				return ValueMode.DYNAMIC_VALUE;
+			} else if (listItemInitializer.getItemValue() instanceof ObjectSpecification) {
+				return ValueMode.OBJECT_SPECIFICATION;
+			} else {
+				return ValueMode.STATIC_VALUE;
+			}
+		}
+
+		public void setItemValueMode(ValueMode valueMode) {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return;
+			}
+			if (valueMode == getItemValueMode()) {
+				return;
+			}
+			ITypeInfo itemType = getItemType();
+			if (valueMode == ValueMode.DYNAMIC_VALUE) {
+				String scriptContent;
+				if (!Utils.isComplexType(itemType)) {
+					Object defaultValue = ReflectionUIUtils.createDefaultInstance(itemType);
+					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
+							: String.valueOf(defaultValue)) + ";";
+				} else {
+					scriptContent = "return null;";
+				}
+				itemValue = new DynamicValue(scriptContent);
+			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+				itemValue = new ObjectSpecification(itemType.getName());
+			} else {
+				if (!Utils.isComplexType(itemType)) {
+					itemValue = ReflectionUIUtils.createDefaultInstance(itemType);
+				} else {
+					itemValue = null;
+				}
+			}
+			listItemInitializer.setItemValue(itemValue);
+		}
+
+		private Object createDefaultItemValue() {
+			ITypeInfo itemType = getItemType();
+			if (itemType == null) {
+				return null;
+			} else if (!Utils.isComplexType(itemType)) {
+				return ReflectionUIUtils.createDefaultInstance(itemType);
+			} else {
+				return new ObjectSpecification(itemType.getName());
+			}
+		}
+
+		public ITypeInfo getItemType() {
+			Class<?> objectClass;
+			try {
+				objectClass = Class.forName(parent.getObjectSpecification().getObjectClassName());
+			} catch (ClassNotFoundException e) {
+				throw new AssertionError(e);
+			}
+			ReflectionUI reflectionUI = ReflectionUI.getDefault();
+			JavaTypeInfoSource javaTypeInfoSource;
+			if (parent.getParent() instanceof FieldInitializerFacade) {
+				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent.getParent();
+				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
+				if (listFieldInfo instanceof GetterFieldInfo) {
+					Method listGetterMethod = ((GetterFieldInfo) listFieldInfo).getJavaGetterMethod();
+					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, listGetterMethod, -1, null);
+				} else if (listFieldInfo instanceof PublicFieldInfo) {
+					Field listField = ((PublicFieldInfo) listFieldInfo).getJavaField();
+					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, listField, -1, null);
+				} else {
+					throw new AssertionError();
+				}
+			} else {
+				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
+			}
+			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(javaTypeInfoSource);
+			return ((IListTypeInfo) typeInfo).getItemType();
+		}
+
+		public ListItemInitializer getListItemInitializer() {
+			if (index >= parent.getObjectSpecification().getListItemInitializers().size()) {
+				return null;
+			}
+			return parent.getObjectSpecification().getListItemInitializers().get(index);
+		}
+
+		@Override
+		public boolean isConcreteNode() {
+			if (!parent.isConcreteNode()) {
+				return false;
+			}
+			return getListItemInitializer() != null;
+		}
+
+		@Override
+		public void setConcreteNode(boolean b) {
+			if (b == isConcreteNode()) {
+				return;
+			}
+			if (b) {
+				if (!parent.isConcreteNode()) {
+					parent.setConcreteNode(true);
+				}
+				parent.getObjectSpecification().getListItemInitializers().add(index,
+						new ListItemInitializer(itemValue));
+			} else {
+				parent.getObjectSpecification().getListItemInitializers().remove(index);
+				itemValue = createDefaultItemValue();
+			}
+		}
+
+		@Override
+		public List<FacadeNode> getChildren() {
+			List<FacadeNode> result = new ArrayList<ObjectSpecification.FacadeNode>();
+			if (itemValue instanceof ObjectSpecification) {
+				result.add(new ObjectSpecificationFacade(this, (ObjectSpecification) itemValue));
+			}
+			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + index + "]";
 		}
 
 	}

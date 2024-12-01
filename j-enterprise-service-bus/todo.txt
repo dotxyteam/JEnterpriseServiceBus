@@ -2,3 +2,5 @@
 	. manage enum fields as leafs
 	. manage list fields
 	. manage abstract field types
+	. manage get-only fields
+	. add for-each, choose, if, ...
