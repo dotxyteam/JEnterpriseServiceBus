@@ -15,6 +15,19 @@ public class ObjectSpecificationTest {
 
 	public static class Tree {
 
+		public Tree() {
+		}
+
+		public Tree(int intValue, String stringValue, EnumValue enumValue, List<String> stringList, Tree firstChild,
+				Tree[] otherChildrenArray) {
+			this.intValue = intValue;
+			this.stringValue = stringValue;
+			this.enumValue = enumValue;
+			this.stringList = stringList;
+			this.firstChild = firstChild;
+			this.otherChildrenArray = otherChildrenArray;
+		}
+
 		public enum EnumValue {
 			ENUM_ITEM1, ENUM_ITEM2, ENUM_ITEM3
 		};

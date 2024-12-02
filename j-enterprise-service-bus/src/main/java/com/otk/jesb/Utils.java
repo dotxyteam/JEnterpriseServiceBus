@@ -6,9 +6,11 @@ import com.otk.jesb.Plan.ExecutionContext;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class Utils {
 
@@ -64,6 +66,29 @@ public class Utils {
 			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
 		return !((Boolean) conditionResult);
+	}
+
+	public static IMethodInfo getConstructorInfo(ITypeInfo typeInfo, String selectedConstructorSignature) {
+		if (selectedConstructorSignature == null) {
+			if (typeInfo.getConstructors().size() == 0) {
+				return null;
+			} else {
+				return typeInfo.getConstructors().get(0);
+			}
+		} else {
+			return ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(), selectedConstructorSignature);
+		}
+
+	}
+
+	public static Object getDefaultInterpretableValue(ITypeInfo type) {
+		if (type == null) {
+			return null;
+		} else if (!Utils.isComplexType(type)) {
+			return ReflectionUIUtils.createDefaultInstance(type);
+		} else {
+			return new ObjectSpecification(type.getName());
+		}
 	}
 
 }
