@@ -69,6 +69,9 @@ public class ObjectSpecification {
 			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
 			List<Object> itemList = new ArrayList<Object>();
 			for (ListItemInitializer listItemInitializer : listItemInitializers) {
+				if (!Utils.isConditionFullfilled(listItemInitializer.getCondition(), context)) {
+					continue;
+				}
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
 					Object iterationListValue = Utils.interpretValue(itemReplication.getIterationListValue(), context);
@@ -109,11 +112,14 @@ public class ObjectSpecification {
 			if (field.isGetOnly()) {
 				continue;
 			}
-			FieldInitializer fieldInitialiser = getFieldInitializer(field.getName());
-			if (fieldInitialiser == null) {
+			FieldInitializer fieldInitializer = getFieldInitializer(field.getName());
+			if (fieldInitializer == null) {
 				continue;
 			}
-			Object fieldValue = Utils.interpretValue(fieldInitialiser.getFieldValue(), context);
+			if (!Utils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
+				continue;
+			}
+			Object fieldValue = Utils.interpretValue(fieldInitializer.getFieldValue(), context);
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -141,6 +147,7 @@ public class ObjectSpecification {
 
 		private String fieldName;
 		private Object fieldValue;
+		private DynamicValue condition;
 
 		public FieldInitializer() {
 		}
@@ -158,6 +165,14 @@ public class ObjectSpecification {
 			this.fieldName = fieldName;
 		}
 
+		public DynamicValue getCondition() {
+			return condition;
+		}
+
+		public void setCondition(DynamicValue condition) {
+			this.condition = condition;
+		}
+
 		public Object getFieldValue() {
 			return fieldValue;
 		}
@@ -172,6 +187,7 @@ public class ObjectSpecification {
 
 		private Object itemValue;
 		private ListItemReplication itemReplication;
+		private DynamicValue condition;
 
 		public ListItemInitializer() {
 		}
@@ -186,6 +202,14 @@ public class ObjectSpecification {
 
 		public void setItemValue(Object itemValue) {
 			this.itemValue = itemValue;
+		}
+
+		public DynamicValue getCondition() {
+			return condition;
+		}
+
+		public void setCondition(DynamicValue condition) {
+			this.condition = condition;
 		}
 
 		public ListItemReplication getItemReplication() {
@@ -436,6 +460,25 @@ public class ObjectSpecification {
 			this.fieldName = fieldName;
 		}
 
+		public DynamicValue getCondition() {
+			FieldInitializer fieldInitializer = getFieldInitializer();
+			if (fieldInitializer == null) {
+				return null;
+			}
+			return fieldInitializer.getCondition();
+		}
+
+		public void setCondition(DynamicValue condition) {
+			FieldInitializer fieldInitializer = getFieldInitializer();
+			if (fieldInitializer == null) {
+				return;
+			}
+			if ((condition != null) && (condition.getScript() == null)) {
+				condition = new DynamicValue("return true;");
+			}
+			fieldInitializer.setCondition(condition);
+		}
+
 		@Override
 		public boolean isConcrete() {
 			if (!parent.isConcrete()) {
@@ -530,7 +573,7 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return fieldName;
+			return fieldName + ((getCondition() != null) ? "?" : "");
 		}
 
 	}
@@ -576,6 +619,25 @@ public class ObjectSpecification {
 			}
 			listItemInitializer.setItemReplication(
 					(itemReplicationFacade == null) ? null : itemReplicationFacade.getListItemReplication());
+		}
+
+		public DynamicValue getCondition() {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return null;
+			}
+			return listItemInitializer.getCondition();
+		}
+
+		public void setCondition(DynamicValue condition) {
+			ListItemInitializer listItemInitializer = getListItemInitializer();
+			if (listItemInitializer == null) {
+				return;
+			}
+			if ((condition != null) && (condition.getScript() == null)) {
+				condition = new DynamicValue("return true;");
+			}
+			listItemInitializer.setCondition(condition);
 		}
 
 		public Object getItemValue() {
@@ -719,7 +781,8 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return "[" + index + "]" + ((getItemReplicationFacade() != null) ? "*" : "");
+			return "[" + index + "]" + ((getItemReplicationFacade() != null) ? "*" : "")
+					+ ((getCondition() != null) ? "?" : "");
 		}
 
 	}

@@ -55,4 +55,15 @@ public class Utils {
 		}
 	}
 
+	public static boolean isConditionFullfilled(DynamicValue condition, ExecutionContext context) throws Exception {
+		if (condition == null) {
+			return true;
+		}
+		Object conditionResult = Utils.interpretValue(condition.getScript(), context);
+		if (!(conditionResult instanceof Boolean)) {
+			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
+		}
+		return !((Boolean) conditionResult);
+	}
+
 }
