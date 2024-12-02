@@ -97,7 +97,8 @@ public class ObjectSpecification {
 		}
 		Object[] parameterValues = new Object[constructor.getParameters().size()];
 		for (IParameterInfo parameterInfo : constructor.getParameters()) {
-			ParameterInitializer parameterInitializer = getParameterInitializer(parameterInfo.getPosition());
+			ParameterInitializer parameterInitializer = getParameterInitializer(parameterInfo.getPosition(),
+					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
 				parameterValue = Utils.getDefaultInterpretableValue(parameterInfo.getType());
@@ -167,19 +168,21 @@ public class ObjectSpecification {
 		return object;
 	}
 
-	public ParameterInitializer getParameterInitializer(int parameterPosition) {
+	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
-			if (parameterInitializer.getParameterPosition() == parameterPosition) {
+			if ((parameterInitializer.getParameterPosition() == parameterPosition)
+					&& (parameterInitializer.getParameterTypeName() == parameterTypeName)) {
 				return parameterInitializer;
 			}
 		}
 		return null;
 	}
 
-	public void removeParameterInitializer(int parameterPosition) {
+	public void removeParameterInitializer(int parameterPosition, String parameterTypeName) {
 		for (Iterator<ParameterInitializer> it = parameterInitializers.iterator(); it.hasNext();) {
 			ParameterInitializer parameterInitializer = it.next();
-			if (parameterInitializer.getParameterPosition() == parameterPosition) {
+			if ((parameterInitializer.getParameterPosition() == parameterPosition)
+					&& (parameterInitializer.getParameterTypeName() == parameterTypeName)) {
 				it.remove();
 			}
 		}
@@ -206,13 +209,16 @@ public class ObjectSpecification {
 	public static class ParameterInitializer {
 
 		private int parameterPosition;
+		private String parameterTypeName;
 		private Object parameterValue;
 
 		public ParameterInitializer() {
 		}
 
-		public ParameterInitializer(int parameterPosition, Object parameterValue) {
+		public ParameterInitializer(int parameterPosition, String parameterTypeName, Object parameterValue) {
+			super();
 			this.parameterPosition = parameterPosition;
+			this.parameterTypeName = parameterTypeName;
 			this.parameterValue = parameterValue;
 		}
 
@@ -222,6 +228,14 @@ public class ObjectSpecification {
 
 		public void setParameterPosition(int parameterPosition) {
 			this.parameterPosition = parameterPosition;
+		}
+
+		public String getParameterTypeName() {
+			return parameterTypeName;
+		}
+
+		public void setParameterTypeName(String parameterTypeName) {
+			this.parameterTypeName = parameterTypeName;
 		}
 
 		public Object getParameterValue() {
@@ -432,7 +446,7 @@ public class ObjectSpecification {
 		public void setSelectedConstructorSignature(String selectedConstructorSignature) {
 			objectSpecification.setSelectedConstructorSignature(selectedConstructorSignature);
 		}
-		
+
 		public List<String> getConstructorSignatureChoices() {
 			List<String> result = new ArrayList<String>();
 			Class<?> objectClass;
@@ -443,7 +457,7 @@ public class ObjectSpecification {
 			}
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
 			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
-			for(IMethodInfo constructor: typeInfo.getConstructors()) {
+			for (IMethodInfo constructor : typeInfo.getConstructors()) {
 				result.add(constructor.getSignature());
 			}
 			return result;
@@ -560,11 +574,23 @@ public class ObjectSpecification {
 		}
 
 		public ParameterInitializer getParameterInitializer() {
-			return parent.getObjectSpecification().getParameterInitializer(parameterPosition);
+			IParameterInfo parameter = getParameterInfo();
+			ParameterInitializer result = parent.getObjectSpecification().getParameterInitializer(parameterPosition,
+					parameter.getType().getName());
+			if (result == null) {
+				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
+						Utils.getDefaultInterpretableValue(parameter.getType()));
+				parent.getObjectSpecification().getParameterInitializers().add(result);
+			}
+			return result;
 		}
 
 		public int getParameterPosition() {
 			return parameterPosition;
+		}
+
+		public String getParameterTypeName() {
+			return getParameterInfo().getType().getName();
 		}
 
 		@Override
@@ -589,9 +615,6 @@ public class ObjectSpecification {
 
 		public ValueMode getParameterValueMode() {
 			ParameterInitializer parameterInitializer = getParameterInitializer();
-			if (parameterInitializer == null) {
-				return Utils.getValueMode(Utils.getDefaultInterpretableValue(getParameterInfo().getType()));
-			}
 			return Utils.getValueMode(parameterInitializer.getParameterValue());
 		}
 
@@ -620,9 +643,6 @@ public class ObjectSpecification {
 
 		public Object getParameterValue() {
 			ParameterInitializer parameterInitializer = getParameterInitializer();
-			if (parameterInitializer == null) {
-				return Utils.getDefaultInterpretableValue(getParameterInfo().getType());
-			}
 			return parameterInitializer.getParameterValue();
 		}
 
@@ -632,18 +652,7 @@ public class ObjectSpecification {
 				throw new AssertionError("Cannot set null to primitive field");
 			}
 			ParameterInitializer parameterInitializer = getParameterInitializer();
-			if (Utils.getDefaultInterpretableValue(parameter.getType()).equals(value)) {
-				if (parameterInitializer != null) {
-					parent.getObjectSpecification().removeParameterInitializer(parameterPosition);
-				}
-			} else {
-				if (parameterInitializer == null) {
-					parent.getObjectSpecification().getParameterInitializers()
-							.add(new ParameterInitializer(parameterPosition, value));
-				} else {
-					parameterInitializer.setParameterValue(value);
-				}
-			}
+			parameterInitializer.setParameterValue(value);
 		}
 
 		@Override

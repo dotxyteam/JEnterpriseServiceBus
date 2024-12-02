@@ -18,11 +18,13 @@ public class ObjectSpecificationTest {
 		public Tree() {
 		}
 
-		public Tree(int intValue, String stringValue, EnumValue enumValue, List<String> stringList, Tree firstChild,
-				Tree[] otherChildrenArray) {
+		public Tree(int intValue, String stringValue, EnumValue enumValue) {
 			this.intValue = intValue;
 			this.stringValue = stringValue;
 			this.enumValue = enumValue;
+		}
+
+		public Tree(List<String> stringList, Tree firstChild, Tree[] otherChildrenArray) {
 			this.stringList = stringList;
 			this.firstChild = firstChild;
 			this.otherChildrenArray = otherChildrenArray;

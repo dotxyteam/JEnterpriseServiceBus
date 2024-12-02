@@ -400,6 +400,80 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>75119e88:19389a8da45:-6ebe</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>removeParameterInitializer</methodName>
+            <methodSignature>void removeParameterInitializer(int, java.lang.String)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>75119e88:19389a8da45:-6ebc</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>75119e88:19389a8da45:-6ebb</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>integer</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>75119e88:19389a8da45:-6eba</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>75119e88:19389a8da45:-6eb9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>75119e88:19389a8da45:-6ebd</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getParameterInitializer</methodName>
+            <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>75119e88:19389a8da45:-6eb8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>75119e88:19389a8da45:-6eb7</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>integer</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>75119e88:19389a8da45:-6eb6</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>75119e88:19389a8da45:-6eb5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.ObjectSpecification</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
@@ -19085,6 +19159,7 @@
         <customFieldsOrder>parent</customFieldsOrder>
         <customFieldsOrder>parameterInitializer</customFieldsOrder>
         <customFieldsOrder>parameterPosition</customFieldsOrder>
+        <customFieldsOrder>parameterTypeName</customFieldsOrder>
         <customFieldsOrder>parameterValueMode</customFieldsOrder>
         <customFieldsOrder>parameterValue</customFieldsOrder>
         <customFieldsOrder>children</customFieldsOrder>
