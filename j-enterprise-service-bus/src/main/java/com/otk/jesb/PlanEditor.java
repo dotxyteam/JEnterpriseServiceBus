@@ -38,7 +38,7 @@ public class PlanEditor {
 		s1.setDiagramY(100);
 		ActivityBuilder ab1 = new ActivityBuilder();
 		s1.setActivityBuilder(ab1);
-		ab1.setObjectClassName(JDBCQueryActivity.class.getName());
+		ab1.setTypeName(JDBCQueryActivity.class.getName());
 		ab1.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("connection", c));
 		ab1.getFieldInitializers().add(
 				new ActivityBuilder.FieldInitializer("statement", "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES"));
@@ -50,7 +50,7 @@ public class PlanEditor {
 		s2.setDiagramY(100);
 		ActivityBuilder ab2 = new ActivityBuilder();
 		s2.setActivityBuilder(ab2);
-		ab2.setObjectClassName(WriteFileActivity.class.getName());
+		ab2.setTypeName(WriteFileActivity.class.getName());
 		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("text",
 				new ActivityBuilder.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"

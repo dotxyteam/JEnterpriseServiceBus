@@ -8,13 +8,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import com.otk.jesb.Plan.ExecutionContext.Property;
 
 import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.IInfo;
 import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.field.PublicFieldInfo;
+import xy.reflect.ui.info.method.DefaultMethodInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
@@ -25,7 +28,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class ObjectSpecification {
 
-	private String objectClassName;
+	private String typeName;
 	private List<ParameterInitializer> parameterInitializers = new ArrayList<ParameterInitializer>();
 	private List<FieldInitializer> fieldInitializers = new ArrayList<FieldInitializer>();
 	private List<ListItemInitializer> listItemInitializers = new ArrayList<ListItemInitializer>();
@@ -34,20 +37,20 @@ public class ObjectSpecification {
 	public ObjectSpecification() {
 	}
 
-	public ObjectSpecification(String objectClassName) {
-		this.objectClassName = objectClassName;
+	public ObjectSpecification(String typeName) {
+		this.typeName = typeName;
 	}
 
 	public ObjectSpecificationFacade getFacade() {
 		return new ObjectSpecificationFacade(null, this);
 	}
 
-	public String getObjectClassName() {
-		return objectClassName;
+	public String getTypeName() {
+		return typeName;
 	}
 
-	public void setObjectClassName(String objectClassName) {
-		this.objectClassName = objectClassName;
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 
 	public String getSelectedConstructorSignature() {
@@ -83,15 +86,13 @@ public class ObjectSpecification {
 	}
 
 	public Object build(Plan.ExecutionContext context) throws Exception {
-		Class<?> objectClass = Class.forName(objectClassName);
-		ReflectionUI reflectionUI = ReflectionUI.getDefault();
-		ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+		ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(typeName);
 		IMethodInfo constructor = Utils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			if (selectedConstructorSignature == null) {
-				throw new AssertionError("Cannot create '" + objectClassName + "' instance: No constructor available");
+				throw new AssertionError("Cannot create '" + typeName + "' instance: No constructor available");
 			} else {
-				throw new AssertionError("Cannot create '" + objectClassName + "' instance: Constructor not found: '"
+				throw new AssertionError("Cannot create '" + typeName + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}
@@ -121,8 +122,8 @@ public class ObjectSpecification {
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
-					ITypeInfo iterationListTypeInfo = reflectionUI
-							.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, iterationListValue.getClass(), null));
+					ITypeInfo iterationListTypeInfo = TypeInfoProvider
+							.getTypeInfo(iterationListValue.getClass().getName());
 					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
 								+ iterationListValue + "'");
@@ -431,12 +432,12 @@ public class ObjectSpecification {
 			}
 		}
 
-		public String getObjectClassName() {
-			return objectSpecification.getObjectClassName();
+		public String getTypeName() {
+			return objectSpecification.getTypeName();
 		}
 
-		public void setObjectClassName(String objectClassName) {
-			objectSpecification.setObjectClassName(objectClassName);
+		public void setTypeName(String typeName) {
+			objectSpecification.setTypeName(typeName);
 		}
 
 		public String getSelectedConstructorSignature() {
@@ -451,12 +452,11 @@ public class ObjectSpecification {
 			List<String> result = new ArrayList<String>();
 			Class<?> objectClass;
 			try {
-				objectClass = Class.forName(objectSpecification.getObjectClassName());
+				objectClass = Class.forName(objectSpecification.getTypeName());
 			} catch (ClassNotFoundException e) {
 				throw new AssertionError(e);
 			}
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(objectClass.getName());
 			for (IMethodInfo constructor : typeInfo.getConstructors()) {
 				result.add(constructor.getSignature());
 			}
@@ -470,14 +470,7 @@ public class ObjectSpecification {
 		@Override
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<ObjectSpecification.FacadeNode>();
-			Class<?> objectClass;
-			try {
-				objectClass = Class.forName(objectSpecification.getObjectClassName());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(objectSpecification.getTypeName());
 			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo,
 					objectSpecification.getSelectedConstructorSignature());
 			if (constructor != null) {
@@ -533,7 +526,7 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return "<" + objectSpecification.getObjectClassName() + ">";
+			return "<" + objectSpecification.getTypeName() + ">";
 		}
 
 	}
@@ -557,14 +550,7 @@ public class ObjectSpecification {
 		}
 
 		public IParameterInfo getParameterInfo() {
-			Class<?> objectClass;
-			try {
-				objectClass = Class.forName(parent.getObjectSpecification().getObjectClassName());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getObjectSpecification().getTypeName());
 			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo,
 					parent.getObjectSpecification().getSelectedConstructorSignature());
 			if (constructor == null) {
@@ -587,6 +573,10 @@ public class ObjectSpecification {
 
 		public int getParameterPosition() {
 			return parameterPosition;
+		}
+
+		public String getParameterName() {
+			return getParameterInfo().getName();
 		}
 
 		public String getParameterTypeName() {
@@ -667,7 +657,7 @@ public class ObjectSpecification {
 
 		@Override
 		public String toString() {
-			return "(" + parameterPosition + ": " + getParameterInfo().getType().getName() + ")";
+			return "(" + getParameterInfo().getName() + ")";
 		}
 
 	}
@@ -699,14 +689,7 @@ public class ObjectSpecification {
 		}
 
 		public IFieldInfo getFieldInfo() {
-			Class<?> objectClass;
-			try {
-				objectClass = Class.forName(parent.getObjectSpecification().getObjectClassName());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, objectClass, null));
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getObjectSpecification().getTypeName());
 			return ReflectionUIUtils.findInfoByName(typeInfo.getFields(), fieldName);
 		}
 
@@ -716,6 +699,10 @@ public class ObjectSpecification {
 
 		public String getFieldName() {
 			return fieldName;
+		}
+
+		public String getFieldTypeName() {
+			return getFieldInfo().getType().getName();
 		}
 
 		public void setFieldName(String fieldName) {
@@ -865,6 +852,14 @@ public class ObjectSpecification {
 			return index;
 		}
 
+		public String getItemTypeName() {
+			ITypeInfo itemType = getItemType();
+			if(itemType == null) {
+				return null;
+			}
+			return itemType.getName();
+		}
+
 		public ListItemReplicationFacade getItemReplicationFacade() {
 			ListItemInitializer listItemInitializer = getListItemInitializer();
 			if (listItemInitializer == null) {
@@ -967,30 +962,13 @@ public class ObjectSpecification {
 		}
 
 		public ITypeInfo getItemType() {
-			Class<?> objectClass;
-			try {
-				objectClass = Class.forName(parent.getObjectSpecification().getObjectClassName());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			JavaTypeInfoSource javaTypeInfoSource;
+			IFieldInfo listFieldInfo = null;
 			if (parent.getParent() instanceof FieldInitializerFacade) {
 				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent.getParent();
-				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
-				if (listFieldInfo instanceof GetterFieldInfo) {
-					Method listGetterMethod = ((GetterFieldInfo) listFieldInfo).getJavaGetterMethod();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, listGetterMethod, -1, null);
-				} else if (listFieldInfo instanceof PublicFieldInfo) {
-					Field listField = ((PublicFieldInfo) listFieldInfo).getJavaField();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, listField, -1, null);
-				} else {
-					throw new AssertionError();
-				}
-			} else {
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
+				listFieldInfo = listFieldInitializerFacade.getFieldInfo();
 			}
-			ITypeInfo typeInfo = reflectionUI.buildTypeInfo(javaTypeInfoSource);
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getObjectSpecification().getTypeName(),
+					listFieldInfo);
 			return ((IListTypeInfo) typeInfo).getItemType();
 		}
 
@@ -1091,6 +1069,53 @@ public class ObjectSpecification {
 			}
 			listItemReplication.setIterationListValue(iterationListValue);
 		}
+	}
+
+	public static class TypeInfoProvider {
+
+		private static WeakHashMap<Object, ITypeInfo> typeBySource = new WeakHashMap<Object, ITypeInfo>();
+
+		public static ITypeInfo getTypeInfo(String typeName) {
+			return getTypeInfo(typeName, null);
+		}
+
+		public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
+			for (ITypeInfo type : typeBySource.values()) {
+				if (type.getName().equals(typeName)) {
+					return type;
+				}
+			}
+			Class<?> objectClass;
+			try {
+				objectClass = Class.forName(typeName);
+			} catch (ClassNotFoundException e) {
+				throw new AssertionError(e);
+			}
+			ReflectionUI reflectionUI = ReflectionUI.getDefault();
+			JavaTypeInfoSource javaTypeInfoSource;
+			if (typeOwner != null) {
+				if (typeOwner instanceof GetterFieldInfo) {
+					Method javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
+					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				} else if (typeOwner instanceof PublicFieldInfo) {
+					Field javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
+					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				} else if (typeOwner instanceof DefaultMethodInfo) {
+					Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
+					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				} else {
+					throw new AssertionError();
+				}
+			} else {
+				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
+			}
+			return reflectionUI.buildTypeInfo(javaTypeInfoSource);
+		}
+
+		public void register(ITypeInfo type, Object source) {
+			typeBySource.put(source, type);
+		}
+
 	}
 
 }

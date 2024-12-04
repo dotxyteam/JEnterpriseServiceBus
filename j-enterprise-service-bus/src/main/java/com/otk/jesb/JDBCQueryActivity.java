@@ -31,7 +31,7 @@ public class JDBCQueryActivity implements Activity {
 		Statement = statement;
 	}
 
-	List<JDBCConnectionResource> getconnectionChoices(){
+	List<JDBCConnectionResource> getconnectionChoices() {
 		return Workspace.JDBC_CONNECTIONS;
 	}
 
@@ -69,7 +69,7 @@ public class JDBCQueryActivity implements Activity {
 		public List<String> getColumnNames() {
 			return new ArrayList<String>(cellValues.keySet());
 		}
-		
+
 		public Object getCellValue(String columnName) {
 			return cellValues.get(columnName);
 		}
