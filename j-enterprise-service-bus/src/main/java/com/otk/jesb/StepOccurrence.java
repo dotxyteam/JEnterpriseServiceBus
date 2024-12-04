@@ -1,16 +1,14 @@
 package com.otk.jesb;
 
-import com.otk.jesb.Activity.Result;
-
 public class StepOccurrence implements Plan.ExecutionContext.Property{
 
 	private Step step;
-	private Activity.Result activityResult;
+	private ActivityResult activityResult;
 
 	public StepOccurrence() {
 	}
 
-	public StepOccurrence(Step step, Result activityResult) {
+	public StepOccurrence(Step step, ActivityResult activityResult) {
 		this.step = step;
 		this.activityResult = activityResult;
 	}
@@ -19,7 +17,7 @@ public class StepOccurrence implements Plan.ExecutionContext.Property{
 		return step;
 	}
 
-	public Activity.Result getActivityResult() {
+	public ActivityResult getActivityResult() {
 		return activityResult;
 	}
 

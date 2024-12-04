@@ -3,6 +3,8 @@ package com.otk.jesb;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.otk.jesb.Plan.ExecutionContext;
+
 public class WriteFileActivity implements Activity {
 
 	private String filePath;
@@ -34,7 +36,7 @@ public class WriteFileActivity implements Activity {
 	}
 
 	@Override
-	public Result execute() throws IOException {
+	public ActivityResult execute() throws IOException {
 		FileWriter fw = new FileWriter(filePath, append);
 		try {
 			fw.write(text);
@@ -45,6 +47,25 @@ public class WriteFileActivity implements Activity {
 			}
 		}
 		return null;
+	}
+
+	public static class Builder implements ActivityBuilder {
+
+		private ObjectSpecification objectSpecification = new ObjectSpecification(WriteFileActivity.class.getName());
+
+		public ObjectSpecification getObjectSpecification() {
+			return objectSpecification;
+		}
+
+		public void setObjectSpecification(ObjectSpecification objectSpecification) {
+			this.objectSpecification = objectSpecification;
+		}
+
+		@Override
+		public Activity build(ExecutionContext context) throws Exception {
+			return (WriteFileActivity)objectSpecification.build(context);
+		}
+
 	}
 
 }

@@ -5,7 +5,7 @@
 	. advertise
 	. improve the features
 - show parameter name in ObjectSpecification
-- allow to have dynamic input and output for activities like JDBCQuesry etc 
+- allow to have dynamically created classes for output of activities like JDBCQuesry etc 
 - add script edition assistance:
 	. allow to select a data source node that will generate a script
 - add XML support
@@ -24,17 +24,7 @@
 - allow to monitor the execution of deployed projects
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
-- using ObjectSpecification to create activities is not necessarily a good idea:
-the activity configuration may not be known at design time. It would prevent
-from determining contextual or dynamic input and output of activities that
-would depend on a concrete configuration. For instance, you cannot 
-determine the structure of a JDBC query result set without using the 
-concrete JDBC connection resource to connect to the database and fetch
-the metadata of the query result. TIBCO BW solves this problem by using 2 kinds
-of configuration for each activity: the static configuration for which values
-are known during the design phase, and the dynamic configuration for which
-values will be determined during the execution phase. Note that some 
-configuration items are both static and dynamic and the dynamic setting
-overrides the static setting. The solution my be to force activity developers
-to provides 3 classes: an ActivityBuiler class, an Activity class and an 
-ActivityResult class.
+- improve JDBCQueryActivity:
+	. dynamic result
+	. check parameter type mappings
+	. allow to dynamically create the statement

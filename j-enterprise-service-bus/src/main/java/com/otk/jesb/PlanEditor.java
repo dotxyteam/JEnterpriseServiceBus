@@ -36,27 +36,26 @@ public class PlanEditor {
 		s1.setName("a");
 		s1.setDiagramX(100);
 		s1.setDiagramY(100);
-		ActivityBuilder ab1 = new ActivityBuilder();
+		JDBCQueryActivity.Builder ab1 = new JDBCQueryActivity.Builder();
 		s1.setActivityBuilder(ab1);
-		ab1.setTypeName(JDBCQueryActivity.class.getName());
-		ab1.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("connection", c));
-		ab1.getFieldInitializers().add(
-				new ActivityBuilder.FieldInitializer("statement", "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES"));
+		ab1.setConnectionPath(JDBCQueryActivity.Builder.getConnectionPathChoices().get(0));
+		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
 		Step s2 = new Step();
 		plan.getSteps().add(s2);
 		s2.setName("w");
 		s2.setDiagramX(200);
 		s2.setDiagramY(100);
-		ActivityBuilder ab2 = new ActivityBuilder();
+		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
-		ab2.setTypeName(WriteFileActivity.class.getName());
-		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("filePath", "tmp/test.txt"));
-		ab2.getFieldInitializers().add(new ActivityBuilder.FieldInitializer("text",
-				new ActivityBuilder.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
-						+ "for(com.otk.jesb.JDBCQueryActivity.JDBCQueryActivityResultRow row: a.getRows()){\n"
-						+ "  s.append(row.getCellValue(\"TABLE_NAME\") + \", \");\n" + "}\n"
-						+ "return s.toString();")));
+		ab2.getObjectSpecification().getFieldInitializers()
+				.add(new ObjectSpecification.FieldInitializer("filePath", "tmp/test.txt"));
+		ab2.getObjectSpecification().getFieldInitializers()
+				.add(new ObjectSpecification.FieldInitializer("text",
+						new ObjectSpecification.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
+								+ "for(com.otk.jesb.JDBCQueryActivity.ResultRow row: a.getRows()){\n"
+								+ "  s.append(row.getCellValue(\"TABLE_NAME\") + \", \");\n" + "}\n"
+								+ "return s.toString();")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);

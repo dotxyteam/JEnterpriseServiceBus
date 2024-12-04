@@ -84,7 +84,7 @@ public class Plan implements FolderContent {
 
 	private void execute(Step step, ExecutionContext context) throws Exception {
 		Activity activity = step.getActivityBuilder().build(context);
-		Activity.Result activityResult = activity.execute();
+		ActivityResult activityResult = activity.execute();
 		context.getProperties().add(new StepOccurrence(step, activityResult));
 	}
 

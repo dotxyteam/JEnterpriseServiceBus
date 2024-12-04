@@ -10,6 +10,7 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.MiscUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class Utils {
@@ -89,6 +90,10 @@ public class Utils {
 		} else {
 			return new ObjectSpecification(type.getName());
 		}
+	}
+
+	public static String getUniqueIdentifier() {
+		return MiscUtils.getUniqueID();
 	}
 
 }

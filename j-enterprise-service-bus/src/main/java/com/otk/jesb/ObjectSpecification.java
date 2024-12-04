@@ -450,13 +450,7 @@ public class ObjectSpecification {
 
 		public List<String> getConstructorSignatureChoices() {
 			List<String> result = new ArrayList<String>();
-			Class<?> objectClass;
-			try {
-				objectClass = Class.forName(objectSpecification.getTypeName());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(objectClass.getName());
+			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(objectSpecification.getTypeName());
 			for (IMethodInfo constructor : typeInfo.getConstructors()) {
 				result.add(constructor.getSignature());
 			}
@@ -703,10 +697,6 @@ public class ObjectSpecification {
 
 		public String getFieldTypeName() {
 			return getFieldInfo().getType().getName();
-		}
-
-		public void setFieldName(String fieldName) {
-			this.fieldName = fieldName;
 		}
 
 		public DynamicValue getCondition() {
@@ -1112,7 +1102,7 @@ public class ObjectSpecification {
 			return reflectionUI.buildTypeInfo(javaTypeInfoSource);
 		}
 
-		public void register(ITypeInfo type, Object source) {
+		public static void register(ITypeInfo type, Object source) {
 			typeBySource.put(source, type);
 		}
 
