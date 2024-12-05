@@ -4,7 +4,6 @@
 	. release a first version
 	. advertise
 	. improve the features
-- show parameter name in ObjectSpecification
 - allow to have dynamically created classes for output of activities like JDBCQuesry etc 
 - add script edition assistance:
 	. allow to select a data source node that will generate a script

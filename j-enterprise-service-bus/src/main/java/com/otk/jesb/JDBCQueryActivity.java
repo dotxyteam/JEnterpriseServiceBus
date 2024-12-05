@@ -14,11 +14,11 @@ import java.util.Map;
 
 import com.otk.jesb.Plan.ExecutionContext;
 
-import xy.reflect.ui.info.field.FieldInfoProxy;
-import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.BasicTypeInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -112,57 +112,53 @@ public class JDBCQueryActivity implements Activity {
 						}
 
 						@Override
+						public List<IParameterInfo> getParameters() {
+							List<IParameterInfo> result = new ArrayList<IParameterInfo>();
+							for (int i = 0; i < parameterDefinitions.size(); i++) {
+								ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+								result.add(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+									@Override
+									public String getName() {
+										return parameterDefinition.getParameterName();
+									}
+
+									@Override
+									public String getCaption() {
+										return parameterDefinition.getParameterName();
+									}
+
+									@Override
+									public ITypeInfo getType() {
+										return ReflectionUIUtils
+												.buildTypeInfo(parameterDefinition.getParameterTypeName());
+									}
+
+									@Override
+									public Object getDefaultValue(Object object) {
+										ITypeInfo type = getType();
+										if (ReflectionUIUtils.canCreateDefaultInstance(type, true)) {
+											return ReflectionUIUtils.createDefaultInstance(type, true);
+										} else {
+											return null;
+										}
+									}
+
+								});
+							}
+							return result;
+						}
+
+						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							return new ArrayList<Object>();
+							List<Object> result = new ArrayList<Object>();
+							for(int i=0; i<getParameters().size(); i++) {
+								result.add(invocationData.getParameterValue(i));
+							}
+							return result;
 						}
 
 					});
-				}
-
-				@Override
-				public List<IFieldInfo> getFields() {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
-					for (int i = 0; i < parameterDefinitions.size(); i++) {
-						final int finalI = i;
-						ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-
-							@SuppressWarnings("unchecked")
-							@Override
-							public Object getValue(Object object) {
-								return ((List<Object>) object).get(finalI);
-							}
-
-							@SuppressWarnings("unchecked")
-							@Override
-							public void setValue(Object object, Object value) {
-								((List<Object>) object).set(finalI, value);
-							}
-
-							@Override
-							public boolean isGetOnly() {
-								return false;
-							}
-
-							@Override
-							public ITypeInfo getType() {
-								return ReflectionUIUtils
-										.getStandardTypeInfo(parameterDefinition.getParameterTypeName());
-							}
-
-							@Override
-							public String getName() {
-								return parameterDefinition.getParameterName();
-							}
-
-							@Override
-							public String getCaption() {
-								return parameterDefinition.getParameterName();
-							}
-
-						});
-					}
-					return result;
 				}
 
 			};
@@ -174,7 +170,7 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setUniqueIdentifier(String uniqueIdentifier) {
 			this.uniqueIdentifier = uniqueIdentifier;
-			parameterValuesSpecification.setTypeName(parameterValuesTypeInfo.getName());			
+			parameterValuesSpecification.setTypeName(parameterValuesTypeInfo.getName());
 		}
 
 		public String getConnectionPath() {
@@ -214,7 +210,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		public void setParameterValuesSpecification(ObjectSpecification parameterValuesSpecification) {
-			if(parameterValuesSpecification == null) {
+			if (parameterValuesSpecification == null) {
 				throw new AssertionError();
 			}
 			this.parameterValuesSpecification = parameterValuesSpecification;

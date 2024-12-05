@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.diagram.JConnection;
@@ -86,7 +87,7 @@ public class PlanEditor {
 		panel.setLayout(new BorderLayout());
 		diagram = createDiagram();
 		panel.add(diagram, BorderLayout.CENTER);
-		panel.add(form = createForm(), BorderLayout.WEST);
+		panel.add(new JScrollPane(form = createForm()), BorderLayout.WEST);
 		form.getModificationStack().addListener(new AbstractSimpleModificationListener() {
 			@Override
 			protected void handleAnyEvent(IModification modification) {
