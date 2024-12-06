@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.otk.jesb.Plan.ExecutionContext.Property;
@@ -844,7 +846,7 @@ public class ObjectSpecification {
 
 		public String getItemTypeName() {
 			ITypeInfo itemType = getItemType();
-			if(itemType == null) {
+			if (itemType == null) {
 				return null;
 			}
 			return itemType.getName();
@@ -1063,7 +1065,9 @@ public class ObjectSpecification {
 
 	public static class TypeInfoProvider {
 
-		private static WeakHashMap<Object, ITypeInfo> typeBySource = new WeakHashMap<Object, ITypeInfo>();
+		private static Map<Object, ITypeInfo> typeBySource = new WeakHashMap<Object, ITypeInfo>();
+		private static Set<ClassLoader> additionalClassLoaders = Collections
+				.newSetFromMap(new WeakHashMap<ClassLoader, Boolean>());
 
 		public static ITypeInfo getTypeInfo(String typeName) {
 			return getTypeInfo(typeName, null);
@@ -1075,11 +1079,20 @@ public class ObjectSpecification {
 					return type;
 				}
 			}
-			Class<?> objectClass;
+			Class<?> objectClass = null;
 			try {
 				objectClass = Class.forName(typeName);
 			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
+				for (ClassLoader classLoader : additionalClassLoaders) {
+					try {
+						objectClass = Class.forName(typeName, false, classLoader);
+						break;
+					} catch (ClassNotFoundException ignore) {
+					}
+				}
+			}
+			if (objectClass == null) {
+				throw new AssertionError(new ClassNotFoundException(typeName));
 			}
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
 			JavaTypeInfoSource javaTypeInfoSource;
@@ -1104,6 +1117,10 @@ public class ObjectSpecification {
 
 		public static void register(ITypeInfo type, Object source) {
 			typeBySource.put(source, type);
+		}
+
+		public static void register(ClassLoader classLoader) {
+			additionalClassLoaders.add(classLoader);
 		}
 
 	}

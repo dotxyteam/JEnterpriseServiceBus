@@ -101,7 +101,9 @@ public class Utils {
 
 	public static Class<?> createClass(String className, String javaSource, ClassLoader parentClassLoader) {
 		try {
-			return new MemoryClassLoader(parentClassLoader).compileAndLoad(className, javaSource);
+			com.javax0.jscc.Compiler compiler = new com.javax0.jscc.Compiler();
+			compiler.setClassLoader(parentClassLoader);
+			return compiler.compile(javaSource, className);
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}

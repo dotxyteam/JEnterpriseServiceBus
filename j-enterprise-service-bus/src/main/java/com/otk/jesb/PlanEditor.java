@@ -54,7 +54,7 @@ public class PlanEditor {
 		ab2.getObjectSpecification().getFieldInitializers()
 				.add(new ObjectSpecification.FieldInitializer("text",
 						new ObjectSpecification.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
-								+ "for(com.otk.jesb.JDBCQueryActivity.ResultRow row: a.getRows()){\n"
+								+ "for(com.otk.jesb.JDBCQueryActivity.GenericResultRow row: a.getRows()){\n"
 								+ "  s.append(row.getCellValues().get(\"TABLE_NAME\") + \", \");\n" + "}\n"
 								+ "return s.toString();")));
 
