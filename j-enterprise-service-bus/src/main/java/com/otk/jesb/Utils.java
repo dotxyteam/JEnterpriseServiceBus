@@ -101,8 +101,9 @@ public class Utils {
 
 	public static Class<?> createClass(String className, String javaSource, ClassLoader parentClassLoader) {
 		try {
-			com.javax0.jscc.Compiler compiler = new com.javax0.jscc.Compiler();
+			com.otk.jesb.compiler.Compiler compiler = new com.otk.jesb.compiler.Compiler();
 			compiler.setClassLoader(parentClassLoader);
+			compiler.setOptions("-parameters");
 			return compiler.compile(javaSource, className);
 		} catch (Exception e) {
 			throw new AssertionError(e);
