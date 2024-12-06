@@ -1,5 +1,8 @@
 package com.otk.jesb;
 
+import java.math.BigInteger;
+import java.util.UUID;
+
 import com.otk.jesb.ObjectSpecification.DynamicValue;
 import com.otk.jesb.ObjectSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -10,18 +13,23 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.util.ClassUtils;
-import xy.reflect.ui.util.MiscUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class Utils {
 
-	public static Object executeScript(String code, Plan.ExecutionContext context) {
+	public static Object executeScript(String script, Plan.ExecutionContext context) {
 		Binding binding = new Binding();
-		for (Plan.ExecutionContext.Property property : context.getProperties()) {
-			binding.setVariable(property.getName(), property.getValue());
-		}
 		GroovyShell shell = new GroovyShell(binding);
-		return shell.evaluate(code);
+		for (Plan.ExecutionContext.Property property : context.getProperties()) {
+			Object value = property.getValue();
+			binding.setVariable(property.getName(), value);
+			if (value instanceof VirtualClassInstance) {
+				value = shell.evaluate(((VirtualClassInstance) value).getVirtualClassDescription()
+						.generateInstanciationScript(property.getName()));
+			}
+			binding.setVariable(property.getName(), value);
+		}
+		return shell.evaluate(script);
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -92,8 +100,8 @@ public class Utils {
 		}
 	}
 
-	public static String getUniqueIdentifier() {
-		return MiscUtils.getUniqueID();
+	public static String getDigitalUniqueIdentifier() {
+		return String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16));
 	}
 
 }

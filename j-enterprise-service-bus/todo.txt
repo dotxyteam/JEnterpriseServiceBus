@@ -27,3 +27,8 @@
 	. dynamic result
 	. check parameter type mappings
 	. allow to dynamically create the statement
+	. the Builder.uniqueIdentifier should not contain charcaters invalid for class name
+- some modifications can disappear from the UI when 
+ObjectSpecification.(className|selectedConstructorSIgnature) are modified. It may be better
+to display incoherent nodes with an error marker
+- to ease co-working plans and resources must be stored in separate files  
