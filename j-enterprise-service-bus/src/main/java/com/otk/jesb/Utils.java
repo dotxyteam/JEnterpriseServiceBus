@@ -23,11 +23,6 @@ public class Utils {
 		for (Plan.ExecutionContext.Property property : context.getProperties()) {
 			Object value = property.getValue();
 			binding.setVariable(property.getName(), value);
-			if (value instanceof VirtualClassInstance) {
-				value = shell.evaluate(((VirtualClassInstance) value).getVirtualClassDescription()
-						.generateInstanciationScript(property.getName()));
-			}
-			binding.setVariable(property.getName(), value);
 		}
 		return shell.evaluate(script);
 	}
@@ -102,6 +97,14 @@ public class Utils {
 
 	public static String getDigitalUniqueIdentifier() {
 		return String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16));
+	}
+
+	public static Class<?> createClass(String className, String javaSource, ClassLoader parentClassLoader) {
+		try {
+			return new MemoryClassLoader(parentClassLoader).compileAndLoad(className, javaSource);
+		} catch (Exception e) {
+			throw new AssertionError(e);
+		}
 	}
 
 }

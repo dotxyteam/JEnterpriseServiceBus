@@ -8,35 +8,17 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.otk.jesb.Plan.ExecutionContext;
-
-import xy.reflect.ui.ReflectionUI;
-import xy.reflect.ui.info.field.FieldInfoProxy;
-import xy.reflect.ui.info.field.IFieldInfo;
-import xy.reflect.ui.info.method.IMethodInfo;
-import xy.reflect.ui.info.method.InvocationData;
-import xy.reflect.ui.info.method.MethodInfoProxy;
-import xy.reflect.ui.info.parameter.IParameterInfo;
-import xy.reflect.ui.info.parameter.ParameterInfoProxy;
-import xy.reflect.ui.info.type.BasicTypeInfoProxy;
-import xy.reflect.ui.info.type.DefaultTypeInfo;
-import xy.reflect.ui.info.type.ITypeInfo;
-import xy.reflect.ui.info.type.iterable.StandardCollectionTypeInfo;
-import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
-import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class JDBCQueryActivity implements Activity {
 
 	private JDBCConnectionResource connection;
 	private String statement;
-	private List<Object> parameterValues;
+	private ParameterValues parameterValues;
 	private String builderUniqueIdentifier;
-	private List<ColumnDefinition> resultColumnDefinitions;
+	private Class<? extends ActivityResult> resultClass;
 
 	public JDBCConnectionResource getConnection() {
 		return connection;
@@ -54,11 +36,11 @@ public class JDBCQueryActivity implements Activity {
 		this.statement = statement;
 	}
 
-	public List<Object> getParameterValues() {
+	public ParameterValues getParameterValues() {
 		return parameterValues;
 	}
 
-	public void setParameterValues(List<Object> parameterValues) {
+	public void setParameterValues(ParameterValues parameterValues) {
 		this.parameterValues = parameterValues;
 	}
 
@@ -70,27 +52,24 @@ public class JDBCQueryActivity implements Activity {
 		this.builderUniqueIdentifier = builderUniqueIdentifier;
 	}
 
-	public List<ColumnDefinition> getResultColumnDefinitions() {
-		return resultColumnDefinitions;
+	public Class<? extends ActivityResult> getResultClass() {
+		return resultClass;
 	}
 
-	public void setResultColumnDefinitions(List<ColumnDefinition> resultColumnDefinitions) {
-		this.resultColumnDefinitions = resultColumnDefinitions;
+	public void setResultClass(Class<? extends ActivityResult> resultClass) {
+		this.resultClass = resultClass;
 	}
 
 	@Override
-	public Result execute() throws Exception {
+	public ActivityResult execute() throws Exception {
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
-		if(preparedStatement.getParameterMetaData().getParameterCount() != parameterValues.size()) {
-			throw new AssertionError();
-		}
-		for (int i = 0; i < parameterValues.size(); i++) {
-			preparedStatement.setObject(i + 1, parameterValues.get(i));
+		for (int i = 0; i < preparedStatement.getParameterMetaData().getParameterCount(); i++) {
+			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
 		}
 		ResultSet resultSet = preparedStatement.executeQuery();
-		Result result = new Result(resultSet, resultColumnDefinitions, builderUniqueIdentifier);
+		ActivityResult result = (ActivityResult) resultClass.getConstructor().newInstance(resultSet);
 		return result;
 	}
 
@@ -101,88 +80,121 @@ public class JDBCQueryActivity implements Activity {
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 		private ObjectSpecification parameterValuesSpecification = new ObjectSpecification();
-		private ITypeInfo parameterValuesTypeInfo;
 		private List<ColumnDefinition> resultColumnDefinitions;
 
+		private Class<? extends ActivityResult> resultClass;
+		private Class<?> resultRowClass;
+		private Class<? extends ParameterValues> parameterValuesClass;
+
 		public Builder() {
-			parameterValuesTypeInfo = createParameterValuesTypeInfo();
-			parameterValuesSpecification.setTypeName(parameterValuesTypeInfo.getName());
-			ObjectSpecification.TypeInfoProvider.register(parameterValuesTypeInfo, this);
+			createDynamicClasses();
+			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
-		private ITypeInfo createParameterValuesTypeInfo() {
-			return new BasicTypeInfoProxy(ITypeInfo.NULL_BASIC_TYPE_INFO) {
+		private void createDynamicClasses() {
+			parameterValuesClass = createParameterValuesClass();
+			resultRowClass = createResultRowClass();
+			resultClass = createResultClass();
+		}
 
-				@Override
-				public String getName() {
-					return JDBCQueryActivity.class.getName() + "ParameterValues" + uniqueIdentifier;
-				}
+		private Class<?> createResultRowClass() {
+			StringBuilder javaSource = new StringBuilder();
+			String resultRowClassName = JDBCQueryActivity.class.getSimpleName() + "ResultRow" + uniqueIdentifier;
+			javaSource.append("public class " + resultRowClassName + "{" + "\n");
+			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
+				ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
+				javaSource.append("  private " + columnDefinition.getColumnTypeName() + " "
+						+ columnDefinition.getColumnName() + ";\n");
+			}
+			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
+				ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
+				String getterMethoName = "get" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
+						+ columnDefinition.getColumnName().substring(1);
+				String setterMethoName = "set" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
+						+ columnDefinition.getColumnName().substring(1);
+				javaSource.append("  public " + columnDefinition.getColumnTypeName() + getterMethoName + "() {" + "\n");
+				javaSource.append("    return " + columnDefinition.getColumnName() + ";" + "\n");
+				javaSource.append("  }" + "\n");
+				javaSource.append("  public void " + setterMethoName + "(" + columnDefinition.getColumnTypeName()
+						+ " value) {" + "\n");
+				javaSource.append("    this. " + columnDefinition.getColumnName() + " = value;" + "\n");
+				javaSource.append("  }" + "\n");
+			}
+			javaSource.append("}" + "\n");
+			return Utils.createClass(resultRowClassName, javaSource.toString(),
+					JDBCQueryActivity.class.getClassLoader());
+		}
 
-				@Override
-				public List<IMethodInfo> getConstructors() {
-					return Collections.singletonList(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+		@SuppressWarnings("unchecked")
+		private Class<? extends ActivityResult> createResultClass() {
+			if (resultColumnDefinitions == null) {
+				return null;
+			}
+			String resultClassName = JDBCQueryActivity.class.getSimpleName() + "Result" + uniqueIdentifier;
+			String resultRowClassName = resultRowClass.getName();
+			StringBuilder javaSource = new StringBuilder();
+			javaSource.append("public class " + resultClassName + "{" + "\n");
+			javaSource.append("  private " + List.class.getName() + "<" + resultRowClassName + "> rows = new "
+					+ ArrayList.class.getName() + "<" + resultRowClassName + ">();\n");
+			javaSource.append("  public " + resultClassName + "(" + ResultSet.class.getName() + " resultSet){\n");
+			javaSource.append("    while (resultSet.next()) {\n");
+			javaSource.append("      " + resultRowClassName + " row = new " + resultRowClassName + "();;\n");
+			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
+				ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
+				String setterMethodName = "set" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
+						+ columnDefinition.getColumnName().substring(1);
+				javaSource.append("      row." + setterMethodName + "((" + columnDefinition.getColumnTypeName()
+						+ ")resultSet.getObject(\"" + columnDefinition.getColumnName() + "\"));\n");
+			}
+			javaSource.append("      rows.add(row);\n");
+			javaSource.append("    };\n");
+			javaSource.append("  };\n");
+			javaSource.append("  public " + resultRowClassName + " getRows(){\n");
+			javaSource.append("    return rows;\n");
+			javaSource.append("  };\n");
+			javaSource.append("}" + "\n");
+			return (Class<? extends ActivityResult>) Utils.createClass(resultClassName, javaSource.toString(),
+					resultRowClass.getClassLoader());
+		}
 
-						@Override
-						public String getName() {
-							return "";
-						}
+		@SuppressWarnings("unchecked")
+		private Class<? extends ParameterValues> createParameterValuesClass() {
+			String className = JDBCQueryActivity.class.getSimpleName() + "ParameterValues" + uniqueIdentifier;
+			StringBuilder javaSource = new StringBuilder();
+			javaSource.append(
+					"public class " + className + " implements " + ParameterValues.class.getName() + "{" + "\n");
+			for (int i = 0; i < parameterDefinitions.size(); i++) {
+				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+				javaSource.append("  private " + parameterDefinition.getParameterTypeName() + " "
+						+ parameterDefinition.getParameterName() + ";\n");
+			}
+			for (int i = 0; i < parameterDefinitions.size(); i++) {
+				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+				String getterMethoName = "get" + parameterDefinition.getParameterName().substring(0, 1).toUpperCase()
+						+ parameterDefinition.getParameterName().substring(1);
+				String setterMethoName = "set" + parameterDefinition.getParameterName().substring(0, 1).toUpperCase()
+						+ parameterDefinition.getParameterName().substring(1);
+				javaSource.append(
+						"  public " + parameterDefinition.getParameterTypeName() + getterMethoName + "() {" + "\n");
+				javaSource.append("    return " + parameterDefinition.getParameterName() + ";" + "\n");
+				javaSource.append("  }" + "\n");
+				javaSource.append("  public void " + setterMethoName + "(" + parameterDefinition.getParameterTypeName()
+						+ " value) {" + "\n");
+				javaSource.append("    this. " + parameterDefinition.getParameterName() + " = value;" + "\n");
+				javaSource.append("  }" + "\n");
+			}
+			javaSource.append("  public Object getParameterValueByIndex(int i) {" + "\n");
+			for (int i = 0; i < parameterDefinitions.size(); i++) {
+				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+				javaSource
+						.append("    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
+			}
+			javaSource.append("    throw new " + AssertionError.class.getName() + "();" + "\n");
+			javaSource.append("  }" + "\n");
 
-						@Override
-						public String getSignature() {
-							return ReflectionUIUtils.buildMethodSignature(this);
-						}
-
-						@Override
-						public List<IParameterInfo> getParameters() {
-							List<IParameterInfo> result = new ArrayList<IParameterInfo>();
-							for (int i = 0; i < parameterDefinitions.size(); i++) {
-								ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-								result.add(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
-
-									@Override
-									public String getName() {
-										return parameterDefinition.getParameterName();
-									}
-
-									@Override
-									public String getCaption() {
-										return parameterDefinition.getParameterName();
-									}
-
-									@Override
-									public ITypeInfo getType() {
-										return ReflectionUIUtils
-												.buildTypeInfo(parameterDefinition.getParameterTypeName());
-									}
-
-									@Override
-									public Object getDefaultValue(Object object) {
-										ITypeInfo type = getType();
-										if (ReflectionUIUtils.canCreateDefaultInstance(type, true)) {
-											return ReflectionUIUtils.createDefaultInstance(type, true);
-										} else {
-											return null;
-										}
-									}
-
-								});
-							}
-							return result;
-						}
-
-						@Override
-						public Object invoke(Object object, InvocationData invocationData) {
-							List<Object> result = new ArrayList<Object>();
-							for (int i = 0; i < getParameters().size(); i++) {
-								result.add(invocationData.getParameterValue(i));
-							}
-							return result;
-						}
-
-					});
-				}
-
-			};
+			javaSource.append("}" + "\n");
+			return (Class<? extends ParameterValues>) Utils.createClass(className, javaSource.toString(),
+					JDBCQueryActivity.class.getClassLoader());
 		}
 
 		public String getUniqueIdentifier() {
@@ -191,7 +203,8 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setUniqueIdentifier(String uniqueIdentifier) {
 			this.uniqueIdentifier = uniqueIdentifier;
-			parameterValuesSpecification.setTypeName(parameterValuesTypeInfo.getName());
+			createDynamicClasses();
+			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
 		public String getConnectionPath() {
@@ -250,7 +263,7 @@ public class JDBCQueryActivity implements Activity {
 			this.resultColumnDefinitions = new ArrayList<ColumnDefinition>();
 			for (int i = 0; i < metaData.getColumnCount(); i++) {
 				this.resultColumnDefinitions
-						.add(new ColumnDefinition(metaData.getColumnName(i + 1), metaData.getColumnClassName(i + 1)));
+						.add(new ColumnDefinition(metaData.getColumnLabel(i + 1), metaData.getColumnClassName(i + 1)));
 			}
 		}
 
@@ -259,11 +272,10 @@ public class JDBCQueryActivity implements Activity {
 			JDBCQueryActivity result = new JDBCQueryActivity();
 			result.setConnection(Workspace.JDBC_CONNECTIONS.get(Integer.valueOf(connectionPath)));
 			result.setStatement(statement);
-			@SuppressWarnings("unchecked")
-			List<Object> parameterValues = (List<Object>) parameterValuesSpecification.build(context);
+			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
 			result.setParameterValues(parameterValues);
 			result.setBuilderUniqueIdentifier(uniqueIdentifier);
-			result.setResultColumnDefinitions(resultColumnDefinitions);
+			result.setResultClass(resultClass);
 			return result;
 		}
 
@@ -301,6 +313,10 @@ public class JDBCQueryActivity implements Activity {
 
 	}
 
+	public static interface ParameterValues {
+		public Object getParameterValueByIndex(int i);
+	}
+
 	public static class ColumnDefinition {
 
 		private String columnName;
@@ -325,83 +341,6 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setColumnTypeName(String columnTypeName) {
 			this.columnTypeName = columnTypeName;
-		}
-
-	}
-
-	public static class Result extends VirtualClassInstance implements ActivityResult {
-		private List<ResultRow> rows = new ArrayList<ResultRow>();
-		private String builderUniqueIdentifier;
-		private List<ColumnDefinition> resultColumnDefinitions;
-
-		public Result(ResultSet resultSet, List<ColumnDefinition> resultColumnDefinitions,
-				String builderUniqueIdentifier) throws SQLException {
-			this.resultColumnDefinitions = resultColumnDefinitions;
-			this.builderUniqueIdentifier = builderUniqueIdentifier;
-			ResultSetMetaData metaData = resultSet.getMetaData();
-			while (resultSet.next()) {
-				ResultRow row = new ResultRow();
-				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
-					row.cellValues.put(metaData.getColumnName(iColumn), resultSet.getObject(iColumn));
-				}
-				rows.add(row);
-			}
-		}
-
-		@Override
-		protected ITypeInfo getVirtualClassDescription() {
-			return new BasicTypeInfoProxy(ITypeInfo.NULL_BASIC_TYPE_INFO) {
-
-				@Override
-				public String getName() {
-					return JDBCQueryActivity.class.getName() + "Output" + builderUniqueIdentifier;
-				}
-
-				@Override
-				public List<IFieldInfo> getFields() {
-					return Collections.singletonList(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-
-						@Override
-						public String getName() {
-							return "rows";
-						}
-
-						@Override
-						public String getCaption() {
-							return "Rows";
-						}
-
-						@Override
-						public Object getValue(Object object) {
-							return rows;
-						}
-
-						@Override
-						public ITypeInfo getType() {
-							ITypeInfo itemType = new DefaultTypeInfo(
-									new JavaTypeInfoSource(ReflectionUI.getDefault(), ResultRow.class, null));
-							return new StandardCollectionTypeInfo(
-									new JavaTypeInfoSource(ReflectionUI.getDefault(), List.class, null), itemType);
-						}
-
-					});
-				}
-
-			};
-		}
-
-	}
-
-	public static class ResultRow {
-
-		private Map<String, Object> cellValues = new HashMap<String, Object>();
-
-		public List<String> getColumnNames() {
-			return new ArrayList<String>(cellValues.keySet());
-		}
-
-		public Map<String, Object> getCellValues() {
-			return cellValues;
 		}
 
 	}
