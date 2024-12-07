@@ -86,7 +86,7 @@ public class JDBCQueryActivity implements Activity {
 		private String connectionPath;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private ObjectSpecification parameterValuesSpecification = new ObjectSpecification();
+		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification();
 		private List<ColumnDefinition> resultColumnDefinitions;
 
 		private Class<? extends ActivityResult> resultClass;
@@ -100,18 +100,18 @@ public class JDBCQueryActivity implements Activity {
 		private void updateDynamicClasses() {
 			{
 				if (parameterValuesClass != null) {
-					ObjectSpecification.ClassProvider.unregister(parameterValuesClass.getClassLoader());
+					InstanceSpecification.ClassProvider.unregister(parameterValuesClass.getClassLoader());
 				}
 				parameterValuesClass = createParameterValuesClass();
-				ObjectSpecification.ClassProvider.register(parameterValuesClass.getClassLoader());
+				InstanceSpecification.ClassProvider.register(parameterValuesClass.getClassLoader());
 			}
 			{
 				if (resultClass != null) {
-					ObjectSpecification.ClassProvider.unregister(resultClass.getClassLoader());
+					InstanceSpecification.ClassProvider.unregister(resultClass.getClassLoader());
 				}
 				resultClass = createResultClass();
 				if (resultClass != null) {
-					ObjectSpecification.ClassProvider.register(resultClass.getClassLoader());
+					InstanceSpecification.ClassProvider.register(resultClass.getClassLoader());
 				}
 			}
 		}
@@ -256,11 +256,11 @@ public class JDBCQueryActivity implements Activity {
 			updateDynamicClasses();
 		}
 
-		public ObjectSpecification getParameterValuesSpecification() {
+		public InstanceSpecification getParameterValuesSpecification() {
 			return parameterValuesSpecification;
 		}
 
-		public void setParameterValuesSpecification(ObjectSpecification parameterValuesSpecification) {
+		public void setParameterValuesSpecification(InstanceSpecification parameterValuesSpecification) {
 			if (parameterValuesSpecification == null) {
 				throw new AssertionError();
 			}
@@ -300,6 +300,15 @@ public class JDBCQueryActivity implements Activity {
 			result.setBuilderUniqueIdentifier(uniqueIdentifier);
 			result.setResultClass(resultClass);
 			return result;
+		}
+
+		@Override
+		public Class<? extends ActivityResult> getResultClass() {
+			if (resultClass != null) {
+				return resultClass;
+			} else {
+				return GenericResult.class;
+			}
 		}
 
 	}

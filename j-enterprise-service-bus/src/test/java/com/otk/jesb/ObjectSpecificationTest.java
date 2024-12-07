@@ -10,7 +10,7 @@ public class ObjectSpecificationTest {
 	public static void main(String[] args) {
 		new SwingCustomizer(new CustomizedUI(),
 				"src/test/resources/" + ObjectSpecificationTest.class.getSimpleName() + ".icu").openObjectDialog(null,
-						new ObjectSpecification(Tree.class.getName()));
+						new InstanceSpecification(Tree.class.getName()));
 	}
 
 	public static class Tree {

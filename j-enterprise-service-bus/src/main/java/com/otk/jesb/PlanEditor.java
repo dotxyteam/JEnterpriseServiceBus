@@ -50,10 +50,10 @@ public class PlanEditor {
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
 		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new ObjectSpecification.FieldInitializer("filePath", "tmp/test.txt"));
+				.add(new InstanceSpecification.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new ObjectSpecification.FieldInitializer("text",
-						new ObjectSpecification.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
+				.add(new InstanceSpecification.FieldInitializer("text",
+						new InstanceSpecification.DynamicValue("" + "StringBuilder s = new StringBuilder();\n"
 								+ "for(com.otk.jesb.JDBCQueryActivity.GenericResultRow row: a.getRows()){\n"
 								+ "  s.append(row.getCellValues().get(\"TABLE_NAME\") + \", \");\n" + "}\n"
 								+ "return s.toString();")));

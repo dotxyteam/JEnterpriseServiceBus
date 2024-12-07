@@ -51,19 +51,24 @@ public class WriteFileActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private ObjectSpecification objectSpecification = new ObjectSpecification(WriteFileActivity.class.getName());
+		private InstanceSpecification objectSpecification = new InstanceSpecification(WriteFileActivity.class.getName());
 
-		public ObjectSpecification getObjectSpecification() {
+		public InstanceSpecification getObjectSpecification() {
 			return objectSpecification;
 		}
 
-		public void setObjectSpecification(ObjectSpecification objectSpecification) {
+		public void setObjectSpecification(InstanceSpecification objectSpecification) {
 			this.objectSpecification = objectSpecification;
 		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			return (WriteFileActivity)objectSpecification.build(context);
+		}
+
+		@Override
+		public Class<? extends ActivityResult> getResultClass() {
+			return null;
 		}
 
 	}

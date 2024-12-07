@@ -6,4 +6,6 @@ public interface ActivityBuilder {
 
 	public Activity build(ExecutionContext context) throws Exception;
 
+	public Class<? extends ActivityResult> getResultClass();
+
 }

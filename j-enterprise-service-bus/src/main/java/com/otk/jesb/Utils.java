@@ -3,8 +3,8 @@ package com.otk.jesb;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import com.otk.jesb.ObjectSpecification.DynamicValue;
-import com.otk.jesb.ObjectSpecification.ValueMode;
+import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
 
 import groovy.lang.Binding;
@@ -44,8 +44,8 @@ public class Utils {
 	public static Object interpretValue(Object value, ExecutionContext context) throws Exception {
 		if (value instanceof DynamicValue) {
 			return Utils.executeScript(((DynamicValue) value).getScript(), context);
-		} else if (value instanceof ObjectSpecification) {
-			return ((ObjectSpecification) value).build(context);
+		} else if (value instanceof InstanceSpecification) {
+			return ((InstanceSpecification) value).build(context);
 		} else {
 			return value;
 		}
@@ -54,7 +54,7 @@ public class Utils {
 	public static ValueMode getValueMode(Object value) {
 		if (value instanceof DynamicValue) {
 			return ValueMode.DYNAMIC_VALUE;
-		} else if (value instanceof ObjectSpecification) {
+		} else if (value instanceof InstanceSpecification) {
 			return ValueMode.OBJECT_SPECIFICATION;
 		} else {
 			return ValueMode.STATIC_VALUE;
@@ -91,7 +91,7 @@ public class Utils {
 		} else if (!Utils.isComplexType(type)) {
 			return ReflectionUIUtils.createDefaultInstance(type);
 		} else {
-			return new ObjectSpecification(type.getName());
+			return new InstanceSpecification(type.getName());
 		}
 	}
 

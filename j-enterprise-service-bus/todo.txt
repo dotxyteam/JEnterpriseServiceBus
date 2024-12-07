@@ -33,3 +33,4 @@
 ObjectSpecification.(className|selectedConstructorSIgnature) are modified. It may be better
 to display incoherent nodes with an error marker
 - to ease co-working plans and resources must be stored in separate files  
+- allow to specify activity builder UI details through the code

@@ -60,7 +60,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>563588d0:1937d36f734:46ff</uniqueIdentifier>
                             <specificProperties/>
@@ -78,7 +78,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -352,7 +352,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getFieldInitializer</methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:-7fd2</uniqueIdentifier>
                 <specificProperties/>
@@ -389,7 +389,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:-7fce</uniqueIdentifier>
                 <specificProperties/>
@@ -452,7 +452,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getParameterInitializer</methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-559c0fab:193894e723f:-72bd</uniqueIdentifier>
                 <specificProperties/>
@@ -537,7 +537,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getParameterInitializer</methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>75119e88:19389a8da45:-6eb8</uniqueIdentifier>
                 <specificProperties/>
@@ -588,7 +588,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -610,7 +610,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:-7fc7</uniqueIdentifier>
                 <specificProperties/>
@@ -639,7 +639,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -702,7 +702,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.ObjectSpecification$FacadeNode</itemTypeName>
+                    <itemTypeName>com.otk.jesb.InstanceSpecification$FacadeNode</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -711,7 +711,7 @@
                         <uniqueIdentifier>563588d0:1937d36f734:4880</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>563588d0:1937d36f734:48a4</uniqueIdentifier>
-                            <className>com.otk.jesb.ObjectSpecification$FacadeNode</className>
+                            <className>com.otk.jesb.InstanceSpecification$FacadeNode</className>
                         </javaClassBasedTypeInfoFinder>
                         <heterogeneousTree>false</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -814,7 +814,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getFieldInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3b20e307:1937e8ea4bb:4a1f</uniqueIdentifier>
                             <specificProperties/>
@@ -840,7 +840,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3b20e307:1937e8ea4bb:4a23</uniqueIdentifier>
                             <specificProperties/>
@@ -858,7 +858,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -945,6 +945,32 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:589c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>underlying</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:589e</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:589d</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>563588d0:1937d36f734:-7ffa</uniqueIdentifier>
@@ -957,7 +983,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:46f6</uniqueIdentifier>
                 <specificProperties/>
@@ -983,7 +1009,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification$FieldInitializerFacade, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification$FieldInitializerFacade, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:-7f5a</uniqueIdentifier>
                 <specificProperties/>
@@ -1020,7 +1046,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification$FacadeNode, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification$FacadeNode, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1ea3d3d0:19382bf89c2:-7b6f</uniqueIdentifier>
                 <specificProperties/>
@@ -1065,13 +1091,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:58a8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:58a9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecification</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -1093,7 +1130,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer (java.lang.String, java.lang.Object)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer (java.lang.String, java.lang.Object)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:46be</uniqueIdentifier>
                 <specificProperties/>
@@ -1122,7 +1159,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$FieldInitializer</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$FieldInitializer</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -1144,7 +1181,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=facade, containingType=com.otk.jesb.ObjectSpecification], encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=facade, containingType=com.otk.jesb.InstanceSpecification], encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:4705</uniqueIdentifier>
                 <specificProperties/>
@@ -1162,7 +1199,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=facade, containingType=com.otk.jesb.ObjectSpecification], encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=facade, containingType=com.otk.jesb.InstanceSpecification], encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -1218,7 +1255,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.ObjectSpecification$FacadeNode</itemTypeName>
+                    <itemTypeName>com.otk.jesb.InstanceSpecification$FacadeNode</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -1227,7 +1264,7 @@
                         <uniqueIdentifier>-1324d496:1937d409cdb:48d6</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>-1324d496:1937d409cdb:48fa</uniqueIdentifier>
-                            <className>com.otk.jesb.ObjectSpecification$FacadeNode</className>
+                            <className>com.otk.jesb.InstanceSpecification$FacadeNode</className>
                         </javaClassBasedTypeInfoFinder>
                         <heterogeneousTree>false</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -3222,7 +3259,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getFieldInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3b20e307:1937e8ea4bb:53ac</uniqueIdentifier>
                             <specificProperties/>
@@ -3248,7 +3285,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3b20e307:1937e8ea4bb:53b0</uniqueIdentifier>
                             <specificProperties/>
@@ -3266,7 +3303,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -3351,7 +3388,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>valueOf</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>667cff9b:19380a8ec84:4efc</uniqueIdentifier>
                             <specificProperties/>
@@ -3369,7 +3406,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -3872,7 +3909,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$DynamicValue (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$DynamicValue (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>5ad2297e:19388733c32:5518</uniqueIdentifier>
                             <specificProperties/>
@@ -3890,7 +3927,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$DynamicValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$DynamicValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -3923,6 +3960,32 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:58d4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>underlying</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:58d6</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:58d5</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>563588d0:1937d36f734:4711</uniqueIdentifier>
@@ -3935,7 +3998,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:4730</uniqueIdentifier>
                 <specificProperties/>
@@ -3980,13 +4043,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:58e8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:58e9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$FieldInitializerFacade</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$FieldInitializerFacade</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -4038,7 +4112,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>563588d0:1937d36f734:48bd</uniqueIdentifier>
                             <specificProperties/>
@@ -4083,13 +4157,24 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>arg1</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:590a</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:590b</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>instanceSpecificationFacade</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$FieldInitializerFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$FieldInitializerFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -4111,7 +4196,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-1324d496:1937d409cdb:4780</uniqueIdentifier>
                             <specificProperties/>
@@ -4137,7 +4222,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification$FieldInitializerFacade, com.otk.jesb.ObjectSpecification)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification$FieldInitializerFacade, com.otk.jesb.InstanceSpecification)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3b20e307:1937e8ea4bb:538d</uniqueIdentifier>
                             <specificProperties/>
@@ -4174,7 +4259,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade (com.otk.jesb.ObjectSpecification$FacadeNode, com.otk.jesb.ObjectSpecification)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade (com.otk.jesb.InstanceSpecification$FacadeNode, com.otk.jesb.InstanceSpecification)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4bc2</uniqueIdentifier>
                             <specificProperties/>
@@ -4225,7 +4310,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -4247,7 +4332,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ListItemInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ListItemInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3ade46f2:19382cd46db:4ddb</uniqueIdentifier>
                             <specificProperties/>
@@ -4292,13 +4377,24 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>arg1</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5ae0</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5ae1</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>instanceSpecificationFacade</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$ListItemInitializerFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$ListItemInitializerFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -4320,7 +4416,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-559c0fab:193894e723f:54be</uniqueIdentifier>
                             <specificProperties/>
@@ -4365,13 +4461,24 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>arg1</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:59c0</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:59c1</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>instanceSpecificationFacade</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$ParameterInitializerFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$ParameterInitializerFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -4381,7 +4488,7 @@
         <menuModel>
             <uniqueIdentifier>563588d0:1937d36f734:4713</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -4403,7 +4510,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade] (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade] (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>563588d0:1937d36f734:48c5</uniqueIdentifier>
                 <specificProperties/>
@@ -4448,13 +4555,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:590f</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5910</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -4476,7 +4594,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1324d496:1937d409cdb:4786</uniqueIdentifier>
                 <specificProperties/>
@@ -4502,7 +4620,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification$FieldInitializerFacade, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification$FieldInitializerFacade, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:5395</uniqueIdentifier>
                 <specificProperties/>
@@ -4539,7 +4657,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification$FacadeNode, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification$FacadeNode, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4bca</uniqueIdentifier>
                 <specificProperties/>
@@ -4590,7 +4708,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -4612,7 +4730,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification$FieldInitializerFacade, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification$FieldInitializerFacade, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:-7f52</uniqueIdentifier>
                 <specificProperties/>
@@ -4649,7 +4767,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade] (com.otk.jesb.ObjectSpecification$FacadeNode, com.otk.jesb.ObjectSpecification)</methodSignature>
+            <methodSignature>Encapsulation [encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade] (com.otk.jesb.InstanceSpecification$FacadeNode, com.otk.jesb.InstanceSpecification)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1ea3d3d0:19382bf89c2:-7b67</uniqueIdentifier>
                 <specificProperties/>
@@ -4678,7 +4796,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -4745,6 +4863,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>integer3</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a1a</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a1b</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfByte</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -4771,6 +4900,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>char[]</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a1c</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a1d</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharacter</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -4796,6 +4936,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>char[]</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a1e</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a1f</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharacter</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -4845,6 +4996,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>integer2</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a20</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a21</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharacter</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -4892,6 +5054,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>integer2</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a22</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a23</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharacter</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -4952,6 +5125,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>integer3</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a24</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a25</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharacter</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -4989,6 +5173,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>charSequence[]</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a26</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a27</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfCharSequence</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -5025,6 +5220,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>object[]</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a28</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a29</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfObject</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -5073,6 +5279,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>object[]</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5a2a</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5a2b</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfObject</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -6592,7 +6809,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=objectSpecification, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=objectSpecification, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:4a2a</uniqueIdentifier>
                 <specificProperties/>
@@ -6610,7 +6827,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=objectSpecification, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=objectSpecification, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -6632,7 +6849,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldInitializers, containingType=com.otk.jesb.ObjectSpecification], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FieldInitializer] (java.lang.String, java.lang.Object)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldInitializers, containingType=com.otk.jesb.InstanceSpecification], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FieldInitializer] (java.lang.String, java.lang.Object)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:4a44</uniqueIdentifier>
                 <specificProperties/>
@@ -6661,7 +6878,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=fieldInitializers, containingType=com.otk.jesb.ObjectSpecification], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FieldInitializer]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=fieldInitializers, containingType=com.otk.jesb.InstanceSpecification], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FieldInitializer]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -6713,7 +6930,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.ObjectSpecificationTest$Tree</itemTypeName>
+                    <itemTypeName>com.otk.jesb.InstanceSpecificationTest$Tree</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.ArrayList</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -6731,7 +6948,7 @@
         <menuModel>
             <uniqueIdentifier>-3b20e307:1937e8ea4bb:4a58</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.ObjectSpecificationTest$Tree</typeName>
+        <typeName>com.otk.jesb.InstanceSpecificationTest$Tree</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -6753,7 +6970,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3b20e307:1937e8ea4bb:53b7</uniqueIdentifier>
                 <specificProperties/>
@@ -6771,7 +6988,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -7170,7 +7387,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldInfo, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.field.GetterFieldInfo] (xy.reflect.ui.ReflectionUI, java.lang.reflect.Method, java.lang.Class)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=fieldInfo, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.field.GetterFieldInfo] (xy.reflect.ui.ReflectionUI, java.lang.reflect.Method, java.lang.Class)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>667cff9b:19380a8ec84:4bba</uniqueIdentifier>
                 <specificProperties/>
@@ -7210,7 +7427,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=fieldInfo, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.field.GetterFieldInfo]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=fieldInfo, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.field.GetterFieldInfo]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -7295,7 +7512,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>valueOf</methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>667cff9b:19380a8ec84:4ee1</uniqueIdentifier>
                 <specificProperties/>
@@ -7313,7 +7530,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue</typeName>
+        <typeName>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -7370,7 +7587,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.ObjectSpecification$FacadeNode</itemTypeName>
+                    <itemTypeName>com.otk.jesb.InstanceSpecification$FacadeNode</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -7379,7 +7596,7 @@
                         <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4d1c</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4d5f</uniqueIdentifier>
-                            <className>com.otk.jesb.ObjectSpecification$FacadeNode</className>
+                            <className>com.otk.jesb.InstanceSpecification$FacadeNode</className>
                         </javaClassBasedTypeInfoFinder>
                         <heterogeneousTree>false</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -7815,7 +8032,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getFieldInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3ade46f2:19382cd46db:4e15</uniqueIdentifier>
                             <specificProperties/>
@@ -7841,7 +8058,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-3ade46f2:19382cd46db:4e18</uniqueIdentifier>
                             <specificProperties/>
@@ -7859,7 +8076,81 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification</typeName>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5af8</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>removeParameterInitializer</methodName>
+                        <methodSignature>void removeParameterInitializer(int, java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b09</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b0a</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>integer</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b0b</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b0c</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5af9</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterInitializer</methodName>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b0d</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b0e</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>integer</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b0f</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b10</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -9773,7 +10064,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$DynamicValue (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$DynamicValue (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-143901b0:1938418c71b:-643c</uniqueIdentifier>
                             <specificProperties/>
@@ -9791,7 +10082,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$DynamicValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$DynamicValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -9892,7 +10183,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ListItemReplicationFacade (com.otk.jesb.ObjectSpecification$ListItemReplication)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ListItemReplicationFacade (com.otk.jesb.InstanceSpecification$ListItemReplication)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-143901b0:1938412f44e:5c11</uniqueIdentifier>
                             <specificProperties/>
@@ -9910,7 +10201,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$ListItemReplicationFacade</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$ListItemReplicationFacade</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -9958,7 +10249,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$DynamicValue (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$DynamicValue (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>54e1f81:193887dd834:5577</uniqueIdentifier>
                             <specificProperties/>
@@ -9976,7 +10267,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$DynamicValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$DynamicValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -10036,6 +10327,32 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5aaf</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>underlying</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5ab1</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5ab0</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4b83</uniqueIdentifier>
@@ -10048,7 +10365,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ListItemInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ListItemInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1ea3d3d0:19382bf89c2:4bae</uniqueIdentifier>
                 <specificProperties/>
@@ -10093,13 +10410,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5abd</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5abe</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ListItemInitializerFacade</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$ListItemInitializerFacade</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -12795,7 +13123,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getFieldInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7d725432:193830941b9:5013</uniqueIdentifier>
                             <specificProperties/>
@@ -12821,7 +13149,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7d725432:193830941b9:5017</uniqueIdentifier>
                             <specificProperties/>
@@ -12873,7 +13201,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getParameterInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7709ac11:1938954dd80:6996</uniqueIdentifier>
                             <specificProperties/>
@@ -12891,7 +13219,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -12976,7 +13304,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>valueOf</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7d725432:193830941b9:54be</uniqueIdentifier>
                             <specificProperties/>
@@ -12994,7 +13322,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -14896,7 +15224,7 @@
         <menuModel>
             <uniqueIdentifier>-3ade46f2:19382cd46db:4c06</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -14918,7 +15246,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade] (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade] (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3ade46f2:19382cd46db:4de3</uniqueIdentifier>
                 <specificProperties/>
@@ -14963,13 +15291,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5ae5</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5ae6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -14979,6 +15318,224 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5b12</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName></fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b14</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b13</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b16</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5b17</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5b9d</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>build</methodName>
+                        <methodSignature>java.lang.Object build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bb1</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bb2</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>executionContext</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5b9e</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>removeParameterInitializer</methodName>
+                        <methodSignature>void removeParameterInitializer(int, java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bb3</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bb4</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>integer</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bb5</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bb6</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5b9f</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterInitializer</methodName>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bb7</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bb8</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>integer</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bb9</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bba</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5ba0</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>removeFieldInitializer</methodName>
+                        <methodSignature>void removeFieldInitializer(java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bbb</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bbc</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5ba1</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getFieldInitializer</methodName>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bbd</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bbe</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>66dc7607:1939f87fc42:5bc0</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName></methodName>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5bc1</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5bc2</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>text</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-3ade46f2:19382cd46db:4dee</uniqueIdentifier>
@@ -14991,7 +15548,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3ade46f2:19382cd46db:4e1f</uniqueIdentifier>
                 <specificProperties/>
@@ -15009,7 +15566,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -15338,7 +15895,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemType, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.type.DefaultTypeInfo] (xy.reflect.ui.info.type.source.JavaTypeInfoSource)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemType, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.type.DefaultTypeInfo] (xy.reflect.ui.info.type.source.JavaTypeInfoSource)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3ade46f2:19382cd46db:4fb6</uniqueIdentifier>
                 <specificProperties/>
@@ -15356,7 +15913,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=itemType, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.type.DefaultTypeInfo]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=itemType, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.type.DefaultTypeInfo]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -15378,7 +15935,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>7d725432:193830941b9:501e</uniqueIdentifier>
                 <specificProperties/>
@@ -15396,7 +15953,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=fieldValue, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -15418,7 +15975,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ListItemInitializer (java.lang.Object)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ListItemInitializer (java.lang.Object)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-69610425:193831089d6:50bb</uniqueIdentifier>
                 <specificProperties/>
@@ -15436,7 +15993,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ListItemInitializer</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$ListItemInitializer</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -15602,6 +16159,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>object[]</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b80</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b81</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfObject</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -15855,6 +16423,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b82</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b83</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16011,6 +16590,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b84</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b85</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16036,6 +16626,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b86</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b87</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -16063,6 +16664,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b88</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b89</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16088,6 +16700,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b8a</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b8b</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -16271,6 +16894,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>collection</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5b8c</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5b8d</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>list</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16280,6 +16914,32 @@
                     <typeName>java.util.ArrayList</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5b2b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>underlying</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b2d</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b2c</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
@@ -16295,7 +16955,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ListItemReplicationFacade (com.otk.jesb.ObjectSpecification$ListItemReplication)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ListItemReplicationFacade (com.otk.jesb.InstanceSpecification$ListItemReplication)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938412f44e:5c01</uniqueIdentifier>
                 <specificProperties/>
@@ -16313,7 +16973,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ListItemReplicationFacade</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$ListItemReplicationFacade</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -16361,7 +17021,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemReplicationFacade, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade] (com.otk.jesb.ObjectSpecification$ListItemReplication)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemReplicationFacade, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade] (com.otk.jesb.InstanceSpecification$ListItemReplication)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938412f44e:6773</uniqueIdentifier>
                 <specificProperties/>
@@ -16379,7 +17039,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=itemReplicationFacade, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=itemReplicationFacade, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -16412,6 +17072,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>object[]</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b64</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b65</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>arrayOfObject</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -16665,6 +17336,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b66</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b67</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16821,6 +17503,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b68</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b69</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16846,6 +17539,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b6a</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b6b</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -16873,6 +17577,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b6c</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b6d</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -16898,6 +17613,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b6e</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b6f</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -17081,6 +17807,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b70</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b71</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -17159,7 +17896,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList] (int)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList] (int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938412f44e:73ca</uniqueIdentifier>
                 <specificProperties/>
@@ -17185,7 +17922,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList] (java.util.Collection)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList] (java.util.Collection)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938412f44e:73cd</uniqueIdentifier>
                 <specificProperties/>
@@ -17197,13 +17934,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>collection</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5b91</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5b92</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>list</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19135,7 +19883,7 @@
         <menuModel>
             <uniqueIdentifier>-143901b0:1938412f44e:73d8</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.ObjectSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=iterationListValue, containingType=com.otk.jesb.InstanceSpecification$ListItemReplicationFacade], subContext=MutableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19157,7 +19905,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$DynamicValue (java.lang.String)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$DynamicValue (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938418c71b:-6443</uniqueIdentifier>
                 <specificProperties/>
@@ -19175,7 +19923,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$DynamicValue</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$DynamicValue</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19227,7 +19975,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$DynamicValue (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$DynamicValue (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-143901b0:1938418c71b:-642a</uniqueIdentifier>
                             <specificProperties/>
@@ -19245,7 +19993,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification$DynamicValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification$DynamicValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -19263,7 +20011,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938418c71b:-6435</uniqueIdentifier>
                 <specificProperties/>
@@ -19281,7 +20029,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19303,7 +20051,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]], encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]], encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-143901b0:1938418c71b:-6423</uniqueIdentifier>
                 <specificProperties/>
@@ -19321,7 +20069,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]], encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]], encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19489,7 +20237,7 @@
         <menuModel>
             <uniqueIdentifier>-143901b0:1938418c71b:-641b</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=java.lang.Object build(com.otk.jesb.Plan$ExecutionContext), containingType=com.otk.jesb.ObjectSpecification]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=java.lang.Object build(com.otk.jesb.Plan$ExecutionContext), containingType=com.otk.jesb.InstanceSpecification]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19537,7 +20285,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>5ad2297e:19388733c32:5716</uniqueIdentifier>
                 <specificProperties/>
@@ -19555,7 +20303,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.ObjectSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.InstanceSpecification$FieldInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19603,7 +20351,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>54e1f81:193887dd834:5745</uniqueIdentifier>
                 <specificProperties/>
@@ -19621,7 +20369,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.ObjectSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$DynamicValue]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$DynamicValue]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -19643,7 +20391,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer (int, java.lang.Object)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer (int, java.lang.Object)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-559c0fab:193894e723f:53cc</uniqueIdentifier>
                 <specificProperties/>
@@ -19672,7 +20420,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ParameterInitializer</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$ParameterInitializer</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -21283,7 +22031,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.ObjectSpecification$FacadeNode</itemTypeName>
+                    <itemTypeName>com.otk.jesb.InstanceSpecification$FacadeNode</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -21292,7 +22040,7 @@
                         <uniqueIdentifier>17021973:19389592d14:5a40</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>17021973:19389592d14:5a83</uniqueIdentifier>
-                            <className>com.otk.jesb.ObjectSpecification$FacadeNode</className>
+                            <className>com.otk.jesb.InstanceSpecification$FacadeNode</className>
                         </javaClassBasedTypeInfoFinder>
                         <heterogeneousTree>false</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -21328,6 +22076,32 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5990</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>underlying</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5992</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5991</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-559c0fab:193894e723f:5450</uniqueIdentifier>
@@ -21340,7 +22114,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializerFacade (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+            <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializerFacade (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-559c0fab:193894e723f:547e</uniqueIdentifier>
                 <specificProperties/>
@@ -21385,13 +22159,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:59a0</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:59a1</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.ObjectSpecification$ParameterInitializerFacade</typeName>
+        <typeName>com.otk.jesb.InstanceSpecification$ParameterInitializerFacade</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -21413,7 +22198,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade] (com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade, int)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade] (com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-559c0fab:193894e723f:54c6</uniqueIdentifier>
                 <specificProperties/>
@@ -21458,13 +22243,24 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>arg1</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:59c5</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:59c6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>instanceSpecificationFacade</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.ObjectSpecification$ObjectSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=children, containingType=com.otk.jesb.InstanceSpecification$InstanceSpecificationFacade], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$FacadeNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -21641,7 +22437,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=parameterInfo, containingType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.parameter.DefaultParameterInfo] (xy.reflect.ui.ReflectionUI, xy.reflect.ui.util.Parameter)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=parameterInfo, containingType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.parameter.DefaultParameterInfo] (xy.reflect.ui.ReflectionUI, xy.reflect.ui.util.Parameter)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-559c0fab:193894e723f:5646</uniqueIdentifier>
                 <specificProperties/>
@@ -21670,7 +22466,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=parameterInfo, containingType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.parameter.DefaultParameterInfo]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=parameterInfo, containingType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=xy.reflect.ui.info.parameter.DefaultParameterInfo]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -23063,6 +23859,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>integer3</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a45</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a46</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfByte</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -23089,6 +23896,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>char[]</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a47</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a48</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharacter</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -23114,6 +23932,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>char[]</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a49</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a4a</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharacter</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -23163,6 +23992,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>integer2</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a4b</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a4c</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharacter</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -23210,6 +24050,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>integer2</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a4d</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a4e</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharacter</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -23270,6 +24121,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>integer3</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a4f</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a50</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharacter</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -23307,6 +24169,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>charSequence[]</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a51</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a52</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfCharSequence</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -23343,6 +24216,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>object[]</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a53</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a54</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfObject</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -23391,6 +24275,17 @@
                             <hidden>false</hidden>
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>object[]</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>66dc7607:1939f87fc42:5a55</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>66dc7607:1939f87fc42:5a56</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>arrayOfObject</parameterName>
                         </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -24973,7 +25868,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>valueOf</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue valueOf(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7709ac11:1938954dd80:6899</uniqueIdentifier>
                             <specificProperties/>
@@ -24991,7 +25886,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecificationTest$Tree$EnumValue</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecificationTest$Tree$EnumValue</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
                 <typeCustomizations>
@@ -25076,7 +25971,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getParameterInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7709ac11:1938954dd80:68c9</uniqueIdentifier>
                             <specificProperties/>
@@ -25139,7 +26034,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getFieldInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$FieldInitializer getFieldInitializer(java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7709ac11:1938954dd80:68cd</uniqueIdentifier>
                             <specificProperties/>
@@ -25176,7 +26071,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName></methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification (java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification (java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>7709ac11:1938954dd80:68d1</uniqueIdentifier>
                             <specificProperties/>
@@ -25272,7 +26167,7 @@
                         <duplicateGenerated>false</duplicateGenerated>
                         <ignoredReturnValueForced>false</ignoredReturnValueForced>
                         <methodName>getParameterInitializer</methodName>
-                        <methodSignature>com.otk.jesb.ObjectSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
+                        <methodSignature>com.otk.jesb.InstanceSpecification$ParameterInitializer getParameterInitializer(int, java.lang.String)</methodSignature>
                         <parametersCustomizations>
                             <uniqueIdentifier>-300501d3:19393123e90:5c1c</uniqueIdentifier>
                             <specificProperties/>
@@ -25323,7 +26218,7 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
-                    <typeName>com.otk.jesb.ObjectSpecification</typeName>
+                    <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                 </typeCustomizations>
             </specificTypeCustomizations>
@@ -25333,7 +26228,7 @@
         <menuModel>
             <uniqueIdentifier>-6d43f762:19389524b6b:57a9</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
     <typeCustomizations>
@@ -25355,7 +26250,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName></methodName>
-            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification] (java.lang.String)</methodSignature>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>7709ac11:1938954dd80:68d8</uniqueIdentifier>
                 <specificProperties/>
@@ -25384,7 +26279,47 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.ObjectSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ObjectSpecification]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=parameterValue, containingType=com.otk.jesb.InstanceSpecification$ParameterInitializerFacade], subContext=NullableInstance, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>66dc7607:1939f87fc42:5b98</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5b99</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>66dc7607:1939f87fc42:5bc7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]], encapsulatedObjectType=com.otk.jesb.InstanceSpecification] (java.lang.String)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>66dc7607:1939f87fc42:5bc8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>66dc7607:1939f87fc42:5bc9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, containingType=Encapsulation [context=FieldContext [fieldName=itemValue, containingType=com.otk.jesb.InstanceSpecification$ListItemInitializerFacade], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.InstanceSpecification]], encapsulatedObjectType=com.otk.jesb.InstanceSpecification]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
     </typeCustomizations>
 </infoCustomizations>
