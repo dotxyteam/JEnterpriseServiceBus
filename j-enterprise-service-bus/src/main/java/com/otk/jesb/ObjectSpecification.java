@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -1063,37 +1062,14 @@ public class ObjectSpecification {
 		}
 	}
 
-	public static class TypeInfoProvider {
-
-		private static Map<Object, ITypeInfo> typeBySource = new WeakHashMap<Object, ITypeInfo>();
-		private static Set<ClassLoader> additionalClassLoaders = Collections
-				.newSetFromMap(new WeakHashMap<ClassLoader, Boolean>());
+	private static class TypeInfoProvider {
 
 		public static ITypeInfo getTypeInfo(String typeName) {
 			return getTypeInfo(typeName, null);
 		}
 
 		public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-			for (ITypeInfo type : typeBySource.values()) {
-				if (type.getName().equals(typeName)) {
-					return type;
-				}
-			}
-			Class<?> objectClass = null;
-			try {
-				objectClass = Class.forName(typeName);
-			} catch (ClassNotFoundException e) {
-				for (ClassLoader classLoader : additionalClassLoaders) {
-					try {
-						objectClass = Class.forName(typeName, false, classLoader);
-						break;
-					} catch (ClassNotFoundException ignore) {
-					}
-				}
-			}
-			if (objectClass == null) {
-				throw new AssertionError(new ClassNotFoundException(typeName));
-			}
+			Class<?> objectClass = ClassProvider.getClass(typeName);
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
 			JavaTypeInfoSource javaTypeInfoSource;
 			if (typeOwner != null) {
@@ -1115,14 +1091,34 @@ public class ObjectSpecification {
 			return reflectionUI.buildTypeInfo(javaTypeInfoSource);
 		}
 
-		public static void register(ITypeInfo type, Object source) {
-			typeBySource.put(source, type);
+	}
+
+	public static class ClassProvider {
+
+		private static Set<ClassLoader> additionalClassLoaders = Collections
+				.newSetFromMap(new WeakHashMap<ClassLoader, Boolean>());
+
+		public static Class<?> getClass(String typeName) {
+			try {
+				return Class.forName(typeName);
+			} catch (ClassNotFoundException e) {
+				for (ClassLoader classLoader : additionalClassLoaders) {
+					try {
+						return Class.forName(typeName, false, classLoader);
+					} catch (ClassNotFoundException ignore) {
+					}
+				}
+			}
+			throw new AssertionError(new ClassNotFoundException(typeName));
 		}
 
 		public static void register(ClassLoader classLoader) {
 			additionalClassLoaders.add(classLoader);
 		}
 
+		public static void unregister(ClassLoader classLoader) {
+			additionalClassLoaders.remove(classLoader);
+		}
 	}
 
 }

@@ -93,16 +93,26 @@ public class JDBCQueryActivity implements Activity {
 		private Class<? extends ParameterValues> parameterValuesClass;
 
 		public Builder() {
-			createDynamicClasses();
+			updateDynamicClasses();
 			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
-		private void createDynamicClasses() {
-			parameterValuesClass = createParameterValuesClass();
-			ObjectSpecification.TypeInfoProvider.register(parameterValuesClass.getClassLoader());
-			resultClass = createResultClass();
-			if (resultClass != null) {
-				ObjectSpecification.TypeInfoProvider.register(resultClass.getClassLoader());
+		private void updateDynamicClasses() {
+			{
+				if (parameterValuesClass != null) {
+					ObjectSpecification.ClassProvider.unregister(parameterValuesClass.getClassLoader());
+				}
+				parameterValuesClass = createParameterValuesClass();
+				ObjectSpecification.ClassProvider.register(parameterValuesClass.getClassLoader());
+			}
+			{
+				if (resultClass != null) {
+					ObjectSpecification.ClassProvider.unregister(resultClass.getClassLoader());
+				}
+				resultClass = createResultClass();
+				if (resultClass != null) {
+					ObjectSpecification.ClassProvider.register(resultClass.getClassLoader());
+				}
 			}
 		}
 
@@ -209,7 +219,7 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setUniqueIdentifier(String uniqueIdentifier) {
 			this.uniqueIdentifier = uniqueIdentifier;
-			createDynamicClasses();
+			updateDynamicClasses();
 			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
@@ -243,7 +253,7 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setParameterDefinitions(List<ParameterDefinition> parameterDefinitions) {
 			this.parameterDefinitions = parameterDefinitions;
-			createDynamicClasses();
+			updateDynamicClasses();
 		}
 
 		public ObjectSpecification getParameterValuesSpecification() {
@@ -263,7 +273,7 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setResultColumnDefinitions(List<ColumnDefinition> resultColumnDefinitions) {
 			this.resultColumnDefinitions = resultColumnDefinitions;
-			createDynamicClasses();
+			updateDynamicClasses();
 		}
 
 		public void retrieveResultColumnDefinitions() throws SQLException {
@@ -277,7 +287,7 @@ public class JDBCQueryActivity implements Activity {
 				this.resultColumnDefinitions
 						.add(new ColumnDefinition(metaData.getColumnLabel(i + 1), metaData.getColumnClassName(i + 1)));
 			}
-			createDynamicClasses();
+			updateDynamicClasses();
 		}
 
 		@Override

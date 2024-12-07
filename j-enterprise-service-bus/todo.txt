@@ -4,7 +4,6 @@
 	. release a first version
 	. advertise
 	. improve the features
-- allow to have dynamically created classes for output of activities like JDBCQuesry etc 
 - add script edition assistance:
 	. allow to select a data source node that will generate a script
 - add XML support
@@ -28,6 +27,8 @@
 	. check parameter type mappings
 	. allow to dynamically create the statement
 	. the Builder.uniqueIdentifier should not contain charcaters invalid for class name
+	. can generate automatically parameter definitions ?
+	. should automatically retrieve result columns
 - some modifications can disappear from the UI when 
 ObjectSpecification.(className|selectedConstructorSIgnature) are modified. It may be better
 to display incoherent nodes with an error marker
