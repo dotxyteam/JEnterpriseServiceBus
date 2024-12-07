@@ -12,6 +12,8 @@ import groovy.lang.GroovyShell;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -28,17 +30,14 @@ public class Utils {
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
-		try {
-			if (ClassUtils.isPrimitiveClassOrWrapperOrString(ClassUtils.forNameEvenIfPrimitive(type.getName()))) {
-				return false;
-			}
-			if (type instanceof IEnumerationTypeInfo) {
-				return false;
-			}
-			return true;
-		} catch (ClassNotFoundException e) {
-			throw new AssertionError(e);
+		Class<?> clazz = ((JavaTypeInfoSource) type.getSource()).getJavaType();
+		if (ClassUtils.isPrimitiveClassOrWrapperOrString(clazz)) {
+			return false;
 		}
+		if (type instanceof IEnumerationTypeInfo) {
+			return false;
+		}
+		return true;
 	}
 
 	public static Object interpretValue(Object value, ExecutionContext context) throws Exception {
@@ -91,7 +90,13 @@ public class Utils {
 		} else if (!Utils.isComplexType(type)) {
 			return ReflectionUIUtils.createDefaultInstance(type);
 		} else {
-			return new InstanceSpecification(type.getName());
+			if (type instanceof IMapEntryTypeInfo) {
+				IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
+				return new InstanceSpecification.MapEntrySpecification(mapEntryType.getKeyField().getType().getName(),
+						mapEntryType.getValueField().getType().getName());
+			} else {
+				return new InstanceSpecification(type.getName());
+			}
 		}
 	}
 

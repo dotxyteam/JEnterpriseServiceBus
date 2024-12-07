@@ -24,6 +24,10 @@ import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.MapEntryTypeInfoProxy;
+import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
+import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -87,7 +91,7 @@ public class InstanceSpecification {
 	}
 
 	public Object build(Plan.ExecutionContext context) throws Exception {
-		ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(typeName);
+		ITypeInfo typeInfo = getTypeInfo();
 		IMethodInfo constructor = Utils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			if (selectedConstructorSignature == null) {
@@ -103,7 +107,8 @@ public class InstanceSpecification {
 					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
-				parameterValue = Utils.getDefaultInterpretableValue(parameterInfo.getType());
+				parameterValue = Utils.interpretValue(Utils.getDefaultInterpretableValue(parameterInfo.getType()),
+						context);
 			} else {
 				parameterValue = Utils.interpretValue(parameterInitializer.getParameterValue(), context);
 			}
@@ -170,6 +175,10 @@ public class InstanceSpecification {
 		return object;
 	}
 
+	public ITypeInfo getTypeInfo() {
+		return TypeInfoProvider.getTypeInfo(typeName);
+	}
+
 	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			if ((parameterInitializer.getParameterPosition() == parameterPosition)
@@ -206,6 +215,27 @@ public class InstanceSpecification {
 				it.remove();
 			}
 		}
+	}
+
+	public static class MapEntrySpecification extends InstanceSpecification {
+		private String keyTypeName;
+		private String valueTypeName;
+
+		public MapEntrySpecification(String keyTypeName, String valueTypeName) {
+			super(StandardMapEntry.class.getName());
+			this.keyTypeName = keyTypeName;
+			this.valueTypeName = valueTypeName;
+		}
+
+		@Override
+		public ITypeInfo getTypeInfo() {
+			ReflectionUI reflectionUI = ReflectionUI.getDefault();
+			Class<?> keyClass = (keyTypeName != null) ? ClassProvider.getClass(keyTypeName) : null;
+			Class<?> valueClass = (valueTypeName != null) ? ClassProvider.getClass(valueTypeName) : null;
+			return reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, StandardMapEntry.class,
+					new Class[] { keyClass, valueClass }, null));
+		}
+
 	}
 
 	public static class ParameterInitializer {
@@ -407,11 +437,11 @@ public class InstanceSpecification {
 	public static class InstanceSpecificationFacade implements FacadeNode {
 
 		private FacadeNode parent;
-		private InstanceSpecification instanceSpecification;
+		private InstanceSpecification underlying;
 
 		public InstanceSpecificationFacade(FacadeNode parent, InstanceSpecification instanceSpecification) {
 			this.parent = parent;
-			this.instanceSpecification = instanceSpecification;
+			this.underlying = instanceSpecification;
 		}
 
 		public FacadeNode getParent() {
@@ -434,24 +464,24 @@ public class InstanceSpecification {
 		}
 
 		public String getTypeName() {
-			return instanceSpecification.getTypeName();
+			return underlying.getTypeName();
 		}
 
 		public void setTypeName(String typeName) {
-			instanceSpecification.setTypeName(typeName);
+			underlying.setTypeName(typeName);
 		}
 
 		public String getSelectedConstructorSignature() {
-			return instanceSpecification.getSelectedConstructorSignature();
+			return underlying.getSelectedConstructorSignature();
 		}
 
 		public void setSelectedConstructorSignature(String selectedConstructorSignature) {
-			instanceSpecification.setSelectedConstructorSignature(selectedConstructorSignature);
+			underlying.setSelectedConstructorSignature(selectedConstructorSignature);
 		}
 
 		public List<String> getConstructorSignatureChoices() {
 			List<String> result = new ArrayList<String>();
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(instanceSpecification.getTypeName());
+			ITypeInfo typeInfo = getTypeInfo();
 			for (IMethodInfo constructor : typeInfo.getConstructors()) {
 				result.add(constructor.getSignature());
 			}
@@ -459,33 +489,51 @@ public class InstanceSpecification {
 		}
 
 		public InstanceSpecification getUnderlying() {
-			return instanceSpecification;
+			return underlying;
+		}
+
+		public ITypeInfo getTypeInfo() {
+			ITypeInfo result = TypeInfoProvider.getTypeInfo(underlying.getTypeName());
+			if (result instanceof IListTypeInfo) {
+				if (parent instanceof FieldInitializerFacade) {
+					FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
+					IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
+					result = TypeInfoProvider.getTypeInfo(underlying.getTypeName(), listFieldInfo);
+				}
+			}
+			if (result instanceof IMapEntryTypeInfo) {
+				if (parent instanceof ListItemInitializerFacade) {
+					ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;
+					result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemType();
+				}
+			}
+			return result;
 		}
 
 		@Override
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<InstanceSpecification.FacadeNode>();
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(instanceSpecification.getTypeName());
-			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo,
-					instanceSpecification.getSelectedConstructorSignature());
+			ITypeInfo typeInfo = getTypeInfo();
+			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo, underlying.getSelectedConstructorSignature());
 			if (constructor != null) {
 				for (IParameterInfo parameterInfo : constructor.getParameters()) {
 					result.add(new ParameterInitializerFacade(this, parameterInfo.getPosition()));
 				}
 			}
-			for (IFieldInfo field : typeInfo.getFields()) {
-				if (field.isGetOnly()) {
-					continue;
-				}
-				result.add(new FieldInitializerFacade(this, field.getName()));
-			}
 			if (typeInfo instanceof IListTypeInfo) {
 				int i = 0;
-				for (; i < instanceSpecification.getListItemInitializers().size();) {
+				for (; i < underlying.getListItemInitializers().size();) {
 					result.add(new ListItemInitializerFacade(this, i));
 					i++;
 				}
 				result.add(new ListItemInitializerFacade(this, i));
+			} else {
+				for (IFieldInfo field : typeInfo.getFields()) {
+					if (field.isGetOnly()) {
+						continue;
+					}
+					result.add(new FieldInitializerFacade(this, field.getName()));
+				}
 			}
 			Collections.sort(result, new Comparator<FacadeNode>() {
 				List<Class<?>> CLASSES_ORDER = Arrays.asList(ParameterInitializerFacade.class,
@@ -521,7 +569,42 @@ public class InstanceSpecification {
 
 		@Override
 		public String toString() {
-			return "<" + instanceSpecification.getTypeName() + ">";
+			return "<" + underlying.getTypeName() + ">";
+		}
+
+	}
+
+	public static class MapEntrySpecificationFacade extends InstanceSpecificationFacade {
+
+		public MapEntrySpecificationFacade(FacadeNode parent, MapEntrySpecification mapEntrySpecification) {
+			super(parent, mapEntrySpecification);
+		}
+
+		@Override
+		public void setTypeName(String typeName) {
+			throw new UnsupportedOperationException("Cannot change map entry type name");
+		}
+
+		@Override
+		public MapEntrySpecification getUnderlying() {
+			return (MapEntrySpecification) super.getUnderlying();
+		}
+
+		@Override
+		public IMapEntryTypeInfo getTypeInfo() {
+			return new MapEntryTypeInfoProxy((IMapEntryTypeInfo) super.getTypeInfo()) {
+
+				@Override
+				public List<IFieldInfo> getFields() {
+					return Collections.emptyList();
+				}
+
+			};
+		}
+
+		@Override
+		public String toString() {
+			return "<MapEntry>";
 		}
 
 	}
@@ -545,8 +628,8 @@ public class InstanceSpecification {
 		}
 
 		public IParameterInfo getParameterInfo() {
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getUnderlying().getTypeName());
-			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo,
+			ITypeInfo parentTypeInfo = parent.getTypeInfo();
+			IMethodInfo constructor = Utils.getConstructorInfo(parentTypeInfo,
 					parent.getUnderlying().getSelectedConstructorSignature());
 			if (constructor == null) {
 				throw new AssertionError();
@@ -684,8 +767,8 @@ public class InstanceSpecification {
 		}
 
 		public IFieldInfo getFieldInfo() {
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getUnderlying().getTypeName());
-			return ReflectionUIUtils.findInfoByName(typeInfo.getFields(), fieldName);
+			ITypeInfo parentTypeInfo = parent.getTypeInfo();
+			return ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
 		}
 
 		public FieldInitializer getUnderlying() {
@@ -865,8 +948,8 @@ public class InstanceSpecification {
 			if (listItemInitializer == null) {
 				return;
 			}
-			listItemInitializer.setItemReplication(
-					(itemReplicationFacade == null) ? null : itemReplicationFacade.getUnderlying());
+			listItemInitializer
+					.setItemReplication((itemReplicationFacade == null) ? null : itemReplicationFacade.getUnderlying());
 		}
 
 		public DynamicValue getCondition() {
@@ -953,14 +1036,8 @@ public class InstanceSpecification {
 		}
 
 		public ITypeInfo getItemType() {
-			IFieldInfo listFieldInfo = null;
-			if (parent.getParent() instanceof FieldInitializerFacade) {
-				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent.getParent();
-				listFieldInfo = listFieldInitializerFacade.getFieldInfo();
-			}
-			ITypeInfo typeInfo = TypeInfoProvider.getTypeInfo(parent.getUnderlying().getTypeName(),
-					listFieldInfo);
-			return ((IListTypeInfo) typeInfo).getItemType();
+			ITypeInfo parentTypeInfo = parent.getTypeInfo();
+			return ((IListTypeInfo) parentTypeInfo).getItemType();
 		}
 
 		public ListItemInitializer getUnderlying() {
@@ -987,8 +1064,7 @@ public class InstanceSpecification {
 				if (!parent.isConcrete()) {
 					parent.setConcrete(true);
 				}
-				parent.getUnderlying().getListItemInitializers().add(index,
-						new ListItemInitializer(itemValue));
+				parent.getUnderlying().getListItemInitializers().add(index, new ListItemInitializer(itemValue));
 			} else {
 				parent.getUnderlying().getListItemInitializers().remove(index);
 				itemValue = createDefaultItemValue();
@@ -998,7 +1074,9 @@ public class InstanceSpecification {
 		@Override
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<InstanceSpecification.FacadeNode>();
-			if (itemValue instanceof InstanceSpecification) {
+			if (itemValue instanceof MapEntrySpecification) {
+				result.add(new MapEntrySpecificationFacade(this, (MapEntrySpecification) itemValue));
+			} else if (itemValue instanceof InstanceSpecification) {
 				result.add(new InstanceSpecificationFacade(this, (InstanceSpecification) itemValue));
 			}
 			return result;

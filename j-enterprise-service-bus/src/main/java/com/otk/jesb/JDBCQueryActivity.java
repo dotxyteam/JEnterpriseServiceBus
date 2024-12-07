@@ -80,7 +80,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder extends ActivityBuilder {
 
 		private String uniqueIdentifier = Utils.getDigitalUniqueIdentifier();
 		private String connectionPath;
@@ -107,11 +107,11 @@ public class JDBCQueryActivity implements Activity {
 			}
 			{
 				if (resultClass != null) {
-					InstanceSpecification.ClassProvider.unregister(resultClass.getClassLoader());
+					PathExplorer.ClassProvider.unregister(resultClass.getClassLoader());
 				}
 				resultClass = createResultClass();
 				if (resultClass != null) {
-					InstanceSpecification.ClassProvider.register(resultClass.getClassLoader());
+					PathExplorer.ClassProvider.register(resultClass.getClassLoader());
 				}
 			}
 		}

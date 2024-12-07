@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.util.List;
+import java.util.Map;
 
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
@@ -18,16 +19,21 @@ public class ObjectSpecificationTest {
 		public Tree() {
 		}
 
-		public Tree(int intValue, String stringValue, EnumValue enumValue) {
+		public Tree(int intValue, String stringValue, EnumValue enumValue, List<String> stringList) {
+			super();
 			this.intValue = intValue;
 			this.stringValue = stringValue;
 			this.enumValue = enumValue;
+			this.stringList = stringList;
 		}
 
-		public Tree(List<String> stringList, Tree firstChild, Tree[] otherChildrenArray) {
-			this.stringList = stringList;
+		public Tree(Tree firstChild, Tree[] otherChildrenArray, Map<String, Tree> childByString,
+				Map<Integer, Boolean> booleanByInteger) {
+			super();
 			this.firstChild = firstChild;
 			this.otherChildrenArray = otherChildrenArray;
+			this.childByString = childByString;
+			this.booleanByInteger = booleanByInteger;
 		}
 
 		public enum EnumValue {
@@ -40,6 +46,8 @@ public class ObjectSpecificationTest {
 		private List<String> stringList;
 		private Tree firstChild;
 		private Tree[] otherChildrenArray;
+		private Map<String, Tree> childByString;
+		private Map<Integer, Boolean> booleanByInteger;
 
 		public int getIntValue() {
 			return intValue;
@@ -87,6 +95,22 @@ public class ObjectSpecificationTest {
 
 		public void setOtherChildrenArray(Tree[] otherChildrenArray) {
 			this.otherChildrenArray = otherChildrenArray;
+		}
+
+		public Map<String, Tree> getChildByString() {
+			return childByString;
+		}
+
+		public void setChildByString(Map<String, Tree> childByString) {
+			this.childByString = childByString;
+		}
+
+		public Map<Integer, Boolean> getBooleanByInteger() {
+			return booleanByInteger;
+		}
+
+		public void setBooleanByInteger(Map<Integer, Boolean> booleanByInteger) {
+			this.booleanByInteger = booleanByInteger;
 		}
 
 	}

@@ -5,7 +5,7 @@
 	. advertise
 	. improve the features
 - add script edition assistance:
-	. allow to select a data source node that will generate a script
+	. allow to select a data source node that will generate a script (PathSpecification)
 - add XML support
 	. generate automatically classes from XSD to parse and render ???
 - enhance the diagram editor
@@ -34,3 +34,4 @@ ObjectSpecification.(className|selectedConstructorSIgnature) are modified. It ma
 to display incoherent nodes with an error marker
 - to ease co-working plans and resources must be stored in separate files  
 - allow to specify activity builder UI details through the code
+- add validation
