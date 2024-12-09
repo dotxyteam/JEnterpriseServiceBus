@@ -2903,7 +2903,7 @@
         <fieldsCustomizations>
             <uniqueIdentifier>49150f72:193a2d04d87:51d1</uniqueIdentifier>
             <specificProperties/>
-            <hidden>false</hidden>
+            <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>typeInfo</fieldName>
@@ -6832,7 +6832,7 @@
         <fieldsCustomizations>
             <uniqueIdentifier>49150f72:193a2d04d87:51b6</uniqueIdentifier>
             <specificProperties/>
-            <hidden>false</hidden>
+            <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>typeInfo</fieldName>

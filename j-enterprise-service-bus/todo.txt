@@ -5,7 +5,17 @@
 	. advertise
 	. improve the features
 - add script edition assistance:
-	. allow to select a data source node that will generate a script (PathSpecification)
+	. allow to select a data source node that will generate a script
+	. to do this:
+		* modify reflection-ui:
+			# to allow to bind a list selection to a field
+			# to allow to disable a method invocation button when the parameters are not valid
+		* create a PathNodeSelector class that will 
+			# list the the PathExplorers by Step name
+			# allow to select a PathNode
+		* use a converter that will convert the DynamicVlaue.setCript(...) script parameter to a 
+		PathNodeSelector
+		* but how to provide the current Step and Plan to the PathNode Selector ?
 - add XML support
 	. generate automatically classes from XSD to parse and render ???
 - enhance the diagram editor

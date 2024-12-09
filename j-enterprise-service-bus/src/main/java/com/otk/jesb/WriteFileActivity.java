@@ -49,7 +49,7 @@ public class WriteFileActivity implements Activity {
 		return null;
 	}
 
-	public static class Builder extends ActivityBuilder {
+	public static class Builder implements ActivityBuilder {
 
 		private InstanceSpecification objectSpecification = new InstanceSpecification(WriteFileActivity.class.getName());
 
