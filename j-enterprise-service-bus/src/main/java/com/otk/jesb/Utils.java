@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.util.CompositeClassLoader;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -20,8 +21,12 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class Utils {
 
 	public static Object executeScript(String script, Plan.ExecutionContext context) {
+		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+		for (ClassLoader additionalClassLoader : PathExplorer.ClassProvider.getAdditionalClassLoaders()) {
+			compositeClassLoader.add(additionalClassLoader);
+		}
 		Binding binding = new Binding();
-		GroovyShell shell = new GroovyShell(binding);
+		GroovyShell shell = new GroovyShell(compositeClassLoader, binding);
 		for (Plan.ExecutionContext.Property property : context.getProperties()) {
 			Object value = property.getValue();
 			binding.setVariable(property.getName(), value);

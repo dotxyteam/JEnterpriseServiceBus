@@ -22,7 +22,7 @@ public class JDBCQueryActivity implements Activity {
 	private String statement;
 	private ParameterValues parameterValues;
 	private String builderUniqueIdentifier;
-	private Class<? extends ActivityResult> resultClass;
+	private Class<? extends ActivityResult> customResultClass;
 
 	public JDBCConnectionResource getConnection() {
 		return connection;
@@ -56,12 +56,12 @@ public class JDBCQueryActivity implements Activity {
 		this.builderUniqueIdentifier = builderUniqueIdentifier;
 	}
 
-	public Class<? extends ActivityResult> getResultClass() {
-		return resultClass;
+	public Class<? extends ActivityResult> getCustomResultClass() {
+		return customResultClass;
 	}
 
-	public void setResultClass(Class<? extends ActivityResult> resultClass) {
-		this.resultClass = resultClass;
+	public void setCustomResultClass(Class<? extends ActivityResult> customResultClass) {
+		this.customResultClass = customResultClass;
 	}
 
 	@Override
@@ -73,8 +73,8 @@ public class JDBCQueryActivity implements Activity {
 			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
 		}
 		ResultSet resultSet = preparedStatement.executeQuery();
-		if (resultClass != null) {
-			return (ActivityResult) resultClass.getConstructor(ResultSet.class).newInstance(resultSet);
+		if (customResultClass != null) {
+			return (ActivityResult) customResultClass.getConstructor(ResultSet.class).newInstance(resultSet);
 		} else {
 			return new GenericResult(resultSet);
 		}
@@ -89,7 +89,7 @@ public class JDBCQueryActivity implements Activity {
 		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification();
 		private List<ColumnDefinition> resultColumnDefinitions;
 
-		private Class<? extends ActivityResult> resultClass;
+		private Class<? extends ActivityResult> customResultClass;
 		private Class<? extends ParameterValues> parameterValuesClass;
 
 		public Builder() {
@@ -106,18 +106,18 @@ public class JDBCQueryActivity implements Activity {
 				InstanceSpecification.ClassProvider.register(parameterValuesClass.getClassLoader());
 			}
 			{
-				if (resultClass != null) {
-					PathExplorer.ClassProvider.unregister(resultClass.getClassLoader());
+				if (customResultClass != null) {
+					PathExplorer.ClassProvider.unregister(customResultClass.getClassLoader());
 				}
-				resultClass = createResultClass();
-				if (resultClass != null) {
-					PathExplorer.ClassProvider.register(resultClass.getClassLoader());
+				customResultClass = createCustomResultClass();
+				if (customResultClass != null) {
+					PathExplorer.ClassProvider.register(customResultClass.getClassLoader());
 				}
 			}
 		}
 
 		@SuppressWarnings("unchecked")
-		private Class<? extends ActivityResult> createResultClass() {
+		private Class<? extends ActivityResult> createCustomResultClass() {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
@@ -134,10 +134,9 @@ public class JDBCQueryActivity implements Activity {
 			javaSource.append("      " + resultRowClassName + " row = new " + resultRowClassName + "();\n");
 			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
 				ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
-				String setterMethodName = "set" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
-						+ columnDefinition.getColumnName().substring(1);
-				javaSource.append("      row." + setterMethodName + "((" + columnDefinition.getColumnTypeName()
-						+ ")resultSet.getObject(\"" + columnDefinition.getColumnName() + "\"));\n");
+				javaSource.append(
+						"      row." + columnDefinition.getColumnName() + " = (" + columnDefinition.getColumnTypeName()
+								+ ")resultSet.getObject(\"" + columnDefinition.getColumnName() + "\");\n");
 			}
 			javaSource.append("      rows.add(row);\n");
 			javaSource.append("    }\n");
@@ -156,15 +155,9 @@ public class JDBCQueryActivity implements Activity {
 					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
 					String getterMethoName = "get" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
 							+ columnDefinition.getColumnName().substring(1);
-					String setterMethoName = "set" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
-							+ columnDefinition.getColumnName().substring(1);
 					javaSource.append(
 							"  public " + columnDefinition.getColumnTypeName() + " " + getterMethoName + "() {" + "\n");
 					javaSource.append("    return " + columnDefinition.getColumnName() + ";" + "\n");
-					javaSource.append("  }" + "\n");
-					javaSource.append("  public void " + setterMethoName + "(" + columnDefinition.getColumnTypeName()
-							+ " value) {" + "\n");
-					javaSource.append("    this. " + columnDefinition.getColumnName() + " = value;" + "\n");
 					javaSource.append("  }" + "\n");
 				}
 				javaSource.append("}" + "\n");
@@ -298,14 +291,14 @@ public class JDBCQueryActivity implements Activity {
 			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
 			result.setParameterValues(parameterValues);
 			result.setBuilderUniqueIdentifier(uniqueIdentifier);
-			result.setResultClass(resultClass);
+			result.setCustomResultClass(customResultClass);
 			return result;
 		}
 
 		@Override
 		public Class<? extends ActivityResult> getResultClass() {
-			if (resultClass != null) {
-				return resultClass;
+			if (customResultClass != null) {
+				return customResultClass;
 			} else {
 				return GenericResult.class;
 			}
@@ -316,7 +309,7 @@ public class JDBCQueryActivity implements Activity {
 			if (resultClass == null) {
 				return null;
 			}
-			return new PathExplorer(resultClass.getName());
+			return new PathExplorer(resultClass.getName(), "?");
 		}
 
 	}

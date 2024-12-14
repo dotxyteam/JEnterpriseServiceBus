@@ -33,6 +33,11 @@ public class Plan implements FolderContent {
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
 	}
+	
+	public List<Step> getPreviousSteps(Step step) {
+		return getPreviousSteps(step, steps);
+	}
+		
 
 	private List<Step> getPreviousSteps(Step step, List<Step> steps) {
 		List<Step> result = new ArrayList<Step>();

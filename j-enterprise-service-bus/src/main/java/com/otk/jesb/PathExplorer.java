@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -27,25 +28,33 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class PathExplorer {
 
 	private String typeName;
+	private String rootExpression;
 
-	public PathExplorer(String typeName) {
+	public PathExplorer(String typeName, String rootExpression) {
 		this.typeName = typeName;
+		this.rootExpression = rootExpression;
 	}
 
 	public TypeNode getRootNode() {
 		return new TypeNode(null, typeName);
 	}
 
+	public String getRootExpression() {
+		return rootExpression;
+	}
+
 	public static interface PathNode {
 
 		List<PathNode> getChildren();
 
+		String generateExpression();
+
 	}
 
-	public static class TypeNode implements PathNode {
+	public class TypeNode implements PathNode {
 
-		private PathNode parent;
-		private String typeName;
+		protected PathNode parent;
+		protected String typeName;
 
 		public TypeNode(PathNode parent, String typeName) {
 			this.parent = parent;
@@ -111,16 +120,30 @@ public class PathExplorer {
 		}
 
 		@Override
+		public String generateExpression() {
+			String parentExpression = (parent != null) ? parent.generateExpression()
+					: PathExplorer.this.getRootExpression();
+			return parentExpression;
+		}
+
+		@Override
 		public String toString() {
 			return "<" + typeName + ">";
 		}
 
 	}
 
-	public static class MapEntryTypeNode extends TypeNode {
+	public class MapEntryTypeNode extends TypeNode {
 
 		public MapEntryTypeNode(PathNode parent) {
 			super(parent, StandardMapEntry.class.getName());
+		}
+
+		@Override
+		public String generateExpression() {
+			String parentExpression = (parent != null) ? parent.generateExpression()
+					: PathExplorer.this.getRootExpression();
+			return "((" + Map.Entry.class.getName() + ")" + parentExpression + ")";
 		}
 
 		@Override
@@ -130,10 +153,10 @@ public class PathExplorer {
 
 	}
 
-	public static class FieldNode implements PathNode {
+	public class FieldNode implements PathNode {
 
-		private TypeNode parent;
-		private String fieldName;
+		protected TypeNode parent;
+		protected String fieldName;
 
 		public FieldNode(TypeNode parent, String fieldName) {
 			this.parent = parent;
@@ -163,14 +186,21 @@ public class PathExplorer {
 		}
 
 		@Override
+		public String generateExpression() {
+			String parentExpression = (parent != null) ? parent.generateExpression()
+					: PathExplorer.this.getRootExpression();
+			return parentExpression + ".get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1) + "()";
+		}
+
+		@Override
 		public String toString() {
 			return fieldName;
 		}
 	}
 
-	public static class ListItemNode implements PathNode {
+	public class ListItemNode implements PathNode {
 
-		private TypeNode parent;
+		protected TypeNode parent;
 
 		public ListItemNode(TypeNode parent) {
 			this.parent = parent;
@@ -197,6 +227,13 @@ public class PathExplorer {
 					return Collections.singletonList(new TypeNode(this, itemTypeInfo.getName()));
 				}
 			}
+		}
+
+		@Override
+		public String generateExpression() {
+			String parentExpression = (parent != null) ? parent.generateExpression()
+					: PathExplorer.this.getRootExpression();
+			return parentExpression + ".get(0)";
 		}
 
 		@Override
@@ -262,6 +299,11 @@ public class PathExplorer {
 		public static void unregister(ClassLoader classLoader) {
 			additionalClassLoaders.remove(classLoader);
 		}
+
+		public static Set<ClassLoader> getAdditionalClassLoaders() {
+			return additionalClassLoaders;
+		}
+
 	}
 
 }

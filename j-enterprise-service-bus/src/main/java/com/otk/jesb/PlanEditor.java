@@ -2,7 +2,6 @@ package com.otk.jesb;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,9 +13,7 @@ import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
 
-import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.swing.ListControl;
-import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
@@ -70,10 +67,6 @@ public class PlanEditor {
 		frame.setVisible(true);
 	}
 
-	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
-			.getProperty(PlanEditor.class.getPackageName() + ".alternateUICustomizationsFileDirectory");
-	private static final String GUI_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
-
 	private Plan plan;
 	private JDiagram diagram;
 	private Form form;
@@ -87,7 +80,7 @@ public class PlanEditor {
 		panel.setLayout(new BorderLayout());
 		diagram = createDiagram();
 		panel.add(diagram, BorderLayout.CENTER);
-		panel.add(new JScrollPane(form = createForm()), BorderLayout.WEST);
+		panel.add(new JScrollPane(form = GUI.INSTANCE.createForm(plan)), BorderLayout.WEST);
 		form.getModificationStack().addListener(new AbstractSimpleModificationListener() {
 			@Override
 			protected void handleAnyEvent(IModification modification) {
@@ -145,24 +138,6 @@ public class PlanEditor {
 			diagram.addConnection(node1, node2);
 		}
 		diagram.repaint();
-	}
-
-	protected Form createForm() {
-		CustomizedUI ui = new CustomizedUI();
-		SwingCustomizer renderer;
-		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
-			renderer = new SwingCustomizer(ui,
-					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME);
-		} else {
-			try {
-				ui.getInfoCustomizations()
-						.loadFromStream(getClass().getResourceAsStream("/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME), null);
-			} catch (IOException e) {
-				throw new AssertionError(e);
-			}
-			renderer = new SwingCustomizer(ui);
-		}
-		return renderer.createForm(plan);
 	}
 
 }

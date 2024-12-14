@@ -1197,6 +1197,10 @@ public class InstanceSpecification {
 		public static void unregister(ClassLoader classLoader) {
 			additionalClassLoaders.remove(classLoader);
 		}
+
+		public static Set<ClassLoader> getAdditionalClassLoaders() {
+			return additionalClassLoaders;
+		}
 	}
 
 }
