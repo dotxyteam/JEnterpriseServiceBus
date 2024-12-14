@@ -149,11 +149,11 @@ public class InstanceSpecification {
 			if (listTypeInfo.canReplaceContent()) {
 				object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));
 				listTypeInfo.replaceContent(object, itemList.toArray());
-			} else if (listTypeInfo.canInstanciateFromArray()) {
+			} else if (listTypeInfo.canInstantiateFromArray()) {
 				object = listTypeInfo.fromArray(itemList.toArray());
 			} else {
 				throw new AssertionError("Cannot initialize list of type " + listTypeInfo
-						+ ": Cannot replace instance content or instanciate from array");
+						+ ": Cannot replace instance content or instantiate from array");
 			}
 		} else {
 			object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));
