@@ -232,7 +232,7 @@ public class InstanceSpecification {
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
 			Class<?> keyClass = (keyTypeName != null) ? ClassProvider.getClass(keyTypeName) : null;
 			Class<?> valueClass = (valueTypeName != null) ? ClassProvider.getClass(valueTypeName) : null;
-			return reflectionUI.buildTypeInfo(new JavaTypeInfoSource(reflectionUI, StandardMapEntry.class,
+			return reflectionUI.getTypeInfo(new JavaTypeInfoSource(reflectionUI, StandardMapEntry.class,
 					new Class[] { keyClass, valueClass }, null));
 		}
 
@@ -1166,7 +1166,7 @@ public class InstanceSpecification {
 			} else {
 				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
 			}
-			return reflectionUI.buildTypeInfo(javaTypeInfoSource);
+			return reflectionUI.getTypeInfo(javaTypeInfoSource);
 		}
 
 	}

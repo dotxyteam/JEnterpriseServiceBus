@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -118,6 +119,16 @@ public class Utils {
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}
+	}
+
+	
+	
+	public static <E> Iterable<E> secureIterable(Iterable<E> iterable) {
+		ArrayList<E> list = new ArrayList<E>();
+	    for (E item : iterable) {
+	        list.add(item);
+	    }
+	    return list;
 	}
 
 }

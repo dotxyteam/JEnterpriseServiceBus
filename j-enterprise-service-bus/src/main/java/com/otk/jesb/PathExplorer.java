@@ -268,7 +268,7 @@ public class PathExplorer {
 			} else {
 				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
 			}
-			return reflectionUI.buildTypeInfo(javaTypeInfoSource);
+			return reflectionUI.getTypeInfo(javaTypeInfoSource);
 		}
 
 	}

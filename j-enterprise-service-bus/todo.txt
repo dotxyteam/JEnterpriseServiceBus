@@ -1,3 +1,7 @@
+- retrieve class loaders from activity result classes to feed the Groovy shell
+- allow to view the "concrete" property of InstanceSpecification nodes 
+through the foreground color in the list control
+- add icons to InstanceSpecification nodes
 - strategy: 
 	. focus on an original main feature and make it work
 	. implement quickly and minimally all the other features
@@ -18,7 +22,8 @@
 		* but how to provide the current Step and Plan to the PathNode Selector ?
 - add XML support
 	. generate automatically classes from XSD to parse and render ???
-- enhance the diagram editor
+- enhance the diagram editor:
+	. add icons for activities
 - add things like groups (for repetition, etc) and conditionnal transitions for steps
 - comment the code
 - add built-in activities (file, jdbc, jms, data format, .. activities)
@@ -36,7 +41,7 @@
 	. dynamic result
 	. check parameter type mappings
 	. allow to dynamically create the statement
-	. the Builder.uniqueIdentifier should not contain charcaters invalid for class name
+	. the Builder.uniqueIdentifier should not contain characters invalid for class name
 	. can generate automatically parameter definitions ?
 	. should automatically retrieve result columns
 - some modifications can disappear from the UI when 
@@ -45,3 +50,4 @@ to display incoherent nodes with an error marker
 - to ease co-working plans and resources must be stored in separate files  
 - allow to specify activity builder UI details through the code
 - add validation
+- change the look and feel (maybe the windows look and feel would be good)
