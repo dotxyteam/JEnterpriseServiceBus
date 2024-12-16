@@ -4,8 +4,8 @@ import com.otk.jesb.Plan.ExecutionContext;
 
 public interface ActivityBuilder {
 
-	public abstract Activity build(ExecutionContext context) throws Exception;
+	 Activity build(ExecutionContext context) throws Exception;
 
-	public abstract Class<? extends ActivityResult> getResultClass();
+	 Class<? extends ActivityResult> getActivityResultClass();
 
 }

@@ -80,6 +80,20 @@ public class JDBCQueryActivity implements Activity {
 		}
 	}
 
+	public static class Metadata implements ActivityMetadata {
+
+		@Override
+		public String getActivityTypeName() {
+			return "JDBC Query";
+		}
+
+		@Override
+		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+			return Builder.class;
+		}
+
+	}
+
 	public static class Builder implements ActivityBuilder {
 
 		private String uniqueIdentifier = Utils.getDigitalUniqueIdentifier();
@@ -296,7 +310,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getResultClass() {
+		public Class<? extends ActivityResult> getActivityResultClass() {
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {
@@ -305,7 +319,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		public PathExplorer getResultPathExplorer() {
-			Class<? extends ActivityResult> resultClass = getResultClass();
+			Class<? extends ActivityResult> resultClass = getActivityResultClass();
 			if (resultClass == null) {
 				return null;
 			}

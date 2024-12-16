@@ -89,7 +89,7 @@ public class GUI extends SwingCustomizer {
 	public static GUI INSTANCE = new GUI();
 
 	private GUI() {
-		super(new Reflection());
+		super(new Reflecter());
 		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
 			setInfoCustomizationsOutputFilePath(
 					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME);
@@ -112,10 +112,10 @@ public class GUI extends SwingCustomizer {
 		}
 	}
 
-	public static class Reflection extends CustomizedUI {
+	public static class Reflecter extends CustomizedUI {
 
-		protected static final List<Class<? extends ActivityBuilder>> ACTIVITY_BUILDER_CLASSES = Arrays
-				.asList(JDBCQueryActivity.Builder.class, WriteFileActivity.Builder.class);
+		protected static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays
+				.asList(new JDBCQueryActivity.Metadata(), new WriteFileActivity.Metadata());
 		private Plan currentPlan;
 		private Step currentStep;
 
@@ -183,13 +183,24 @@ public class GUI extends SwingCustomizer {
 				protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
 					if (type.getName().equals(ActivityBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (Class<?> clazz : ACTIVITY_BUILDER_CLASSES) {
-							result.add(getTypeInfo(new JavaTypeInfoSource(Reflection.this, clazz, null)));
+						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+							result.add(getTypeInfo(new JavaTypeInfoSource(Reflecter.this,
+									activityMetadata.getActivityBuilderClass(), null)));
 						}
 						return result;
 					} else {
 						return super.getPolymorphicInstanceSubTypes(type);
 					}
+				}
+
+				@Override
+				protected String getCaption(ITypeInfo type) {
+					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+						if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
+							return activityMetadata.getActivityTypeName();
+						}
+					}
+					return super.getCaption(type);
 				}
 
 			}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));

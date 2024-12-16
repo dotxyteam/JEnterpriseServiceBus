@@ -47,7 +47,7 @@ public class PathNodeSelector {
 
 		public RootPathNode(Step step) {
 			this.step = step;
-			this.pathExplorer = new PathExplorer(step.getActivityBuilder().getResultClass().getName(), step.getName());
+			this.pathExplorer = new PathExplorer(step.getActivityBuilder().getActivityResultClass().getName(), step.getName());
 		}
 
 		@Override

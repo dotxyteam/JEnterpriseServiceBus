@@ -49,9 +49,24 @@ public class WriteFileActivity implements Activity {
 		return null;
 	}
 
+	public static class Metadata implements ActivityMetadata {
+
+		@Override
+		public String getActivityTypeName() {
+			return "Write File";
+		}
+
+		@Override
+		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+			return Builder.class;
+		}
+
+	}
+
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(WriteFileActivity.class.getName());
+		private InstanceSpecification objectSpecification = new InstanceSpecification(
+				WriteFileActivity.class.getName());
 
 		public InstanceSpecification getObjectSpecification() {
 			return objectSpecification;
@@ -63,11 +78,11 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity)objectSpecification.build(context);
+			return (WriteFileActivity) objectSpecification.build(context);
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getResultClass() {
+		public Class<? extends ActivityResult> getActivityResultClass() {
 			return null;
 		}
 
