@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.IInfo;
 import xy.reflect.ui.info.field.GetterFieldInfo;
@@ -178,7 +180,7 @@ public class PathExplorer {
 		@Override
 		public List<PathNode> getChildren() {
 			ITypeInfo fieldTypeInfo = getFieldInfo().getType();
-			if (!Utils.isComplexType(fieldTypeInfo)) {
+			if (!MiscUtils.isComplexType(fieldTypeInfo)) {
 				return Collections.emptyList();
 			} else {
 				return Collections.singletonList(new TypeNode(this, fieldTypeInfo.getName()));
@@ -218,7 +220,7 @@ public class PathExplorer {
 		@Override
 		public List<PathNode> getChildren() {
 			ITypeInfo itemTypeInfo = getItemType();
-			if (!Utils.isComplexType(itemTypeInfo)) {
+			if (!MiscUtils.isComplexType(itemTypeInfo)) {
 				return Collections.emptyList();
 			} else {
 				if (itemTypeInfo instanceof IMapEntryTypeInfo) {

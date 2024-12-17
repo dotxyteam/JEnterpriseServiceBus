@@ -1,6 +1,8 @@
 package com.otk.jesb;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,22 +10,30 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceSpecification.FacadeNode;
+import com.otk.jesb.InstanceSpecification.InstanceSpecificationFacade;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
 
 import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
@@ -108,8 +118,62 @@ public class GUI extends SwingCustomizer {
 		if (object instanceof Plan) {
 			return new PlanEditor(this, (Plan) object, infoFilter);
 		} else {
-			return super.createForm(object, infoFilter);
+			return new CustomizingForm(this, object, infoFilter) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+					return new CustomizingFieldControlPlaceHolder(this, field) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public Component createFieldControl() {
+							if (object instanceof InstanceSpecificationFacade) {
+								if (field.getName().equals("children")) {
+									return new InstanceSpecificationControl(GUI.this, this);
+								}
+							}
+							return super.createFieldControl();
+						}
+					};
+				}
+
+			};
 		}
+	}
+
+	public static class InstanceSpecificationControl extends ListControl {
+
+		private static final long serialVersionUID = 1L;
+
+		public InstanceSpecificationControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+			super(swingRenderer, input);
+		}
+
+		@Override
+		protected TreeCellRenderer createTreeCellRenderer() {
+			return new ItemTreeCellRenderer() {
+
+				@Override
+				protected void customizeCellRendererComponent(JLabel label, ItemNode node, int rowIndex,
+						int columnIndex, boolean isSelected, boolean hasFocus) {
+					super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);
+					BufferedItemPosition itemPosition = getItemPositionByNode(node);
+					if (itemPosition != null) {
+						if (itemPosition.getItem() instanceof FacadeNode) {
+							FacadeNode facadeNode = (FacadeNode) itemPosition.getItem();
+							if (!facadeNode.isConcrete()) {
+								label.setForeground(Color.LIGHT_GRAY);
+							}
+						}
+					}
+				}
+
+			};
+		}
+
 	}
 
 	public static class Reflecter extends CustomizedUI {
@@ -269,13 +333,13 @@ public class GUI extends SwingCustomizer {
 					newContainer.setRightComponent(membersPanel);
 					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
 				}
-				double dividerLocation = 0.7;
+				double dividerLocation = 0.6;
 				SwingRendererUtils.setSafelyDividerLocation(newContainer, dividerLocation);
 				newContainer.setResizeWeight(dividerLocation);
 			}
 		}
 
-		JDiagram createDiagram() {
+		private JDiagram createDiagram() {
 			JDiagram result = new JDiagram();
 			result.addListener(new JDiagramListener() {
 
@@ -314,7 +378,7 @@ public class GUI extends SwingCustomizer {
 			return result;
 		}
 
-		void updateDiagram() {
+		private void updateDiagram() {
 			if (diagram == null) {
 				return;
 			}

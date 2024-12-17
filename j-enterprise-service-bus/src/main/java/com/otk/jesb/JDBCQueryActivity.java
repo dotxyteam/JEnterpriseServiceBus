@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.otk.jesb.Plan.ExecutionContext;
-
-import xy.reflect.ui.util.MiscUtils;
+import com.otk.jesb.util.MiscUtils;
 
 public class JDBCQueryActivity implements Activity {
 
@@ -96,7 +95,7 @@ public class JDBCQueryActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private String uniqueIdentifier = Utils.getDigitalUniqueIdentifier();
+		private String uniqueIdentifier = MiscUtils.getDigitalUniqueIdentifier();
 		private String connectionPath;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
@@ -177,7 +176,7 @@ public class JDBCQueryActivity implements Activity {
 				javaSource.append("}" + "\n");
 			}
 			javaSource.append("}" + "\n");
-			return (Class<? extends ActivityResult>) Utils.createClass(resultClassName, javaSource.toString(),
+			return (Class<? extends ActivityResult>) MiscUtils.createClass(resultClassName, javaSource.toString(),
 					JDBCQueryActivity.class.getClassLoader());
 		}
 
@@ -199,7 +198,7 @@ public class JDBCQueryActivity implements Activity {
 						.add(parameterDefinition.getParameterTypeName() + " " + parameterDefinition.getParameterName());
 			}
 			javaSource.append("  public " + className + "("
-					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
+					+ xy.reflect.ui.util.MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
 				javaSource.append("    this." + parameterDefinition.getParameterName() + " = "
@@ -216,7 +215,7 @@ public class JDBCQueryActivity implements Activity {
 			javaSource.append("  }" + "\n");
 
 			javaSource.append("}" + "\n");
-			return (Class<? extends ParameterValues>) Utils.createClass(className, javaSource.toString(),
+			return (Class<? extends ParameterValues>) MiscUtils.createClass(className, javaSource.toString(),
 					JDBCQueryActivity.class.getClassLoader());
 		}
 

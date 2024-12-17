@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.otk.jesb.Plan.ExecutionContext.Property;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.IInfo;
@@ -92,7 +93,7 @@ public class InstanceSpecification {
 
 	public Object build(Plan.ExecutionContext context) throws Exception {
 		ITypeInfo typeInfo = getTypeInfo();
-		IMethodInfo constructor = Utils.getConstructorInfo(typeInfo, selectedConstructorSignature);
+		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			if (selectedConstructorSignature == null) {
 				throw new AssertionError("Cannot create '" + typeName + "' instance: No constructor available");
@@ -107,10 +108,10 @@ public class InstanceSpecification {
 					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
-				parameterValue = Utils.interpretValue(Utils.getDefaultInterpretableValue(parameterInfo.getType()),
+				parameterValue = MiscUtils.interpretValue(MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()),
 						context);
 			} else {
-				parameterValue = Utils.interpretValue(parameterInitializer.getParameterValue(), context);
+				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(), context);
 			}
 			parameterValues[parameterInfo.getPosition()] = parameterValue;
 		}
@@ -119,12 +120,12 @@ public class InstanceSpecification {
 			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
 			List<Object> itemList = new ArrayList<Object>();
 			for (ListItemInitializer listItemInitializer : listItemInitializers) {
-				if (!Utils.isConditionFullfilled(listItemInitializer.getCondition(), context)) {
+				if (!MiscUtils.isConditionFullfilled(listItemInitializer.getCondition(), context)) {
 					continue;
 				}
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
-					Object iterationListValue = Utils.interpretValue(itemReplication.getIterationListValue(), context);
+					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(), context);
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -138,11 +139,11 @@ public class InstanceSpecification {
 					for (Object iterationVariableValue : iterationListArray) {
 						Plan.ExecutionContext iterationContext = new Plan.ExecutionContext(context,
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue));
-						Object itemValue = Utils.interpretValue(listItemInitializer.getItemValue(), iterationContext);
+						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(), iterationContext);
 						itemList.add(itemValue);
 					}
 				} else {
-					Object itemValue = Utils.interpretValue(listItemInitializer.getItemValue(), context);
+					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(), context);
 					itemList.add(itemValue);
 				}
 			}
@@ -166,10 +167,10 @@ public class InstanceSpecification {
 			if (fieldInitializer == null) {
 				continue;
 			}
-			if (!Utils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
+			if (!MiscUtils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
 				continue;
 			}
-			Object fieldValue = Utils.interpretValue(fieldInitializer.getFieldValue(), context);
+			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), context);
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -514,7 +515,7 @@ public class InstanceSpecification {
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<InstanceSpecification.FacadeNode>();
 			ITypeInfo typeInfo = getTypeInfo();
-			IMethodInfo constructor = Utils.getConstructorInfo(typeInfo, underlying.getSelectedConstructorSignature());
+			IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, underlying.getSelectedConstructorSignature());
 			if (constructor != null) {
 				for (IParameterInfo parameterInfo : constructor.getParameters()) {
 					result.add(new ParameterInitializerFacade(this, parameterInfo.getPosition()));
@@ -629,7 +630,7 @@ public class InstanceSpecification {
 
 		public IParameterInfo getParameterInfo() {
 			ITypeInfo parentTypeInfo = parent.getTypeInfo();
-			IMethodInfo constructor = Utils.getConstructorInfo(parentTypeInfo,
+			IMethodInfo constructor = MiscUtils.getConstructorInfo(parentTypeInfo,
 					parent.getUnderlying().getSelectedConstructorSignature());
 			if (constructor == null) {
 				throw new AssertionError();
@@ -643,7 +644,7 @@ public class InstanceSpecification {
 					parameter.getType().getName());
 			if (result == null) {
 				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
-						Utils.getDefaultInterpretableValue(parameter.getType()));
+						MiscUtils.getDefaultInterpretableValue(parameter.getType()));
 				parent.getUnderlying().getParameterInitializers().add(result);
 			}
 			return result;
@@ -683,14 +684,14 @@ public class InstanceSpecification {
 
 		public ValueMode getParameterValueMode() {
 			ParameterInitializer parameterInitializer = getUnderlying();
-			return Utils.getValueMode(parameterInitializer.getParameterValue());
+			return MiscUtils.getValueMode(parameterInitializer.getParameterValue());
 		}
 
 		public void setParameterValueMode(ValueMode valueMode) {
 			IParameterInfo parameter = getParameterInfo();
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
-				if (!Utils.isComplexType(parameter.getType())) {
+				if (!MiscUtils.isComplexType(parameter.getType())) {
 					Object defaultValue = ReflectionUIUtils.createDefaultInstance(parameter.getType());
 					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
 							: String.valueOf(defaultValue)) + ";";
@@ -701,7 +702,7 @@ public class InstanceSpecification {
 			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
 				setParameterValue(new InstanceSpecification(parameter.getType().getName()));
 			} else {
-				if (!Utils.isComplexType(parameter.getType())) {
+				if (!MiscUtils.isComplexType(parameter.getType())) {
 					setParameterValue(ReflectionUIUtils.createDefaultInstance(parameter.getType()));
 				} else {
 					setParameterValue(null);
@@ -763,7 +764,7 @@ public class InstanceSpecification {
 
 		private Object createDefaultFieldValue() {
 			IFieldInfo field = getFieldInfo();
-			return Utils.getDefaultInterpretableValue(field.getType());
+			return MiscUtils.getDefaultInterpretableValue(field.getType());
 		}
 
 		public IFieldInfo getFieldInfo() {
@@ -792,10 +793,8 @@ public class InstanceSpecification {
 		}
 
 		public void setCondition(DynamicValue condition) {
+			setConcrete(true);
 			FieldInitializer fieldInitializer = getUnderlying();
-			if (fieldInitializer == null) {
-				return;
-			}
 			if ((condition != null) && (condition.getScript() == null)) {
 				condition = new DynamicValue("return true;");
 			}
@@ -831,21 +830,19 @@ public class InstanceSpecification {
 			if (fieldInitializer == null) {
 				return null;
 			}
-			return Utils.getValueMode(fieldInitializer.getFieldValue());
+			return MiscUtils.getValueMode(fieldInitializer.getFieldValue());
 		}
 
 		public void setFieldValueMode(ValueMode valueMode) {
+			setConcrete(true);
 			FieldInitializer fieldInitializer = getUnderlying();
-			if (fieldInitializer == null) {
-				return;
-			}
 			if (valueMode == getFieldValueMode()) {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
-				if (!Utils.isComplexType(field.getType())) {
+				if (!MiscUtils.isComplexType(field.getType())) {
 					Object defaultValue = ReflectionUIUtils.createDefaultInstance(field.getType());
 					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
 							: String.valueOf(defaultValue)) + ";";
@@ -856,7 +853,7 @@ public class InstanceSpecification {
 			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
 				fieldValue = new InstanceSpecification(field.getType().getName());
 			} else {
-				if (!Utils.isComplexType(field.getType())) {
+				if (!MiscUtils.isComplexType(field.getType())) {
 					fieldValue = ReflectionUIUtils.createDefaultInstance(field.getType());
 				} else {
 					fieldValue = null;
@@ -874,10 +871,8 @@ public class InstanceSpecification {
 		}
 
 		public void setFieldValue(Object value) {
+			setConcrete(true);
 			FieldInitializer fieldInitializer = getUnderlying();
-			if (fieldInitializer == null) {
-				return;
-			}
 			IFieldInfo field = getFieldInfo();
 			if ((value == null) && (field.getType().isPrimitive())) {
 				throw new AssertionError("Cannot set null to primitive field");
@@ -996,7 +991,7 @@ public class InstanceSpecification {
 			if (listItemInitializer == null) {
 				return null;
 			}
-			return Utils.getValueMode(listItemInitializer.getItemValue());
+			return MiscUtils.getValueMode(listItemInitializer.getItemValue());
 		}
 
 		public void setItemValueMode(ValueMode valueMode) {
@@ -1010,7 +1005,7 @@ public class InstanceSpecification {
 			ITypeInfo itemType = getItemType();
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
-				if (!Utils.isComplexType(itemType)) {
+				if (!MiscUtils.isComplexType(itemType)) {
 					Object defaultValue = ReflectionUIUtils.createDefaultInstance(itemType);
 					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
 							: String.valueOf(defaultValue)) + ";";
@@ -1021,7 +1016,7 @@ public class InstanceSpecification {
 			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
 				itemValue = new InstanceSpecification(itemType.getName());
 			} else {
-				if (!Utils.isComplexType(itemType)) {
+				if (!MiscUtils.isComplexType(itemType)) {
 					itemValue = ReflectionUIUtils.createDefaultInstance(itemType);
 				} else {
 					itemValue = null;
@@ -1032,7 +1027,7 @@ public class InstanceSpecification {
 
 		private Object createDefaultItemValue() {
 			ITypeInfo itemType = getItemType();
-			return Utils.getDefaultInterpretableValue(itemType);
+			return MiscUtils.getDefaultInterpretableValue(itemType);
 		}
 
 		public ITypeInfo getItemType() {
@@ -1123,7 +1118,7 @@ public class InstanceSpecification {
 		}
 
 		public ValueMode getIterationListValueMode() {
-			return Utils.getValueMode(listItemReplication.getIterationListValue());
+			return MiscUtils.getValueMode(listItemReplication.getIterationListValue());
 		}
 
 		public void setIterationListValueMode(ValueMode valueMode) {

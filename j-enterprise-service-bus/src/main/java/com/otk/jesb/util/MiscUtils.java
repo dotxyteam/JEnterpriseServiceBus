@@ -1,14 +1,15 @@
-package com.otk.jesb;
+package com.otk.jesb.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.otk.jesb.InstanceSpecification;
+import com.otk.jesb.PathExplorer;
+import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.util.CompositeClassLoader;
-
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -19,7 +20,7 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
-public class Utils {
+public class MiscUtils {
 
 	public static Object executeScript(String script, Plan.ExecutionContext context) {
 		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
@@ -48,7 +49,7 @@ public class Utils {
 
 	public static Object interpretValue(Object value, ExecutionContext context) throws Exception {
 		if (value instanceof DynamicValue) {
-			return Utils.executeScript(((DynamicValue) value).getScript(), context);
+			return MiscUtils.executeScript(((DynamicValue) value).getScript(), context);
 		} else if (value instanceof InstanceSpecification) {
 			return ((InstanceSpecification) value).build(context);
 		} else {
@@ -70,7 +71,7 @@ public class Utils {
 		if (condition == null) {
 			return true;
 		}
-		Object conditionResult = Utils.interpretValue(condition.getScript(), context);
+		Object conditionResult = MiscUtils.interpretValue(condition.getScript(), context);
 		if (!(conditionResult instanceof Boolean)) {
 			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
@@ -93,7 +94,7 @@ public class Utils {
 	public static Object getDefaultInterpretableValue(ITypeInfo type) {
 		if (type == null) {
 			return null;
-		} else if (!Utils.isComplexType(type)) {
+		} else if (!MiscUtils.isComplexType(type)) {
 			return ReflectionUIUtils.createDefaultInstance(type);
 		} else {
 			if (type instanceof IMapEntryTypeInfo) {
@@ -121,14 +122,16 @@ public class Utils {
 		}
 	}
 
-	
-	
 	public static <E> Iterable<E> secureIterable(Iterable<E> iterable) {
 		ArrayList<E> list = new ArrayList<E>();
-	    for (E item : iterable) {
-	        list.add(item);
-	    }
-	    return list;
+		for (E item : iterable) {
+			list.add(item);
+		}
+		return list;
+	}
+
+	public static boolean negate(boolean b) {
+		return !b;
 	}
 
 }
