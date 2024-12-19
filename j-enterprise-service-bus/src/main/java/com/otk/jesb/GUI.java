@@ -17,6 +17,7 @@ import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.FacadeNode;
+import com.otk.jesb.InstanceSpecification.FieldInitializerFacade;
 import com.otk.jesb.InstanceSpecification.InstanceSpecificationFacade;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
@@ -33,6 +34,8 @@ import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.field.CapsuleFieldInfo;
+import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -47,6 +50,7 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 
 public class GUI extends SwingCustomizer {
 
@@ -124,6 +128,40 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+					if (object instanceof PrecomputedTypeInstanceWrapper) {
+						Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
+						if (instance instanceof CapsuleFieldInfo.Value) {
+							Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
+							if (encapsulated instanceof FieldInitializerFacade) {
+								if (field.getName().equals("fieldValue")) {
+									field = new FieldInfoProxy(field) {
+
+										@Override
+										public ITypeInfo getType() {
+											return ((FieldInitializerFacade) encapsulated).getFieldInfo().getType();
+										}
+
+										@Override
+										public int hashCode() {
+											return super.hashCode() + getType().hashCode();
+										}
+
+										@Override
+										public boolean equals(Object obj) {
+											if (!super.equals(obj)) {
+												return false;
+											}
+											if (!getType().equals(((FieldInfoProxy) obj).getType())) {
+												return false;
+											}
+											return true;
+										}
+
+									};
+								}
+							}
+						}
+					}
 					return new CustomizingFieldControlPlaceHolder(this, field) {
 
 						private static final long serialVersionUID = 1L;

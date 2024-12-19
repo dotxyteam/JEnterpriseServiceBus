@@ -108,8 +108,8 @@ public class InstanceSpecification {
 					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
-				parameterValue = MiscUtils.interpretValue(MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()),
-						context);
+				parameterValue = MiscUtils
+						.interpretValue(MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()), context);
 			} else {
 				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(), context);
 			}
@@ -125,7 +125,8 @@ public class InstanceSpecification {
 				}
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
-					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(), context);
+					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(),
+							context);
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -139,7 +140,8 @@ public class InstanceSpecification {
 					for (Object iterationVariableValue : iterationListArray) {
 						Plan.ExecutionContext iterationContext = new Plan.ExecutionContext(context,
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue));
-						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(), iterationContext);
+						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
+								iterationContext);
 						itemList.add(itemValue);
 					}
 				} else {
@@ -515,7 +517,8 @@ public class InstanceSpecification {
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<InstanceSpecification.FacadeNode>();
 			ITypeInfo typeInfo = getTypeInfo();
-			IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, underlying.getSelectedConstructorSignature());
+			IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo,
+					underlying.getSelectedConstructorSignature());
 			if (constructor != null) {
 				for (IParameterInfo parameterInfo : constructor.getParameters()) {
 					result.add(new ParameterInitializerFacade(this, parameterInfo.getPosition()));
@@ -835,11 +838,11 @@ public class InstanceSpecification {
 
 		public void setFieldValueMode(ValueMode valueMode) {
 			setConcrete(true);
-			FieldInitializer fieldInitializer = getUnderlying();
 			if (valueMode == getFieldValueMode()) {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
+			Object newFieldValue;
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
 				if (!MiscUtils.isComplexType(field.getType())) {
@@ -849,17 +852,19 @@ public class InstanceSpecification {
 				} else {
 					scriptContent = "return null;";
 				}
-				fieldValue = new DynamicValue(scriptContent);
+				newFieldValue = new DynamicValue(scriptContent);
 			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
-				fieldValue = new InstanceSpecification(field.getType().getName());
-			} else {
+				newFieldValue = new InstanceSpecification(field.getType().getName());
+			} else if (valueMode == ValueMode.STATIC_VALUE) {
 				if (!MiscUtils.isComplexType(field.getType())) {
-					fieldValue = ReflectionUIUtils.createDefaultInstance(field.getType());
+					newFieldValue = ReflectionUIUtils.createDefaultInstance(field.getType());
 				} else {
-					fieldValue = null;
+					newFieldValue = null;
 				}
+			} else {
+				newFieldValue = null;
 			}
-			fieldInitializer.setFieldValue(fieldValue);
+			setFieldValue(newFieldValue);
 		}
 
 		public Object getFieldValue() {
@@ -877,7 +882,7 @@ public class InstanceSpecification {
 			if ((value == null) && (field.getType().isPrimitive())) {
 				throw new AssertionError("Cannot set null to primitive field");
 			}
-			fieldInitializer.setFieldValue(value);
+			fieldInitializer.setFieldValue(fieldValue = value);
 		}
 
 		@Override

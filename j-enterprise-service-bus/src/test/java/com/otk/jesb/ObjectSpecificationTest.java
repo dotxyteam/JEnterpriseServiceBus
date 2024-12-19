@@ -3,15 +3,10 @@ package com.otk.jesb;
 import java.util.List;
 import java.util.Map;
 
-import xy.reflect.ui.CustomizedUI;
-import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
-
 public class ObjectSpecificationTest {
 
 	public static void main(String[] args) {
-		new SwingCustomizer(new CustomizedUI(),
-				"src/test/resources/" + ObjectSpecificationTest.class.getSimpleName() + ".icu").openObjectDialog(null,
-						new InstanceSpecification(Tree.class.getName()));
+		GUI.INSTANCE.openObjectDialog(null, new InstanceSpecification(Tree.class.getName()));
 	}
 
 	public static class Tree {
