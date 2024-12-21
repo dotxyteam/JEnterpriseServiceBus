@@ -19,6 +19,8 @@ import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.FacadeNode;
 import com.otk.jesb.InstanceSpecification.FieldInitializerFacade;
 import com.otk.jesb.InstanceSpecification.InstanceSpecificationFacade;
+import com.otk.jesb.InstanceSpecification.ParameterInitializerFacade;
+import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramListener;
@@ -27,6 +29,7 @@ import com.otk.jesb.diagram.JNode;
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
@@ -35,7 +38,6 @@ import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
-import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -128,40 +130,6 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
-					if (object instanceof PrecomputedTypeInstanceWrapper) {
-						Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
-						if (instance instanceof CapsuleFieldInfo.Value) {
-							Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
-							if (encapsulated instanceof FieldInitializerFacade) {
-								if (field.getName().equals("fieldValue")) {
-									field = new FieldInfoProxy(field) {
-
-										@Override
-										public ITypeInfo getType() {
-											return ((FieldInitializerFacade) encapsulated).getFieldInfo().getType();
-										}
-
-										@Override
-										public int hashCode() {
-											return super.hashCode() + getType().hashCode();
-										}
-
-										@Override
-										public boolean equals(Object obj) {
-											if (!super.equals(obj)) {
-												return false;
-											}
-											if (!getType().equals(((FieldInfoProxy) obj).getType())) {
-												return false;
-											}
-											return true;
-										}
-
-									};
-								}
-							}
-						}
-					}
 					return new CustomizingFieldControlPlaceHolder(this, field) {
 
 						private static final long serialVersionUID = 1L;
@@ -171,6 +139,55 @@ public class GUI extends SwingCustomizer {
 							if (object instanceof InstanceSpecificationFacade) {
 								if (field.getName().equals("children")) {
 									return new InstanceSpecificationControl(GUI.this, this);
+								}
+							}
+							if (object instanceof PrecomputedTypeInstanceWrapper) {
+								Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
+								if (instance instanceof CapsuleFieldInfo.Value) {
+									Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
+									if (encapsulated instanceof FieldInitializerFacade) {
+										if (field.getName().equals("fieldValue")) {
+											return new NullableControl(this.swingRenderer, this) {
+
+												private static final long serialVersionUID = 1L;
+
+												@Override
+												protected Object getNewValue() {
+													FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+															.getInstance()).getObject();
+													if ((facade.getFieldValueMode() == null)
+															|| (facade.getFieldValueMode() == ValueMode.STATIC_VALUE)) {
+														return swingRenderer.onTypeInstantiationRequest(this,
+																facade.getFieldInfo().getType());
+													} else {
+														return super.getNewValue();
+													}
+												}
+
+											};
+										}
+									}
+									if (encapsulated instanceof ParameterInitializerFacade) {
+										if (field.getName().equals("parameterValue")) {
+											return new NullableControl(this.swingRenderer, this) {
+
+												private static final long serialVersionUID = 1L;
+
+												@Override
+												protected Object getNewValue() {
+													ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+															.getInstance()).getObject();
+													if (facade.getParameterValueMode() == ValueMode.STATIC_VALUE) {
+														return swingRenderer.onTypeInstantiationRequest(this,
+																facade.getParameterInfo().getType());
+													} else {
+														return super.getNewValue();
+													}
+												}
+
+											};
+										}
+									}
 								}
 							}
 							return super.createFieldControl();

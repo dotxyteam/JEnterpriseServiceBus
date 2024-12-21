@@ -1,3 +1,7 @@
+- Parameter list item type not resolved in InstanceSpecification
+- ParameterInitializerFacade.fieldValue control is not dynamic 
+- FieldInitializerFacade.fieldValue dynamic type is potentially based on
+a class that the GUI.Reflecter class loader does not know 
 - retrieve class loaders from activity result classes to feed the Groovy shell
 - allow to view the "concrete" property of InstanceSpecification nodes 
 through the foreground color in the list control
