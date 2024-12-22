@@ -15,6 +15,8 @@ import java.util.Map;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.info.ResourcePath;
+
 public class JDBCQueryActivity implements Activity {
 
 	private JDBCConnectionResource connection;
@@ -89,6 +91,12 @@ public class JDBCQueryActivity implements Activity {
 		@Override
 		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
 			return Builder.class;
+		}
+
+		@Override
+		public ResourcePath getActivityIconImagePath() {
+			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+					JDBCQueryActivity.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}

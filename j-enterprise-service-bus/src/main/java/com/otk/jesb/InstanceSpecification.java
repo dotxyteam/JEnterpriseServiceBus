@@ -691,6 +691,7 @@ public class InstanceSpecification {
 		}
 
 		public void setParameterValueMode(ValueMode valueMode) {
+			setConcrete(true);
 			IParameterInfo parameter = getParameterInfo();
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent;
@@ -719,6 +720,7 @@ public class InstanceSpecification {
 		}
 
 		public void setParameterValue(Object value) {
+			setConcrete(true);
 			IParameterInfo parameter = getParameterInfo();
 			if ((value == null) && (parameter.getType().isPrimitive())) {
 				throw new AssertionError("Cannot set null to primitive field");
@@ -944,10 +946,8 @@ public class InstanceSpecification {
 		}
 
 		public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {
+			setConcrete(true);
 			ListItemInitializer listItemInitializer = getUnderlying();
-			if (listItemInitializer == null) {
-				return;
-			}
 			listItemInitializer
 					.setItemReplication((itemReplicationFacade == null) ? null : itemReplicationFacade.getUnderlying());
 		}
@@ -961,10 +961,8 @@ public class InstanceSpecification {
 		}
 
 		public void setCondition(DynamicValue condition) {
+			setConcrete(true);
 			ListItemInitializer listItemInitializer = getUnderlying();
-			if (listItemInitializer == null) {
-				return;
-			}
 			if ((condition != null) && (condition.getScript() == null)) {
 				condition = new DynamicValue("return true;");
 			}
@@ -980,10 +978,8 @@ public class InstanceSpecification {
 		}
 
 		public void setItemValue(Object value) {
+			setConcrete(true);
 			ListItemInitializer listItemInitializer = getUnderlying();
-			if (listItemInitializer == null) {
-				return;
-			}
 			ITypeInfo itemType = getItemType();
 			if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
 				throw new AssertionError("Cannot add null item to primitive item list");
@@ -1000,10 +996,8 @@ public class InstanceSpecification {
 		}
 
 		public void setItemValueMode(ValueMode valueMode) {
+			setConcrete(true);
 			ListItemInitializer listItemInitializer = getUnderlying();
-			if (listItemInitializer == null) {
-				return;
-			}
 			if (valueMode == getItemValueMode()) {
 				return;
 			}

@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import com.otk.jesb.Plan.ExecutionContext;
 
+import xy.reflect.ui.info.ResourcePath;
+
 public class WriteFileActivity implements Activity {
 
 	private String filePath;
@@ -61,6 +63,11 @@ public class WriteFileActivity implements Activity {
 			return Builder.class;
 		}
 
+		@Override
+		public ResourcePath getActivityIconImagePath() {
+			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+					WriteFileActivity.class.getName().replace(".", "/") + ".png"));
+		}
 	}
 
 	public static class Builder implements ActivityBuilder {

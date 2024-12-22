@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
@@ -19,6 +20,7 @@ import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.FacadeNode;
 import com.otk.jesb.InstanceSpecification.FieldInitializerFacade;
 import com.otk.jesb.InstanceSpecification.InstanceSpecificationFacade;
+import com.otk.jesb.InstanceSpecification.ListItemInitializerFacade;
 import com.otk.jesb.InstanceSpecification.ParameterInitializerFacade;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.diagram.JConnection;
@@ -37,6 +39,7 @@ import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
@@ -188,10 +191,60 @@ public class GUI extends SwingCustomizer {
 											};
 										}
 									}
+									if (encapsulated instanceof ListItemInitializerFacade) {
+										if (field.getName().equals("itemValue")) {
+											return new NullableControl(this.swingRenderer, this) {
+
+												private static final long serialVersionUID = 1L;
+
+												@Override
+												protected Object getNewValue() {
+													ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+															.getInstance()).getObject();
+													if ((facade.getItemValueMode() == null)
+															|| (facade.getItemValueMode() == ValueMode.STATIC_VALUE)) {
+														return swingRenderer.onTypeInstantiationRequest(this,
+																facade.getItemType());
+													} else {
+														return super.getNewValue();
+													}
+												}
+
+											};
+										}
+									}
 								}
 							}
 							return super.createFieldControl();
 						}
+
+						@Override
+						public void refreshUI(boolean recreate) {
+							setVisible(true);
+							if (object instanceof InstanceSpecificationFacade) {
+								if (field.getName().equals("selectedConstructorSignature")) {
+									setBorder(BorderFactory.createTitledBorder(field.getCaption()));
+									Object[] valueOptions = field.getValueOptions(object);
+									if (valueOptions != null) {
+										if (valueOptions.length <= 1) {
+											setVisible(false);
+										}
+									}
+								}
+							}
+							super.refreshUI(recreate);
+						}
+
+						@Override
+						public boolean showsCaption() {
+							if (object instanceof InstanceSpecificationFacade) {
+								if (field.getName().equals("selectedConstructorSignature")) {
+									return true;
+								}
+							}
+							return super.showsCaption();
+						}
+
 					};
 				}
 
@@ -320,6 +373,19 @@ public class GUI extends SwingCustomizer {
 						}
 					}
 					return super.getCaption(type);
+				}
+
+				@Override
+				protected ResourcePath getIconImagePath(ITypeInfo type) {
+					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+						if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
+							return activityMetadata.getActivityIconImagePath();
+						}
+					}
+					if(type.getName().equals(Step.class.getName())) {
+						
+					}
+					return super.getIconImagePath(type);
 				}
 
 			}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
