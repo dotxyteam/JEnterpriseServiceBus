@@ -376,16 +376,21 @@ public class GUI extends SwingCustomizer {
 				}
 
 				@Override
-				protected ResourcePath getIconImagePath(ITypeInfo type) {
+				protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
 					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
 						if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
 							return activityMetadata.getActivityIconImagePath();
 						}
 					}
-					if(type.getName().equals(Step.class.getName())) {
-						
+					if (type.getName().equals(Step.class.getName())) {
+						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+							if (activityMetadata.getActivityBuilderClass()
+									.equals(((Step) object).getActivityBuilder().getClass())) {
+								return activityMetadata.getActivityIconImagePath();
+							}
+						}
 					}
-					return super.getIconImagePath(type);
+					return super.getIconImagePath(type, object);
 				}
 
 			}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
@@ -399,6 +404,7 @@ public class GUI extends SwingCustomizer {
 		private Plan plan;
 		private JDiagram diagram;
 		private boolean selectionListeningEnabled = true;
+		private ControlSplitPane splitPane;
 
 		public PlanEditor(SwingCustomizer swingRenderer, Plan plan, IInfoFilter infoFilter) {
 			super(swingRenderer, plan, infoFilter);
@@ -444,19 +450,32 @@ public class GUI extends SwingCustomizer {
 		@Override
 		protected void layoutMembersPanels(Container container, Container fieldsPanel, Container methodsPanel) {
 			container.setLayout(new BorderLayout());
-			JSplitPane newContainer = new ControlSplitPane();
+			splitPane = new ControlSplitPane();
 			{
-				container.add(newContainer, BorderLayout.CENTER);
-				newContainer.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-				newContainer.setLeftComponent(diagram);
+				container.add(splitPane, BorderLayout.CENTER);
+				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+				splitPane.setLeftComponent(diagram);
 				ControlPanel membersPanel = new ControlPanel();
 				{
-					newContainer.setRightComponent(membersPanel);
+					splitPane.setRightComponent(membersPanel);
 					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
 				}
 				double dividerLocation = 0.6;
-				SwingRendererUtils.setSafelyDividerLocation(newContainer, dividerLocation);
-				newContainer.setResizeWeight(dividerLocation);
+				SwingRendererUtils.setSafelyDividerLocation(splitPane, dividerLocation);
+				splitPane.setResizeWeight(dividerLocation);
+			}
+		}
+
+		@Override
+		public void refresh(boolean refreshStructure) {
+			super.refresh(refreshStructure);
+			if (refreshStructure) {
+				if (swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor() != null) {
+					splitPane.setBorder(BorderFactory.createLineBorder(SwingRendererUtils
+							.getColor(swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor())));
+				} else {
+					splitPane.setBorder(new JSplitPane().getBorder());
+				}
 			}
 		}
 
