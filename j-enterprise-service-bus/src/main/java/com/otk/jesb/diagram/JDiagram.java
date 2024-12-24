@@ -1,5 +1,6 @@
 package com.otk.jesb.diagram;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -31,12 +32,13 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		connections.clear();
 	}
 
-	public void addNode(Object object, int x, int y) {
+	public JNode addNode(Object object, int x, int y) {
 		JNode newNode = new JNode();
 		newNode.setX(x);
 		newNode.setY(y);
 		newNode.setObject(object);
 		nodes.add(newNode);
+		return newNode;
 	}
 
 	public JNode getNode(Object object) {
@@ -48,11 +50,12 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		return null;
 	}
 
-	public void addConnection(JNode node1, JNode node2) {
+	public JConnection addConnection(JNode node1, JNode node2) {
 		JConnection newConn = new JConnection();
 		newConn.setStartNode(node1);
 		newConn.setEndNode(node2);
 		connections.add(newConn);
+		return newConn;
 	}
 
 	public void addListener(JDiagramListener listener) {
@@ -154,6 +157,16 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				l.nodeSelected(node);
 			}
 		}
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension result = new Dimension(0,0);
+		for (JNode node : nodes) {
+			result.width = Math.max(result.width,node.getX());
+			result.height = Math.max(result.width,node.getY());
+		}
+		return result;
 	}
 
 }

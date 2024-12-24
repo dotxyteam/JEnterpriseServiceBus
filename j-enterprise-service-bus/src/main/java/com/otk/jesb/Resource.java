@@ -1,16 +1,24 @@
 package com.otk.jesb;
 
-public class Resource implements FolderContent {
+public abstract class Resource {
 
 	private String name;
 
-	@Override
+	public Resource(String name) {
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }

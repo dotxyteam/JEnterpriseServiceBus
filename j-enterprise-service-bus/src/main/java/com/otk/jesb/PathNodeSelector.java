@@ -60,6 +60,11 @@ public class PathNodeSelector {
 			return step.getName();
 		}
 
+		@Override
+		public String toString() {
+			return step.getName();
+		}
+
 	}
 
 }

@@ -3,20 +3,14 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Plan implements FolderContent {
+public class Plan extends Resource {
 
-	private String name;
+	public Plan(String name) {
+		super(name);
+	}
+
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public List<Step> getSteps() {
 		return steps;
@@ -33,11 +27,10 @@ public class Plan implements FolderContent {
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
 	}
-	
+
 	public List<Step> getPreviousSteps(Step step) {
 		return getPreviousSteps(step, steps);
 	}
-		
 
 	private List<Step> getPreviousSteps(Step step, List<Step> steps) {
 		List<Step> result = new ArrayList<Step>();

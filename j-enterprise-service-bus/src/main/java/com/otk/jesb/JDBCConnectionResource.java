@@ -8,7 +8,7 @@ import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 public class JDBCConnectionResource extends Resource {
 
     public static void main(String[] args) {
-        SwingCustomizer.getDefault().openObjectFrame(new JDBCConnectionResource());
+        SwingCustomizer.getDefault().openObjectFrame(new JDBCConnectionResource("test"));
     }
     
     static {
@@ -23,7 +23,11 @@ public class JDBCConnectionResource extends Resource {
     private String userName;
     private String password;
 
-    public String getUrl() {
+    public JDBCConnectionResource(String name) {
+		super(name);
+	}
+
+	public String getUrl() {
         return url;
     }
 

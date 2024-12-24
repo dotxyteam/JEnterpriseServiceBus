@@ -2,16 +2,25 @@ package com.otk.jesb.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import com.otk.jesb.ActivityMetadata;
+import com.otk.jesb.Folder;
+import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Resource;
+import com.otk.jesb.Solution;
+import com.otk.jesb.Step;
+
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
@@ -132,6 +141,43 @@ public class MiscUtils {
 
 	public static boolean negate(boolean b) {
 		return !b;
+	}
+
+	public static ResourcePath getIconImagePath(Step step) {
+		for (ActivityMetadata activityMetadata : GUI.Reflecter.ACTIVITY_METADATAS) {
+			if (activityMetadata.getActivityBuilderClass().equals(step.getActivityBuilder().getClass())) {
+				return activityMetadata.getActivityIconImagePath();
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Resource> List<T> findResources(Solution solution, Class<T> resourceClass) {
+		List<T> result = new ArrayList<T>();
+		for (Resource resource : solution.getContents()) {
+			if (resource.getClass().equals(resourceClass)) {
+				result.add((T) resource);
+			}
+			if (resource instanceof Folder) {
+				result.addAll(findDescendantResources((Folder) resource, resourceClass));
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static  <T extends Resource> List<T>  findDescendantResources(Folder folder, Class<T> resourceClass) {
+		List<T> result = new ArrayList<T>();
+		for (Resource resource : folder.getContents()) {
+			if (resource.getClass().equals(resourceClass)) {
+				result.add((T) resource);
+			}
+			if (resource instanceof Folder) {
+				result.addAll(findDescendantResources((Folder) resource, resourceClass));
+			}
+		}
+		return result;
 	}
 
 }

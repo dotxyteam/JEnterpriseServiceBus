@@ -2,6 +2,8 @@ package com.otk.jesb.diagram;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.geom.Rectangle2D;
 
 public class JNode {
 
@@ -9,6 +11,7 @@ public class JNode {
 	private int y = 0;
 	private Object object;
 	private boolean selected = false;
+	private Image image;
 
 	public int getX() {
 		return x;
@@ -42,18 +45,37 @@ public class JNode {
 		this.selected = selected;
 	}
 
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(Image image) {
+		this.image = image;
+	}
+
 	public void paint(Graphics g) {
-		if (selected) {
-			g.setColor(Color.CYAN);
-		} else {
-			g.setColor(Color.YELLOW);
-		}
-		g.fillOval(-10 + x, -10 + y, 20, 20);
-		if (object != null) {
+		if (image != null) {
+			g.drawImage(image, x - (image.getWidth(null) / 2), y - (image.getHeight(null) / 2),
+					selected ? Color.CYAN : null, null);
 			if (object.toString() != null) {
 				g.setColor(Color.BLACK);
-				int stringWidth = g.getFontMetrics().stringWidth(object.toString());
-				g.drawString(object.toString(), x - stringWidth / 2, y);
+				Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
+				g.drawString(object.toString(), (int) Math.round(x - (stringBounds.getWidth() / 2)),
+						(int) Math.round(y + (image.getHeight(null) / 2) + (stringBounds.getHeight() / 2)));
+			}
+		} else {
+			if (selected) {
+				g.setColor(Color.CYAN);
+			} else {
+				g.setColor(Color.YELLOW);
+			}
+			g.fillOval(-10 + x, -10 + y, 20, 20);
+			if (object != null) {
+				if (object.toString() != null) {
+					g.setColor(Color.BLACK);
+					int stringWidth = g.getFontMetrics().stringWidth(object.toString());
+					g.drawString(object.toString(), x - stringWidth / 2, y);
+				}
 			}
 		}
 	}

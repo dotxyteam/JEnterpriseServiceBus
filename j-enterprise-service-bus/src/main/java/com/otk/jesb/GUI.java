@@ -27,6 +27,7 @@ import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.IFieldControlInput;
@@ -37,6 +38,7 @@ import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.ControlScrollPane;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
@@ -56,16 +58,23 @@ import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.util.Listener;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class GUI extends SwingCustomizer {
 
 	public static void main(String[] args) throws Exception {
-		Plan plan = new Plan();
-		Workspace.PLANS.add(plan);
+		Folder plansFolder = new Folder("plans");
+		Solution.INSTANCE.getContents().add(plansFolder);
 
-		JDBCConnectionResource c = new JDBCConnectionResource();
+		Folder otheResourcesFolder = new Folder("resources");
+		Solution.INSTANCE.getContents().add(otheResourcesFolder);
+
+		Plan plan = new Plan("test");
+		plansFolder.getContents().add(plan);
+
+		JDBCConnectionResource c = new JDBCConnectionResource("db");
 		c.setUrl("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
-		Workspace.JDBC_CONNECTIONS.add(c);
+		otheResourcesFolder.getContents().add(c);
 
 		Step s1 = new Step();
 		plan.getSteps().add(s1);
@@ -74,7 +83,7 @@ public class GUI extends SwingCustomizer {
 		s1.setDiagramY(100);
 		JDBCQueryActivity.Builder ab1 = new JDBCQueryActivity.Builder();
 		s1.setActivityBuilder(ab1);
-		ab1.setConnectionPath(JDBCQueryActivity.Builder.getConnectionPathChoices().get(0));
+		ab1.setConnection(c);
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
 		Step s2 = new Step();
@@ -98,11 +107,16 @@ public class GUI extends SwingCustomizer {
 		t1.setEndStep(s2);
 		plan.getTransitions().add(t1);
 
-		GUI.INSTANCE.openObjectFrame(plan);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
+			}
+		});
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
-			.getProperty(PlanEditor.class.getPackageName() + ".alternateUICustomizationsFileDirectory");
+			.getProperty(PlanEditor.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
 
 	public static GUI INSTANCE = new GUI();
@@ -286,8 +300,8 @@ public class GUI extends SwingCustomizer {
 
 	public static class Reflecter extends CustomizedUI {
 
-		protected static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays
-				.asList(new JDBCQueryActivity.Metadata(), new WriteFileActivity.Metadata());
+		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new JDBCQueryActivity.Metadata(),
+				new WriteFileActivity.Metadata());
 		private Plan currentPlan;
 		private Step currentStep;
 
@@ -383,12 +397,7 @@ public class GUI extends SwingCustomizer {
 						}
 					}
 					if (type.getName().equals(Step.class.getName())) {
-						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-							if (activityMetadata.getActivityBuilderClass()
-									.equals(((Step) object).getActivityBuilder().getClass())) {
-								return activityMetadata.getActivityIconImagePath();
-							}
-						}
+						return MiscUtils.getIconImagePath((Step) object);
 					}
 					return super.getIconImagePath(type, object);
 				}
@@ -454,15 +463,22 @@ public class GUI extends SwingCustomizer {
 			{
 				container.add(splitPane, BorderLayout.CENTER);
 				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-				splitPane.setLeftComponent(diagram);
+				{
+					splitPane.setLeftComponent(new ControlScrollPane(diagram));
+				}
 				ControlPanel membersPanel = new ControlPanel();
 				{
 					splitPane.setRightComponent(membersPanel);
 					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
 				}
-				double dividerLocation = 0.6;
-				SwingRendererUtils.setSafelyDividerLocation(splitPane, dividerLocation);
-				splitPane.setResizeWeight(dividerLocation);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						double dividerLocation = 0.5;
+						SwingRendererUtils.ensureDividerLocation(splitPane, dividerLocation);
+						splitPane.setResizeWeight(dividerLocation);
+					}
+				});
 			}
 		}
 
@@ -515,6 +531,7 @@ public class GUI extends SwingCustomizer {
 					refresh(false);
 				}
 			});
+			result.setBackground(Color.WHITE);
 			return result;
 		}
 
@@ -524,7 +541,12 @@ public class GUI extends SwingCustomizer {
 			}
 			diagram.clear();
 			for (Step step : plan.getSteps()) {
-				diagram.addNode(step, step.getDiagramX(), step.getDiagramY());
+				JNode node = diagram.addNode(step, step.getDiagramX(), step.getDiagramY());
+				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
+				if (iconImagePath != null) {
+					node.setImage(SwingRendererUtils.loadImageThroughCache(iconImagePath,
+							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI())));
+				}
 			}
 			for (Transition t : plan.getTransitions()) {
 				JNode node1 = diagram.getNode(t.getStartStep());

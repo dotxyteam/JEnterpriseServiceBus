@@ -95,8 +95,8 @@ public class JDBCQueryActivity implements Activity {
 
 		@Override
 		public ResourcePath getActivityIconImagePath() {
-			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-					JDBCQueryActivity.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(JDBCQueryActivity.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}
@@ -104,7 +104,7 @@ public class JDBCQueryActivity implements Activity {
 	public static class Builder implements ActivityBuilder {
 
 		private String uniqueIdentifier = MiscUtils.getDigitalUniqueIdentifier();
-		private String connectionPath;
+		private JDBCConnectionResource connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification();
@@ -237,20 +237,16 @@ public class JDBCQueryActivity implements Activity {
 			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
-		public String getConnectionPath() {
-			return connectionPath;
+		public JDBCConnectionResource getConnection() {
+			return connection;
 		}
 
-		public void setConnectionPath(String connectionPath) {
-			this.connectionPath = connectionPath;
+		public void setConnection(JDBCConnectionResource connection) {
+			this.connection = connection;
 		}
 
-		public static List<String> getConnectionPathChoices() {
-			List<String> result = new ArrayList<String>();
-			for (int i = 0; i < Workspace.JDBC_CONNECTIONS.size(); i++) {
-				result.add(String.valueOf(i));
-			}
-			return result;
+		public static List<JDBCConnectionResource> getConnectionChoices() {
+			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnectionResource.class);
 		}
 
 		public String getStatement() {
@@ -291,7 +287,6 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		public void retrieveResultColumnDefinitions() throws SQLException {
-			JDBCConnectionResource connection = Workspace.JDBC_CONNECTIONS.get(Integer.valueOf(connectionPath));
 			Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 					connection.getPassword());
 			PreparedStatement preparedStatement = conn.prepareStatement(statement);
@@ -307,7 +302,7 @@ public class JDBCQueryActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			JDBCQueryActivity result = new JDBCQueryActivity();
-			result.setConnection(Workspace.JDBC_CONNECTIONS.get(Integer.valueOf(connectionPath)));
+			result.setConnection(connection);
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
 			result.setParameterValues(parameterValues);
