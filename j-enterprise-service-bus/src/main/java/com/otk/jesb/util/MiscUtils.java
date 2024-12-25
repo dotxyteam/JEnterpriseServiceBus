@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.otk.jesb.ActivityBuilder;
 import com.otk.jesb.ActivityMetadata;
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
@@ -144,6 +145,10 @@ public class MiscUtils {
 	}
 
 	public static ResourcePath getIconImagePath(Step step) {
+		ActivityBuilder activityBuilder = step.getActivityBuilder();
+		if(activityBuilder == null) {
+			return null;
+		}
 		for (ActivityMetadata activityMetadata : GUI.Reflecter.ACTIVITY_METADATAS) {
 			if (activityMetadata.getActivityBuilderClass().equals(step.getActivityBuilder().getClass())) {
 				return activityMetadata.getActivityIconImagePath();

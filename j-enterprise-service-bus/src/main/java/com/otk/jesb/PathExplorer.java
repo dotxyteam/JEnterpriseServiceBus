@@ -49,7 +49,7 @@ public class PathExplorer {
 
 		List<PathNode> getChildren();
 
-		String generateExpression();
+		String getExpression();
 
 	}
 
@@ -122,8 +122,8 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String generateExpression() {
-			String parentExpression = (parent != null) ? parent.generateExpression()
+		public String getExpression() {
+			String parentExpression = (parent != null) ? parent.getExpression()
 					: PathExplorer.this.getRootExpression();
 			return parentExpression;
 		}
@@ -142,8 +142,8 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String generateExpression() {
-			String parentExpression = (parent != null) ? parent.generateExpression()
+		public String getExpression() {
+			String parentExpression = (parent != null) ? parent.getExpression()
 					: PathExplorer.this.getRootExpression();
 			return "((" + Map.Entry.class.getName() + ")" + parentExpression + ")";
 		}
@@ -188,8 +188,8 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String generateExpression() {
-			String parentExpression = (parent != null) ? parent.generateExpression()
+		public String getExpression() {
+			String parentExpression = (parent != null) ? parent.getExpression()
 					: PathExplorer.this.getRootExpression();
 			return parentExpression + ".get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1) + "()";
 		}
@@ -232,8 +232,8 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String generateExpression() {
-			String parentExpression = (parent != null) ? parent.generateExpression()
+		public String getExpression() {
+			String parentExpression = (parent != null) ? parent.getExpression()
 					: PathExplorer.this.getRootExpression();
 			return parentExpression + ".get(0)";
 		}

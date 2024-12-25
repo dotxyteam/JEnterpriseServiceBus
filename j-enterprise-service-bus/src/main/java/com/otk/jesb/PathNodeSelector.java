@@ -56,7 +56,7 @@ public class PathNodeSelector {
 		}
 
 		@Override
-		public String generateExpression() {
+		public String getExpression() {
 			return step.getName();
 		}
 
