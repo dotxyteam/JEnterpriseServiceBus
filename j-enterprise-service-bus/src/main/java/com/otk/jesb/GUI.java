@@ -35,8 +35,10 @@ import xy.reflect.ui.control.DefaultFieldControlData;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
+import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
+import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
@@ -269,6 +271,34 @@ public class GUI extends SwingCustomizer {
 					};
 				}
 
+				@Override
+				protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
+					if (object instanceof ExpressionEditor) {
+						if (method.getName().equals("insertSelectedPathNodeExpression")) {
+							method = new MethodInfoProxy(method) {
+
+								@Override
+								public List<IParameterInfo> getParameters() {
+									return Collections.emptyList();
+								}
+
+								@Override
+								public Object invoke(Object object, InvocationData invocationData) {
+									TextControl textControl = (TextControl) getFieldControlPlaceHolder("expression")
+											.getFieldControl();
+									invocationData.getProvidedParameterValues().put(0,
+											textControl.getTextComponent().getSelectionStart());
+									invocationData.getProvidedParameterValues().put(1,
+											textControl.getTextComponent().getSelectionEnd());
+									return super.invoke(object, invocationData);
+								}
+
+							};
+						}
+					}
+					return super.createMethodControlPlaceHolder(method);
+				}
+
 			};
 		}
 	}
@@ -351,7 +381,8 @@ public class GUI extends SwingCustomizer {
 
 											@Override
 											public Object getDefaultValue(Object object) {
-												return new PathNodeSelector(currentPlan, currentStep);
+												return new ExpressionEditor(((DynamicValue) object).getScript(),
+														currentPlan, currentStep);
 											}
 
 										});
@@ -359,10 +390,9 @@ public class GUI extends SwingCustomizer {
 
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
-								PathNodeSelector pathNodeSelector = (PathNodeSelector) invocationData
+								ExpressionEditor expressionEditor = (ExpressionEditor) invocationData
 										.getParameterValue(0);
-								((DynamicValue) object).setScript(
-										"return " + pathNodeSelector.getSelectedPathNode().getExpression() + ";");
+								((DynamicValue) object).setScript(expressionEditor.getExpression());
 								return null;
 							}
 						});
@@ -479,7 +509,8 @@ public class GUI extends SwingCustomizer {
 				}
 				ControlPanel membersPanel = new ControlPanel();
 				{
-					splitPane.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
+					splitPane
+							.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
 					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
 				}
 				SwingUtilities.invokeLater(new Runnable() {

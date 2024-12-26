@@ -1,3 +1,5 @@
+- remove type-only nodes from PathExplorer and InstanceSpecification trees
+- compile/check DynamicValue.script
 - Parameter list item type not resolved in InstanceSpecification
 - ParameterInitializerFacade.fieldValue control is not dynamic 
 - FieldInitializerFacade.fieldValue dynamic type is potentially based on

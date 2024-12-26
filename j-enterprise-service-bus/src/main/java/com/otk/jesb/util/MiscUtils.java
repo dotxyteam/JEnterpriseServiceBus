@@ -10,11 +10,12 @@ import com.otk.jesb.ActivityMetadata;
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceSpecification;
-import com.otk.jesb.PathExplorer;
 import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.meta.ClassProvider;
+import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.Resource;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
@@ -34,7 +35,7 @@ public class MiscUtils {
 
 	public static Object executeScript(String script, Plan.ExecutionContext context) {
 		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
-		for (ClassLoader additionalClassLoader : PathExplorer.ClassProvider.getAdditionalClassLoaders()) {
+		for (ClassLoader additionalClassLoader : ClassProvider.getAdditionalClassLoaders()) {
 			compositeClassLoader.add(additionalClassLoader);
 		}
 		Binding binding = new Binding();

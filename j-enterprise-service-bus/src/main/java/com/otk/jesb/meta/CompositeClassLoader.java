@@ -9,7 +9,7 @@
  * 
  * Created on 16. November 2004 by Joe Walnes
  */
-package com.otk.jesb.util;
+package com.otk.jesb.meta;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;

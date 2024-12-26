@@ -1,25 +1,19 @@
 package com.otk.jesb;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.WeakHashMap;
 
 import com.otk.jesb.Plan.ExecutionContext.Property;
+import com.otk.jesb.meta.ClassProvider;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.ReflectionUI;
-import xy.reflect.ui.info.IInfo;
-import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
-import xy.reflect.ui.info.field.PublicFieldInfo;
-import xy.reflect.ui.info.method.DefaultMethodInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
@@ -1131,69 +1125,6 @@ public class InstanceSpecification {
 				iterationListValue = new ArrayList<Object>();
 			}
 			listItemReplication.setIterationListValue(iterationListValue);
-		}
-	}
-
-	private static class TypeInfoProvider {
-
-		public static ITypeInfo getTypeInfo(String typeName) {
-			return getTypeInfo(typeName, null);
-		}
-
-		public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-			Class<?> objectClass = ClassProvider.getClass(typeName);
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			JavaTypeInfoSource javaTypeInfoSource;
-			if (typeOwner != null) {
-				if (typeOwner instanceof GetterFieldInfo) {
-					Method javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else if (typeOwner instanceof PublicFieldInfo) {
-					Field javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else if (typeOwner instanceof DefaultMethodInfo) {
-					Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else {
-					throw new AssertionError();
-				}
-			} else {
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
-			}
-			return reflectionUI.getTypeInfo(javaTypeInfoSource);
-		}
-
-	}
-
-	public static class ClassProvider {
-
-		private static Set<ClassLoader> additionalClassLoaders = Collections
-				.newSetFromMap(new WeakHashMap<ClassLoader, Boolean>());
-
-		public static Class<?> getClass(String typeName) {
-			try {
-				return Class.forName(typeName);
-			} catch (ClassNotFoundException e) {
-				for (ClassLoader classLoader : additionalClassLoaders) {
-					try {
-						return Class.forName(typeName, false, classLoader);
-					} catch (ClassNotFoundException ignore) {
-					}
-				}
-			}
-			throw new AssertionError(new ClassNotFoundException(typeName));
-		}
-
-		public static void register(ClassLoader classLoader) {
-			additionalClassLoaders.add(classLoader);
-		}
-
-		public static void unregister(ClassLoader classLoader) {
-			additionalClassLoaders.remove(classLoader);
-		}
-
-		public static Set<ClassLoader> getAdditionalClassLoaders() {
-			return additionalClassLoaders;
 		}
 	}
 

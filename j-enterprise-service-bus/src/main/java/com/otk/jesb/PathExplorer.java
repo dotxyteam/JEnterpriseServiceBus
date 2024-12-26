@@ -1,30 +1,20 @@
 package com.otk.jesb;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
-
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
-import xy.reflect.ui.ReflectionUI;
-import xy.reflect.ui.info.IInfo;
-import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
-import xy.reflect.ui.info.field.PublicFieldInfo;
-import xy.reflect.ui.info.method.DefaultMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
-import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PathExplorer {
@@ -94,14 +84,18 @@ public class PathExplorer {
 			List<PathNode> result = new ArrayList<PathNode>();
 			ITypeInfo typeInfo = getTypeInfo();
 			if (typeInfo instanceof IListTypeInfo) {
-				result.add(new ListItemNode(this));
+				if (((IListTypeInfo) typeInfo).getItemType() instanceof IMapEntryTypeInfo) {
+					result.add(new MapValueNode(this));
+				} else {
+					result.add(new ListItemNode(this));
+				}
 			} else {
 				for (IFieldInfo field : typeInfo.getFields()) {
 					result.add(new FieldNode(this, field.getName()));
 				}
 			}
 			Collections.sort(result, new Comparator<PathNode>() {
-				List<Class<?>> CLASSES_ORDER = Arrays.asList(FieldNode.class, ListItemNode.class);
+				List<Class<?>> CLASSES_ORDER = Arrays.asList(FieldNode.class, ListItemNode.class, MapValueNode.class);
 
 				@Override
 				public int compare(PathNode o1, PathNode o2) {
@@ -123,8 +117,7 @@ public class PathExplorer {
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression()
-					: PathExplorer.this.getRootExpression();
+			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
 			return parentExpression;
 		}
 
@@ -143,8 +136,7 @@ public class PathExplorer {
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression()
-					: PathExplorer.this.getRootExpression();
+			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
 			return "((" + Map.Entry.class.getName() + ")" + parentExpression + ")";
 		}
 
@@ -189,8 +181,7 @@ public class PathExplorer {
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression()
-					: PathExplorer.this.getRootExpression();
+			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
 			return parentExpression + ".get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1) + "()";
 		}
 
@@ -233,9 +224,8 @@ public class PathExplorer {
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression()
-					: PathExplorer.this.getRootExpression();
-			return parentExpression + ".get(0)";
+			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
+			return parentExpression + ".get(i)";
 		}
 
 		@Override
@@ -244,68 +234,48 @@ public class PathExplorer {
 		}
 	}
 
-	private static class TypeInfoProvider {
+	public class MapValueNode implements PathNode {
 
-		public static ITypeInfo getTypeInfo(String typeName) {
-			return getTypeInfo(typeName, null);
+		protected TypeNode parent;
+
+		public MapValueNode(TypeNode parent) {
+			this.parent = parent;
 		}
 
-		public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-			Class<?> objectClass = ClassProvider.getClass(typeName);
-			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			JavaTypeInfoSource javaTypeInfoSource;
-			if (typeOwner != null) {
-				if (typeOwner instanceof GetterFieldInfo) {
-					Method javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else if (typeOwner instanceof PublicFieldInfo) {
-					Field javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else if (typeOwner instanceof DefaultMethodInfo) {
-					Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
-					javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
-				} else {
-					throw new AssertionError();
-				}
+		public TypeNode getParent() {
+			return parent;
+		}
+
+		public ITypeInfo getValueType() {
+			ITypeInfo parentTypeInfo = parent.getTypeInfo();
+			IMapEntryTypeInfo mapTypeInfo = (IMapEntryTypeInfo) ((IListTypeInfo) parentTypeInfo).getItemType();
+			return mapTypeInfo.getValueField().getType();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			ITypeInfo valueTypeInfo = getValueType();
+			if (!MiscUtils.isComplexType(valueTypeInfo)) {
+				return Collections.emptyList();
 			} else {
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
-			}
-			return reflectionUI.getTypeInfo(javaTypeInfoSource);
-		}
-
-	}
-
-	public static class ClassProvider {
-
-		private static Set<ClassLoader> additionalClassLoaders = Collections
-				.newSetFromMap(new WeakHashMap<ClassLoader, Boolean>());
-
-		public static Class<?> getClass(String typeName) {
-			try {
-				return Class.forName(typeName);
-			} catch (ClassNotFoundException e) {
-				for (ClassLoader classLoader : additionalClassLoaders) {
-					try {
-						return Class.forName(typeName, false, classLoader);
-					} catch (ClassNotFoundException ignore) {
-					}
+				if (valueTypeInfo instanceof IMapEntryTypeInfo) {
+					return Collections.singletonList(new MapEntryTypeNode(this));
+				} else {
+					return Collections.singletonList(new TypeNode(this, valueTypeInfo.getName()));
 				}
 			}
-			throw new AssertionError(new ClassNotFoundException(typeName));
 		}
 
-		public static void register(ClassLoader classLoader) {
-			additionalClassLoaders.add(classLoader);
+		@Override
+		public String getExpression() {
+			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
+			return parentExpression + ".get(*)";
 		}
 
-		public static void unregister(ClassLoader classLoader) {
-			additionalClassLoaders.remove(classLoader);
+		@Override
+		public String toString() {
+			return "[*]";
 		}
-
-		public static Set<ClassLoader> getAdditionalClassLoaders() {
-			return additionalClassLoaders;
-		}
-
 	}
 
 }

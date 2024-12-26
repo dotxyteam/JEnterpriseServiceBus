@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -121,18 +122,18 @@ public class JDBCQueryActivity implements Activity {
 		private void updateDynamicClasses() {
 			{
 				if (parameterValuesClass != null) {
-					InstanceSpecification.ClassProvider.unregister(parameterValuesClass.getClassLoader());
+					ClassProvider.unregister(parameterValuesClass.getClassLoader());
 				}
 				parameterValuesClass = createParameterValuesClass();
-				InstanceSpecification.ClassProvider.register(parameterValuesClass.getClassLoader());
+				ClassProvider.register(parameterValuesClass.getClassLoader());
 			}
 			{
 				if (customResultClass != null) {
-					PathExplorer.ClassProvider.unregister(customResultClass.getClassLoader());
+					ClassProvider.unregister(customResultClass.getClassLoader());
 				}
 				customResultClass = createCustomResultClass();
 				if (customResultClass != null) {
-					PathExplorer.ClassProvider.register(customResultClass.getClassLoader());
+					ClassProvider.register(customResultClass.getClassLoader());
 				}
 			}
 		}
