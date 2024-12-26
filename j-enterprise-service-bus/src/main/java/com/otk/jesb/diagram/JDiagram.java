@@ -19,10 +19,10 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	private static final long serialVersionUID = 1L;
 
-	private static Image DRAG_INDICATOR_IMAGE;
+	private static Image DRAGGING_IMAGE;
 	static {
 		try {
-			DRAG_INDICATOR_IMAGE = ImageIO.read(JDiagram.class.getResource("DragIndicator.png"));
+			DRAGGING_IMAGE = ImageIO.read(JDiagram.class.getResource("Dragging.png"));
 		} catch (IOException e) {
 			throw new AssertionError(e);
 		}
@@ -81,12 +81,13 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		if (SwingUtilities.isRightMouseButton(e)) {
 			for (JNode node : nodes) {
 				if (node.isSelected()) {
+					draggingPoint = new Point(e.getX(), e.getY());
+					repaint();
 					for (JNode otherNode : nodes) {
 						if (node != otherNode) {
 							if (otherNode.containsPoint(e.getX(), e.getY())) {
 								newDraggedConnectionStartNode = node;
 								newDraggedConnectionEndNode = otherNode;
-								draggingPoint = new Point(e.getX(), e.getY());
 							}
 						}
 					}
@@ -123,6 +124,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		draggingPoint = null;
+		repaint();
 		if (SwingUtilities.isRightMouseButton(e)) {
 			if (newDraggedConnectionStartNode != null) {
 				if (newDraggedConnectionEndNode != null) {
@@ -195,8 +197,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			conn.paint(g);
 		}
 		if (draggingPoint != null) {
-			g.drawImage(DRAG_INDICATOR_IMAGE, draggingPoint.x - DRAG_INDICATOR_IMAGE.getWidth(null) / 2,
-					draggingPoint.y - DRAG_INDICATOR_IMAGE.getHeight(null) / 2, null);
+			g.drawImage(DRAGGING_IMAGE, draggingPoint.x - DRAGGING_IMAGE.getWidth(null) / 2,
+					draggingPoint.y - DRAGGING_IMAGE.getHeight(null) / 2, null);
 		}
 	}
 

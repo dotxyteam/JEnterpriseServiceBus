@@ -42,6 +42,7 @@ import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlScrollPane;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
+import xy.reflect.ui.control.swing.util.ScrollPaneOptions;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
@@ -478,7 +479,7 @@ public class GUI extends SwingCustomizer {
 				}
 				ControlPanel membersPanel = new ControlPanel();
 				{
-					splitPane.setRightComponent(membersPanel);
+					splitPane.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
 					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
 				}
 				SwingUtilities.invokeLater(new Runnable() {
