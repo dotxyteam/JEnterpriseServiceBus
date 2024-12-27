@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
+import org.codehaus.groovy.syntax.SyntaxException;
+
 import com.otk.jesb.ActivityBuilder;
 import com.otk.jesb.ActivityMetadata;
 import com.otk.jesb.Folder;
@@ -14,6 +20,7 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.Resource;
@@ -22,6 +29,7 @@ import com.otk.jesb.Step;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.transform.TypeChecked;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -45,6 +53,38 @@ public class MiscUtils {
 			binding.setVariable(property.getName(), value);
 		}
 		return shell.evaluate(script);
+	}
+
+	public static void validateScript(String expression, ValidationContext context) {
+		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+		for (ClassLoader additionalClassLoader : ClassProvider.getAdditionalClassLoaders()) {
+			compositeClassLoader.add(additionalClassLoader);
+		}
+		CompilerConfiguration config = new CompilerConfiguration();
+		config.addCompilationCustomizers(new ASTTransformationCustomizer(TypeChecked.class));
+		GroovyShell shell = new GroovyShell(compositeClassLoader, config);
+		String preExpression = "";
+		for (Plan.ValidationContext.Declaration declaration : context.getDeclarations()) {
+			preExpression = declaration.getPropertyClass().getName() + " " + declaration.getPropertyName() + ";\n"
+					+ preExpression;
+		}
+		try {
+			shell.parse(preExpression + expression);
+		} catch (CompilationFailedException e) {
+			if (e instanceof MultipleCompilationErrorsException) {
+				MultipleCompilationErrorsException me = (MultipleCompilationErrorsException) e;
+				SyntaxException se = me.getErrorCollector().getSyntaxError(0);
+				if (se != null) {
+					throw new ScriptValidationError(
+							convertPositionToIndex(preExpression + expression, se.getStartLine(), se.getStartColumn())
+									- preExpression.length(),
+							convertPositionToIndex(preExpression + expression, se.getEndLine(), se.getEndColumn())
+									- preExpression.length(),
+							se.getOriginalMessage());
+				}
+			}
+			throw new ScriptValidationError(0, expression.length(), e.getMessageWithoutLocationText());
+		}
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -147,7 +187,7 @@ public class MiscUtils {
 
 	public static ResourcePath getIconImagePath(Step step) {
 		ActivityBuilder activityBuilder = step.getActivityBuilder();
-		if(activityBuilder == null) {
+		if (activityBuilder == null) {
 			return null;
 		}
 		for (ActivityMetadata activityMetadata : GUI.Reflecter.ACTIVITY_METADATAS) {
@@ -173,7 +213,7 @@ public class MiscUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static  <T extends Resource> List<T>  findDescendantResources(Folder folder, Class<T> resourceClass) {
+	public static <T extends Resource> List<T> findDescendantResources(Folder folder, Class<T> resourceClass) {
 		List<T> result = new ArrayList<T>();
 		for (Resource resource : folder.getContents()) {
 			if (resource.getClass().equals(resourceClass)) {
@@ -184,6 +224,34 @@ public class MiscUtils {
 			}
 		}
 		return result;
+	}
+
+	public static int convertPositionToIndex(String text, int line, int column) {
+		if (line < 1 || column < 1) {
+			throw new IllegalArgumentException("Line and column numbers must be >= 1");
+		}
+		int index = 0;
+		int currentLine = 1;
+		int currentColumn = 1;
+		for (char c : text.toCharArray()) {
+			if (currentLine == line && currentColumn == column) {
+				return index;
+			}
+
+			index++;
+
+			if (c == '\n') {
+				currentLine++;
+				currentColumn = 1;
+			} else {
+				currentColumn++;
+			}
+		}
+		if (currentLine == line && currentColumn == column) {
+			return index;
+		} else {
+			throw new IllegalArgumentException("Line or column out of range");
+		}
 	}
 
 }

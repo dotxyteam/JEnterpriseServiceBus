@@ -1,30 +1,27 @@
 package com.otk.jesb;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.groovy.control.CompilerConfiguration;
-import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
-
+import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.PathExplorer.PathNode;
-
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyShell;
-import groovy.transform.TypeChecked;
+import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.util.MiscUtils;
 
 public class ExpressionEditor {
 
 	private String expression;
 	private Plan currentPlan;
 	private Step currentStep;
+	private DynamicValue currentDynamicValue;
 	private PathNode selectedPathNode;
 
-	public ExpressionEditor(String expression, Plan currentPlan, Step currentStep) {
+	public ExpressionEditor(String expression, Plan currentPlan, Step currentStep, DynamicValue currentDynamicValue) {
 		this.expression = expression;
 		this.currentPlan = currentPlan;
 		this.currentStep = currentStep;
+		this.currentDynamicValue = currentDynamicValue;
 	}
 
 	public String getExpression() {
@@ -45,24 +42,21 @@ public class ExpressionEditor {
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		List<Step> previousSteps = currentPlan.getPreviousSteps(currentStep);
-		for (Step step : previousSteps) {
-			if (step.getActivityBuilder().getActivityResultClass() != null) {
-				result.add(new RootPathNode(step));
-			}
+		for (Plan.ValidationContext.Declaration declaration : getValidationContext().getDeclarations()) {
+			result.add(new RootPathNode(
+					new PathExplorer(declaration.getPropertyClass().getName(), declaration.getPropertyName())));
 		}
 		return result;
 	}
 
+	private ValidationContext getValidationContext() {
+		Plan.ValidationContext context = currentPlan.getValidationContext(currentStep);
+		currentStep.getActivityBuilder().completeValidationContext(context, currentDynamicValue);
+		return context;
+	}
+
 	public void validateExpression() {
-		CompilerConfiguration config = new CompilerConfiguration();
-		config.addCompilationCustomizers(new ASTTransformationCustomizer(TypeChecked.class));
-		try (GroovyClassLoader gcl = new GroovyClassLoader(this.getClass().getClassLoader(), config)) {
-			new GroovyShell().parse(expression);
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
-		new GroovyShell(config).parse(expression);
+		MiscUtils.validateScript(expression, getValidationContext());
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {
@@ -79,13 +73,10 @@ public class ExpressionEditor {
 
 	private static class RootPathNode implements PathNode {
 
-		private Step step;
 		private PathExplorer pathExplorer;
 
-		public RootPathNode(Step step) {
-			this.step = step;
-			this.pathExplorer = new PathExplorer(step.getActivityBuilder().getActivityResultClass().getName(),
-					step.getName());
+		public RootPathNode(PathExplorer pathExplorer) {
+			this.pathExplorer = pathExplorer;
 		}
 
 		@Override
@@ -95,12 +86,12 @@ public class ExpressionEditor {
 
 		@Override
 		public String getExpression() {
-			return step.getName();
+			return pathExplorer.getRootExpression();
 		}
 
 		@Override
 		public String toString() {
-			return step.getName();
+			return pathExplorer.getRootExpression();
 		}
 
 	}

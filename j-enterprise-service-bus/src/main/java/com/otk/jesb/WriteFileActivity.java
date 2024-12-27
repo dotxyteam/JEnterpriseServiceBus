@@ -3,7 +3,9 @@ package com.otk.jesb;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -91,6 +93,12 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public Class<? extends ActivityResult> getActivityResultClass() {
 			return null;
+		}
+
+		@Override
+		public boolean completeValidationContext(ValidationContext validationContext,
+				DynamicValue currentDynamicValue) {
+			return objectSpecification.completeValidationContext(validationContext, currentDynamicValue);
 		}
 
 	}

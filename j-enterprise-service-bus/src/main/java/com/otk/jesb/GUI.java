@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeCellRenderer;
 
@@ -28,6 +29,8 @@ import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.ScriptValidationError;
+import com.otk.jesb.util.SquigglePainter;
 
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
@@ -299,6 +302,24 @@ public class GUI extends SwingCustomizer {
 					return super.createMethodControlPlaceHolder(method);
 				}
 
+				@Override
+				public void validateForm() throws Exception {
+					if (object instanceof ExpressionEditor) {
+						TextControl textControl = (TextControl) getFieldControlPlaceHolder("expression")
+								.getFieldControl();
+						JTextPane textComponent = (JTextPane)textControl.getTextComponent();
+						textComponent.getHighlighter().removeAllHighlights();
+						try {
+							((ExpressionEditor) object).validateExpression();
+						} catch (ScriptValidationError e) {
+							textComponent.getHighlighter().addHighlight(e.getStartPosition(), e.getEndPosition(), new SquigglePainter(Color.RED));
+							throw e;
+						}
+					} else {
+						super.validateForm();
+					}
+				}
+
 			};
 		}
 	}
@@ -382,7 +403,7 @@ public class GUI extends SwingCustomizer {
 											@Override
 											public Object getDefaultValue(Object object) {
 												return new ExpressionEditor(((DynamicValue) object).getScript(),
-														currentPlan, currentStep);
+														currentPlan, currentStep, (DynamicValue) object);
 											}
 
 										});

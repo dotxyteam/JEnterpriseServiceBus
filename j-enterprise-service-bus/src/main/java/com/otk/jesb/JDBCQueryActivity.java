@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.util.MiscUtils;
 
@@ -321,12 +323,10 @@ public class JDBCQueryActivity implements Activity {
 			}
 		}
 
-		public PathExplorer getResultPathExplorer() {
-			Class<? extends ActivityResult> resultClass = getActivityResultClass();
-			if (resultClass == null) {
-				return null;
-			}
-			return new PathExplorer(resultClass.getName(), "?");
+		@Override
+		public boolean completeValidationContext(ValidationContext validationContext,
+				DynamicValue currentDynamicValue) {
+			return parameterValuesSpecification.completeValidationContext(validationContext, currentDynamicValue);
 		}
 
 	}

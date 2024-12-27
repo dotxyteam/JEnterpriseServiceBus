@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext.Property;
+import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.Plan.ValidationContext.Declaration;
 import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
@@ -170,6 +172,77 @@ public class InstanceSpecification {
 			field.setValue(object, fieldValue);
 		}
 		return object;
+	}
+
+	public boolean completeValidationContext(ValidationContext validationContext, DynamicValue currentDynamicValue) {
+		for (ParameterInitializer parameterInitializer : parameterInitializers) {
+			if (parameterInitializer.getParameterValue() == currentDynamicValue) {
+				return true;
+			}
+			if (parameterInitializer.getParameterValue() instanceof InstanceSpecification) {
+				if (((InstanceSpecification) parameterInitializer.getParameterValue())
+						.completeValidationContext(validationContext, currentDynamicValue)) {
+					return true;
+				}
+			}
+		}
+		for (FieldInitializer fieldInitializer : fieldInitializers) {
+			if (fieldInitializer.getCondition() == currentDynamicValue) {
+				return true;
+			}
+			if (fieldInitializer.getFieldValue() == currentDynamicValue) {
+				return true;
+			}
+			if (fieldInitializer.getFieldValue() instanceof InstanceSpecification) {
+				if (((InstanceSpecification) fieldInitializer.getFieldValue())
+						.completeValidationContext(validationContext, currentDynamicValue)) {
+					return true;
+				}
+			}
+		}
+		for (ListItemInitializer listItemInitializer : listItemInitializers) {
+			if (listItemInitializer.getCondition() == currentDynamicValue) {
+				return true;
+			}
+			Declaration newDeclaration = null;
+			int newDeclarationPosition = -1;
+			if (listItemInitializer.getItemReplication() != null) {
+				if (listItemInitializer.getItemReplication().getIterationListValue() == currentDynamicValue) {
+					return true;
+				}
+				if (listItemInitializer.getItemReplication().getIterationListValue() instanceof InstanceSpecification) {
+					if (((InstanceSpecification) listItemInitializer.getItemReplication().getIterationListValue())
+							.completeValidationContext(validationContext, currentDynamicValue)) {
+						return true;
+					}
+				}
+				newDeclaration = new Plan.ValidationContext.Declaration() {
+
+					@Override
+					public String getPropertyName() {
+						return listItemInitializer.getItemReplication().getIterationVariableName();
+					}
+
+					@Override
+					public Class<?> getPropertyClass() {
+						return Object.class;
+					}
+				};
+				newDeclarationPosition = validationContext.getDeclarations().size();
+			}
+			if (listItemInitializer.getItemValue() == currentDynamicValue) {
+				validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
+				return true;
+			}
+			if (listItemInitializer.getItemValue() instanceof InstanceSpecification) {
+				if (((InstanceSpecification) listItemInitializer.getItemValue())
+						.completeValidationContext(validationContext, currentDynamicValue)) {
+					validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public ITypeInfo getTypeInfo() {

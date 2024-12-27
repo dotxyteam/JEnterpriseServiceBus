@@ -82,8 +82,21 @@ public class Plan extends Resource {
 
 	private void execute(Step step, ExecutionContext context) throws Exception {
 		Activity activity = step.getActivityBuilder().build(context);
-		ActivityResult activityResult = activity.execute();
-		context.getProperties().add(new StepOccurrence(step, activityResult));
+		if (step.getActivityBuilder().getActivityResultClass() != null) {
+			ActivityResult activityResult = activity.execute();
+			context.getProperties().add(new StepOccurrence(step, activityResult));
+		}
+	}
+
+	public ValidationContext getValidationContext(Step currentStep) {
+		ValidationContext result = new ValidationContext();
+		List<Step> previousSteps = getPreviousSteps(currentStep);
+		for (Step step : previousSteps) {
+			if (step.getActivityBuilder().getActivityResultClass() != null) {
+				result.getDeclarations().add(new StepEventuality(step));
+			}
+		}
+		return result;
 	}
 
 	public static class ExecutionContext {
@@ -107,6 +120,32 @@ public class Plan extends Resource {
 			Object getValue();
 
 			String getName();
+
+		}
+
+	}
+
+	public static class ValidationContext {
+
+		private List<Declaration> declarations = new ArrayList<Declaration>();
+
+		public ValidationContext() {
+		}
+
+		public ValidationContext(ValidationContext parentContext, Declaration newDeclaration) {
+			declarations.addAll(parentContext.getDeclarations());
+			declarations.add(newDeclaration);
+		}
+
+		public List<Declaration> getDeclarations() {
+			return declarations;
+		}
+
+		public interface Declaration {
+
+			Class<?> getPropertyClass();
+
+			String getPropertyName();
 
 		}
 
