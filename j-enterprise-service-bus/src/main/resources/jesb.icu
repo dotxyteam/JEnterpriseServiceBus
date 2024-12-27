@@ -183,6 +183,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d5f</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d60</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -227,6 +238,32 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>step</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6d5c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getValidationContext</methodName>
+            <methodSignature>com.otk.jesb.Plan$ValidationContext getValidationContext(com.otk.jesb.Step)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d5d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d5e</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentStep</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -6960,6 +6997,17 @@
                             <nullValueDistinctForced>false</nullValueDistinctForced>
                             <parameterName>mapEntrySpecification</parameterName>
                         </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-1b7fcdb3:19406f5302c:-3793</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-1b7fcdb3:19406f5302c:-3792</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>parent</parameterName>
+                        </parametersCustomizations>
                         <readOnlyForced>false</readOnlyForced>
                         <returnValueFieldGenerated>false</returnValueFieldGenerated>
                         <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -7682,7 +7730,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7812</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-137e</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -7714,7 +7762,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7813</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-137d</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -7796,7 +7844,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7814</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-137c</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -7854,7 +7902,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7815</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-137b</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -7993,6 +8041,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>executionContext</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6da8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6da9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>context</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -8003,7 +8062,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7816</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-137a</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -8030,6 +8089,43 @@
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>parameterDefinitionsGroup.get</methodName>
             <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.JDBCQueryActivity$Builder], fieldName=parameterDefinitionsGroup] parameterDefinitionsGroup.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6da1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>completeValidationContext</methodName>
+            <methodSignature>boolean completeValidationContext(com.otk.jesb.Plan$ValidationContext, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6da4</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6da5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>validationContext</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6da6</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6da7</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentDynamicValue</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -8870,6 +8966,43 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>typeName</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6dd3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>completeValidationContext</methodName>
+            <methodSignature>boolean completeValidationContext(com.otk.jesb.Plan$ValidationContext, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6dd6</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6dd7</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>validationContext</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6dd8</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6dd9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentDynamicValue</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -11460,7 +11593,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f29ab9d:19404c60b3e:7817</uniqueIdentifier>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-1379</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -11568,6 +11701,54 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>executionContext</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e1e</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e1f</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>context</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6e19</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>completeValidationContext</methodName>
+            <methodSignature>boolean completeValidationContext(com.otk.jesb.Plan$ValidationContext, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e1a</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e1b</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>validationContext</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e1c</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e1d</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentDynamicValue</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -17728,12 +17909,7 @@
                     <uniqueIdentifier>5684ca94:193fa788743:6a5c</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAXNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAACh+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
-                        </entry>
-                        <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
@@ -18677,12 +18853,7 @@
                     <uniqueIdentifier>5684ca94:193fa788743:6d28</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAXNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAACh+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
-                        </entry>
-                        <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
@@ -18840,12 +19011,7 @@
                     <uniqueIdentifier>5684ca94:193fa788743:6d3a</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAXNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAACh+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
-                        </entry>
-                        <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
@@ -34068,6 +34234,43 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>-1b7fcdb3:19406f5302c:-3671</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>completeValidationContext</methodName>
+                        <methodSignature>boolean completeValidationContext(com.otk.jesb.Plan$ValidationContext, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-1b7fcdb3:19406f5302c:-365e</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-1b7fcdb3:19406f5302c:-365d</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>validationContext</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-1b7fcdb3:19406f5302c:-365c</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-1b7fcdb3:19406f5302c:-365b</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>currentDynamicValue</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
                     <typeName>com.otk.jesb.InstanceSpecification</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -41328,6 +41531,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>mapEntrySpecification</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1b7fcdb3:19406f5302c:-378e</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1b7fcdb3:19406f5302c:-378d</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>parent</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -47018,6 +47232,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d04</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d05</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -47128,6 +47353,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d0f</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d10</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -47370,6 +47606,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d11</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d12</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -47617,6 +47864,17 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
             </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d2b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d2c</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
+            </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -47657,6 +47915,17 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>text</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6d66</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6d67</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>name</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -47916,6 +48185,65 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>1c3aff65:1940674d72c:6ea0</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName></methodName>
+                        <methodSignature>com.otk.jesb.ExpressionEditor (java.lang.String, com.otk.jesb.Plan, com.otk.jesb.Step, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>1c3aff65:1940674d72c:6ea1</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>1c3aff65:1940674d72c:6ea2</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>expression</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>1c3aff65:1940674d72c:6ea3</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>1c3aff65:1940674d72c:6ea4</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>currentPlan</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>1c3aff65:1940674d72c:6ea5</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>1c3aff65:1940674d72c:6ea6</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>currentStep</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>1c3aff65:1940674d72c:6ea7</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>1c3aff65:1940674d72c:6ea8</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>currentDynamicValue</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
                     <typeName>com.otk.jesb.ExpressionEditor</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -47928,7 +48256,7 @@
             <uniqueIdentifier>-1c5011de:193f50887cd:-4c74</uniqueIdentifier>
         </menuModel>
         <typeName>MethodSetupObject [context=MethodContext [methodSignature=void NULL_METHOD_INFO(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.InstanceSpecification$DynamicValue], fieldName=methodsField]]]</typeName>
-        <undoManagementHidden>true</undoManagementHidden>
+        <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
     <typeCustomizations>
@@ -48653,7 +48981,7 @@
                     <length>
                         <uniqueIdentifier>17b217bd:1940269f569:6fe9</uniqueIdentifier>
                         <unit>SCREEN_PERCENT</unit>
-                        <value>61</value>
+                        <value>63</value>
                     </length>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
@@ -48700,12 +49028,12 @@
                     <uniqueIdentifier>17b217bd:1940269f569:6b4e</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAXNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAADx+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
+                            <key>xy.reflect.ui.control.swing.plugin.StyledTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAEt4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlN0eWxlZFRleHRQbHVnaW4kU3R5bGVkVGV4dENvbmZpZ3VyYXRpb24AAAAAAAAAAQIACVoACGZvbnRCb2xkWgAKZm9udEl0YWxpY0kACGZvbnRTaXplWgANc3RydWNrVGhyb3VnaFoACnVuZGVybGluZWRMAAVjb2xvcnQAJ0x4eS9yZWZsZWN0L3VpL2luZm8vQ29sb3JTcGVjaWZpY2F0aW9uO0wACGZvbnROYW1ldAASTGphdmEvbGFuZy9TdHJpbmc7TAATaG9yaXpvbnRhbEFsaWdubWVudHQAYUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL1N0eWxlZFRleHRQbHVnaW4kU3R5bGVkVGV4dENvbmZpZ3VyYXRpb24kSG9yaXpvbnRhbEFsaWdubWVudDtMAAZsZW5ndGh0AGtMeHkvcmVmbGVjdC91aS9jb250cm9sL3N3aW5nL3BsdWdpbi9TdHlsZWRUZXh0UGx1Z2luJFN0eWxlZFRleHRDb25maWd1cmF0aW9uJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uO3hyAF94eS5yZWZsZWN0LnVpLmNvbnRyb2wucGx1Z2luLkFic3RyYWN0U2ltcGxlQ3VzdG9taXphYmxlRmllbGRDb250cm9sUGx1Z2luJEFic3RyYWN0Q29uZmlndXJhdGlvbgAAAAAAAAABAgAAeHAAAAAAAAwAAHB0AAlTYW5zU2VyaWZ+cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5TdHlsZWRUZXh0UGx1Z2luJFN0eWxlZFRleHRDb25maWd1cmF0aW9uJEhvcml6b250YWxBbGlnbm1lbnQAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AARMRUZUc3IAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3R5bGVkVGV4dFBsdWdpbiRTdHlsZWRUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABdTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3R5bGVkVGV4dFBsdWdpbiRTdHlsZWRUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAA8fnIAW3h5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3R5bGVkVGV4dFBsdWdpbiRTdHlsZWRUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQAAAAAAAAAABIAAHhxAH4ACXQADlNDUkVFTl9QRVJDRU5U</value>
                         </entry>
                         <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.StyledTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
@@ -48879,6 +49207,80 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6e8d</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.ExpressionEditor (java.lang.String, com.otk.jesb.Plan, com.otk.jesb.Step, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e8e</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e8f</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>expression</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e90</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e91</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentPlan</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e92</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e93</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentStep</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6e94</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6e95</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentDynamicValue</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>43a1ab10:19406c6d537:796b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validateExpression</methodName>
+            <methodSignature>void validateExpression()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.ExpressionEditor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -49001,6 +49403,65 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6ea9</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=NULL_PARAMETER_INFO, objectType=MethodSetupObject [context=MethodContext [methodSignature=void NULL_METHOD_INFO(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.InstanceSpecification$DynamicValue], fieldName=methodsField]]]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ExpressionEditor] (java.lang.String, com.otk.jesb.Plan, com.otk.jesb.Step, com.otk.jesb.InstanceSpecification$DynamicValue)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6eaa</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6eab</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>expression</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6eac</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6ead</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentPlan</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6eae</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6eaf</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentStep</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6eb0</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6eb1</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>currentDynamicValue</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>Encapsulation [context=FieldContext [fieldName=NULL_PARAMETER_INFO, objectType=MethodSetupObject [context=MethodContext [methodSignature=void NULL_METHOD_INFO(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.InstanceSpecification$DynamicValue], fieldName=methodsField]]]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ExpressionEditor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -49040,12 +49501,7 @@
                     <uniqueIdentifier>17b217bd:1940269f569:6c36</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAXNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAACh+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
-                        </entry>
-                        <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
@@ -49148,6 +49604,32 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6ec2</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.ExpressionEditor$RootPathNode (com.otk.jesb.PathExplorer)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6ec3</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6ec4</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>pathExplorer</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.ExpressionEditor$RootPathNode</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -49219,6 +49701,32 @@
                         <runWhenObjectShown>false</runWhenObjectShown>
                         <validating>false</validating>
                     </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>1c3aff65:1940674d72c:6ecd</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName></methodName>
+                        <methodSignature>com.otk.jesb.ExpressionEditor$RootPathNode (com.otk.jesb.PathExplorer)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>1c3aff65:1940674d72c:6ece</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>1c3aff65:1940674d72c:6ecf</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>pathExplorer</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
                     <typeName>com.otk.jesb.ExpressionEditor$RootPathNode</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -49226,6 +49734,7 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>17b217bd:1940269f569:6c2f</uniqueIdentifier>
@@ -49312,6 +49821,32 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1c3aff65:1940674d72c:6ed3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=rootPathNodes, objectType=com.otk.jesb.ExpressionEditor], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.PathExplorer$PathNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ExpressionEditor$RootPathNode] (com.otk.jesb.PathExplorer)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1c3aff65:1940674d72c:6ed4</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1c3aff65:1940674d72c:6ed5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>pathExplorer</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=rootPathNodes, objectType=com.otk.jesb.ExpressionEditor], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.PathExplorer$PathNode]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.ExpressionEditor$RootPathNode]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -49351,12 +49886,7 @@
                     <uniqueIdentifier>17b217bd:1940289e55f:-76c2</uniqueIdentifier>
                     <specificProperties>
                         <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgACWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmxlbmd0aHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAHNyAHd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbgAAAAAAAAABAgACSQAFdmFsdWVMAAR1bml0dABrTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdDt4cAAAACh+cgBpeHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbFNpemVVbml0AAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAAOU0NSRUVOX1BFUkNFTlQ=</value>
-                        </entry>
-                        <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
                         </entry>
                     </specificProperties>
                     <abstractForced>false</abstractForced>
