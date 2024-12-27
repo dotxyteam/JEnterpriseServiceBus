@@ -112,7 +112,7 @@ public class MiscUtils {
 		if (value instanceof DynamicValue) {
 			return ValueMode.DYNAMIC_VALUE;
 		} else if (value instanceof InstanceSpecification) {
-			return ValueMode.OBJECT_SPECIFICATION;
+			return ValueMode.INSTANCE_SPECIFICATION;
 		} else {
 			return ValueMode.STATIC_VALUE;
 		}

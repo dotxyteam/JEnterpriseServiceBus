@@ -5,15 +5,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+
+import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.PublicFieldInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.ArrayTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.StandardCollectionTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
-import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -128,25 +132,6 @@ public class PathExplorer {
 
 	}
 
-	public class MapEntryTypeNode extends TypeNode {
-
-		public MapEntryTypeNode(PathNode parent) {
-			super(parent, StandardMapEntry.class.getName());
-		}
-
-		@Override
-		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
-			return "((" + Map.Entry.class.getName() + ")" + parentExpression + ")";
-		}
-
-		@Override
-		public String toString() {
-			return "<MapEntry>";
-		}
-
-	}
-
 	public class FieldNode implements PathNode {
 
 		protected TypeNode parent;
@@ -182,7 +167,14 @@ public class PathExplorer {
 		@Override
 		public String getExpression() {
 			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
-			return parentExpression + ".get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1) + "()";
+			IFieldInfo fieldInfo = getFieldInfo();
+			if (fieldInfo instanceof GetterFieldInfo) {
+				return parentExpression + "." + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName() + "()";
+			} else if (fieldInfo instanceof PublicFieldInfo) {
+				return parentExpression + "." + ((PublicFieldInfo) fieldInfo).getJavaField().getName();
+			} else {
+				throw new AssertionError();
+			}
 		}
 
 		@Override
@@ -204,8 +196,8 @@ public class PathExplorer {
 		}
 
 		public ITypeInfo getItemType() {
-			ITypeInfo parentTypeInfo = parent.getTypeInfo();
-			return ((IListTypeInfo) parentTypeInfo).getItemType();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parent.getTypeInfo();
+			return parentTypeInfo.getItemType();
 		}
 
 		@Override
@@ -214,18 +206,23 @@ public class PathExplorer {
 			if (!MiscUtils.isComplexType(itemTypeInfo)) {
 				return Collections.emptyList();
 			} else {
-				if (itemTypeInfo instanceof IMapEntryTypeInfo) {
-					return Collections.singletonList(new MapEntryTypeNode(this));
-				} else {
-					return Collections.singletonList(new TypeNode(this, itemTypeInfo.getName()));
-				}
+				return Collections.singletonList(new TypeNode(this, itemTypeInfo.getName()));
 			}
 		}
 
 		@Override
 		public String getExpression() {
 			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
-			return parentExpression + ".get(i)";
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parent.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return parentExpression + "[i]";
+			} else if (List.class.isAssignableFrom(ClassProvider.getClass(parentTypeInfo.getName()))) {
+				return parentExpression + ".get(i)";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return parentExpression + ".iterator().next()";
+			} else {
+				throw new AssertionError();
+			}
 		}
 
 		@Override
@@ -258,11 +255,7 @@ public class PathExplorer {
 			if (!MiscUtils.isComplexType(valueTypeInfo)) {
 				return Collections.emptyList();
 			} else {
-				if (valueTypeInfo instanceof IMapEntryTypeInfo) {
-					return Collections.singletonList(new MapEntryTypeNode(this));
-				} else {
-					return Collections.singletonList(new TypeNode(this, valueTypeInfo.getName()));
-				}
+				return Collections.singletonList(new TypeNode(this, valueTypeInfo.getName()));
 			}
 		}
 
@@ -274,7 +267,7 @@ public class PathExplorer {
 
 		@Override
 		public String toString() {
-			return "[*]";
+			return "{*}";
 		}
 	}
 

@@ -681,7 +681,7 @@ public class InstanceSpecification {
 	}
 
 	public enum ValueMode {
-		STATIC_VALUE, DYNAMIC_VALUE, OBJECT_SPECIFICATION
+		STATIC_VALUE, DYNAMIC_VALUE, INSTANCE_SPECIFICATION
 	}
 
 	public static class ParameterInitializerFacade implements FacadeNode {
@@ -770,7 +770,7 @@ public class InstanceSpecification {
 					scriptContent = "return null;";
 				}
 				setParameterValue(new DynamicValue(scriptContent));
-			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+			} else if (valueMode == ValueMode.INSTANCE_SPECIFICATION) {
 				setParameterValue(new InstanceSpecification(parameter.getType().getName()));
 			} else {
 				if (!MiscUtils.isComplexType(parameter.getType())) {
@@ -922,7 +922,7 @@ public class InstanceSpecification {
 					scriptContent = "return null;";
 				}
 				newFieldValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+			} else if (valueMode == ValueMode.INSTANCE_SPECIFICATION) {
 				newFieldValue = new InstanceSpecification(field.getType().getName());
 			} else if (valueMode == ValueMode.STATIC_VALUE) {
 				if (!MiscUtils.isComplexType(field.getType())) {
@@ -1079,7 +1079,7 @@ public class InstanceSpecification {
 					scriptContent = "return null;";
 				}
 				itemValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+			} else if (valueMode == ValueMode.INSTANCE_SPECIFICATION) {
 				itemValue = new InstanceSpecification(itemType.getName());
 			} else {
 				if (!MiscUtils.isComplexType(itemType)) {
@@ -1192,7 +1192,7 @@ public class InstanceSpecification {
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
 				String scriptContent = "return new java.util.ArrayList<Object>();";
 				iterationListValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.OBJECT_SPECIFICATION) {
+			} else if (valueMode == ValueMode.INSTANCE_SPECIFICATION) {
 				iterationListValue = new InstanceSpecification(ArrayList.class.getName());
 			} else {
 				iterationListValue = new ArrayList<Object>();

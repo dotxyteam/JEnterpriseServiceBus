@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -32,6 +32,9 @@ import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.ScriptValidationError;
 import com.otk.jesb.util.SquigglePainter;
 
+import net.thevpc.jeep.editor.JSyntaxDocument;
+import net.thevpc.jeep.editorkits.JavaJSyntaxKit;
+import net.thevpc.jeep.editorkits.SqlJSyntaxKit;
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.control.DefaultFieldControlData;
@@ -43,6 +46,7 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlScrollPane;
@@ -165,6 +169,40 @@ public class GUI extends SwingCustomizer {
 
 						@Override
 						public Component createFieldControl() {
+							if (object instanceof ExpressionEditor) {
+								if (field.getName().equals("expression")) {
+									return new StyledTextPlugin().new StyledTextControl(swingRenderer, this) {
+
+										private static final long serialVersionUID = 1L;
+
+										@Override
+										protected JTextComponent createTextComponent() {
+											JTextPane result = (JTextPane) super.createTextComponent();
+											result.setDocument(new JSyntaxDocument(null));
+											result.setEditorKit(new JavaJSyntaxKit());
+											return result;
+										}
+
+									};
+								}
+							}
+							if (object instanceof JDBCQueryActivity.Builder) {
+								if (field.getName().equals("statement")) {
+									return new StyledTextPlugin().new StyledTextControl(swingRenderer, this) {
+
+										private static final long serialVersionUID = 1L;
+
+										@Override
+										protected JTextComponent createTextComponent() {
+											JTextPane result = (JTextPane) super.createTextComponent();
+											result.setDocument(new JSyntaxDocument(null));
+											result.setEditorKit(new SqlJSyntaxKit());
+											return result;
+										}
+
+									};
+								}
+							}
 							if (object instanceof InstanceSpecificationFacade) {
 								if (field.getName().equals("children")) {
 									return new InstanceSpecificationControl(GUI.this, this);
@@ -307,12 +345,17 @@ public class GUI extends SwingCustomizer {
 					if (object instanceof ExpressionEditor) {
 						TextControl textControl = (TextControl) getFieldControlPlaceHolder("expression")
 								.getFieldControl();
-						JTextPane textComponent = (JTextPane)textControl.getTextComponent();
+						JTextPane textComponent = (JTextPane) textControl.getTextComponent();
+						String text = textComponent.getText();
+						textComponent.setDocument(new JSyntaxDocument(null));
+						textComponent.setEditorKit(new JavaJSyntaxKit());
+						textComponent.setText(text);
 						textComponent.getHighlighter().removeAllHighlights();
 						try {
 							((ExpressionEditor) object).validateExpression();
 						} catch (ScriptValidationError e) {
-							textComponent.getHighlighter().addHighlight(e.getStartPosition(), e.getEndPosition(), new SquigglePainter(Color.RED));
+							textComponent.getHighlighter().addHighlight(e.getStartPosition(), e.getEndPosition(),
+									new SquigglePainter(Color.RED));
 							throw e;
 						}
 					} else {

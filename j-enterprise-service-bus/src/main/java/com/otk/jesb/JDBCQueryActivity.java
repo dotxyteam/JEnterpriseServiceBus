@@ -302,6 +302,11 @@ public class JDBCQueryActivity implements Activity {
 			updateDynamicClasses();
 		}
 
+		public void clearResultColumnDefinitions() throws SQLException {
+			this.resultColumnDefinitions = null;
+			updateDynamicClasses();
+		}
+
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			JDBCQueryActivity result = new JDBCQueryActivity();
