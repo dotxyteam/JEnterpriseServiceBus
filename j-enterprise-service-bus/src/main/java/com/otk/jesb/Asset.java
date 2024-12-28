@@ -1,10 +1,10 @@
 package com.otk.jesb;
 
-public abstract class Resource {
+public abstract class Asset {
 
 	private String name;
 
-	public Resource(String name) {
+	public Asset(String name) {
 		this.name = name;
 	}
 

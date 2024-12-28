@@ -3,7 +3,7 @@ package com.otk.jesb;
 import java.util.List;
 import java.util.Map;
 
-public class ObjectSpecificationTest {
+public class InstanceSpecificationTest {
 
 	public static void main(String[] args) {
 		GUI.INSTANCE.openObjectDialog(null, new InstanceSpecification(Tree.class.getName()));

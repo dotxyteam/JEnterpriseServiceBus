@@ -11,8 +11,6 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.codehaus.groovy.syntax.SyntaxException;
 
-import com.otk.jesb.ActivityBuilder;
-import com.otk.jesb.ActivityMetadata;
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceSpecification;
@@ -21,9 +19,11 @@ import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.activity.ActivityBuilder;
+import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.CompositeClassLoader;
-import com.otk.jesb.Resource;
+import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
 
@@ -190,7 +190,7 @@ public class MiscUtils {
 		if (activityBuilder == null) {
 			return null;
 		}
-		for (ActivityMetadata activityMetadata : GUI.Reflecter.ACTIVITY_METADATAS) {
+		for (ActivityMetadata activityMetadata : GUI.JESBReflectionUI.ACTIVITY_METADATAS) {
 			if (activityMetadata.getActivityBuilderClass().equals(step.getActivityBuilder().getClass())) {
 				return activityMetadata.getActivityIconImagePath();
 			}
@@ -199,9 +199,9 @@ public class MiscUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Resource> List<T> findResources(Solution solution, Class<T> resourceClass) {
+	public static <T extends Asset> List<T> findResources(Solution solution, Class<T> resourceClass) {
 		List<T> result = new ArrayList<T>();
-		for (Resource resource : solution.getContents()) {
+		for (Asset resource : solution.getContents()) {
 			if (resource.getClass().equals(resourceClass)) {
 				result.add((T) resource);
 			}
@@ -213,9 +213,9 @@ public class MiscUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Resource> List<T> findDescendantResources(Folder folder, Class<T> resourceClass) {
+	public static <T extends Asset> List<T> findDescendantResources(Folder folder, Class<T> resourceClass) {
 		List<T> result = new ArrayList<T>();
-		for (Resource resource : folder.getContents()) {
+		for (Asset resource : folder.getContents()) {
 			if (resource.getClass().equals(resourceClass)) {
 				result.add((T) resource);
 			}

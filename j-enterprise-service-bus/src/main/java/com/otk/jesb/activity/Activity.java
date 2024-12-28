@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.activity;
 
 public interface Activity {
 

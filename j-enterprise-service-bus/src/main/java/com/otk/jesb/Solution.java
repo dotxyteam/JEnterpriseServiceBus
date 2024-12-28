@@ -7,16 +7,16 @@ public class Solution {
 
 	public static Solution INSTANCE = new Solution();
 
-	private List<Resource> contents = new ArrayList<Resource>();
+	private List<Asset> contents = new ArrayList<Asset>();
 
 	private Solution() {
 	}
 
-	public List<Resource> getContents() {
+	public List<Asset> getContents() {
 		return contents;
 	}
 
-	public void setContents(List<Resource> contents) {
+	public void setContents(List<Asset> contents) {
 		this.contents = contents;
 	}
 

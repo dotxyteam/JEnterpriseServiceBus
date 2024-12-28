@@ -1,5 +1,7 @@
 package com.otk.jesb;
 
+import com.otk.jesb.activity.ActivityResult;
+
 public class StepOccurrence implements Plan.ExecutionContext.Property{
 
 	private Step step;

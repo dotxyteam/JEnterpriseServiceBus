@@ -3,7 +3,10 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Plan extends Resource {
+import com.otk.jesb.activity.Activity;
+import com.otk.jesb.activity.ActivityResult;
+
+public class Plan extends Asset {
 
 	public Plan(String name) {
 		super(name);

@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.activity;
 
 import xy.reflect.ui.info.ResourcePath;
 

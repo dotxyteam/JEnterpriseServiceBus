@@ -1,11 +1,16 @@
-package com.otk.jesb;
+package com.otk.jesb.activity.builtin;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.activity.Activity;
+import com.otk.jesb.activity.ActivityBuilder;
+import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.activity.ActivityResult;
 
 import xy.reflect.ui.info.ResourcePath;
 

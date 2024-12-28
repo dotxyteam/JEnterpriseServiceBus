@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.activity.builtin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,27 +12,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.otk.jesb.InstanceSpecification;
+import com.otk.jesb.Solution;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.activity.Activity;
+import com.otk.jesb.activity.ActivityBuilder;
+import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.activity.ActivityResult;
 import com.otk.jesb.meta.ClassProvider;
+import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCQueryActivity implements Activity {
 
-	private JDBCConnectionResource connection;
+	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
 	private String builderUniqueIdentifier;
 	private Class<? extends ActivityResult> customResultClass;
 
-	public JDBCConnectionResource getConnection() {
+	public JDBCConnection getConnection() {
 		return connection;
 	}
 
-	public void setConnection(JDBCConnectionResource connection) {
+	public void setConnection(JDBCConnection connection) {
 		this.connection = connection;
 	}
 
@@ -107,7 +114,7 @@ public class JDBCQueryActivity implements Activity {
 	public static class Builder implements ActivityBuilder {
 
 		private String uniqueIdentifier = MiscUtils.getDigitalUniqueIdentifier();
-		private JDBCConnectionResource connection;
+		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification();
@@ -240,16 +247,16 @@ public class JDBCQueryActivity implements Activity {
 			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
-		public JDBCConnectionResource getConnection() {
+		public JDBCConnection getConnection() {
 			return connection;
 		}
 
-		public void setConnection(JDBCConnectionResource connection) {
+		public void setConnection(JDBCConnection connection) {
 			this.connection = connection;
 		}
 
-		public static List<JDBCConnectionResource> getConnectionChoices() {
-			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnectionResource.class);
+		public static List<JDBCConnection> getConnectionChoices() {
+			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
 		public String getStatement() {

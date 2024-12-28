@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.activity;
 
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
