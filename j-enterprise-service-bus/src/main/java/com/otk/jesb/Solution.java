@@ -20,4 +20,31 @@ public class Solution {
 		this.contents = contents;
 	}
 
+	public void visitAssets(AssetVisitor assetVisitor) {
+		for (Asset asset : contents) {
+			if (!visitAssets(assetVisitor, asset)) {
+				return;
+			}
+		}
+	}
+
+	private boolean visitAssets(AssetVisitor assetVisitor, Asset asset) {
+		if (!assetVisitor.visitAsset(asset)) {
+			return false;
+		}
+		if (asset instanceof Folder) {
+			for (Asset folderContent : ((Folder) asset).getContents()) {
+				if(!visitAssets(assetVisitor, folderContent)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	
+	public Debugger createDebugger() {
+		return new Debugger(this);
+	}
+
 }

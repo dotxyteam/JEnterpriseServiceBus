@@ -58,20 +58,34 @@ public class Plan extends Asset {
 	}
 
 	public void execute() throws Exception {
-		ExecutionContext context = new ExecutionContext();
-		execute(steps, context);
+		execute(new ExecutionInspector() {
+
+			@Override
+			public void beforeActivityExecution(StepOccurrence stepOccurrence) {
+			}
+
+			@Override
+			public void afterActivityExecution(StepOccurrence stepOccurrence) {
+			}
+		});
 	}
 
-	private void execute(List<Step> steps, ExecutionContext context) throws Exception {
+	public void execute(ExecutionInspector executionInspector) throws Exception {
+		ExecutionContext context = new ExecutionContext();
+		execute(steps, context, executionInspector);
+	}
+
+	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
+			throws Exception {
 		if (steps.size() == 0) {
 			return;
 		}
 		Step step = steps.get(0);
 		List<Step> previousSteps = getPreviousSteps(step, steps);
 		if (previousSteps.size() > 0) {
-			execute(previousSteps, context);
+			execute(previousSteps, context, executionInspector);
 		}
-		execute(step, context);
+		execute(step, context, executionInspector);
 		List<Step> followingSteps = new ArrayList<Step>();
 		{
 			followingSteps.addAll(steps);
@@ -79,16 +93,26 @@ public class Plan extends Asset {
 			followingSteps.remove(step);
 		}
 		if (followingSteps.size() > 0) {
-			execute(followingSteps, context);
+			execute(followingSteps, context, executionInspector);
 		}
 	}
 
-	private void execute(Step step, ExecutionContext context) throws Exception {
+	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		StepOccurrence stepOccurrence = new StepOccurrence(step);
 		Activity activity = step.getActivityBuilder().build(context);
-		if (step.getActivityBuilder().getActivityResultClass() != null) {
+		stepOccurrence.setActivity(activity);
+		executionInspector.beforeActivityExecution(stepOccurrence);
+		try {
 			ActivityResult activityResult = activity.execute();
-			context.getProperties().add(new StepOccurrence(step, activityResult));
+			stepOccurrence.setActivityResult(activityResult);
+			if (activityResult != null) {
+				context.getProperties().add(stepOccurrence);
+			}
+		} catch (Exception e) {
+			stepOccurrence.setActivityError(e);
+			throw e;
 		}
+		executionInspector.afterActivityExecution(stepOccurrence);
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
@@ -151,6 +175,14 @@ public class Plan extends Asset {
 			String getPropertyName();
 
 		}
+
+	}
+
+	public interface ExecutionInspector {
+
+		void beforeActivityExecution(StepOccurrence stepOccurrence);
+
+		void afterActivityExecution(StepOccurrence stepOccurrence);
 
 	}
 

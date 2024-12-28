@@ -32,7 +32,6 @@ public class JDBCQueryActivity implements Activity {
 	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
-	private String builderUniqueIdentifier;
 	private Class<? extends ActivityResult> customResultClass;
 
 	public JDBCConnection getConnection() {
@@ -59,18 +58,6 @@ public class JDBCQueryActivity implements Activity {
 		this.parameterValues = parameterValues;
 	}
 
-	public String getBuilderUniqueIdentifier() {
-		return builderUniqueIdentifier;
-	}
-
-	public void setBuilderUniqueIdentifier(String builderUniqueIdentifier) {
-		this.builderUniqueIdentifier = builderUniqueIdentifier;
-	}
-
-	public Class<? extends ActivityResult> getCustomResultClass() {
-		return customResultClass;
-	}
-
 	public void setCustomResultClass(Class<? extends ActivityResult> customResultClass) {
 		this.customResultClass = customResultClass;
 	}
@@ -80,7 +67,12 @@ public class JDBCQueryActivity implements Activity {
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
-		for (int i = 0; i < preparedStatement.getParameterMetaData().getParameterCount(); i++) {
+		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
+		if (expectedParameterCount != parameterValues.countParameters()) {
+			throw new Exception("Unexpected parameter count: " + parameterValues.countParameters() + ". Expected "
+					+ expectedParameterCount + " parameter(s).");
+		}
+		for (int i = 0; i < expectedParameterCount; i++) {
 			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
 		}
 		ResultSet resultSet = preparedStatement.executeQuery();
@@ -223,6 +215,7 @@ public class JDBCQueryActivity implements Activity {
 						+ parameterDefinition.getParameterName() + ";\n");
 			}
 			javaSource.append("  }" + "\n");
+			javaSource.append("  @Override" + "\n");
 			javaSource.append("  public Object getParameterValueByIndex(int i) {" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
@@ -231,7 +224,18 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("    throw new " + AssertionError.class.getName() + "();" + "\n");
 			javaSource.append("  }" + "\n");
-
+			javaSource.append("  @Override" + "\n");
+			javaSource.append("  public int countParameters() {" + "\n");
+			javaSource.append("    return " + parameterDefinitions.size() + ";" + "\n");
+			javaSource.append("  }" + "\n");
+			for (int i = 0; i < parameterDefinitions.size(); i++) {
+				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+				javaSource.append("  public " + parameterDefinition.getParameterTypeName() + " get"
+						+ parameterDefinition.getParameterName().substring(0, 1).toUpperCase()
+						+ parameterDefinition.getParameterName().substring(1) + "() {" + "\n");
+				javaSource.append("    return " + parameterDefinition.getParameterName() + ";" + "\n");
+				javaSource.append("  }" + "\n");
+			}
 			javaSource.append("}" + "\n");
 			return (Class<? extends ParameterValues>) MiscUtils.createClass(className, javaSource.toString(),
 					JDBCQueryActivity.class.getClassLoader());
@@ -321,7 +325,6 @@ public class JDBCQueryActivity implements Activity {
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
 			result.setParameterValues(parameterValues);
-			result.setBuilderUniqueIdentifier(uniqueIdentifier);
 			result.setCustomResultClass(customResultClass);
 			return result;
 		}
@@ -377,6 +380,8 @@ public class JDBCQueryActivity implements Activity {
 
 	public static interface ParameterValues {
 		public Object getParameterValueByIndex(int i);
+
+		public int countParameters();
 	}
 
 	public static class ColumnDefinition {
