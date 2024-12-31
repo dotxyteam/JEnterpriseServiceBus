@@ -1,8 +1,6 @@
 package com.otk.jesb.resource.builtin;
 
 import java.sql.DriverManager;
-import java.sql.SQLException;
-
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 
@@ -15,20 +13,21 @@ public class JDBCConnection extends Resource {
 		SwingCustomizer.getDefault().openObjectFrame(new JDBCConnection("test"));
 	}
 
-	static {
-		try {
-			Class.forName("org.hsqldb.jdbcDriver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-
+	private String driverClassName;
 	private String url;
 	private String userName;
 	private String password;
 
 	public JDBCConnection(String name) {
 		super(name);
+	}
+
+	public String getDriverClassName() {
+		return driverClassName;
+	}
+
+	public void setDriverClassName(String driverClassName) {
+		this.driverClassName = driverClassName;
 	}
 
 	public String getUrl() {
@@ -55,7 +54,8 @@ public class JDBCConnection extends Resource {
 		this.password = password;
 	}
 
-	public String test() throws SQLException {
+	public String test() throws Exception {
+		Class.forName(driverClassName);
 		DriverManager.getConnection(url, userName, password);
 		return "Connection successful";
 	}

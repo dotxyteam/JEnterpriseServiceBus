@@ -102,6 +102,7 @@ public class GUI extends SwingCustomizer {
 		plansFolder.getContents().add(plan);
 
 		JDBCConnection c = new JDBCConnection("db");
+		c.setDriverClassName("org.hsqldb.jdbcDriver");
 		c.setUrl("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
 		otheResourcesFolder.getContents().add(c);
 
@@ -929,15 +930,16 @@ public class GUI extends SwingCustomizer {
 
 				void annotateConnection(Graphics g, JConnection conn, String annotation) {
 					g.setColor(Color.GREEN);
-					int x = (conn.getStartNode().getX()+conn.getEndNode().getX())/2;
-					int y = (conn.getStartNode().getY()+conn.getEndNode().getY())/2;
+					int x = (conn.getStartNode().getX() + conn.getEndNode().getX()) / 2;
+					int y = (conn.getStartNode().getY() + conn.getEndNode().getY()) / 2;
 					g.drawString(annotation, x, y);
 				}
 
 				void highlightNode(Graphics g, JNode node) {
-					g.setColor(Color.YELLOW);
+					g.setColor(Color.GREEN.darker());
 					int size = 100;
-					g.fillOval(node.getX() - (size / 2), node.getY() - (size / 2), size, size);
+					g.fillRoundRect(node.getX() - (size / 2), node.getY() - (size / 2), size, size, size / 10,
+							size / 10);
 				}
 
 			};

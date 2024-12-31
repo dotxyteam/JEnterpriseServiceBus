@@ -64,6 +64,7 @@ public class JDBCQueryActivity implements Activity {
 
 	@Override
 	public ActivityResult execute() throws Exception {
+		Class.forName(connection.getDriverClassName());
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);

@@ -7283,6 +7283,7 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>name</customFieldsOrder>
+        <customFieldsOrder>driverClassName</customFieldsOrder>
         <customFieldsOrder>url</customFieldsOrder>
         <customFieldsOrder>userName</customFieldsOrder>
         <customFieldsOrder>password</customFieldsOrder>
@@ -7811,7 +7812,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ceb</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-219c</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -7869,7 +7870,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7cea</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-219b</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8530,7 +8531,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce9</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-219a</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8562,7 +8563,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce8</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2199</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8719,7 +8720,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce7</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2198</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -8793,7 +8794,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce6</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2197</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -12271,7 +12272,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce5</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2196</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -54311,7 +54312,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce4</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2195</uniqueIdentifier>
                 <caption>Activity</caption>
             </category>
             <categoryCaption>Activity</categoryCaption>
@@ -54410,7 +54411,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce3</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2194</uniqueIdentifier>
                 <caption>Error</caption>
             </category>
             <categoryCaption>Error</categoryCaption>
@@ -54868,7 +54869,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce2</uniqueIdentifier>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-2193</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -55472,6 +55473,47 @@
                         <validating>false</validating>
                     </methodsCustomizations>
                     <typeName>JDBCQueryActivityParameterValues0320491256987861759627626221029843593950</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+                <typeCustomizations>
+                    <uniqueIdentifier>5727cf53:1941e7e0139:-65e4</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>5727cf53:1941e7e0139:-65e3</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>5727cf53:1941e7e0139:-65da</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterValueByIndex</methodName>
+                        <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>5727cf53:1941e7e0139:-65d9</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>5727cf53:1941e7e0139:-65d8</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>i</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>JDBCQueryActivityParameterValues0065161393618278178918990433296346559759</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -61560,6 +61602,47 @@
             <validating>false</validating>
         </methodsCustomizations>
         <typeName>JDBCQueryActivityParameterValues0320491256987861759627626221029843593950</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>5727cf53:1941e7e0139:-65e6</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>5727cf53:1941e7e0139:-65e5</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>5727cf53:1941e7e0139:-65df</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getParameterValueByIndex</methodName>
+            <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>5727cf53:1941e7e0139:-65de</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>5727cf53:1941e7e0139:-65dd</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>i</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>JDBCQueryActivityParameterValues0065161393618278178918990433296346559759</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
