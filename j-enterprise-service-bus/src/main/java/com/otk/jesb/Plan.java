@@ -67,6 +67,11 @@ public class Plan extends Asset {
 			@Override
 			public void afterActivityExecution(StepOccurrence stepOccurrence) {
 			}
+
+			@Override
+			public boolean isExecutionInterrupted() {
+				return false;
+			}
 		});
 	}
 
@@ -77,6 +82,9 @@ public class Plan extends Asset {
 
 	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
 			throws Exception {
+		if (executionInspector.isExecutionInterrupted()) {
+			return;
+		}
 		if (steps.size() == 0) {
 			return;
 		}
@@ -181,6 +189,8 @@ public class Plan extends Asset {
 	public interface ExecutionInspector {
 
 		void beforeActivityExecution(StepOccurrence stepOccurrence);
+
+		boolean isExecutionInterrupted();
 
 		void afterActivityExecution(StepOccurrence stepOccurrence);
 

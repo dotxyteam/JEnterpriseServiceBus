@@ -37,9 +37,13 @@ public class Debugger {
 		private List<StepOccurrence> stepOccurrences = new ArrayList<StepOccurrence>();
 		private Throwable executionError;
 		private Thread thread;
-		
+
 		public PlanExecutor(Plan plan) {
 			this.plan = plan;
+		}
+
+		public Plan getPlan() {
+			return plan;
 		}
 
 		public List<StepOccurrence> getStepOccurrences() {
@@ -50,7 +54,7 @@ public class Debugger {
 			return executionError;
 		}
 
-		public void start() {
+		public synchronized void start() {
 			if (isActive()) {
 				return;
 			}
@@ -70,10 +74,15 @@ public class Debugger {
 							@Override
 							public void afterActivityExecution(StepOccurrence stepOccurrence) {
 								try {
-									Thread.sleep(1000);
+									Thread.sleep(500);
 								} catch (InterruptedException e) {
-									throw new AssertionError(e);
+									Thread.currentThread().interrupt();
 								}
+							}
+
+							@Override
+							public boolean isExecutionInterrupted() {
+								return Thread.currentThread().isInterrupted();
 							}
 						});
 					} catch (Throwable t) {
@@ -85,7 +94,14 @@ public class Debugger {
 			thread.start();
 		}
 
-		public boolean isActive() {
+		public synchronized void stop() {
+			if (!isActive()) {
+				return;
+			}
+			thread.interrupt();
+		}
+
+		public synchronized boolean isActive() {
 			if (thread != null) {
 				if (thread.isAlive()) {
 					return true;
@@ -93,6 +109,13 @@ public class Debugger {
 			}
 			return false;
 		}
+
+		@Override
+		public String toString() {
+			return "[" + (isActive() ? "RUNNING" : "DONE") + "] " + plan.getName();
+		}
+		
+		
 	}
 
 }

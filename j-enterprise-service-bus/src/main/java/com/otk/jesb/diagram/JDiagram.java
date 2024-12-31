@@ -191,15 +191,27 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		for (JNode node : nodes) {
-			node.paint(g);
+			paintNode(g, node);
 		}
 		for (JConnection conn : connections) {
-			conn.paint(g);
+			paintConnection(g, conn);
 		}
 		if (draggingPoint != null) {
-			g.drawImage(DRAGGING_IMAGE, draggingPoint.x - DRAGGING_IMAGE.getWidth(null) / 2,
-					draggingPoint.y - DRAGGING_IMAGE.getHeight(null) / 2, null);
+			paintDraggingPoint(g, draggingPoint);
 		}
+	}
+
+	protected void paintDraggingPoint(Graphics g, Point draggingPoint2) {
+		g.drawImage(DRAGGING_IMAGE, draggingPoint.x - DRAGGING_IMAGE.getWidth(null) / 2,
+				draggingPoint.y - DRAGGING_IMAGE.getHeight(null) / 2, null);
+	}
+
+	protected void paintConnection(Graphics g, JConnection conn) {
+		conn.paint(g);
+	}
+
+	protected void paintNode(Graphics g, JNode node) {
+		node.paint(g);
 	}
 
 }

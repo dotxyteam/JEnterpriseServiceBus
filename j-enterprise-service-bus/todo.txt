@@ -1,3 +1,6 @@
+- UI improvements:
+	. banner
+- JDBCConnection driver jars location + driver class name should be specified 
 - remove type-only nodes from PathExplorer and InstanceSpecification trees
 - compile/check DynamicValue.script
 - Parameter list item type not resolved in InstanceSpecification

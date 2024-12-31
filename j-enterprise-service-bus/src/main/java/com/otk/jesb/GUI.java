@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeCellRenderer;
 
+import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.FacadeNode;
 import com.otk.jesb.InstanceSpecification.FieldInitializerFacade;
@@ -65,6 +68,7 @@ import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
@@ -114,8 +118,8 @@ public class GUI extends SwingCustomizer {
 		ab2.getObjectSpecification().getFieldInitializers()
 				.add(new InstanceSpecification.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new InstanceSpecification.FieldInitializer("text",
-						new InstanceSpecification.DynamicValue("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+				.add(new InstanceSpecification.FieldInitializer("text", new InstanceSpecification.DynamicValue(
+						"return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -131,7 +135,7 @@ public class GUI extends SwingCustomizer {
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
-			.getProperty(PlanEditor.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
+			.getProperty(GUI.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
 
 	public static GUI INSTANCE = new GUI();
@@ -155,6 +159,8 @@ public class GUI extends SwingCustomizer {
 	public CustomizingForm createForm(final Object object, IInfoFilter infoFilter) {
 		if (object instanceof Plan) {
 			return new PlanEditor(this, (Plan) object, infoFilter);
+		} else if (object instanceof PlanExecutor) {
+			return new PlanExecutorView(this, (PlanExecutor) object, infoFilter);
 		} else {
 			return new CustomizingForm(this, object, infoFilter) {
 
@@ -167,7 +173,7 @@ public class GUI extends SwingCustomizer {
 						private static final long serialVersionUID = 1L;
 
 						@Override
-						public Component createFieldControl() {							
+						public Component createFieldControl() {
 							if (object instanceof InstanceSpecificationFacade) {
 								if (field.getName().equals("children")) {
 									return new InstanceSpecificationControl(GUI.this, this);
@@ -328,6 +334,24 @@ public class GUI extends SwingCustomizer {
 		}
 	}
 
+	@Override
+	public Image getObjectIconImage(Object object) {
+		Image result = super.getObjectIconImage(object);
+		if (result == null) {
+			return result;
+		}
+		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
+	}
+
+	@Override
+	public Image getEnumerationItemIconImage(IEnumerationItemInfo itemInfo) {
+		Image result = super.getEnumerationItemIconImage(itemInfo);
+		if (result == null) {
+			return result;
+		}
+		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
+	}
+
 	public static class InstanceSpecificationControl extends ListControl {
 
 		private static final long serialVersionUID = 1L;
@@ -476,8 +500,15 @@ public class GUI extends SwingCustomizer {
 							return resourceMetadata.getResourceIconImagePath();
 						}
 					}
-					if (type.getName().equals(Step.class.getName())) {
+					if (object instanceof Step) {
 						return MiscUtils.getIconImagePath((Step) object);
+					}
+					if (object instanceof StepOccurrence) {
+						return MiscUtils.getIconImagePath(((StepOccurrence) object).getStep());
+					}
+					if (object instanceof PlanExecutor) {
+						return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,
+								((PlanExecutor) object).getPlan());
 					}
 					return super.getIconImagePath(type, object);
 				}
@@ -490,7 +521,7 @@ public class GUI extends SwingCustomizer {
 	public static class PlanEditor extends CustomizingForm {
 
 		private static final long serialVersionUID = 1L;
-		private JDiagram diagram;
+		private PlanDiagram diagram;
 		private boolean selectionListeningEnabled = true;
 		private boolean modificationListeningEnabled = true;
 		private ControlSplitPane splitPane;
@@ -511,6 +542,20 @@ public class GUI extends SwingCustomizer {
 					updateDiagram();
 				}
 			});
+		}
+
+		protected void updateDiagram() {
+			if (diagram == null) {
+				return;
+			}
+			diagram.refresh();
+			ListControl stepsControl = getStepsControl();
+			BufferedItemPosition selection = stepsControl.getSingleSelection();
+			if (selection != null) {
+				diagram.select(diagram.getNode(selection.getItem()));
+			} else {
+				diagram.select(null);
+			}
 		}
 
 		public Plan getPlan() {
@@ -581,8 +626,8 @@ public class GUI extends SwingCustomizer {
 			}
 		}
 
-		private JDiagram createDiagram() {
-			JDiagram result = new JDiagram();
+		private PlanDiagram createDiagram() {
+			PlanDiagram result = new PlanDiagram(swingRenderer, getPlan());
 			result.addListener(new JDiagramListener() {
 
 				@Override
@@ -641,11 +686,11 @@ public class GUI extends SwingCustomizer {
 					Transition newTransition = new Transition();
 					newTransition.setStartStep((Step) conn.getStartNode().getObject());
 					newTransition.setEndStep((Step) conn.getEndNode().getObject());
+					modificationListeningEnabled = false;
 					try {
 						ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 						ITypeInfo planType = reflectionUI
 								.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Plan.class, null));
-						modificationListeningEnabled = false;
 						DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 								ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 						IModification modification = new ListModificationFactory(
@@ -660,34 +705,207 @@ public class GUI extends SwingCustomizer {
 			return result;
 		}
 
-		private void updateDiagram() {
+	}
+
+	public static class PlanExecutorView extends CustomizingForm {
+
+		private static final long serialVersionUID = 1L;
+		private PlanDiagram diagram;
+		private boolean selectionListeningEnabled = true;
+		private ControlSplitPane splitPane;
+
+		public PlanExecutorView(SwingCustomizer swingRenderer, PlanExecutor planExecutor, IInfoFilter infoFilter) {
+			super(swingRenderer, planExecutor, infoFilter);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateDiagram();
+				}
+			});
+		}
+
+		protected void updateDiagram() {
 			if (diagram == null) {
 				return;
 			}
-			diagram.clear();
-			for (Step step : getPlan().getSteps()) {
-				JNode node = diagram.addNode(step, step.getDiagramX(), step.getDiagramY());
+			diagram.refresh();
+			ListControl stepOccurrencesControl = getStepOccurrencesControl();
+			BufferedItemPosition selection = stepOccurrencesControl.getSingleSelection();
+			if (selection != null) {
+				diagram.select(diagram.getNode(((StepOccurrence) selection.getItem()).getStep()));
+			} else {
+				diagram.select(null);
+			}
+		}
+
+		public PlanExecutor getPlanExecutor() {
+			return (PlanExecutor) object;
+		}
+
+		@Override
+		protected void createMembersControls() {
+			super.createMembersControls();
+			diagram = createDiagram();
+			getStepOccurrencesControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+				@Override
+				public void handle(List<BufferedItemPosition> event) {
+					if (selectionListeningEnabled) {
+						selectionListeningEnabled = false;
+						try {
+							updateDiagram();
+						} finally {
+							selectionListeningEnabled = true;
+						}
+					}
+				}
+			});
+		}
+
+		private ListControl getStepOccurrencesControl() {
+			return (ListControl) getFieldControlPlaceHolder("stepOccurrences").getFieldControl();
+		}
+
+		@Override
+		protected void layoutMembersPanels(Container container, Container fieldsPanel, Container methodsPanel) {
+			container.setLayout(new BorderLayout());
+			splitPane = new ControlSplitPane();
+			{
+				container.add(splitPane, BorderLayout.CENTER);
+				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+				{
+					splitPane.setLeftComponent(new ControlScrollPane(diagram));
+				}
+				ControlPanel membersPanel = new ControlPanel();
+				{
+					splitPane
+							.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
+					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
+				}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						double dividerLocation = 0.5;
+						SwingRendererUtils.ensureDividerLocation(splitPane, dividerLocation);
+						splitPane.setResizeWeight(dividerLocation);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void refresh(boolean refreshStructure) {
+			super.refresh(refreshStructure);
+			if (refreshStructure) {
+				if (swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor() != null) {
+					splitPane.setBorder(BorderFactory.createLineBorder(SwingRendererUtils
+							.getColor(swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor())));
+				} else {
+					splitPane.setBorder(new JSplitPane().getBorder());
+				}
+				updateDiagram();
+			}
+		}
+
+		private PlanDiagram createDiagram() {
+			final PlanDiagram result = new PlanDiagram(swingRenderer, getPlanExecutor().getPlan()) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void paintNode(Graphics g, JNode node) {
+					if (getPlanExecutor().getStepOccurrences().size() > 0) {
+						StepOccurrence lastStepOccurrence = getPlanExecutor().getStepOccurrences()
+								.get(getPlanExecutor().getStepOccurrences().size() - 1);
+						if (lastStepOccurrence.getStep() == node.getObject()) {
+							highlightLastStepOccurrence(g, lastStepOccurrence);
+						}
+					}
+					super.paintNode(g, node);
+				}
+
+				void highlightLastStepOccurrence(Graphics g, StepOccurrence lastStepOccurrence) {
+					Step step = lastStepOccurrence.getStep();
+					g.setColor(Color.YELLOW);
+					int size = 100;
+					g.fillOval(step.getDiagramX() - (size / 2), step.getDiagramY() - (size / 2), size, size);
+				}
+
+			};
+			result.addListener(new JDiagramListener() {
+
+				@Override
+				public void nodeMoved(JNode node) {
+					updateDiagram();
+				}
+
+				@Override
+				public void nodeSelected(JNode node) {
+					if (selectionListeningEnabled) {
+						selectionListeningEnabled = false;
+						try {
+							if (node == null) {
+								getStepOccurrencesControl().setSingleSelection(null);
+							} else {
+								Step step = (Step) node.getObject();
+								StepOccurrence lastStepOccurrence = null;
+								for (int i = getPlanExecutor().getStepOccurrences().size() - 1; i >= 0; i--) {
+									StepOccurrence stepOccurrence = getPlanExecutor().getStepOccurrences().get(i);
+									if (stepOccurrence.getStep() == step) {
+										lastStepOccurrence = stepOccurrence;
+										break;
+									}
+								}
+								ListControl stepOccurrencesControl = getStepOccurrencesControl();
+								stepOccurrencesControl
+										.setSingleSelection(stepOccurrencesControl.getRootListItemPosition(
+												getPlanExecutor().getStepOccurrences().indexOf(lastStepOccurrence)));
+							}
+						} finally {
+							selectionListeningEnabled = true;
+						}
+					}
+				}
+
+				@Override
+				public void connectionAdded(JConnection conn) {
+					result.refresh();
+				}
+			});
+			result.setBackground(Color.WHITE);
+			return result;
+		}
+
+	}
+
+	public static class PlanDiagram extends JDiagram {
+
+		private static final long serialVersionUID = 1L;
+
+		private SwingRenderer swingRenderer;
+		private Plan plan;
+
+		public PlanDiagram(SwingRenderer swingRenderer, Plan plan) {
+			this.swingRenderer = swingRenderer;
+			this.plan = plan;
+		}
+
+		public void refresh() {
+			clear();
+			for (Step step : plan.getSteps()) {
+				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
 				if (iconImagePath != null) {
 					node.setImage(SwingRendererUtils.loadImageThroughCache(iconImagePath,
 							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI())));
 				}
 			}
-			for (Transition t : getPlan().getTransitions()) {
-				JNode node1 = diagram.getNode(t.getStartStep());
-				JNode node2 = diagram.getNode(t.getEndStep());
-				diagram.addConnection(node1, node2);
+			for (Transition t : plan.getTransitions()) {
+				JNode node1 = getNode(t.getStartStep());
+				JNode node2 = getNode(t.getEndStep());
+				addConnection(node1, node2);
 			}
-			ListControl stepsControl = getStepsControl();
-			BufferedItemPosition selection = stepsControl.getSingleSelection();
-			if (selection != null) {
-				diagram.select(diagram.getNode(selection.getItem()));
-			} else {
-				diagram.select(null);
-			}
-			diagram.repaint();
+			repaint();
 		}
 
-	};
-
+	}
 }

@@ -55,4 +55,9 @@ public class StepOccurrence implements Plan.ExecutionContext.Property {
 		return step.getName();
 	}
 
+	@Override
+	public String toString() {
+		return "[" + ((activityError == null) ? "OK" : "KO") + "] " + step.getName();
+	}
+
 }
