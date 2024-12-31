@@ -61,7 +61,7 @@ public class Plan extends Asset {
 		execute(new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityExecution(StepOccurrence stepOccurrence) {
+			public void beforeActivityCreation(StepOccurrence stepOccurrence) {
 			}
 
 			@Override
@@ -107,9 +107,9 @@ public class Plan extends Asset {
 
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 		StepOccurrence stepOccurrence = new StepOccurrence(step);
+		executionInspector.beforeActivityCreation(stepOccurrence);
 		Activity activity = step.getActivityBuilder().build(context);
 		stepOccurrence.setActivity(activity);
-		executionInspector.beforeActivityExecution(stepOccurrence);
 		try {
 			ActivityResult activityResult = activity.execute();
 			stepOccurrence.setActivityResult(activityResult);
@@ -188,7 +188,7 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityExecution(StepOccurrence stepOccurrence);
+		void beforeActivityCreation(StepOccurrence stepOccurrence);
 
 		boolean isExecutionInterrupted();
 

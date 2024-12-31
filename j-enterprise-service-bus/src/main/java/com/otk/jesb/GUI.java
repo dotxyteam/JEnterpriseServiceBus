@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeCellRenderer;
 
+import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.InstanceSpecification.FacadeNode;
@@ -52,6 +53,7 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.ControlScrollPane;
@@ -70,8 +72,12 @@ import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
+import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
@@ -79,6 +85,7 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -165,6 +172,8 @@ public class GUI extends SwingCustomizer {
 			return new CustomizingForm(this, object, infoFilter) {
 
 				private static final long serialVersionUID = 1L;
+
+				CustomizingForm thisForm = this;
 
 				@Override
 				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
@@ -302,6 +311,35 @@ public class GUI extends SwingCustomizer {
 											textControl.getTextComponent().getSelectionStart());
 									invocationData.getProvidedParameterValues().put(1,
 											textControl.getTextComponent().getSelectionEnd());
+									return super.invoke(object, invocationData);
+								}
+
+							};
+						}
+					}
+					if (object instanceof PlanActivator) {
+						if (method.getName().equals("startPlan")) {
+							method = new MethodInfoProxy(method) {
+
+								@Override
+								public Object invoke(final Object object, InvocationData invocationData) {
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+													Debugger.class.getName(), swingRenderer);
+											ListControl planActivatorsControl = (ListControl) debuggerForm
+													.getFieldControlPlaceHolder("planActivators").getFieldControl();
+											planActivatorsControl.refreshUI(false);
+											PlanActivator currentPlanActivator = (PlanActivator) object;
+											BufferedItemPosition planActivatorPosition = planActivatorsControl
+													.findItemPositionByReference(currentPlanActivator);
+											BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition
+													.getSubItemPositions()
+													.get(planActivatorPosition.getSubItemPositions().size() - 1);
+											planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
+										}
+									});
 									return super.invoke(object, invocationData);
 								}
 
@@ -506,14 +544,62 @@ public class GUI extends SwingCustomizer {
 					if (object instanceof StepOccurrence) {
 						return MiscUtils.getIconImagePath(((StepOccurrence) object).getStep());
 					}
-					if (object instanceof PlanExecutor) {
+					if (object instanceof PlanActivator) {
 						return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,
-								((PlanExecutor) object).getPlan());
+								((PlanActivator) object).getPlan());
+					}
+					if (object instanceof PlanExecutor) {
+						PlanExecutor executor = (PlanExecutor) object;
+						if (executor.isActive()) {
+							return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+									PlanExecutor.class.getPackage().getName().replace(".", "/") + "/running.png"));
+						} else {
+							if (executor.getExecutionError() == null) {
+								return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+										PlanExecutor.class.getPackage().getName().replace(".", "/") + "/success.png"));
+							} else {
+								return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+										PlanExecutor.class.getPackage().getName().replace(".", "/") + "/failure.png"));
+							}
+						}
 					}
 					return super.getIconImagePath(type, object);
 				}
 
 			}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
+		}
+
+		@Override
+		protected ITypeInfo getTypeInfoAfterCustomizations(ITypeInfo type) {
+			return new InfoProxyFactory() {
+
+				@Override
+				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo listType,
+						final List<? extends ItemPosition> selection,
+						Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
+					if (listType.getItemType() != null) {
+						if (listType.getItemType().getName().equals(PlanActivator.class.getName())) {
+							List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
+									super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
+							for (int i = 0; i < result.size(); i++) {
+								if (result.get(i).getName().endsWith("startPlan")) {
+									result.set(i, new DynamicListActionProxy(result.get(i)) {
+										@Override
+										public List<ItemPosition> getPostSelection() {
+											List<? extends ItemPosition> subItemPositions = selection.get(0)
+													.getSubItemPositions();
+											return Collections
+													.singletonList(subItemPositions.get(subItemPositions.size() - 1));
+										}
+									});
+								}
+							}
+							return result;
+						}
+					}
+					return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
+				}
+			}.wrapTypeInfo(super.getTypeInfoAfterCustomizations(type));
 		}
 
 	}
@@ -813,21 +899,45 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected void paintNode(Graphics g, JNode node) {
-					if (getPlanExecutor().getStepOccurrences().size() > 0) {
-						StepOccurrence lastStepOccurrence = getPlanExecutor().getStepOccurrences()
-								.get(getPlanExecutor().getStepOccurrences().size() - 1);
-						if (lastStepOccurrence.getStep() == node.getObject()) {
-							highlightLastStepOccurrence(g, lastStepOccurrence);
+					StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
+					if (currentStepOccurrence != null) {
+						if (currentStepOccurrence.getStep() == node.getObject()) {
+							highlightNode(g, node);
 						}
 					}
 					super.paintNode(g, node);
 				}
 
-				void highlightLastStepOccurrence(Graphics g, StepOccurrence lastStepOccurrence) {
-					Step step = lastStepOccurrence.getStep();
+				@Override
+				protected void paintConnection(Graphics g, JConnection conn) {
+					super.paintConnection(g, conn);
+					int transitionOccurrenceCount = 0;
+					List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences();
+					for (int i = 0; i < stepOccurrences.size(); i++) {
+						if (i > 0) {
+							if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getObject()) {
+								if (stepOccurrences.get(i).getStep() == conn.getEndNode().getObject()) {
+									transitionOccurrenceCount++;
+								}
+							}
+						}
+					}
+					if (transitionOccurrenceCount > 0) {
+						annotateConnection(g, conn, "[" + transitionOccurrenceCount + "]");
+					}
+				}
+
+				void annotateConnection(Graphics g, JConnection conn, String annotation) {
+					g.setColor(Color.GREEN);
+					int x = (conn.getStartNode().getX()+conn.getEndNode().getX())/2;
+					int y = (conn.getStartNode().getY()+conn.getEndNode().getY())/2;
+					g.drawString(annotation, x, y);
+				}
+
+				void highlightNode(Graphics g, JNode node) {
 					g.setColor(Color.YELLOW);
 					int size = 100;
-					g.fillOval(step.getDiagramX() - (size / 2), step.getDiagramY() - (size / 2), size, size);
+					g.fillOval(node.getX() - (size / 2), node.getY() - (size / 2), size, size);
 				}
 
 			};

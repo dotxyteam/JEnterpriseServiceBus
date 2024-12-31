@@ -7811,7 +7811,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d21</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ceb</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -7869,7 +7869,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d20</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7cea</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8530,7 +8530,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1f</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce9</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8562,7 +8562,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1e</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce8</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8719,7 +8719,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1d</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce7</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -8793,7 +8793,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1c</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce6</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -12271,7 +12271,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1b</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce5</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -53476,6 +53476,82 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:7619</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <autoUpdatePeriodMilliseconds>500</autoUpdatePeriodMilliseconds>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>planActivators</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-1c47250a:1941ce65b96:761b</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:761a</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+                <listCustomizations>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:7627</uniqueIdentifier>
+                    <allowedItemMethodShortcuts>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-701f</uniqueIdentifier>
+                        <alwaysShown>false</alwaysShown>
+                        <customMethodCaption>Start</customMethodCaption>
+                        <displayMode>CONTEXT_MENU</displayMode>
+                        <methodSignature>void startPlan()</methodSignature>
+                    </allowedItemMethodShortcuts>
+                    <columnCustomizations>
+                        <uniqueIdentifier>-1c47250a:1941ce65b96:763a</uniqueIdentifier>
+                        <columnName>toStringValue</columnName>
+                        <customCaption>Plans</customCaption>
+                        <hidden>false</hidden>
+                        <minimalCharacterCount>0</minimalCharacterCount>
+                    </columnCustomizations>
+                    <embeddedDetailsAccessMode>
+                        <defaultDetailsAreaOccupationRatio>0.8</defaultDetailsAreaOccupationRatio>
+                        <detailsAreaPosition>RIGHT</detailsAreaPosition>
+                    </embeddedDetailsAccessMode>
+                    <editOptions>
+                        <uniqueIdentifier>-1c47250a:1941ce65b96:7628</uniqueIdentifier>
+                        <itemCreationEnabled>true</itemCreationEnabled>
+                        <itemDeletionEnabled>true</itemDeletionEnabled>
+                        <itemMoveEnabled>true</itemMoveEnabled>
+                    </editOptions>
+                    <fieldColumnsAdded>false</fieldColumnsAdded>
+                    <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
+                    <itemCreationMode>UNDEFINED</itemCreationMode>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
+                    <itemNullValueAllowed>false</itemNullValueAllowed>
+                    <itemTypeColumnAdded>false</itemTypeColumnAdded>
+                    <itemTypeName>com.otk.jesb.Debugger$PlanActivator</itemTypeName>
+                    <length>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:480</uniqueIdentifier>
+                        <unit>SCREEN_PERCENT</unit>
+                        <value>85</value>
+                    </length>
+                    <listSorted>false</listSorted>
+                    <listTypeName>java.util.List</listTypeName>
+                    <positionColumnAdded>false</positionColumnAdded>
+                    <stringValueColumnAdded>false</stringValueColumnAdded>
+                    <treeStructureDiscoverySettings>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-5998</uniqueIdentifier>
+                        <heterogeneousTree>true</heterogeneousTree>
+                        <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
+                    </treeStructureDiscoverySettings>
+                </listCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <formWidth>
             <uniqueIdentifier>-7cd093ee:19419485e4b:-6d9c</uniqueIdentifier>
             <unit>SCREEN_PERCENT</unit>
@@ -53571,6 +53647,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:70b8</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>stepOccurrences</fieldName>
@@ -53592,6 +53669,12 @@
                 </appplicationCustomization>
                 <listCustomizations>
                     <uniqueIdentifier>-7372f88b:1940edbbf05:7232</uniqueIdentifier>
+                    <columnCustomizations>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-596e</uniqueIdentifier>
+                        <columnName>toStringValue</columnName>
+                        <customCaption>Step Occurrences</customCaption>
+                        <hidden>false</hidden>
+                    </columnCustomizations>
                     <embeddedDetailsAccessMode>
                         <defaultDetailsAreaOccupationRatio>0.66</defaultDetailsAreaOccupationRatio>
                         <detailsAreaPosition>BOTTOM</detailsAreaPosition>
@@ -53612,7 +53695,7 @@
                     <length>
                         <uniqueIdentifier>-7e01590a:1940f0792af:7348</uniqueIdentifier>
                         <unit>SCREEN_PERCENT</unit>
-                        <value>70</value>
+                        <value>75</value>
                     </length>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
@@ -53625,7 +53708,7 @@
         <fieldsCustomizations>
             <uniqueIdentifier>-2b9b52c3:1940f2624bd:7506</uniqueIdentifier>
             <specificProperties/>
-            <hidden>false</hidden>
+            <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>executionError</fieldName>
@@ -54126,6 +54209,32 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>412a8e86:1941e0f608d:7678</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>currentStepOccurrence</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>412a8e86:1941e0f608d:767a</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>412a8e86:1941e0f608d:7679</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edbbf05:70a8</uniqueIdentifier>
@@ -54202,7 +54311,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d1a</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce4</uniqueIdentifier>
                 <caption>Activity</caption>
             </category>
             <categoryCaption>Activity</categoryCaption>
@@ -54301,7 +54410,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d19</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce3</uniqueIdentifier>
                 <caption>Error</caption>
             </category>
             <categoryCaption>Error</categoryCaption>
@@ -54759,7 +54868,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>6009287d:1941cac9150:-6d18</uniqueIdentifier>
+                <uniqueIdentifier>23e6a236:1941e2bce61:-7ce2</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -55240,6 +55349,129 @@
                         <validating>false</validating>
                     </methodsCustomizations>
                     <typeName>JDBCQueryActivityParameterValues0104207413547107769177949264257241418300</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+                <typeCustomizations>
+                    <uniqueIdentifier>-1c47250a:1941cf21c42:-5945</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-5944</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-5939</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterValueByIndex</methodName>
+                        <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-1c47250a:1941cf21c42:-5938</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-1c47250a:1941cf21c42:-5937</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>i</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>JDBCQueryActivityParameterValues0075847089757417769303741673596709546806</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+                <typeCustomizations>
+                    <uniqueIdentifier>412a8e86:1941e0f608d:76cd</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>412a8e86:1941e0f608d:76ce</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>412a8e86:1941e0f608d:76d9</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterValueByIndex</methodName>
+                        <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>412a8e86:1941e0f608d:76da</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>412a8e86:1941e0f608d:76db</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>i</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>JDBCQueryActivityParameterValues0060709339883936211847070138927207146847</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+                <typeCustomizations>
+                    <uniqueIdentifier>23e6a236:1941e24f357:76dc</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>23e6a236:1941e24f357:76dd</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>23e6a236:1941e24f357:76e8</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>getParameterValueByIndex</methodName>
+                        <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>23e6a236:1941e24f357:76e9</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>23e6a236:1941e24f357:76ea</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>i</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>JDBCQueryActivityParameterValues0320491256987861759627626221029843593950</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -60953,6 +61185,381 @@
             <validating>false</validating>
         </methodsCustomizations>
         <typeName>JDBCQueryActivityParameterValues0104207413547107769177949264257241418300</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-1c47250a:1941ce65b96:7621</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:7629</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>plan</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-1c47250a:1941ce65b96:762b</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:762a</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:762e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>planExecutors</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-1c47250a:1941ce65b96:7630</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:762f</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+                <listCustomizations>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:77a3</uniqueIdentifier>
+                    <columnCustomizations>
+                        <uniqueIdentifier>-1c47250a:1941ce65b96:77b2</uniqueIdentifier>
+                        <columnName>toStringValue</columnName>
+                        <customCaption>Executions</customCaption>
+                        <hidden>false</hidden>
+                    </columnCustomizations>
+                    <embeddedDetailsAccessMode>
+                        <defaultDetailsAreaOccupationRatio>0.66</defaultDetailsAreaOccupationRatio>
+                        <detailsAreaPosition>BOTTOM</detailsAreaPosition>
+                    </embeddedDetailsAccessMode>
+                    <editOptions>
+                        <uniqueIdentifier>-1c47250a:1941ce65b96:77a4</uniqueIdentifier>
+                        <itemCreationEnabled>true</itemCreationEnabled>
+                        <itemDeletionEnabled>true</itemDeletionEnabled>
+                        <itemMoveEnabled>true</itemMoveEnabled>
+                    </editOptions>
+                    <fieldColumnsAdded>false</fieldColumnsAdded>
+                    <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
+                    <itemCreationMode>UNDEFINED</itemCreationMode>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
+                    <itemNullValueAllowed>false</itemNullValueAllowed>
+                    <itemTypeColumnAdded>false</itemTypeColumnAdded>
+                    <itemTypeName>com.otk.jesb.Debugger$PlanExecutor</itemTypeName>
+                    <length>
+                        <uniqueIdentifier>-1c47250a:1941cf21c42:-41a4</uniqueIdentifier>
+                        <unit>SCREEN_PERCENT</unit>
+                        <value>77</value>
+                    </length>
+                    <listSorted>false</listSorted>
+                    <listTypeName>java.util.List</listTypeName>
+                    <positionColumnAdded>false</positionColumnAdded>
+                    <stringValueColumnAdded>false</stringValueColumnAdded>
+                </listCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:7622</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:7636</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.Debugger$PlanActivator (com.otk.jesb.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1c47250a:1941ce65b96:7637</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:7638</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>com.otk.jesb.Debugger$PlanActivator</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-1c47250a:1941ce65b96:763b</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:763c</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941ce65b96:7640</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanActivator] (com.otk.jesb.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1c47250a:1941ce65b96:7641</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1c47250a:1941ce65b96:7642</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanActivator]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-1c47250a:1941cf21c42:-598c</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-598b</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-5987</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor] (com.otk.jesb.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1c47250a:1941cf21c42:-5986</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1c47250a:1941cf21c42:-5985</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-1c47250a:1941cf21c42:-5947</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-5946</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-593e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getParameterValueByIndex</methodName>
+            <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1c47250a:1941cf21c42:-593d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1c47250a:1941cf21c42:-593c</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>i</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>JDBCQueryActivityParameterValues0075847089757417769303741673596709546806</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-1c47250a:1941cf21c42:-41cc</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-41cb</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-1c47250a:1941cf21c42:-41c7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>Encapsulation [context=FieldContext [fieldName=planExecutors, objectType=com.otk.jesb.Debugger$PlanActivator], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor] (com.otk.jesb.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-1c47250a:1941cf21c42:-41c6</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-1c47250a:1941cf21c42:-41c5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>Encapsulation [context=FieldContext [fieldName=planExecutors, objectType=com.otk.jesb.Debugger$PlanActivator], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>412a8e86:1941e0f608d:76cb</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>412a8e86:1941e0f608d:76cc</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>412a8e86:1941e0f608d:76d4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getParameterValueByIndex</methodName>
+            <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>412a8e86:1941e0f608d:76d5</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>412a8e86:1941e0f608d:76d6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>i</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>JDBCQueryActivityParameterValues0060709339883936211847070138927207146847</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>23e6a236:1941e24f357:76da</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>23e6a236:1941e24f357:76db</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>23e6a236:1941e24f357:76e3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getParameterValueByIndex</methodName>
+            <methodSignature>java.lang.Object getParameterValueByIndex(int)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>23e6a236:1941e24f357:76e4</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>23e6a236:1941e24f357:76e5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>i</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>JDBCQueryActivityParameterValues0320491256987861759627626221029843593950</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

@@ -54,9 +54,10 @@ public class JNode {
 	}
 
 	public void paint(Graphics g) {
+		Color selectionColor = new Color(184, 207, 229);
 		if (image != null) {
 			g.drawImage(image, x - (image.getWidth(null) / 2), y - (image.getHeight(null) / 2),
-					selected ? Color.CYAN : null, null);
+					selected ? selectionColor : null, null);
 			if (object.toString() != null) {
 				g.setColor(Color.BLACK);
 				Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
@@ -65,9 +66,9 @@ public class JNode {
 			}
 		} else {
 			if (selected) {
-				g.setColor(Color.CYAN);
+				g.setColor(selectionColor);
 			} else {
-				g.setColor(Color.YELLOW);
+				g.setColor(Color.DARK_GRAY);
 			}
 			g.fillOval(-10 + x, -10 + y, 20, 20);
 			if (object != null) {
@@ -81,16 +82,25 @@ public class JNode {
 	}
 
 	public boolean containsPoint(int x2, int y2) {
-		if (x2 < (-10 + x)) {
+		int width;
+		int height;
+		if (image != null) {
+			width = image.getWidth(null);
+			height = image.getHeight(null);
+		} else {
+			width = 20;
+			height = 20;
+		}
+		if (x2 < (-(width / 2) + x)) {
 			return false;
 		}
-		if (x2 > (10 + x)) {
+		if (x2 > ((width / 2) + x)) {
 			return false;
 		}
-		if (y2 < (-10 + y)) {
+		if (y2 < (-(height / 2) + y)) {
 			return false;
 		}
-		if (y2 > (10 + y)) {
+		if (y2 > ((height / 2) + y)) {
 			return false;
 		}
 		return true;
