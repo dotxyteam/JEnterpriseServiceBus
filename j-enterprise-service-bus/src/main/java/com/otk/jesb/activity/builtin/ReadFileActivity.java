@@ -1,9 +1,9 @@
 package com.otk.jesb.activity.builtin;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -16,11 +16,9 @@ import com.otk.jesb.activity.ActivityResult;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class WriteFileActivity implements Activity {
+public class ReadFileActivity implements Activity {
 
 	private String filePath;
-	private String text;
-	private boolean append = false;
 	private String charsetName;
 
 	public String getFilePath() {
@@ -39,36 +37,24 @@ public class WriteFileActivity implements Activity {
 		this.charsetName = charsetName;
 	}
 
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public boolean isAppend() {
-		return append;
-	}
-
-	public void setAppend(boolean append) {
-		this.append = append;
-	}
-
 	@Override
 	public ActivityResult execute() throws IOException {
-		try (BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(filePath, append), charsetName))) {
-			bw.write(text);
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		try (FileInputStream in = new FileInputStream(new File(filePath))) {
+			int bytesRead;
+			byte[] data = new byte[1024];
+			while ((bytesRead = in.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, bytesRead);
+			}
 		}
-		return null;
+		return new Result(new String(buffer.toByteArray(), charsetName));
 	}
 
 	public static class Metadata implements ActivityMetadata {
 
 		@Override
 		public String getActivityTypeName() {
-			return "Write File";
+			return "Read File";
 		}
 
 		@Override
@@ -79,14 +65,13 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public ResourcePath getActivityIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(WriteFileActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(ReadFileActivity.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(
-				WriteFileActivity.class.getName());
+		private InstanceSpecification objectSpecification = new InstanceSpecification(ReadFileActivity.class.getName());
 
 		public InstanceSpecification getObjectSpecification() {
 			return objectSpecification;
@@ -98,18 +83,32 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity) objectSpecification.build(context);
+			return (ReadFileActivity) objectSpecification.build(context);
 		}
 
 		@Override
 		public Class<? extends ActivityResult> getActivityResultClass() {
-			return null;
+			return Result.class;
 		}
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
 				DynamicValue currentDynamicValue) {
 			return objectSpecification.completeValidationContext(validationContext, currentDynamicValue);
+		}
+
+	}
+
+	public static class Result implements ActivityResult {
+
+		private String text;
+
+		public Result(String text) {
+			this.text = text;
+		}
+
+		public String getText() {
+			return text;
 		}
 
 	}

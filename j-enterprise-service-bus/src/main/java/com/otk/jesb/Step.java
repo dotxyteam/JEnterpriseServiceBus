@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import com.otk.jesb.activity.ActivityBuilder;
+import com.otk.jesb.activity.ActivityMetadata;
 
 public class Step {
 
@@ -8,6 +9,17 @@ public class Step {
 	private ActivityBuilder activityBuilder;
 	private int diagramX = 0;
 	private int diagramY = 0;
+
+	public Step(ActivityMetadata activityMetadata) {
+		if (activityMetadata != null) {
+			name = activityMetadata.getActivityTypeName();
+			try {
+				activityBuilder = activityMetadata.getActivityBuilderClass().newInstance();
+			} catch (Exception e) {
+				throw new AssertionError(e);
+			}
+		}
+	}
 
 	public String getName() {
 		return name;
@@ -45,7 +57,5 @@ public class Step {
 	public String toString() {
 		return name;
 	}
-	
-	
 
 }

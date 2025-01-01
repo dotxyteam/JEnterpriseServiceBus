@@ -30,6 +30,9 @@ import com.otk.jesb.InstanceSpecification.ValueMode;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
+import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
+import com.otk.jesb.activity.builtin.ReadFileActivity;
+import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
@@ -106,7 +109,7 @@ public class GUI extends SwingCustomizer {
 		c.setUrl("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
 		otheResourcesFolder.getContents().add(c);
 
-		Step s1 = new Step();
+		Step s1 = new Step(null);
 		plan.getSteps().add(s1);
 		s1.setName("a");
 		s1.setDiagramX(100);
@@ -116,7 +119,7 @@ public class GUI extends SwingCustomizer {
 		ab1.setConnection(c);
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
-		Step s2 = new Step();
+		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
 		s2.setName("w");
 		s2.setDiagramX(200);
@@ -425,8 +428,9 @@ public class GUI extends SwingCustomizer {
 
 	public static class JESBReflectionUI extends CustomizedUI {
 
-		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new JDBCQueryActivity.Metadata(),
-				new WriteFileActivity.Metadata());
+		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
+				new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(), new JDBCQueryActivity.Metadata(),
+				new JDBCUpdateActivity.Metadata());
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata());
 		private Plan currentPlan;
 		private Step currentStep;
@@ -1014,7 +1018,9 @@ public class GUI extends SwingCustomizer {
 			for (Transition t : plan.getTransitions()) {
 				JNode node1 = getNode(t.getStartStep());
 				JNode node2 = getNode(t.getEndStep());
-				addConnection(node1, node2);
+				if ((node1 != null) && (node2 != null)) {
+					addConnection(node1, node2);
+				}
 			}
 			repaint();
 		}

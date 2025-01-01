@@ -1,9 +1,6 @@
 package com.otk.jesb.activity.builtin;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -16,50 +13,24 @@ import com.otk.jesb.activity.ActivityResult;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class WriteFileActivity implements Activity {
+public class SleepActivity implements Activity {
 
-	private String filePath;
-	private String text;
-	private boolean append = false;
-	private String charsetName;
+	private long milliseconds;
 
-	public String getFilePath() {
-		return filePath;
+	public long getMilliseconds() {
+		return milliseconds;
 	}
 
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
-	public String getCharsetName() {
-		return charsetName;
-	}
-
-	public void setCharsetName(String charsetName) {
-		this.charsetName = charsetName;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public boolean isAppend() {
-		return append;
-	}
-
-	public void setAppend(boolean append) {
-		this.append = append;
+	public void setMilliseconds(long milliseconds) {
+		this.milliseconds = milliseconds;
 	}
 
 	@Override
 	public ActivityResult execute() throws IOException {
-		try (BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(filePath, append), charsetName))) {
-			bw.write(text);
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 		return null;
 	}
@@ -68,7 +39,7 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public String getActivityTypeName() {
-			return "Write File";
+			return "Sleep";
 		}
 
 		@Override
@@ -79,14 +50,13 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public ResourcePath getActivityIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(WriteFileActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(SleepActivity.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(
-				WriteFileActivity.class.getName());
+		private InstanceSpecification objectSpecification = new InstanceSpecification(SleepActivity.class.getName());
 
 		public InstanceSpecification getObjectSpecification() {
 			return objectSpecification;
@@ -98,7 +68,7 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity) objectSpecification.build(context);
+			return (SleepActivity) objectSpecification.build(context);
 		}
 
 		@Override
