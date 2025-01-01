@@ -13,6 +13,8 @@ public class Step {
 	public Step(ActivityMetadata activityMetadata) {
 		if (activityMetadata != null) {
 			name = activityMetadata.getActivityTypeName();
+			name = name.replace(" ", "");
+			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 			try {
 				activityBuilder = activityMetadata.getActivityBuilderClass().newInstance();
 			} catch (Exception e) {
@@ -51,6 +53,12 @@ public class Step {
 
 	public void setDiagramY(int diagramY) {
 		this.diagramY = diagramY;
+	}
+	
+	public void validate() throws Exception {
+		if(!name.matches("[a-zA-Z][a-zA-Z0-9_]*")){
+			throw new Exception("The step name must match the following regular expression: [a-zA-Z][a-zA-Z0-9_]*");
+		}
 	}
 
 	@Override

@@ -1,8 +1,6 @@
 package com.otk.jesb;
 
-import com.otk.jesb.Plan.ValidationContext;
-
-public class StepEventuality implements ValidationContext.Declaration {
+public class StepEventuality implements Plan.ValidationContext.Declaration {
 
 	private Step step;
 

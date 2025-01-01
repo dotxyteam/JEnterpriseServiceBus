@@ -82,7 +82,6 @@ import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
-import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
@@ -440,6 +439,14 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				@Override
+				protected String toString(ITypeInfo type, Object object) {
+					if (object instanceof ActivityMetadata) {
+						return ((ActivityMetadata) object).getActivityTypeName();
+					}
+					return super.toString(type, object);
+				}
+
+				@Override
 				protected boolean onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
 					if (visible) {
 						if (object instanceof Plan) {
@@ -614,31 +621,17 @@ public class GUI extends SwingCustomizer {
 		private static final long serialVersionUID = 1L;
 		private PlanDiagram diagram;
 		private boolean selectionListeningEnabled = true;
-		private boolean modificationListeningEnabled = true;
 		private ControlSplitPane splitPane;
 
 		public PlanEditor(SwingCustomizer swingRenderer, Plan plan, IInfoFilter infoFilter) {
 			super(swingRenderer, plan, infoFilter);
-			getModificationStack().addListener(new AbstractSimpleModificationListener() {
-				@Override
-				protected void handleAnyEvent(IModification modification) {
-					if (modificationListeningEnabled) {
-						updateDiagram();
-					}
-				}
-			});
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					updateDiagram();
-				}
-			});
 		}
 
 		protected void updateDiagram() {
 			if (diagram == null) {
 				return;
 			}
+			diagram.setPlan(getPlan());
 			diagram.refresh();
 			ListControl stepsControl = getStepsControl();
 			BufferedItemPosition selection = stepsControl.getSingleSelection();
@@ -706,6 +699,7 @@ public class GUI extends SwingCustomizer {
 		@Override
 		public void refresh(boolean refreshStructure) {
 			super.refresh(refreshStructure);
+			updateDiagram();
 			if (refreshStructure) {
 				if (swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor() != null) {
 					splitPane.setBorder(BorderFactory.createLineBorder(SwingRendererUtils
@@ -713,7 +707,6 @@ public class GUI extends SwingCustomizer {
 				} else {
 					splitPane.setBorder(new JSplitPane().getBorder());
 				}
-				updateDiagram();
 			}
 		}
 
@@ -724,33 +717,30 @@ public class GUI extends SwingCustomizer {
 				@Override
 				public void nodeMoved(JNode node) {
 					Step step = (Step) node.getObject();
-					modificationListeningEnabled = false;
-					try {
-						ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-						ITypeInfo stepType = reflectionUI
-								.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Step.class, null));
-						getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
-								new Accessor<Boolean>() {
-									@Override
-									public Boolean get() {
-										ReflectionUIUtils.setFieldValueThroughModificationStack(
-												new DefaultFieldControlData(reflectionUI, step,
-														ReflectionUIUtils.findInfoByName(stepType.getFields(),
-																"diagramX")),
-												node.getX(), getModificationStack(),
-												ReflectionUIUtils.getDebugLogListener(reflectionUI));
-										ReflectionUIUtils.setFieldValueThroughModificationStack(
-												new DefaultFieldControlData(reflectionUI, step,
-														ReflectionUIUtils.findInfoByName(stepType.getFields(),
-																"diagramY")),
-												node.getY(), getModificationStack(),
-												ReflectionUIUtils.getDebugLogListener(reflectionUI));
-										return true;
-									}
-								}, false);
-					} finally {
-						modificationListeningEnabled = true;
-					}
+					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+					ITypeInfo stepType = reflectionUI
+							.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Step.class, null));
+					getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
+							new Accessor<Boolean>() {
+								@Override
+								public Boolean get() {
+									ReflectionUIUtils
+											.setFieldValueThroughModificationStack(
+													new DefaultFieldControlData(reflectionUI, step,
+															ReflectionUIUtils.findInfoByName(stepType.getFields(),
+																	"diagramX")),
+													node.getX(), getModificationStack(),
+													ReflectionUIUtils.getDebugLogListener(reflectionUI));
+									ReflectionUIUtils
+											.setFieldValueThroughModificationStack(
+													new DefaultFieldControlData(reflectionUI, step,
+															ReflectionUIUtils.findInfoByName(stepType.getFields(),
+																	"diagramY")),
+													node.getY(), getModificationStack(),
+													ReflectionUIUtils.getDebugLogListener(reflectionUI));
+									return true;
+								}
+							}, false);
 				}
 
 				@Override
@@ -777,19 +767,14 @@ public class GUI extends SwingCustomizer {
 					Transition newTransition = new Transition();
 					newTransition.setStartStep((Step) conn.getStartNode().getObject());
 					newTransition.setEndStep((Step) conn.getEndNode().getObject());
-					modificationListeningEnabled = false;
-					try {
-						ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-						ITypeInfo planType = reflectionUI
-								.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Plan.class, null));
-						DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
-								ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
-						IModification modification = new ListModificationFactory(
-								new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
-						getModificationStack().apply(modification);
-					} finally {
-						modificationListeningEnabled = true;
-					}
+					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+					ITypeInfo planType = reflectionUI
+							.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Plan.class, null));
+					DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
+					IModification modification = new ListModificationFactory(
+							new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
+					getModificationStack().apply(modification);
 				}
 			});
 			result.setBackground(Color.WHITE);
@@ -907,7 +892,8 @@ public class GUI extends SwingCustomizer {
 					StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
 					if (currentStepOccurrence != null) {
 						if (currentStepOccurrence.getStep() == node.getObject()) {
-							highlightNode(g, node);
+							highlightNode(g, node, (currentStepOccurrence.getActivityError() == null) ? Color.GREEN
+									: new Color(255, 173, 173));
 						}
 					}
 					super.paintNode(g, node);
@@ -939,11 +925,12 @@ public class GUI extends SwingCustomizer {
 					g.drawString(annotation, x, y);
 				}
 
-				void highlightNode(Graphics g, JNode node) {
-					g.setColor(Color.GREEN.darker());
-					int size = 100;
-					g.fillRoundRect(node.getX() - (size / 2), node.getY() - (size / 2), size, size, size / 10,
-							size / 10);
+				void highlightNode(Graphics g, JNode node, Color color) {
+					g.setColor(color);
+					int width = (node.getImage().getWidth(null) * 3) / 2;
+					int height = (node.getImage().getHeight(null) * 3) / 2;
+					g.fillRoundRect(node.getX() - (width / 2), node.getY() - (height / 2), width, height, width / 10,
+							height / 10);
 				}
 
 			};
@@ -1002,6 +989,14 @@ public class GUI extends SwingCustomizer {
 
 		public PlanDiagram(SwingRenderer swingRenderer, Plan plan) {
 			this.swingRenderer = swingRenderer;
+			this.plan = plan;
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
+
+		public void setPlan(Plan plan) {
 			this.plan = plan;
 		}
 
