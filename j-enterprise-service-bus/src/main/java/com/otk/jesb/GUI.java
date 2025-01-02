@@ -899,8 +899,9 @@ public class GUI extends SwingCustomizer {
 					StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
 					if (currentStepOccurrence != null) {
 						if (currentStepOccurrence.getStep() == node.getObject()) {
-							highlightNode(g, node, (currentStepOccurrence.getActivityError() == null) ? Color.GREEN
-									: new Color(255, 173, 173));
+							highlightNode(g, node,
+									(currentStepOccurrence.getActivityError() == null) ? new Color(175, 255, 200)
+											: new Color(255, 173, 173));
 						}
 					}
 					super.paintNode(g, node);
