@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -57,8 +58,8 @@ public class WriteFileActivity implements Activity {
 
 	@Override
 	public ActivityResult execute() throws IOException {
-		try (BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(filePath, append), charsetName))) {
+		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
+				(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
 			bw.write(text);
 		}
 		return null;

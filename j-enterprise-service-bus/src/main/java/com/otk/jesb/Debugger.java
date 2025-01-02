@@ -54,7 +54,7 @@ public class Debugger {
 
 		@Override
 		public String toString() {
-			return "[" + planExecutors.size() + "] " + plan.getName();
+			return "(" + planExecutors.size() + ") " + plan.getName();
 		}
 	}
 

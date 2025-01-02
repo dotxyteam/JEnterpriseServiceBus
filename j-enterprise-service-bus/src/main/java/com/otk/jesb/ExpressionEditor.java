@@ -11,25 +11,23 @@ import com.otk.jesb.util.MiscUtils;
 
 public class ExpressionEditor {
 
-	private String expression;
 	private Plan currentPlan;
 	private Step currentStep;
 	private DynamicValue currentDynamicValue;
 	private PathNode selectedPathNode;
 
 	public ExpressionEditor(String expression, Plan currentPlan, Step currentStep, DynamicValue currentDynamicValue) {
-		this.expression = expression;
 		this.currentPlan = currentPlan;
 		this.currentStep = currentStep;
 		this.currentDynamicValue = currentDynamicValue;
 	}
 
 	public String getExpression() {
-		return expression;
+		return currentDynamicValue.getScript();
 	}
 
 	public void setExpression(String expression) {
-		this.expression = expression;
+		this.currentDynamicValue.setScript(expression);
 	}
 
 	public PathNode getSelectedPathNode() {
@@ -56,18 +54,18 @@ public class ExpressionEditor {
 	}
 
 	public void validateExpression() {
-		MiscUtils.validateScript(expression, getValidationContext());
+		MiscUtils.validateScript(getExpression(), getValidationContext());
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {
 		if (selectedPathNode == null) {
 			throw new IllegalStateException("Select a path node");
 		}
-		if (expression == null) {
-			expression = selectedPathNode.getExpression();
+		if (getExpression() == null) {
+			setExpression(selectedPathNode.getExpression());
 		} else {
-			expression = expression.substring(0, insertStartPosition) + selectedPathNode.getExpression()
-					+ expression.substring(insertEndPosition);
+			setExpression(getExpression().substring(0, insertStartPosition) + selectedPathNode.getExpression()
+					+ getExpression().substring(insertEndPosition));
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.otk.jesb.InstanceSpecification;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
@@ -47,7 +48,8 @@ public class ReadFileActivity implements Activity {
 				buffer.write(data, 0, bytesRead);
 			}
 		}
-		return new Result(new String(buffer.toByteArray(), charsetName));
+		return new Result(new String(buffer.toByteArray(),
+				(charsetName != null) ? charsetName : Charset.defaultCharset().name()));
 	}
 
 	public static class Metadata implements ActivityMetadata {

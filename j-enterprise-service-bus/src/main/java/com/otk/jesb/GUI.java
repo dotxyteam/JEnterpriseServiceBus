@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
@@ -71,7 +72,6 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
-import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
@@ -439,6 +439,23 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				@Override
+				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
+						final Object object, InvocationData invocationData) {
+					if (object instanceof ExpressionEditor) {
+						if (method.getName().equals("insertSelectedPathNodeExpression")) {
+							final String oldExpression = ((ExpressionEditor) object).getExpression();
+							return new Runnable() {
+								@Override
+								public void run() {
+									((ExpressionEditor) object).setExpression(oldExpression);
+								}
+							};
+						}
+					}
+					return super.getNextInvocationUndoJob(method, objectType, object, invocationData);
+				}
+
+				@Override
 				protected String toString(ITypeInfo type, Object object) {
 					if (object instanceof ActivityMetadata) {
 						return ((ActivityMetadata) object).getActivityTypeName();
@@ -466,34 +483,24 @@ public class GUI extends SwingCustomizer {
 
 							@Override
 							public String getCaption() {
-								return "Assist";
+								return "Assist...";
 							}
 
 							@Override
-							public List<IParameterInfo> getParameters() {
-								return Collections
-										.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+							public String getOnlineHelp() {
+								return "Open the Expression Editor";
+							}
 
-											@Override
-											public String getCaption() {
-												return "";
-											}
-
-											@Override
-											public Object getDefaultValue(Object object) {
-												return new ExpressionEditor(((DynamicValue) object).getScript(),
-														currentPlan, currentStep, (DynamicValue) object);
-											}
-
-										});
+							@Override
+							public ITypeInfo getReturnValueType() {
+								return getTypeInfo(
+										new JavaTypeInfoSource(JESBReflectionUI.this, ExpressionEditor.class, null));
 							}
 
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
-								ExpressionEditor expressionEditor = (ExpressionEditor) invocationData
-										.getParameterValue(0);
-								((DynamicValue) object).setScript(expressionEditor.getExpression());
-								return null;
+								return new ExpressionEditor(((DynamicValue) object).getScript(), currentPlan,
+										currentStep, (DynamicValue) object);
 							}
 						});
 						return result;
@@ -914,12 +921,12 @@ public class GUI extends SwingCustomizer {
 						}
 					}
 					if (transitionOccurrenceCount > 0) {
-						annotateConnection(g, conn, "[" + transitionOccurrenceCount + "]");
+						annotateConnection(g, conn, "(" + transitionOccurrenceCount + ")");
 					}
 				}
 
 				void annotateConnection(Graphics g, JConnection conn, String annotation) {
-					g.setColor(Color.GREEN);
+					g.setColor(Color.BLUE);
 					int x = (conn.getStartNode().getX() + conn.getEndNode().getX()) / 2;
 					int y = (conn.getStartNode().getY() + conn.getEndNode().getY()) / 2;
 					g.drawString(annotation, x, y);
