@@ -1,5 +1,6 @@
 package com.otk.jesb.util;
 
+import java.awt.Point;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class MiscUtils {
-	
+
 	public static Object executeScript(String script, Plan.ExecutionContext context) {
 		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 		for (ClassLoader additionalClassLoader : ClassProvider.getAdditionalClassLoaders()) {
@@ -254,6 +255,51 @@ public class MiscUtils {
 		}
 	}
 
-	
+	public static Point getRectangleBorderContactOfLineToExternalPoint(int rectangleCenterX, int rectangleCenterY,
+			int rectangleWidth, int rectangleHeight, int externalPointX, int externalPointY) {
+			int x = externalPointX;
+			int y = externalPointY;
+			int minX = rectangleCenterX - Math.round(rectangleWidth/2f);
+			int minY = rectangleCenterY - Math.round(rectangleHeight/2f);
+			int maxX = rectangleCenterX + Math.round(rectangleWidth/2f);
+			int maxY = rectangleCenterY + Math.round(rectangleHeight/2f);
+			if ((minX < x && x < maxX) && (minY < y && y < maxY)){
+				return null;
+			}
+			float midX = (minX + maxX) / 2f;
+			float midY = (minY + maxY) / 2f;
+			// if (midX - x == 0) -> m == ±Inf -> minYx/maxYx == x (because value / ±Inf = ±0)
+			float m = (midY - y) / (midX - x);
+			if (x <= midX) { // check "left" side
+				float minXy = m * (minX - x) + y;
+				if (minY <= minXy && minXy <= maxY) {
+					return new Point(Math.round(minX), Math.round(minXy));
+				}
+			}
+			if (x >= midX) { // check "right" side
+				float maxXy = m * (maxX - x) + y;
+				if (minY <= maxXy && maxXy <= maxY) {
+					return new Point(Math.round(maxX), Math.round(maxXy));
+				}
+			}
+			if (y <= midY) { // check "top" side
+				float minYx = (minY - y) / m + x;
+				if (minX <= minYx && minYx <= maxX) {
+					return new Point(Math.round(minYx), Math.round(minY));
+				}
+			}
+			if (y >= midY) { // check "bottom" side
+				float maxYx = (maxY - y) / m + x;
+				if (minX <= maxYx && maxYx <= maxX) {
+					return new Point(Math.round(maxYx), Math.round(maxY));
+				}
+			}
+			// edge case when finding midpoint intersection: m = 0/0 = NaN
+			if (x == midX && y == midY) {  
+				return new Point(x, y);
+			}
+			// Should never happen :) If it does, please tell me!
+			throw new AssertionError();
+		}
 
 }

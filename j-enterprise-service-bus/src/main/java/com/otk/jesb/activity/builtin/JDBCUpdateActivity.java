@@ -78,6 +78,11 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
+		public String getCategoryName() {
+			return "JDBC";
+		}
+
+		@Override
 		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
 			return Builder.class;
 		}

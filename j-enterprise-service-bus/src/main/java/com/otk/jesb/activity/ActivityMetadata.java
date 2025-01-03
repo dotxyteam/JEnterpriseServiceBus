@@ -7,5 +7,6 @@ public interface ActivityMetadata {
 	String getActivityTypeName();
 	Class<? extends ActivityBuilder> getActivityBuilderClass();
 	ResourcePath getActivityIconImagePath();
+	String getCategoryName();
 
 }

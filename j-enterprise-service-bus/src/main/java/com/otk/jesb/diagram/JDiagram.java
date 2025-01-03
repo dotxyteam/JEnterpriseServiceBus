@@ -1,9 +1,11 @@
 package com.otk.jesb.diagram;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -12,7 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 public class JDiagram extends JPanel implements MouseListener, MouseMotionListener {
@@ -35,10 +45,19 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private JNode newDraggedConnectionEndNode;
 	private JNode draggedNode;
 	private Point draggingPoint;
+	private JDiagramActionScheme actionScheme;
 
 	public JDiagram() {
 		addMouseListener(this);
 		addMouseMotionListener(this);
+	}
+
+	public JDiagramActionScheme getActionScheme() {
+		return actionScheme;
+	}
+
+	public void setActionScheme(JDiagramActionScheme actionScheme) {
+		this.actionScheme = actionScheme;
 	}
 
 	public void clear() {
@@ -109,16 +128,47 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
+	public void mousePressed(final MouseEvent mouseEvent) {
 		for (JNode node : nodes) {
-			if (node.containsPoint(e.getX(), e.getY())) {
+			if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
 				select(node);
-				if (SwingUtilities.isLeftMouseButton(e)) {
+				if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 					draggedNode = node;
 				}
 				break;
 			}
 		}
+		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
+			JPopupMenu popupMenu = new JPopupMenu();
+			{
+				if (actionScheme != null) {
+					JMenu addMenu = new JMenu(actionScheme.getTitle());
+					{
+						popupMenu.add(addMenu);
+						for (JDiagramActionCategory category : actionScheme.getActionCategories()) {
+							JMenu categoryMenu = new JMenu(category.getName());
+							{
+								addMenu.add(categoryMenu);
+								for (JDiagramAction action : category.getActions()) {
+									categoryMenu
+											.add(new JMenuItem(new AbstractAction(action.getLabel(), action.getIcon()) {
+												private static final long serialVersionUID = 1L;
+
+												@Override
+												public void actionPerformed(ActionEvent e) {
+													action.perform(mouseEvent.getX(), mouseEvent.getY());
+												}
+											}));
+								}
+							}
+						}
+					}
+				}
+
+			}
+			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
+		}
+
 	}
 
 	@Override
@@ -212,6 +262,37 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	protected void paintNode(Graphics g, JNode node) {
 		node.paint(g);
+	}
+
+	public Component createActionPalette() {
+		if (actionScheme == null) {
+			return null;
+		}
+		JTabbedPane result = new JTabbedPane(JTabbedPane.LEFT);
+		result.setBorder(BorderFactory.createTitledBorder(actionScheme.getTitle()));
+		for (JDiagramActionCategory category : actionScheme.getActionCategories()) {
+			JPanel categoryPanel = new JPanel();
+			categoryPanel.setBackground(getBackground());
+			categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.X_AXIS));
+			for (JDiagramAction action : category.getActions()) {
+				JButton button = new JButton(new AbstractAction(action.getLabel(), action.getIcon()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						action.perform(0, 0);
+					}
+				});
+				button.setHorizontalTextPosition(JButton.CENTER);
+				button.setVerticalTextPosition(JButton.BOTTOM);
+				button.setContentAreaFilled(false);
+				button.setBorderPainted(false);
+				categoryPanel.add(button);
+			}
+			result.addTab(category.getName(), categoryPanel);
+		}
+		return result;
 	}
 
 }

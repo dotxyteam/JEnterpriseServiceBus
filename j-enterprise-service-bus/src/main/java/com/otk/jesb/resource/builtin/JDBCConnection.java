@@ -57,7 +57,7 @@ public class JDBCConnection extends Resource {
 	public String test() throws Exception {
 		Class.forName(driverClassName);
 		DriverManager.getConnection(url, userName, password);
-		return "Connection successful";
+		return "Connection successful !";
 	}
 
 	public static class Metadata implements ResourceMetadata {

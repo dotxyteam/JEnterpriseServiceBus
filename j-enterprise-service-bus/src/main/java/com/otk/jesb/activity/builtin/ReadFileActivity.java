@@ -60,6 +60,11 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
+		public String getCategoryName() {
+			return "File";
+		}
+
+		@Override
 		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
 			return Builder.class;
 		}

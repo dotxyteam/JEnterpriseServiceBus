@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;
@@ -13,7 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -37,6 +40,9 @@ import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
+import com.otk.jesb.diagram.JDiagramAction;
+import com.otk.jesb.diagram.JDiagramActionCategory;
+import com.otk.jesb.diagram.JDiagramActionScheme;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.resource.Resource;
@@ -684,7 +690,17 @@ public class GUI extends SwingCustomizer {
 				container.add(splitPane, BorderLayout.CENTER);
 				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 				{
-					splitPane.setLeftComponent(new ControlScrollPane(diagram));
+					JPanel diagramAndPalette = new JPanel();
+					{
+						splitPane.setLeftComponent(new ControlScrollPane(diagramAndPalette));
+						diagramAndPalette.setLayout(new BorderLayout());
+						diagramAndPalette.add(diagram, BorderLayout.CENTER);
+						Component palette = diagram.createActionPalette();
+						{
+							palette.setPreferredSize(new Dimension(100,100));
+							diagramAndPalette.add(palette, BorderLayout.SOUTH);
+						}
+					}
 				}
 				ControlPanel membersPanel = new ControlPanel();
 				{
@@ -895,6 +911,11 @@ public class GUI extends SwingCustomizer {
 				private static final long serialVersionUID = 1L;
 
 				@Override
+				protected JDiagramActionScheme createActionScheme() {
+					return null;
+				}
+
+				@Override
 				protected void paintNode(Graphics g, JNode node) {
 					StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
 					if (currentStepOccurrence != null) {
@@ -998,6 +1019,75 @@ public class GUI extends SwingCustomizer {
 		public PlanDiagram(SwingRenderer swingRenderer, Plan plan) {
 			this.swingRenderer = swingRenderer;
 			this.plan = plan;
+			setActionScheme(createActionScheme());
+		}
+
+		protected JDiagramActionScheme createActionScheme() {
+			return new JDiagramActionScheme() {
+
+				@Override
+				public String getTitle() {
+					return "Add";
+				}
+
+				@Override
+				public List<JDiagramActionCategory> getActionCategories() {
+					List<String> activityCategoryNames = new ArrayList<String>();
+					for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+						if (!activityCategoryNames.contains(metadata.getCategoryName())) {
+							activityCategoryNames.add(metadata.getCategoryName());
+						}
+					}
+					List<JDiagramActionCategory> result = new ArrayList<JDiagramActionCategory>();
+					for (String name : activityCategoryNames) {
+						result.add(new JDiagramActionCategory() {
+
+							@Override
+							public String getName() {
+								return name;
+							}
+
+							@Override
+							public List<JDiagramAction> getActions() {
+								List<JDiagramAction> result = new ArrayList<JDiagramAction>();
+								for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+									if (name.equals(metadata.getCategoryName())) {
+										result.add(new JDiagramAction() {
+
+											@Override
+											public void perform(int x, int y) {
+												Step newStep = new Step(metadata);
+												newStep.setDiagramX(x);
+												newStep.setDiagramY(y);
+												plan.getSteps().add(newStep);
+												refresh();
+											}
+
+											@Override
+											public String getLabel() {
+												return metadata.getActivityTypeName();
+											}
+
+											@Override
+											public Icon getIcon() {
+												return SwingRendererUtils
+														.getIcon(SwingRendererUtils.scalePreservingRatio(
+																SwingRendererUtils.loadImageThroughCache(
+																		metadata.getActivityIconImagePath(),
+																		ReflectionUIUtils.getDebugLogListener(
+																				swingRenderer.getReflectionUI())),
+																32, 32, Image.SCALE_SMOOTH));
+											}
+										});
+									}
+								}
+								return result;
+							}
+						});
+					}
+					return result;
+				}
+			};
 		}
 
 		public Plan getPlan() {

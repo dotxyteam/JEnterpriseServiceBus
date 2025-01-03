@@ -43,6 +43,11 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
+		public String getCategoryName() {
+			return "General";
+		}
+
+		@Override
 		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
 			return Builder.class;
 		}
