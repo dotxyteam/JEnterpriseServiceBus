@@ -70,7 +70,7 @@ public class JDBCQueryActivity implements Activity {
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
 		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 		if (expectedParameterCount != parameterValues.countParameters()) {
-			throw new Exception("Unexpected parameter count: " + parameterValues.countParameters() + ". Expected "
+			throw new Exception("Unexpected defined parameter count: " + parameterValues.countParameters() + ". Expected "
 					+ expectedParameterCount + " parameter(s).");
 		}
 		for (int i = 0; i < expectedParameterCount; i++) {

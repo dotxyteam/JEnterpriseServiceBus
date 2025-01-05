@@ -48,7 +48,7 @@ public class Debugger {
 			return planExecutors;
 		}
 
-		public void startPlan() {
+		public void executePlan() {
 			planExecutors.add(new PlanExecutor(plan));
 		}
 

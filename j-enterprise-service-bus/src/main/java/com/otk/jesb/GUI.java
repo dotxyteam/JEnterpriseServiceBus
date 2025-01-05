@@ -327,7 +327,7 @@ public class GUI extends SwingCustomizer {
 						}
 					}
 					if (object instanceof PlanActivator) {
-						if (method.getName().equals("startPlan")) {
+						if (method.getName().equals("executePlan")) {
 							method = new MethodInfoProxy(method) {
 
 								@Override
@@ -607,7 +607,7 @@ public class GUI extends SwingCustomizer {
 							List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
 									super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
 							for (int i = 0; i < result.size(); i++) {
-								if (result.get(i).getName().endsWith("startPlan")) {
+								if (result.get(i).getName().endsWith("executePlan")) {
 									result.set(i, new DynamicListActionProxy(result.get(i)) {
 										@Override
 										public List<ItemPosition> getPostSelection() {
@@ -697,7 +697,7 @@ public class GUI extends SwingCustomizer {
 						diagramAndPalette.add(diagram, BorderLayout.CENTER);
 						Component palette = diagram.createActionPalette();
 						{
-							palette.setPreferredSize(new Dimension(100,100));
+							palette.setPreferredSize(new Dimension(100, 100));
 							diagramAndPalette.add(palette, BorderLayout.SOUTH);
 						}
 					}
@@ -734,7 +734,7 @@ public class GUI extends SwingCustomizer {
 		}
 
 		private PlanDiagram createDiagram() {
-			PlanDiagram result = new PlanDiagram(swingRenderer, getPlan());
+			PlanDiagram result = new PlanDiagram(swingRenderer, getPlan(), PlanEditor.this);
 			result.addListener(new JDiagramListener() {
 
 				@Override
@@ -906,7 +906,7 @@ public class GUI extends SwingCustomizer {
 		}
 
 		private PlanDiagram createDiagram() {
-			final PlanDiagram result = new PlanDiagram(swingRenderer, getPlanExecutor().getPlan()) {
+			final PlanDiagram result = new PlanDiagram(swingRenderer, getPlanExecutor().getPlan(), null) {
 
 				private static final long serialVersionUID = 1L;
 
@@ -1015,10 +1015,12 @@ public class GUI extends SwingCustomizer {
 
 		private SwingRenderer swingRenderer;
 		private Plan plan;
+		private PlanEditor planEditor;
 
-		public PlanDiagram(SwingRenderer swingRenderer, Plan plan) {
+		public PlanDiagram(SwingRenderer swingRenderer, Plan plan, PlanEditor planEditor) {
 			this.swingRenderer = swingRenderer;
 			this.plan = plan;
+			this.planEditor = planEditor;
 			setActionScheme(createActionScheme());
 		}
 
@@ -1059,7 +1061,17 @@ public class GUI extends SwingCustomizer {
 												Step newStep = new Step(metadata);
 												newStep.setDiagramX(x);
 												newStep.setDiagramY(y);
-												plan.getSteps().add(newStep);
+												ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+												ITypeInfo planType = reflectionUI.getTypeInfo(
+														new JavaTypeInfoSource(reflectionUI, Plan.class, null));
+												DefaultFieldControlData transitionsData = new DefaultFieldControlData(
+														reflectionUI, getPlan(), ReflectionUIUtils
+																.findInfoByName(planType.getFields(), "steps"));
+												IModification modification = new ListModificationFactory(
+														new ItemPositionFactory(transitionsData)
+																.getRootItemPosition(-1)).add(plan.getSteps().size(),
+																		newStep);
+												planEditor.getModificationStack().apply(modification);
 												refresh();
 											}
 

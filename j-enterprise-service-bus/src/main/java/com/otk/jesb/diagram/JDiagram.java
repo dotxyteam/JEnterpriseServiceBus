@@ -5,7 +5,12 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -18,12 +23,14 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 
 public class JDiagram extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -50,6 +57,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	public JDiagram() {
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		setTransferHandler(new ActionImportTransferHandler());
 	}
 
 	public JDiagramActionScheme getActionScheme() {
@@ -275,24 +283,111 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			categoryPanel.setBackground(getBackground());
 			categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.X_AXIS));
 			for (JDiagramAction action : category.getActions()) {
-				JButton button = new JButton(new AbstractAction(action.getLabel(), action.getIcon()) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						action.perform(0, 0);
-					}
-				});
+				JButton button = new JButton(action.getLabel(), action.getIcon());
 				button.setHorizontalTextPosition(JButton.CENTER);
 				button.setVerticalTextPosition(JButton.BOTTOM);
 				button.setContentAreaFilled(false);
 				button.setBorderPainted(false);
+				button.setTransferHandler(new ActionExportTransferHandler(action));
+				button.addMouseMotionListener(new MouseAdapter() {
+					@Override
+					public void mouseDragged(MouseEvent e) {
+						TransferHandler handle = button.getTransferHandler();
+						handle.exportAsDrag(button, e, TransferHandler.COPY);
+					}
+				});
 				categoryPanel.add(button);
 			}
 			result.addTab(category.getName(), categoryPanel);
 		}
 		return result;
+	}
+
+	private static class ActionExportTransferHandler extends TransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+		private JDiagramAction action;
+
+		public ActionExportTransferHandler(JDiagramAction action) {
+			this.action = action;
+		}
+
+		@Override
+		public int getSourceActions(JComponent c) {
+			return DnDConstants.ACTION_COPY_OR_MOVE;
+		}
+
+		@Override
+		protected Transferable createTransferable(JComponent c) {
+			return new TransferableAction(action);
+		}
+
+	}
+
+	private static class ActionImportTransferHandler extends TransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+		public ActionImportTransferHandler() {
+		}
+
+		@Override
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			return support.isDataFlavorSupported(TransferableAction.DATA_FLAVOR);
+		}
+
+		@Override
+		public boolean importData(TransferHandler.TransferSupport support) {
+			boolean accept = false;
+			if (canImport(support)) {
+				try {
+					Transferable t = support.getTransferable();
+					Object data = t.getTransferData(TransferableAction.DATA_FLAVOR);
+					if (data instanceof JDiagramAction) {
+						Component component = support.getComponent();
+						if (component instanceof JDiagram) {
+							Point dropPoint = support.getDropLocation().getDropPoint();
+							((JDiagramAction) data).perform(dropPoint.x, dropPoint.y);
+							accept = true;
+						}
+					}
+				} catch (Exception e) {
+					throw new AssertionError(e);
+				}
+			}
+			return accept;
+		}
+	}
+
+	private static class TransferableAction implements Transferable {
+
+		public static DataFlavor DATA_FLAVOR = new DataFlavor(JDiagramAction.class,
+				JDiagramAction.class.getSimpleName());
+
+		private JDiagramAction action;
+
+		public TransferableAction(JDiagramAction action) {
+			this.action = action;
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[] { DATA_FLAVOR };
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return flavor.equals(DATA_FLAVOR);
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+			if (flavor.equals(DATA_FLAVOR))
+				return action;
+			else
+				throw new UnsupportedFlavorException(flavor);
+		}
 	}
 
 }
