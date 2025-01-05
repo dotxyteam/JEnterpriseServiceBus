@@ -7850,7 +7850,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6750</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae7</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -7908,7 +7908,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674f</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae6</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8569,7 +8569,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674e</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae5</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8601,7 +8601,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674d</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae4</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -8758,7 +8758,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674c</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae3</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -8832,7 +8832,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674b</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae2</uniqueIdentifier>
                 <caption>Output</caption>
             </category>
             <categoryCaption>Output</categoryCaption>
@@ -9419,6 +9419,136 @@
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-680bd6c0:194383bd114:-7fa7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>dynamicTypeNameAccessor</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-680bd6c0:194383bd114:-7fa5</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <appplicationCustomization>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7fa6</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </appplicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7f53</uniqueIdentifier>
+                    <specificProperties/>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-680bd6c0:194383bd114:-7f52</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>-680bd6c0:194383bd114:-7f42</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>returning</methodName>
+                        <methodSignature>xy.reflect.ui.util.Accessor returning(java.lang.Object, boolean)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-680bd6c0:194383bd114:-7f3f</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-680bd6c0:194383bd114:-7f3e</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>object</parameterName>
+                        </parametersCustomizations>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-680bd6c0:194383bd114:-7f3d</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-680bd6c0:194383bd114:-7f3c</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>boolean</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>-680bd6c0:194383bd114:-7f41</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>set</methodName>
+                        <methodSignature>void set(java.lang.Object)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-680bd6c0:194383bd114:-7f3b</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-680bd6c0:194383bd114:-7f3a</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>object</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <methodsCustomizations>
+                        <uniqueIdentifier>-680bd6c0:194383bd114:-7f40</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>false</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <methodName>returning</methodName>
+                        <methodSignature>xy.reflect.ui.util.Accessor returning(java.lang.Object)</methodSignature>
+                        <parametersCustomizations>
+                            <uniqueIdentifier>-680bd6c0:194383bd114:-7f39</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-680bd6c0:194383bd114:-7f38</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>object</parameterName>
+                        </parametersCustomizations>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomizations>
+                    <typeName>com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
@@ -9720,6 +9850,58 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>currentDynamicValue</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1ba184f4:194382296c9:-7f9b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>setTypeNameAccessor</methodName>
+            <methodSignature>void setTypeNameAccessor(xy.reflect.ui.util.Accessor)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1ba184f4:194382296c9:-7f9a</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1ba184f4:194382296c9:-7f99</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>typeNameAccessor</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1ba184f4:194382296c9:-7f97</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.InstanceSpecification (xy.reflect.ui.util.Accessor)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1ba184f4:194382296c9:-7f96</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1ba184f4:194382296c9:-7f95</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>typeNameAccessor</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -12310,7 +12492,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-674a</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae1</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -54467,7 +54649,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6749</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ae0</uniqueIdentifier>
                 <caption>Activity</caption>
             </category>
             <categoryCaption>Activity</categoryCaption>
@@ -54566,7 +54748,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6748</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5adf</uniqueIdentifier>
                 <caption>Error</caption>
             </category>
             <categoryCaption>Error</categoryCaption>
@@ -55803,7 +55985,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6747</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5ade</uniqueIdentifier>
                 <caption>Result</caption>
             </category>
             <categoryCaption>Result</categoryCaption>
@@ -62849,7 +63031,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6746</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5add</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -62989,7 +63171,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6745</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5adc</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -63215,7 +63397,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>75a9d303:1943213cb5b:-6744</uniqueIdentifier>
+                <uniqueIdentifier>68cc3c3a:19438469529:-5adb</uniqueIdentifier>
                 <caption>Input</caption>
             </category>
             <categoryCaption>Input</categoryCaption>
@@ -68028,6 +68210,110 @@
             <validating>false</validating>
         </methodsCustomizations>
         <typeName>Encapsulation [context=FieldContext [fieldName=activityError, objectType=com.otk.jesb.StepOccurrence], subContext=MutableInstance, encapsulatedObjectType=java.lang.Exception]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-680bd6c0:194383bd114:-7f55</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-680bd6c0:194383bd114:-7f54</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>-680bd6c0:194383bd114:-7f4e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>returning</methodName>
+            <methodSignature>xy.reflect.ui.util.Accessor returning(java.lang.Object, boolean)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-680bd6c0:194383bd114:-7f4b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7f4a</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>object</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>-680bd6c0:194383bd114:-7f49</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7f48</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>boolean</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-680bd6c0:194383bd114:-7f4d</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>set</methodName>
+            <methodSignature>void set(java.lang.Object)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-680bd6c0:194383bd114:-7f47</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7f46</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>object</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-680bd6c0:194383bd114:-7f4c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>returning</methodName>
+            <methodSignature>xy.reflect.ui.util.Accessor returning(java.lang.Object)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-680bd6c0:194383bd114:-7f45</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-680bd6c0:194383bd114:-7f44</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>object</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

@@ -26,11 +26,13 @@ import xy.reflect.ui.info.type.iterable.map.MapEntryTypeInfoProxy;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstanceSpecification {
 
 	private String typeName;
+	private Accessor<String> dynamicTypeNameAccessor;
 	private List<ParameterInitializer> parameterInitializers = new ArrayList<ParameterInitializer>();
 	private List<FieldInitializer> fieldInitializers = new ArrayList<FieldInitializer>();
 	private List<ListItemInitializer> listItemInitializers = new ArrayList<ListItemInitializer>();
@@ -43,16 +45,46 @@ public class InstanceSpecification {
 		this.typeName = typeName;
 	}
 
+	public InstanceSpecification(Accessor<String> typeNameAccessor) {
+		this.dynamicTypeNameAccessor = typeNameAccessor;
+	}
+
 	public InstanceSpecificationFacade getFacade() {
 		return new InstanceSpecificationFacade(null, this);
 	}
 
 	public String getTypeName() {
+		if (dynamicTypeNameAccessor != null) {
+			return "<Dynamic>";
+		}
 		return typeName;
 	}
 
 	public void setTypeName(String typeName) {
+		if (dynamicTypeNameAccessor != null) {
+			if("<Dynamic>".equals(typeName)) {
+				return;
+			}
+			throw new UnsupportedOperationException();
+		}
 		this.typeName = typeName;
+	}
+
+	public Accessor<String> getDynamicTypeNameAccessor() {
+		return dynamicTypeNameAccessor;
+	}
+
+	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
+		this.dynamicTypeNameAccessor = dynamicTypeNameAccessor;
+		this.typeName = null;
+	}
+
+	private String computeActualTypeName() {
+		if (dynamicTypeNameAccessor != null) {
+			return dynamicTypeNameAccessor.get();
+		} else {
+			return typeName;
+		}
 	}
 
 	public String getSelectedConstructorSignature() {
@@ -92,9 +124,10 @@ public class InstanceSpecification {
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			if (selectedConstructorSignature == null) {
-				throw new AssertionError("Cannot create '" + typeName + "' instance: No constructor available");
+				throw new AssertionError(
+						"Cannot create '" + computeActualTypeName() + "' instance: No constructor available");
 			} else {
-				throw new AssertionError("Cannot create '" + typeName + "' instance: Constructor not found: '"
+				throw new AssertionError("Cannot create '" + computeActualTypeName() + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}
@@ -246,7 +279,7 @@ public class InstanceSpecification {
 	}
 
 	public ITypeInfo getTypeInfo() {
-		return TypeInfoProvider.getTypeInfo(typeName);
+		return TypeInfoProvider.getTypeInfo(computeActualTypeName());
 	}
 
 	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
@@ -563,7 +596,7 @@ public class InstanceSpecification {
 		}
 
 		public ITypeInfo getTypeInfo() {
-			ITypeInfo result = TypeInfoProvider.getTypeInfo(underlying.getTypeName());
+			ITypeInfo result = TypeInfoProvider.getTypeInfo(underlying.computeActualTypeName());
 			if (result instanceof IListTypeInfo) {
 				if (parent instanceof FieldInitializerFacade) {
 					FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;

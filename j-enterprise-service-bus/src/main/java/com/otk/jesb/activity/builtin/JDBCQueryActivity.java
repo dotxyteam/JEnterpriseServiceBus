@@ -26,6 +26,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.Accessor;
 
 public class JDBCQueryActivity implements Activity {
 
@@ -70,8 +71,8 @@ public class JDBCQueryActivity implements Activity {
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
 		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 		if (expectedParameterCount != parameterValues.countParameters()) {
-			throw new Exception("Unexpected defined parameter count: " + parameterValues.countParameters() + ". Expected "
-					+ expectedParameterCount + " parameter(s).");
+			throw new Exception("Unexpected defined parameter count: " + parameterValues.countParameters()
+					+ ". Expected " + expectedParameterCount + " parameter(s).");
 		}
 		for (int i = 0; i < expectedParameterCount; i++) {
 			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
@@ -111,11 +112,15 @@ public class JDBCQueryActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private String uniqueIdentifier = MiscUtils.getDigitalUniqueIdentifier();
 		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification();
+		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification(new Accessor<String>() {
+			@Override
+			public String get() {
+				return parameterValuesClass.getName();
+			}
+		});
 		private List<ColumnDefinition> resultColumnDefinitions;
 
 		private Class<? extends ActivityResult> customResultClass;
@@ -123,7 +128,6 @@ public class JDBCQueryActivity implements Activity {
 
 		public Builder() {
 			updateDynamicClasses();
-			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
 		private void updateDynamicClasses() {
@@ -150,7 +154,8 @@ public class JDBCQueryActivity implements Activity {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQueryActivity.class.getSimpleName() + "Result" + uniqueIdentifier;
+			String resultClassName = JDBCQueryActivity.class.getSimpleName() + "Result"
+					+ MiscUtils.getDigitalUniqueIdentifier();
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append(
@@ -198,7 +203,8 @@ public class JDBCQueryActivity implements Activity {
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCQueryActivity.class.getSimpleName() + "ParameterValues" + uniqueIdentifier;
+			String className = JDBCQueryActivity.class.getSimpleName() + "ParameterValues"
+					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("public class " + className + " implements "
 					+ ParameterValues.class.getName().replace("$", ".") + "{" + "\n");
@@ -245,16 +251,6 @@ public class JDBCQueryActivity implements Activity {
 			javaSource.append("}" + "\n");
 			return (Class<? extends ParameterValues>) MiscUtils.createClass(className, javaSource.toString(),
 					JDBCQueryActivity.class.getClassLoader());
-		}
-
-		public String getUniqueIdentifier() {
-			return uniqueIdentifier;
-		}
-
-		public void setUniqueIdentifier(String uniqueIdentifier) {
-			this.uniqueIdentifier = uniqueIdentifier;
-			updateDynamicClasses();
-			parameterValuesSpecification.setTypeName(parameterValuesClass.getName());
 		}
 
 		public JDBCConnection getConnection() {
