@@ -10,7 +10,6 @@ import java.util.List;
 import com.otk.jesb.Plan.ExecutionContext.Property;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.Declaration;
-import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
@@ -19,6 +18,7 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
@@ -62,7 +62,7 @@ public class InstanceSpecification {
 
 	public void setTypeName(String typeName) {
 		if (dynamicTypeNameAccessor != null) {
-			if("<Dynamic>".equals(typeName)) {
+			if ("<Dynamic>".equals(typeName)) {
 				return;
 			}
 			throw new UnsupportedOperationException();
@@ -127,8 +127,8 @@ public class InstanceSpecification {
 				throw new AssertionError(
 						"Cannot create '" + computeActualTypeName() + "' instance: No constructor available");
 			} else {
-				throw new AssertionError("Cannot create '" + computeActualTypeName() + "' instance: Constructor not found: '"
-						+ selectedConstructorSignature + "'");
+				throw new AssertionError("Cannot create '" + computeActualTypeName()
+						+ "' instance: Constructor not found: '" + selectedConstructorSignature + "'");
 			}
 		}
 		Object[] parameterValues = new Object[constructor.getParameters().size()];
@@ -333,8 +333,12 @@ public class InstanceSpecification {
 		@Override
 		public ITypeInfo getTypeInfo() {
 			ReflectionUI reflectionUI = ReflectionUI.getDefault();
-			Class<?> keyClass = (keyTypeName != null) ? ClassProvider.getClass(keyTypeName) : null;
-			Class<?> valueClass = (valueTypeName != null) ? ClassProvider.getClass(valueTypeName) : null;
+			Class<?> keyClass = (keyTypeName != null)
+					? ((DefaultTypeInfo) TypeInfoProvider.getTypeInfo(keyTypeName)).getJavaType()
+					: null;
+			Class<?> valueClass = (valueTypeName != null)
+					? ((DefaultTypeInfo) TypeInfoProvider.getTypeInfo(valueTypeName)).getJavaType()
+					: null;
 			return reflectionUI.getTypeInfo(new JavaTypeInfoSource(reflectionUI, StandardMapEntry.class,
 					new Class[] { keyClass, valueClass }, null));
 		}

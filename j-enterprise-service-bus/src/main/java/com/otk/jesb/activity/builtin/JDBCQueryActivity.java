@@ -21,6 +21,7 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.ActivityResult;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
@@ -197,8 +198,12 @@ public class JDBCQueryActivity implements Activity {
 				javaSource.append("}" + "\n");
 			}
 			javaSource.append("}" + "\n");
-			return (Class<? extends ActivityResult>) MiscUtils.createClass(resultClassName, javaSource.toString(),
-					JDBCQueryActivity.class.getClassLoader());
+			try {
+				return (Class<? extends ActivityResult>) MiscUtils.compile(resultClassName, javaSource.toString(),
+						JDBCQueryActivity.class.getClassLoader());
+			} catch (CompilationError e) {
+				throw new AssertionError(e);
+			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -220,7 +225,7 @@ public class JDBCQueryActivity implements Activity {
 						.add(parameterDefinition.getParameterTypeName() + " " + parameterDefinition.getParameterName());
 			}
 			javaSource.append("  public " + className + "("
-					+ xy.reflect.ui.util.MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
+					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
 				javaSource.append("    this." + parameterDefinition.getParameterName() + " = "
@@ -249,8 +254,12 @@ public class JDBCQueryActivity implements Activity {
 				javaSource.append("  }" + "\n");
 			}
 			javaSource.append("}" + "\n");
-			return (Class<? extends ParameterValues>) MiscUtils.createClass(className, javaSource.toString(),
-					JDBCQueryActivity.class.getClassLoader());
+			try {
+				return (Class<? extends ParameterValues>) MiscUtils.compile(className, javaSource.toString(),
+						JDBCQueryActivity.class.getClassLoader());
+			} catch (CompilationError e) {
+				throw new AssertionError(e);
+			}
 		}
 
 		public JDBCConnection getConnection() {

@@ -100,6 +100,18 @@ public class CompositeClassLoader extends ClassLoader {
 	}
 
 	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return super.findClass(name);
+	}
+
+	@Override
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return super.loadClass(name);
+	}
+
+	@Override
 	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		List copy = new ArrayList(classLoaders.size()) {
 

@@ -7,6 +7,7 @@ import java.util.List;
 import com.otk.jesb.InstanceSpecification.DynamicValue;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.MiscUtils;
 
 public class ExpressionEditor {
@@ -53,7 +54,7 @@ public class ExpressionEditor {
 		return context;
 	}
 
-	public void validateExpression() {
+	public void validateExpression() throws CompilationError {
 		MiscUtils.validateScript(getExpression(), getValidationContext());
 	}
 

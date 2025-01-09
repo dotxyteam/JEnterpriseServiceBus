@@ -76,7 +76,7 @@ public class Plan extends Asset {
 	}
 
 	public void execute(ExecutionInspector executionInspector) throws Exception {
-		ExecutionContext context = new ExecutionContext();
+		ExecutionContext context = new ExecutionContext(this);
 		execute(steps, context, executionInspector);
 	}
 
@@ -106,6 +106,7 @@ public class Plan extends Asset {
 	}
 
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		context.setCutrrentStep(step);
 		StepOccurrence stepOccurrence = new StepOccurrence(step);
 		executionInspector.beforeActivityCreation(stepOccurrence);
 		Activity activity = step.getActivityBuilder().build(context);
@@ -121,10 +122,11 @@ public class Plan extends Asset {
 			throw e;
 		}
 		executionInspector.afterActivityExecution(stepOccurrence);
+		context.setCutrrentStep(null);		
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
-		ValidationContext result = new ValidationContext();
+		ValidationContext result = new ValidationContext(this);
 		List<Step> previousSteps = getPreviousSteps(currentStep);
 		for (Step step : previousSteps) {
 			if (step.getActivityBuilder().getActivityResultClass() != null) {
@@ -137,15 +139,31 @@ public class Plan extends Asset {
 	public static class ExecutionContext {
 
 		private List<Property> properties = new ArrayList<Property>();
+		private Plan plan;
+		private Step currentStep;
 
-		public ExecutionContext() {
+		public ExecutionContext(Plan plan) {
+			this.plan = plan;
 		}
 
+		
+
 		public ExecutionContext(ExecutionContext parentContext, Property newProperty) {
+			this.plan = parentContext.getPlan();
 			properties.addAll(parentContext.getProperties());
 			properties.add(newProperty);
 		}
 
+		public Plan getPlan() {
+			return plan;
+		}
+
+		public Step getCurrentStep() {
+			return currentStep;
+		}
+		public void setCutrrentStep(Step step) {
+			this.currentStep = step;
+		}
 		public List<Property> getProperties() {
 			return properties;
 		}
@@ -163,13 +181,20 @@ public class Plan extends Asset {
 	public static class ValidationContext {
 
 		private List<Declaration> declarations = new ArrayList<Declaration>();
+		private Plan plan;
 
-		public ValidationContext() {
+		public ValidationContext(Plan plan) {
+			this.plan = plan;
 		}
 
-		public ValidationContext(ValidationContext parentContext, Declaration newDeclaration) {
+		public ValidationContext(Plan plan, ValidationContext parentContext, Declaration newDeclaration) {
+			this.plan = plan;
 			declarations.addAll(parentContext.getDeclarations());
 			declarations.add(newDeclaration);
+		}
+
+		public Plan getPlan() {
+			return plan;
 		}
 
 		public List<Declaration> getDeclarations() {

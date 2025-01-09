@@ -38,6 +38,7 @@ import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
 import com.otk.jesb.activity.builtin.ReadFileActivity;
 import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramAction;
@@ -49,7 +50,6 @@ import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
-import com.otk.jesb.util.ScriptValidationError;
 import com.otk.jesb.util.SquigglePainter;
 
 import xy.reflect.ui.CustomizedUI;
@@ -367,8 +367,10 @@ public class GUI extends SwingCustomizer {
 						textComponent.getHighlighter().removeAllHighlights();
 						try {
 							((ExpressionEditor) object).validateExpression();
-						} catch (ScriptValidationError e) {
-							textComponent.getHighlighter().addHighlight(e.getStartPosition(), e.getEndPosition(),
+						} catch (CompilationError e) {
+							textComponent.getHighlighter().addHighlight(
+									(e.getStartPosition() == -1) ? 0 : e.getStartPosition(),
+									(e.getEndPosition() == -1) ? textComponent.getText().length() : e.getEndPosition(),
 									new SquigglePainter(Color.RED));
 							throw e;
 						}

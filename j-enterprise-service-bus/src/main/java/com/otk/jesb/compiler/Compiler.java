@@ -1,5 +1,6 @@
 package com.otk.jesb.compiler;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.Arrays;
@@ -8,7 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
 /**
@@ -27,7 +31,7 @@ public class Compiler {
 	private ClassLoader classLoader = Compiler.class.getClassLoader();
 
 	private List<String> options;
-	
+
 	private String compilerErrorOutput = null;
 
 	/**
@@ -59,17 +63,22 @@ public class Compiler {
 	 * @param sourceCode
 	 * @param canonicalClassName the fully qualified name of the class
 	 * @return the loaded class or null if the compilation was not successful
-	 * @throws Exception exceptions loading the class are not caught by the method
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws CompilationError
 	 */
-	public Class<?> compile(String sourceCode, String canonicalClassName) throws Exception {
+	public Class<?> compile(String sourceCode, String canonicalClassName)
+			throws ClassNotFoundException, IOException, CompilationError {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		List<JavaSourceFromString> sources = new LinkedList<>();
 		String className = calculateSimpleClassName(canonicalClassName);
 		sources.add(new JavaSourceFromString(className, sourceCode));
 
 		StringWriter sw = new StringWriter();
-		MemoryJavaFileManager fm = new MemoryJavaFileManager(compiler.getStandardFileManager(null, null, null));
-		JavaCompiler.CompilationTask task = compiler.getTask(sw, fm, null, options, null, sources);
+		DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<JavaFileObject>();
+		MemoryJavaFileManager fm = new MemoryJavaFileManager(
+				compiler.getStandardFileManager(diagnosticsCollector, null, null));
+		JavaCompiler.CompilationTask task = compiler.getTask(sw, fm, diagnosticsCollector, options, null, sources);
 
 		Boolean compilationWasSuccessful = task.call();
 		if (compilationWasSuccessful) {
@@ -80,7 +89,13 @@ public class Compiler {
 			return klass;
 		} else {
 			compilerErrorOutput = sw.toString();
-			return null;
+			if (diagnosticsCollector.getDiagnostics().size() > 0) {
+				Diagnostic<? extends JavaFileObject> diagnostic = diagnosticsCollector.getDiagnostics().get(0);
+				throw new CompilationError((int) diagnostic.getStartPosition(), (int) diagnostic.getEndPosition(),
+						diagnostic.getMessage(null));
+			} else {
+				throw new CompilationError(-1, -1, compilerErrorOutput);
+			}
 		}
 	}
 

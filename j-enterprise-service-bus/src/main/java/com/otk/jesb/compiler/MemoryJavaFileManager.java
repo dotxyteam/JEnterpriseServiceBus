@@ -10,8 +10,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 
-public class MemoryJavaFileManager extends
-		ForwardingJavaFileManager<StandardJavaFileManager> {
+public class MemoryJavaFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 	private final Map<String, MemoryFileObject> classFilesMap;
 
 	protected MemoryJavaFileManager(final StandardJavaFileManager fileManager) {
@@ -24,14 +23,8 @@ public class MemoryJavaFileManager extends
 	}
 
 	@Override
-	public ClassLoader getClassLoader(final Location location) {
-		return super.getClassLoader(location);
-	}
-
-	@Override
-	public JavaFileObject getJavaFileForOutput(final Location location,
-			final String className, final Kind kind, final FileObject sibling)
-			throws IOException {
+	public JavaFileObject getJavaFileForOutput(final Location location, final String className, final Kind kind,
+			final FileObject sibling) throws IOException {
 		MemoryFileObject classFile = new MemoryFileObject(className);
 		classFilesMap.put(className, classFile);
 		return classFile;

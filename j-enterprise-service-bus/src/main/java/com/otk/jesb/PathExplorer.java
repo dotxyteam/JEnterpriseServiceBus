@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.otk.jesb.meta.ClassProvider;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.field.PublicFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.ArrayTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -216,7 +216,7 @@ public class PathExplorer {
 			IListTypeInfo parentTypeInfo = (IListTypeInfo) parent.getTypeInfo();
 			if (parentTypeInfo instanceof ArrayTypeInfo) {
 				return parentExpression + "[i]";
-			} else if (List.class.isAssignableFrom(ClassProvider.getClass(parentTypeInfo.getName()))) {
+			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {
 				return parentExpression + ".get(i)";
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentExpression + ".iterator().next()";
