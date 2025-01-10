@@ -368,10 +368,13 @@ public class GUI extends SwingCustomizer {
 						try {
 							((ExpressionEditor) object).validateExpression();
 						} catch (CompilationError e) {
-							textComponent.getHighlighter().addHighlight(
-									(e.getStartPosition() == -1) ? 0 : e.getStartPosition(),
-									(e.getEndPosition() == -1) ? textComponent.getText().length() : e.getEndPosition(),
-									new SquigglePainter(Color.RED));
+							if (textComponent.getText() != null) {
+								textComponent.getHighlighter().addHighlight(
+										(e.getStartPosition() == -1) ? 0 : e.getStartPosition(),
+										(e.getEndPosition() == -1) ? textComponent.getText().length()
+												: e.getEndPosition(),
+										new SquigglePainter(Color.RED));
+							}
 							throw e;
 						}
 					} else {

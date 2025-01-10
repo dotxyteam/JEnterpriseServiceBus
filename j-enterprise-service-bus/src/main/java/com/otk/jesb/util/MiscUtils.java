@@ -41,7 +41,7 @@ public class MiscUtils {
 
 	public static Class<?> compile(String className, String javaSource, ClassLoader parentClassLoader)
 			throws CompilationError {
-		return IN_MEMORY_JAVA_COMPILER.compile(className, javaSource);
+		return IN_MEMORY_JAVA_COMPILER.compile(className, javaSource, parentClassLoader);
 	}
 
 	public static Object executeScript(DynamicValue dynamicValue, Plan.ExecutionContext executionContext) {

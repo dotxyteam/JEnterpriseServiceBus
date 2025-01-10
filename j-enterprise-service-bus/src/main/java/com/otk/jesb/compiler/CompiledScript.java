@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Plan;
-import com.otk.jesb.meta.ClassProvider;
-import com.otk.jesb.meta.CompositeClassLoader;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 public class CompiledScript {
@@ -19,10 +18,6 @@ public class CompiledScript {
 	}
 
 	public static CompiledScript get(String script, Plan.ValidationContext context) throws CompilationError {
-		CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
-		for (ClassLoader additionalClassLoader : ClassProvider.getAdditionalClassLoaders()) {
-			compositeClassLoader.add(additionalClassLoader);
-		}
 		String scriptClassName = "Script" + MiscUtils.getDigitalUniqueIdentifier();
 		String preScript = "";
 		preScript += "public class " + scriptClassName + "{" + "\n";
@@ -39,7 +34,8 @@ public class CompiledScript {
 		postScript += "}";
 		Class<?> scriptClass;
 		try {
-			scriptClass = MiscUtils.compile(scriptClassName, preScript + script + postScript, compositeClassLoader);
+			scriptClass = MiscUtils.compile(scriptClassName, preScript + script + postScript,
+					TypeInfoProvider.getClassLoader());
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preScript.length();
 			if (startPosition < 0) {

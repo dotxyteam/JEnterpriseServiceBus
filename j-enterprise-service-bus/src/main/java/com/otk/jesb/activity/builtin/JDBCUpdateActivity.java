@@ -17,7 +17,7 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.ActivityResult;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.ClassProvider;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
@@ -117,11 +117,8 @@ public class JDBCUpdateActivity implements Activity {
 
 		private void updateDynamicClasses() {
 			{
-				if (parameterValuesClass != null) {
-					ClassProvider.unregister(parameterValuesClass.getClassLoader());
-				}
 				parameterValuesClass = createParameterValuesClass();
-				ClassProvider.register(parameterValuesClass.getClassLoader());
+				TypeInfoProvider.registerClass(parameterValuesClass);
 			}
 		}
 

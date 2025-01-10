@@ -13,12 +13,19 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 
 public class TypeInfoProvider {
 
+	private static CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-		Class<?> objectClass = ClassProvider.getClass(typeName);
+		Class<?> objectClass;
+		try {
+			objectClass = Class.forName(typeName, false, compositeClassLoader);
+		} catch (ClassNotFoundException e) {
+			throw new AssertionError(e);
+		}
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (typeOwner != null) {
@@ -38,6 +45,14 @@ public class TypeInfoProvider {
 			javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
 		}
 		return reflectionUI.getTypeInfo(javaTypeInfoSource);
+	}
+
+	public static void registerClass(Class<?> clazz) {
+		compositeClassLoader.add(clazz.getClassLoader());
+	}
+
+	public static ClassLoader getClassLoader() {
+		return compositeClassLoader;
 	}
 
 }
