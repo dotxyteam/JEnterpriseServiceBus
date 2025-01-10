@@ -34,7 +34,7 @@ public class CompiledScript {
 		postScript += "}";
 		Class<?> scriptClass;
 		try {
-			scriptClass = MiscUtils.compile(scriptClassName, preScript + script + postScript,
+			scriptClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(scriptClassName, preScript + script + postScript,
 					TypeInfoProvider.getClassLoader());
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preScript.length();

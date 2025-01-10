@@ -34,14 +34,9 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class MiscUtils {
 
-	private static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
+	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
-		IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
-	}
-
-	public static Class<?> compile(String className, String javaSource, ClassLoader parentClassLoader)
-			throws CompilationError {
-		return IN_MEMORY_JAVA_COMPILER.compile(className, javaSource, parentClassLoader);
+		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
 	public static Object executeScript(DynamicValue dynamicValue, Plan.ExecutionContext executionContext) {

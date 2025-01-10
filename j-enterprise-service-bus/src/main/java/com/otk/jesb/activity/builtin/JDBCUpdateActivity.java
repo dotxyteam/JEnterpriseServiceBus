@@ -171,7 +171,7 @@ public class JDBCUpdateActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.compile(className, javaSource.toString(),
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className, javaSource.toString(),
 						JDBCUpdateActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);

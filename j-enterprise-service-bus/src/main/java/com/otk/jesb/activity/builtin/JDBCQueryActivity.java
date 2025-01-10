@@ -193,7 +193,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ActivityResult>) MiscUtils.compile(resultClassName, javaSource.toString(),
+				return (Class<? extends ActivityResult>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString(),
 						JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
@@ -249,7 +249,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.compile(className, javaSource.toString(),
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className, javaSource.toString(),
 						JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);

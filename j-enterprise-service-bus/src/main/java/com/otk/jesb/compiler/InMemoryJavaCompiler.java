@@ -111,7 +111,7 @@ public class InMemoryJavaCompiler {
 		};
 	}
 
-	private static JavaFileObject inputFile(String name, Kind kind, byte[] content) {
+	private static NamedJavaFileObject inputFile(String name, Kind kind, byte[] content) {
 		return new NamedJavaFileObject(name, kind) {
 			@Override
 			public InputStream openInputStream() {
@@ -140,7 +140,7 @@ public class InMemoryJavaCompiler {
 
 	private void storeClass(String name, byte[] bytes) {
 		classes.put(name, bytes);
-		JavaFileObject file = inputFile(name, Kind.CLASS, bytes);
+		NamedJavaFileObject file = inputFile(name, Kind.CLASS, bytes);
 		int dot = name.lastIndexOf('.');
 		String pkg = dot == -1 ? "" : name.substring(0, dot);
 		packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(file);
@@ -150,7 +150,8 @@ public class InMemoryJavaCompiler {
 		classes.remove(name);
 		int dot = name.lastIndexOf('.');
 		String pkg = dot == -1 ? "" : name.substring(0, dot);
-		packages.get(pkg).removeIf((file) -> file.getName().equals(name.substring(dot) + Kind.CLASS.extension));
+		packages.get(pkg).removeIf(
+				(file) -> ((NamedJavaFileObject)file).name.equals(name));
 		if (packages.get(pkg).size() == 0) {
 			packages.remove(pkg);
 		}
