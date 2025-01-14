@@ -1,6 +1,6 @@
 package com.otk.jesb.activity;
 
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 

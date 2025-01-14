@@ -9,10 +9,10 @@ import java.util.UUID;
 
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
-import com.otk.jesb.InstanceSpecification;
+import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Plan;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
-import com.otk.jesb.InstanceSpecification.ValueMode;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -75,8 +75,8 @@ public class MiscUtils {
 	public static Object interpretValue(Object value, ExecutionContext context) throws Exception {
 		if (value instanceof DynamicValue) {
 			return MiscUtils.executeScript(((DynamicValue) value), context);
-		} else if (value instanceof InstanceSpecification) {
-			return ((InstanceSpecification) value).build(context);
+		} else if (value instanceof InstanceBuilder) {
+			return ((InstanceBuilder) value).build(context);
 		} else {
 			return value;
 		}
@@ -85,8 +85,8 @@ public class MiscUtils {
 	public static ValueMode getValueMode(Object value) {
 		if (value instanceof DynamicValue) {
 			return ValueMode.DYNAMIC_VALUE;
-		} else if (value instanceof InstanceSpecification) {
-			return ValueMode.INSTANCE_SPECIFICATION;
+		} else if (value instanceof InstanceBuilder) {
+			return ValueMode.INSTANCE_BUILDER;
 		} else {
 			return ValueMode.STATIC_VALUE;
 		}
@@ -124,10 +124,10 @@ public class MiscUtils {
 		} else {
 			if (type instanceof IMapEntryTypeInfo) {
 				IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
-				return new InstanceSpecification.MapEntrySpecification(mapEntryType.getKeyField().getType().getName(),
+				return new InstanceBuilder.MapEntrySpecification(mapEntryType.getKeyField().getType().getName(),
 						mapEntryType.getValueField().getType().getName());
 			} else {
-				return new InstanceSpecification(type.getName());
+				return new InstanceBuilder(type.getName());
 			}
 		}
 	}

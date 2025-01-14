@@ -24,13 +24,13 @@ import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
-import com.otk.jesb.InstanceSpecification.FacadeNode;
-import com.otk.jesb.InstanceSpecification.FieldInitializerFacade;
-import com.otk.jesb.InstanceSpecification.InstanceSpecificationFacade;
-import com.otk.jesb.InstanceSpecification.ListItemInitializerFacade;
-import com.otk.jesb.InstanceSpecification.ParameterInitializerFacade;
-import com.otk.jesb.InstanceSpecification.ValueMode;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.FacadeNode;
+import com.otk.jesb.InstanceBuilder.FieldInitializerFacade;
+import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
+import com.otk.jesb.InstanceBuilder.ListItemInitializerFacade;
+import com.otk.jesb.InstanceBuilder.ParameterInitializerFacade;
+import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
@@ -132,9 +132,9 @@ public class GUI extends SwingCustomizer {
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
 		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new InstanceSpecification.FieldInitializer("filePath", "tmp/test.txt"));
+				.add(new InstanceBuilder.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new InstanceSpecification.FieldInitializer("text", new InstanceSpecification.DynamicValue(
+				.add(new InstanceBuilder.FieldInitializer("text", new InstanceBuilder.DynamicValue(
 						"return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
@@ -192,9 +192,9 @@ public class GUI extends SwingCustomizer {
 
 						@Override
 						public Component createFieldControl() {
-							if (object instanceof InstanceSpecificationFacade) {
+							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("children")) {
-									return new InstanceSpecificationControl(GUI.this, this);
+									return new InstanceBuilderControl(GUI.this, this);
 								}
 							}
 							if (object instanceof PrecomputedTypeInstanceWrapper) {
@@ -274,7 +274,7 @@ public class GUI extends SwingCustomizer {
 						@Override
 						public void refreshUI(boolean recreate) {
 							setVisible(true);
-							if (object instanceof InstanceSpecificationFacade) {
+							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("selectedConstructorSignature")) {
 									setBorder(BorderFactory.createTitledBorder(field.getCaption()));
 									Object[] valueOptions = field.getValueOptions(object);
@@ -290,7 +290,7 @@ public class GUI extends SwingCustomizer {
 
 						@Override
 						public boolean showsCaption() {
-							if (object instanceof InstanceSpecificationFacade) {
+							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("selectedConstructorSignature")) {
 									return true;
 								}
@@ -404,11 +404,11 @@ public class GUI extends SwingCustomizer {
 		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
 	}
 
-	public static class InstanceSpecificationControl extends ListControl {
+	public static class InstanceBuilderControl extends ListControl {
 
 		private static final long serialVersionUID = 1L;
 
-		public InstanceSpecificationControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+		public InstanceBuilderControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
 		}
 

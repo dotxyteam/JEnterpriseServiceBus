@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.compiler.CompilationError;

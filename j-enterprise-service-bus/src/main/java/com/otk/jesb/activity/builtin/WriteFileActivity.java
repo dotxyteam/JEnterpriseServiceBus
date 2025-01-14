@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import com.otk.jesb.InstanceSpecification;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -91,14 +91,14 @@ public class WriteFileActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(
+		private InstanceBuilder objectSpecification = new InstanceBuilder(
 				WriteFileActivity.class.getName());
 
-		public InstanceSpecification getObjectSpecification() {
+		public InstanceBuilder getObjectSpecification() {
 			return objectSpecification;
 		}
 
-		public void setObjectSpecification(InstanceSpecification objectSpecification) {
+		public void setObjectSpecification(InstanceBuilder objectSpecification) {
 			this.objectSpecification = objectSpecification;
 		}
 

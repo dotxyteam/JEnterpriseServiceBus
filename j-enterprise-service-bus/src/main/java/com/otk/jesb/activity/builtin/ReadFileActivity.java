@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.otk.jesb.InstanceSpecification;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -78,13 +78,13 @@ public class ReadFileActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(ReadFileActivity.class.getName());
+		private InstanceBuilder objectSpecification = new InstanceBuilder(ReadFileActivity.class.getName());
 
-		public InstanceSpecification getObjectSpecification() {
+		public InstanceBuilder getObjectSpecification() {
 			return objectSpecification;
 		}
 
-		public void setObjectSpecification(InstanceSpecification objectSpecification) {
+		public void setObjectSpecification(InstanceBuilder objectSpecification) {
 			this.objectSpecification = objectSpecification;
 		}
 

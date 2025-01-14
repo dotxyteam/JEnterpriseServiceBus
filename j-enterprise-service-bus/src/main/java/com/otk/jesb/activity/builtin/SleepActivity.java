@@ -2,8 +2,8 @@ package com.otk.jesb.activity.builtin;
 
 import java.io.IOException;
 
-import com.otk.jesb.InstanceSpecification;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -61,13 +61,13 @@ public class SleepActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceSpecification objectSpecification = new InstanceSpecification(SleepActivity.class.getName());
+		private InstanceBuilder objectSpecification = new InstanceBuilder(SleepActivity.class.getName());
 
-		public InstanceSpecification getObjectSpecification() {
+		public InstanceBuilder getObjectSpecification() {
 			return objectSpecification;
 		}
 
-		public void setObjectSpecification(InstanceSpecification objectSpecification) {
+		public void setObjectSpecification(InstanceBuilder objectSpecification) {
 			this.objectSpecification = objectSpecification;
 		}
 

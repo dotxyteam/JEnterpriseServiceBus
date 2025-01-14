@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.otk.jesb.InstanceSpecification;
-import com.otk.jesb.InstanceSpecification.DynamicValue;
+import com.otk.jesb.InstanceBuilder;
+import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
@@ -102,7 +102,7 @@ public class JDBCUpdateActivity implements Activity {
 		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private InstanceSpecification parameterValuesSpecification = new InstanceSpecification(new Accessor<String>() {
+		private InstanceBuilder parameterValuesSpecification = new InstanceBuilder(new Accessor<String>() {
 			@Override
 			public String get() {
 				return parameterValuesClass.getName();
@@ -207,11 +207,11 @@ public class JDBCUpdateActivity implements Activity {
 			updateDynamicClasses();
 		}
 
-		public InstanceSpecification getParameterValuesSpecification() {
+		public InstanceBuilder getParameterValuesSpecification() {
 			return parameterValuesSpecification;
 		}
 
-		public void setParameterValuesSpecification(InstanceSpecification parameterValuesSpecification) {
+		public void setParameterValuesSpecification(InstanceBuilder parameterValuesSpecification) {
 			if (parameterValuesSpecification == null) {
 				throw new AssertionError();
 			}

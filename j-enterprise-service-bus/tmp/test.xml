@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<S:Envelope
+	xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+	<S:Body>
+		<ns2:sayHello xmlns:ns2="urn:examples:helloservice">
+			<firstName>Oli</firstName>
+		</ns2:sayHello>
+	</S:Body>
+</S:Envelope>
