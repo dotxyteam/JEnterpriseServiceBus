@@ -20,7 +20,6 @@ import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.ActivityResult;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -34,7 +33,7 @@ public class JDBCQueryActivity implements Activity {
 	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
-	private Class<? extends ActivityResult> customResultClass;
+	private Class<?> customResultClass;
 
 	public JDBCConnection getConnection() {
 		return connection;
@@ -60,12 +59,12 @@ public class JDBCQueryActivity implements Activity {
 		this.parameterValues = parameterValues;
 	}
 
-	public void setCustomResultClass(Class<? extends ActivityResult> customResultClass) {
+	public void setCustomResultClass(Class<?> customResultClass) {
 		this.customResultClass = customResultClass;
 	}
 
 	@Override
-	public ActivityResult execute() throws Exception {
+	public Object execute() throws Exception {
 		Class.forName(connection.getDriverClassName());
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
@@ -80,7 +79,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 		ResultSet resultSet = preparedStatement.executeQuery();
 		if (customResultClass != null) {
-			return (ActivityResult) customResultClass.getConstructor(ResultSet.class).newInstance(resultSet);
+			return customResultClass.getConstructor(ResultSet.class).newInstance(resultSet);
 		} else {
 			return new GenericResult(resultSet);
 		}
@@ -124,7 +123,7 @@ public class JDBCQueryActivity implements Activity {
 		});
 		private List<ColumnDefinition> resultColumnDefinitions;
 
-		private Class<? extends ActivityResult> customResultClass;
+		private Class<?> customResultClass;
 		private Class<? extends ParameterValues> parameterValuesClass;
 
 		public Builder() {
@@ -144,8 +143,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		private Class<? extends ActivityResult> createCustomResultClass() {
+		private Class<?> createCustomResultClass() {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
@@ -154,7 +152,7 @@ public class JDBCQueryActivity implements Activity {
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append(
-					"public class " + resultClassName + " implements " + ActivityResult.class.getName() + "{" + "\n");
+					"public class " + resultClassName + "{" + "\n");
 			javaSource.append("  private " + List.class.getName() + "<" + resultRowClassName + "> rows = new "
 					+ ArrayList.class.getName() + "<" + resultRowClassName + ">();\n");
 			javaSource.append("  public " + resultClassName + "(" + ResultSet.class.getName() + " resultSet) throws "
@@ -193,7 +191,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ActivityResult>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString(),
+				return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString(),
 						JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
@@ -335,7 +333,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getActivityResultClass() {
+		public Class<?> getActivityResultClass() {
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {
@@ -417,7 +415,7 @@ public class JDBCQueryActivity implements Activity {
 
 	}
 
-	public static class GenericResult implements ActivityResult {
+	public static class GenericResult {
 		private List<GenericResultRow> rows = new ArrayList<GenericResultRow>();
 
 		public GenericResult(ResultSet resultSet) throws SQLException {

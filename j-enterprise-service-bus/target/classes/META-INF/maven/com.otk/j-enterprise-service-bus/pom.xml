@@ -36,7 +36,7 @@
 			<artifactId>xstream</artifactId>
 			<version>1.4.20</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-tools</artifactId>
 			<version>2.2.5</version>
@@ -55,7 +55,7 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.2.3</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

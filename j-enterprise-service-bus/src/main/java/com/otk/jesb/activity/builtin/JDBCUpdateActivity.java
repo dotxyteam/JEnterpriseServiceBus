@@ -15,7 +15,6 @@ import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.ActivityResult;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -55,7 +54,7 @@ public class JDBCUpdateActivity implements Activity {
 	}
 
 	@Override
-	public ActivityResult execute() throws Exception {
+	public Object execute() throws Exception {
 		Class.forName(connection.getDriverClassName());
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
@@ -171,8 +170,8 @@ public class JDBCUpdateActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className, javaSource.toString(),
-						JDBCUpdateActivity.class.getClassLoader());
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+						javaSource.toString(), JDBCUpdateActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
@@ -235,7 +234,7 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getActivityResultClass() {
+		public Class<?> getActivityResultClass() {
 			return Result.class;
 		}
 
@@ -307,7 +306,7 @@ public class JDBCUpdateActivity implements Activity {
 
 	}
 
-	public static class Result implements ActivityResult {
+	public static class Result {
 
 		private int affectedRowCount;
 

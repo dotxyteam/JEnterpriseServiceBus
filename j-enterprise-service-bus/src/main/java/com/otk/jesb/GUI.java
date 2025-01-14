@@ -33,6 +33,7 @@ import com.otk.jesb.InstanceBuilder.ParameterInitializerFacade;
 import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.activity.builtin.ExecutePlanActivity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
 import com.otk.jesb.activity.builtin.ReadFileActivity;
@@ -131,11 +132,10 @@ public class GUI extends SwingCustomizer {
 		s2.setDiagramY(100);
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
-		ab2.getObjectSpecification().getFieldInitializers()
+		ab2.getInstanceBuilder().getFieldInitializers()
 				.add(new InstanceBuilder.FieldInitializer("filePath", "tmp/test.txt"));
-		ab2.getObjectSpecification().getFieldInitializers()
-				.add(new InstanceBuilder.FieldInitializer("text", new InstanceBuilder.DynamicValue(
-						"return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+		ab2.getInstanceBuilder().getFieldInitializers().add(new InstanceBuilder.FieldInitializer("text",
+				new InstanceBuilder.DynamicValue("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -269,6 +269,7 @@ public class GUI extends SwingCustomizer {
 								}
 							}
 							return super.createFieldControl();
+
 						}
 
 						@Override
@@ -439,8 +440,8 @@ public class GUI extends SwingCustomizer {
 	public static class JESBReflectionUI extends CustomizedUI {
 
 		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
-				new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(), new JDBCQueryActivity.Metadata(),
-				new JDBCUpdateActivity.Metadata());
+				new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
+				new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata());
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata());
 		private Plan currentPlan;
 		private Step currentStep;

@@ -13,8 +13,6 @@ import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.ActivityResult;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class WriteFileActivity implements Activity {
@@ -57,7 +55,7 @@ public class WriteFileActivity implements Activity {
 	}
 
 	@Override
-	public ActivityResult execute() throws IOException {
+	public Object execute() throws IOException {
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
 				(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
 			bw.write(text);
@@ -91,31 +89,30 @@ public class WriteFileActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceBuilder objectSpecification = new InstanceBuilder(
-				WriteFileActivity.class.getName());
+		private InstanceBuilder instanceBuilder = new InstanceBuilder(WriteFileActivity.class.getName());
 
-		public InstanceBuilder getObjectSpecification() {
-			return objectSpecification;
+		public InstanceBuilder getInstanceBuilder() {
+			return instanceBuilder;
 		}
 
-		public void setObjectSpecification(InstanceBuilder objectSpecification) {
-			this.objectSpecification = objectSpecification;
+		public void setInstanceBuilder(InstanceBuilder instanceBuilder) {
+			this.instanceBuilder = instanceBuilder;
 		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity) objectSpecification.build(context);
+			return (WriteFileActivity) instanceBuilder.build(context);
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getActivityResultClass() {
+		public Class<?> getActivityResultClass() {
 			return null;
 		}
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
 				DynamicValue currentDynamicValue) {
-			return objectSpecification.completeValidationContext(validationContext, currentDynamicValue);
+			return instanceBuilder.completeValidationContext(validationContext, currentDynamicValue);
 		}
 
 	}

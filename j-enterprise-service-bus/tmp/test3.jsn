@@ -12,11 +12,11 @@
                 <objectSpecification>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>filePath</fieldName>
                       <fieldValue class="string">tmp/test.txt</fieldValue>
-                    </com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>
@@ -112,13 +112,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <objectSpecification>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>milliseconds</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceSpecification$DynamicValue">
+                      <fieldValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
                         <script>return jDBCQuery.getRows().size();</script>
                       </fieldValue>
-                    </com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>
@@ -146,18 +146,18 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                    <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceSpecification$DynamicValue">
+                      <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
                         <script>return jDBCQuery.getRows().get(0).getTABLE_NAME();</script>
                       </parameterValue>
-                    </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                   </parameterInitializers>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
@@ -185,21 +185,21 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <objectSpecification>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>filePath</fieldName>
                       <fieldValue class="string">tmp/out.txt</fieldValue>
-                    </com.otk.jesb.InstanceSpecification_-FieldInitializer>
-                    <com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>text</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceSpecification$DynamicValue">
+                      <fieldValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
                         <script>return 
 &quot;Query result: &quot; + jDBCQuery.getRows() 
 + &quot;\n&quot; + 
 &quot;Update result: &quot; + jDBCUpdate.getAffectedRowCount();</script>
                       </fieldValue>
-                    </com.otk.jesb.InstanceSpecification_-FieldInitializer>
+                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>
@@ -245,38 +245,38 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <fieldInitializers/>
                     <listItemInitializers/>
                     <parameterInitializers>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
                         <parameterValue class="string"></parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
                         <parameterValue class="string"></parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
                         <parameterValue class="string"></parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.InstanceSpecification$DynamicValue">
+                        <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
                           <script>return readFile.getText();</script>
                         </parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>1</parameterPosition>
                         <parameterTypeName>java.lang.Integer</parameterTypeName>
                         <parameterValue class="int">0</parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
                         <parameterValue class="string"></parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     </parameterInitializers>
                     <selectedConstructorSignature class="null"/>
                     <typeName>JDBCUpdateActivityParameterValues0024216827772457147329627206167257917932</typeName>
@@ -315,18 +315,18 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <fieldInitializers/>
                     <listItemInitializers/>
                     <parameterInitializers>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.InstanceSpecification$DynamicValue">
+                        <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
                           <script>return readFile.getText();</script>
                         </parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
-                      <com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
                         <parameterValue class="string"></parameterValue>
-                      </com.otk.jesb.InstanceSpecification_-ParameterInitializer>
+                      </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     </parameterInitializers>
                     <selectedConstructorSignature class="null"/>
                     <typeName>JDBCQueryActivityParameterValues0311737010834317121813818505341321042741</typeName>

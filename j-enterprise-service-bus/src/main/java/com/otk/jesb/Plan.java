@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityResult;
+import com.otk.jesb.activity.builtin.JDBCQueryActivity;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
@@ -14,6 +17,11 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
+	private Structure inputStructure;
+	private Structure outputStructure;
+	private Class<?> inputClass;
+	private Class<?> outputClass;
+	private InstanceBuilder outputBuilder;
 
 	public List<Step> getSteps() {
 		return steps;
@@ -29,6 +37,64 @@ public class Plan extends Asset {
 
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
+	}
+
+	public Structure getInputStructure() {
+		return inputStructure;
+	}
+
+	public void setInputStructure(Structure inputStructure) {
+		this.inputStructure = inputStructure;
+		updateInputClass();
+	}
+
+	public Structure getOutputStructure() {
+		return outputStructure;
+	}
+
+	public void setOutputStructure(Structure outputStructure) {
+		this.outputStructure = outputStructure;
+		updateOutputClass();
+	}
+
+	private void updateInputClass() {
+		if (inputStructure == null) {
+			inputClass = null;
+		} else {
+			try {
+				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
+				inputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+						inputStructure.generateJavaClassSourceCode(className),
+						JDBCQueryActivity.class.getClassLoader());
+			} catch (CompilationError e) {
+				throw new AssertionError(e);
+			}
+			TypeInfoProvider.registerClass(inputClass);
+		}
+	}
+
+	private void updateOutputClass() {
+		if (outputStructure == null) {
+			outputClass = null;
+		} else {
+			try {
+				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
+				outputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+						outputStructure.generateJavaClassSourceCode(className),
+						JDBCQueryActivity.class.getClassLoader());
+			} catch (CompilationError e) {
+				throw new AssertionError(e);
+			}
+			TypeInfoProvider.registerClass(outputClass);
+		}
+	}
+
+	public Class<?> getInputClass() {
+		return inputClass;
+	}
+
+	public Class<?> getOutputClass() {
+		return outputClass;
 	}
 
 	public List<Step> getPreviousSteps(Step step) {
@@ -57,8 +123,8 @@ public class Plan extends Asset {
 		return false;
 	}
 
-	public void execute() throws Exception {
-		execute(new ExecutionInspector() {
+	public Object execute(Object input) throws Exception {
+		return execute(input, new ExecutionInspector() {
 
 			@Override
 			public void beforeActivityCreation(StepOccurrence stepOccurrence) {
@@ -75,9 +141,26 @@ public class Plan extends Asset {
 		});
 	}
 
-	public void execute(ExecutionInspector executionInspector) throws Exception {
+	public Object execute(final Object input, ExecutionInspector executionInspector) throws Exception {
 		ExecutionContext context = new ExecutionContext(this);
+		context.getProperties().add(new ExecutionContext.Property() {
+
+			@Override
+			public Object getValue() {
+				return input;
+			}
+
+			@Override
+			public String getName() {
+				return "planInput";
+			}
+		});
 		execute(steps, context, executionInspector);
+		if (outputBuilder == null) {
+			return null;
+		} else {
+			return outputBuilder.build(context);
+		}
 	}
 
 	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
@@ -112,7 +195,7 @@ public class Plan extends Asset {
 		Activity activity = step.getActivityBuilder().build(context);
 		stepOccurrence.setActivity(activity);
 		try {
-			ActivityResult activityResult = activity.execute();
+			Object activityResult = activity.execute();
 			stepOccurrence.setActivityResult(activityResult);
 			if (activityResult != null) {
 				context.getProperties().add(stepOccurrence);
@@ -122,7 +205,7 @@ public class Plan extends Asset {
 			throw e;
 		}
 		executionInspector.afterActivityExecution(stepOccurrence);
-		context.setCutrrentStep(null);		
+		context.setCutrrentStep(null);
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
@@ -146,8 +229,6 @@ public class Plan extends Asset {
 			this.plan = plan;
 		}
 
-		
-
 		public ExecutionContext(ExecutionContext parentContext, Property newProperty) {
 			this.plan = parentContext.getPlan();
 			properties.addAll(parentContext.getProperties());
@@ -161,9 +242,11 @@ public class Plan extends Asset {
 		public Step getCurrentStep() {
 			return currentStep;
 		}
+
 		public void setCutrrentStep(Step step) {
 			this.currentStep = step;
 		}
+
 		public List<Property> getProperties() {
 			return properties;
 		}

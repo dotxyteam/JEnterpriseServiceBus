@@ -9,7 +9,6 @@ import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.ActivityResult;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -26,7 +25,7 @@ public class SleepActivity implements Activity {
 	}
 
 	@Override
-	public ActivityResult execute() throws IOException {
+	public Object execute() throws IOException {
 		try {
 			Thread.sleep(milliseconds);
 		} catch (InterruptedException e) {
@@ -61,30 +60,30 @@ public class SleepActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceBuilder objectSpecification = new InstanceBuilder(SleepActivity.class.getName());
+		private InstanceBuilder instanceBuilder = new InstanceBuilder(SleepActivity.class.getName());
 
-		public InstanceBuilder getObjectSpecification() {
-			return objectSpecification;
+		public InstanceBuilder getInstanceBuilder() {
+			return instanceBuilder;
 		}
 
-		public void setObjectSpecification(InstanceBuilder objectSpecification) {
-			this.objectSpecification = objectSpecification;
+		public void setInstanceBuilder(InstanceBuilder instanceBuilder) {
+			this.instanceBuilder = instanceBuilder;
 		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (SleepActivity) objectSpecification.build(context);
+			return (SleepActivity) instanceBuilder.build(context);
 		}
 
 		@Override
-		public Class<? extends ActivityResult> getActivityResultClass() {
+		public Class<?> getActivityResultClass() {
 			return null;
 		}
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
 				DynamicValue currentDynamicValue) {
-			return objectSpecification.completeValidationContext(validationContext, currentDynamicValue);
+			return instanceBuilder.completeValidationContext(validationContext, currentDynamicValue);
 		}
 
 	}

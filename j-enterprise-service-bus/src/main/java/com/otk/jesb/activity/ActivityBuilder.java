@@ -8,7 +8,7 @@ public interface ActivityBuilder {
 
 	Activity build(ExecutionContext context) throws Exception;
 
-	Class<? extends ActivityResult> getActivityResultClass();
+	Class<?> getActivityResultClass();
 
 	boolean completeValidationContext(ValidationContext validationContext, DynamicValue currentDynamicValue);
 
