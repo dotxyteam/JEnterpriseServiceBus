@@ -1,8 +1,10 @@
 package com.otk.jesb.resource.builtin;
 
 import java.sql.DriverManager;
+
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.info.ResourcePath;
@@ -17,6 +19,10 @@ public class JDBCConnection extends Resource {
 	private String url;
 	private String userName;
 	private String password;
+
+	public JDBCConnection() {
+		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
+	}
 
 	public JDBCConnection(String name) {
 		super(name);

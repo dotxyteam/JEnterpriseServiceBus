@@ -151,8 +151,7 @@ public class JDBCQueryActivity implements Activity {
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
-			javaSource.append(
-					"public class " + resultClassName + "{" + "\n");
+			javaSource.append("public class " + resultClassName + "{" + "\n");
 			javaSource.append("  private " + List.class.getName() + "<" + resultRowClassName + "> rows = new "
 					+ ArrayList.class.getName() + "<" + resultRowClassName + ">();\n");
 			javaSource.append("  public " + resultClassName + "(" + ResultSet.class.getName() + " resultSet) throws "
@@ -247,8 +246,8 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className, javaSource.toString(),
-						JDBCQueryActivity.class.getClassLoader());
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+						javaSource.toString(), JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}

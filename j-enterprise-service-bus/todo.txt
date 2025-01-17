@@ -1,3 +1,4 @@
+- make important ReadFile/WriteFile fields become parameters 
 - UI improvements:
 	. banner
 - JDBCConnection (driver jars location ???) + driver class name should be specified 

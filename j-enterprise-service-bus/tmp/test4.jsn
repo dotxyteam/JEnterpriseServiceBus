@@ -97,8 +97,8 @@
                 <statement>SELECT * 
 FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
-              <diagramX>66</diagramX>
-              <diagramY>106</diagramY>
+              <diagramX>67</diagramX>
+              <diagramY>96</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>sleep</name>
@@ -182,9 +182,25 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>executePlan</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder"/>
-              <diagramX>411</diagramX>
-              <diagramY>107</diagramY>
+              <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
+                <plan>
+                  <name>subTest</name>
+                  <steps/>
+                  <transitions/>
+                </plan>
+                <planInputBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
+                    <outer-class reference="../../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <listItemInitializers/>
+                  <parameterInitializers/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </planInputBuilder>
+              </activityBuilder>
+              <diagramX>427</diagramX>
+              <diagramY>99</diagramY>
             </com.otk.jesb.Step>
           </steps>
           <transitions>
@@ -378,11 +394,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
             </com.otk.jesb.Transition>
           </transitions>
         </com.otk.jesb.Plan>
-        <com.otk.jesb.Plan>
-          <name>subTest</name>
-          <steps/>
-          <transitions/>
-        </com.otk.jesb.Plan>
+        <com.otk.jesb.Plan reference="../com.otk.jesb.Plan/steps/com.otk.jesb.Step[6]/activityBuilder/plan"/>
       </contents>
     </com.otk.jesb.Folder>
     <com.otk.jesb.Folder>

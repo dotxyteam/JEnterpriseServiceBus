@@ -11,6 +11,12 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
+	private static final String INPUT_PROPERTY_NAME = "planInput";
+
+	public Plan() {
+		this(Plan.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
+	}
+
 	public Plan(String name) {
 		super(name);
 	}
@@ -64,8 +70,7 @@ public class Plan extends Asset {
 			try {
 				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
 				inputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						inputStructure.generateJavaClassSourceCode(className),
-						JDBCQueryActivity.class.getClassLoader());
+						inputStructure.generateJavaTypeSourceCode(className), JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
@@ -80,7 +85,7 @@ public class Plan extends Asset {
 			try {
 				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
 				outputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						outputStructure.generateJavaClassSourceCode(className),
+						outputStructure.generateJavaTypeSourceCode(className),
 						JDBCQueryActivity.class.getClassLoader());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
@@ -152,7 +157,7 @@ public class Plan extends Asset {
 
 			@Override
 			public String getName() {
-				return "planInput";
+				return INPUT_PROPERTY_NAME;
 			}
 		});
 		execute(steps, context, executionInspector);
@@ -210,6 +215,20 @@ public class Plan extends Asset {
 
 	public ValidationContext getValidationContext(Step currentStep) {
 		ValidationContext result = new ValidationContext(this);
+		if (inputClass != null) {
+			result.getDeclarations().add(new ValidationContext.Declaration() {
+
+				@Override
+				public String getPropertyName() {
+					return INPUT_PROPERTY_NAME;
+				}
+
+				@Override
+				public Class<?> getPropertyClass() {
+					return inputClass;
+				}
+			});
+		}
 		List<Step> previousSteps = getPreviousSteps(currentStep);
 		for (Step step : previousSteps) {
 			if (step.getActivityBuilder().getActivityResultClass() != null) {

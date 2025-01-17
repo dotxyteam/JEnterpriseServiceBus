@@ -1,10 +1,16 @@
 package com.otk.jesb.activity.builtin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.Asset;
+import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.DynamicValue;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -65,12 +71,7 @@ public class ExecutePlanActivity implements Activity {
 	public static class Builder implements ActivityBuilder {
 
 		private Plan plan;
-		private InstanceBuilder planInputBuilder = new InstanceBuilder(new Accessor<String>() {
-			@Override
-			public String get() {
-				return plan.getInputClass().getName();
-			}
-		});
+		private InstanceBuilder planInputBuilder;
 
 		public Plan getPlan() {
 			return plan;
@@ -78,6 +79,41 @@ public class ExecutePlanActivity implements Activity {
 
 		public void setPlan(Plan plan) {
 			this.plan = plan;
+			updatePlanInputBuilder();
+		}
+
+		private void updatePlanInputBuilder() {
+			if (plan == null) {
+				if (planInputBuilder != null) {
+					planInputBuilder = null;
+				}
+			} else {
+				if (planInputBuilder == null) {
+					planInputBuilder = new InstanceBuilder(new Accessor<String>() {
+						@Override
+						public String get() {
+							if (plan.getInputClass() == null) {
+								return Object.class.getName();
+							}
+							return plan.getInputClass().getName();
+						}
+					});
+				}
+			}
+		}
+
+		public List<Plan> getPlanChoices() {
+			final List<Plan> result = new ArrayList<Plan>();
+			Solution.INSTANCE.visitAssets(new AssetVisitor() {
+				@Override
+				public boolean visitAsset(Asset asset) {
+					if (asset instanceof Plan) {
+						result.add((Plan) asset);
+					}
+					return true;
+				}
+			});
+			return result;
 		}
 
 		public InstanceBuilder getPlanInputBuilder() {
