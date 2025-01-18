@@ -3,6 +3,7 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.compiler.CompilationError;
@@ -23,8 +24,8 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-	private Structure inputStructure;
-	private Structure outputStructure;
+	private ClassicStructure inputStructure;
+	private ClassicStructure outputStructure;
 	private Class<?> inputClass;
 	private Class<?> outputClass;
 	private InstanceBuilder outputBuilder;
@@ -45,20 +46,20 @@ public class Plan extends Asset {
 		this.transitions = transitions;
 	}
 
-	public Structure getInputStructure() {
+	public ClassicStructure getInputStructure() {
 		return inputStructure;
 	}
 
-	public void setInputStructure(Structure inputStructure) {
+	public void setInputStructure(ClassicStructure inputStructure) {
 		this.inputStructure = inputStructure;
 		updateInputClass();
 	}
 
-	public Structure getOutputStructure() {
+	public ClassicStructure getOutputStructure() {
 		return outputStructure;
 	}
 
-	public void setOutputStructure(Structure outputStructure) {
+	public void setOutputStructure(ClassicStructure outputStructure) {
 		this.outputStructure = outputStructure;
 		updateOutputClass();
 	}

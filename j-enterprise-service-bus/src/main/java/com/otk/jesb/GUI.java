@@ -31,6 +31,7 @@ import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
 import com.otk.jesb.InstanceBuilder.ListItemInitializerFacade;
 import com.otk.jesb.InstanceBuilder.ParameterInitializerFacade;
 import com.otk.jesb.InstanceBuilder.ValueMode;
+import com.otk.jesb.Structure.Element;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
@@ -592,6 +593,17 @@ public class GUI extends SwingCustomizer {
 								return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
 										PlanExecutor.class.getPackage().getName().replace(".", "/") + "/failure.png"));
 							}
+						}
+					}
+					if (object instanceof Element) {
+						if (((Element) object).getOptionality() == null) {
+							return getIconImagePath(
+									getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this, ParameterInitializerFacade.class, null)),
+									null);
+						}else {
+							return getIconImagePath(
+									getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this, FieldInitializerFacade.class, null)),
+									null);
 						}
 					}
 					return super.getIconImagePath(type, object);

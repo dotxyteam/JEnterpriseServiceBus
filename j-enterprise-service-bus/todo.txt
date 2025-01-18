@@ -1,3 +1,5 @@
+- Structure.Element.multiple= true should generate a list instead of an array
+- allow build and reference shared structures
 - make important ReadFile/WriteFile fields become parameters 
 - UI improvements:
 	. banner

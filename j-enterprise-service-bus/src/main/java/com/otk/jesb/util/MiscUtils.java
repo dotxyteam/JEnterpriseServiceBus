@@ -96,7 +96,7 @@ public class MiscUtils {
 		if (condition == null) {
 			return true;
 		}
-		Object conditionResult = MiscUtils.interpretValue(condition.getScript(), context);
+		Object conditionResult = MiscUtils.interpretValue(condition, context);
 		if (!(conditionResult instanceof Boolean)) {
 			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}

@@ -116,8 +116,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
                 </instanceBuilder>
               </activityBuilder>
-              <diagramX>270</diagramX>
-              <diagramY>79</diagramY>
+              <diagramX>249</diagramX>
+              <diagramY>86</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>jDBCUpdate</name>
@@ -188,7 +188,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               <name>executePlan</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
                 <plan>
-                  <inputStructure class="com.otk.jesb.Structure$ClassicStructure">
+                  <inputStructure>
                     <elements>
                       <com.otk.jesb.Structure_-SimpleElement>
                         <multiple>false</multiple>
@@ -233,6 +233,23 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                         </optionality>
                         <typeName>boolean</typeName>
                       </com.otk.jesb.Structure_-SimpleElement>
+                      <com.otk.jesb.Structure_-StructuredElement>
+                        <multiple>true</multiple>
+                        <name>theEnum</name>
+                        <optionality>
+                          <defaultValueExpression class="null"/>
+                        </optionality>
+                        <structure class="com.otk.jesb.Structure$EnumerationStructure">
+                          <items>
+                            <com.otk.jesb.Structure_-EnumerationItem>
+                              <name>E1</name>
+                            </com.otk.jesb.Structure_-EnumerationItem>
+                            <com.otk.jesb.Structure_-EnumerationItem>
+                              <name>E2</name>
+                            </com.otk.jesb.Structure_-EnumerationItem>
+                          </items>
+                        </structure>
+                      </com.otk.jesb.Structure_-StructuredElement>
                     </elements>
                   </inputStructure>
                   <name>subTest</name>
@@ -244,9 +261,45 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
+                  <fieldInitializers>
+                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                      <condition class="null"/>
+                      <fieldName>theEnum</fieldName>
+                      <fieldValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="PlanInput0062836041674293039161690558012914568974$Structure0240260183816679890191169012160982214132">E1</itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[LPlanInput0062836041674293039161690558012914568974$Structure0240260183816679890191169012160982214132;</typeName>
+                      </fieldValue>
+                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                  </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>int</parameterTypeName>
