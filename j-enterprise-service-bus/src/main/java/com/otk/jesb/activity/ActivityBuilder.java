@@ -1,6 +1,6 @@
 package com.otk.jesb.activity;
 
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 
@@ -10,6 +10,6 @@ public interface ActivityBuilder {
 
 	Class<?> getActivityResultClass();
 
-	boolean completeValidationContext(ValidationContext validationContext, DynamicValue currentDynamicValue);
+	boolean completeValidationContext(ValidationContext validationContext, Function currentFunction);
 
 }

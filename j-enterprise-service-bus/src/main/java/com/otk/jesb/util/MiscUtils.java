@@ -10,14 +10,14 @@ import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Plan;
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
 import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.compiler.CompiledScript;
+import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.Asset;
@@ -40,14 +40,14 @@ public class MiscUtils {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
-	public static Object executeScript(DynamicValue dynamicValue, Plan.ExecutionContext executionContext) {
+	public static Object executeScript(Function function, Plan.ExecutionContext executionContext) {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		currentStep.getActivityBuilder().completeValidationContext(validationContext, dynamicValue);
-		CompiledScript compiledScript;
+		currentStep.getActivityBuilder().completeValidationContext(validationContext, function);
+		CompiledFunction compiledScript;
 		try {
-			compiledScript = CompiledScript.get(dynamicValue.getScript(), validationContext);
+			compiledScript = CompiledFunction.get(function.getFunctionBody(), validationContext);
 		} catch (CompilationError e) {
 			throw new AssertionError(e);
 		}
@@ -58,8 +58,8 @@ public class MiscUtils {
 		}
 	}
 
-	public static void validateScript(String script, Plan.ValidationContext context) throws CompilationError {
-		CompiledScript.get(script, context);
+	public static void validateFunction(String functionBody, Plan.ValidationContext context) throws CompilationError {
+		CompiledFunction.get(functionBody, context);
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -74,10 +74,10 @@ public class MiscUtils {
 	}
 
 	public static ValueMode getValueMode(Object value) {
-		if (value instanceof DynamicValue) {
-			return ValueMode.DYNAMIC_VALUE;
+		if (value instanceof Function) {
+			return ValueMode.FUNCTION;
 		} else {
-			return ValueMode.DEFAULT;
+			return ValueMode.PLAIN;
 		}
 	}
 
@@ -94,7 +94,7 @@ public class MiscUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(DynamicValue condition, ExecutionContext context) throws Exception {
+	public static boolean isConditionFullfilled(Function condition, ExecutionContext context) throws Exception {
 		if (condition == null) {
 			return true;
 		}
@@ -107,8 +107,8 @@ public class MiscUtils {
 	}
 
 	public static Object interpretValue(Object value, ITypeInfo type, ExecutionContext context) throws Exception {
-		if (value instanceof DynamicValue) {
-			Object result = MiscUtils.executeScript(((DynamicValue) value), context);
+		if (value instanceof Function) {
+			Object result = MiscUtils.executeScript(((Function) value), context);
 			if (!type.supports(result)) {
 				throw new Exception(
 						"Invalid dynamic value '" + result + "': Expected value of type <" + type.getName() + ">");
@@ -135,13 +135,13 @@ public class MiscUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type) {
-		return getDefaultInterpretableValue(type, ValueMode.DEFAULT);
+		return getDefaultInterpretableValue(type, ValueMode.PLAIN);
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode) {
 		if (type == null) {
 			return null;
-		} else if (valueMode == ValueMode.DYNAMIC_VALUE) {
+		} else if (valueMode == ValueMode.FUNCTION) {
 			String scriptContent;
 			if (!MiscUtils.isComplexType(type)) {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
@@ -150,8 +150,8 @@ public class MiscUtils {
 			} else {
 				scriptContent = "return null;";
 			}
-			return new DynamicValue(scriptContent);
-		} else if (valueMode == ValueMode.DEFAULT) {
+			return new Function(scriptContent);
+		} else if (valueMode == ValueMode.PLAIN) {
 			if (!MiscUtils.isComplexType(type)) {
 				if (type instanceof IEnumerationTypeInfo) {
 					EnumerationItemSelector result = new EnumerationItemSelector();

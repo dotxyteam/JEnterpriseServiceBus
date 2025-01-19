@@ -42,8 +42,8 @@
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                        <script>return readFile.getText();</script>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                        <functionBody>return readFile.getText();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
@@ -124,8 +124,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>milliseconds</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                        <script>return jDBCQuery.getRows().size();</script>
+                      <fieldValue class="com.otk.jesb.InstanceBuilder$Function">
+                        <functionBody>return jDBCQuery.getRows().size();</functionBody>
                       </fieldValue>
                     </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>
@@ -170,8 +170,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                        <script>return readFile.getText();</script>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                        <functionBody>return readFile.getText();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
@@ -219,8 +219,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.InstanceBuilder_-FieldInitializer>
                       <condition class="null"/>
                       <fieldName>text</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                        <script>return &quot;Query result: &quot; + jDBCQuery.getRows() + &quot;\n&quot; + &quot;Update result: &quot; + jDBCUpdate.getAffectedRowCount();</script>
+                      <fieldValue class="com.otk.jesb.InstanceBuilder$Function">
+                        <functionBody>return &quot;Query result: &quot; + jDBCQuery.getRows() + &quot;\n&quot; + &quot;Update result: &quot; + jDBCUpdate.getAffectedRowCount();</functionBody>
                       </fieldValue>
                     </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>

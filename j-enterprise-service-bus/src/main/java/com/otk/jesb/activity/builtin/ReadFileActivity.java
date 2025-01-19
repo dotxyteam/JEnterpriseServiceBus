@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.otk.jesb.InstanceBuilder;
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -98,8 +98,8 @@ public class ReadFileActivity implements Activity {
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
-				DynamicValue currentDynamicValue) {
-			return instanceBuilder.completeValidationContext(validationContext, currentDynamicValue);
+				Function currentFunction) {
+			return instanceBuilder.completeValidationContext(validationContext, currentFunction);
 		}
 
 	}

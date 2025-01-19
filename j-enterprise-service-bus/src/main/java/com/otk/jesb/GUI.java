@@ -24,7 +24,7 @@ import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.FacadeNode;
 import com.otk.jesb.InstanceBuilder.FieldInitializerFacade;
 import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
@@ -136,7 +136,7 @@ public class GUI extends SwingCustomizer {
 		ab2.getInstanceBuilder().getFieldInitializers()
 				.add(new InstanceBuilder.FieldInitializer("filePath", "tmp/test.txt"));
 		ab2.getInstanceBuilder().getFieldInitializers().add(new InstanceBuilder.FieldInitializer("text",
-				new InstanceBuilder.DynamicValue("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+				new InstanceBuilder.Function("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -213,7 +213,7 @@ public class GUI extends SwingCustomizer {
 													FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
 													if ((facade.getFieldValueMode() == null)
-															|| (facade.getFieldValueMode() == ValueMode.DEFAULT)) {
+															|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
 														return MiscUtils.getDefaultInterpretableValue(
 																facade.getFieldInfo().getType());
 													} else {
@@ -234,7 +234,7 @@ public class GUI extends SwingCustomizer {
 												protected Object getNewValue() {
 													ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
-													if (facade.getParameterValueMode() == ValueMode.DEFAULT) {
+													if (facade.getParameterValueMode() == ValueMode.PLAIN) {
 														return MiscUtils.getDefaultInterpretableValue(
 																facade.getParameterInfo().getType());
 													} else {
@@ -256,7 +256,7 @@ public class GUI extends SwingCustomizer {
 													ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
 													if ((facade.getItemValueMode() == null)
-															|| (facade.getItemValueMode() == ValueMode.DEFAULT)) {
+															|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
 														return MiscUtils
 																.getDefaultInterpretableValue(facade.getItemType());
 													} else {
@@ -305,7 +305,7 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
-					if (object instanceof ExpressionEditor) {
+					if (object instanceof FunctionEditor) {
 						if (method.getName().equals("insertSelectedPathNodeExpression")) {
 							method = new MethodInfoProxy(method) {
 
@@ -316,7 +316,7 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
-									TextControl textControl = (TextControl) getFieldControlPlaceHolder("expression")
+									TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
 											.getFieldControl();
 									invocationData.getProvidedParameterValues().put(0,
 											textControl.getTextComponent().getSelectionStart());
@@ -362,13 +362,13 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				public void validateForm() throws Exception {
-					if (object instanceof ExpressionEditor) {
-						TextControl textControl = (TextControl) getFieldControlPlaceHolder("expression")
+					if (object instanceof FunctionEditor) {
+						TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
 								.getFieldControl();
 						JTextComponent textComponent = textControl.getTextComponent();
 						textComponent.getHighlighter().removeAllHighlights();
 						try {
-							((ExpressionEditor) object).validateExpression();
+							((FunctionEditor) object).validateExpression();
 						} catch (CompilationError e) {
 							if (textComponent.getText() != null) {
 								textComponent.getHighlighter().addHighlight(
@@ -454,13 +454,13 @@ public class GUI extends SwingCustomizer {
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {
-					if (object instanceof ExpressionEditor) {
+					if (object instanceof FunctionEditor) {
 						if (method.getName().equals("insertSelectedPathNodeExpression")) {
-							final String oldExpression = ((ExpressionEditor) object).getExpression();
+							final String oldExpression = ((FunctionEditor) object).getFunctionBody();
 							return new Runnable() {
 								@Override
 								public void run() {
-									((ExpressionEditor) object).setExpression(oldExpression);
+									((FunctionEditor) object).setFunctionBody(oldExpression);
 								}
 							};
 						}
@@ -490,7 +490,7 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected List<IMethodInfo> getMethods(ITypeInfo type) {
-					if (type.getName().equals(DynamicValue.class.getName())) {
+					if (type.getName().equals(Function.class.getName())) {
 						List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -507,13 +507,12 @@ public class GUI extends SwingCustomizer {
 							@Override
 							public ITypeInfo getReturnValueType() {
 								return getTypeInfo(
-										new JavaTypeInfoSource(JESBReflectionUI.this, ExpressionEditor.class, null));
+										new JavaTypeInfoSource(JESBReflectionUI.this, FunctionEditor.class, null));
 							}
 
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
-								return new ExpressionEditor(((DynamicValue) object).getScript(), currentPlan,
-										currentStep, (DynamicValue) object);
+								return new FunctionEditor(currentPlan, currentStep, (Function) object);
 							}
 						});
 						return result;

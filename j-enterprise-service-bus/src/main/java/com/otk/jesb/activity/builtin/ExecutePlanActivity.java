@@ -6,7 +6,7 @@ import java.util.List;
 import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -142,8 +142,8 @@ public class ExecutePlanActivity implements Activity {
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
-				DynamicValue currentDynamicValue) {
-			return planInputBuilder.completeValidationContext(validationContext, currentDynamicValue);
+				Function currentFunction) {
+			return planInputBuilder.completeValidationContext(validationContext, currentFunction);
 		}
 
 	}

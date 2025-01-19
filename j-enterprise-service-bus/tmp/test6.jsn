@@ -144,8 +144,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                        <script>return jDBCQuery.getRows().get(0).getTABLE_NAME();</script>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                        <functionBody>return jDBCQuery.getRows().get(0).getTABLE_NAME();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                   </parameterInitializers>
@@ -247,6 +247,9 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                             <com.otk.jesb.Structure_-EnumerationItem>
                               <name>E2</name>
                             </com.otk.jesb.Structure_-EnumerationItem>
+                            <com.otk.jesb.Structure_-EnumerationItem>
+                              <name>E3</name>
+                            </com.otk.jesb.Structure_-EnumerationItem>
                           </items>
                         </structure>
                       </com.otk.jesb.Structure_-StructuredElement>
@@ -272,17 +275,53 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="PlanInput0062836041674293039161690558012914568974$Structure0240260183816679890191169012160982214132">E1</itemValue>
+                            <itemValue class="com.otk.jesb.InstanceBuilder$EnumerationItemSelector">
+                              <selectedItemName>E2</selectedItemName>
+                            </itemValue>
                           </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
                         </listItemInitializers>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>[LPlanInput0062836041674293039161690558012914568974$Structure0240260183816679890191169012160982214132;</typeName>
+                        <typeName>[LPlanInput0318392148211840092240134686931203099379$Structure0007029175767435570246863169685791816545;</typeName>
                       </fieldValue>
                     </com.otk.jesb.InstanceBuilder_-FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                     <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>int</parameterTypeName>
@@ -416,8 +455,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                          <script>return readFile.getText();</script>
+                        <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                          <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
@@ -471,8 +510,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.InstanceBuilder$DynamicValue">
-                          <script>return readFile.getText();</script>
+                        <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                          <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
                       <com.otk.jesb.InstanceBuilder_-ParameterInitializer>

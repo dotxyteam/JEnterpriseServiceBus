@@ -217,45 +217,45 @@ public class InstanceBuilder {
 		return object;
 	}
 
-	public boolean completeValidationContext(ValidationContext validationContext, DynamicValue currentDynamicValue) {
+	public boolean completeValidationContext(ValidationContext validationContext, Function currentFunction) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
-			if (parameterInitializer.getParameterValue() == currentDynamicValue) {
+			if (parameterInitializer.getParameterValue() == currentFunction) {
 				return true;
 			}
 			if (parameterInitializer.getParameterValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) parameterInitializer.getParameterValue())
-						.completeValidationContext(validationContext, currentDynamicValue)) {
+						.completeValidationContext(validationContext, currentFunction)) {
 					return true;
 				}
 			}
 		}
 		for (FieldInitializer fieldInitializer : fieldInitializers) {
-			if (fieldInitializer.getCondition() == currentDynamicValue) {
+			if (fieldInitializer.getCondition() == currentFunction) {
 				return true;
 			}
-			if (fieldInitializer.getFieldValue() == currentDynamicValue) {
+			if (fieldInitializer.getFieldValue() == currentFunction) {
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) fieldInitializer.getFieldValue()).completeValidationContext(validationContext,
-						currentDynamicValue)) {
+						currentFunction)) {
 					return true;
 				}
 			}
 		}
 		for (ListItemInitializer listItemInitializer : listItemInitializers) {
-			if (listItemInitializer.getCondition() == currentDynamicValue) {
+			if (listItemInitializer.getCondition() == currentFunction) {
 				return true;
 			}
 			Declaration newDeclaration = null;
 			int newDeclarationPosition = -1;
 			if (listItemInitializer.getItemReplication() != null) {
-				if (listItemInitializer.getItemReplication().getIterationListValue() == currentDynamicValue) {
+				if (listItemInitializer.getItemReplication().getIterationListValue() == currentFunction) {
 					return true;
 				}
 				if (listItemInitializer.getItemReplication().getIterationListValue() instanceof InstanceBuilder) {
 					if (((InstanceBuilder) listItemInitializer.getItemReplication().getIterationListValue())
-							.completeValidationContext(validationContext, currentDynamicValue)) {
+							.completeValidationContext(validationContext, currentFunction)) {
 						return true;
 					}
 				}
@@ -273,13 +273,13 @@ public class InstanceBuilder {
 				};
 				newDeclarationPosition = validationContext.getDeclarations().size();
 			}
-			if (listItemInitializer.getItemValue() == currentDynamicValue) {
+			if (listItemInitializer.getItemValue() == currentFunction) {
 				validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
 				return true;
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) listItemInitializer.getItemValue()).completeValidationContext(validationContext,
-						currentDynamicValue)) {
+						currentFunction)) {
 					validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
 					return true;
 				}
@@ -406,7 +406,7 @@ public class InstanceBuilder {
 
 		private String fieldName;
 		private Object fieldValue;
-		private DynamicValue condition;
+		private Function condition;
 
 		public FieldInitializer() {
 		}
@@ -424,11 +424,11 @@ public class InstanceBuilder {
 			this.fieldName = fieldName;
 		}
 
-		public DynamicValue getCondition() {
+		public Function getCondition() {
 			return condition;
 		}
 
-		public void setCondition(DynamicValue condition) {
+		public void setCondition(Function condition) {
 			this.condition = condition;
 		}
 
@@ -446,7 +446,7 @@ public class InstanceBuilder {
 
 		private Object itemValue;
 		private ListItemReplication itemReplication;
-		private DynamicValue condition;
+		private Function condition;
 
 		public ListItemInitializer() {
 		}
@@ -463,11 +463,11 @@ public class InstanceBuilder {
 			this.itemValue = itemValue;
 		}
 
-		public DynamicValue getCondition() {
+		public Function getCondition() {
 			return condition;
 		}
 
-		public void setCondition(DynamicValue condition) {
+		public void setCondition(Function condition) {
 			this.condition = condition;
 		}
 
@@ -526,22 +526,22 @@ public class InstanceBuilder {
 
 	}
 
-	public static class DynamicValue {
-		private String script;
+	public static class Function {
+		private String functionBody;
 
-		public DynamicValue() {
+		public Function() {
 		}
 
-		public DynamicValue(String content) {
-			this.script = content;
+		public Function(String functionBody) {
+			this.functionBody = functionBody;
 		}
 
-		public String getScript() {
-			return script;
+		public String getFunctionBody() {
+			return functionBody;
 		}
 
-		public void setScript(String script) {
-			this.script = script;
+		public void setFunctionBody(String functionBody) {
+			this.functionBody = functionBody;
 		}
 
 	}
@@ -765,7 +765,7 @@ public class InstanceBuilder {
 	}
 
 	public enum ValueMode {
-		DEFAULT, DYNAMIC_VALUE
+		PLAIN, FUNCTION
 	}
 
 	public static class ParameterInitializerFacade implements FacadeNode {
@@ -924,7 +924,7 @@ public class InstanceBuilder {
 			return getFieldInfo().getType().getName();
 		}
 
-		public DynamicValue getCondition() {
+		public Function getCondition() {
 			FieldInitializer fieldInitializer = getUnderlying();
 			if (fieldInitializer == null) {
 				return null;
@@ -932,11 +932,11 @@ public class InstanceBuilder {
 			return fieldInitializer.getCondition();
 		}
 
-		public void setCondition(DynamicValue condition) {
+		public void setCondition(Function condition) {
 			setConcrete(true);
 			FieldInitializer fieldInitializer = getUnderlying();
-			if ((condition != null) && (condition.getScript() == null)) {
-				condition = new DynamicValue("return true;");
+			if ((condition != null) && (condition.getFunctionBody() == null)) {
+				condition = new Function("return true;");
 			}
 			fieldInitializer.setCondition(condition);
 		}
@@ -1058,7 +1058,7 @@ public class InstanceBuilder {
 					.setItemReplication((itemReplicationFacade == null) ? null : itemReplicationFacade.getUnderlying());
 		}
 
-		public DynamicValue getCondition() {
+		public Function getCondition() {
 			ListItemInitializer listItemInitializer = getUnderlying();
 			if (listItemInitializer == null) {
 				return null;
@@ -1066,11 +1066,11 @@ public class InstanceBuilder {
 			return listItemInitializer.getCondition();
 		}
 
-		public void setCondition(DynamicValue condition) {
+		public void setCondition(Function condition) {
 			setConcrete(true);
 			ListItemInitializer listItemInitializer = getUnderlying();
-			if ((condition != null) && (condition.getScript() == null)) {
-				condition = new DynamicValue("return true;");
+			if ((condition != null) && (condition.getFunctionBody() == null)) {
+				condition = new Function("return true;");
 			}
 			listItemInitializer.setCondition(condition);
 		}
@@ -1211,9 +1211,9 @@ public class InstanceBuilder {
 
 		public void setIterationListValueMode(ValueMode valueMode) {
 			Object iterationListValue;
-			if (valueMode == ValueMode.DYNAMIC_VALUE) {
+			if (valueMode == ValueMode.FUNCTION) {
 				String scriptContent = "return new " + ArrayList.class.getName() + "<Object>();";
-				iterationListValue = new DynamicValue(scriptContent);
+				iterationListValue = new Function(scriptContent);
 			} else {
 				iterationListValue = new ArrayList<Object>();
 			}

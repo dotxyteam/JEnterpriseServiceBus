@@ -14,7 +14,7 @@ import java.util.Map;
 
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Solution;
-import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -342,8 +342,8 @@ public class JDBCQueryActivity implements Activity {
 
 		@Override
 		public boolean completeValidationContext(ValidationContext validationContext,
-				DynamicValue currentDynamicValue) {
-			return parameterValuesSpecification.completeValidationContext(validationContext, currentDynamicValue);
+				Function currentFunction) {
+			return parameterValuesSpecification.completeValidationContext(validationContext, currentFunction);
 		}
 
 	}
