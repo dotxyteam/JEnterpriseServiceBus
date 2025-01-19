@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceBuilder;
@@ -78,10 +76,8 @@ public class MiscUtils {
 	public static ValueMode getValueMode(Object value) {
 		if (value instanceof DynamicValue) {
 			return ValueMode.DYNAMIC_VALUE;
-		} else if (value instanceof InstanceBuilder) {
-			return ValueMode.INSTANCE_BUILDER;
 		} else {
-			return ValueMode.STATIC_VALUE;
+			return ValueMode.DEFAULT;
 		}
 	}
 
@@ -119,7 +115,12 @@ public class MiscUtils {
 			}
 			return result;
 		} else if (value instanceof InstanceBuilder) {
-			return ((InstanceBuilder) value).build(context);
+			Object result = ((InstanceBuilder) value).build(context);
+			if (!type.supports(result)) {
+				throw new Exception("Invalid instance builder value '" + result + "': Expected value of type <"
+						+ type.getName() + ">");
+			}
+			return result;
 		} else if (value instanceof EnumerationItemSelector) {
 			for (Object item : ((IEnumerationTypeInfo) type).getValues()) {
 				if (((IEnumerationTypeInfo) type).getValueInfo(item).getName()
@@ -134,13 +135,7 @@ public class MiscUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type) {
-		if (type == null) {
-			return null;
-		} else if (!MiscUtils.isComplexType(type)) {
-			return getDefaultInterpretableValue(type, ValueMode.STATIC_VALUE);
-		} else {
-			return getDefaultInterpretableValue(type, ValueMode.INSTANCE_BUILDER);
-		}
+		return getDefaultInterpretableValue(type, ValueMode.DEFAULT);
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode) {
@@ -156,29 +151,39 @@ public class MiscUtils {
 				scriptContent = "return null;";
 			}
 			return new DynamicValue(scriptContent);
-		} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
-			if (type instanceof IMapEntryTypeInfo) {
-				IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
-				return new InstanceBuilder.MapEntryBuilder(mapEntryType.getKeyField().getType().getName(),
-						mapEntryType.getValueField().getType().getName());
-			} else {
-				return new InstanceBuilder(type.getName());
-			}
-		} else if (valueMode == ValueMode.STATIC_VALUE) {
+		} else if (valueMode == ValueMode.DEFAULT) {
 			if (!MiscUtils.isComplexType(type)) {
 				if (type instanceof IEnumerationTypeInfo) {
-					return new EnumerationItemSelector(Arrays.asList(((IEnumerationTypeInfo) type).getValues()).stream()
-							.map(item -> ((IEnumerationTypeInfo) type).getValueInfo(item).getName())
-							.collect(Collectors.toList()));
+					EnumerationItemSelector result = new EnumerationItemSelector();
+					result.configure((IEnumerationTypeInfo) type);
+					if (result.getItemNames().size() > 0) {
+						result.setSelectedItemName(result.getItemNames().get(0));
+					}
+					return result;
 				} else {
 					return ReflectionUIUtils.createDefaultInstance(type);
 				}
 			} else {
-				return null;
+				if (type instanceof IMapEntryTypeInfo) {
+					IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
+					return new InstanceBuilder.MapEntryBuilder(mapEntryType.getKeyField().getType().getName(),
+							mapEntryType.getValueField().getType().getName());
+				} else {
+					return new InstanceBuilder(type.getName());
+				}
 			}
 		} else {
 			return null;
 		}
+	}
+
+	public static Object maintainInterpretableValue(Object value, ITypeInfo type) {
+		if (value instanceof EnumerationItemSelector) {
+			if (type instanceof IEnumerationTypeInfo) {
+				((EnumerationItemSelector) value).configure((IEnumerationTypeInfo) type);
+			}
+		}
+		return value;
 	}
 
 	public static String getDigitalUniqueIdentifier() {

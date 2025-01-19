@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.otk.jesb.Plan.ExecutionContext.Property;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.Declaration;
@@ -19,6 +21,7 @@ import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.MapEntryTypeInfoProxy;
@@ -327,6 +330,11 @@ public class InstanceBuilder {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "<" + typeName + ">";
+	}
+
 	public static class MapEntryBuilder extends InstanceBuilder {
 		private String keyTypeName;
 		private String valueTypeName;
@@ -555,16 +563,17 @@ public class InstanceBuilder {
 			return itemNames;
 		}
 
-		public void setItemNames(List<String> itemNames) {
-			this.itemNames = itemNames;
-		}
-
 		public String getSelectedItemName() {
 			return selectedItemName;
 		}
 
 		public void setSelectedItemName(String selectedItemName) {
 			this.selectedItemName = selectedItemName;
+		}
+
+		public void configure(IEnumerationTypeInfo enumType) {
+			itemNames = Arrays.asList(enumType.getValues()).stream().map(item -> enumType.getValueInfo(item).getName())
+					.collect(Collectors.toList());
 		}
 
 	}
@@ -715,7 +724,7 @@ public class InstanceBuilder {
 
 		@Override
 		public String toString() {
-			return "<" + underlying.getTypeName() + ">";
+			return underlying.toString();
 		}
 
 	}
@@ -756,7 +765,7 @@ public class InstanceBuilder {
 	}
 
 	public enum ValueMode {
-		STATIC_VALUE, DYNAMIC_VALUE, INSTANCE_BUILDER
+		DEFAULT, DYNAMIC_VALUE
 	}
 
 	public static class ParameterInitializerFacade implements FacadeNode {
@@ -839,20 +848,10 @@ public class InstanceBuilder {
 			setParameterValue(parameterValue);
 		}
 
-		public List<ValueMode> getValidParameterValueModes() {
-			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
-			result.addAll(Arrays.asList(ValueMode.values()));
-			if (!MiscUtils.isComplexType(getParameterInfo().getType())) {
-				result.remove(ValueMode.INSTANCE_BUILDER);
-			} else {
-				result.remove(ValueMode.STATIC_VALUE);
-			}
-			return result;
-		}
-
 		public Object getParameterValue() {
 			ParameterInitializer parameterInitializer = getUnderlying();
-			return parameterInitializer.getParameterValue();
+			return MiscUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
+					getParameterInfo().getType());
 		}
 
 		public void setParameterValue(Object value) {
@@ -984,23 +983,12 @@ public class InstanceBuilder {
 			setFieldValue(newFieldValue);
 		}
 
-		public List<ValueMode> getValidFieldValueModes() {
-			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
-			result.addAll(Arrays.asList(ValueMode.values()));
-			if (!MiscUtils.isComplexType(getFieldInfo().getType())) {
-				result.remove(ValueMode.INSTANCE_BUILDER);
-			} else {
-				result.remove(ValueMode.STATIC_VALUE);
-			}
-			return result;
-		}
-
 		public Object getFieldValue() {
 			FieldInitializer fieldInitializer = getUnderlying();
 			if (fieldInitializer == null) {
 				return null;
 			}
-			return fieldInitializer.getFieldValue();
+			return MiscUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(), getFieldInfo().getType());
 		}
 
 		public void setFieldValue(Object value) {
@@ -1092,7 +1080,7 @@ public class InstanceBuilder {
 			if (listItemInitializer == null) {
 				return null;
 			}
-			return listItemInitializer.getItemValue();
+			return MiscUtils.maintainInterpretableValue(listItemInitializer.getItemValue(), getItemType());
 		}
 
 		public void setItemValue(Object value) {
@@ -1122,17 +1110,6 @@ public class InstanceBuilder {
 			ITypeInfo itemType = getItemType();
 			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode);
 			listItemInitializer.setItemValue(itemValue);
-		}
-
-		public List<ValueMode> getValidItemValueModes() {
-			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
-			result.addAll(Arrays.asList(ValueMode.values()));
-			if (!MiscUtils.isComplexType(getItemType())) {
-				result.remove(ValueMode.INSTANCE_BUILDER);
-			} else {
-				result.remove(ValueMode.STATIC_VALUE);
-			}
-			return result;
 		}
 
 		private Object createDefaultItemValue() {
@@ -1220,7 +1197,8 @@ public class InstanceBuilder {
 		}
 
 		public Object getIterationListValue() {
-			return listItemReplication.getIterationListValue();
+			return MiscUtils.maintainInterpretableValue(listItemReplication.getIterationListValue(),
+					TypeInfoProvider.getTypeInfo(Object.class.getName()));
 		}
 
 		public void setIterationListValue(Object iterationListValue) {
@@ -1234,10 +1212,8 @@ public class InstanceBuilder {
 		public void setIterationListValueMode(ValueMode valueMode) {
 			Object iterationListValue;
 			if (valueMode == ValueMode.DYNAMIC_VALUE) {
-				String scriptContent = "return new java.util.ArrayList<Object>();";
+				String scriptContent = "return new " + ArrayList.class.getName() + "<Object>();";
 				iterationListValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
-				iterationListValue = new InstanceBuilder(ArrayList.class.getName());
 			} else {
 				iterationListValue = new ArrayList<Object>();
 			}

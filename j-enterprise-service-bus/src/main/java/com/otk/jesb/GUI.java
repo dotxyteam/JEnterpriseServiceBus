@@ -213,8 +213,8 @@ public class GUI extends SwingCustomizer {
 													FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
 													if ((facade.getFieldValueMode() == null)
-															|| (facade.getFieldValueMode() == ValueMode.STATIC_VALUE)) {
-														return swingRenderer.onTypeInstantiationRequest(this,
+															|| (facade.getFieldValueMode() == ValueMode.DEFAULT)) {
+														return MiscUtils.getDefaultInterpretableValue(
 																facade.getFieldInfo().getType());
 													} else {
 														return super.getNewValue();
@@ -234,8 +234,8 @@ public class GUI extends SwingCustomizer {
 												protected Object getNewValue() {
 													ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
-													if (facade.getParameterValueMode() == ValueMode.STATIC_VALUE) {
-														return swingRenderer.onTypeInstantiationRequest(this,
+													if (facade.getParameterValueMode() == ValueMode.DEFAULT) {
+														return MiscUtils.getDefaultInterpretableValue(
 																facade.getParameterInfo().getType());
 													} else {
 														return super.getNewValue();
@@ -256,9 +256,9 @@ public class GUI extends SwingCustomizer {
 													ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 															.getInstance()).getObject();
 													if ((facade.getItemValueMode() == null)
-															|| (facade.getItemValueMode() == ValueMode.STATIC_VALUE)) {
-														return swingRenderer.onTypeInstantiationRequest(this,
-																facade.getItemType());
+															|| (facade.getItemValueMode() == ValueMode.DEFAULT)) {
+														return MiscUtils
+																.getDefaultInterpretableValue(facade.getItemType());
 													} else {
 														return super.getNewValue();
 													}
@@ -597,12 +597,11 @@ public class GUI extends SwingCustomizer {
 					}
 					if (object instanceof Element) {
 						if (((Element) object).getOptionality() == null) {
-							return getIconImagePath(
-									getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this, ParameterInitializerFacade.class, null)),
-									null);
-						}else {
-							return getIconImagePath(
-									getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this, FieldInitializerFacade.class, null)),
+							return getIconImagePath(getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+									ParameterInitializerFacade.class, null)), null);
+						} else {
+							return getIconImagePath(getTypeInfo(
+									new JavaTypeInfoSource(JESBReflectionUI.this, FieldInitializerFacade.class, null)),
 									null);
 						}
 					}
