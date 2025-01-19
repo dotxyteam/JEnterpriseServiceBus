@@ -12,7 +12,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
-	private static final String INPUT_PROPERTY_NAME = "planInput";
+	private static final String INPUT_PROPERTY_NAME = "_planInput";
 
 	public Plan() {
 		this(Plan.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -149,18 +149,20 @@ public class Plan extends Asset {
 
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws Exception {
 		ExecutionContext context = new ExecutionContext(this);
-		context.getProperties().add(new ExecutionContext.Property() {
+		if (inputClass != null) {
+			context.getProperties().add(new ExecutionContext.Property() {
 
-			@Override
-			public Object getValue() {
-				return input;
-			}
+				@Override
+				public Object getValue() {
+					return input;
+				}
 
-			@Override
-			public String getName() {
-				return INPUT_PROPERTY_NAME;
-			}
-		});
+				@Override
+				public String getName() {
+					return INPUT_PROPERTY_NAME;
+				}
+			});
+		}
 		execute(steps, context, executionInspector);
 		if (outputBuilder == null) {
 			return null;
@@ -198,9 +200,9 @@ public class Plan extends Asset {
 		context.setCutrrentStep(step);
 		StepOccurrence stepOccurrence = new StepOccurrence(step);
 		executionInspector.beforeActivityCreation(stepOccurrence);
-		Activity activity = step.getActivityBuilder().build(context);
-		stepOccurrence.setActivity(activity);
 		try {
+			Activity activity = step.getActivityBuilder().build(context);
+			stepOccurrence.setActivity(activity);
 			Object activityResult = activity.execute();
 			stepOccurrence.setActivityResult(activityResult);
 			if (activityResult != null) {
@@ -251,6 +253,7 @@ public class Plan extends Asset {
 
 		public ExecutionContext(ExecutionContext parentContext, Property newProperty) {
 			this.plan = parentContext.getPlan();
+			this.currentStep = parentContext.getCurrentStep();
 			properties.addAll(parentContext.getProperties());
 			properties.add(newProperty);
 		}

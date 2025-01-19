@@ -73,7 +73,7 @@ public class Debugger {
 				@Override
 				public void run() {
 					try {
-						plan.execute(new Plan.ExecutionInspector() {
+						plan.execute(null, new Plan.ExecutionInspector() {
 							@Override
 							public void beforeActivityCreation(StepOccurrence stepOccurrence) {
 								currentStepOccurrence = stepOccurrence;

@@ -28,14 +28,14 @@ public class CompiledFunction {
 					declaration.getPropertyClass().getName().replace("$", ".") + " " + declaration.getPropertyName());
 		}
 		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");
-		preBody += "){" + "\n";
+		preBody += ") throws " + Throwable.class.getName() + "{" + "\n";
 		String postBody = "";
 		postBody += "}";
 		postBody += "}";
 		Class<?> functionClass;
 		try {
-			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName, preBody + functionBody + postBody,
-					TypeInfoProvider.getClassLoader());
+			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName,
+					preBody + functionBody + postBody, TypeInfoProvider.getClassLoader());
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {
@@ -58,7 +58,7 @@ public class CompiledFunction {
 
 	public Object execute(Plan.ExecutionContext context) throws Throwable {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
-		int i=0;
+		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
 			for (Plan.ExecutionContext.Property property : context.getProperties()) {
 				if (param.getName().equals(property.getName())) {

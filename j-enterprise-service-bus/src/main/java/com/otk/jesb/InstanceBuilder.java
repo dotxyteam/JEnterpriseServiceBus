@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionContext.Property;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.Declaration;
@@ -32,6 +33,8 @@ import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstanceBuilder {
+
+	public static final String CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME = "_currentFunctionResultType";
 
 	private String typeName;
 	private Accessor<String> dynamicTypeNameAccessor;
@@ -143,8 +146,26 @@ public class InstanceBuilder {
 						MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()), parameterInfo.getType(),
 						context);
 			} else {
+				ExecutionContext parameterContext = (parameterInitializer.getParameterValue() instanceof Function)
+						? new Plan.ExecutionContext(context, new Plan.ExecutionContext.Property() {
+
+							@Override
+							public String getName() {
+								return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+							}
+
+							@Override
+							public Object getValue() {
+								return ((DefaultTypeInfo) new ParameterInitializerFacade(
+										new InstanceBuilderFacade(null, InstanceBuilder.this),
+										parameterInitializer.getParameterPosition()).getParameterInfo().getType())
+												.getJavaType();
+							}
+
+						})
+						: context;
 				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(),
-						parameterInfo.getType(), context);
+						parameterInfo.getType(), parameterContext);
 			}
 			parameterValues[parameterInfo.getPosition()] = parameterValue;
 		}
@@ -173,18 +194,53 @@ public class InstanceBuilder {
 					for (Object iterationVariableValue : iterationListArray) {
 						Plan.ExecutionContext iterationContext = new Plan.ExecutionContext(context,
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue));
-						Object itemValue = MiscUtils
-								.interpretValue(listItemInitializer.getItemValue(),
-										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-										iterationContext);
+						ExecutionContext itemContext = (listItemInitializer.getItemValue() instanceof Function)
+								? new Plan.ExecutionContext(iterationContext, new Plan.ExecutionContext.Property() {
+
+									@Override
+									public String getName() {
+										return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+									}
+
+									@Override
+									public Object getValue() {
+										return ((DefaultTypeInfo) new ListItemInitializerFacade(
+												new InstanceBuilderFacade(null, InstanceBuilder.this),
+												InstanceBuilder.this.listItemInitializers.indexOf(listItemInitializer))
+														.getItemType()).getJavaType();
+									}
+
+								})
+								: iterationContext;
+						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
+								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+								itemContext);
 						itemList.add(itemValue);
 					}
 				} else {
+					ExecutionContext itemContext = (listItemInitializer.getItemValue() instanceof Function)
+							? new Plan.ExecutionContext(context, new Plan.ExecutionContext.Property() {
+
+								@Override
+								public String getName() {
+									return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+								}
+
+								@Override
+								public Object getValue() {
+									return ((DefaultTypeInfo) new ListItemInitializerFacade(
+											new InstanceBuilderFacade(null, InstanceBuilder.this),
+											InstanceBuilder.this.listItemInitializers.indexOf(listItemInitializer))
+													.getItemType()).getJavaType();
+								}
+
+							})
+							: context;
 					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							context);
+							itemContext);
 					itemList.add(itemValue);
 				}
 			}
@@ -211,7 +267,25 @@ public class InstanceBuilder {
 			if (!MiscUtils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
 				continue;
 			}
-			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(), context);
+			ExecutionContext fieldContext = (fieldInitializer.getFieldValue() instanceof Function)
+					? new Plan.ExecutionContext(context, new Plan.ExecutionContext.Property() {
+
+						@Override
+						public String getName() {
+							return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+						}
+
+						@Override
+						public Object getValue() {
+							return ((DefaultTypeInfo) new FieldInitializerFacade(
+									new InstanceBuilderFacade(null, InstanceBuilder.this),
+									fieldInitializer.getFieldName()).getFieldInfo().getType()).getJavaType();
+						}
+
+					})
+					: context;
+			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(),
+					fieldContext);
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -220,6 +294,18 @@ public class InstanceBuilder {
 	public boolean completeValidationContext(ValidationContext validationContext, Function currentFunction) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			if (parameterInitializer.getParameterValue() == currentFunction) {
+				validationContext.getDeclarations().add(new Plan.ValidationContext.Declaration() {
+
+					@Override
+					public String getPropertyName() {
+						return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+					}
+
+					@Override
+					public Class<?> getPropertyClass() {
+						return Class.class;
+					}
+				});
 				return true;
 			}
 			if (parameterInitializer.getParameterValue() instanceof InstanceBuilder) {
@@ -234,6 +320,18 @@ public class InstanceBuilder {
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() == currentFunction) {
+				validationContext.getDeclarations().add(new Plan.ValidationContext.Declaration() {
+
+					@Override
+					public String getPropertyName() {
+						return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+					}
+
+					@Override
+					public Class<?> getPropertyClass() {
+						return Class.class;
+					}
+				});
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
@@ -247,8 +345,8 @@ public class InstanceBuilder {
 			if (listItemInitializer.getCondition() == currentFunction) {
 				return true;
 			}
-			Declaration newDeclaration = null;
-			int newDeclarationPosition = -1;
+			Declaration iterationVariableDeclaration = null;
+			int iterationVariableDeclarationPosition = -1;
 			if (listItemInitializer.getItemReplication() != null) {
 				if (listItemInitializer.getItemReplication().getIterationListValue() == currentFunction) {
 					return true;
@@ -259,7 +357,7 @@ public class InstanceBuilder {
 						return true;
 					}
 				}
-				newDeclaration = new Plan.ValidationContext.Declaration() {
+				iterationVariableDeclaration = new Plan.ValidationContext.Declaration() {
 
 					@Override
 					public String getPropertyName() {
@@ -271,16 +369,34 @@ public class InstanceBuilder {
 						return Object.class;
 					}
 				};
-				newDeclarationPosition = validationContext.getDeclarations().size();
+				iterationVariableDeclarationPosition = validationContext.getDeclarations().size();
 			}
 			if (listItemInitializer.getItemValue() == currentFunction) {
-				validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
+				if (iterationVariableDeclaration != null) {
+					validationContext.getDeclarations().add(iterationVariableDeclarationPosition,
+							iterationVariableDeclaration);
+				}
+				validationContext.getDeclarations().add(new Plan.ValidationContext.Declaration() {
+
+					@Override
+					public String getPropertyName() {
+						return CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME;
+					}
+
+					@Override
+					public Class<?> getPropertyClass() {
+						return Class.class;
+					}
+				});
 				return true;
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) listItemInitializer.getItemValue()).completeValidationContext(validationContext,
 						currentFunction)) {
-					validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
+					if (iterationVariableDeclaration != null) {
+						validationContext.getDeclarations().add(iterationVariableDeclarationPosition,
+								iterationVariableDeclaration);
+					}
 					return true;
 				}
 			}
@@ -593,9 +709,9 @@ public class InstanceBuilder {
 		private FacadeNode parent;
 		private InstanceBuilder underlying;
 
-		public InstanceBuilderFacade(FacadeNode parent, InstanceBuilder instanceSpecification) {
+		public InstanceBuilderFacade(FacadeNode parent, InstanceBuilder underlying) {
 			this.parent = parent;
-			this.underlying = instanceSpecification;
+			this.underlying = underlying;
 		}
 
 		public FacadeNode getParent() {
@@ -1120,6 +1236,11 @@ public class InstanceBuilder {
 		public ITypeInfo getItemType() {
 			ITypeInfo parentTypeInfo = parent.getTypeInfo();
 			return ((IListTypeInfo) parentTypeInfo).getItemType();
+		}
+
+		public String getItemTypeName() {
+			ITypeInfo itemType = getItemType();
+			return (itemType == null) ? Object.class.getName() : itemType.getName();
 		}
 
 		public ListItemInitializer getUnderlying() {

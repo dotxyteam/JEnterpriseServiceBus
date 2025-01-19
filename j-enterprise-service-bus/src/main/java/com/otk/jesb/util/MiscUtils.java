@@ -40,7 +40,7 @@ public class MiscUtils {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
-	public static Object executeScript(Function function, Plan.ExecutionContext executionContext) {
+	public static Object executeFunction(Function function, Plan.ExecutionContext executionContext) {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
@@ -108,16 +108,16 @@ public class MiscUtils {
 
 	public static Object interpretValue(Object value, ITypeInfo type, ExecutionContext context) throws Exception {
 		if (value instanceof Function) {
-			Object result = MiscUtils.executeScript(((Function) value), context);
+			Object result = MiscUtils.executeFunction(((Function) value), context);
 			if (!type.supports(result)) {
 				throw new Exception(
-						"Invalid dynamic value '" + result + "': Expected value of type <" + type.getName() + ">");
+						"Invalid function result '" + result + "': Expected value of type <" + type.getName() + ">");
 			}
 			return result;
 		} else if (value instanceof InstanceBuilder) {
 			Object result = ((InstanceBuilder) value).build(context);
 			if (!type.supports(result)) {
-				throw new Exception("Invalid instance builder value '" + result + "': Expected value of type <"
+				throw new Exception("Invalid instance builder result '" + result + "': Expected value of type <"
 						+ type.getName() + ">");
 			}
 			return result;
@@ -142,15 +142,22 @@ public class MiscUtils {
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
-			String scriptContent;
+			String functionBody;
 			if (!MiscUtils.isComplexType(type)) {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
-				scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
-						: String.valueOf(defaultValue)) + ";";
+				if (defaultValue.getClass().isEnum()) {
+					functionBody = "return " + Enum.class.getSimpleName() +".valueOf("
+							+ InstanceBuilder.CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME + ", \"" + defaultValue.toString() + "\")"
+							+ ";";
+				} else if (defaultValue instanceof String) {
+					functionBody = "return \"" + defaultValue + "\";";
+				} else {
+					functionBody = "return " + String.valueOf(defaultValue) + ";";
+				}
 			} else {
-				scriptContent = "return null;";
+				functionBody = "return null;";
 			}
-			return new Function(scriptContent);
+			return new Function(functionBody);
 		} else if (valueMode == ValueMode.PLAIN) {
 			if (!MiscUtils.isComplexType(type)) {
 				if (type instanceof IEnumerationTypeInfo) {
