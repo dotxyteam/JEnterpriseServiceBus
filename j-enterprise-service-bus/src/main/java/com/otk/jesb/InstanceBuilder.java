@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
 import com.otk.jesb.Plan.ExecutionContext.Property;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.Declaration;
@@ -137,10 +136,12 @@ public class InstanceBuilder {
 					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
-				parameterValue = MiscUtils
-						.interpretValue(MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()), context);
+				parameterValue = MiscUtils.interpretValue(
+						MiscUtils.getDefaultInterpretableValue(parameterInfo.getType()), parameterInfo.getType(),
+						context);
 			} else {
-				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(), context);
+				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(),
+						parameterInfo.getType(), context);
 			}
 			parameterValues[parameterInfo.getPosition()] = parameterValue;
 		}
@@ -155,7 +156,7 @@ public class InstanceBuilder {
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
 					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(),
-							context);
+							TypeInfoProvider.getTypeInfo(Object.class.getName()), context);
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -169,12 +170,18 @@ public class InstanceBuilder {
 					for (Object iterationVariableValue : iterationListArray) {
 						Plan.ExecutionContext iterationContext = new Plan.ExecutionContext(context,
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue));
-						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
-								iterationContext);
+						Object itemValue = MiscUtils
+								.interpretValue(listItemInitializer.getItemValue(),
+										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+										iterationContext);
 						itemList.add(itemValue);
 					}
 				} else {
-					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(), context);
+					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
+							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+							context);
 					itemList.add(itemValue);
 				}
 			}
@@ -201,7 +208,7 @@ public class InstanceBuilder {
 			if (!MiscUtils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
 				continue;
 			}
-			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), context);
+			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(), context);
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -227,8 +234,8 @@ public class InstanceBuilder {
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
-				if (((InstanceBuilder) fieldInitializer.getFieldValue())
-						.completeValidationContext(validationContext, currentDynamicValue)) {
+				if (((InstanceBuilder) fieldInitializer.getFieldValue()).completeValidationContext(validationContext,
+						currentDynamicValue)) {
 					return true;
 				}
 			}
@@ -268,8 +275,8 @@ public class InstanceBuilder {
 				return true;
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
-				if (((InstanceBuilder) listItemInitializer.getItemValue())
-						.completeValidationContext(validationContext, currentDynamicValue)) {
+				if (((InstanceBuilder) listItemInitializer.getItemValue()).completeValidationContext(validationContext,
+						currentDynamicValue)) {
 					validationContext.getDeclarations().add(newDeclarationPosition, newDeclaration);
 					return true;
 				}
@@ -320,11 +327,11 @@ public class InstanceBuilder {
 		}
 	}
 
-	public static class MapEntrySpecification extends InstanceBuilder {
+	public static class MapEntryBuilder extends InstanceBuilder {
 		private String keyTypeName;
 		private String valueTypeName;
 
-		public MapEntrySpecification(String keyTypeName, String valueTypeName) {
+		public MapEntryBuilder(String keyTypeName, String valueTypeName) {
 			super(StandardMapEntry.class.getName());
 			this.keyTypeName = keyTypeName;
 			this.valueTypeName = valueTypeName;
@@ -531,6 +538,37 @@ public class InstanceBuilder {
 
 	}
 
+	public static class EnumerationItemSelector {
+
+		private List<String> itemNames;
+		private String selectedItemName;
+
+		public EnumerationItemSelector() {
+		}
+
+		public EnumerationItemSelector(List<String> itemNames) {
+			this.itemNames = itemNames;
+			selectedItemName = itemNames.get(0);
+		}
+
+		public List<String> getItemNames() {
+			return itemNames;
+		}
+
+		public void setItemNames(List<String> itemNames) {
+			this.itemNames = itemNames;
+		}
+
+		public String getSelectedItemName() {
+			return selectedItemName;
+		}
+
+		public void setSelectedItemName(String selectedItemName) {
+			this.selectedItemName = selectedItemName;
+		}
+
+	}
+
 	public static interface FacadeNode {
 
 		List<FacadeNode> getChildren();
@@ -682,9 +720,9 @@ public class InstanceBuilder {
 
 	}
 
-	public static class MapEntrySpecificationFacade extends InstanceBuilderFacade {
+	public static class MapEntryBuilderFacade extends InstanceBuilderFacade {
 
-		public MapEntrySpecificationFacade(FacadeNode parent, MapEntrySpecification mapEntrySpecification) {
+		public MapEntryBuilderFacade(FacadeNode parent, MapEntryBuilder mapEntrySpecification) {
 			super(parent, mapEntrySpecification);
 		}
 
@@ -694,8 +732,8 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public MapEntrySpecification getUnderlying() {
-			return (MapEntrySpecification) super.getUnderlying();
+		public MapEntryBuilder getUnderlying() {
+			return (MapEntryBuilder) super.getUnderlying();
 		}
 
 		@Override
@@ -797,25 +835,19 @@ public class InstanceBuilder {
 		public void setParameterValueMode(ValueMode valueMode) {
 			setConcrete(true);
 			IParameterInfo parameter = getParameterInfo();
-			if (valueMode == ValueMode.DYNAMIC_VALUE) {
-				String scriptContent;
-				if (!MiscUtils.isComplexType(parameter.getType())) {
-					Object defaultValue = ReflectionUIUtils.createDefaultInstance(parameter.getType());
-					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
-							: String.valueOf(defaultValue)) + ";";
-				} else {
-					scriptContent = "return null;";
-				}
-				setParameterValue(new DynamicValue(scriptContent));
-			} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
-				setParameterValue(new InstanceBuilder(parameter.getType().getName()));
+			Object parameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode);
+			setParameterValue(parameterValue);
+		}
+
+		public List<ValueMode> getValidParameterValueModes() {
+			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
+			result.addAll(Arrays.asList(ValueMode.values()));
+			if (!MiscUtils.isComplexType(getParameterInfo().getType())) {
+				result.remove(ValueMode.INSTANCE_BUILDER);
 			} else {
-				if (!MiscUtils.isComplexType(parameter.getType())) {
-					setParameterValue(ReflectionUIUtils.createDefaultInstance(parameter.getType()));
-				} else {
-					setParameterValue(null);
-				}
+				result.remove(ValueMode.STATIC_VALUE);
 			}
+			return result;
 		}
 
 		public Object getParameterValue() {
@@ -948,29 +980,19 @@ public class InstanceBuilder {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
-			Object newFieldValue;
-			if (valueMode == ValueMode.DYNAMIC_VALUE) {
-				String scriptContent;
-				if (!MiscUtils.isComplexType(field.getType())) {
-					Object defaultValue = ReflectionUIUtils.createDefaultInstance(field.getType());
-					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
-							: String.valueOf(defaultValue)) + ";";
-				} else {
-					scriptContent = "return null;";
-				}
-				newFieldValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
-				newFieldValue = new InstanceBuilder(field.getType().getName());
-			} else if (valueMode == ValueMode.STATIC_VALUE) {
-				if (!MiscUtils.isComplexType(field.getType())) {
-					newFieldValue = ReflectionUIUtils.createDefaultInstance(field.getType());
-				} else {
-					newFieldValue = null;
-				}
-			} else {
-				newFieldValue = null;
-			}
+			Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode);
 			setFieldValue(newFieldValue);
+		}
+
+		public List<ValueMode> getValidFieldValueModes() {
+			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
+			result.addAll(Arrays.asList(ValueMode.values()));
+			if (!MiscUtils.isComplexType(getFieldInfo().getType())) {
+				result.remove(ValueMode.INSTANCE_BUILDER);
+			} else {
+				result.remove(ValueMode.STATIC_VALUE);
+			}
+			return result;
 		}
 
 		public Object getFieldValue() {
@@ -1030,14 +1052,6 @@ public class InstanceBuilder {
 
 		public int getIndex() {
 			return index;
-		}
-
-		public String getItemTypeName() {
-			ITypeInfo itemType = getItemType();
-			if (itemType == null) {
-				return null;
-			}
-			return itemType.getName();
 		}
 
 		public ListItemReplicationFacade getItemReplicationFacade() {
@@ -1106,26 +1120,19 @@ public class InstanceBuilder {
 				return;
 			}
 			ITypeInfo itemType = getItemType();
-			if (valueMode == ValueMode.DYNAMIC_VALUE) {
-				String scriptContent;
-				if (!MiscUtils.isComplexType(itemType)) {
-					Object defaultValue = ReflectionUIUtils.createDefaultInstance(itemType);
-					scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
-							: String.valueOf(defaultValue)) + ";";
-				} else {
-					scriptContent = "return null;";
-				}
-				itemValue = new DynamicValue(scriptContent);
-			} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
-				itemValue = new InstanceBuilder(itemType.getName());
-			} else {
-				if (!MiscUtils.isComplexType(itemType)) {
-					itemValue = ReflectionUIUtils.createDefaultInstance(itemType);
-				} else {
-					itemValue = null;
-				}
-			}
+			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode);
 			listItemInitializer.setItemValue(itemValue);
+		}
+
+		public List<ValueMode> getValidItemValueModes() {
+			List<ValueMode> result = new ArrayList<InstanceBuilder.ValueMode>();
+			result.addAll(Arrays.asList(ValueMode.values()));
+			if (!MiscUtils.isComplexType(getItemType())) {
+				result.remove(ValueMode.INSTANCE_BUILDER);
+			} else {
+				result.remove(ValueMode.STATIC_VALUE);
+			}
+			return result;
 		}
 
 		private Object createDefaultItemValue() {
@@ -1172,8 +1179,8 @@ public class InstanceBuilder {
 		@Override
 		public List<FacadeNode> getChildren() {
 			List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
-			if (itemValue instanceof MapEntrySpecification) {
-				result.add(new MapEntrySpecificationFacade(this, (MapEntrySpecification) itemValue));
+			if (itemValue instanceof MapEntryBuilder) {
+				result.add(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue));
 			} else if (itemValue instanceof InstanceBuilder) {
 				result.add(new InstanceBuilderFacade(this, (InstanceBuilder) itemValue));
 			}

@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceBuilder.DynamicValue;
+import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
 import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -19,6 +21,7 @@ import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledScript;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
@@ -72,16 +75,6 @@ public class MiscUtils {
 		return true;
 	}
 
-	public static Object interpretValue(Object value, ExecutionContext context) throws Exception {
-		if (value instanceof DynamicValue) {
-			return MiscUtils.executeScript(((DynamicValue) value), context);
-		} else if (value instanceof InstanceBuilder) {
-			return ((InstanceBuilder) value).build(context);
-		} else {
-			return value;
-		}
-	}
-
 	public static ValueMode getValueMode(Object value) {
 		if (value instanceof DynamicValue) {
 			return ValueMode.DYNAMIC_VALUE;
@@ -90,17 +83,6 @@ public class MiscUtils {
 		} else {
 			return ValueMode.STATIC_VALUE;
 		}
-	}
-
-	public static boolean isConditionFullfilled(DynamicValue condition, ExecutionContext context) throws Exception {
-		if (condition == null) {
-			return true;
-		}
-		Object conditionResult = MiscUtils.interpretValue(condition, context);
-		if (!(conditionResult instanceof Boolean)) {
-			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
-		}
-		return !((Boolean) conditionResult);
 	}
 
 	public static IMethodInfo getConstructorInfo(ITypeInfo typeInfo, String selectedConstructorSignature) {
@@ -116,19 +98,86 @@ public class MiscUtils {
 
 	}
 
+	public static boolean isConditionFullfilled(DynamicValue condition, ExecutionContext context) throws Exception {
+		if (condition == null) {
+			return true;
+		}
+		Object conditionResult = MiscUtils.interpretValue(condition,
+				TypeInfoProvider.getTypeInfo(Boolean.class.getName()), context);
+		if (!(conditionResult instanceof Boolean)) {
+			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
+		}
+		return !((Boolean) conditionResult);
+	}
+
+	public static Object interpretValue(Object value, ITypeInfo type, ExecutionContext context) throws Exception {
+		if (value instanceof DynamicValue) {
+			Object result = MiscUtils.executeScript(((DynamicValue) value), context);
+			if (!type.supports(result)) {
+				throw new Exception(
+						"Invalid dynamic value '" + result + "': Expected value of type <" + type.getName() + ">");
+			}
+			return result;
+		} else if (value instanceof InstanceBuilder) {
+			return ((InstanceBuilder) value).build(context);
+		} else if (value instanceof EnumerationItemSelector) {
+			for (Object item : ((IEnumerationTypeInfo) type).getValues()) {
+				if (((IEnumerationTypeInfo) type).getValueInfo(item).getName()
+						.equals(((EnumerationItemSelector) value).getSelectedItemName())) {
+					return item;
+				}
+			}
+			throw new AssertionError();
+		} else {
+			return value;
+		}
+	}
+
 	public static Object getDefaultInterpretableValue(ITypeInfo type) {
 		if (type == null) {
 			return null;
 		} else if (!MiscUtils.isComplexType(type)) {
-			return ReflectionUIUtils.createDefaultInstance(type);
+			return getDefaultInterpretableValue(type, ValueMode.STATIC_VALUE);
 		} else {
+			return getDefaultInterpretableValue(type, ValueMode.INSTANCE_BUILDER);
+		}
+	}
+
+	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode) {
+		if (type == null) {
+			return null;
+		} else if (valueMode == ValueMode.DYNAMIC_VALUE) {
+			String scriptContent;
+			if (!MiscUtils.isComplexType(type)) {
+				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
+				scriptContent = "return " + ((defaultValue instanceof String) ? ("\"" + defaultValue + "\"")
+						: String.valueOf(defaultValue)) + ";";
+			} else {
+				scriptContent = "return null;";
+			}
+			return new DynamicValue(scriptContent);
+		} else if (valueMode == ValueMode.INSTANCE_BUILDER) {
 			if (type instanceof IMapEntryTypeInfo) {
 				IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
-				return new InstanceBuilder.MapEntrySpecification(mapEntryType.getKeyField().getType().getName(),
+				return new InstanceBuilder.MapEntryBuilder(mapEntryType.getKeyField().getType().getName(),
 						mapEntryType.getValueField().getType().getName());
 			} else {
 				return new InstanceBuilder(type.getName());
 			}
+		} else if (valueMode == ValueMode.STATIC_VALUE) {
+			if (!MiscUtils.isComplexType(type)) {
+				if (type instanceof IEnumerationTypeInfo) {
+					return new EnumerationItemSelector(Arrays.asList(((IEnumerationTypeInfo) type).getValues()).stream()
+							.map(item -> ((IEnumerationTypeInfo) type).getValueInfo(item).getName())
+							.collect(Collectors.toList()));
+				} else {
+					return ReflectionUIUtils.createDefaultInstance(type);
+				}
+			} else {
+				return null;
+			}
+		} else {
+			return null;
 		}
 	}
 
