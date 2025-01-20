@@ -411,7 +411,7 @@ public class InstanceBuilder {
 	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			if ((parameterInitializer.getParameterPosition() == parameterPosition)
-					&& (parameterInitializer.getParameterTypeName() == parameterTypeName)) {
+					&& parameterTypeName.equals(parameterInitializer.getParameterTypeName())) {
 				return parameterInitializer;
 			}
 		}
@@ -422,7 +422,7 @@ public class InstanceBuilder {
 		for (Iterator<ParameterInitializer> it = parameterInitializers.iterator(); it.hasNext();) {
 			ParameterInitializer parameterInitializer = it.next();
 			if ((parameterInitializer.getParameterPosition() == parameterPosition)
-					&& (parameterInitializer.getParameterTypeName() == parameterTypeName)) {
+					&& parameterTypeName.equals(parameterInitializer.getParameterTypeName())) {
 				it.remove();
 			}
 		}

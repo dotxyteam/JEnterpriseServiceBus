@@ -215,8 +215,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <typeName>com.otk.jesb.activity.builtin.WriteFileActivity</typeName>
                 </instanceBuilder>
               </activityBuilder>
-              <diagramX>398</diagramX>
-              <diagramY>317</diagramY>
+              <diagramX>421</diagramX>
+              <diagramY>321</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>executePlan</name>
@@ -312,7 +312,15 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <parameterValue class="com.otk.jesb.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
-                        <listItemInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="com.otk.jesb.InstanceBuilder$Function">
+                              <functionBody>return _currentFunctionResultType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
+                            </itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
                         <typeName>[Ljava.lang.String;</typeName>
@@ -446,6 +454,105 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                             <itemValue class="com.otk.jesb.InstanceBuilder$Function">
                               <functionBody>return currentType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
                             </itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="com.otk.jesb.InstanceBuilder$Function">
+                              <functionBody>return _currentFunctionResultType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
+                            </itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="string">azerty</itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="string"></itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="string"></itemValue>
+                          </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                        </listItemInitializers>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>[Ljava.lang.String;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>int</parameterTypeName>
+                      <parameterValue class="int">0</parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>1</parameterPosition>
+                      <parameterTypeName>[Ljava.lang.String;</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <listItemInitializers>
+                          <com.otk.jesb.InstanceBuilder_-ListItemInitializer>
+                            <condition class="null"/>
+                            <itemReplication class="null"/>
+                            <itemValue class="string">bla bla bla</itemValue>
                           </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
                         </listItemInitializers>
                         <parameterInitializers/>
