@@ -23,9 +23,9 @@ public class CompiledFunction {
 		preBody += "public class " + functionClassName + "{" + "\n";
 		preBody += "public static Object execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
-		for (Plan.ValidationContext.Declaration declaration : context.getDeclarations()) {
+		for (Plan.ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
 			declrartionStrings.add(
-					declaration.getPropertyClass().getName().replace("$", ".") + " " + declaration.getPropertyName());
+					declaration.getVariableClass().getName().replace("$", ".") + " " + declaration.getVariableName());
 		}
 		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");
 		preBody += ") throws " + Throwable.class.getName() + "{" + "\n";
@@ -60,9 +60,9 @@ public class CompiledFunction {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
-			for (Plan.ExecutionContext.Property property : context.getProperties()) {
-				if (param.getName().equals(property.getName())) {
-					functionParameterValues[i] = property.getValue();
+			for (Plan.ExecutionContext.Variable variable : context.getVariables()) {
+				if (param.getName().equals(variable.getName())) {
+					functionParameterValues[i] = variable.getValue();
 					break;
 				}
 			}

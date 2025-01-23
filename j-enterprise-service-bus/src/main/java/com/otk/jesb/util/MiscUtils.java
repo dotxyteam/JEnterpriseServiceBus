@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import com.otk.jesb.Folder;
@@ -13,6 +14,7 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
 import com.otk.jesb.InstanceBuilder.ValueMode;
+import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -35,31 +37,43 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class MiscUtils {
 
+	private static final String PARENT_TYPE_NAME_SYMBOL = "$_";
+
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
-	public static Object executeFunction(Function function, Plan.ExecutionContext executionContext) {
+	public static Object executeFunction(Function function, InstanceBuilder.EvaluationContext evaluationContext) {
+		ExecutionContext executionContext = evaluationContext.getExecutionContext();
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		currentStep.getActivityBuilder().completeValidationContext(validationContext, function);
-		CompiledFunction compiledScript;
+		VerificationContext verificationContext = new VerificationContext(validationContext,
+				new ArrayList<InstanceBuilder>());
+		currentStep.getActivityBuilder().completeVerificationContext(verificationContext, function);
+		if (!Arrays.equals(verificationContext.getAncestorInstanceBuilders().toArray(),
+				evaluationContext.getAncestorInstanceBuilderNodes().toArray())) {
+			throw new AssertionError();
+		}
+		CompiledFunction compiledFunction;
 		try {
-			compiledScript = CompiledFunction.get(function.getFunctionBody(), validationContext);
+			compiledFunction = CompiledFunction.get(makeTypeNamesAbsolute(function.getFunctionBody(),
+					verificationContext.getAncestorInstanceBuilders()), validationContext);
 		} catch (CompilationError e) {
 			throw new AssertionError(e);
 		}
 		try {
-			return compiledScript.execute(executionContext);
+			return compiledFunction.execute(executionContext);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static void validateFunction(String functionBody, Plan.ValidationContext context) throws CompilationError {
-		CompiledFunction.get(functionBody, context);
+	public static void validateFunction(String functionBody, InstanceBuilder.VerificationContext context)
+			throws CompilationError {
+		CompiledFunction.get(makeTypeNamesAbsolute(functionBody, context.getAncestorInstanceBuilders()),
+				context.getValidationContext());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -94,7 +108,8 @@ public class MiscUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(Function condition, ExecutionContext context) throws Exception {
+	public static boolean isConditionFullfilled(Function condition, InstanceBuilder.EvaluationContext context)
+			throws Exception {
 		if (condition == null) {
 			return true;
 		}
@@ -106,7 +121,8 @@ public class MiscUtils {
 		return !((Boolean) conditionResult);
 	}
 
-	public static Object interpretValue(Object value, ITypeInfo type, ExecutionContext context) throws Exception {
+	public static Object interpretValue(Object value, ITypeInfo type, InstanceBuilder.EvaluationContext context)
+			throws Exception {
 		if (value instanceof Function) {
 			Object result = MiscUtils.executeFunction(((Function) value), context);
 			if (!type.supports(result)) {
@@ -134,11 +150,12 @@ public class MiscUtils {
 		}
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type) {
-		return getDefaultInterpretableValue(type, ValueMode.PLAIN);
+	public static Object getDefaultInterpretableValue(ITypeInfo type, List<InstanceBuilder> ancestorInstanceBuilders) {
+		return getDefaultInterpretableValue(type, ValueMode.PLAIN, ancestorInstanceBuilders);
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode) {
+	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode,
+			List<InstanceBuilder> ancestorInstanceBuilders) {
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -146,9 +163,8 @@ public class MiscUtils {
 			if (!MiscUtils.isComplexType(type)) {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
-					functionBody = "return " + Enum.class.getSimpleName() +".valueOf("
-							+ InstanceBuilder.CURRENT_FUNCTION_RETURN_TYPE_PROPERTY_NAME + ", \"" + defaultValue.toString() + "\")"
-							+ ";";
+					functionBody = "return " + makeTypeNamesRelative(type.getName(), ancestorInstanceBuilders) + "."
+							+ defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
 				} else {
@@ -172,11 +188,9 @@ public class MiscUtils {
 				}
 			} else {
 				if (type instanceof IMapEntryTypeInfo) {
-					IMapEntryTypeInfo mapEntryType = (IMapEntryTypeInfo) type;
-					return new InstanceBuilder.MapEntryBuilder(mapEntryType.getKeyField().getType().getName(),
-							mapEntryType.getValueField().getType().getName());
+					return new InstanceBuilder.MapEntryBuilder();
 				} else {
-					return new InstanceBuilder(type.getName());
+					return new InstanceBuilder(makeTypeNamesRelative(type.getName(), ancestorInstanceBuilders));
 				}
 			}
 		} else {
@@ -191,6 +205,26 @@ public class MiscUtils {
 			}
 		}
 		return value;
+	}
+
+	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+		if (ancestorInstanceBuilders.size() == 0) {
+			return text;
+		}
+		InstanceBuilder parentInstanceBuilder = ancestorInstanceBuilders.get(0);
+		String absoluteParentTypeName = parentInstanceBuilder
+				.computeActualTypeName(ancestorInstanceBuilders.subList(1, ancestorInstanceBuilders.size()));
+		return text.replace(absoluteParentTypeName, PARENT_TYPE_NAME_SYMBOL);
+	}
+
+	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+		if (ancestorInstanceBuilders.size() == 0) {
+			return text;
+		}
+		InstanceBuilder parentInstanceBuilder = ancestorInstanceBuilders.get(0);
+		String absoluteParentTypeName = parentInstanceBuilder
+				.computeActualTypeName(ancestorInstanceBuilders.subList(1, ancestorInstanceBuilders.size()));
+		return text.replace(PARENT_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
 	public static String getDigitalUniqueIdentifier() {
@@ -346,4 +380,20 @@ public class MiscUtils {
 		return result.toString();
 	}
 
+	public static <BASE, C extends BASE> List<BASE> convertCollection(Collection<C> ts) {
+		List<BASE> result = new ArrayList<BASE>();
+		for (C t : ts) {
+			result.add((BASE) t);
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <BASE, C extends BASE> List<C> convertCollectionUnsafely(Collection<BASE> bs) {
+		List<C> result = new ArrayList<C>();
+		for (BASE b : bs) {
+			result.add((C) b);
+		}
+		return result;
+	}
 }

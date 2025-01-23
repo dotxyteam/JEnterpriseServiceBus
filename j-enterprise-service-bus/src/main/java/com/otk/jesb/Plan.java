@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.Structure.ClassicStructure;
@@ -12,7 +13,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
-	private static final String INPUT_PROPERTY_NAME = "_planInput";
+	private static final String INPUT_VARIABLE_NAME = "_planInput_";
 
 	public Plan() {
 		this(Plan.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -150,7 +151,7 @@ public class Plan extends Asset {
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws Exception {
 		ExecutionContext context = new ExecutionContext(this);
 		if (inputClass != null) {
-			context.getProperties().add(new ExecutionContext.Property() {
+			context.getVariables().add(new ExecutionContext.Variable() {
 
 				@Override
 				public Object getValue() {
@@ -159,7 +160,7 @@ public class Plan extends Asset {
 
 				@Override
 				public String getName() {
-					return INPUT_PROPERTY_NAME;
+					return INPUT_VARIABLE_NAME;
 				}
 			});
 		}
@@ -167,7 +168,7 @@ public class Plan extends Asset {
 		if (outputBuilder == null) {
 			return null;
 		} else {
-			return outputBuilder.build(context);
+			return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
 		}
 	}
 
@@ -206,7 +207,7 @@ public class Plan extends Asset {
 			Object activityResult = activity.execute();
 			stepOccurrence.setActivityResult(activityResult);
 			if (activityResult != null) {
-				context.getProperties().add(stepOccurrence);
+				context.getVariables().add(stepOccurrence);
 			}
 		} catch (Exception e) {
 			stepOccurrence.setActivityError(e);
@@ -219,15 +220,15 @@ public class Plan extends Asset {
 	public ValidationContext getValidationContext(Step currentStep) {
 		ValidationContext result = new ValidationContext(this);
 		if (inputClass != null) {
-			result.getDeclarations().add(new ValidationContext.Declaration() {
+			result.getVariableDeclarations().add(new ValidationContext.VariableDeclaration() {
 
 				@Override
-				public String getPropertyName() {
-					return INPUT_PROPERTY_NAME;
+				public String getVariableName() {
+					return INPUT_VARIABLE_NAME;
 				}
 
 				@Override
-				public Class<?> getPropertyClass() {
+				public Class<?> getVariableClass() {
 					return inputClass;
 				}
 			});
@@ -235,7 +236,7 @@ public class Plan extends Asset {
 		List<Step> previousSteps = getPreviousSteps(currentStep);
 		for (Step step : previousSteps) {
 			if (step.getActivityBuilder().getActivityResultClass() != null) {
-				result.getDeclarations().add(new StepEventuality(step));
+				result.getVariableDeclarations().add(new StepEventuality(step));
 			}
 		}
 		return result;
@@ -243,7 +244,7 @@ public class Plan extends Asset {
 
 	public static class ExecutionContext {
 
-		private List<Property> properties = new ArrayList<Property>();
+		private List<Variable> variables = new ArrayList<Variable>();
 		private Plan plan;
 		private Step currentStep;
 
@@ -251,11 +252,11 @@ public class Plan extends Asset {
 			this.plan = plan;
 		}
 
-		public ExecutionContext(ExecutionContext parentContext, Property newProperty) {
+		public ExecutionContext(ExecutionContext parentContext, Variable newVariable) {
 			this.plan = parentContext.getPlan();
 			this.currentStep = parentContext.getCurrentStep();
-			properties.addAll(parentContext.getProperties());
-			properties.add(newProperty);
+			variables.addAll(parentContext.getVariables());
+			variables.add(newVariable);
 		}
 
 		public Plan getPlan() {
@@ -270,11 +271,11 @@ public class Plan extends Asset {
 			this.currentStep = step;
 		}
 
-		public List<Property> getProperties() {
-			return properties;
+		public List<Variable> getVariables() {
+			return variables;
 		}
 
-		public interface Property {
+		public interface Variable {
 
 			Object getValue();
 
@@ -286,32 +287,32 @@ public class Plan extends Asset {
 
 	public static class ValidationContext {
 
-		private List<Declaration> declarations = new ArrayList<Declaration>();
+		private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
 		private Plan plan;
 
 		public ValidationContext(Plan plan) {
 			this.plan = plan;
 		}
 
-		public ValidationContext(Plan plan, ValidationContext parentContext, Declaration newDeclaration) {
+		public ValidationContext(Plan plan, ValidationContext parentContext, VariableDeclaration newDeclaration) {
 			this.plan = plan;
-			declarations.addAll(parentContext.getDeclarations());
-			declarations.add(newDeclaration);
+			variableDeclarations.addAll(parentContext.getVariableDeclarations());
+			variableDeclarations.add(newDeclaration);
 		}
 
 		public Plan getPlan() {
 			return plan;
 		}
 
-		public List<Declaration> getDeclarations() {
-			return declarations;
+		public List<VariableDeclaration> getVariableDeclarations() {
+			return variableDeclarations;
 		}
 
-		public interface Declaration {
+		public interface VariableDeclaration {
 
-			Class<?> getPropertyClass();
+			Class<?> getVariableClass();
 
-			String getPropertyName();
+			String getVariableName();
 
 		}
 

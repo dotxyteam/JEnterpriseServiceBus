@@ -317,7 +317,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                             <condition class="null"/>
                             <itemReplication class="null"/>
                             <itemValue class="com.otk.jesb.InstanceBuilder$Function">
-                              <functionBody>return _currentFunctionResultType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
+                              <functionBody>return _currentFunctionResultType_.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
                             </itemValue>
                           </com.otk.jesb.InstanceBuilder_-ListItemInitializer>
                         </listItemInitializers>

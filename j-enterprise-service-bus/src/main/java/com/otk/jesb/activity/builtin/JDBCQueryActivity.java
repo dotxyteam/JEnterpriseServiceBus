@@ -8,6 +8,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,8 @@ import java.util.Map;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Solution;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -115,7 +116,7 @@ public class JDBCQueryActivity implements Activity {
 		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private InstanceBuilder parameterValuesSpecification = new InstanceBuilder(new Accessor<String>() {
+		private InstanceBuilder parameterValuesBuilder = new InstanceBuilder(new Accessor<String>() {
 			@Override
 			public String get() {
 				return parameterValuesClass.getName();
@@ -282,15 +283,15 @@ public class JDBCQueryActivity implements Activity {
 			updateDynamicClasses();
 		}
 
-		public InstanceBuilder getParameterValuesSpecification() {
-			return parameterValuesSpecification;
+		public InstanceBuilder getParameterValuesBuilder() {
+			return parameterValuesBuilder;
 		}
 
-		public void setParameterValuesSpecification(InstanceBuilder parameterValuesSpecification) {
-			if (parameterValuesSpecification == null) {
+		public void setParameterValuesBuilder(InstanceBuilder parameterValuesBuilder) {
+			if (parameterValuesBuilder == null) {
 				throw new AssertionError();
 			}
-			this.parameterValuesSpecification = parameterValuesSpecification;
+			this.parameterValuesBuilder = parameterValuesBuilder;
 		}
 
 		public List<ColumnDefinition> getResultColumnDefinitions() {
@@ -325,7 +326,8 @@ public class JDBCQueryActivity implements Activity {
 			JDBCQueryActivity result = new JDBCQueryActivity();
 			result.setConnection(connection);
 			result.setStatement(statement);
-			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
+			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
+					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
 			result.setParameterValues(parameterValues);
 			result.setCustomResultClass(customResultClass);
 			return result;
@@ -341,9 +343,8 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeValidationContext(ValidationContext validationContext,
-				Function currentFunction) {
-			return parameterValuesSpecification.completeValidationContext(validationContext, currentFunction);
+		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
+			return parameterValuesBuilder.completeVerificationContext(verificationContext, currentFunction);
 		}
 
 	}

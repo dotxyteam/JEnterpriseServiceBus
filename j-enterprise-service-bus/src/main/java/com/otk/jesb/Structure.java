@@ -211,7 +211,6 @@ public abstract class Structure {
 
 	public static class StructuredElement extends Element {
 		private Structure structure;
-		private String structureClassName = "Structure" + MiscUtils.getDigitalUniqueIdentifier();
 
 		public Structure getStructure() {
 			return structure;
@@ -223,14 +222,17 @@ public abstract class Structure {
 
 		@Override
 		protected String generateRequiredInnerJavaTypesSourceCode() {
-			return "static " + structure.generateJavaTypeSourceCode(structureClassName);
+			return "static " + structure.generateJavaTypeSourceCode(getStructureClassName());
 		}
 
 		@Override
 		protected String getTypeName() {
-			return structureClassName;
+			return getStructureClassName();
 		}
 
+		private String getStructureClassName() {
+			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+		}
 	}
 
 	public static class Optionality {

@@ -5,11 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -88,7 +89,8 @@ public class ReadFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (ReadFileActivity) instanceBuilder.build(context);
+			return (ReadFileActivity) instanceBuilder
+					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
 		}
 
 		@Override
@@ -97,9 +99,8 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeValidationContext(ValidationContext validationContext,
-				Function currentFunction) {
-			return instanceBuilder.completeValidationContext(validationContext, currentFunction);
+		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
+			return instanceBuilder.completeVerificationContext(verificationContext, currentFunction);
 		}
 
 	}

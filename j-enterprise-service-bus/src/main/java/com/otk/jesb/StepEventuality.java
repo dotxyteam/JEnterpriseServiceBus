@@ -1,6 +1,6 @@
 package com.otk.jesb;
 
-public class StepEventuality implements Plan.ValidationContext.Declaration {
+public class StepEventuality implements Plan.ValidationContext.VariableDeclaration {
 
 	private Step step;
 
@@ -9,12 +9,12 @@ public class StepEventuality implements Plan.ValidationContext.Declaration {
 	}
 
 	@Override
-	public Class<?> getPropertyClass() {
+	public Class<?> getVariableClass() {
 		return step.getActivityBuilder().getActivityResultClass();
 	}
 
 	@Override
-	public String getPropertyName() {
+	public String getVariableName() {
 		return step.getName();
 	}
 }

@@ -5,12 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -101,7 +102,7 @@ public class JDBCUpdateActivity implements Activity {
 		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private InstanceBuilder parameterValuesSpecification = new InstanceBuilder(new Accessor<String>() {
+		private InstanceBuilder parameterValuesBuilder = new InstanceBuilder(new Accessor<String>() {
 			@Override
 			public String get() {
 				return parameterValuesClass.getName();
@@ -206,15 +207,15 @@ public class JDBCUpdateActivity implements Activity {
 			updateDynamicClasses();
 		}
 
-		public InstanceBuilder getParameterValuesSpecification() {
-			return parameterValuesSpecification;
+		public InstanceBuilder getParameterValuesBuilder() {
+			return parameterValuesBuilder;
 		}
 
-		public void setParameterValuesSpecification(InstanceBuilder parameterValuesSpecification) {
-			if (parameterValuesSpecification == null) {
+		public void setParameterValuesBuilder(InstanceBuilder parameterValuesBuilder) {
+			if (parameterValuesBuilder == null) {
 				throw new AssertionError();
 			}
-			this.parameterValuesSpecification = parameterValuesSpecification;
+			this.parameterValuesBuilder = parameterValuesBuilder;
 		}
 
 		@Override
@@ -222,15 +223,15 @@ public class JDBCUpdateActivity implements Activity {
 			JDBCUpdateActivity result = new JDBCUpdateActivity();
 			result.setConnection(connection);
 			result.setStatement(statement);
-			ParameterValues parameterValues = (ParameterValues) parameterValuesSpecification.build(context);
+			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
+					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
 			result.setParameterValues(parameterValues);
 			return result;
 		}
 
 		@Override
-		public boolean completeValidationContext(ValidationContext validationContext,
-				Function currentFunction) {
-			return parameterValuesSpecification.completeValidationContext(validationContext, currentFunction);
+		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
+			return parameterValuesBuilder.completeVerificationContext(verificationContext, currentFunction);
 		}
 
 		@Override

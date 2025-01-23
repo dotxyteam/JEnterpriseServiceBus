@@ -1,11 +1,12 @@
 package com.otk.jesb.activity.builtin;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -72,7 +73,8 @@ public class SleepActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (SleepActivity) instanceBuilder.build(context);
+			return (SleepActivity) instanceBuilder
+					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
 		}
 
 		@Override
@@ -81,9 +83,8 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeValidationContext(ValidationContext validationContext,
-				Function currentFunction) {
-			return instanceBuilder.completeValidationContext(validationContext, currentFunction);
+		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
+			return instanceBuilder.completeVerificationContext(verificationContext, currentFunction);
 		}
 
 	}
