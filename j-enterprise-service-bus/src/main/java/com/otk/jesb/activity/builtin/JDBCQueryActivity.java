@@ -204,7 +204,7 @@ public class JDBCQueryActivity implements Activity {
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("public class " + className + " implements "
-					+ ParameterValues.class.getName().replace("$", ".") + "{" + "\n");
+					+ MiscUtils.adaptClassNameToSourceCode(ParameterValues.class.getName()) + "{" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
 				javaSource.append("  private " + parameterDefinition.getParameterTypeName() + " "

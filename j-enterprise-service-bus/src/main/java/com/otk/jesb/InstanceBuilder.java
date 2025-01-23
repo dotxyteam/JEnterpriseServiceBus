@@ -6,12 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
@@ -19,6 +21,7 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -53,33 +56,6 @@ public class InstanceBuilder {
 		return (InstanceBuilderFacade) getFacade(this, Collections.emptyList());
 	}
 
-	public static FacadeNode getFacade(Object node, List<Object> ancestorInstanceBuilderNodes) {
-		FacadeNode parentFacade;
-		if (ancestorInstanceBuilderNodes.size() == 0) {
-			parentFacade = null;
-		} else {
-			parentFacade = getFacade(ancestorInstanceBuilderNodes.get(0),
-					ancestorInstanceBuilderNodes.subList(1, ancestorInstanceBuilderNodes.size()));
-		}
-		if (node instanceof MapEntryBuilder) {
-			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
-		} else if (node instanceof InstanceBuilder) {
-			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);
-		} else if (node instanceof FieldInitializer) {
-			return new FieldInitializerFacade((InstanceBuilderFacade) parentFacade,
-					((FieldInitializer) node).getFieldName());
-		} else if (node instanceof ParameterInitializer) {
-			return new ParameterInitializerFacade((InstanceBuilderFacade) parentFacade,
-					((ParameterInitializer) node).getParameterPosition());
-		} else if (node instanceof ListItemInitializer) {
-			return new ListItemInitializerFacade((InstanceBuilderFacade) parentFacade,
-					((InstanceBuilderFacade) parentFacade).getUnderlying().getListItemInitializers()
-							.indexOf((ListItemInitializer) node));
-		} else {
-			throw new AssertionError();
-		}
-	}
-
 	public String getTypeName() {
 		if (dynamicTypeNameAccessor != null) {
 			return "<Dynamic>";
@@ -106,14 +82,14 @@ public class InstanceBuilder {
 		this.typeName = null;
 	}
 
-	public String computeActualTypeName(List<InstanceBuilder> ancestorInstanceBuilders) {
+	public String computeActualTypeName(List<InstanceBuilder> ancestorStructureInstanceBuilders) {
 		String result;
 		if (dynamicTypeNameAccessor != null) {
 			result = dynamicTypeNameAccessor.get();
 		} else {
 			result = typeName;
 		}
-		result = MiscUtils.makeTypeNamesAbsolute(result, ancestorInstanceBuilders);
+		result = MiscUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
 		return result;
 	}
 
@@ -155,7 +131,7 @@ public class InstanceBuilder {
 		ITypeInfo typeInfo = facade.getTypeInfo();
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
-			String actualTypeName = computeActualTypeName(context.getAncestorInstanceBuilders());
+			String actualTypeName = computeActualTypeName(context.getAncestorStructureInstanceBuilders());
 			if (selectedConstructorSignature == null) {
 				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
@@ -169,12 +145,13 @@ public class InstanceBuilder {
 					parameterInfo.getType().getName());
 			Object parameterValue;
 			if (parameterInitializer == null) {
-				parameterValue = MiscUtils.interpretValue(MiscUtils
-						.getDefaultInterpretableValue(parameterInfo.getType(), context.getAncestorInstanceBuilders()),
-						parameterInfo.getType(), context);
+				parameterValue = MiscUtils.interpretValue(
+						MiscUtils.getDefaultInterpretableValue(parameterInfo.getType(),
+								context.getAncestorStructureInstanceBuilders()),
+						parameterInfo.getType(), new EvaluationContext(context, parameterInitializer, this));
 			} else {
 				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(),
-						parameterInfo.getType(), new EvaluationContext(context, this));
+						parameterInfo.getType(), new EvaluationContext(context, parameterInitializer, this));
 			}
 			parameterValues[parameterInfo.getPosition()] = parameterValue;
 		}
@@ -184,13 +161,14 @@ public class InstanceBuilder {
 			List<Object> itemList = new ArrayList<Object>();
 			for (ListItemInitializer listItemInitializer : listItemInitializers) {
 				if (!MiscUtils.isConditionFullfilled(listItemInitializer.getCondition(),
-						new EvaluationContext(context, this))) {
+						new EvaluationContext(context, listItemInitializer, this))) {
 					continue;
 				}
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
 					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(),
-							TypeInfoProvider.getTypeInfo(Object.class.getName()), context);
+							TypeInfoProvider.getTypeInfo(Object.class.getName()),
+							new EvaluationContext(context, listItemInitializer, this));
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -206,18 +184,17 @@ public class InstanceBuilder {
 								context.getExecutionContext(),
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue)),
 								context.getAncestorInstanceBuilderNodes());
-						Object itemValue = MiscUtils
-								.interpretValue(listItemInitializer.getItemValue(),
-										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-										iterationContext);
+						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
+								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+								new EvaluationContext(iterationContext, listItemInitializer, this));
 						itemList.add(itemValue);
 					}
 				} else {
 					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							context);
+							new EvaluationContext(context, listItemInitializer, this));
 					itemList.add(itemValue);
 				}
 			}
@@ -244,7 +221,8 @@ public class InstanceBuilder {
 			if (!MiscUtils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
 				continue;
 			}
-			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(), context);
+			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(),
+					new EvaluationContext(context, fieldInitializer, this));
 			field.setValue(object, fieldValue);
 		}
 		return object;
@@ -254,56 +232,58 @@ public class InstanceBuilder {
 		ValidationContext validationContext = verificationContext.getValidationContext();
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			if (parameterInitializer.getParameterValue() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilders().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, parameterInitializer);
 				return true;
 			}
 			if (parameterInitializer.getParameterValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) parameterInitializer.getParameterValue())
 						.completeVerificationContext(verificationContext, currentFunction)) {
-					verificationContext.getAncestorInstanceBuilders()
-							.add((InstanceBuilder) parameterInitializer.getParameterValue());
-					verificationContext.getAncestorInstanceBuilders().add(this);
+					verificationContext.getAncestorInstanceBuilderNodes().add(parameterInitializer);
+					verificationContext.getAncestorInstanceBuilderNodes().add(this);
 					return true;
 				}
 			}
 		}
 		for (FieldInitializer fieldInitializer : fieldInitializers) {
 			if (fieldInitializer.getCondition() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilders().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, fieldInitializer);
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilders().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, fieldInitializer);
 				return true;
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
 				if (((InstanceBuilder) fieldInitializer.getFieldValue())
 						.completeVerificationContext(verificationContext, currentFunction)) {
-					verificationContext.getAncestorInstanceBuilders()
-							.add((InstanceBuilder) fieldInitializer.getFieldValue());
-					verificationContext.getAncestorInstanceBuilders().add(this);
+					verificationContext.getAncestorInstanceBuilderNodes().add(fieldInitializer);
+					verificationContext.getAncestorInstanceBuilderNodes().add(this);
 					return true;
 				}
 			}
 		}
 		for (ListItemInitializer listItemInitializer : listItemInitializers) {
 			if (listItemInitializer.getCondition() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilders().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
 				return true;
 			}
 			VariableDeclaration iterationVariableDeclaration = null;
 			int iterationVariableDeclarationPosition = -1;
 			if (listItemInitializer.getItemReplication() != null) {
 				if (listItemInitializer.getItemReplication().getIterationListValue() == currentFunction) {
-					verificationContext.getAncestorInstanceBuilders().add(0, this);
+					verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+					verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
 					return true;
 				}
 				if (listItemInitializer.getItemReplication().getIterationListValue() instanceof InstanceBuilder) {
 					if (((InstanceBuilder) listItemInitializer.getItemReplication().getIterationListValue())
 							.completeVerificationContext(verificationContext, currentFunction)) {
-						verificationContext.getAncestorInstanceBuilders().add(
-								(InstanceBuilder) listItemInitializer.getItemReplication().getIterationListValue());
-						verificationContext.getAncestorInstanceBuilders().add(this);
+						verificationContext.getAncestorInstanceBuilderNodes().add(listItemInitializer);
+						verificationContext.getAncestorInstanceBuilderNodes().add(this);
 						return true;
 					}
 				}
@@ -326,7 +306,8 @@ public class InstanceBuilder {
 					validationContext.getVariableDeclarations().add(iterationVariableDeclarationPosition,
 							iterationVariableDeclaration);
 				}
-				verificationContext.getAncestorInstanceBuilders().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
+				verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
 				return true;
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
@@ -335,9 +316,8 @@ public class InstanceBuilder {
 					if (iterationVariableDeclaration != null) {
 						validationContext.getVariableDeclarations().add(iterationVariableDeclarationPosition,
 								iterationVariableDeclaration);
-						verificationContext.getAncestorInstanceBuilders()
-								.add((InstanceBuilder) listItemInitializer.getItemValue());
-						verificationContext.getAncestorInstanceBuilders().add(this);
+						verificationContext.getAncestorInstanceBuilderNodes().add(listItemInitializer);
+						verificationContext.getAncestorInstanceBuilderNodes().add(this);
 					}
 					return true;
 				}
@@ -384,36 +364,85 @@ public class InstanceBuilder {
 		}
 	}
 
-	protected static List<InstanceBuilder> getAncestorInstanceBuilders(FacadeNode facadeNode) {
-		List<InstanceBuilder> result = new ArrayList<InstanceBuilder>();
+	protected static List<InstanceBuilder> getAncestorStructureInstanceBuilders(FacadeNode facadeNode) {
+		return filterAncestorStructureInstanceBuilders(getAncestorFacades(facadeNode).stream()
+				.map(facade -> facade.getUnderlying()).filter(Objects::nonNull).collect(Collectors.toList()));
+	}
+
+	protected static List<FacadeNode> getAncestorFacades(FacadeNode facadeNode) {
+		List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
 		if (facadeNode instanceof InstanceBuilderFacade) {
 			InstanceBuilderFacade facade = (InstanceBuilderFacade) facadeNode;
 			if (facade.getParent() != null) {
-				result.addAll(getAncestorInstanceBuilders(facade.getParent()));
+				result.add(facade.getParent());
+				result.addAll(getAncestorFacades(facade.getParent()));
 			}
 		} else if (facadeNode instanceof FieldInitializerFacade) {
 			FieldInitializerFacade facade = (FieldInitializerFacade) facadeNode;
 			InstanceBuilderFacade facadeParent = facade.getParent();
-			result.add(facadeParent.getUnderlying());
-			if (facadeParent.getParent() != null) {
-				result.addAll(getAncestorInstanceBuilders(facadeParent.getParent()));
-			}
+			result.add(facadeParent);
+			result.addAll(getAncestorFacades(facadeParent));
 		} else if (facadeNode instanceof ParameterInitializerFacade) {
 			ParameterInitializerFacade facade = (ParameterInitializerFacade) facadeNode;
 			InstanceBuilderFacade facadeParent = facade.getParent();
-			result.add(facadeParent.getUnderlying());
-			if (facadeParent.getParent() != null) {
-				result.addAll(getAncestorInstanceBuilders(facadeParent.getParent()));
-			}
+			result.add(facadeParent);
+			result.addAll(getAncestorFacades(facadeParent));
 		} else if (facadeNode instanceof ListItemInitializerFacade) {
 			ListItemInitializerFacade facade = (ListItemInitializerFacade) facadeNode;
 			InstanceBuilderFacade facadeParent = facade.getParent();
-			result.add(facadeParent.getUnderlying());
-			if (facadeParent.getParent() != null) {
-				result.addAll(getAncestorInstanceBuilders(facadeParent.getParent()));
-			}
+			result.add(facadeParent);
+			result.addAll(getAncestorFacades(facadeParent));
 		} else {
 			throw new AssertionError();
+		}
+		return result;
+	}
+
+	protected static FacadeNode getFacade(Object node, List<Object> ancestorInstanceBuilderNodes) {
+		FacadeNode parentFacade;
+		if (ancestorInstanceBuilderNodes.size() == 0) {
+			parentFacade = null;
+		} else {
+			parentFacade = getFacade(ancestorInstanceBuilderNodes.get(0),
+					ancestorInstanceBuilderNodes.subList(1, ancestorInstanceBuilderNodes.size()));
+		}
+		if (node instanceof MapEntryBuilder) {
+			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
+		} else if (node instanceof InstanceBuilder) {
+			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);
+		} else if (node instanceof FieldInitializer) {
+			return new FieldInitializerFacade((InstanceBuilderFacade) parentFacade,
+					((FieldInitializer) node).getFieldName());
+		} else if (node instanceof ParameterInitializer) {
+			return new ParameterInitializerFacade((InstanceBuilderFacade) parentFacade,
+					((ParameterInitializer) node).getParameterPosition());
+		} else if (node instanceof ListItemInitializer) {
+			return new ListItemInitializerFacade((InstanceBuilderFacade) parentFacade,
+					((InstanceBuilderFacade) parentFacade).getUnderlying().getListItemInitializers()
+							.indexOf((ListItemInitializer) node));
+		} else {
+			throw new AssertionError();
+		}
+	}
+
+	protected static List<InstanceBuilder> filterAncestorStructureInstanceBuilders(
+			List<Object> ancestorInstanceBuilderNodes) {
+		if (ancestorInstanceBuilderNodes.size() == 0) {
+			return Collections.emptyList();
+		}
+		Object parentNode = ancestorInstanceBuilderNodes.get(0);
+		List<Object> parentAncestorInstanceBuilderNodes = ancestorInstanceBuilderNodes.subList(1,
+				ancestorInstanceBuilderNodes.size());
+		List<InstanceBuilder> result = new ArrayList<InstanceBuilder>(
+				filterAncestorStructureInstanceBuilders(parentAncestorInstanceBuilderNodes));
+		if (!(parentNode instanceof InstanceBuilder)) {
+			return result;
+		}
+		InstanceBuilderFacade parentInstanceBuilderFacade = (InstanceBuilderFacade) getFacade(parentNode,
+				parentAncestorInstanceBuilderNodes);
+		Class<?> parentClass = ((DefaultTypeInfo) parentInstanceBuilderFacade.getTypeInfo()).getJavaType();
+		if (Structured.class.isAssignableFrom(parentClass)) {
+			result.add(0, (InstanceBuilder) parentNode);
 		}
 		return result;
 	}
@@ -657,6 +686,8 @@ public class InstanceBuilder {
 
 		void setConcrete(boolean b);
 
+		Object getUnderlying();
+
 	}
 
 	public static class InstanceBuilderFacade implements FacadeNode {
@@ -713,12 +744,13 @@ public class InstanceBuilder {
 			return result;
 		}
 
+		@Override
 		public InstanceBuilder getUnderlying() {
 			return underlying;
 		}
 
 		public ITypeInfo getTypeInfo() {
-			String actualTypeName = underlying.computeActualTypeName(getAncestorInstanceBuilders(this));
+			String actualTypeName = underlying.computeActualTypeName(getAncestorStructureInstanceBuilders(this));
 			ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
 			if (result instanceof IListTypeInfo) {
 				if (parent instanceof FieldInitializerFacade) {
@@ -864,13 +896,14 @@ public class InstanceBuilder {
 			return constructor.getParameters().get(parameterPosition);
 		}
 
+		@Override
 		public ParameterInitializer getUnderlying() {
 			IParameterInfo parameter = getParameterInfo();
 			ParameterInitializer result = parent.getUnderlying().getParameterInitializer(parameterPosition,
 					parameter.getType().getName());
 			if (result == null) {
-				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
-						MiscUtils.getDefaultInterpretableValue(parameter.getType(), getAncestorInstanceBuilders(this)));
+				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(), MiscUtils
+						.getDefaultInterpretableValue(parameter.getType(), getAncestorStructureInstanceBuilders(this)));
 				parent.getUnderlying().getParameterInitializers().add(result);
 			}
 			return result;
@@ -886,7 +919,7 @@ public class InstanceBuilder {
 
 		public String getParameterTypeName() {
 			return MiscUtils.makeTypeNamesRelative(getParameterInfo().getType().getName(),
-					getAncestorInstanceBuilders(this));
+					getAncestorStructureInstanceBuilders(this));
 		}
 
 		@Override
@@ -918,7 +951,7 @@ public class InstanceBuilder {
 			setConcrete(true);
 			IParameterInfo parameter = getParameterInfo();
 			Object parameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode,
-					getAncestorInstanceBuilders(this));
+					getAncestorStructureInstanceBuilders(this));
 			setParameterValue(parameterValue);
 		}
 
@@ -978,7 +1011,7 @@ public class InstanceBuilder {
 
 		private Object createDefaultFieldValue() {
 			IFieldInfo field = getFieldInfo();
-			return MiscUtils.getDefaultInterpretableValue(field.getType(), getAncestorInstanceBuilders(this));
+			return MiscUtils.getDefaultInterpretableValue(field.getType(), getAncestorStructureInstanceBuilders(this));
 		}
 
 		public IFieldInfo getFieldInfo() {
@@ -986,6 +1019,7 @@ public class InstanceBuilder {
 			return ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
 		}
 
+		@Override
 		public FieldInitializer getUnderlying() {
 			return parent.getUnderlying().getFieldInitializer(fieldName);
 		}
@@ -996,7 +1030,7 @@ public class InstanceBuilder {
 
 		public String getFieldTypeName() {
 			return MiscUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
-					getAncestorInstanceBuilders(this));
+					getAncestorStructureInstanceBuilders(this));
 		}
 
 		public Function getCondition() {
@@ -1055,7 +1089,7 @@ public class InstanceBuilder {
 			}
 			IFieldInfo field = getFieldInfo();
 			Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode,
-					getAncestorInstanceBuilders(this));
+					getAncestorStructureInstanceBuilders(this));
 			setFieldValue(newFieldValue);
 		}
 
@@ -1184,13 +1218,14 @@ public class InstanceBuilder {
 				return;
 			}
 			ITypeInfo itemType = getItemType();
-			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode, getAncestorInstanceBuilders(this));
+			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode,
+					getAncestorStructureInstanceBuilders(this));
 			listItemInitializer.setItemValue(itemValue);
 		}
 
 		private Object createDefaultItemValue() {
 			ITypeInfo itemType = getItemType();
-			return MiscUtils.getDefaultInterpretableValue(itemType, getAncestorInstanceBuilders(this));
+			return MiscUtils.getDefaultInterpretableValue(itemType, getAncestorStructureInstanceBuilders(this));
 		}
 
 		public ITypeInfo getItemType() {
@@ -1201,10 +1236,11 @@ public class InstanceBuilder {
 		public String getItemTypeName() {
 			ITypeInfo itemType = getItemType();
 			String result = (itemType == null) ? Object.class.getName() : itemType.getName();
-			result = MiscUtils.makeTypeNamesRelative(result, getAncestorInstanceBuilders(this));
+			result = MiscUtils.makeTypeNamesRelative(result, getAncestorStructureInstanceBuilders(this));
 			return result;
 		}
 
+		@Override
 		public ListItemInitializer getUnderlying() {
 			if (index >= parent.getUnderlying().getListItemInitializers().size()) {
 				return null;
@@ -1295,8 +1331,8 @@ public class InstanceBuilder {
 		public void setIterationListValueMode(ValueMode valueMode) {
 			Object iterationListValue;
 			if (valueMode == ValueMode.FUNCTION) {
-				String scriptContent = "return new " + ArrayList.class.getName() + "<Object>();";
-				iterationListValue = new Function(scriptContent);
+				String functionBody = "return new " + ArrayList.class.getName() + "<Object>();";
+				iterationListValue = new Function(functionBody);
 			} else {
 				iterationListValue = new ArrayList<Object>();
 			}
@@ -1314,9 +1350,11 @@ public class InstanceBuilder {
 			this.ancestorInstanceBuilderNodes = ancestorInstanceBuilderNodes;
 		}
 
-		public EvaluationContext(EvaluationContext parentContext, Object parentNode) {
+		public EvaluationContext(EvaluationContext parentContext, Object... firstAncestorNodes) {
 			this.ancestorInstanceBuilderNodes = new ArrayList<Object>(parentContext.getAncestorInstanceBuilderNodes());
-			this.ancestorInstanceBuilderNodes.add(0, parentNode);
+			for (int i = firstAncestorNodes.length - 1; i >= 0; i--) {
+				this.ancestorInstanceBuilderNodes.add(0, firstAncestorNodes[i]);
+			}
 			this.executionContext = parentContext.getExecutionContext();
 		}
 
@@ -1328,25 +1366,26 @@ public class InstanceBuilder {
 			return ancestorInstanceBuilderNodes;
 		}
 
-		public List<InstanceBuilder> getAncestorInstanceBuilders() {
-			return MiscUtils.convertCollectionUnsafely(ancestorInstanceBuilderNodes.stream()
-					.filter(n -> (n instanceof InstanceBuilder)).collect(Collectors.toList()));
+		public List<InstanceBuilder> getAncestorStructureInstanceBuilders() {
+			return filterAncestorStructureInstanceBuilders(ancestorInstanceBuilderNodes);
 		}
+
 	}
 
 	public static class VerificationContext {
 		private ValidationContext validationContext;
-		private List<InstanceBuilder> ancestorInstanceBuilders;
+		private List<Object> ancestorInstanceBuilderNodes;
 
-		public VerificationContext(ValidationContext validationContext,
-				List<InstanceBuilder> ancestorInstanceBuilders) {
+		public VerificationContext(ValidationContext validationContext, List<Object> ancestorInstanceBuilderNodes) {
 			this.validationContext = validationContext;
-			this.ancestorInstanceBuilders = ancestorInstanceBuilders;
+			this.ancestorInstanceBuilderNodes = ancestorInstanceBuilderNodes;
 		}
 
-		public VerificationContext(VerificationContext parentContext, InstanceBuilder parentInstanceBuilder) {
-			this.ancestorInstanceBuilders = new ArrayList<InstanceBuilder>(parentContext.getAncestorInstanceBuilders());
-			this.ancestorInstanceBuilders.add(0, parentInstanceBuilder);
+		public VerificationContext(VerificationContext parentContext, Object... firstAncestorNodes) {
+			this.ancestorInstanceBuilderNodes = new ArrayList<Object>(parentContext.getAncestorInstanceBuilderNodes());
+			for (int i = firstAncestorNodes.length - 1; i >= 0; i--) {
+				this.ancestorInstanceBuilderNodes.add(0, firstAncestorNodes[i]);
+			}
 			this.validationContext = parentContext.getValidationContext();
 		}
 
@@ -1354,9 +1393,14 @@ public class InstanceBuilder {
 			return validationContext;
 		}
 
-		public List<InstanceBuilder> getAncestorInstanceBuilders() {
-			return ancestorInstanceBuilders;
+		public List<Object> getAncestorInstanceBuilderNodes() {
+			return ancestorInstanceBuilderNodes;
 		}
+
+		public List<InstanceBuilder> getAncestorStructureInstanceBuilders() {
+			return filterAncestorStructureInstanceBuilders(ancestorInstanceBuilderNodes);
+		}
+
 	}
 
 }

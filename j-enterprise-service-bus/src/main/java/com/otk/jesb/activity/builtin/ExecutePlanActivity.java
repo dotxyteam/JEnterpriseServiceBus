@@ -42,7 +42,11 @@ public class ExecutePlanActivity implements Activity {
 
 	@Override
 	public Object execute() throws Exception {
-		return plan.execute(planInput);
+		try {
+			return plan.execute(planInput);
+		} catch (Throwable e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	public static class Metadata implements ActivityMetadata {

@@ -130,7 +130,7 @@ public class Plan extends Asset {
 		return false;
 	}
 
-	public Object execute(Object input) throws Exception {
+	public Object execute(Object input) throws Throwable {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
@@ -148,7 +148,7 @@ public class Plan extends Asset {
 		});
 	}
 
-	public Object execute(final Object input, ExecutionInspector executionInspector) throws Exception {
+	public Object execute(final Object input, ExecutionInspector executionInspector) throws Throwable {
 		ExecutionContext context = new ExecutionContext(this);
 		if (inputClass != null) {
 			context.getVariables().add(new ExecutionContext.Variable() {
@@ -173,7 +173,7 @@ public class Plan extends Asset {
 	}
 
 	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
-			throws Exception {
+			throws Throwable {
 		if (executionInspector.isExecutionInterrupted()) {
 			return;
 		}
@@ -197,7 +197,7 @@ public class Plan extends Asset {
 		}
 	}
 
-	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
 		context.setCutrrentStep(step);
 		StepOccurrence stepOccurrence = new StepOccurrence(step);
 		executionInspector.beforeActivityCreation(stepOccurrence);
@@ -209,9 +209,9 @@ public class Plan extends Asset {
 			if (activityResult != null) {
 				context.getVariables().add(stepOccurrence);
 			}
-		} catch (Exception e) {
-			stepOccurrence.setActivityError(e);
-			throw e;
+		} catch (Throwable t) {
+			stepOccurrence.setActivityError(t);
+			throw t;
 		}
 		executionInspector.afterActivityExecution(stepOccurrence);
 		context.setCutrrentStep(null);

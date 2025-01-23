@@ -42,7 +42,8 @@ public abstract class Structure {
 		@Override
 		public String generateJavaTypeSourceCode(String className) {
 			StringBuilder result = new StringBuilder();
-			result.append("public class " + className + "{" + "\n");
+			result.append("public class " + className + " implements "
+					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName()) + "{" + "\n");
 			result.append(MiscUtils.stringJoin(elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode())
 					.collect(Collectors.toList()), "\n") + "\n");
 			result.append(
@@ -65,6 +66,10 @@ public abstract class Structure {
 			result.append("}");
 			return result.toString();
 		}
+	}
+
+	public static interface Structured {
+
 	}
 
 	public static class EnumerationStructure extends Structure {
