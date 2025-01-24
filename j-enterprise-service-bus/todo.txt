@@ -1,5 +1,8 @@
+- allow to serve/call rest/soap web services
+- allow to provide plan input through the debugger
+- create and display a PlanExecutor for each sub-plan execution
 - Structure.Element.multiple= true should generate a list instead of an array
-- allow build and reference shared structures
+- allow to build and reference shared structures
 - make important ReadFile/WriteFile fields become parameters 
 - UI improvements:
 	. banner

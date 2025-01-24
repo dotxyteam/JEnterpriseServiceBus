@@ -8,7 +8,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import com.otk.jesb.Solution;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -327,7 +327,7 @@ public class JDBCQueryActivity implements Activity {
 			result.setConnection(connection);
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
+					.build(new InstanceBuilder.EvaluationContext(context, null));
 			result.setParameterValues(parameterValues);
 			result.setCustomResultClass(customResultClass);
 			return result;
@@ -343,10 +343,10 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
-			return parameterValuesBuilder.completeVerificationContext(verificationContext, currentFunction);
+		public VerificationContext findFunctionVerificationContext(Function function,
+				ValidationContext validationContext) {
+			return parameterValuesBuilder.findFunctionVerificationContext(function, validationContext, null);
 		}
-
 	}
 
 	public static class ParameterDefinition {

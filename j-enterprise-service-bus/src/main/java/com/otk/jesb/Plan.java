@@ -1,7 +1,6 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.Structure.ClassicStructure;
@@ -168,7 +167,7 @@ public class Plan extends Asset {
 		if (outputBuilder == null) {
 			return null;
 		} else {
-			return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
+			return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
 		}
 	}
 
@@ -287,11 +286,16 @@ public class Plan extends Asset {
 
 	public static class ValidationContext {
 
-		private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
 		private Plan plan;
+		private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
 
 		public ValidationContext(Plan plan) {
 			this.plan = plan;
+		}
+
+		public ValidationContext(Plan plan, List<VariableDeclaration> variableDeclarations) {
+			this.plan = plan;
+			this.variableDeclarations = variableDeclarations;
 		}
 
 		public ValidationContext(Plan plan, ValidationContext parentContext, VariableDeclaration newDeclaration) {

@@ -7,12 +7,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
 import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
+import com.otk.jesb.InstanceBuilder.FacadeNode;
 import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -25,9 +29,11 @@ import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
+import com.otk.jesb.Structure.Structured;
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
@@ -37,7 +43,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class MiscUtils {
 
-	private static final String PARENT_TYPE_NAME_SYMBOL = "${..}";
+	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
@@ -49,16 +55,20 @@ public class MiscUtils {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		VerificationContext verificationContext = new VerificationContext(validationContext, new ArrayList<Object>());
-		currentStep.getActivityBuilder().completeVerificationContext(verificationContext, function);
-		if (!Arrays.equals(verificationContext.getAncestorInstanceBuilderNodes().toArray(),
-				evaluationContext.getAncestorInstanceBuilderNodes().toArray())) {
+		VerificationContext verificationContext = currentStep.getActivityBuilder()
+				.findFunctionVerificationContext(function, validationContext);
+		if (((verificationContext.getCurrentFacade() == null) ? null
+				: verificationContext.getCurrentFacade()
+						.getUnderlying()) != ((evaluationContext.getCurrentFacade() == null) ? null
+								: evaluationContext.getCurrentFacade().getUnderlying())) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction;
 		try {
-			compiledFunction = CompiledFunction.get(makeTypeNamesAbsolute(function.getFunctionBody(),
-					verificationContext.getAncestorStructureInstanceBuilders()), validationContext);
+			compiledFunction = CompiledFunction.get(
+					makeTypeNamesAbsolute(function.getFunctionBody(),
+							getAncestorStructureInstanceBuilders(verificationContext.getCurrentFacade())),
+					validationContext);
 		} catch (CompilationError e) {
 			throw new AssertionError(e);
 		}
@@ -69,9 +79,9 @@ public class MiscUtils {
 		}
 	}
 
-	public static void validateFunction(String functionBody, InstanceBuilder.VerificationContext context)
-			throws CompilationError {
-		CompiledFunction.get(makeTypeNamesAbsolute(functionBody, context.getAncestorStructureInstanceBuilders()),
+	public static void validateFunction(String functionBody, VerificationContext context) throws CompilationError {
+		CompiledFunction.get(
+				makeTypeNamesAbsolute(functionBody, getAncestorStructureInstanceBuilders(context.getCurrentFacade())),
 				context.getValidationContext());
 	}
 
@@ -149,13 +159,11 @@ public class MiscUtils {
 		}
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type,
-			List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		return getDefaultInterpretableValue(type, ValueMode.PLAIN, ancestorStructureInstanceBuilders);
+	public static Object getDefaultInterpretableValue(ITypeInfo type, FacadeNode currentFacade) {
+		return getDefaultInterpretableValue(type, ValueMode.PLAIN, currentFacade);
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode,
-			List<InstanceBuilder> ancestorStructureInstanceBuilders) {
+	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, FacadeNode currentFacade) {
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -163,7 +171,8 @@ public class MiscUtils {
 			if (!MiscUtils.isComplexType(type)) {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
-					functionBody = "return " + makeTypeNamesRelative(type.getName(), ancestorStructureInstanceBuilders)
+					functionBody = "return "
+							+ makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade))
 							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
@@ -191,7 +200,7 @@ public class MiscUtils {
 					return new InstanceBuilder.MapEntryBuilder();
 				} else {
 					return new InstanceBuilder(
-							makeTypeNamesRelative(type.getName(), ancestorStructureInstanceBuilders));
+							makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade)));
 				}
 			}
 		} else {
@@ -209,23 +218,23 @@ public class MiscUtils {
 	}
 
 	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		if (ancestorStructureInstanceBuilders.size() == 0) {
+		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
 			return text;
 		}
 		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
 		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
 				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
-		return text.replace(absoluteParentTypeName, PARENT_TYPE_NAME_SYMBOL);
+		return text.replace(absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
 	}
 
 	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		if (ancestorStructureInstanceBuilders.size() == 0) {
+		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
 			return text;
 		}
 		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
 		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
 				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
-		return text.replace(PARENT_TYPE_NAME_SYMBOL, absoluteParentTypeName);
+		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
 	public static String getDigitalUniqueIdentifier() {
@@ -400,6 +409,16 @@ public class MiscUtils {
 
 	public static String adaptClassNameToSourceCode(String className) {
 		return className.replace("$", ".");
+	}
+
+	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(InstanceBuilder.FacadeNode facadeNode) {
+		if (facadeNode == null) {
+			return null;
+		}
+		return InstanceBuilder.getAncestorFacades(facadeNode).stream()
+				.filter(facade -> (facade instanceof InstanceBuilderFacade) && Structured.class.isAssignableFrom(
+						((DefaultTypeInfo) ((InstanceBuilderFacade) facade).getTypeInfo()).getJavaType()))
+				.map(facade -> ((InstanceBuilderFacade) facade).getUnderlying()).collect(Collectors.toList());
 	}
 
 }

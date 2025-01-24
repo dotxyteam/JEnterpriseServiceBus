@@ -6,14 +6,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
-import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
@@ -21,7 +19,6 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
-import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -53,7 +50,7 @@ public class InstanceBuilder {
 	}
 
 	public InstanceBuilderFacade getFacade() {
-		return (InstanceBuilderFacade) getFacade(this, Collections.emptyList());
+		return (InstanceBuilderFacade) getFacade(this, null);
 	}
 
 	public String getTypeName() {
@@ -125,13 +122,14 @@ public class InstanceBuilder {
 		this.listItemInitializers = listItemInitializers;
 	}
 
-	public Object build(InstanceBuilder.EvaluationContext context) throws Exception {
-		InstanceBuilderFacade facade = (InstanceBuilderFacade) getFacade(this,
-				context.getAncestorInstanceBuilderNodes());
-		ITypeInfo typeInfo = facade.getTypeInfo();
+	public Object build(EvaluationContext context) throws Exception {
+		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) getFacade(this,
+				context.getCurrentFacade());
+		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
-			String actualTypeName = computeActualTypeName(context.getAncestorStructureInstanceBuilders());
+			String actualTypeName = computeActualTypeName(
+					MiscUtils.getAncestorStructureInstanceBuilders(context.getCurrentFacade()));
 			if (selectedConstructorSignature == null) {
 				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
@@ -143,15 +141,18 @@ public class InstanceBuilder {
 		for (IParameterInfo parameterInfo : constructor.getParameters()) {
 			ParameterInitializer parameterInitializer = getParameterInitializer(parameterInfo.getPosition(),
 					parameterInfo.getType().getName());
+			ParameterInitializerFacade parameterInitializerFacade = new ParameterInitializerFacade(
+					instanceBuilderFacade, parameterInfo.getPosition());
 			Object parameterValue;
 			if (parameterInitializer == null) {
 				parameterValue = MiscUtils.interpretValue(
-						MiscUtils.getDefaultInterpretableValue(parameterInfo.getType(),
-								context.getAncestorStructureInstanceBuilders()),
-						parameterInfo.getType(), new EvaluationContext(context, parameterInitializer, this));
+						MiscUtils.getDefaultInterpretableValue(parameterInfo.getType(), context.getCurrentFacade()),
+						parameterInfo.getType(),
+						new EvaluationContext(context.getExecutionContext(), parameterInitializerFacade));
 			} else {
 				parameterValue = MiscUtils.interpretValue(parameterInitializer.getParameterValue(),
-						parameterInfo.getType(), new EvaluationContext(context, parameterInitializer, this));
+						parameterInfo.getType(),
+						new EvaluationContext(context.getExecutionContext(), parameterInitializerFacade));
 			}
 			parameterValues[parameterInfo.getPosition()] = parameterValue;
 		}
@@ -160,15 +161,17 @@ public class InstanceBuilder {
 			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
 			List<Object> itemList = new ArrayList<Object>();
 			for (ListItemInitializer listItemInitializer : listItemInitializers) {
+				ListItemInitializerFacade listItemInitializerFacade = new ListItemInitializerFacade(
+						instanceBuilderFacade, listItemInitializers.indexOf(listItemInitializer));
 				if (!MiscUtils.isConditionFullfilled(listItemInitializer.getCondition(),
-						new EvaluationContext(context, listItemInitializer, this))) {
+						new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
 					continue;
 				}
 				ListItemReplication itemReplication = listItemInitializer.getItemReplication();
 				if (itemReplication != null) {
 					Object iterationListValue = MiscUtils.interpretValue(itemReplication.getIterationListValue(),
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context, listItemInitializer, this));
+							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -183,18 +186,19 @@ public class InstanceBuilder {
 						EvaluationContext iterationContext = new EvaluationContext(new Plan.ExecutionContext(
 								context.getExecutionContext(),
 								new ListItemReplication.IterationVariable(itemReplication, iterationVariableValue)),
-								context.getAncestorInstanceBuilderNodes());
+								context.getCurrentFacade());
 						Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
 								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-								new EvaluationContext(iterationContext, listItemInitializer, this));
+								new EvaluationContext(iterationContext.getExecutionContext(),
+										listItemInitializerFacade));
 						itemList.add(itemValue);
 					}
 				} else {
 					Object itemValue = MiscUtils.interpretValue(listItemInitializer.getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context, listItemInitializer, this));
+							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
 					itemList.add(itemValue);
 				}
 			}
@@ -221,70 +225,67 @@ public class InstanceBuilder {
 			if (!MiscUtils.isConditionFullfilled(fieldInitializer.getCondition(), context)) {
 				continue;
 			}
+			FieldInitializerFacade fieldInitializerFacade = new FieldInitializerFacade(instanceBuilderFacade,
+					fieldInitializer.getFieldName());
 			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(),
-					new EvaluationContext(context, fieldInitializer, this));
+					new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 			field.setValue(object, fieldValue);
 		}
 		return object;
 	}
 
-	public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
-		ValidationContext validationContext = verificationContext.getValidationContext();
+	public VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext,
+			FacadeNode parentFacade) {
+		InstanceBuilderFacade currentInstanceBuilderFacade = new InstanceBuilderFacade(parentFacade, this);
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
-			if (parameterInitializer.getParameterValue() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, parameterInitializer);
-				return true;
+			ParameterInitializerFacade currentFacade = new ParameterInitializerFacade(currentInstanceBuilderFacade,
+					parameterInitializers.indexOf(parameterInitializer));
+			if (parameterInitializer.getParameterValue() == function) {
+				return new VerificationContext(validationContext, currentFacade);
 			}
 			if (parameterInitializer.getParameterValue() instanceof InstanceBuilder) {
-				if (((InstanceBuilder) parameterInitializer.getParameterValue())
-						.completeVerificationContext(verificationContext, currentFunction)) {
-					verificationContext.getAncestorInstanceBuilderNodes().add(parameterInitializer);
-					verificationContext.getAncestorInstanceBuilderNodes().add(this);
-					return true;
+				VerificationContext verificationContext = ((InstanceBuilder) parameterInitializer.getParameterValue())
+						.findFunctionVerificationContext(function, validationContext, currentFacade);
+				if (verificationContext != null) {
+					return verificationContext;
 				}
 			}
 		}
 		for (FieldInitializer fieldInitializer : fieldInitializers) {
-			if (fieldInitializer.getCondition() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, fieldInitializer);
-				return true;
+			FieldInitializerFacade currentFacade = new FieldInitializerFacade(currentInstanceBuilderFacade,
+					fieldInitializer.getFieldName());
+			if (fieldInitializer.getCondition() == function) {
+				return new VerificationContext(validationContext, currentFacade);
 			}
-			if (fieldInitializer.getFieldValue() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, fieldInitializer);
-				return true;
+			if (fieldInitializer.getFieldValue() == function) {
+				return new VerificationContext(validationContext, currentFacade);
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
-				if (((InstanceBuilder) fieldInitializer.getFieldValue())
-						.completeVerificationContext(verificationContext, currentFunction)) {
-					verificationContext.getAncestorInstanceBuilderNodes().add(fieldInitializer);
-					verificationContext.getAncestorInstanceBuilderNodes().add(this);
-					return true;
+				VerificationContext verificationContext = ((InstanceBuilder) fieldInitializer.getFieldValue())
+						.findFunctionVerificationContext(function, validationContext, currentFacade);
+				if (verificationContext != null) {
+					return verificationContext;
 				}
 			}
 		}
 		for (ListItemInitializer listItemInitializer : listItemInitializers) {
-			if (listItemInitializer.getCondition() == currentFunction) {
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
-				return true;
+			ListItemInitializerFacade currentFacade = new ListItemInitializerFacade(currentInstanceBuilderFacade,
+					listItemInitializers.indexOf(listItemInitializer));
+			if (listItemInitializer.getCondition() == function) {
+				return new VerificationContext(validationContext, currentFacade);
 			}
 			VariableDeclaration iterationVariableDeclaration = null;
 			int iterationVariableDeclarationPosition = -1;
 			if (listItemInitializer.getItemReplication() != null) {
-				if (listItemInitializer.getItemReplication().getIterationListValue() == currentFunction) {
-					verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-					verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
-					return true;
+				if (listItemInitializer.getItemReplication().getIterationListValue() == function) {
+					return new VerificationContext(validationContext, currentFacade);
 				}
 				if (listItemInitializer.getItemReplication().getIterationListValue() instanceof InstanceBuilder) {
-					if (((InstanceBuilder) listItemInitializer.getItemReplication().getIterationListValue())
-							.completeVerificationContext(verificationContext, currentFunction)) {
-						verificationContext.getAncestorInstanceBuilderNodes().add(listItemInitializer);
-						verificationContext.getAncestorInstanceBuilderNodes().add(this);
-						return true;
+					VerificationContext verificationContext = ((InstanceBuilder) listItemInitializer
+							.getItemReplication().getIterationListValue()).findFunctionVerificationContext(function,
+									validationContext, currentFacade);
+					if (verificationContext != null) {
+						return verificationContext;
 					}
 				}
 				iterationVariableDeclaration = new Plan.ValidationContext.VariableDeclaration() {
@@ -301,29 +302,34 @@ public class InstanceBuilder {
 				};
 				iterationVariableDeclarationPosition = validationContext.getVariableDeclarations().size();
 			}
-			if (listItemInitializer.getItemValue() == currentFunction) {
+			if (listItemInitializer.getItemValue() == function) {
+				ValidationContext iterationValidationContext = validationContext;
 				if (iterationVariableDeclaration != null) {
-					validationContext.getVariableDeclarations().add(iterationVariableDeclarationPosition,
-							iterationVariableDeclaration);
+					List<VariableDeclaration> newVariableDeclarations = new ArrayList<Plan.ValidationContext.VariableDeclaration>(
+							validationContext.getVariableDeclarations());
+					newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
+					iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
+							newVariableDeclarations);
 				}
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, this);
-				verificationContext.getAncestorInstanceBuilderNodes().add(0, listItemInitializer);
-				return true;
+				return new VerificationContext(iterationValidationContext, currentFacade);
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
-				if (((InstanceBuilder) listItemInitializer.getItemValue())
-						.completeVerificationContext(verificationContext, currentFunction)) {
-					if (iterationVariableDeclaration != null) {
-						validationContext.getVariableDeclarations().add(iterationVariableDeclarationPosition,
-								iterationVariableDeclaration);
-						verificationContext.getAncestorInstanceBuilderNodes().add(listItemInitializer);
-						verificationContext.getAncestorInstanceBuilderNodes().add(this);
-					}
-					return true;
+				ValidationContext iterationValidationContext = validationContext;
+				if (iterationVariableDeclaration != null) {
+					List<VariableDeclaration> newVariableDeclarations = new ArrayList<Plan.ValidationContext.VariableDeclaration>(
+							validationContext.getVariableDeclarations());
+					newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
+					iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
+							newVariableDeclarations);
+				}
+				VerificationContext verificationContext = ((InstanceBuilder) listItemInitializer.getItemValue())
+						.findFunctionVerificationContext(function, iterationValidationContext, currentFacade);
+				if (verificationContext != null) {
+					return verificationContext;
 				}
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
@@ -364,12 +370,7 @@ public class InstanceBuilder {
 		}
 	}
 
-	protected static List<InstanceBuilder> getAncestorStructureInstanceBuilders(FacadeNode facadeNode) {
-		return filterAncestorStructureInstanceBuilders(getAncestorFacades(facadeNode).stream()
-				.map(facade -> facade.getUnderlying()).filter(Objects::nonNull).collect(Collectors.toList()));
-	}
-
-	protected static List<FacadeNode> getAncestorFacades(FacadeNode facadeNode) {
+	public static List<FacadeNode> getAncestorFacades(FacadeNode facadeNode) {
 		List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
 		if (facadeNode instanceof InstanceBuilderFacade) {
 			InstanceBuilderFacade facade = (InstanceBuilderFacade) facadeNode;
@@ -398,14 +399,7 @@ public class InstanceBuilder {
 		return result;
 	}
 
-	protected static FacadeNode getFacade(Object node, List<Object> ancestorInstanceBuilderNodes) {
-		FacadeNode parentFacade;
-		if (ancestorInstanceBuilderNodes.size() == 0) {
-			parentFacade = null;
-		} else {
-			parentFacade = getFacade(ancestorInstanceBuilderNodes.get(0),
-					ancestorInstanceBuilderNodes.subList(1, ancestorInstanceBuilderNodes.size()));
-		}
+	public static FacadeNode getFacade(Object node, FacadeNode parentFacade) {
 		if (node instanceof MapEntryBuilder) {
 			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
 		} else if (node instanceof InstanceBuilder) {
@@ -423,28 +417,6 @@ public class InstanceBuilder {
 		} else {
 			throw new AssertionError();
 		}
-	}
-
-	protected static List<InstanceBuilder> filterAncestorStructureInstanceBuilders(
-			List<Object> ancestorInstanceBuilderNodes) {
-		if (ancestorInstanceBuilderNodes.size() == 0) {
-			return Collections.emptyList();
-		}
-		Object parentNode = ancestorInstanceBuilderNodes.get(0);
-		List<Object> parentAncestorInstanceBuilderNodes = ancestorInstanceBuilderNodes.subList(1,
-				ancestorInstanceBuilderNodes.size());
-		List<InstanceBuilder> result = new ArrayList<InstanceBuilder>(
-				filterAncestorStructureInstanceBuilders(parentAncestorInstanceBuilderNodes));
-		if (!(parentNode instanceof InstanceBuilder)) {
-			return result;
-		}
-		InstanceBuilderFacade parentInstanceBuilderFacade = (InstanceBuilderFacade) getFacade(parentNode,
-				parentAncestorInstanceBuilderNodes);
-		Class<?> parentClass = ((DefaultTypeInfo) parentInstanceBuilderFacade.getTypeInfo()).getJavaType();
-		if (Structured.class.isAssignableFrom(parentClass)) {
-			result.add(0, (InstanceBuilder) parentNode);
-		}
-		return result;
 	}
 
 	@Override
@@ -750,7 +722,8 @@ public class InstanceBuilder {
 		}
 
 		public ITypeInfo getTypeInfo() {
-			String actualTypeName = underlying.computeActualTypeName(getAncestorStructureInstanceBuilders(this));
+			String actualTypeName = underlying
+					.computeActualTypeName(MiscUtils.getAncestorStructureInstanceBuilders(parent));
 			ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
 			if (result instanceof IListTypeInfo) {
 				if (parent instanceof FieldInitializerFacade) {
@@ -902,8 +875,8 @@ public class InstanceBuilder {
 			ParameterInitializer result = parent.getUnderlying().getParameterInitializer(parameterPosition,
 					parameter.getType().getName());
 			if (result == null) {
-				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(), MiscUtils
-						.getDefaultInterpretableValue(parameter.getType(), getAncestorStructureInstanceBuilders(this)));
+				result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
+						MiscUtils.getDefaultInterpretableValue(parameter.getType(), this));
 				parent.getUnderlying().getParameterInitializers().add(result);
 			}
 			return result;
@@ -919,7 +892,7 @@ public class InstanceBuilder {
 
 		public String getParameterTypeName() {
 			return MiscUtils.makeTypeNamesRelative(getParameterInfo().getType().getName(),
-					getAncestorStructureInstanceBuilders(this));
+					MiscUtils.getAncestorStructureInstanceBuilders(this));
 		}
 
 		@Override
@@ -950,8 +923,7 @@ public class InstanceBuilder {
 		public void setParameterValueMode(ValueMode valueMode) {
 			setConcrete(true);
 			IParameterInfo parameter = getParameterInfo();
-			Object parameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode,
-					getAncestorStructureInstanceBuilders(this));
+			Object parameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
 			setParameterValue(parameterValue);
 		}
 
@@ -1011,7 +983,7 @@ public class InstanceBuilder {
 
 		private Object createDefaultFieldValue() {
 			IFieldInfo field = getFieldInfo();
-			return MiscUtils.getDefaultInterpretableValue(field.getType(), getAncestorStructureInstanceBuilders(this));
+			return MiscUtils.getDefaultInterpretableValue(field.getType(), this);
 		}
 
 		public IFieldInfo getFieldInfo() {
@@ -1030,7 +1002,7 @@ public class InstanceBuilder {
 
 		public String getFieldTypeName() {
 			return MiscUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
-					getAncestorStructureInstanceBuilders(this));
+					MiscUtils.getAncestorStructureInstanceBuilders(this));
 		}
 
 		public Function getCondition() {
@@ -1088,8 +1060,7 @@ public class InstanceBuilder {
 				return;
 			}
 			IFieldInfo field = getFieldInfo();
-			Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode,
-					getAncestorStructureInstanceBuilders(this));
+			Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
 			setFieldValue(newFieldValue);
 		}
 
@@ -1218,14 +1189,13 @@ public class InstanceBuilder {
 				return;
 			}
 			ITypeInfo itemType = getItemType();
-			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode,
-					getAncestorStructureInstanceBuilders(this));
+			itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode, this);
 			listItemInitializer.setItemValue(itemValue);
 		}
 
 		private Object createDefaultItemValue() {
 			ITypeInfo itemType = getItemType();
-			return MiscUtils.getDefaultInterpretableValue(itemType, getAncestorStructureInstanceBuilders(this));
+			return MiscUtils.getDefaultInterpretableValue(itemType, this);
 		}
 
 		public ITypeInfo getItemType() {
@@ -1236,7 +1206,7 @@ public class InstanceBuilder {
 		public String getItemTypeName() {
 			ITypeInfo itemType = getItemType();
 			String result = (itemType == null) ? Object.class.getName() : itemType.getName();
-			result = MiscUtils.makeTypeNamesRelative(result, getAncestorStructureInstanceBuilders(this));
+			result = MiscUtils.makeTypeNamesRelative(result, MiscUtils.getAncestorStructureInstanceBuilders(this));
 			return result;
 		}
 
@@ -1343,62 +1313,38 @@ public class InstanceBuilder {
 	public static class EvaluationContext {
 
 		private ExecutionContext executionContext;
-		private List<Object> ancestorInstanceBuilderNodes;
+		private FacadeNode currentFacade;
 
-		public EvaluationContext(ExecutionContext executionContext, List<Object> ancestorInstanceBuilderNodes) {
+		public EvaluationContext(ExecutionContext executionContext, FacadeNode currentFacade) {
 			this.executionContext = executionContext;
-			this.ancestorInstanceBuilderNodes = ancestorInstanceBuilderNodes;
-		}
-
-		public EvaluationContext(EvaluationContext parentContext, Object... firstAncestorNodes) {
-			this.ancestorInstanceBuilderNodes = new ArrayList<Object>(parentContext.getAncestorInstanceBuilderNodes());
-			for (int i = firstAncestorNodes.length - 1; i >= 0; i--) {
-				this.ancestorInstanceBuilderNodes.add(0, firstAncestorNodes[i]);
-			}
-			this.executionContext = parentContext.getExecutionContext();
+			this.currentFacade = currentFacade;
 		}
 
 		public ExecutionContext getExecutionContext() {
 			return executionContext;
 		}
 
-		public List<Object> getAncestorInstanceBuilderNodes() {
-			return ancestorInstanceBuilderNodes;
-		}
-
-		public List<InstanceBuilder> getAncestorStructureInstanceBuilders() {
-			return filterAncestorStructureInstanceBuilders(ancestorInstanceBuilderNodes);
+		public FacadeNode getCurrentFacade() {
+			return currentFacade;
 		}
 
 	}
 
 	public static class VerificationContext {
 		private ValidationContext validationContext;
-		private List<Object> ancestorInstanceBuilderNodes;
+		private FacadeNode currentFacade;
 
-		public VerificationContext(ValidationContext validationContext, List<Object> ancestorInstanceBuilderNodes) {
+		public VerificationContext(ValidationContext validationContext, FacadeNode currentFacade) {
 			this.validationContext = validationContext;
-			this.ancestorInstanceBuilderNodes = ancestorInstanceBuilderNodes;
-		}
-
-		public VerificationContext(VerificationContext parentContext, Object... firstAncestorNodes) {
-			this.ancestorInstanceBuilderNodes = new ArrayList<Object>(parentContext.getAncestorInstanceBuilderNodes());
-			for (int i = firstAncestorNodes.length - 1; i >= 0; i--) {
-				this.ancestorInstanceBuilderNodes.add(0, firstAncestorNodes[i]);
-			}
-			this.validationContext = parentContext.getValidationContext();
+			this.currentFacade = currentFacade;
 		}
 
 		public ValidationContext getValidationContext() {
 			return validationContext;
 		}
 
-		public List<Object> getAncestorInstanceBuilderNodes() {
-			return ancestorInstanceBuilderNodes;
-		}
-
-		public List<InstanceBuilder> getAncestorStructureInstanceBuilders() {
-			return filterAncestorStructureInstanceBuilders(ancestorInstanceBuilderNodes);
+		public FacadeNode getCurrentFacade() {
+			return currentFacade;
 		}
 
 	}

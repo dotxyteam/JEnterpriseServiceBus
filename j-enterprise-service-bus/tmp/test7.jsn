@@ -149,7 +149,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
                   <listItemInitializers/>
-                  <parameterInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>java.lang.String</parameterTypeName>
+                      <parameterValue class="string"></parameterValue>
+                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                  </parameterInitializers>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </parameterValuesBuilder>

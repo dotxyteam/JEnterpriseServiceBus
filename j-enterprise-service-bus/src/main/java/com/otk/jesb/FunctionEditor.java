@@ -51,9 +51,7 @@ public class FunctionEditor {
 
 	private VerificationContext getVerificationContext() {
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		VerificationContext verificationContext = new VerificationContext(validationContext, new ArrayList<Object>());
-		currentStep.getActivityBuilder().completeVerificationContext(verificationContext, currentFunction);
-		return verificationContext;
+		return currentStep.getActivityBuilder().findFunctionVerificationContext(currentFunction, validationContext);
 	}
 
 	public void validateExpression() throws CompilationError {

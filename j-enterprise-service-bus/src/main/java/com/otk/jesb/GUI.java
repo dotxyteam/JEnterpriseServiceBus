@@ -215,8 +215,7 @@ public class GUI extends SwingCustomizer {
 													if ((facade.getFieldValueMode() == null)
 															|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
 														return MiscUtils.getDefaultInterpretableValue(
-																facade.getFieldInfo().getType(),
-																InstanceBuilder.getAncestorStructureInstanceBuilders(facade));
+																facade.getFieldInfo().getType(), facade);
 													} else {
 														return super.getNewValue();
 													}
@@ -237,8 +236,7 @@ public class GUI extends SwingCustomizer {
 															.getInstance()).getObject();
 													if (facade.getParameterValueMode() == ValueMode.PLAIN) {
 														return MiscUtils.getDefaultInterpretableValue(
-																facade.getParameterInfo().getType(),
-																InstanceBuilder.getAncestorStructureInstanceBuilders(facade));
+																facade.getParameterInfo().getType(), facade);
 													} else {
 														return super.getNewValue();
 													}
@@ -260,8 +258,7 @@ public class GUI extends SwingCustomizer {
 													if ((facade.getItemValueMode() == null)
 															|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
 														return MiscUtils.getDefaultInterpretableValue(
-																facade.getItemType(),
-																InstanceBuilder.getAncestorStructureInstanceBuilders(facade));
+																facade.getItemType(), facade);
 													} else {
 														return super.getNewValue();
 													}

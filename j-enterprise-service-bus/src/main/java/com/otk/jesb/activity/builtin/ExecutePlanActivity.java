@@ -1,7 +1,6 @@
 package com.otk.jesb.activity.builtin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.Asset;
@@ -11,6 +10,7 @@ import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -134,7 +134,7 @@ public class ExecutePlanActivity implements Activity {
 			ExecutePlanActivity result = new ExecutePlanActivity();
 			result.setPlan(plan);
 			result.setPlanInput(
-					planInputBuilder.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList())));
+					planInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
 			return result;
 		}
 
@@ -147,8 +147,8 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
-			return planInputBuilder.completeVerificationContext(verificationContext, currentFunction);
+		public VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext){
+			return planInputBuilder.findFunctionVerificationContext(function, validationContext, null);
 		}
 
 	}

@@ -5,13 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -224,14 +224,14 @@ public class JDBCUpdateActivity implements Activity {
 			result.setConnection(connection);
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
+					.build(new InstanceBuilder.EvaluationContext(context, null));
 			result.setParameterValues(parameterValues);
 			return result;
 		}
 
 		@Override
-		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
-			return parameterValuesBuilder.completeVerificationContext(verificationContext, currentFunction);
+		public VerificationContext findFunctionVerificationContext(Function currentFunction, ValidationContext validationContext) {
+			return parameterValuesBuilder.findFunctionVerificationContext(currentFunction, validationContext, null);
 		}
 
 		@Override

@@ -5,12 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.Collections;
-
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -102,8 +101,7 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity) instanceBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, Collections.emptyList()));
+			return (WriteFileActivity) instanceBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
 		}
 
 		@Override
@@ -112,10 +110,10 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public boolean completeVerificationContext(VerificationContext verificationContext, Function currentFunction) {
-			return instanceBuilder.completeVerificationContext(verificationContext, currentFunction);
+		public VerificationContext findFunctionVerificationContext(Function function,
+				ValidationContext validationContext) {
+			return instanceBuilder.findFunctionVerificationContext(function, validationContext, null);
 		}
-
 	}
 
 }
