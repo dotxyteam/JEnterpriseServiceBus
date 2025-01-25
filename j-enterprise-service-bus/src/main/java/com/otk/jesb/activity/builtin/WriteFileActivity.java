@@ -14,53 +14,105 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.Accessor;
 
 public class WriteFileActivity implements Activity {
 
-	private String filePath;
-	private String text;
-	private boolean append = false;
-	private String charsetName;
+	private UnderlyingWriteFileActivity underling;
 
-	public String getFilePath() {
-		return filePath;
-	}
-
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
-	public String getCharsetName() {
-		return charsetName;
-	}
-
-	public void setCharsetName(String charsetName) {
-		this.charsetName = charsetName;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public boolean isAppend() {
-		return append;
-	}
-
-	public void setAppend(boolean append) {
-		this.append = append;
+	public WriteFileActivity(UnderlyingWriteFileActivity underling) {
+		this.underling = underling;
 	}
 
 	@Override
-	public Object execute() throws IOException {
-		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
-				(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
-			bw.write(text);
+	public Object execute() throws Exception {
+		return underling.execute();
+	}
+
+	private static interface UnderlyingWriteFileActivity extends Activity {
+
+	}
+
+	public static class WriteTextFileActivity implements UnderlyingWriteFileActivity {
+
+		private String filePath;
+		private String text;
+		private boolean append = false;
+		private String charsetName;
+
+		public WriteTextFileActivity(String filePath, String text) {
+			this.filePath = filePath;
+			this.text = text;
 		}
-		return null;
+
+		public String getFilePath() {
+			return filePath;
+		}
+
+		public String getCharsetName() {
+			return charsetName;
+		}
+
+		public void setCharsetName(String charsetName) {
+			this.charsetName = charsetName;
+		}
+
+		public String getText() {
+			return text;
+		}
+
+		public boolean isAppend() {
+			return append;
+		}
+
+		public void setAppend(boolean append) {
+			this.append = append;
+		}
+
+		@Override
+		public Object execute() throws IOException {
+			try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
+					(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
+				bw.write(text);
+			}
+			return null;
+		}
+	}
+
+	public static class WriteBinaryFileActivity implements UnderlyingWriteFileActivity {
+
+		private String filePath;
+		private byte[] data;
+		private boolean append = false;
+
+		public WriteBinaryFileActivity(String filePath, byte[] data) {
+			this.filePath = filePath;
+			this.data = data;
+		}
+
+		public String getFilePath() {
+			return filePath;
+		}
+
+		public byte[] getData() {
+			return data;
+		}
+
+		public boolean isAppend() {
+			return append;
+		}
+
+		public void setAppend(boolean append) {
+			this.append = append;
+		}
+
+		@Override
+		public Object execute() throws IOException {
+			try (FileOutputStream fos = new FileOutputStream(filePath, append)) {
+				fos.write(data);
+			}
+			return null;
+		}
 	}
 
 	public static class Metadata implements ActivityMetadata {
@@ -89,7 +141,31 @@ public class WriteFileActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceBuilder instanceBuilder = new InstanceBuilder(WriteFileActivity.class.getName());
+		public enum Mode {
+			TEXT, BINARY
+		};
+
+		private Mode mode = Mode.TEXT;
+		private InstanceBuilder instanceBuilder = new InstanceBuilder(new Accessor<String>() {
+			@Override
+			public String get() {
+				if (mode == Mode.TEXT) {
+					return WriteTextFileActivity.class.getName();
+				} else if (mode == Mode.BINARY) {
+					return WriteBinaryFileActivity.class.getName();
+				} else {
+					throw new AssertionError();
+				}
+			}
+		});
+
+		public Mode getMode() {
+			return mode;
+		}
+
+		public void setMode(Mode mode) {
+			this.mode = mode;
+		}
 
 		public InstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
@@ -101,7 +177,8 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (WriteFileActivity) instanceBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
+			return new WriteFileActivity((UnderlyingWriteFileActivity) instanceBuilder
+					.build(new InstanceBuilder.EvaluationContext(context, null)));
 		}
 
 		@Override

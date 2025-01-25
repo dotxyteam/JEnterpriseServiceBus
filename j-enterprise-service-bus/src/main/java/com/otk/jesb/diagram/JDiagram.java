@@ -239,8 +239,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	public Dimension getPreferredSize() {
 		Dimension result = new Dimension(0, 0);
 		for (JNode node : nodes) {
-			result.width = Math.max(result.width, node.getX());
-			result.height = Math.max(result.width, node.getY());
+			result.width = Math.max(result.width, node.getX() + (node.getWidth() / 2));
+			result.height = Math.max(result.height, node.getY() + (node.getHeight() / 2));
 		}
 		return result;
 	}

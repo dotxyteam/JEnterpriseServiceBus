@@ -81,16 +81,25 @@ public class JNode {
 		}
 	}
 
-	public boolean containsPoint(int x2, int y2) {
-		int width;
-		int height;
+	public int getWidth() {
 		if (image != null) {
-			width = image.getWidth(null);
-			height = image.getHeight(null);
+			return image.getWidth(null);
 		} else {
-			width = 20;
-			height = 20;
+			return 20;
 		}
+	}
+
+	public int getHeight() {
+		if (image != null) {
+			return image.getHeight(null);
+		} else {
+			return 20;
+		}
+	}
+
+	public boolean containsPoint(int x2, int y2) {
+		int width = getWidth();
+		int height = getHeight();
 		if (x2 < (-(width / 2) + x)) {
 			return false;
 		}

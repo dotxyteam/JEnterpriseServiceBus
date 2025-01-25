@@ -1,9 +1,14 @@
+- wrap function editor lines ???
+- diagram improvements:
+	. allow to select the current mouse action between MOVE and CONNECT
+	. do not move systematically to the mouse pointer position 
+- generate expressions that do not crash because of a null pointer ???
+- allow to trace errors origin
 - allow to serve/call rest/soap web services
 - allow to provide plan input through the debugger
 - create and display a PlanExecutor for each sub-plan execution
 - Structure.Element.multiple= true should generate a list instead of an array
 - allow to build and reference shared structures
-- make important ReadFile/WriteFile fields become parameters 
 - UI improvements:
 	. banner
 - JDBCConnection (driver jars location ???) + driver class name should be specified 
@@ -26,8 +31,6 @@
 - allow to start plan execution on event (timer, file poller, etc)
 - allow to extend the framework by adding custom activities
 - allow to deploy and execute a project outside of the designer in a production environment
-- ReadFileActivity
-	. add binary mode
 - allow to monitor the execution of deployed projects
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...

@@ -44,8 +44,10 @@ public class ExecutePlanActivity implements Activity {
 	public Object execute() throws Exception {
 		try {
 			return plan.execute(planInput);
-		} catch (Throwable e) {
-			throw new AssertionError(e);
+		} catch (Exception e) {
+			throw e;
+		} catch (Throwable t) {
+			throw new AssertionError(t);
 		}
 	}
 

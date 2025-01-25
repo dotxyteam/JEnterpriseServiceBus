@@ -50,7 +50,8 @@ public class MiscUtils {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
-	public static Object executeFunction(Function function, InstanceBuilder.EvaluationContext evaluationContext) {
+	public static Object executeFunction(Function function, InstanceBuilder.EvaluationContext evaluationContext)
+			throws Exception {
 		ExecutionContext executionContext = evaluationContext.getExecutionContext();
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
@@ -63,19 +64,16 @@ public class MiscUtils {
 								: evaluationContext.getCurrentFacade().getUnderlying())) {
 			throw new AssertionError();
 		}
-		CompiledFunction compiledFunction;
-		try {
-			compiledFunction = CompiledFunction.get(
-					makeTypeNamesAbsolute(function.getFunctionBody(),
-							getAncestorStructureInstanceBuilders(verificationContext.getCurrentFacade())),
-					validationContext);
-		} catch (CompilationError e) {
-			throw new AssertionError(e);
-		}
+		CompiledFunction compiledFunction = CompiledFunction.get(
+				makeTypeNamesAbsolute(function.getFunctionBody(),
+						getAncestorStructureInstanceBuilders(verificationContext.getCurrentFacade())),
+				validationContext);
 		try {
 			return compiledFunction.execute(executionContext);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw e;
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
 		}
 	}
 
