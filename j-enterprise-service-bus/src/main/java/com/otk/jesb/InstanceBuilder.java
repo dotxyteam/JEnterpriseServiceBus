@@ -235,7 +235,7 @@ public class InstanceBuilder {
 	}
 
 	public VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext,
-			FacadeNode parentFacade) {
+			Facade parentFacade) {
 		InstanceBuilderFacade currentInstanceBuilderFacade = new InstanceBuilderFacade(parentFacade, this);
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			ParameterInitializerFacade currentFacade = new ParameterInitializerFacade(currentInstanceBuilderFacade,
@@ -370,27 +370,27 @@ public class InstanceBuilder {
 		}
 	}
 
-	public static List<FacadeNode> getAncestorFacades(FacadeNode facadeNode) {
-		List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
-		if (facadeNode instanceof InstanceBuilderFacade) {
-			InstanceBuilderFacade facade = (InstanceBuilderFacade) facadeNode;
-			if (facade.getParent() != null) {
-				result.add(facade.getParent());
-				result.addAll(getAncestorFacades(facade.getParent()));
+	public static List<Facade> getAncestorFacades(Facade facade) {
+		List<Facade> result = new ArrayList<InstanceBuilder.Facade>();
+		if (facade instanceof InstanceBuilderFacade) {
+			InstanceBuilderFacade specificFacade = (InstanceBuilderFacade) facade;
+			if (specificFacade.getParent() != null) {
+				result.add(specificFacade.getParent());
+				result.addAll(getAncestorFacades(specificFacade.getParent()));
 			}
-		} else if (facadeNode instanceof FieldInitializerFacade) {
-			FieldInitializerFacade facade = (FieldInitializerFacade) facadeNode;
-			InstanceBuilderFacade facadeParent = facade.getParent();
+		} else if (facade instanceof FieldInitializerFacade) {
+			FieldInitializerFacade specificFacade = (FieldInitializerFacade) facade;
+			InstanceBuilderFacade facadeParent = specificFacade.getParent();
 			result.add(facadeParent);
 			result.addAll(getAncestorFacades(facadeParent));
-		} else if (facadeNode instanceof ParameterInitializerFacade) {
-			ParameterInitializerFacade facade = (ParameterInitializerFacade) facadeNode;
-			InstanceBuilderFacade facadeParent = facade.getParent();
+		} else if (facade instanceof ParameterInitializerFacade) {
+			ParameterInitializerFacade specificFacade = (ParameterInitializerFacade) facade;
+			InstanceBuilderFacade facadeParent = specificFacade.getParent();
 			result.add(facadeParent);
 			result.addAll(getAncestorFacades(facadeParent));
-		} else if (facadeNode instanceof ListItemInitializerFacade) {
-			ListItemInitializerFacade facade = (ListItemInitializerFacade) facadeNode;
-			InstanceBuilderFacade facadeParent = facade.getParent();
+		} else if (facade instanceof ListItemInitializerFacade) {
+			ListItemInitializerFacade specificFacade = (ListItemInitializerFacade) facade;
+			InstanceBuilderFacade facadeParent = specificFacade.getParent();
 			result.add(facadeParent);
 			result.addAll(getAncestorFacades(facadeParent));
 		} else {
@@ -399,7 +399,7 @@ public class InstanceBuilder {
 		return result;
 	}
 
-	public static FacadeNode getFacade(Object node, FacadeNode parentFacade) {
+	public static Facade getFacade(Object node, Facade parentFacade) {
 		if (node instanceof MapEntryBuilder) {
 			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
 		} else if (node instanceof InstanceBuilder) {
@@ -650,9 +650,9 @@ public class InstanceBuilder {
 
 	}
 
-	public static interface FacadeNode {
+	public static interface Facade {
 
-		List<FacadeNode> getChildren();
+		List<Facade> getChildren();
 
 		boolean isConcrete();
 
@@ -662,17 +662,17 @@ public class InstanceBuilder {
 
 	}
 
-	public static class InstanceBuilderFacade implements FacadeNode {
+	public static class InstanceBuilderFacade implements Facade {
 
-		private FacadeNode parent;
+		private Facade parent;
 		private InstanceBuilder underlying;
 
-		public InstanceBuilderFacade(FacadeNode parent, InstanceBuilder underlying) {
+		public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {
 			this.parent = parent;
 			this.underlying = underlying;
 		}
 
-		public FacadeNode getParent() {
+		public Facade getParent() {
 			return parent;
 		}
 
@@ -742,8 +742,8 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public List<FacadeNode> getChildren() {
-			List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
+		public List<Facade> getChildren() {
+			List<Facade> result = new ArrayList<InstanceBuilder.Facade>();
 			ITypeInfo typeInfo = getTypeInfo();
 			IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo,
 					underlying.getSelectedConstructorSignature());
@@ -767,12 +767,12 @@ public class InstanceBuilder {
 					result.add(new FieldInitializerFacade(this, field.getName()));
 				}
 			}
-			Collections.sort(result, new Comparator<FacadeNode>() {
+			Collections.sort(result, new Comparator<Facade>() {
 				List<Class<?>> CLASSES_ORDER = Arrays.asList(ParameterInitializerFacade.class,
 						FieldInitializerFacade.class, ListItemInitializerFacade.class);
 
 				@Override
-				public int compare(FacadeNode o1, FacadeNode o2) {
+				public int compare(Facade o1, Facade o2) {
 					if (!o1.getClass().equals(o2.getClass())) {
 						return Integer.valueOf(CLASSES_ORDER.indexOf(o1.getClass()))
 								.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(o2.getClass())));
@@ -808,7 +808,7 @@ public class InstanceBuilder {
 
 	public static class MapEntryBuilderFacade extends InstanceBuilderFacade {
 
-		public MapEntryBuilderFacade(FacadeNode parent, MapEntryBuilder mapEntryBuilder) {
+		public MapEntryBuilderFacade(Facade parent, MapEntryBuilder mapEntryBuilder) {
 			super(parent, mapEntryBuilder);
 		}
 
@@ -845,7 +845,7 @@ public class InstanceBuilder {
 		PLAIN, FUNCTION
 	}
 
-	public static class ParameterInitializerFacade implements FacadeNode {
+	public static class ParameterInitializerFacade implements Facade {
 
 		private InstanceBuilderFacade parent;
 		private int parameterPosition;
@@ -944,8 +944,8 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public List<FacadeNode> getChildren() {
-			List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
+		public List<Facade> getChildren() {
+			List<Facade> result = new ArrayList<InstanceBuilder.Facade>();
 			Object parameterValue = getParameterValue();
 			if (parameterValue instanceof InstanceBuilder) {
 				result.add(new InstanceBuilderFacade(this, (InstanceBuilder) parameterValue));
@@ -960,7 +960,7 @@ public class InstanceBuilder {
 
 	}
 
-	public static class FieldInitializerFacade implements FacadeNode {
+	public static class FieldInitializerFacade implements Facade {
 
 		private InstanceBuilderFacade parent;
 		private String fieldName;
@@ -1083,8 +1083,8 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public List<FacadeNode> getChildren() {
-			List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
+		public List<Facade> getChildren() {
+			List<Facade> result = new ArrayList<InstanceBuilder.Facade>();
 			if (fieldValue instanceof InstanceBuilder) {
 				result.add(new InstanceBuilderFacade(this, (InstanceBuilder) fieldValue));
 			}
@@ -1098,7 +1098,7 @@ public class InstanceBuilder {
 
 	}
 
-	public static class ListItemInitializerFacade implements FacadeNode {
+	public static class ListItemInitializerFacade implements Facade {
 
 		private InstanceBuilderFacade parent;
 		private int index;
@@ -1243,8 +1243,8 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public List<FacadeNode> getChildren() {
-			List<FacadeNode> result = new ArrayList<InstanceBuilder.FacadeNode>();
+		public List<Facade> getChildren() {
+			List<Facade> result = new ArrayList<InstanceBuilder.Facade>();
 			if (itemValue instanceof MapEntryBuilder) {
 				result.add(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue));
 			} else if (itemValue instanceof InstanceBuilder) {
@@ -1313,9 +1313,9 @@ public class InstanceBuilder {
 	public static class EvaluationContext {
 
 		private ExecutionContext executionContext;
-		private FacadeNode currentFacade;
+		private Facade currentFacade;
 
-		public EvaluationContext(ExecutionContext executionContext, FacadeNode currentFacade) {
+		public EvaluationContext(ExecutionContext executionContext, Facade currentFacade) {
 			this.executionContext = executionContext;
 			this.currentFacade = currentFacade;
 		}
@@ -1324,7 +1324,7 @@ public class InstanceBuilder {
 			return executionContext;
 		}
 
-		public FacadeNode getCurrentFacade() {
+		public Facade getCurrentFacade() {
 			return currentFacade;
 		}
 
@@ -1332,9 +1332,9 @@ public class InstanceBuilder {
 
 	public static class VerificationContext {
 		private ValidationContext validationContext;
-		private FacadeNode currentFacade;
+		private Facade currentFacade;
 
-		public VerificationContext(ValidationContext validationContext, FacadeNode currentFacade) {
+		public VerificationContext(ValidationContext validationContext, Facade currentFacade) {
 			this.validationContext = validationContext;
 			this.currentFacade = currentFacade;
 		}
@@ -1343,7 +1343,7 @@ public class InstanceBuilder {
 			return validationContext;
 		}
 
-		public FacadeNode getCurrentFacade() {
+		public Facade getCurrentFacade() {
 			return currentFacade;
 		}
 

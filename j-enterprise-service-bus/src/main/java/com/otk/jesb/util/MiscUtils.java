@@ -16,7 +16,7 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
 import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
-import com.otk.jesb.InstanceBuilder.FacadeNode;
+import com.otk.jesb.InstanceBuilder.Facade;
 import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -159,11 +159,11 @@ public class MiscUtils {
 		}
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, FacadeNode currentFacade) {
+	public static Object getDefaultInterpretableValue(ITypeInfo type, Facade currentFacade) {
 		return getDefaultInterpretableValue(type, ValueMode.PLAIN, currentFacade);
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, FacadeNode currentFacade) {
+	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -411,14 +411,14 @@ public class MiscUtils {
 		return className.replace("$", ".");
 	}
 
-	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(InstanceBuilder.FacadeNode facadeNode) {
-		if (facadeNode == null) {
+	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(InstanceBuilder.Facade facade) {
+		if (facade == null) {
 			return null;
 		}
-		return InstanceBuilder.getAncestorFacades(facadeNode).stream()
-				.filter(facade -> (facade instanceof InstanceBuilderFacade) && Structured.class.isAssignableFrom(
-						((DefaultTypeInfo) ((InstanceBuilderFacade) facade).getTypeInfo()).getJavaType()))
-				.map(facade -> ((InstanceBuilderFacade) facade).getUnderlying()).collect(Collectors.toList());
+		return InstanceBuilder.getAncestorFacades(facade).stream()
+				.filter(f -> (f instanceof InstanceBuilderFacade) && Structured.class
+						.isAssignableFrom(((DefaultTypeInfo) ((InstanceBuilderFacade) f).getTypeInfo()).getJavaType()))
+				.map(f -> ((InstanceBuilderFacade) f).getUnderlying()).collect(Collectors.toList());
 	}
 
 }

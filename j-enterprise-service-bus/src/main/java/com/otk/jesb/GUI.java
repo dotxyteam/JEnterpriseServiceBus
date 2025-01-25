@@ -25,7 +25,7 @@ import javax.swing.tree.TreeCellRenderer;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.FacadeNode;
+import com.otk.jesb.InstanceBuilder.Facade;
 import com.otk.jesb.InstanceBuilder.FieldInitializerFacade;
 import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
 import com.otk.jesb.InstanceBuilder.ListItemInitializerFacade;
@@ -424,9 +424,9 @@ public class GUI extends SwingCustomizer {
 					super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);
 					BufferedItemPosition itemPosition = getItemPositionByNode(node);
 					if (itemPosition != null) {
-						if (itemPosition.getItem() instanceof FacadeNode) {
-							FacadeNode facadeNode = (FacadeNode) itemPosition.getItem();
-							if (!facadeNode.isConcrete()) {
+						if (itemPosition.getItem() instanceof Facade) {
+							Facade facade = (Facade) itemPosition.getItem();
+							if (!facade.isConcrete()) {
 								label.setForeground(Color.LIGHT_GRAY);
 							}
 						}
