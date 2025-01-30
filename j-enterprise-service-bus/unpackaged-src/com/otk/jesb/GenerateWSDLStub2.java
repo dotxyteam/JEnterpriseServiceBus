@@ -1,5 +1,7 @@
 package com.otk.jesb;
 
+import java.util.Arrays;
+
 import com.sun.tools.ws.WsImport;
 
 public class GenerateWSDLStub2 {
@@ -15,6 +17,7 @@ public class GenerateWSDLStub2 {
 				"-b", "http://www.w3.org/2001/XMLSchema.xsd",
 				/*"https://www.crcind.com/csp/samples/SOAP.Demo.CLS?WSDL=1"*/
 				"unpackaged-src/com/otk/jesb/SOAP.Demo.wsdl" };
+		System.out.println(Arrays.toString(input));
 		WsImport.doMain(input);
 	}
 

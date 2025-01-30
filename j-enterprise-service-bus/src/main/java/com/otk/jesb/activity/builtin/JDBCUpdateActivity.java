@@ -22,7 +22,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.util.Accessor;
+import com.otk.jesb.util.Accessor;
 
 public class JDBCUpdateActivity implements Activity {
 

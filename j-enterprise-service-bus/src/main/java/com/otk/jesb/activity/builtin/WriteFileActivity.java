@@ -14,7 +14,7 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.util.Accessor;
+import com.otk.jesb.util.Accessor;
 
 public class WriteFileActivity implements Activity {
 

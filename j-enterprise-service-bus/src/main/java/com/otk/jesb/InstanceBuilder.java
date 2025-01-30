@@ -26,7 +26,7 @@ import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.MapEntryTypeInfoProxy;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
-import xy.reflect.ui.util.Accessor;
+import com.otk.jesb.util.Accessor;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstanceBuilder {

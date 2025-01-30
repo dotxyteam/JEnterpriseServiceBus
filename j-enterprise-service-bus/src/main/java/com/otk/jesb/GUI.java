@@ -34,6 +34,7 @@ import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
@@ -51,6 +52,7 @@ import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
 
@@ -93,7 +95,6 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
-import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
 import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
@@ -442,15 +443,17 @@ public class GUI extends SwingCustomizer {
 
 		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
 				new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
-				new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata());
-		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata());
+				new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
+				new CallSOAPWebServiceActivity.Metadata());
+		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
+				new WSDL.Metadata());
 		private Plan currentPlan;
 		private Step currentStep;
 
 		@Override
 		protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 			return new InfoProxyFactory() {
-
+				
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {
@@ -760,7 +763,7 @@ public class GUI extends SwingCustomizer {
 					ITypeInfo stepType = reflectionUI
 							.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Step.class, null));
 					getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
-							new Accessor<Boolean>() {
+							new xy.reflect.ui.util.Accessor<Boolean>() {
 								@Override
 								public Boolean get() {
 									ReflectionUIUtils

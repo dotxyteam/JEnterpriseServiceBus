@@ -1,6 +1,12 @@
 package com.otk.jesb.util;
 
 import java.awt.Point;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -417,6 +423,103 @@ public class MiscUtils {
 				.filter(f -> (f instanceof InstanceBuilderFacade) && Structured.class
 						.isAssignableFrom(((DefaultTypeInfo) ((InstanceBuilderFacade) f).getTypeInfo()).getJavaType()))
 				.map(f -> ((InstanceBuilderFacade) f).getUnderlying()).collect(Collectors.toList());
+	}
+
+	public static String read(InputStream in) throws Exception {
+		return new String(readBinary(in));
+	}
+
+	public static byte[] readBinary(InputStream in) throws Exception {
+		try {
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			int nRead;
+			byte[] data = new byte[16384];
+			while ((nRead = in.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
+			}
+			buffer.flush();
+			return buffer.toByteArray();
+		} catch (IOException e) {
+			throw new Exception("Error while reading input stream: " + e.getMessage(), e);
+		}
+	}
+
+	public static void write(File file, String text, boolean append) throws Exception {
+		writeBinary(file, text.getBytes(), append);
+	}
+
+	public static void writeBinary(File file, byte[] bytes, boolean append) throws Exception {
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(file, append);
+			out.write(bytes);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			throw new Exception("Unable to write file : '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+
+	}
+
+	public static File createTemporaryFile(String extension) throws Exception {
+		return File.createTempFile("file-", "." + extension);
+	}
+
+	public static File createTemporaryDirectory() throws Exception {
+		File result = File.createTempFile("directory-", ".tmp");
+		delete(result);
+		createDirectory(result);
+		return result;
+	}
+
+	public static void createDirectory(File dir) throws Exception {
+		if (dir.isDirectory()) {
+			return;
+		}
+		try {
+			if (!dir.mkdir()) {
+				throw new Exception("System error");
+			}
+		} catch (Exception e) {
+			throw new Exception("Failed to create directory: '" + dir + "': " + e.toString(), e);
+		}
+	}
+
+	public static void delete(File file) throws Exception {
+		delete(file, null, null);
+	}
+
+	public static void delete(File file, FilenameFilter filter, Listener<Pair<File, Exception>> errorHandler)
+			throws Exception {
+		if (file.isDirectory()) {
+			for (File childFile : file.listFiles(filter)) {
+				delete(childFile, filter, errorHandler);
+			}
+			if (file.listFiles().length > 0) {
+				return;
+			}
+		}
+		boolean success;
+		try {
+			success = file.delete();
+			if (!success) {
+				throw new Exception("System error");
+			}
+		} catch (Exception e) {
+			e = new Exception("Failed to delete resource: '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+			if (errorHandler != null) {
+				errorHandler.handle(new Pair<File, Exception>(file, e));
+			} else {
+				throw e;
+			}
+		}
 	}
 
 }

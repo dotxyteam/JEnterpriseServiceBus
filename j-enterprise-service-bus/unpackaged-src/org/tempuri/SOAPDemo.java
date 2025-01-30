@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "SOAPDemo", targetNamespace = "http://tempuri.org", wsdlLocation = "file:/media/olitank/data/prog/git/JEnterpriseServiceBus/j-enterprise-service-bus/unpackaged-src/org/tempuri/SOAP.Demo.wsdl")
+@WebServiceClient(name = "SOAPDemo", targetNamespace = "http://tempuri.org", wsdlLocation = "file:/media/olitank/data/prog/git/JEnterpriseServiceBus/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/SOAP.Demo.wsdl")
 public class SOAPDemo
     extends Service
 {
@@ -30,7 +30,7 @@ public class SOAPDemo
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/media/olitank/data/prog/git/JEnterpriseServiceBus/j-enterprise-service-bus/unpackaged-src/org/tempuri/SOAP.Demo.wsdl");
+            url = new URL("file:/media/olitank/data/prog/git/JEnterpriseServiceBus/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/SOAP.Demo.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

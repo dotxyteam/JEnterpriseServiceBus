@@ -1,5 +1,6 @@
 package org.tempuri;
 
+import java.io.File;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -22,8 +23,9 @@ public class Test {
 			/*SOAPDemoImpl implementor = new SOAPDemoImpl();
 			Endpoint.publish(url.toString(), implementor);*/
 
-			
-			SOAPDemoSoap port = new SOAPDemo().getPort(SOAPDemoSoap.class); 
+			SOAPDemo service = new SOAPDemo(new File("unpackaged-src/com/otk/jesb/SOAP.Demo.wsdl").toURI().toURL());
+			//SOAPDemoSoap port = new SOAPDemo().getPort(SOAPDemoSoap.class); 
+			SOAPDemoSoap port = service.getSOAPDemoSoap(); 
 			//BindingProvider bindingProvider = (BindingProvider) port;
 			//bindingProvider.getRequestContext().put(BindingProvider.
 			//ENDPOINT_ADDRESS_PROPERTY, url.toString());

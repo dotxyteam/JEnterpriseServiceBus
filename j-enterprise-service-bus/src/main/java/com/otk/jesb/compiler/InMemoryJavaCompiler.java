@@ -2,6 +2,8 @@ package com.otk.jesb.compiler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +26,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
+
+import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryJavaCompiler {
 
@@ -50,7 +54,7 @@ public class InMemoryJavaCompiler {
 		@Override
 		public String inferBinaryName(Location loc, JavaFileObject file) {
 			if (file instanceof NamedJavaFileObject)
-				return ((NamedJavaFileObject) file).name;
+				return ((NamedJavaFileObject) file).className;
 			else
 				return super.inferBinaryName(loc, file);
 		}
@@ -65,10 +69,25 @@ public class InMemoryJavaCompiler {
 		this.options = options;
 	}
 
-	public Class<?> compile(String name, String source, ClassLoader parentClassLoader) throws CompilationError {
-		compile(sourceFile(name, source));
+	public List<Class<?>> compile(File sourceDirectory, ClassLoader parentClassLoader) throws CompilationError {
+		List<JavaFileObject> files = collectSourceFiles(sourceDirectory, null);
+		compile(files.toArray(new JavaFileObject[files.size()]));
+		List<Class<?>> result = new ArrayList<Class<?>>();
+		for (JavaFileObject file : files) {
+			String name = ((NamedJavaFileObject) file).className;
+			try {
+				result.add(new MemoryClassLoader(parentClassLoader, name).loadClass(name));
+			} catch (ClassNotFoundException e) {
+				throw new AssertionError(e);
+			}
+		}
+		return result;
+	}
+
+	public Class<?> compile(String className, String source, ClassLoader parentClassLoader) throws CompilationError {
+		compile(sourceFile(className, source));
 		try {
-			return new MemoryClassLoader(parentClassLoader, name).loadClass(name);
+			return new MemoryClassLoader(parentClassLoader, className).loadClass(className);
 		} catch (ClassNotFoundException e) {
 			throw new AssertionError(e);
 		}
@@ -98,7 +117,34 @@ public class InMemoryJavaCompiler {
 			throw new CompilationError(-1, -1, "Unknown error");
 	}
 
-	public static JavaFileObject sourceFile(String name, String source) {
+	private List<JavaFileObject> collectSourceFiles(File sourceDirectory, String currentPackageName) {
+		List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+		for (File fileOrDirectory : sourceDirectory.listFiles()) {
+			if (fileOrDirectory.isFile()) {
+				if (fileOrDirectory.getName().endsWith(".java")) {
+					String className = fileOrDirectory.getName().substring(0, fileOrDirectory.getName().length() - ".java".length());
+					if (currentPackageName != null) {
+						className = currentPackageName + "." + className;
+					}
+					String source;
+					try (FileInputStream in = new FileInputStream(fileOrDirectory)) {
+						source = MiscUtils.read(in);
+					} catch (Exception e) {
+						throw new AssertionError(e);
+					}
+					result.add(sourceFile(className, source));
+				}
+			} else if (fileOrDirectory.isDirectory()) {
+				String subPackageName = ((currentPackageName != null) ? (currentPackageName + ".") : "") + fileOrDirectory.getName();
+				result.addAll(collectSourceFiles(fileOrDirectory, subPackageName));
+			} else {
+				throw new AssertionError();
+			}
+		}
+		return result;
+	}
+
+	private static JavaFileObject sourceFile(String name, String source) {
 		return inputFile(name, Kind.SOURCE, source);
 	}
 
@@ -124,7 +170,7 @@ public class InMemoryJavaCompiler {
 		return new NamedJavaFileObject(name, kind) {
 			@Override
 			public OutputStream openOutputStream() {
-				return outputStream(name);
+				return outputStream(className);
 			}
 		};
 	}
@@ -150,19 +196,18 @@ public class InMemoryJavaCompiler {
 		classes.remove(name);
 		int dot = name.lastIndexOf('.');
 		String pkg = dot == -1 ? "" : name.substring(0, dot);
-		packages.get(pkg).removeIf(
-				(file) -> ((NamedJavaFileObject)file).name.equals(name));
+		packages.get(pkg).removeIf((file) -> ((NamedJavaFileObject) file).className.equals(name));
 		if (packages.get(pkg).size() == 0) {
 			packages.remove(pkg);
 		}
 	}
 
 	private static class NamedJavaFileObject extends SimpleJavaFileObject {
-		final String name;
+		final String className;
 
 		protected NamedJavaFileObject(String name, Kind kind) {
 			super(URI.create(name.replace('.', '/') + kind.extension), kind);
-			this.name = name;
+			this.className = name;
 		}
 	}
 

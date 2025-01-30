@@ -1,16 +1,29 @@
 package com.otk.jesb.activity.builtin;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.otk.jesb.Asset;
+import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -86,7 +99,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		@Override
 		public ResourcePath getActivityIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(ExecutePlanActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(CallSOAPWebServiceActivity.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
@@ -94,51 +107,251 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		private WSDL wsdl;
 		private InstanceBuilder operationInputBuilder;
+		private String serviceName;
+		private String portName;
+		private String operationName;
+
+		private Class<? extends OperationInput> operationInputClass;
+
+		public WSDL getWSDL() {
+			return wsdl;
+		}
+
+		public void setWSDL(WSDL wsdl) {
+			this.wsdl = wsdl;
+			selectValuesAutomatically();
+			updateOperationInputClass();
+			updateOperationInputBuilder();
+		}
+
+		public String getServiceName() {
+			return serviceName;
+		}
+
+		public void setServiceName(String serviceName) {
+			this.serviceName = serviceName;
+			selectValuesAutomatically();
+			updateOperationInputClass();
+			updateOperationInputBuilder();
+		}
+
+		public String getPortName() {
+			return portName;
+		}
+
+		public void setPortName(String portName) {
+			this.portName = portName;
+			selectValuesAutomatically();
+			updateOperationInputClass();
+			updateOperationInputBuilder();
+		}
+
+		public String getOperationName() {
+			return operationName;
+		}
+
+		public void setOperationName(String operationName) {
+			this.operationName = operationName;
+			selectValuesAutomatically();
+			updateOperationInputClass();
+			updateOperationInputBuilder();
+		}
+
+		public InstanceBuilder getOperationInputBuilder() {
+			return operationInputBuilder;
+		}
+
+		public void setOperationInputBuilder(InstanceBuilder operationInputBuilder) {
+			this.operationInputBuilder = operationInputBuilder;
+		}
+
+		private void selectValuesAutomatically() {
+			if (serviceName == null) {
+				WSDL wsdl = getWSDL();
+				if (wsdl != null) {
+					List<WSDL.ServiceDescriptor> services = wsdl.getServiceDescriptors();
+					if (services.size() > 0) {
+						serviceName = services.get(0).getServiceName();
+					}
+				}
+			}
+			if (portName == null) {
+				WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+				if (service != null) {
+					List<WSDL.PortDescriptor> ports = service.getPortDescriptors();
+					if (ports.size() > 0) {
+						portName = ports.get(0).getPortName();
+					}
+				}
+			}
+			if (operationName == null) {
+				WSDL.PortDescriptor port = retrievePortDescriptor();
+				if (port != null) {
+					List<WSDL.OperationDescriptor> operations = port.getOperationDescriptors();
+					if (operations.size() > 0) {
+						operationName = operations.get(0).getOperationName();
+					}
+				}
+			}
+		}
+
+		private void updateOperationInputBuilder() {
+			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+			if (operation == null) {
+				if (operationInputBuilder != null) {
+					operationInputBuilder = null;
+				}
+			} else {
+				if (operationInputBuilder == null) {
+					operationInputBuilder = new InstanceBuilder(new Accessor<String>() {
+						@Override
+						public String get() {
+							if (operationInputClass == null) {
+								return Object.class.getName();
+							}
+							return operationInputClass.getName();
+						}
+					});
+				}
+			}
+		}
+
+		private void updateOperationInputClass() {
+			operationInputClass = createOperationInputClass();
+			if (operationInputClass != null) {
+				TypeInfoProvider.registerClass(operationInputClass);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private Class<? extends OperationInput> createOperationInputClass() {
+			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+			if (operation == null) {
+				return null;
+			}
+			String className = OperationInput.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
+			StringBuilder javaSource = new StringBuilder();
+			javaSource.append("public class " + className + " implements "
+					+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{" + "\n");
+			Method operationMethod = operation.retrieveMethod();
+			for (Parameter parameter : operationMethod.getParameters()) {
+				javaSource.append("  private " + MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
+						+ " " + parameter.getName() + ";\n");
+			}
+			List<String> constructorParameterDeclarations = new ArrayList<String>();
+			for (Parameter parameter : operationMethod.getParameters()) {
+				constructorParameterDeclarations.add(MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
+						+ " " + parameter.getName());
+			}
+			javaSource.append("  public " + className + "("
+					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
+			for (Parameter parameter : operationMethod.getParameters()) {
+				javaSource.append("    this." + parameter.getName() + " = " + parameter.getName() + ";\n");
+			}
+			javaSource.append("  }" + "\n");
+			javaSource.append("  @Override" + "\n");
+			javaSource.append("  public Object[] listParameterValues() {" + "\n");
+			javaSource.append(
+					"  return new Object[] {" + MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
+							.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ") + "};" + "\n");
+			javaSource.append("  }" + "\n");
+			javaSource.append("}" + "\n");
+			try {
+				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+						javaSource.toString(), JDBCQueryActivity.class.getClassLoader());
+			} catch (CompilationError e) {
+				throw new AssertionError(e);
+			}
+		}
+		
+		public List<WSDL> getWSDLOptions() {
+			final List<WSDL> result = new ArrayList<WSDL>();
+			Solution.INSTANCE.visitAssets(new AssetVisitor() {
+				@Override
+				public boolean visitAsset(Asset asset) {
+					if (asset instanceof WSDL) {
+						result.add((WSDL) asset);
+					}
+					return true;
+				}
+			});
+			return result;
+		}
+
+		public List<String> getServiceNameOptions() {
+			WSDL wsdl = getWSDL();
+			if (wsdl == null) {
+				return Collections.emptyList();
+			}
+			return wsdl.getServiceDescriptors().stream().map(s -> s.getServiceName()).collect(Collectors.toList());
+		}
+
+		public List<String> getPortNameOptions() {
+			WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+			if (service == null) {
+				return Collections.emptyList();
+			}
+			return service.getPortDescriptors().stream().map(p -> p.getPortName()).collect(Collectors.toList());
+		}
+
+		public List<String> getOperationNameOptions() {
+			WSDL.PortDescriptor port = retrievePortDescriptor();
+			if (port == null) {
+				return Collections.emptyList();
+			}
+			return port.getOperationDescriptors().stream().map(o -> o.getOperationName()).collect(Collectors.toList());
+		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			WSDL.Service service = wsdl.getServices().stream().filter(s -> s.getName().equals(selectedServiceTypeName))
-					.findFirst().get();
-			WSDL.PortType portType = service.getPortTypes().stream()
-					.filter(pt -> pt.getName().equals(selectedPortTypeName)).findFirst().get();
-			WSDL.Operation operation = portType.getOperations().stream()
-					.filter(o -> o.getName().equals(selectedOperationName)).findFirst().get();
 			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
-			result.setServiceClass(service.toClass());
-			result.setPortClass(portType.toClass());
-			result.setOperationMethod(operation.toMethod());
-			result.setOperationInput(operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
+			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
+			result.setPortClass(retrievePortDescriptor().retrieveInterface());
+			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
+			result.setOperationInput((OperationInput) operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
 			return result;
 		}
 
 		@Override
 		public Class<?> getActivityResultClass() {
-			if (wsdl == null) {
-				return null;
-			}
-			WSDL.Service service = wsdl.getServices().stream().filter(s -> s.getName().equals(selectedServiceTypeName))
-					.findFirst().get();
-			if (service == null) {
-				return null;
-			}
-			WSDL.PortType portType = service.getPortTypes().stream()
-					.filter(pt -> pt.getName().equals(selectedPortTypeName)).findFirst().get();
-			if (portType == null) {
-				return null;
-			}
-			WSDL.Operation operation = portType.getOperations().stream()
-					.filter(o -> o.getName().equals(selectedOperationName)).findFirst().get();
+			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;
 			}
-			return operation.toMethod().getReturnType();
+			return operation.retrieveMethod().getReturnType();
+		}
+
+		private WSDL.ServiceDescriptor retrieveServiceDescriptor() {
+			WSDL wsdl = getWSDL();
+			if (wsdl == null) {
+				return null;
+			}
+			return wsdl.getServiceDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName)).findFirst()
+					.get();
+		}
+
+		private WSDL.PortDescriptor retrievePortDescriptor() {
+			WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+			if (service == null) {
+				return null;
+			}
+			return service.getPortDescriptors().stream().filter(p -> p.getPortName().equals(portName)).findFirst()
+					.get();
+		}
+
+		private WSDL.OperationDescriptor retrieveOperationDescriptor() {
+			WSDL.PortDescriptor port = retrievePortDescriptor();
+			if (port == null) {
+				return null;
+			}
+			return port.getOperationDescriptors().stream().filter(o -> o.getOperationName().equals(operationName))
+					.findFirst().get();
 		}
 
 		@Override
 		public VerificationContext findFunctionVerificationContext(Function function,
 				ValidationContext validationContext) {
-			// TODO Auto-generated method stub
-			return null;
+			return operationInputBuilder.findFunctionVerificationContext(function, validationContext, null);
 		}
 
 	}
