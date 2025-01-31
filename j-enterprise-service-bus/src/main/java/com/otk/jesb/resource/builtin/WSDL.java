@@ -1,5 +1,6 @@
 package com.otk.jesb.resource.builtin;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,9 +18,10 @@ import java.util.stream.Collectors;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
-import com.sun.tools.ws.WsImport;
+import com.sun.tools.ws.wscompile.WsimportTool;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class WSDL extends Resource {
 
@@ -64,10 +66,12 @@ public class WSDL extends Resource {
 						String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep",
 								"-Xnocompile", "-b", "http://www.w3.org/2001/XMLSchema.xsd", "-verbose",
 								wsdlFile.getPath() };
-						System.out.println(Arrays.toString(wsImportArguments));
 						System.setProperty("javax.xml.accessExternalSchema", "all");
 						System.setProperty("javax.xml.accessExternalDTD", "all");
-						WsImport.doMain(wsImportArguments);
+						ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
+						if (!new WsimportTool(logsBuffer).run(wsImportArguments)) {
+							throw new Exception("Failed to generate classes:\n" + logsBuffer.toString());
+						}
 					} catch (Throwable t) {
 						throw new RuntimeException(t);
 					}
@@ -154,8 +158,8 @@ public class WSDL extends Resource {
 			this.operationMethod = m;
 		}
 
-		public String getOperationName() {
-			return operationMethod.getName().substring(0, 1).toUpperCase() + operationMethod.getName().substring(1);
+		public String getOperationSignature() {
+			return ReflectionUIUtils.buildMethodSignature(operationMethod);
 		}
 
 		public Method retrieveMethod() {

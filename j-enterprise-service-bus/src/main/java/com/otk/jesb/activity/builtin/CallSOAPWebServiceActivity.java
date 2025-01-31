@@ -1,7 +1,9 @@
 package com.otk.jesb.activity.builtin;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,10 +31,19 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class CallSOAPWebServiceActivity implements Activity {
 
+	private WSDL wsdl;
 	private Class<?> serviceClass;
 	private Class<?> portClass;
 	private Method operationMethod;
 	private OperationInput operationInput;
+
+	public WSDL getWSDL() {
+		return wsdl;
+	}
+
+	public void setWSDL(WSDL wsdl) {
+		this.wsdl = wsdl;
+	}
 
 	public Class<?> getServiceClass() {
 		return serviceClass;
@@ -68,9 +79,15 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 	@Override
 	public Object execute() throws Exception {
-		Object service = serviceClass.newInstance();
-		Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portClass);
-		return operationMethod.invoke(port, operationInput.listParameterValues());
+		File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
+		try {
+			MiscUtils.write(wsdlFile, wsdl.getText(), false);
+			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());
+			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portClass);
+			return operationMethod.invoke(port, operationInput.listParameterValues());
+		} finally {
+			MiscUtils.delete(wsdlFile);
+		}
 	}
 
 	public interface OperationInput {
@@ -98,8 +115,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		@Override
 		public ResourcePath getActivityIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(CallSOAPWebServiceActivity.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
+					CallSOAPWebServiceActivity.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
@@ -109,7 +126,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		private InstanceBuilder operationInputBuilder;
 		private String serviceName;
 		private String portName;
-		private String operationName;
+		private String operationSignature;
 
 		private Class<? extends OperationInput> operationInputClass;
 
@@ -146,12 +163,12 @@ public class CallSOAPWebServiceActivity implements Activity {
 			updateOperationInputBuilder();
 		}
 
-		public String getOperationName() {
-			return operationName;
+		public String getOperationSignature() {
+			return operationSignature;
 		}
 
-		public void setOperationName(String operationName) {
-			this.operationName = operationName;
+		public void setOperationSignature(String operationSignature) {
+			this.operationSignature = operationSignature;
 			selectValuesAutomatically();
 			updateOperationInputClass();
 			updateOperationInputBuilder();
@@ -184,12 +201,12 @@ public class CallSOAPWebServiceActivity implements Activity {
 					}
 				}
 			}
-			if (operationName == null) {
+			if (operationSignature == null) {
 				WSDL.PortDescriptor port = retrievePortDescriptor();
 				if (port != null) {
 					List<WSDL.OperationDescriptor> operations = port.getOperationDescriptors();
 					if (operations.size() > 0) {
-						operationName = operations.get(0).getOperationName();
+						operationSignature = operations.get(0).getOperationSignature();
 					}
 				}
 			}
@@ -263,7 +280,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				throw new AssertionError(e);
 			}
 		}
-		
+
 		public List<WSDL> getWSDLOptions() {
 			final List<WSDL> result = new ArrayList<WSDL>();
 			Solution.INSTANCE.visitAssets(new AssetVisitor() {
@@ -294,21 +311,24 @@ public class CallSOAPWebServiceActivity implements Activity {
 			return service.getPortDescriptors().stream().map(p -> p.getPortName()).collect(Collectors.toList());
 		}
 
-		public List<String> getOperationNameOptions() {
+		public List<String> getOperationSignatureOptions() {
 			WSDL.PortDescriptor port = retrievePortDescriptor();
 			if (port == null) {
 				return Collections.emptyList();
 			}
-			return port.getOperationDescriptors().stream().map(o -> o.getOperationName()).collect(Collectors.toList());
+			return port.getOperationDescriptors().stream().map(o -> o.getOperationSignature())
+					.collect(Collectors.toList());
 		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
+			result.setWSDL(wsdl);
 			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
 			result.setPortClass(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
-			result.setOperationInput((OperationInput) operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
+			result.setOperationInput(
+					(OperationInput) operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
 			return result;
 		}
 
@@ -344,8 +364,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 			if (port == null) {
 				return null;
 			}
-			return port.getOperationDescriptors().stream().filter(o -> o.getOperationName().equals(operationName))
-					.findFirst().get();
+			return port.getOperationDescriptors().stream()
+					.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().get();
 		}
 
 		@Override
