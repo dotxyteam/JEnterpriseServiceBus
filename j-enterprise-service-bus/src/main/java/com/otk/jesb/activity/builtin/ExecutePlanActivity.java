@@ -7,6 +7,7 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -78,7 +79,15 @@ public class ExecutePlanActivity implements Activity {
 	public static class Builder implements ActivityBuilder {
 
 		private Plan plan;
-		private InstanceBuilder planInputBuilder;
+		private InstanceBuilder planInputBuilder = new InstanceBuilder(new Accessor<String>() {
+			@Override
+			public String get() {
+				if ((plan == null) || (plan.getInputClass() == null)) {
+					return NullInstance.class.getName();
+				}
+				return plan.getInputClass().getName();
+			}
+		});
 
 		public Plan getPlan() {
 			return plan;
@@ -86,27 +95,6 @@ public class ExecutePlanActivity implements Activity {
 
 		public void setPlan(Plan plan) {
 			this.plan = plan;
-			updatePlanInputBuilder();
-		}
-
-		private void updatePlanInputBuilder() {
-			if (plan == null) {
-				if (planInputBuilder != null) {
-					planInputBuilder = null;
-				}
-			} else {
-				if (planInputBuilder == null) {
-					planInputBuilder = new InstanceBuilder(new Accessor<String>() {
-						@Override
-						public String get() {
-							if (plan.getInputClass() == null) {
-								return Object.class.getName();
-							}
-							return plan.getInputClass().getName();
-						}
-					});
-				}
-			}
 		}
 
 		public List<Plan> getPlanChoices() {
@@ -135,8 +123,7 @@ public class ExecutePlanActivity implements Activity {
 		public Activity build(ExecutionContext context) throws Exception {
 			ExecutePlanActivity result = new ExecutePlanActivity();
 			result.setPlan(plan);
-			result.setPlanInput(
-					planInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
+			result.setPlanInput(planInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
 			return result;
 		}
 
@@ -149,7 +136,8 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext){
+		public VerificationContext findFunctionVerificationContext(Function function,
+				ValidationContext validationContext) {
 			return planInputBuilder.findFunctionVerificationContext(function, validationContext, null);
 		}
 

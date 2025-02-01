@@ -213,7 +213,7 @@ public class InstanceBuilder {
 			}
 		} else {
 			object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));
-		}
+		}		
 		for (IFieldInfo field : typeInfo.getFields()) {
 			if (field.isGetOnly()) {
 				continue;
@@ -230,6 +230,9 @@ public class InstanceBuilder {
 			Object fieldValue = MiscUtils.interpretValue(fieldInitializer.getFieldValue(), field.getType(),
 					new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 			field.setValue(object, fieldValue);
+		}
+		if(object instanceof NullInstance) {
+			return null;
 		}
 		return object;
 	}
@@ -422,6 +425,9 @@ public class InstanceBuilder {
 	@Override
 	public String toString() {
 		return "<" + getTypeName() + ">";
+	}
+
+	public static class NullInstance {
 	}
 
 	public static class MapEntryBuilder extends InstanceBuilder {

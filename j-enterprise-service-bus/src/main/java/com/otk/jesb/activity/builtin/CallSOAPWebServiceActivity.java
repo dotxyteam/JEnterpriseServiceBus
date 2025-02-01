@@ -14,6 +14,7 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -122,13 +123,21 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
+		private Class<? extends OperationInput> operationInputClass;
+
 		private WSDL wsdl;
-		private InstanceBuilder operationInputBuilder;
+		private InstanceBuilder operationInputBuilder = new InstanceBuilder(new Accessor<String>() {
+			@Override
+			public String get() {
+				if (operationInputClass == null) {
+					return NullInstance.class.getName();
+				}
+				return operationInputClass.getName();
+			}
+		});
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
-
-		private Class<? extends OperationInput> operationInputClass;
 
 		public WSDL getWSDL() {
 			return wsdl;
@@ -138,7 +147,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			this.wsdl = wsdl;
 			selectValuesAutomatically();
 			updateOperationInputClass();
-			updateOperationInputBuilder();
 		}
 
 		public String getServiceName() {
@@ -149,7 +157,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			this.serviceName = serviceName;
 			selectValuesAutomatically();
 			updateOperationInputClass();
-			updateOperationInputBuilder();
 		}
 
 		public String getPortName() {
@@ -160,7 +167,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			this.portName = portName;
 			selectValuesAutomatically();
 			updateOperationInputClass();
-			updateOperationInputBuilder();
 		}
 
 		public String getOperationSignature() {
@@ -171,7 +177,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			this.operationSignature = operationSignature;
 			selectValuesAutomatically();
 			updateOperationInputClass();
-			updateOperationInputBuilder();
 		}
 
 		public InstanceBuilder getOperationInputBuilder() {
@@ -208,27 +213,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 					if (operations.size() > 0) {
 						operationSignature = operations.get(0).getOperationSignature();
 					}
-				}
-			}
-		}
-
-		private void updateOperationInputBuilder() {
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-			if (operation == null) {
-				if (operationInputBuilder != null) {
-					operationInputBuilder = null;
-				}
-			} else {
-				if (operationInputBuilder == null) {
-					operationInputBuilder = new InstanceBuilder(new Accessor<String>() {
-						@Override
-						public String get() {
-							if (operationInputClass == null) {
-								return Object.class.getName();
-							}
-							return operationInputClass.getName();
-						}
-					});
 				}
 			}
 		}

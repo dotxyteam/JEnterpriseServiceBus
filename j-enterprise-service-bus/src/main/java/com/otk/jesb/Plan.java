@@ -3,11 +3,13 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
@@ -28,7 +30,15 @@ public class Plan extends Asset {
 	private ClassicStructure outputStructure;
 	private Class<?> inputClass;
 	private Class<?> outputClass;
-	private InstanceBuilder outputBuilder;
+	private InstanceBuilder outputBuilder = new InstanceBuilder(new Accessor<String>() {
+		@Override
+		public String get() {
+			if (outputClass == null) {
+				return NullInstance.class.getName();
+			}
+			return outputClass.getName();
+		}
+	});
 
 	public List<Step> getSteps() {
 		return steps;
@@ -64,6 +74,14 @@ public class Plan extends Asset {
 		updateOutputClass();
 	}
 
+	public InstanceBuilder getOutputBuilder() {
+		return outputBuilder;
+	}
+
+	public void setOutputBuilder(InstanceBuilder outputBuilder) {
+		this.outputBuilder = outputBuilder;
+	}
+
 	private void updateInputClass() {
 		if (inputStructure == null) {
 			inputClass = null;
@@ -84,7 +102,7 @@ public class Plan extends Asset {
 			outputClass = null;
 		} else {
 			try {
-				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
+				String className = "PlanOutput" + MiscUtils.getDigitalUniqueIdentifier();
 				outputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 						outputStructure.generateJavaTypeSourceCode(className),
 						JDBCQueryActivity.class.getClassLoader());
@@ -164,11 +182,7 @@ public class Plan extends Asset {
 			});
 		}
 		execute(steps, context, executionInspector);
-		if (outputBuilder == null) {
-			return null;
-		} else {
-			return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
-		}
+		return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
 	}
 
 	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
