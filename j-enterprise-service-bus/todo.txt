@@ -1,3 +1,24 @@
+- every function should have the field/parameter/listItem type so that
+its body gets type checked
+- InstanceBuilder design issues:
+	. an InstanceBuilder can build but cannot copy (or just transfer) an instance
+	. InstanceBuilder misses these features: 'copy', 'choose when', 'with', 'auto map'
+	=) the InstanceBuilder should be equivalent to the TIBCO BW mapper. It should
+	offer as much transformation specification capabilities. Actually a BW mapper
+	obtains its power from a subset of XSLT. It allows to specify how to build an 
+	XML document while the InstanceBuilder allows to specify how to build an Java
+	object. It should then be possible to have as much power in an InstanceBuilder
+	than in a BW mapper. They both allow to specify the value of a 
+	Java field/parameter or XML element/attribute. But the BW mapper allows to
+	specify how to build the root element with as much power as other elements
+	while the InstanceBuilder does not offer as much possibilities for the root
+	object as for the other descendants objects. This is because the BW mapper
+	power is in a sort of element initializer that builds the root element while
+	the InstanceBuilder power is in field/parameter/listItem initializers that
+	cannot be used for the root object. That involves a weakness in the possibilities
+	of specification of InstanceBuilders: The root object creation specification
+	with an InstanceBuilder cannot be as simple as the root element creation
+	specification with a BW mapper. 
 - rename activity classes (remove 'Activity' suffix)
 - wrap function editor lines ???
 - diagram improvements:
@@ -46,4 +67,3 @@ to display incoherent nodes with an error marker
 - allow to specify activity builder UI details through the code
 - add validation
 - change the look and feel (maybe the windows look and feel would be good)
-- bug to fix: replace "$" by "." for class names where generating source code

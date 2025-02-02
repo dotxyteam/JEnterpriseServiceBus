@@ -23,7 +23,6 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
-import xy.reflect.ui.info.type.iterable.map.MapEntryTypeInfoProxy;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 import com.otk.jesb.util.Accessor;
@@ -213,7 +212,7 @@ public class InstanceBuilder {
 			}
 		} else {
 			object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));
-		}		
+		}
 		for (IFieldInfo field : typeInfo.getFields()) {
 			if (field.isGetOnly()) {
 				continue;
@@ -231,7 +230,7 @@ public class InstanceBuilder {
 					new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 			field.setValue(object, fieldValue);
 		}
-		if(object instanceof NullInstance) {
+		if (object instanceof NullInstance) {
 			return null;
 		}
 		return object;
@@ -829,15 +828,9 @@ public class InstanceBuilder {
 		}
 
 		@Override
-		public IMapEntryTypeInfo getTypeInfo() {
-			return new MapEntryTypeInfoProxy((IMapEntryTypeInfo) super.getTypeInfo()) {
-
-				@Override
-				public List<IFieldInfo> getFields() {
-					return Collections.emptyList();
-				}
-
-			};
+		public List<Facade> getChildren() {
+			return super.getChildren().stream().filter(f -> f instanceof ParameterInitializerFacade)
+					.collect(Collectors.toList());
 		}
 
 		@Override
