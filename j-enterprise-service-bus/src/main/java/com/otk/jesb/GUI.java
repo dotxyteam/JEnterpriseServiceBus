@@ -287,6 +287,11 @@ public class GUI extends SwingCustomizer {
 										}
 									}
 								}
+								if (field.getName().equals("typeGroup")) {
+									if(((InstanceBuilderFacade)object).getUnderlying().getDynamicTypeNameAccessor() != null) {
+										setVisible(false);
+									}
+								}
 							}
 							super.refreshUI(recreate);
 						}
