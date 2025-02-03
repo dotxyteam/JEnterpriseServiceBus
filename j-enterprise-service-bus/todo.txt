@@ -1,3 +1,5 @@
+- control InstanceBuilder.typeName updates: the new type should inherit from the
+normal type
 - every function should have the field/parameter/listItem type so that
 its body gets type checked
 - InstanceBuilder design issues:

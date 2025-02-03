@@ -6,7 +6,7 @@ import java.util.Map;
 public class InstanceBuilderTest {
 
 	public static void main(String[] args) {
-		GUI.INSTANCE.openObjectDialog(null, new InstanceBuilder(Tree.class.getName()));
+		GUI.INSTANCE.openObjectDialog(null, new InstanceBuilder.RootInstanceBuilder(Tree.class.getName()));
 	}
 
 	public static class Tree {
