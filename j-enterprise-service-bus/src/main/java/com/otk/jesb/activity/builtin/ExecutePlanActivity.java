@@ -8,6 +8,7 @@ import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.NullInstance;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -79,15 +80,16 @@ public class ExecutePlanActivity implements Activity {
 	public static class Builder implements ActivityBuilder {
 
 		private Plan plan;
-		private InstanceBuilder planInputBuilder = new InstanceBuilder(new Accessor<String>() {
-			@Override
-			public String get() {
-				if ((plan == null) || (plan.getInputClass() == null)) {
-					return NullInstance.class.getName();
-				}
-				return plan.getInputClass().getName();
-			}
-		});
+		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
+				new Accessor<String>() {
+					@Override
+					public String get() {
+						if ((plan == null) || (plan.getInputClass() == null)) {
+							return NullInstance.class.getName();
+						}
+						return plan.getInputClass().getName();
+					}
+				});
 
 		public Plan getPlan() {
 			return plan;
@@ -111,11 +113,11 @@ public class ExecutePlanActivity implements Activity {
 			return result;
 		}
 
-		public InstanceBuilder getPlanInputBuilder() {
+		public RootInstanceBuilder getPlanInputBuilder() {
 			return planInputBuilder;
 		}
 
-		public void setPlanInputBuilder(InstanceBuilder planInputBuilder) {
+		public void setPlanInputBuilder(RootInstanceBuilder planInputBuilder) {
 			this.planInputBuilder = planInputBuilder;
 		}
 

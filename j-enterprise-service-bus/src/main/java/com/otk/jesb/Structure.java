@@ -42,12 +42,15 @@ public abstract class Structure {
 		@Override
 		public String generateJavaTypeSourceCode(String className) {
 			StringBuilder result = new StringBuilder();
-			result.append("public class " + className + " implements "
+			if (MiscUtils.isPackageNameInClassName(className)) {
+				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+			}
+			result.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName()) + "{" + "\n");
 			result.append(MiscUtils.stringJoin(elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode())
 					.collect(Collectors.toList()), "\n") + "\n");
 			result.append(
-					"public " + className + "("
+					"public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
 							+ MiscUtils.stringJoin(elements.stream()
 									.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode())
 									.filter(Objects::nonNull).collect(Collectors.toList()), ", ")

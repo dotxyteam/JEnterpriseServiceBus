@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -146,18 +147,19 @@ public class WriteFileActivity implements Activity {
 		};
 
 		private Mode mode = Mode.TEXT;
-		private InstanceBuilder instanceBuilder = new InstanceBuilder(new Accessor<String>() {
-			@Override
-			public String get() {
-				if (mode == Mode.TEXT) {
-					return WriteTextFileActivity.class.getName();
-				} else if (mode == Mode.BINARY) {
-					return WriteBinaryFileActivity.class.getName();
-				} else {
-					throw new AssertionError();
-				}
-			}
-		});
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
+				WriteFileActivity.class.getSimpleName() + "Input", new Accessor<String>() {
+					@Override
+					public String get() {
+						if (mode == Mode.TEXT) {
+							return WriteTextFileActivity.class.getName();
+						} else if (mode == Mode.BINARY) {
+							return WriteBinaryFileActivity.class.getName();
+						} else {
+							throw new AssertionError();
+						}
+					}
+				});
 
 		public Mode getMode() {
 			return mode;
@@ -167,11 +169,11 @@ public class WriteFileActivity implements Activity {
 			this.mode = mode;
 		}
 
-		public InstanceBuilder getInstanceBuilder() {
+		public RootInstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
 		}
 
-		public void setInstanceBuilder(InstanceBuilder instanceBuilder) {
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
 			this.instanceBuilder = instanceBuilder;
 		}
 

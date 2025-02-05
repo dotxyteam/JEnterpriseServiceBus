@@ -3,6 +3,8 @@ package com.otk.jesb.meta;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.IInfo;
 import xy.reflect.ui.info.field.GetterFieldInfo;
@@ -13,8 +15,6 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 
 public class TypeInfoProvider {
 
-	private static CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
-
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
@@ -22,7 +22,7 @@ public class TypeInfoProvider {
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
 		Class<?> objectClass;
 		try {
-			objectClass = Class.forName(typeName, false, compositeClassLoader);
+			objectClass = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
 		} catch (ClassNotFoundException e) {
 			throw new AssertionError(e);
 		}
@@ -45,14 +45,6 @@ public class TypeInfoProvider {
 			javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
 		}
 		return reflectionUI.getTypeInfo(javaTypeInfoSource);
-	}
-
-	public static void registerClass(Class<?> clazz) {
-		compositeClassLoader.add(clazz.getClassLoader());
-	}
-
-	public static ClassLoader getClassLoader() {
-		return compositeClassLoader;
 	}
 
 }

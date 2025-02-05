@@ -3,6 +3,7 @@ package com.otk.jesb.activity.builtin;
 import java.io.IOException;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -16,12 +17,12 @@ public class SleepActivity implements Activity {
 
 	private long milliseconds;
 
-	public long getMilliseconds() {
-		return milliseconds;
+	public SleepActivity(long milliseconds) {
+		this.milliseconds = milliseconds;
 	}
 
-	public void setMilliseconds(long milliseconds) {
-		this.milliseconds = milliseconds;
+	public long getMilliseconds() {
+		return milliseconds;
 	}
 
 	@Override
@@ -60,20 +61,20 @@ public class SleepActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private InstanceBuilder instanceBuilder = new InstanceBuilder(SleepActivity.class.getName());
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
+				SleepActivity.class.getSimpleName() + "Input", SleepActivity.class.getName());
 
-		public InstanceBuilder getInstanceBuilder() {
+		public RootInstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
 		}
 
-		public void setInstanceBuilder(InstanceBuilder instanceBuilder) {
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
 			this.instanceBuilder = instanceBuilder;
 		}
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return (SleepActivity) instanceBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, null));
+			return (SleepActivity) instanceBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
 		}
 
 		@Override

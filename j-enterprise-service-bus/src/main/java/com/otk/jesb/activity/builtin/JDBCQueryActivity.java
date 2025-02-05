@@ -15,6 +15,7 @@ import java.util.Map;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Solution;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -22,7 +23,6 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
@@ -116,12 +116,13 @@ public class JDBCQueryActivity implements Activity {
 		private JDBCConnection connection;
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private InstanceBuilder parameterValuesBuilder = new InstanceBuilder(new Accessor<String>() {
-			@Override
-			public String get() {
-				return parameterValuesClass.getName();
-			}
-		});
+		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
+				new Accessor<String>() {
+					@Override
+					public String get() {
+						return parameterValuesClass.getName();
+					}
+				});
 		private List<ColumnDefinition> resultColumnDefinitions;
 
 		private Class<?> customResultClass;
@@ -132,31 +133,24 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		private void updateDynamicClasses() {
-			{
-				parameterValuesClass = createParameterValuesClass();
-				TypeInfoProvider.registerClass(parameterValuesClass);
-			}
-			{
-				customResultClass = createCustomResultClass();
-				if (customResultClass != null) {
-					TypeInfoProvider.registerClass(customResultClass);
-				}
-			}
+			parameterValuesClass = createParameterValuesClass();
+			customResultClass = createCustomResultClass();
 		}
 
 		private Class<?> createCustomResultClass() {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQueryActivity.class.getSimpleName() + "Result"
+			String resultClassName = JDBCQueryActivity.class.getName() + "Result"
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("public class " + resultClassName + "{" + "\n");
+			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
+			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "{" + "\n");
 			javaSource.append("  private " + List.class.getName() + "<" + resultRowClassName + "> rows = new "
 					+ ArrayList.class.getName() + "<" + resultRowClassName + ">();\n");
-			javaSource.append("  public " + resultClassName + "(" + ResultSet.class.getName() + " resultSet) throws "
-					+ SQLException.class.getName() + "{\n");
+			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "("
+					+ ResultSet.class.getName() + " resultSet) throws " + SQLException.class.getName() + "{\n");
 			javaSource.append("    while (resultSet.next()) {\n");
 			javaSource.append("      " + resultRowClassName + " row = new " + resultRowClassName + "();\n");
 			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
@@ -191,8 +185,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString(),
-						JDBCQueryActivity.class.getClassLoader());
+				return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
@@ -200,10 +193,11 @@ public class JDBCQueryActivity implements Activity {
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCQueryActivity.class.getSimpleName() + "ParameterValues"
+			String className = JDBCQueryActivity.class.getName() + "ParameterValues"
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("public class " + className + " implements "
+			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 					+ MiscUtils.adaptClassNameToSourceCode(ParameterValues.class.getName()) + "{" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
@@ -216,7 +210,7 @@ public class JDBCQueryActivity implements Activity {
 				constructorParameterDeclarations
 						.add(parameterDefinition.getParameterTypeName() + " " + parameterDefinition.getParameterName());
 			}
-			javaSource.append("  public " + className + "("
+			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
 					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
 			for (int i = 0; i < parameterDefinitions.size(); i++) {
 				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
@@ -248,7 +242,7 @@ public class JDBCQueryActivity implements Activity {
 			javaSource.append("}" + "\n");
 			try {
 				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						javaSource.toString(), JDBCQueryActivity.class.getClassLoader());
+						javaSource.toString());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
@@ -283,11 +277,11 @@ public class JDBCQueryActivity implements Activity {
 			updateDynamicClasses();
 		}
 
-		public InstanceBuilder getParameterValuesBuilder() {
+		public RootInstanceBuilder getParameterValuesBuilder() {
 			return parameterValuesBuilder;
 		}
 
-		public void setParameterValuesBuilder(InstanceBuilder parameterValuesBuilder) {
+		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
 			if (parameterValuesBuilder == null) {
 				throw new AssertionError();
 			}

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Plan;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 public class CompiledFunction {
@@ -18,9 +17,11 @@ public class CompiledFunction {
 	}
 
 	public static CompiledFunction get(String functionBody, Plan.ValidationContext context) throws CompilationError {
-		String functionClassName = "Function" + MiscUtils.getDigitalUniqueIdentifier();
+		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
+				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
 		String preBody = "";
-		preBody += "public class " + functionClassName + "{" + "\n";
+		preBody += "package " + MiscUtils.extractPackageNameFromClassName(functionClassName) + ";" + "\n";
+		preBody += "public class " + MiscUtils.extractSimpleNameFromClassName(functionClassName) + "{" + "\n";
 		preBody += "public static Object execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
 		for (Plan.ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
@@ -35,7 +36,7 @@ public class CompiledFunction {
 		Class<?> functionClass;
 		try {
 			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName,
-					preBody + functionBody + postBody, TypeInfoProvider.getClassLoader());
+					preBody + functionBody + postBody);
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {

@@ -438,11 +438,12 @@ public class InstanceBuilder {
 
 	public interface RootInstanceWrapper {
 
-		Object getRoot();
+		Object getRootInstance();
 	}
 
 	public static class RootInstanceBuilder extends InstanceBuilder {
 
+		private String rootInstanceName;
 		private Accessor<String> rootInstanceDynamicTypeNameAccessor;
 		private String rootInstanceTypeName;
 
@@ -456,10 +457,10 @@ public class InstanceBuilder {
 					return null;
 				}
 				String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
-						+ rootInstanceTypeName + "Wrapper";
+						+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
 				Class<?> rootInstanceWrapperClass;
 				try {
-					rootInstanceWrapperClass = TypeInfoProvider.getClassLoader()
+					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader()
 							.loadClass(rootInstanceWrapperClassName);
 				} catch (ClassNotFoundException e) {
 					StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
@@ -467,36 +468,33 @@ public class InstanceBuilder {
 						rootInstanceWrapperClassSourceBuilder.append("package " + rootInstanceWrapperClassName
 								.substring(0, rootInstanceWrapperClassName.lastIndexOf(".")) + ";\n");
 						rootInstanceWrapperClassSourceBuilder.append("public class "
-								+ rootInstanceWrapperClassName
-										.substring(rootInstanceWrapperClassName.lastIndexOf(".") + 1)
+								+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
 								+ " implements "
 								+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
 						rootInstanceWrapperClassSourceBuilder
 								.append("	private " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-										+ " root;\n");
-						rootInstanceWrapperClassSourceBuilder.append("	public "
-								+ rootInstanceWrapperClassName
-										.substring(rootInstanceWrapperClassName.lastIndexOf(".") + 1)
-								+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-								+ " root) {\n");
-						rootInstanceWrapperClassSourceBuilder.append("		this.root = root;\n");
+										+ " rootInstance;\n");
+						rootInstanceWrapperClassSourceBuilder.append(
+								"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
+										+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
+										+ rootInstanceName + ") {\n");
+						rootInstanceWrapperClassSourceBuilder
+								.append("		this.rootInstance = " + rootInstanceName + ";\n");
 						rootInstanceWrapperClassSourceBuilder.append("	}\n");
 						rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
 						rootInstanceWrapperClassSourceBuilder
 								.append("	public " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-										+ " getRoot() {\n");
-						rootInstanceWrapperClassSourceBuilder.append("		return root;\n");
+										+ " getRootInstance() {\n");
+						rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
 						rootInstanceWrapperClassSourceBuilder.append("	}\n");
 						rootInstanceWrapperClassSourceBuilder.append("}\n");
 					}
 					try {
 						rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(
-								rootInstanceWrapperClassName, rootInstanceWrapperClassSourceBuilder.toString(),
-								RootInstanceBuilder.class.getClassLoader());
+								rootInstanceWrapperClassName, rootInstanceWrapperClassSourceBuilder.toString());
 					} catch (CompilationError ce) {
 						throw new AssertionError(ce);
 					}
-					TypeInfoProvider.registerClass(rootInstanceWrapperClass);
 				}
 				return rootInstanceWrapperClass.getName();
 			}
@@ -506,14 +504,24 @@ public class InstanceBuilder {
 			super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		}
 
-		public RootInstanceBuilder(Accessor<String> rootInstanceDynamicTypeNameAccessor) {
+		public RootInstanceBuilder(String rootInstanceName, Accessor<String> rootInstanceDynamicTypeNameAccessor) {
 			super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
+			this.rootInstanceName = rootInstanceName;
 			this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
 		}
 
-		public RootInstanceBuilder(String rootInstanceTypeName) {
+		public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {
 			super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
+			this.rootInstanceName = rootInstanceName;
 			this.rootInstanceTypeName = rootInstanceTypeName;
+		}
+
+		public String getRootInstanceName() {
+			return rootInstanceName;
+		}
+
+		public void setRootInstanceName(String rootInstanceName) {
+			this.rootInstanceName = rootInstanceName;
 		}
 
 		public Accessor<String> getRootInstanceDynamicTypeNameAccessor() {
@@ -544,9 +552,13 @@ public class InstanceBuilder {
 			return (InstanceBuilderFacade) getFacade(this, null);
 		}
 
+		public ParameterInitializer getRootInitializer() {
+			return ((ParameterInitializerFacade) getFacade().getChildren().get(0)).getUnderlying();
+		}
+
 		@Override
 		public Object build(EvaluationContext context) throws Exception {
-			return ((RootInstanceWrapper) super.build(context)).getRoot();
+			return ((RootInstanceWrapper) super.build(context)).getRootInstance();
 		}
 
 	}

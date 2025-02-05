@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ClassLoader that is composed of other classloaders. Each loader will be used
@@ -65,11 +66,15 @@ import java.util.List;
 public class CompositeClassLoader extends ClassLoader {
 
 	private final ReferenceQueue queue = new ReferenceQueue();
-	private final List classLoaders = new ArrayList();
+	private final List<WeakReference> classLoaders = new ArrayList<WeakReference>();
 
 	public CompositeClassLoader() {
 		addInternal(Object.class.getClassLoader()); // bootstrap loader.
 		addInternal(getClass().getClassLoader()); // whichever classloader loaded this jar.
+	}
+
+	public List<ClassLoader> getClassLoaders() {
+		return classLoaders.stream().map(ref -> (ClassLoader)((WeakReference)ref).get()).collect(Collectors.toList());
 	}
 
 	/**

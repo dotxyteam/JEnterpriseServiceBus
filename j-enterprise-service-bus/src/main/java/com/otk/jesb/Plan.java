@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.InstanceBuilder.NullInstance;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
@@ -30,15 +29,16 @@ public class Plan extends Asset {
 	private ClassicStructure outputStructure;
 	private Class<?> inputClass;
 	private Class<?> outputClass;
-	private InstanceBuilder outputBuilder = new InstanceBuilder(new Accessor<String>() {
-		@Override
-		public String get() {
-			if (outputClass == null) {
-				return NullInstance.class.getName();
-			}
-			return outputClass.getName();
-		}
-	});
+	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
+			new Accessor<String>() {
+				@Override
+				public String get() {
+					if (outputClass == null) {
+						return NullInstance.class.getName();
+					}
+					return outputClass.getName();
+				}
+			});
 
 	public List<Step> getSteps() {
 		return steps;
@@ -74,11 +74,11 @@ public class Plan extends Asset {
 		updateOutputClass();
 	}
 
-	public InstanceBuilder getOutputBuilder() {
+	public RootInstanceBuilder getOutputBuilder() {
 		return outputBuilder;
 	}
 
-	public void setOutputBuilder(InstanceBuilder outputBuilder) {
+	public void setOutputBuilder(RootInstanceBuilder outputBuilder) {
 		this.outputBuilder = outputBuilder;
 	}
 
@@ -87,13 +87,13 @@ public class Plan extends Asset {
 			inputClass = null;
 		} else {
 			try {
-				String className = "PlanInput" + MiscUtils.getDigitalUniqueIdentifier();
+				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
+						+ MiscUtils.getDigitalUniqueIdentifier();
 				inputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						inputStructure.generateJavaTypeSourceCode(className), JDBCQueryActivity.class.getClassLoader());
+						inputStructure.generateJavaTypeSourceCode(className));
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
-			TypeInfoProvider.registerClass(inputClass);
 		}
 	}
 
@@ -102,14 +102,13 @@ public class Plan extends Asset {
 			outputClass = null;
 		} else {
 			try {
-				String className = "PlanOutput" + MiscUtils.getDigitalUniqueIdentifier();
+				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
+						+ MiscUtils.getDigitalUniqueIdentifier();
 				outputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						outputStructure.generateJavaTypeSourceCode(className),
-						JDBCQueryActivity.class.getClassLoader());
+						outputStructure.generateJavaTypeSourceCode(className));
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
-			TypeInfoProvider.registerClass(outputClass);
 		}
 	}
 

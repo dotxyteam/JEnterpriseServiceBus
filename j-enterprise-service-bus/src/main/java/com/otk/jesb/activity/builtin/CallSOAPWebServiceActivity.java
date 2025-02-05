@@ -15,6 +15,7 @@ import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.NullInstance;
+import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -23,7 +24,6 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
@@ -126,15 +126,16 @@ public class CallSOAPWebServiceActivity implements Activity {
 		private Class<? extends OperationInput> operationInputClass;
 
 		private WSDL wsdl;
-		private InstanceBuilder operationInputBuilder = new InstanceBuilder(new Accessor<String>() {
-			@Override
-			public String get() {
-				if (operationInputClass == null) {
-					return NullInstance.class.getName();
-				}
-				return operationInputClass.getName();
-			}
-		});
+		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
+				OperationInput.class.getSimpleName(), new Accessor<String>() {
+					@Override
+					public String get() {
+						if (operationInputClass == null) {
+							return NullInstance.class.getName();
+						}
+						return operationInputClass.getName();
+					}
+				});
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
@@ -179,11 +180,11 @@ public class CallSOAPWebServiceActivity implements Activity {
 			updateOperationInputClass();
 		}
 
-		public InstanceBuilder getOperationInputBuilder() {
+		public RootInstanceBuilder getOperationInputBuilder() {
 			return operationInputBuilder;
 		}
 
-		public void setOperationInputBuilder(InstanceBuilder operationInputBuilder) {
+		public void setOperationInputBuilder(RootInstanceBuilder operationInputBuilder) {
 			this.operationInputBuilder = operationInputBuilder;
 		}
 
@@ -219,9 +220,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		private void updateOperationInputClass() {
 			operationInputClass = createOperationInputClass();
-			if (operationInputClass != null) {
-				TypeInfoProvider.registerClass(operationInputClass);
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -230,9 +228,11 @@ public class CallSOAPWebServiceActivity implements Activity {
 			if (operation == null) {
 				return null;
 			}
-			String className = OperationInput.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
+			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
+					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("public class " + className + " implements "
+			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 					+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{" + "\n");
 			Method operationMethod = operation.retrieveMethod();
 			for (Parameter parameter : operationMethod.getParameters()) {
@@ -244,7 +244,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				constructorParameterDeclarations.add(MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
 						+ " " + parameter.getName());
 			}
-			javaSource.append("  public " + className + "("
+			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
 					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
 			for (Parameter parameter : operationMethod.getParameters()) {
 				javaSource.append("    this." + parameter.getName() + " = " + parameter.getName() + ";\n");
@@ -259,7 +259,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			javaSource.append("}" + "\n");
 			try {
 				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						javaSource.toString(), JDBCQueryActivity.class.getClassLoader());
+						javaSource.toString());
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}

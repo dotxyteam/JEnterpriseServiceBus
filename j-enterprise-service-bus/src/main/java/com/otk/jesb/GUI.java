@@ -134,10 +134,11 @@ public class GUI extends SwingCustomizer {
 		s2.setDiagramY(100);
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
-		ab2.getInstanceBuilder().getFieldInitializers()
+		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
 				.add(new InstanceBuilder.FieldInitializer("filePath", "tmp/test.txt"));
-		ab2.getInstanceBuilder().getFieldInitializers().add(new InstanceBuilder.FieldInitializer("text",
-				new InstanceBuilder.Function("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
+				.add(new InstanceBuilder.FieldInitializer("text", new InstanceBuilder.Function(
+						"return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -288,7 +289,8 @@ public class GUI extends SwingCustomizer {
 									}
 								}
 								if (field.getName().equals("typeGroup")) {
-									if(((InstanceBuilderFacade)object).getUnderlying().getDynamicTypeNameAccessor() != null) {
+									if (((InstanceBuilderFacade) object).getUnderlying()
+											.getDynamicTypeNameAccessor() != null) {
 										setVisible(false);
 									}
 								}
@@ -418,6 +420,7 @@ public class GUI extends SwingCustomizer {
 
 		public InstanceBuilderControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
+			expandAllItemPositions();
 		}
 
 		@Override
@@ -458,7 +461,7 @@ public class GUI extends SwingCustomizer {
 		@Override
 		protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 			return new InfoProxyFactory() {
-				
+
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {

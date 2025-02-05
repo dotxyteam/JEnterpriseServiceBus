@@ -522,4 +522,23 @@ public class MiscUtils {
 		}
 	}
 
+	public static String extractSimpleNameFromClassName(String className) {
+		if(!isPackageNameInClassName(className)) {
+			return className;
+		}
+		return className.substring(className.lastIndexOf(".") + 1);
+	}
+	
+	public static String extractPackageNameFromClassName(String className) {
+		if(!isPackageNameInClassName(className)) {
+			return null;
+		}
+		return className.substring(0, className.lastIndexOf("."));
+	}
+
+	public static boolean isPackageNameInClassName(String className) {
+		return className.contains(".");
+	}
+
+
 }

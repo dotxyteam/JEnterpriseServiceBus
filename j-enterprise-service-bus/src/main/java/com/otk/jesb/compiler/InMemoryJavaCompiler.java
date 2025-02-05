@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -27,6 +28,7 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
+import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryJavaCompiler {
@@ -44,11 +46,17 @@ public class InMemoryJavaCompiler {
 		@Override
 		public Iterable<JavaFileObject> list(Location loc, String pkg, Set<Kind> kinds, boolean rec)
 				throws IOException {
-			List<JavaFileObject> files = packages.get(pkg);
+			List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+			Iterable<JavaFileObject> files;
+			files = packages.get(pkg);
 			if (files != null)
-				return files;
-			else
-				return super.list(loc, pkg, kinds, rec);
+				for (JavaFileObject file : files)
+					result.add(file);
+			files = super.list(loc, pkg, kinds, rec);
+			if (files != null)
+				for (JavaFileObject file : files)
+					result.add(file);
+			return result;
 		}
 
 		@Override
@@ -60,6 +68,11 @@ public class InMemoryJavaCompiler {
 		}
 	};
 	private Iterable<String> options;
+	private CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+
+	public ClassLoader getClassLoader() {
+		return compositeClassLoader;
+	}
 
 	public Iterable<String> getOptions() {
 		return options;
@@ -69,25 +82,22 @@ public class InMemoryJavaCompiler {
 		this.options = options;
 	}
 
-	public List<Class<?>> compile(File sourceDirectory, ClassLoader parentClassLoader) throws CompilationError {
+	public List<Class<?>> compile(File sourceDirectory) throws CompilationError {
 		List<JavaFileObject> files = collectSourceFiles(sourceDirectory, null);
 		compile(files.toArray(new JavaFileObject[files.size()]));
-		List<Class<?>> result = new ArrayList<Class<?>>();
-		for (JavaFileObject file : files) {
-			String name = ((NamedJavaFileObject) file).className;
+		return files.stream().map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).className)).map(l -> {
 			try {
-				result.add(new MemoryClassLoader(parentClassLoader, name).loadClass(name));
+				return l.loadClass(l.getMainClassName());
 			} catch (ClassNotFoundException e) {
 				throw new AssertionError(e);
 			}
-		}
-		return result;
+		}).collect(Collectors.toList());
 	}
 
-	public Class<?> compile(String className, String source, ClassLoader parentClassLoader) throws CompilationError {
+	public Class<?> compile(String className, String source) throws CompilationError {
 		compile(sourceFile(className, source));
 		try {
-			return new MemoryClassLoader(parentClassLoader, className).loadClass(className);
+			return new MemoryClassLoader(className).loadClass(className);
 		} catch (ClassNotFoundException e) {
 			throw new AssertionError(e);
 		}
@@ -122,7 +132,8 @@ public class InMemoryJavaCompiler {
 		for (File fileOrDirectory : sourceDirectory.listFiles()) {
 			if (fileOrDirectory.isFile()) {
 				if (fileOrDirectory.getName().endsWith(".java")) {
-					String className = fileOrDirectory.getName().substring(0, fileOrDirectory.getName().length() - ".java".length());
+					String className = fileOrDirectory.getName().substring(0,
+							fileOrDirectory.getName().length() - ".java".length());
 					if (currentPackageName != null) {
 						className = currentPackageName + "." + className;
 					}
@@ -135,7 +146,8 @@ public class InMemoryJavaCompiler {
 					result.add(sourceFile(className, source));
 				}
 			} else if (fileOrDirectory.isDirectory()) {
-				String subPackageName = ((currentPackageName != null) ? (currentPackageName + ".") : "") + fileOrDirectory.getName();
+				String subPackageName = ((currentPackageName != null) ? (currentPackageName + ".") : "")
+						+ fileOrDirectory.getName();
 				result.addAll(collectSourceFiles(fileOrDirectory, subPackageName));
 			} else {
 				throw new AssertionError();
@@ -185,18 +197,24 @@ public class InMemoryJavaCompiler {
 	}
 
 	private void storeClass(String name, byte[] bytes) {
+		if(classes.containsKey(name)) {
+			unstoreClass(name);
+		}
 		classes.put(name, bytes);
 		NamedJavaFileObject file = inputFile(name, Kind.CLASS, bytes);
 		int dot = name.lastIndexOf('.');
 		String pkg = dot == -1 ? "" : name.substring(0, dot);
-		packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(file);
+		packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
 	}
 
 	private void unstoreClass(String name) {
+		if(!classes.containsKey(name)) {
+			return;
+		}
 		classes.remove(name);
 		int dot = name.lastIndexOf('.');
 		String pkg = dot == -1 ? "" : name.substring(0, dot);
-		packages.get(pkg).removeIf((file) -> ((NamedJavaFileObject) file).className.equals(name));
+		packages.get(pkg).removeIf(file -> ((NamedJavaFileObject) file).className.equals(name));
 		if (packages.get(pkg).size() == 0) {
 			packages.remove(pkg);
 		}
@@ -215,15 +233,19 @@ public class InMemoryJavaCompiler {
 		private List<String> definedClassNames = new ArrayList<String>();
 		private String mainClassName;
 
-		public MemoryClassLoader(ClassLoader parentClassLoader, String mainClassName) {
-			super(parentClassLoader);
+		public MemoryClassLoader(String mainClassName) {
 			this.mainClassName = mainClassName;
+			compositeClassLoader.add(this);
+		}
+
+		public String getMainClassName() {
+			return mainClassName;
 		}
 
 		@Override
 		protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 			synchronized (getClassLoadingLock(name)) {
-				if (name.equals(mainClassName) || name.startsWith(mainClassName + "$")) {
+				if (isResponsibleFor(name)) {
 					// First, check if the class has already been loaded
 					Class<?> c = findLoadedClass(name);
 					if (c == null) {
@@ -234,13 +256,25 @@ public class InMemoryJavaCompiler {
 					}
 					return c;
 				} else {
-					Class<?> c = getParent().loadClass(name);
+					ClassLoader responsibleClassLoader = compositeClassLoader.getClassLoaders().stream().filter(
+							l -> (l instanceof MemoryClassLoader) && ((MemoryClassLoader) l).isResponsibleFor(name))
+							.findFirst().orElse(null);
+					Class<?> c;
+					if (responsibleClassLoader != null) {
+						c = responsibleClassLoader.loadClass(name);
+					} else {
+						c = getParent().loadClass(name);
+					}
 					if (resolve) {
 						resolveClass(c);
 					}
 					return c;
 				}
 			}
+		}
+
+		private boolean isResponsibleFor(String name) {
+			return name.equals(mainClassName) || name.startsWith(mainClassName + "$");
 		}
 
 		@Override

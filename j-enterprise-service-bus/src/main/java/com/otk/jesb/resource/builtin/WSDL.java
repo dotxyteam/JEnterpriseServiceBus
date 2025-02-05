@@ -75,8 +75,7 @@ public class WSDL extends Resource {
 					} catch (Throwable t) {
 						throw new RuntimeException(t);
 					}
-					generatedClasses = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(sourceDirectory,
-							WSDL.class.getClassLoader());
+					generatedClasses = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(sourceDirectory);
 				} finally {
 					MiscUtils.delete(sourceDirectory);
 				}
