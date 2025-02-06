@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ValidationContext;
@@ -20,6 +21,7 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -235,20 +237,21 @@ public class InstanceBuilder {
 		return object;
 	}
 
-	public VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext,
+	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext,
 			Facade parentFacade) {
 		InstanceBuilderFacade currentInstanceBuilderFacade = new InstanceBuilderFacade(parentFacade, this);
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
 			ParameterInitializerFacade currentFacade = new ParameterInitializerFacade(currentInstanceBuilderFacade,
 					parameterInitializers.indexOf(parameterInitializer));
 			if (parameterInitializer.getParameterValue() == function) {
-				return new VerificationContext(validationContext, currentFacade);
+				return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+						((DefaultTypeInfo) currentFacade.getParameterInfo().getType()).getJavaType());
 			}
 			if (parameterInitializer.getParameterValue() instanceof InstanceBuilder) {
-				VerificationContext verificationContext = ((InstanceBuilder) parameterInitializer.getParameterValue())
-						.findFunctionVerificationContext(function, validationContext, currentFacade);
-				if (verificationContext != null) {
-					return verificationContext;
+				CompilationContext compilationContext = ((InstanceBuilder) parameterInitializer.getParameterValue())
+						.findFunctionCompilationContext(function, validationContext, currentFacade);
+				if (compilationContext != null) {
+					return compilationContext;
 				}
 			}
 		}
@@ -256,16 +259,17 @@ public class InstanceBuilder {
 			FieldInitializerFacade currentFacade = new FieldInitializerFacade(currentInstanceBuilderFacade,
 					fieldInitializer.getFieldName());
 			if (fieldInitializer.getCondition() == function) {
-				return new VerificationContext(validationContext, currentFacade);
+				return new CompilationContext(new VerificationContext(validationContext, currentFacade), boolean.class);
 			}
 			if (fieldInitializer.getFieldValue() == function) {
-				return new VerificationContext(validationContext, currentFacade);
+				return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+						((DefaultTypeInfo) currentFacade.getFieldInfo().getType()).getJavaType());
 			}
 			if (fieldInitializer.getFieldValue() instanceof InstanceBuilder) {
-				VerificationContext verificationContext = ((InstanceBuilder) fieldInitializer.getFieldValue())
-						.findFunctionVerificationContext(function, validationContext, currentFacade);
-				if (verificationContext != null) {
-					return verificationContext;
+				CompilationContext compilationContext = ((InstanceBuilder) fieldInitializer.getFieldValue())
+						.findFunctionCompilationContext(function, validationContext, currentFacade);
+				if (compilationContext != null) {
+					return compilationContext;
 				}
 			}
 		}
@@ -273,20 +277,21 @@ public class InstanceBuilder {
 			ListItemInitializerFacade currentFacade = new ListItemInitializerFacade(currentInstanceBuilderFacade,
 					listItemInitializers.indexOf(listItemInitializer));
 			if (listItemInitializer.getCondition() == function) {
-				return new VerificationContext(validationContext, currentFacade);
+				return new CompilationContext(new VerificationContext(validationContext, currentFacade), boolean.class);
 			}
 			VariableDeclaration iterationVariableDeclaration = null;
 			int iterationVariableDeclarationPosition = -1;
 			if (listItemInitializer.getItemReplication() != null) {
 				if (listItemInitializer.getItemReplication().getIterationListValue() == function) {
-					return new VerificationContext(validationContext, currentFacade);
+					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+							Object.class);
 				}
 				if (listItemInitializer.getItemReplication().getIterationListValue() instanceof InstanceBuilder) {
-					VerificationContext verificationContext = ((InstanceBuilder) listItemInitializer
-							.getItemReplication().getIterationListValue()).findFunctionVerificationContext(function,
-									validationContext, currentFacade);
-					if (verificationContext != null) {
-						return verificationContext;
+					CompilationContext compilationContext = ((InstanceBuilder) listItemInitializer.getItemReplication()
+							.getIterationListValue()).findFunctionCompilationContext(function, validationContext,
+									currentFacade);
+					if (compilationContext != null) {
+						return compilationContext;
 					}
 				}
 				iterationVariableDeclaration = new Plan.ValidationContext.VariableDeclaration() {
@@ -312,7 +317,8 @@ public class InstanceBuilder {
 					iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
 							newVariableDeclarations);
 				}
-				return new VerificationContext(iterationValidationContext, currentFacade);
+				return new CompilationContext(new VerificationContext(iterationValidationContext, currentFacade),
+						((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
 			}
 			if (listItemInitializer.getItemValue() instanceof InstanceBuilder) {
 				ValidationContext iterationValidationContext = validationContext;
@@ -323,10 +329,10 @@ public class InstanceBuilder {
 					iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
 							newVariableDeclarations);
 				}
-				VerificationContext verificationContext = ((InstanceBuilder) listItemInitializer.getItemValue())
-						.findFunctionVerificationContext(function, iterationValidationContext, currentFacade);
-				if (verificationContext != null) {
-					return verificationContext;
+				CompilationContext compilationContext = ((InstanceBuilder) listItemInitializer.getItemValue())
+						.findFunctionCompilationContext(function, iterationValidationContext, currentFacade);
+				if (compilationContext != null) {
+					return compilationContext;
 				}
 			}
 		}
@@ -559,7 +565,7 @@ public class InstanceBuilder {
 		@Override
 		public Object build(EvaluationContext context) throws Exception {
 			RootInstanceWrapper wrapper = ((RootInstanceWrapper) super.build(context));
-			if(wrapper == null) {
+			if (wrapper == null) {
 				return null;
 			}
 			return wrapper.getRootInstance();
@@ -749,6 +755,25 @@ public class InstanceBuilder {
 
 		public void setFunctionBody(String functionBody) {
 			this.functionBody = functionBody;
+		}
+
+		public static class CompilationContext {
+			private VerificationContext verificationContext;
+			private Class<?> functionReturnType;
+
+			public CompilationContext(VerificationContext verificationContext, Class<?> functionReturnType) {
+				this.verificationContext = verificationContext;
+				this.functionReturnType = functionReturnType;
+			}
+
+			public VerificationContext getVerificationContext() {
+				return verificationContext;
+			}
+
+			public Class<?> getFunctionReturnType() {
+				return functionReturnType;
+			}
+
 		}
 
 	}

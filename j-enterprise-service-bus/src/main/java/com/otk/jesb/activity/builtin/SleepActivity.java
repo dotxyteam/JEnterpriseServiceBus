@@ -4,7 +4,7 @@ import java.io.IOException;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -83,9 +83,9 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public VerificationContext findFunctionVerificationContext(Function function,
+		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return instanceBuilder.findFunctionVerificationContext(function, validationContext, null);
+			return instanceBuilder.findFunctionCompilationContext(function, validationContext, null);
 		}
 	}
 

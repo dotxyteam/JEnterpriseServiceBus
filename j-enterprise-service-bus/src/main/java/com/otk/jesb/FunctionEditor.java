@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.MiscUtils;
@@ -41,7 +41,7 @@ public class FunctionEditor {
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		for (Plan.ValidationContext.VariableDeclaration declaration : getVerificationContext().getValidationContext()
+		for (Plan.ValidationContext.VariableDeclaration declaration : getCompilationContext().getVerificationContext().getValidationContext()
 				.getVariableDeclarations()) {
 			result.add(new RootPathNode(
 					new PathExplorer(declaration.getVariableClass().getName(), declaration.getVariableName())));
@@ -49,13 +49,13 @@ public class FunctionEditor {
 		return result;
 	}
 
-	private VerificationContext getVerificationContext() {
+	private CompilationContext getCompilationContext() {
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		return currentStep.getActivityBuilder().findFunctionVerificationContext(currentFunction, validationContext);
+		return currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, validationContext);
 	}
 
-	public void validateExpression() throws CompilationError {
-		MiscUtils.validateFunction(getFunctionBody(), getVerificationContext());
+	public void validate() throws CompilationError {
+		MiscUtils.validateFunction(getFunctionBody(), getCompilationContext());
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {

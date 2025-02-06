@@ -1,7 +1,7 @@
 package com.otk.jesb.activity;
 
 import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 
@@ -11,6 +11,6 @@ public interface ActivityBuilder {
 
 	Class<?> getActivityResultClass();
 
-	VerificationContext findFunctionVerificationContext(Function function, ValidationContext validationContext);
+	CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext);
 
 }

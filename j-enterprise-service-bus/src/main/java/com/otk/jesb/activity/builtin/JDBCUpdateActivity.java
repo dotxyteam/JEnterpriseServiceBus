@@ -10,7 +10,7 @@ import java.util.List;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
@@ -229,9 +229,9 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public VerificationContext findFunctionVerificationContext(Function currentFunction,
+		public CompilationContext findFunctionCompilationContext(Function currentFunction,
 				ValidationContext validationContext) {
-			return parameterValuesBuilder.findFunctionVerificationContext(currentFunction, validationContext, null);
+			return parameterValuesBuilder.findFunctionCompilationContext(currentFunction, validationContext, null);
 		}
 
 		@Override

@@ -24,7 +24,7 @@ import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
 import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
 import com.otk.jesb.InstanceBuilder.Facade;
 import com.otk.jesb.InstanceBuilder.ValueMode;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -62,18 +62,17 @@ public class MiscUtils {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		VerificationContext verificationContext = currentStep.getActivityBuilder()
-				.findFunctionVerificationContext(function, validationContext);
-		if (((verificationContext.getCurrentFacade() == null) ? null
-				: verificationContext.getCurrentFacade()
-						.getUnderlying()) != ((evaluationContext.getCurrentFacade() == null) ? null
-								: evaluationContext.getCurrentFacade().getUnderlying())) {
+		CompilationContext compilationContext = currentStep.getActivityBuilder()
+				.findFunctionCompilationContext(function, validationContext);
+		Facade currentFacade = compilationContext.getVerificationContext().getCurrentFacade();
+		if (((currentFacade == null) ? null
+				: currentFacade.getUnderlying()) != ((evaluationContext.getCurrentFacade() == null) ? null
+						: evaluationContext.getCurrentFacade().getUnderlying())) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
-				makeTypeNamesAbsolute(function.getFunctionBody(),
-						getAncestorStructureInstanceBuilders(verificationContext.getCurrentFacade())),
-				validationContext);
+				makeTypeNamesAbsolute(function.getFunctionBody(), getAncestorStructureInstanceBuilders(currentFacade)),
+				validationContext, compilationContext.getFunctionReturnType());
 		try {
 			return compiledFunction.execute(executionContext);
 		} catch (Exception e) {
@@ -83,10 +82,11 @@ public class MiscUtils {
 		}
 	}
 
-	public static void validateFunction(String functionBody, VerificationContext context) throws CompilationError {
+	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
 		CompiledFunction.get(
-				makeTypeNamesAbsolute(functionBody, getAncestorStructureInstanceBuilders(context.getCurrentFacade())),
-				context.getValidationContext());
+				makeTypeNamesAbsolute(functionBody,
+						getAncestorStructureInstanceBuilders(context.getVerificationContext().getCurrentFacade())),
+				context.getVerificationContext().getValidationContext(), context.getFunctionReturnType());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -523,14 +523,14 @@ public class MiscUtils {
 	}
 
 	public static String extractSimpleNameFromClassName(String className) {
-		if(!isPackageNameInClassName(className)) {
+		if (!isPackageNameInClassName(className)) {
 			return className;
 		}
 		return className.substring(className.lastIndexOf(".") + 1);
 	}
-	
+
 	public static String extractPackageNameFromClassName(String className) {
-		if(!isPackageNameInClassName(className)) {
+		if (!isPackageNameInClassName(className)) {
 			return null;
 		}
 		return className.substring(0, className.lastIndexOf("."));
@@ -539,6 +539,5 @@ public class MiscUtils {
 	public static boolean isPackageNameInClassName(String className) {
 		return className.contains(".");
 	}
-
 
 }

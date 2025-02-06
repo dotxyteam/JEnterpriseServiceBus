@@ -7,8 +7,8 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
+import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
-import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -137,9 +137,9 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public VerificationContext findFunctionVerificationContext(Function function,
+		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return planInputBuilder.findFunctionVerificationContext(function, validationContext, null);
+			return planInputBuilder.findFunctionCompilationContext(function, validationContext, null);
 		}
 
 	}

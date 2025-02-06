@@ -376,7 +376,7 @@ public class GUI extends SwingCustomizer {
 						JTextComponent textComponent = textControl.getTextComponent();
 						textComponent.getHighlighter().removeAllHighlights();
 						try {
-							((FunctionEditor) object).validateExpression();
+							((FunctionEditor) object).validate();
 						} catch (CompilationError e) {
 							if (textComponent.getText() != null) {
 								textComponent.getHighlighter().addHighlight(

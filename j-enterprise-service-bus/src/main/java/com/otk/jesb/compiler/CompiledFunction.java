@@ -16,13 +16,14 @@ public class CompiledFunction {
 		this.functionClass = functionClass;
 	}
 
-	public static CompiledFunction get(String functionBody, Plan.ValidationContext context) throws CompilationError {
+	public static CompiledFunction get(String functionBody, Plan.ValidationContext context, Class<?> returnType)
+			throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
 		String preBody = "";
 		preBody += "package " + MiscUtils.extractPackageNameFromClassName(functionClassName) + ";" + "\n";
 		preBody += "public class " + MiscUtils.extractSimpleNameFromClassName(functionClassName) + "{" + "\n";
-		preBody += "public static Object execute(";
+		preBody += "public static " + MiscUtils.adaptClassNameToSourceCode(returnType.getName()) + " execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
 		for (Plan.ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
 			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableClass().getName()) + " "
