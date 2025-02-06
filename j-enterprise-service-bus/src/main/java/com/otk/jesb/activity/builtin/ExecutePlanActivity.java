@@ -7,7 +7,6 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan;
@@ -85,7 +84,7 @@ public class ExecutePlanActivity implements Activity {
 					@Override
 					public String get() {
 						if ((plan == null) || (plan.getInputClass() == null)) {
-							return NullInstance.class.getName();
+							return null;
 						}
 						return plan.getInputClass().getName();
 					}

@@ -3,7 +3,6 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
@@ -34,7 +33,7 @@ public class Plan extends Asset {
 				@Override
 				public String get() {
 					if (outputClass == null) {
-						return NullInstance.class.getName();
+						return null;
 					}
 					return outputClass.getName();
 				}

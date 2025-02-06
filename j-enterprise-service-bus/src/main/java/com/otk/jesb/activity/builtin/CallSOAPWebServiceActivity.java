@@ -14,7 +14,6 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.NullInstance;
 import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.InstanceBuilder.VerificationContext;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -85,7 +84,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 			MiscUtils.write(wsdlFile, wsdl.getText(), false);
 			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());
 			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portInterface);
-			return operationMethod.invoke(port, operationInput.listParameterValues());
+			return operationMethod.invoke(port,
+					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
 		} finally {
 			MiscUtils.delete(wsdlFile);
 		}
@@ -131,7 +131,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 					@Override
 					public String get() {
 						if (operationInputClass == null) {
-							return NullInstance.class.getName();
+							return null;
 						}
 						return operationInputClass.getName();
 					}
@@ -228,13 +228,16 @@ public class CallSOAPWebServiceActivity implements Activity {
 			if (operation == null) {
 				return null;
 			}
+			Method operationMethod = operation.retrieveMethod();
+			if (operationMethod.getParameterCount() == 0) {
+				return null;
+			}
 			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 					+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{" + "\n");
-			Method operationMethod = operation.retrieveMethod();
 			for (Parameter parameter : operationMethod.getParameters()) {
 				javaSource.append("  private " + MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
 						+ " " + parameter.getName() + ";\n");

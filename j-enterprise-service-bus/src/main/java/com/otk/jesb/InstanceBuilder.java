@@ -454,7 +454,7 @@ public class InstanceBuilder {
 						? rootInstanceDynamicTypeNameAccessor.get()
 						: rootInstanceTypeName;
 				if (actualRootInstanceTypeName == null) {
-					return null;
+					return NullInstance.class.getName();
 				}
 				String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
 						+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
@@ -465,8 +465,8 @@ public class InstanceBuilder {
 				} catch (ClassNotFoundException e) {
 					StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
 					{
-						rootInstanceWrapperClassSourceBuilder.append("package " + rootInstanceWrapperClassName
-								.substring(0, rootInstanceWrapperClassName.lastIndexOf(".")) + ";\n");
+						rootInstanceWrapperClassSourceBuilder.append("package "
+								+ MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
 						rootInstanceWrapperClassSourceBuilder.append("public class "
 								+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
 								+ " implements "
@@ -558,7 +558,11 @@ public class InstanceBuilder {
 
 		@Override
 		public Object build(EvaluationContext context) throws Exception {
-			return ((RootInstanceWrapper) super.build(context)).getRootInstance();
+			RootInstanceWrapper wrapper = ((RootInstanceWrapper) super.build(context));
+			if(wrapper == null) {
+				return null;
+			}
+			return wrapper.getRootInstance();
 		}
 
 	}
