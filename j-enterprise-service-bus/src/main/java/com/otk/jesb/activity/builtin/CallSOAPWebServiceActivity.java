@@ -34,7 +34,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 	private WSDL wsdl;
 	private Class<?> serviceClass;
-	private Class<?> portClass;
+	private Class<?> portInterface;
 	private Method operationMethod;
 	private OperationInput operationInput;
 
@@ -54,12 +54,12 @@ public class CallSOAPWebServiceActivity implements Activity {
 		this.serviceClass = serviceClass;
 	}
 
-	public Class<?> getPortClass() {
-		return portClass;
+	public Class<?> getPortInterface() {
+		return portInterface;
 	}
 
-	public void setPortClass(Class<?> portClass) {
-		this.portClass = portClass;
+	public void setPortInterface(Class<?> portInterface) {
+		this.portInterface = portInterface;
 	}
 
 	public Method getOperationMethod() {
@@ -84,7 +84,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		try {
 			MiscUtils.write(wsdlFile, wsdl.getText(), false);
 			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());
-			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portClass);
+			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portInterface);
 			return operationMethod.invoke(port, operationInput.listParameterValues());
 		} finally {
 			MiscUtils.delete(wsdlFile);
@@ -309,7 +309,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
 			result.setWSDL(wsdl);
 			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
-			result.setPortClass(retrievePortDescriptor().retrieveInterface());
+			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
 			result.setOperationInput(
 					(OperationInput) operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
