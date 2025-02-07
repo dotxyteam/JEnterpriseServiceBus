@@ -76,7 +76,7 @@ public class InMemoryJavaCompiler {
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 	private final Object compilationMutex = new Object();
 	private final Object classStoreMutex = new Object();
-	private final Object packagesMutex = new Object();
+	private final Object memoryPackagesMutex = new Object();
 
 	public ClassLoader getClassLoader() {
 		return compositeClassLoader;
@@ -323,12 +323,12 @@ public class InMemoryJavaCompiler {
 
 		@Override
 		protected Package getPackage(String packageName) {
-			synchronized (InMemoryJavaCompiler.this.packagesMutex) {
+			synchronized (InMemoryJavaCompiler.this.memoryPackagesMutex) {
 				if (shouldLoadThePackageFromMemory(packageName)) {
 					MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compositeClassLoader
 							.getClassLoaders().stream()
 							.filter(l -> (l instanceof MemoryPackageLoader)
-									&& ((MemoryPackageLoader) l).isResponsibleFor(packageName))
+									&& ((MemoryPackageLoader) l).getThePackageName().equals(packageName))
 							.findFirst().orElse(null);
 					if (responsiblePackageLoader == null) {
 						responsiblePackageLoader = new MemoryPackageLoader(packageName);
@@ -407,14 +407,18 @@ public class InMemoryJavaCompiler {
 
 	private class MemoryPackageLoader extends MemoryClassLoader {
 
-		private final String mainPackageName;
+		private final String thePackageName;
 		private Package thePackage;
 		private final Object packageCreationMutex = new Object();
 		private boolean definingThePackage = false;
 
-		public MemoryPackageLoader(String packageName) {
+		public MemoryPackageLoader(String thePackageName) {
 			super(null);
-			this.mainPackageName = packageName;
+			this.thePackageName = thePackageName;
+		}
+
+		public String getThePackageName() {
+			return thePackageName;
 		}
 
 		@Override
@@ -424,7 +428,7 @@ public class InMemoryJavaCompiler {
 
 		@Override
 		protected Package getPackage(String packageName) {
-			if (this.mainPackageName.equals(packageName)) {
+			if (thePackageName.equals(packageName)) {
 				if (definingThePackage) {
 					return null;
 				}
