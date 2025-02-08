@@ -12,25 +12,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
-import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Plan;
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
-import com.otk.jesb.InstanceBuilder.EnumerationItemSelector;
-import com.otk.jesb.InstanceBuilder.Facade;
-import com.otk.jesb.InstanceBuilder.ValueMode;
-import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
+import com.otk.jesb.instantiation.EnumerationItemSelector;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.MapEntryBuilder;
+import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
@@ -56,8 +59,7 @@ public class MiscUtils {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 
-	public static Object executeFunction(Function function, InstanceBuilder.EvaluationContext evaluationContext)
-			throws Exception {
+	public static Object executeFunction(Function function, EvaluationContext evaluationContext) throws Exception {
 		ExecutionContext executionContext = evaluationContext.getExecutionContext();
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
@@ -121,8 +123,7 @@ public class MiscUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(Function condition, InstanceBuilder.EvaluationContext context)
-			throws Exception {
+	public static boolean isConditionFullfilled(Function condition, EvaluationContext context) throws Exception {
 		if (condition == null) {
 			return true;
 		}
@@ -134,8 +135,7 @@ public class MiscUtils {
 		return !((Boolean) conditionResult);
 	}
 
-	public static Object interpretValue(Object value, ITypeInfo type, InstanceBuilder.EvaluationContext context)
-			throws Exception {
+	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {
 		if (value instanceof Function) {
 			Object result = MiscUtils.executeFunction(((Function) value), context);
 			if (!type.supports(result)) {
@@ -201,7 +201,7 @@ public class MiscUtils {
 				}
 			} else {
 				if (type instanceof IMapEntryTypeInfo) {
-					return new InstanceBuilder.MapEntryBuilder();
+					return new MapEntryBuilder();
 				} else {
 					return new InstanceBuilder(
 							makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade)));
@@ -415,11 +415,11 @@ public class MiscUtils {
 		return className.replace("$", ".");
 	}
 
-	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(InstanceBuilder.Facade facade) {
+	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(Facade facade) {
 		if (facade == null) {
 			return null;
 		}
-		return InstanceBuilder.getAncestorFacades(facade).stream()
+		return Facade.getAncestors(facade).stream()
 				.filter(f -> (f instanceof InstanceBuilderFacade) && Structured.class
 						.isAssignableFrom(((DefaultTypeInfo) ((InstanceBuilderFacade) f).getTypeInfo()).getJavaType()))
 				.map(f -> ((InstanceBuilderFacade) f).getUnderlying()).collect(Collectors.toList());
@@ -540,4 +540,29 @@ public class MiscUtils {
 		return className.contains(".");
 	}
 
+	public static <K, V> K getFirstKeyFromValue(Map<K, V> map, V value) {
+		List<K> list = getKeysFromValue(map, value);
+		if (list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	public static <K, V> List<K> getKeysFromValue(Map<K, V> map, Object value) {
+		List<K> result = new ArrayList<K>();
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			if (MiscUtils.equalsOrBothNull(entry.getValue(), value)) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
+	}
+
+	public static boolean equalsOrBothNull(Object o1, Object o2) {
+		if (o1 == null) {
+			return o2 == null;
+		} else {
+			return o1.equals(o2);
+		}
+	}
 }

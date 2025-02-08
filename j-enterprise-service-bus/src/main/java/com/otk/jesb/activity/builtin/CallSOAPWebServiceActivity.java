@@ -12,10 +12,6 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
-import com.otk.jesb.InstanceBuilder;
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
-import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
@@ -23,6 +19,10 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
@@ -315,7 +315,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
 			result.setOperationInput(
-					(OperationInput) operationInputBuilder.build(new InstanceBuilder.EvaluationContext(context, null)));
+					(OperationInput) operationInputBuilder.build(new EvaluationContext(context, null)));
 			return result;
 		}
 

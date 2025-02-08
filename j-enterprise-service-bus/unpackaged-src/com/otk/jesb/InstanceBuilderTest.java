@@ -3,10 +3,12 @@ package com.otk.jesb;
 import java.util.List;
 import java.util.Map;
 
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+
 public class InstanceBuilderTest {
 
 	public static void main(String[] args) {
-		GUI.INSTANCE.openObjectDialog(null, new InstanceBuilder.RootInstanceBuilder("testInput", Tree.class.getName()));
+		GUI.INSTANCE.openObjectDialog(null, new RootInstanceBuilder("testInput", Tree.class.getName()));
 	}
 
 	public static class Tree {

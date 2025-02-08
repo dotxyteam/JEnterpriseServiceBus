@@ -1,3 +1,6 @@
+- FieldInitializer value setting undo management may not work correctly because 
+it modifies the "concrete" state of ancestor nodes behind the scene
+- split classes GUI, InstanceBuilder, Plan, Debugger, etc
 - control InstanceBuilder.typeName updates: the new type should inherit from the
 normal type
 - every function should have the field/parameter/listItem type so that

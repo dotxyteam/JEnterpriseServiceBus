@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.util.MiscUtils;
 
 public class FunctionEditor {

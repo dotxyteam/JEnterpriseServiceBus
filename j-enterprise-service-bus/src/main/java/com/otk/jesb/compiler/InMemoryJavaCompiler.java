@@ -390,6 +390,13 @@ public class InMemoryJavaCompiler {
 			byte[] bytes = classes.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
 			if (bytes == null)
 				throw new ClassNotFoundException(className);
+			try {
+				if (getParent().loadClass(className) != null) {
+					throw new AssertionError(
+							"Cannot define a class that is already defined by the parent class loader: " + className);
+				}
+			} catch (ClassNotFoundException e) {
+			}
 			Class<?> result = super.defineClass(className, bytes, 0, bytes.length);
 			definedClassNames.add(className);
 			return result;
@@ -422,7 +429,7 @@ public class InMemoryJavaCompiler {
 		}
 
 		@Override
-		protected boolean isResponsibleFor(String packageName) {
+		protected boolean isResponsibleFor(String className) {
 			return false;
 		}
 

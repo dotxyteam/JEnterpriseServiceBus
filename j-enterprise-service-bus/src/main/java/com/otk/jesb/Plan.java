@@ -3,10 +3,11 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
@@ -180,7 +181,7 @@ public class Plan extends Asset {
 			});
 		}
 		execute(steps, context, executionInspector);
-		return outputBuilder.build(new InstanceBuilder.EvaluationContext(context, null));
+		return outputBuilder.build(new EvaluationContext(context, null));
 	}
 
 	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)

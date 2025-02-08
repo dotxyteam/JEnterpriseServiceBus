@@ -5,15 +5,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import com.otk.jesb.InstanceBuilder;
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
-import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
+
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
@@ -180,7 +182,7 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			return new WriteFileActivity((UnderlyingWriteFileActivity) instanceBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, null)));
+					.build(new EvaluationContext(context, null)));
 		}
 
 		@Override

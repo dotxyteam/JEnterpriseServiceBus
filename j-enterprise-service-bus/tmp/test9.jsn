@@ -7,24 +7,24 @@
           <inputStructure class="null"/>
           <name>Test</name>
           <outputBuilder>
-            <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+            <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
               <outer-class reference="../.."/>
             </dynamicTypeNameAccessor>
             <fieldInitializers/>
             <listItemInitializers/>
             <parameterInitializers>
-              <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+              <com.otk.jesb.instantiation.ParameterInitializer>
                 <parameterPosition>0</parameterPosition>
-                <parameterTypeName>com.otk.jesb.InstanceBuilder$NullInstance</parameterTypeName>
-                <parameterValue class="com.otk.jesb.InstanceBuilder">
+                <parameterTypeName>com.otk.jesb.instantiation.NullInstance</parameterTypeName>
+                <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers/>
                   <selectedConstructorSignature class="null"/>
-                  <typeName>com.otk.jesb.InstanceBuilder$NullInstance</typeName>
+                  <typeName>com.otk.jesb.instantiation.NullInstance</typeName>
                 </parameterValue>
-              </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+              </com.otk.jesb.instantiation.ParameterInitializer>
             </parameterInitializers>
             <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
               <outer-class reference="../../.."/>
@@ -40,32 +40,32 @@
               <name>sleep</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
                 <instanceBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.SleepActivity</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>long</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                            <parameterValue class="com.otk.jesb.instantiation.Function">
                               <functionBody>return 100;</functionBody>
                             </parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
                   <rootInstanceName>SleepActivityInput</rootInstanceName>
@@ -93,7 +93,7 @@
                   </inputStructure>
                   <name>SubPlan</name>
                   <outputBuilder>
-                    <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                       <outer-class reference="../.."/>
                     </dynamicTypeNameAccessor>
                     <fieldInitializers/>
@@ -122,30 +122,30 @@
                       <name>readFile</name>
                       <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
                         <instanceBuilder>
-                          <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                             <outer-class reference="../.."/>
                           </dynamicTypeNameAccessor>
                           <fieldInitializers/>
                           <listItemInitializers/>
                           <parameterInitializers>
-                            <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                            <com.otk.jesb.instantiation.ParameterInitializer>
                               <parameterPosition>0</parameterPosition>
                               <parameterTypeName>com.otk.jesb.activity.builtin.ReadFileActivity$ReadTextFileActivity</parameterTypeName>
-                              <parameterValue class="com.otk.jesb.InstanceBuilder">
+                              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                                 <dynamicTypeNameAccessor class="null"/>
                                 <fieldInitializers/>
                                 <listItemInitializers/>
                                 <parameterInitializers>
-                                  <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                                  <com.otk.jesb.instantiation.ParameterInitializer>
                                     <parameterPosition>0</parameterPosition>
                                     <parameterTypeName>java.lang.String</parameterTypeName>
                                     <parameterValue class="string">tmp/test.txt</parameterValue>
-                                  </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                                  </com.otk.jesb.instantiation.ParameterInitializer>
                                 </parameterInitializers>
                                 <selectedConstructorSignature class="null"/>
                                 <typeName>com.otk.jesb.activity.builtin.ReadFileActivity$ReadTextFileActivity</typeName>
                               </parameterValue>
-                            </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                            </com.otk.jesb.instantiation.ParameterInitializer>
                           </parameterInitializers>
                           <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
                             <outer-class reference="../../.."/>
@@ -164,78 +164,78 @@
                   <transitions/>
                 </plan>
                 <planInputBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
-                      <parameterTypeName>com.otk.jesb.InstanceBuilder$NullInstance</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterTypeName>com.otk.jesb.instantiation.NullInstance</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.InstanceBuilder$NullInstance</typeName>
+                        <typeName>com.otk.jesb.instantiation.NullInstance</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.PlanInput0289422093653847431272094645498823694762</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>boolean</parameterTypeName>
                             <parameterValue class="boolean">false</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.PlanInput0289422093653847431272094645498823694762</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.PlanInput0055957587418444219927966957177121217083</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>boolean</parameterTypeName>
                             <parameterValue class="boolean">false</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.PlanInput0055957587418444219927966957177121217083</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.PlanInput0262371860166477648693376134089895733557</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>boolean</parameterTypeName>
                             <parameterValue class="boolean">false</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.PlanInput0262371860166477648693376134089895733557</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
                     <outer-class reference="../../.."/>
@@ -253,37 +253,37 @@
               <name>writeFile</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
                 <instanceBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.WriteFileActivity$WriteTextFileActivity</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>java.lang.String</parameterTypeName>
                             <parameterValue class="string">tmp/out.txt</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.String</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                            <parameterValue class="com.otk.jesb.instantiation.Function">
                               <functionBody>return executePlan.getReadFileResult();</functionBody>
                             </parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.WriteFileActivity$WriteTextFileActivity</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
                     <outer-class reference="../../.."/>
@@ -724,28 +724,28 @@
 &lt;/definitions&gt;</text>
                 </WSDL>
                 <operationInputBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.InstanceBuilder$RootInstanceBuilder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
-                      <parameterTypeName>com.otk.jesb.InstanceBuilder$NullInstance</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterTypeName>com.otk.jesb.instantiation.NullInstance</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.InstanceBuilder$NullInstance</typeName>
+                        <typeName>com.otk.jesb.instantiation.NullInstance</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0303122554762601360593752731973705742570</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
@@ -753,80 +753,80 @@
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0303122554762601360593752731973705742570</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0330137075650402619591630183110017532768</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">1</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">2</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0330137075650402619591630183110017532768</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0264884170232212857442588789954226836011</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">1</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">2</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0264884170232212857442588789954226836011</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0302549633334485083748316673676002269018</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
                         <parameterInitializers>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">0</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                          <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
                             <parameterValue class="long">0</parameterValue>
-                          </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0302549633334485083748316673676002269018</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0087005592567020672244456566643915751561</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
@@ -834,11 +834,11 @@
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0087005592567020672244456566643915751561</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0282600732068161958264209570894099167882</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder">
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
                         <listItemInitializers/>
@@ -846,7 +846,7 @@
                         <selectedConstructorSignature class="null"/>
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0282600732068161958264209570894099167882</typeName>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
                     <outer-class reference="../../.."/>

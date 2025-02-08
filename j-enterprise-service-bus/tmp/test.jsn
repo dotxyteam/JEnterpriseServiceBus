@@ -11,11 +11,11 @@
               <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
                 <objectSpecification>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>filePath</fieldName>
                       <fieldValue class="string">tmp/test.txt</fieldValue>
-                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    </com.otk.jesb.instantiation.FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>
@@ -39,18 +39,18 @@
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                      <parameterValue class="com.otk.jesb.instantiation.Function">
                         <functionBody>return readFile.getText();</functionBody>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <selectedConstructorSignature class="null"/>
                   <typeName>JDBCQueryActivityParameterValues0311737010834317121813818505341321042741</typeName>
@@ -121,13 +121,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
                 <objectSpecification>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>milliseconds</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceBuilder$Function">
+                      <fieldValue class="com.otk.jesb.instantiation.Function">
                         <functionBody>return jDBCQuery.getRows().size();</functionBody>
                       </fieldValue>
-                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    </com.otk.jesb.instantiation.FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>
@@ -152,38 +152,38 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <fieldInitializers/>
                   <listItemInitializers/>
                   <parameterInitializers>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.InstanceBuilder$Function">
+                      <parameterValue class="com.otk.jesb.instantiation.Function">
                         <functionBody>return readFile.getText();</functionBody>
                       </parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>1</parameterPosition>
                       <parameterTypeName>java.lang.Integer</parameterTypeName>
                       <parameterValue class="int">0</parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
-                    <com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
                       <parameterValue class="string"></parameterValue>
-                    </com.otk.jesb.InstanceBuilder_-ParameterInitializer>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <selectedConstructorSignature class="null"/>
                   <typeName>JDBCUpdateActivityParameterValues0024216827772457147329627206167257917932</typeName>
@@ -211,18 +211,18 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
                 <objectSpecification>
                   <fieldInitializers>
-                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>filePath</fieldName>
                       <fieldValue class="string">tmp/out.txt</fieldValue>
-                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
-                    <com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    </com.otk.jesb.instantiation.FieldInitializer>
+                    <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>text</fieldName>
-                      <fieldValue class="com.otk.jesb.InstanceBuilder$Function">
+                      <fieldValue class="com.otk.jesb.instantiation.Function">
                         <functionBody>return &quot;Query result: &quot; + jDBCQuery.getRows() + &quot;\n&quot; + &quot;Update result: &quot; + jDBCUpdate.getAffectedRowCount();</functionBody>
                       </fieldValue>
-                    </com.otk.jesb.InstanceBuilder_-FieldInitializer>
+                    </com.otk.jesb.instantiation.FieldInitializer>
                   </fieldInitializers>
                   <listItemInitializers/>
                   <parameterInitializers/>

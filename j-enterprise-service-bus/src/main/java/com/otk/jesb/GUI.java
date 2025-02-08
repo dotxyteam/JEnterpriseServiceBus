@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -24,13 +25,6 @@ import javax.swing.tree.TreeCellRenderer;
 
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.Facade;
-import com.otk.jesb.InstanceBuilder.FieldInitializerFacade;
-import com.otk.jesb.InstanceBuilder.InstanceBuilderFacade;
-import com.otk.jesb.InstanceBuilder.ListItemInitializerFacade;
-import com.otk.jesb.InstanceBuilder.ParameterInitializerFacade;
-import com.otk.jesb.InstanceBuilder.ValueMode;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -49,6 +43,16 @@ import com.otk.jesb.diagram.JDiagramActionCategory;
 import com.otk.jesb.diagram.JDiagramActionScheme;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FieldInitializer;
+import com.otk.jesb.instantiation.FieldInitializerFacade;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.InitializationSwitchFacade;
+import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
+import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -82,6 +86,7 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
@@ -89,6 +94,7 @@ import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
+import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
@@ -135,10 +141,10 @@ public class GUI extends SwingCustomizer {
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
 		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
-				.add(new InstanceBuilder.FieldInitializer("filePath", "tmp/test.txt"));
+				.add(new FieldInitializer("filePath", "tmp/test.txt"));
 		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
-				.add(new InstanceBuilder.FieldInitializer("text", new InstanceBuilder.Function(
-						"return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+				.add(new FieldInitializer("text",
+						new Function("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -420,7 +426,7 @@ public class GUI extends SwingCustomizer {
 
 		public InstanceBuilderControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
-			expandAllItemPositions();
+			expandItemPositions(2);
 		}
 
 		@Override
@@ -461,6 +467,100 @@ public class GUI extends SwingCustomizer {
 		@Override
 		protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 			return new InfoProxyFactory() {
+
+				@Override
+				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo type,
+						List<? extends ItemPosition> selection,
+						Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
+					List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
+							super.getDynamicActions(type, selection, listModificationFactoryAccessor));
+					if (selection.size() > 0) {
+						ItemPosition firstItemPosition = selection.get(0);
+						if (selection.stream().allMatch(
+								itemPosition -> ((itemPosition.getItem() instanceof ParameterInitializerFacade)
+										|| (itemPosition.getItem() instanceof FieldInitializerFacade)
+										|| (itemPosition.getItem() instanceof ListItemInitializerFacade))
+										&& MiscUtils.equalsOrBothNull(itemPosition.getParentItemPosition(),
+												firstItemPosition.getParentItemPosition()))) {
+							result.add(new AbstractDynamicListAction() {
+
+								@Override
+								public String getName() {
+									return "insertSwitchCaseParent";
+								}
+
+								@Override
+								public String getCaption() {
+									return "Swith Case...";
+								}
+
+								@Override
+								public String getParametersValidationCustomCaption() {
+									return "Insert <Swith Case>";
+								}
+
+								@Override
+								public DisplayMode getDisplayMode() {
+									return DisplayMode.CONTEXT_MENU;
+								}
+
+								@Override
+								public List<IParameterInfo> getParameters() {
+									return Collections
+											.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+												@Override
+												public String getName() {
+													return "caseCount";
+												}
+
+												@Override
+												public String getCaption() {
+													return "Number Of Cases";
+												}
+
+												@Override
+												public ITypeInfo getType() {
+													return getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+															int.class, null));
+												}
+
+												@Override
+												public Object getDefaultValue(Object object) {
+													return 2;
+												}
+
+												@Override
+												public int getPosition() {
+													return 0;
+												}
+
+											});
+								}
+
+								@Override
+								public Object invoke(Object object, InvocationData invocationData) {
+									Facade parentFacade = Facade.getAncestors((Facade) firstItemPosition.getItem())
+											.get(0);
+									List<Facade> initializerFacades = selection.stream()
+											.map(itemPosition -> (Facade) itemPosition.getItem())
+											.collect(Collectors.toList());
+									int caseCount = (int) invocationData.getParameterValue(0);
+									new InitializationSwitchFacade(parentFacade, caseCount, initializerFacades);
+									return null;
+								}
+
+								@Override
+								public List<ItemPosition> getPostSelection() {
+									return Collections.emptyList();
+								}
+								
+								
+							});
+						}
+					}
+					return result;
+				}
 
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,

@@ -12,17 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.otk.jesb.InstanceBuilder;
 import com.otk.jesb.Solution;
-import com.otk.jesb.InstanceBuilder.Function;
-import com.otk.jesb.InstanceBuilder.Function.CompilationContext;
-import com.otk.jesb.InstanceBuilder.RootInstanceBuilder;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
 
@@ -321,7 +321,7 @@ public class JDBCQueryActivity implements Activity {
 			result.setConnection(connection);
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new InstanceBuilder.EvaluationContext(context, null));
+					.build(new EvaluationContext(context, null));
 			result.setParameterValues(parameterValues);
 			result.setCustomResultClass(customResultClass);
 			return result;
