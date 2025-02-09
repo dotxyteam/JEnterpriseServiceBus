@@ -7,7 +7,7 @@ public interface Facade {
 
 	Facade getParent();
 
-	List<Facade> getChildren();
+	List<? extends Facade> getChildren();
 
 	boolean isConcrete();
 

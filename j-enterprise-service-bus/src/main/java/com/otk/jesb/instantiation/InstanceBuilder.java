@@ -80,12 +80,12 @@ public class InstanceBuilder extends InitializationCase {
 
 	public Object build(EvaluationContext context) throws Exception {
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
-				context.getCurrentFacade());
+				context.getParentFacade());
 		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					MiscUtils.getAncestorStructureInstanceBuilders(context.getCurrentFacade()));
+					MiscUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
 				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
@@ -143,7 +143,7 @@ public class InstanceBuilder extends InitializationCase {
 									new Plan.ExecutionContext(context.getExecutionContext(),
 											new ListItemReplication.IterationVariable(
 													itemReplicationFacade.getUnderlying(), iterationVariableValue)),
-									context.getCurrentFacade());
+									context.getParentFacade());
 							Object itemValue = MiscUtils.interpretValue(listItemInitializerFacade.getItemValue(),
 									(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 											: TypeInfoProvider.getTypeInfo(Object.class.getName()),

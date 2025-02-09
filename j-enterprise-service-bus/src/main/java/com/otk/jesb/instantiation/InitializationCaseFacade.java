@@ -86,6 +86,18 @@ public class InitializationCaseFacade implements Facade {
 
 			@Override
 			public int compare(Facade o1, Facade o2) {
+				if(o1 instanceof InitializationSwitchFacade) {
+					List<Facade> managedFacades = ((InitializationSwitchFacade)o1).listManagedInitializerFacades();
+					if(managedFacades.size() > 0) {
+						o1 = managedFacades.get(0);
+					}
+				}
+				if(o2 instanceof InitializationSwitchFacade) {
+					List<Facade> managedFacades = ((InitializationSwitchFacade)o2).listManagedInitializerFacades();
+					if(managedFacades.size() > 0) {
+						o2 = managedFacades.get(0);
+					}
+				}
 				if (!o1.getClass().equals(o2.getClass())) {
 					return Integer.valueOf(CLASSES_ORDER.indexOf(o1.getClass()))
 							.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(o2.getClass())));
@@ -104,8 +116,6 @@ public class InitializationCaseFacade implements Facade {
 					ListItemInitializerFacade liif2 = (ListItemInitializerFacade) o2;
 					return Integer.valueOf(liif1.getIndex()).compareTo(Integer.valueOf(liif2.getIndex()));
 				} else if ((o1 instanceof InitializationSwitchFacade) && (o2 instanceof InitializationSwitchFacade)) {
-					// InitializationSwitchFacade isf1 = (InitializationSwitchFacade) o1;
-					// InitializationSwitchFacade isf2 = (InitializationSwitchFacade) o2;
 					return 0;
 				} else {
 					throw new AssertionError();
@@ -427,12 +437,12 @@ public class InitializationCaseFacade implements Facade {
 	@Override
 	public String toString() {
 		if (isDefaultCaseFacade()) {
-			return "<Default>";
+			return "[Default]";
 		} else {
-			return "<Case "
+			return "[Case "
 					+ new ArrayList<InitializationCase>(
 							parent.getUnderlying().getInitializationCaseByCondition().values()).indexOf(underlying)
-					+ ">";
+					+ "]";
 		}
 	}
 }

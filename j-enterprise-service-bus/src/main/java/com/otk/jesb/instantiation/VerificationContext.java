@@ -4,19 +4,19 @@ import com.otk.jesb.Plan.ValidationContext;
 
 public class VerificationContext {
 	private ValidationContext validationContext;
-	private Facade currentFacade;
+	private Facade parentFacade;
 
-	public VerificationContext(ValidationContext validationContext, Facade currentFacade) {
+	public VerificationContext(ValidationContext validationContext, Facade parentFacade) {
 		this.validationContext = validationContext;
-		this.currentFacade = currentFacade;
+		this.parentFacade = parentFacade;
 	}
 
 	public ValidationContext getValidationContext() {
 		return validationContext;
 	}
 
-	public Facade getCurrentFacade() {
-		return currentFacade;
+	public Facade getParentFacade() {
+		return parentFacade;
 	}
 
 }

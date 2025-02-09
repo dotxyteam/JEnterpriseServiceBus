@@ -67,14 +67,24 @@ public class InitializationSwitchFacade implements Facade {
 	}
 
 	@Override
-	public List<Facade> getChildren() {
-		List<Facade> result = new ArrayList<Facade>();
+	public List<InitializationCaseFacade> getChildren() {
+		List<InitializationCaseFacade> result = new ArrayList<InitializationCaseFacade>();
 		for (Map.Entry<Function, InitializationCase> caseEntry : underlying.getInitializationCaseByCondition()
 				.entrySet()) {
 			result.add(new InitializationCaseFacade(this, caseEntry.getKey(), caseEntry.getValue()));
 		}
 		result.add(new InitializationCaseFacade(this, null, underlying.getDefaultInitializationCase()));
 		return result;
+	}
+
+	public void setChildren(List<InitializationCaseFacade> newChildren) {
+		underlying.getInitializationCaseByCondition().clear();
+		for (InitializationCaseFacade caseFacade : newChildren) {
+			if (caseFacade.getCondition() == null) {
+				continue;
+			}
+			underlying.getInitializationCaseByCondition().put(caseFacade.getCondition(), caseFacade.getUnderlying());
+		}
 	}
 
 	@Override
@@ -122,10 +132,9 @@ public class InitializationSwitchFacade implements Facade {
 	}
 
 	public List<Facade> collectInitializerFacades(EvaluationContext context) {
-		List<Facade> children = getChildren();
+		List<InitializationCaseFacade> children = getChildren();
 		EvaluationContext childContext = new EvaluationContext(context.getExecutionContext(), this);
-		for (Facade facade : children) {
-			InitializationCaseFacade caseFacade = (InitializationCaseFacade) facade;
+		for (InitializationCaseFacade caseFacade : children) {
 			boolean caseConditionFullfilled;
 			if (caseFacade.getCondition() != null) {
 				try {
@@ -134,7 +143,7 @@ public class InitializationSwitchFacade implements Facade {
 					throw new AssertionError(e);
 				}
 			} else {
-				if (children.indexOf(facade) != (children.size() - 1)) {
+				if (children.indexOf(caseFacade) != (children.size() - 1)) {
 					throw new AssertionError();
 				}
 				caseConditionFullfilled = true;
@@ -148,7 +157,7 @@ public class InitializationSwitchFacade implements Facade {
 
 	@Override
 	public String toString() {
-		return "<Switch> " + MiscUtils.stringJoin(listManagedInitializerFacades(), ", ");
+		return MiscUtils.stringJoin(listManagedInitializerFacades(), ", ") + " <Switch>";
 	}
 
 }

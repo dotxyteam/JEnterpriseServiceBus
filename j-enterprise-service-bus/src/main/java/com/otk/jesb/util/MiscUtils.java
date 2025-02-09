@@ -66,10 +66,10 @@ public class MiscUtils {
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
 		CompilationContext compilationContext = currentStep.getActivityBuilder()
 				.findFunctionCompilationContext(function, validationContext);
-		Facade currentFacade = compilationContext.getVerificationContext().getCurrentFacade();
+		Facade currentFacade = compilationContext.getVerificationContext().getParentFacade();
 		if (((currentFacade == null) ? null
-				: currentFacade.getUnderlying()) != ((evaluationContext.getCurrentFacade() == null) ? null
-						: evaluationContext.getCurrentFacade().getUnderlying())) {
+				: currentFacade.getUnderlying()) != ((evaluationContext.getParentFacade() == null) ? null
+						: evaluationContext.getParentFacade().getUnderlying())) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
@@ -87,7 +87,7 @@ public class MiscUtils {
 	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
 		CompiledFunction.get(
 				makeTypeNamesAbsolute(functionBody,
-						getAncestorStructureInstanceBuilders(context.getVerificationContext().getCurrentFacade())),
+						getAncestorStructureInstanceBuilders(context.getVerificationContext().getParentFacade())),
 				context.getVerificationContext().getValidationContext(), context.getFunctionReturnType());
 	}
 

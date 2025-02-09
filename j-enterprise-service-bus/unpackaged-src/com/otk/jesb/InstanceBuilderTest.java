@@ -1,8 +1,8 @@
 package com.otk.jesb;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
 
 import com.otk.jesb.InstanceBuilderTest.TreeActivity.Builder;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -34,7 +34,7 @@ public class InstanceBuilderTest {
 		public TreeActivity() {
 		}
 
-		public TreeActivity(int intValue, String stringValue, EnumValue enumValue, List<String> stringList) {
+		public TreeActivity(int intValue, String stringValue, EnumValue enumValue, ArrayList<String> stringList) {
 			super();
 			this.intValue = intValue;
 			this.stringValue = stringValue;
@@ -43,7 +43,7 @@ public class InstanceBuilderTest {
 		}
 
 		public TreeActivity(TreeActivity firstChild, TreeActivity[] otherChildrenArray,
-				Map<String, TreeActivity> childByString, Map<Integer, Boolean> booleanByInteger) {
+				HashMap<String, TreeActivity> childByString, HashMap<Integer, Boolean> booleanByInteger) {
 			super();
 			this.firstChild = firstChild;
 			this.otherChildrenArray = otherChildrenArray;
@@ -58,11 +58,11 @@ public class InstanceBuilderTest {
 		private int intValue;
 		private String stringValue;
 		private EnumValue enumValue;
-		private List<String> stringList;
+		private ArrayList<String> stringList;
 		private TreeActivity firstChild;
 		private TreeActivity[] otherChildrenArray;
-		private Map<String, TreeActivity> childByString;
-		private Map<Integer, Boolean> booleanByInteger;
+		private HashMap<String, TreeActivity> childByString;
+		private HashMap<Integer, Boolean> booleanByInteger;
 
 		public int getIntValue() {
 			return intValue;
@@ -88,11 +88,11 @@ public class InstanceBuilderTest {
 			this.enumValue = enumValue;
 		}
 
-		public List<String> getStringList() {
+		public ArrayList<String> getStringList() {
 			return stringList;
 		}
 
-		public void setStringList(List<String> stringList) {
+		public void setStringList(ArrayList<String> stringList) {
 			this.stringList = stringList;
 		}
 
@@ -112,19 +112,19 @@ public class InstanceBuilderTest {
 			this.otherChildrenArray = otherChildrenArray;
 		}
 
-		public Map<String, TreeActivity> getChildByString() {
+		public HashMap<String, TreeActivity> getChildByString() {
 			return childByString;
 		}
 
-		public void setChildByString(Map<String, TreeActivity> childByString) {
+		public void setChildByString(HashMap<String, TreeActivity> childByString) {
 			this.childByString = childByString;
 		}
 
-		public Map<Integer, Boolean> getBooleanByInteger() {
+		public HashMap<Integer, Boolean> getBooleanByInteger() {
 			return booleanByInteger;
 		}
 
-		public void setBooleanByInteger(Map<Integer, Boolean> booleanByInteger) {
+		public void setBooleanByInteger(HashMap<Integer, Boolean> booleanByInteger) {
 			this.booleanByInteger = booleanByInteger;
 		}
 

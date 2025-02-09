@@ -5,19 +5,19 @@ import com.otk.jesb.Plan.ExecutionContext;
 public class EvaluationContext {
 
 	private ExecutionContext executionContext;
-	private Facade currentFacade;
+	private Facade parentFacade;
 
-	public EvaluationContext(ExecutionContext executionContext, Facade currentFacade) {
+	public EvaluationContext(ExecutionContext executionContext, Facade parentFacade) {
 		this.executionContext = executionContext;
-		this.currentFacade = currentFacade;
+		this.parentFacade = parentFacade;
 	}
 
 	public ExecutionContext getExecutionContext() {
 		return executionContext;
 	}
 
-	public Facade getCurrentFacade() {
-		return currentFacade;
+	public Facade getParentFacade() {
+		return parentFacade;
 	}
 
 }
