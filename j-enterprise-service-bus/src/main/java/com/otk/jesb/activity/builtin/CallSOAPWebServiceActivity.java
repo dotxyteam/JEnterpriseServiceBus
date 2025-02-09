@@ -358,7 +358,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return operationInputBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return operationInputBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 
 	}

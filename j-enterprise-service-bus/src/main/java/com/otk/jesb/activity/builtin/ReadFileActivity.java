@@ -161,8 +161,8 @@ public class ReadFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return new ReadFileActivity((UnderlyingReadFileActivity) instanceBuilder
-					.build(new EvaluationContext(context, null)));
+			return new ReadFileActivity(
+					(UnderlyingReadFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
 		}
 
 		@Override
@@ -179,7 +179,7 @@ public class ReadFileActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return instanceBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return instanceBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 
 	}

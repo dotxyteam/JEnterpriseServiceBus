@@ -41,7 +41,7 @@ import com.otk.jesb.Step;
 import com.otk.jesb.Structure.Structured;
 
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
@@ -110,15 +110,15 @@ public class MiscUtils {
 		}
 	}
 
-	public static IMethodInfo getConstructorInfo(ITypeInfo typeInfo, String selectedConstructorSignature) {
+	public static AbstractConstructorInfo getConstructorInfo(ITypeInfo typeInfo, String selectedConstructorSignature) {
 		if (selectedConstructorSignature == null) {
 			if (typeInfo.getConstructors().size() == 0) {
 				return null;
 			} else {
-				return typeInfo.getConstructors().get(0);
+				return (AbstractConstructorInfo) typeInfo.getConstructors().get(0);
 			}
 		} else {
-			return ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(), selectedConstructorSignature);
+			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(), selectedConstructorSignature);
 		}
 
 	}

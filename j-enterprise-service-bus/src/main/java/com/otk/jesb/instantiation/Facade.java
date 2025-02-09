@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface Facade {
 
+	Facade getParent();
+
 	List<Facade> getChildren();
 
 	boolean isConcrete();
@@ -15,41 +17,10 @@ public interface Facade {
 
 	static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();
-		if (facade instanceof InstanceBuilderFacade) {
-			InstanceBuilderFacade specificFacade = (InstanceBuilderFacade) facade;
-			if (specificFacade.getParent() != null) {
-				result.add(specificFacade.getParent());
-				result.addAll(getAncestors(specificFacade.getParent()));
-			}
-		} else if (facade instanceof FieldInitializerFacade) {
-			FieldInitializerFacade specificFacade = (FieldInitializerFacade) facade;
-			Facade facadeParent = specificFacade.getParent();
-			result.add(facadeParent);
-			result.addAll(getAncestors(facadeParent));
-		} else if (facade instanceof ParameterInitializerFacade) {
-			ParameterInitializerFacade specificFacade = (ParameterInitializerFacade) facade;
-			Facade facadeParent = specificFacade.getParent();
-			result.add(facadeParent);
-			result.addAll(getAncestors(facadeParent));
-		} else if (facade instanceof ListItemInitializerFacade) {
-			ListItemInitializerFacade specificFacade = (ListItemInitializerFacade) facade;
-			Facade facadeParent = specificFacade.getParent();
-			result.add(facadeParent);
-			result.addAll(getAncestors(facadeParent));
-		} else if (facade instanceof InitializationSwitchFacade) {
-			InitializationSwitchFacade specificFacade = (InitializationSwitchFacade) facade;
-			if (specificFacade.getParent() != null) {
-				result.add(specificFacade.getParent());
-				result.addAll(getAncestors(specificFacade.getParent()));
-			}
-		} else if (facade instanceof InitializationCaseFacade) {
-			InitializationCaseFacade specificFacade = (InitializationCaseFacade) facade;
-			if (specificFacade.getParent() != null) {
-				result.add(specificFacade.getParent());
-				result.addAll(getAncestors(specificFacade.getParent()));
-			}
-		} else {
-			throw new AssertionError();
+		Facade parentFacade;
+		while ((parentFacade = facade.getParent()) != null) {
+			result.add(parentFacade);
+			facade = parentFacade;
 		}
 		return result;
 	}

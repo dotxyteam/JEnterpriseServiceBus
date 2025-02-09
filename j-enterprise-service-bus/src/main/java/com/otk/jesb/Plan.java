@@ -256,12 +256,18 @@ public class Plan extends Asset {
 
 	public static class ExecutionContext {
 
-		private List<Variable> variables = new ArrayList<Variable>();
 		private Plan plan;
 		private Step currentStep;
+		private List<Variable> variables = new ArrayList<Variable>();
 
 		public ExecutionContext(Plan plan) {
 			this.plan = plan;
+		}
+
+		public ExecutionContext(Plan plan, Step currentStep, List<Variable> variables) {
+			this.plan = plan;
+			this.currentStep = currentStep;
+			this.variables = variables;
 		}
 
 		public ExecutionContext(ExecutionContext parentContext, Variable newVariable) {

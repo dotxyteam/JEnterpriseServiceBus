@@ -25,6 +25,7 @@ public class ListItemInitializerFacade implements Facade {
 		}
 	}
 
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -33,7 +34,7 @@ public class ListItemInitializerFacade implements Facade {
 		return index;
 	}
 
-	protected InstanceBuilderFacade getInstanceBuilderFacade() {
+	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
@@ -114,7 +115,7 @@ public class ListItemInitializerFacade implements Facade {
 	}
 
 	public ITypeInfo getItemType() {
-		ITypeInfo parentTypeInfo = getInstanceBuilderFacade().getTypeInfo();
+		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 		return ((IListTypeInfo) parentTypeInfo).getItemType();
 	}
 

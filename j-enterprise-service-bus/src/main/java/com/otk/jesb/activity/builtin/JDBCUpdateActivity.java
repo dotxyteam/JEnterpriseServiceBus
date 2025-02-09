@@ -231,7 +231,8 @@ public class JDBCUpdateActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function currentFunction,
 				ValidationContext validationContext) {
-			return parameterValuesBuilder.findFunctionCompilationContext(currentFunction, validationContext, null);
+			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(currentFunction,
+					validationContext);
 		}
 
 		@Override

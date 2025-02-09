@@ -181,8 +181,8 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
-			return new WriteFileActivity((UnderlyingWriteFileActivity) instanceBuilder
-					.build(new EvaluationContext(context, null)));
+			return new WriteFileActivity(
+					(UnderlyingWriteFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
 		}
 
 		@Override
@@ -193,7 +193,7 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return instanceBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return instanceBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 	}
 

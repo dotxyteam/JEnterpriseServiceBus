@@ -86,7 +86,7 @@ public class SleepActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return instanceBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return instanceBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 	}
 

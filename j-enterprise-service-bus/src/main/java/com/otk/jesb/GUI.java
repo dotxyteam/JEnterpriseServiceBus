@@ -491,12 +491,12 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public String getCaption() {
-									return "Swith Case...";
+									return "Insert Switch/Cases Parent...";
 								}
 
 								@Override
 								public String getParametersValidationCustomCaption() {
-									return "Insert <Swith Case>";
+									return "OK";
 								}
 
 								@Override
@@ -540,8 +540,7 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
-									Facade parentFacade = Facade.getAncestors((Facade) firstItemPosition.getItem())
-											.get(0);
+									Facade parentFacade = ((Facade) firstItemPosition.getItem()).getParent();
 									List<Facade> initializerFacades = selection.stream()
 											.map(itemPosition -> (Facade) itemPosition.getItem())
 											.collect(Collectors.toList());

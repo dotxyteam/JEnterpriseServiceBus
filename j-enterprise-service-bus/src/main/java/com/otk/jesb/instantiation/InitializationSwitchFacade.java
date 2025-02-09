@@ -1,8 +1,11 @@
 package com.otk.jesb.instantiation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import com.otk.jesb.util.MiscUtils;
 
 public class InitializationSwitchFacade implements Facade {
 
@@ -74,6 +77,7 @@ public class InitializationSwitchFacade implements Facade {
 		return result;
 	}
 
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -103,8 +107,48 @@ public class InitializationSwitchFacade implements Facade {
 		return underlying;
 	}
 
+	public List<Facade> listManagedInitializerFacades() {
+		List<Facade> result = new ArrayList<Facade>();
+		InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(this, null,
+				underlying.getDefaultInitializationCase());
+		for (Facade facade : defaultCaseFacade.getChildren()) {
+			if (facade instanceof InitializationSwitchFacade) {
+				result.addAll(((InitializationSwitchFacade) facade).listManagedInitializerFacades());
+			} else {
+				result.add(facade);
+			}
+		}
+		return result;
+	}
+
+	public List<Facade> collectInitializerFacades(EvaluationContext context) {
+		List<Facade> children = getChildren();
+		EvaluationContext childContext = new EvaluationContext(context.getExecutionContext(), this);
+		for (Facade facade : children) {
+			InitializationCaseFacade caseFacade = (InitializationCaseFacade) facade;
+			boolean caseConditionFullfilled;
+			if (caseFacade.getCondition() != null) {
+				try {
+					caseConditionFullfilled = MiscUtils.isConditionFullfilled(caseFacade.getCondition(), childContext);
+				} catch (Exception e) {
+					throw new AssertionError(e);
+				}
+			} else {
+				if (children.indexOf(facade) != (children.size() - 1)) {
+					throw new AssertionError();
+				}
+				caseConditionFullfilled = true;
+			}
+			if (caseConditionFullfilled) {
+				return caseFacade.collectInitializerFacades(childContext);
+			}
+		}
+		return Collections.emptyList();
+	}
+
 	@Override
 	public String toString() {
-		return "<Switch>";
+		return "<Switch> " + MiscUtils.stringJoin(listManagedInitializerFacades(), ", ");
 	}
+
 }

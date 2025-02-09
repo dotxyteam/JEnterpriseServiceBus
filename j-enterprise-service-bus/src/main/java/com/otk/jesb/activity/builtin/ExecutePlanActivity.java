@@ -139,7 +139,7 @@ public class ExecutePlanActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return planInputBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return planInputBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 
 	}

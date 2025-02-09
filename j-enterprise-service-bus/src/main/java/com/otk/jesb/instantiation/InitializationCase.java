@@ -80,15 +80,4 @@ public class InitializationCase {
 		}
 	}
 
-	protected ParameterInitializer getDynamicParameterInitializer(EvaluationContext context, int parameterPosition,
-			String parameterTypeName) {
-		for (InitializationSwitch initializationSwitch : initializationSwitches) {
-			ParameterInitializer parameterInitializer = initializationSwitch.getDynamicParameterInitializer(context,
-					parameterPosition, parameterTypeName);
-			if (parameterInitializer != null) {
-				return parameterInitializer;
-			}
-		}
-		return getParameterInitializer(parameterPosition, parameterTypeName);
-	}
 }

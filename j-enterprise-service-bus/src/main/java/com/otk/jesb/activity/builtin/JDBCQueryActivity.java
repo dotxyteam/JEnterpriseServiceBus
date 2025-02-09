@@ -339,7 +339,7 @@ public class JDBCQueryActivity implements Activity {
 		@Override
 		public CompilationContext findFunctionCompilationContext(Function function,
 				ValidationContext validationContext) {
-			return parameterValuesBuilder.findFunctionCompilationContext(function, validationContext, null);
+			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
 		}
 	}
 

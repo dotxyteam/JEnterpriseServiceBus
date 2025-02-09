@@ -1,8 +1,6 @@
 package com.otk.jesb.instantiation;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.otk.jesb.util.MiscUtils;
 
 public class InitializationSwitch {
@@ -26,23 +24,7 @@ public class InitializationSwitch {
 		this.defaultInitializationCase = defaultInitializationCase;
 	}
 
-	protected ParameterInitializer getDynamicParameterInitializer(EvaluationContext context, int parameterPosition,
-			String parameterTypeName) {
-		for (Map.Entry<Function, InitializationCase> caseEntry : initializationCaseByCondition.entrySet()) {
-			boolean caseConditionFullfilled;
-			try {
-				caseConditionFullfilled = MiscUtils.isConditionFullfilled(caseEntry.getKey(), context);
-			} catch (Exception e) {
-				throw new AssertionError(e);
-			}
-			if (caseConditionFullfilled) {
-				return caseEntry.getValue().getDynamicParameterInitializer(context, parameterPosition,
-						parameterTypeName);
-			}
-		}
-		return null;
-	}
-
+	
 	public Function findCondition(InitializationCase initializationCase) {
 		if (initializationCase == defaultInitializationCase) {
 			return null;

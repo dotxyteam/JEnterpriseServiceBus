@@ -3,10 +3,14 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -19,11 +23,63 @@ public class InstanceBuilderFacade implements Facade {
 	private Facade parent;
 	private InstanceBuilder underlying;
 
+	private InitializationCaseFacade util;
+
 	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {
 		this.parent = parent;
 		this.underlying = underlying;
+		util = new InitializationCaseFacade(null, null, underlying) {
+
+			@Override
+			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
+				return true;
+			}
+
+			@Override
+			protected boolean mustHaveFieldFacadeLocally(IFieldInfo fieldInfo) {
+				return true;
+			}
+
+			@Override
+			protected boolean mustHaveListItemFacadesLocally() {
+				return true;
+			}
+
+			@Override
+			protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
+				return new FieldInitializerFacade(InstanceBuilderFacade.this, fieldName);
+			}
+
+			@Override
+			protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
+				return new ListItemInitializerFacade(InstanceBuilderFacade.this, index);
+			}
+
+			@Override
+			protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
+				return new ParameterInitializerFacade(InstanceBuilderFacade.this, parameterPosition);
+			}
+
+			@Override
+			protected InitializationSwitchFacade createInitializationSwitchFacade(
+					InitializationSwitch initializationSwitch) {
+				return new InitializationSwitchFacade(InstanceBuilderFacade.this, initializationSwitch);
+			}
+
+			@Override
+			public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
+				return InstanceBuilderFacade.this;
+			}
+
+			@Override
+			protected EvaluationContext createEvaluationContextForChildren(ExecutionContext executionContext) {
+				return new EvaluationContext(executionContext, InstanceBuilderFacade.this);
+			}
+
+		};
 	}
 
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -57,6 +113,7 @@ public class InstanceBuilderFacade implements Facade {
 
 	public void setSelectedConstructorSignature(String selectedConstructorSignature) {
 		underlying.setSelectedConstructorSignature(selectedConstructorSignature);
+		setConcrete(true);
 	}
 
 	public List<String> getConstructorSignatureChoices() {
@@ -83,6 +140,16 @@ public class InstanceBuilderFacade implements Facade {
 				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
 				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
 			}
+			if (parent instanceof ParameterInitializerFacade) {
+				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
+				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
+						.getCurrentInstanceBuilderFacade();
+				AbstractConstructorInfo parentInstanceConstructor = MiscUtils.getConstructorInfo(
+						parentInstanceBuilderFacade.getTypeInfo(),
+						parentInstanceBuilderFacade.getSelectedConstructorSignature());
+				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
+						listParameterInitializerFacade.getParameterPosition());
+			}
 		}
 		if (result instanceof IMapEntryTypeInfo) {
 			if (parent instanceof ListItemInitializerFacade) {
@@ -95,50 +162,15 @@ public class InstanceBuilderFacade implements Facade {
 
 	@Override
 	public List<Facade> getChildren() {
-		return new InitializationCaseFacade(null, null, underlying) {
+		return util.getChildren();
+	}
 
-			@Override
-			protected boolean mustHaveParameterFacade(IParameterInfo parameterInfo) {
-				return true;
-			}
+	public List<Facade> collectInitializerFacades(EvaluationContext context) {
+		return util.collectInitializerFacades(context);
+	}
 
-			@Override
-			protected boolean mustHaveFieldFacade(IFieldInfo fieldInfo) {
-				return true;
-			}
-
-			@Override
-			protected boolean mustHaveListItemFacades() {
-				return true;
-			}
-
-			@Override
-			protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
-				return new FieldInitializerFacade(InstanceBuilderFacade.this, fieldName);
-			}
-
-			@Override
-			protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
-				return new ListItemInitializerFacade(InstanceBuilderFacade.this, index);
-			}
-
-			@Override
-			protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
-				return new ParameterInitializerFacade(InstanceBuilderFacade.this, parameterPosition);
-			}
-
-			@Override
-			protected InitializationSwitchFacade createInitializationSwitchFacade(
-					InitializationSwitch initializationSwitch) {
-				return new InitializationSwitchFacade(InstanceBuilderFacade.this, initializationSwitch);
-			}
-
-			@Override
-			protected InstanceBuilderFacade getInstanceBuilderFacade() {
-				return InstanceBuilderFacade.this;
-			}
-
-		}.getChildren();
+	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {
+		return util.findFunctionCompilationContext(function, validationContext);
 	}
 
 	@Override

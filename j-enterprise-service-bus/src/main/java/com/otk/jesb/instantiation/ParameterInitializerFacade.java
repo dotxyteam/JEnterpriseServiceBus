@@ -19,14 +19,15 @@ public class ParameterInitializerFacade implements Facade {
 		this.parameterPosition = parameterPosition;
 	}
 
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
 
 	public IParameterInfo getParameterInfo() {
-		ITypeInfo parentTypeInfo = getInstanceBuilderFacade().getTypeInfo();
+		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(parentTypeInfo,
-				getInstanceBuilderFacade().getSelectedConstructorSignature());
+				getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
 		if (constructor == null) {
 			throw new AssertionError();
 		}
@@ -35,10 +36,10 @@ public class ParameterInitializerFacade implements Facade {
 
 	@Override
 	public ParameterInitializer getUnderlying() {
-		IParameterInfo parameter = getParameterInfo();
 		ParameterInitializer result = ((InitializationCase) parent.getUnderlying())
-				.getParameterInitializer(parameterPosition, parameter.getType().getName());
+				.getParameterInitializer(parameterPosition, getParameterInfo().getType().getName());
 		if (result == null) {
+			IParameterInfo parameter = getParameterInfo();
 			result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
 					MiscUtils.getDefaultInterpretableValue(parameter.getType(), this));
 			((InitializationCase) parent.getUnderlying()).getParameterInitializers().add(result);
@@ -59,7 +60,7 @@ public class ParameterInitializerFacade implements Facade {
 				MiscUtils.getAncestorStructureInstanceBuilders(this));
 	}
 
-	protected InstanceBuilderFacade getInstanceBuilderFacade() {
+	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
@@ -78,9 +79,7 @@ public class ParameterInitializerFacade implements Facade {
 			return;
 		}
 		if (b) {
-			if (!parent.isConcrete()) {
-				parent.setConcrete(true);
-			}
+			parent.setConcrete(true);
 		}
 	}
 

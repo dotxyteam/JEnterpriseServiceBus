@@ -26,6 +26,7 @@ public class FieldInitializerFacade implements Facade {
 		}
 	}
 
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -35,13 +36,13 @@ public class FieldInitializerFacade implements Facade {
 		return MiscUtils.getDefaultInterpretableValue(field.getType(), this);
 	}
 
-	protected InstanceBuilderFacade getInstanceBuilderFacade() {
+	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
 
 	public IFieldInfo getFieldInfo() {
-		ITypeInfo parentTypeInfo = getInstanceBuilderFacade().getTypeInfo();
+		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 		return ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
 	}
 
@@ -93,7 +94,10 @@ public class FieldInitializerFacade implements Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
-			((InitializationCase) parent.getUnderlying()).getFieldInitializers().add(new FieldInitializer(fieldName, fieldValue));
+			if (getUnderlying() == null) {
+				((InitializationCase) parent.getUnderlying()).getFieldInitializers()
+						.add(new FieldInitializer(fieldName, fieldValue));
+			}
 		} else {
 			((InitializationCase) parent.getUnderlying()).removeFieldInitializer(fieldName);
 			fieldValue = createDefaultFieldValue();
