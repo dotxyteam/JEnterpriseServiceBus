@@ -78,6 +78,9 @@ public class InitializationSwitchFacade implements Facade {
 	}
 
 	public void setChildren(List<InitializationCaseFacade> newChildren) {
+		if (newChildren.stream().noneMatch(caseFacade -> caseFacade.getCondition() == null)) {
+			throw new UnsupportedOperationException("Cannot remove the default case");
+		}
 		underlying.getInitializationCaseByCondition().clear();
 		for (InitializationCaseFacade caseFacade : newChildren) {
 			if (caseFacade.getCondition() == null) {

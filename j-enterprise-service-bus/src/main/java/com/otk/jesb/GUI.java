@@ -47,6 +47,8 @@ import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.InitializationCase;
+import com.otk.jesb.instantiation.InitializationCaseFacade;
 import com.otk.jesb.instantiation.InitializationSwitchFacade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
@@ -469,13 +471,34 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				@Override
+				protected List<IMethodInfo> getAlternativeListItemConstructors(IFieldInfo field, Object object,
+						ITypeInfo objectType) {
+					if (objectType.getName().equals(InitializationSwitchFacade.class.getName())) {
+						if (field.getName().equals("children")) {
+							return Collections.singletonList(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+								@Override
+								public Object invoke(Object object, InvocationData invocationData) {
+									InitializationSwitchFacade switchFacade = (InitializationSwitchFacade) object;
+									Function condition = new Function("return false;");
+									InitializationCase initializationCase = new InitializationCase();
+									return new InitializationCaseFacade(switchFacade, condition, initializationCase);
+								}
+
+							});
+						}
+					}
+					return super.getAlternativeListItemConstructors(field, object, objectType);
+				}
+
+				@Override
 				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo type,
 						List<? extends ItemPosition> selection,
 						Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
 					List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
 							super.getDynamicActions(type, selection, listModificationFactoryAccessor));
 					if (selection.size() > 0) {
-						ItemPosition firstItemPosition = selection.get(0);
+						final ItemPosition firstItemPosition = selection.get(0);
 						if (selection.stream().allMatch(
 								itemPosition -> ((itemPosition.getItem() instanceof ParameterInitializerFacade)
 										|| (itemPosition.getItem() instanceof FieldInitializerFacade)
@@ -551,10 +574,9 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public List<ItemPosition> getPostSelection() {
-									return Collections.emptyList();
+									return Collections.singletonList(firstItemPosition.getSubItemPosition(0));
 								}
-								
-								
+
 							});
 						}
 					}

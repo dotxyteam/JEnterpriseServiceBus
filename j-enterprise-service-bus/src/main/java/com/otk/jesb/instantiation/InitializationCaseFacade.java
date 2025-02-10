@@ -439,10 +439,7 @@ public class InitializationCaseFacade implements Facade {
 		if (isDefaultCaseFacade()) {
 			return "[Default]";
 		} else {
-			return "[Case "
-					+ new ArrayList<InitializationCase>(
-							parent.getUnderlying().getInitializationCaseByCondition().values()).indexOf(underlying)
-					+ "]";
+			return "[Case]";
 		}
 	}
 }
