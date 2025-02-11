@@ -32,16 +32,22 @@ public class InstanceBuilderFacade implements Facade {
 
 			@Override
 			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
+				if(isParameterInitializedInChildSwitch(parameterInfo)) {
+					return false;
+				}
 				return true;
 			}
 
 			@Override
 			protected boolean mustHaveFieldFacadeLocally(IFieldInfo fieldInfo) {
+				if(isFieldInitializedInChildSwitch(fieldInfo)) {
+					return false;
+				}
 				return true;
 			}
 
 			@Override
-			protected boolean mustHaveListItemFacadesLocally() {
+			protected boolean mustHaveListItemFacadesLocally() {				
 				return true;
 			}
 

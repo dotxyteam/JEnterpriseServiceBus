@@ -39,15 +39,15 @@ public class InitializationCaseFacade implements Facade {
 	@Override
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
+		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
+			result.add(createInitializationSwitchFacade(initializationSwitch));
+		}
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
 		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
 		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo,
 				instanceBuilderFacade.getSelectedConstructorSignature());
 		if (constructor != null) {
 			for (IParameterInfo parameterInfo : constructor.getParameters()) {
-				if (isParameterInitializedInChildSwitch(parameterInfo)) {
-					continue;
-				}
 				if (!mustHaveParameterFacadeLocally(parameterInfo)) {
 					continue;
 				}
@@ -68,17 +68,11 @@ public class InitializationCaseFacade implements Facade {
 				if (fieldInfo.isGetOnly()) {
 					continue;
 				}
-				if (isFieldInitializedInChildSwitch(fieldInfo)) {
-					continue;
-				}
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
 					continue;
 				}
 				result.add(createFieldInitializerFacade(fieldInfo.getName()));
 			}
-		}
-		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
-			result.add(createInitializationSwitchFacade(initializationSwitch));
 		}
 		Collections.sort(result, new Comparator<Facade>() {
 			List<Class<?>> CLASSES_ORDER = Arrays.asList(ParameterInitializerFacade.class, FieldInitializerFacade.class,
@@ -86,15 +80,15 @@ public class InitializationCaseFacade implements Facade {
 
 			@Override
 			public int compare(Facade o1, Facade o2) {
-				if(o1 instanceof InitializationSwitchFacade) {
-					List<Facade> managedFacades = ((InitializationSwitchFacade)o1).listManagedInitializerFacades();
-					if(managedFacades.size() > 0) {
+				if (o1 instanceof InitializationSwitchFacade) {
+					List<Facade> managedFacades = ((InitializationSwitchFacade) o1).getManagedInitializerFacades();
+					if (managedFacades.size() > 0) {
 						o1 = managedFacades.get(0);
 					}
 				}
-				if(o2 instanceof InitializationSwitchFacade) {
-					List<Facade> managedFacades = ((InitializationSwitchFacade)o2).listManagedInitializerFacades();
-					if(managedFacades.size() > 0) {
+				if (o2 instanceof InitializationSwitchFacade) {
+					List<Facade> managedFacades = ((InitializationSwitchFacade) o2).getManagedInitializerFacades();
+					if (managedFacades.size() > 0) {
 						o2 = managedFacades.get(0);
 					}
 				}
@@ -245,9 +239,6 @@ public class InitializationCaseFacade implements Facade {
 			if (defaultCaseFacade.mustHaveListItemFacadesLocally()) {
 				return true;
 			}
-			if (defaultCaseFacade.areListItemsInitializedInChildSwitch()) {
-				return true;
-			}
 		}
 		return false;
 	}
@@ -294,6 +285,9 @@ public class InitializationCaseFacade implements Facade {
 	public List<Facade> collectInitializerFacades(EvaluationContext context) {
 		List<Facade> result = new ArrayList<Facade>();
 		for (Facade facade : getChildren()) {
+			if (!facade.isConcrete()) {
+				continue;
+			}
 			if (facade instanceof ParameterInitializerFacade) {
 				result.add(facade);
 			} else if (facade instanceof FieldInitializerFacade) {
@@ -314,6 +308,9 @@ public class InitializationCaseFacade implements Facade {
 
 	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {
 		for (Facade facade : getChildren()) {
+			if (!facade.isConcrete()) {
+				continue;
+			}
 			if (facade instanceof ParameterInitializerFacade) {
 				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;
 				if (currentFacade.getParameterValue() == function) {

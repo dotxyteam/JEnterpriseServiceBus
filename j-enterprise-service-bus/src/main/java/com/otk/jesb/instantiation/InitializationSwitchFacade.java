@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 import com.otk.jesb.util.MiscUtils;
 
 public class InitializationSwitchFacade implements Facade {
@@ -100,7 +100,7 @@ public class InitializationSwitchFacade implements Facade {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		return true;
+		return ((InitializationCase) parent.getUnderlying()).getInitializationSwitches().contains(underlying);
 	}
 
 	@Override
@@ -112,6 +112,11 @@ public class InitializationSwitchFacade implements Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
+			if (!((InitializationCase) parent.getUnderlying()).getInitializationSwitches().contains(underlying)) {
+				((InitializationCase) parent.getUnderlying()).getInitializationSwitches().add(underlying);
+			}
+		} else {
+			((InitializationCase) parent.getUnderlying()).getInitializationSwitches().remove(underlying);
 		}
 	}
 
@@ -120,18 +125,46 @@ public class InitializationSwitchFacade implements Facade {
 		return underlying;
 	}
 
-	public List<Facade> listManagedInitializerFacades() {
+	public List<Facade> getManagedInitializerFacades() {
 		List<Facade> result = new ArrayList<Facade>();
 		InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(this, null,
 				underlying.getDefaultInitializationCase());
 		for (Facade facade : defaultCaseFacade.getChildren()) {
+			if (!facade.isConcrete()) {
+				continue;
+			}
 			if (facade instanceof InitializationSwitchFacade) {
-				result.addAll(((InitializationSwitchFacade) facade).listManagedInitializerFacades());
+				result.addAll(((InitializationSwitchFacade) facade).getManagedInitializerFacades());
 			} else {
 				result.add(facade);
 			}
 		}
 		return result;
+	}
+
+	public void setManagedInitializerFacades(List<Facade> newFacades) {
+		List<Facade> oldFacades = getManagedInitializerFacades();
+		List<Facade> removedFacades = oldFacades.stream()
+				.filter(oldFacade -> newFacades.stream()
+						.noneMatch(newFacade -> newFacade.getUnderlying() == oldFacade.getUnderlying()))
+				.collect(Collectors.toList());
+		InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(this, null,
+				underlying.getDefaultInitializationCase());
+		for (Facade removedFacade : removedFacades) {
+			defaultCaseFacade.getUnderlying().getParameterInitializers().remove(removedFacade.getUnderlying());
+			defaultCaseFacade.getUnderlying().getFieldInitializers().remove(removedFacade.getUnderlying());
+			defaultCaseFacade.getUnderlying().getListItemInitializers().remove(removedFacade.getUnderlying());
+		}
+		for (Facade facade : defaultCaseFacade.getChildren()) {
+			if (facade instanceof InitializationSwitchFacade) {
+				List<Facade> switchNewFacades = ((InitializationSwitchFacade) facade).getManagedInitializerFacades()
+						.stream()
+						.filter(switchOldFacade -> newFacades.stream()
+								.anyMatch(newFacade -> newFacade.getUnderlying() == switchOldFacade.getUnderlying()))
+						.collect(Collectors.toList());
+				((InitializationSwitchFacade) facade).setManagedInitializerFacades(switchNewFacades);
+			} 
+		}
 	}
 
 	public List<Facade> collectInitializerFacades(EvaluationContext context) {
@@ -160,7 +193,7 @@ public class InitializationSwitchFacade implements Facade {
 
 	@Override
 	public String toString() {
-		return MiscUtils.stringJoin(listManagedInitializerFacades(), ", ") + " <Switch>";
+		return MiscUtils.stringJoin(getManagedInitializerFacades(), ", ") + " <Switch>";
 	}
 
 }
