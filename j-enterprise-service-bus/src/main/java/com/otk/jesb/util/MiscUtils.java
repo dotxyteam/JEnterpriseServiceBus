@@ -1,16 +1,22 @@
 package com.otk.jesb.util;
 
 import java.awt.Point;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +41,9 @@ import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.MapEntryBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
@@ -42,6 +51,7 @@ import com.otk.jesb.Structure.Structured;
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
@@ -115,10 +125,21 @@ public class MiscUtils {
 			if (typeInfo.getConstructors().size() == 0) {
 				return null;
 			} else {
-				return (AbstractConstructorInfo) typeInfo.getConstructors().get(0);
+				List<IMethodInfo> ctors = typeInfo.getConstructors();
+				ctors = new ArrayList<IMethodInfo>(ctors);
+				Collections.sort(ctors, new Comparator<IMethodInfo>() {
+
+					@Override
+					public int compare(IMethodInfo o1, IMethodInfo o2) {
+						return Integer.valueOf(o1.getParameters().size())
+								.compareTo(Integer.valueOf(o2.getParameters().size()));
+					}
+				});
+				return (AbstractConstructorInfo) ctors.get(0);
 			}
 		} else {
-			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(), selectedConstructorSignature);
+			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(),
+					selectedConstructorSignature);
 		}
 
 	}
@@ -564,5 +585,33 @@ public class MiscUtils {
 		} else {
 			return o1.equals(o2);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T copy(T object) {
+		try {
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			serialize(object, output);
+			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+			return (T) deserialize(input);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public static Object deserialize(InputStream input) throws IOException {
+		return getXStream().fromXML(new InputStreamReader(input, "UTF-8"));
+	}
+
+	public static void serialize(Object object, OutputStream output) throws IOException {
+		getXStream().toXML(object, new OutputStreamWriter(output, "UTF-8"));
+	}
+
+	private static XStream getXStream() {
+		XStream result = new XStream();
+		result.registerConverter(new JavaBeanConverter(result.getMapper()), -20);
+		result.addPermission(AnyTypePermission.ANY);
+		result.ignoreUnknownElements();
+		return result;
 	}
 }

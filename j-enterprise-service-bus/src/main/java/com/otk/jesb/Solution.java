@@ -5,15 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
-import com.thoughtworks.xstream.security.AnyTypePermission;
+import com.otk.jesb.util.MiscUtils;
 
 public class Solution {
 
@@ -71,16 +67,14 @@ public class Solution {
 	}
 
 	public void loadFromStream(InputStream input) throws IOException {
-		XStream xstream = getXStream();
-		Solution loaded = (Solution) xstream.fromXML(new InputStreamReader(input, "UTF-8"));
+		Solution loaded = (Solution) MiscUtils.deserialize(input);
 		contents = loaded.contents;
 	}
 
 	public void saveToStream(OutputStream output) throws IOException {
-		XStream xstream = getXStream();
 		Solution toSave = new Solution();
 		toSave.contents = contents;
-		xstream.toXML(toSave, new OutputStreamWriter(output, "UTF-8"));
+		MiscUtils.serialize(toSave, output);
 	}
 
 	public void saveToFile(File output) throws IOException {
@@ -93,14 +87,6 @@ public class Solution {
 			} catch (Exception ignore) {
 			}
 		}
-	}
-
-	private XStream getXStream() {
-		XStream result = new XStream();
-		result.registerConverter(new JavaBeanConverter(result.getMapper()), -20);
-		result.addPermission(AnyTypePermission.ANY);
-		result.ignoreUnknownElements();
-		return result;
 	}
 
 }

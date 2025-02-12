@@ -1,8 +1,8 @@
 - Switch/Cases feature issues:
 	. should be possible to add managed elements in a switch
 	. unsetting/removing elements from the default case automatically
-	. should not allow to remove all switch/cases manages elements
 	removes potentially mapped elements from the other cases without warning
+	. should not allow to remove all switch/cases managed elements
 - FieldInitializer value setting undo management may not work correctly because 
 it modifies the "concrete" state of ancestor nodes behind the scene
 - split classes GUI, InstanceBuilder, Plan, Debugger, etc

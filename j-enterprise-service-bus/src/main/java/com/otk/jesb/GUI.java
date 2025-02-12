@@ -502,14 +502,16 @@ public class GUI extends SwingCustomizer {
 						if (selection.stream().allMatch(
 								itemPosition -> ((itemPosition.getItem() instanceof ParameterInitializerFacade)
 										|| (itemPosition.getItem() instanceof FieldInitializerFacade)
-										|| (itemPosition.getItem() instanceof ListItemInitializerFacade))
+										|| (itemPosition.getItem() instanceof ListItemInitializerFacade)
+										|| (itemPosition.getItem() instanceof InitializationSwitchFacade))
 										&& MiscUtils.equalsOrBothNull(itemPosition.getParentItemPosition(),
 												firstItemPosition.getParentItemPosition()))) {
+							final Facade parentFacade = ((Facade) firstItemPosition.getItem()).getParent();
 							result.add(new AbstractDynamicListAction() {
 
 								@Override
 								public String getName() {
-									return "insertSwitchCaseParent";
+									return "insertSwitchCasesParent";
 								}
 
 								@Override
@@ -563,21 +565,106 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
-									Facade parentFacade = ((Facade) firstItemPosition.getItem()).getParent();
 									List<Facade> initializerFacades = selection.stream()
 											.map(itemPosition -> (Facade) itemPosition.getItem())
 											.collect(Collectors.toList());
 									int caseCount = (int) invocationData.getParameterValue(0);
-									new InitializationSwitchFacade(parentFacade, caseCount, initializerFacades);
+									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades);
 									return null;
 								}
 
 								@Override
 								public List<ItemPosition> getPostSelection() {
-									return Collections.singletonList(firstItemPosition.getSubItemPosition(0));
+									return Collections.singletonList(
+											firstItemPosition.getSubItemPosition(0).getSubItemPosition(0));
 								}
 
 							});
+							List<? extends Facade> siblingSwitchFacades = parentFacade.getChildren().stream().filter(
+									facade -> (facade instanceof InitializationSwitchFacade) && !selection.stream()
+											.anyMatch(itemPosition -> ((Facade) itemPosition.getItem())
+													.getUnderlying() == facade.getUnderlying()))
+									.collect(Collectors.toList());
+							if (siblingSwitchFacades.size() > 0) {
+								result.add(new AbstractDynamicListAction() {
+
+									@Override
+									public String getName() {
+										return "moveIntoSiblingSwitchCases";
+									}
+
+									@Override
+									public String getCaption() {
+										return "Move Into Sibling Switch/Cases...";
+									}
+
+									@Override
+									public String getParametersValidationCustomCaption() {
+										return "OK";
+									}
+
+									@Override
+									public DisplayMode getDisplayMode() {
+										return DisplayMode.CONTEXT_MENU;
+									}
+
+									@Override
+									public List<IParameterInfo> getParameters() {
+										return Collections.singletonList(
+												new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+													@Override
+													public String getName() {
+														return "siblingSwitchFacade";
+													}
+
+													@Override
+													public String getCaption() {
+														return "Sibling Swith/Cases";
+													}
+
+													@Override
+													public ITypeInfo getType() {
+														return getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+																InitializationSwitchFacade.class, null));
+													}
+
+													@Override
+													public Object getDefaultValue(Object object) {
+														return siblingSwitchFacades.get(0);
+													}
+
+													@Override
+													public int getPosition() {
+														return 0;
+													}
+
+													@Override
+													public boolean hasValueOptions(Object object) {
+														return true;
+													}
+
+													@Override
+													public Object[] getValueOptions(Object object) {
+														return siblingSwitchFacades.toArray();
+													}
+
+												});
+									}
+
+									@Override
+									public Object invoke(Object object, InvocationData invocationData) {
+										List<Facade> initializerFacades = selection.stream()
+												.map(itemPosition -> (Facade) itemPosition.getItem())
+												.collect(Collectors.toList());
+										InitializationSwitchFacade selectedSwitchFacade = (InitializationSwitchFacade) invocationData
+												.getParameterValue(0);
+										selectedSwitchFacade.importInitializerFacades(initializerFacades);
+										return null;
+									}
+
+								});
+							}
 						}
 					}
 					return result;

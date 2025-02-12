@@ -20,6 +20,8 @@ import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 
 public class InstanceBuilderFacade implements Facade {
 
+	private static InstanceBuilder underlyingClipboard;
+
 	private Facade parent;
 	private InstanceBuilder underlying;
 
@@ -32,7 +34,7 @@ public class InstanceBuilderFacade implements Facade {
 
 			@Override
 			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
-				if(isParameterInitializedInChildSwitch(parameterInfo)) {
+				if (isParameterInitializedInChildSwitch(parameterInfo)) {
 					return false;
 				}
 				return true;
@@ -40,14 +42,14 @@ public class InstanceBuilderFacade implements Facade {
 
 			@Override
 			protected boolean mustHaveFieldFacadeLocally(IFieldInfo fieldInfo) {
-				if(isFieldInitializedInChildSwitch(fieldInfo)) {
+				if (isFieldInitializedInChildSwitch(fieldInfo)) {
 					return false;
 				}
 				return true;
 			}
 
 			@Override
-			protected boolean mustHaveListItemFacadesLocally() {				
+			protected boolean mustHaveListItemFacadesLocally() {
 				return true;
 			}
 
@@ -177,6 +179,35 @@ public class InstanceBuilderFacade implements Facade {
 
 	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {
 		return util.findFunctionCompilationContext(function, validationContext);
+	}
+
+	public void copyUnderlying() {
+		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying);
+	}
+
+	public void pasteUnderlying() {
+		parent.setConcrete(true);
+		if (parent.getUnderlying() instanceof ParameterInitializer) {
+			((ParameterInitializer) parent.getUnderlying())
+					.setParameterValue(InstanceBuilderFacade.underlyingClipboard);
+		} else if (parent.getUnderlying() instanceof FieldInitializer) {
+			((FieldInitializer) parent.getUnderlying()).setFieldValue(InstanceBuilderFacade.underlyingClipboard);
+		} else if (parent.getUnderlying() instanceof ListItemInitializer) {
+			((ListItemInitializer) parent.getUnderlying()).setItemValue(InstanceBuilderFacade.underlyingClipboard);
+		} else {
+			throw new AssertionError();
+		}
+		InstanceBuilderFacade.underlyingClipboard = null;
+	}
+
+	public boolean canPasteUnderlying() {
+		if (InstanceBuilderFacade.underlyingClipboard == null) {
+			return false;
+		}
+		if (parent == null) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

@@ -170,6 +170,11 @@ public class ListItemInitializerFacade implements Facade {
 		return result;
 	}
 
+	public void duplicate() {
+		setConcrete(true);
+		((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(MiscUtils.copy(getUnderlying()));
+	}
+
 	@Override
 	public String toString() {
 		return "[" + index + "]" + ((getItemReplicationFacade() != null) ? "*" : "")

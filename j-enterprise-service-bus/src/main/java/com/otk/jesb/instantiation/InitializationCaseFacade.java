@@ -186,19 +186,19 @@ public class InitializationCaseFacade implements Facade {
 		if (isParameterInitializedInChildSwitch(parameterInfo)) {
 			return false;
 		}
-		if (isDefaultCaseFacade()) {
-			if (underlying.getParameterInitializer(parameterInfo.getPosition(),
-					parameterInfo.getType().getName()) != null) {
-				return true;
-			}
-		} else {
-			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(parent, null,
-					parent.getUnderlying().getDefaultInitializationCase());
-			if (defaultCaseFacade.mustHaveParameterFacadeLocally(parameterInfo)) {
-				return true;
-			}
-			if (defaultCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {
-				return true;
+		if (underlying.getParameterInitializer(parameterInfo.getPosition(),
+				parameterInfo.getType().getName()) != null) {
+			return true;
+		}
+		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {
+			if (underlying != siblingCaseFacade.getUnderlying()) {
+				if (siblingCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {
+					return true;
+				}
+				if (siblingCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition(),
+						parameterInfo.getType().getName()) != null) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -208,36 +208,37 @@ public class InitializationCaseFacade implements Facade {
 		if (isFieldInitializedInChildSwitch(fieldInfo)) {
 			return false;
 		}
-		if (isDefaultCaseFacade()) {
-			if (underlying.getFieldInitializer(fieldInfo.getName()) != null) {
-				return true;
-			}
-		} else {
-			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(parent, null,
-					parent.getUnderlying().getDefaultInitializationCase());
-			if (defaultCaseFacade.mustHaveFieldFacadeLocally(fieldInfo)) {
-				return true;
-			}
-			if (defaultCaseFacade.isFieldInitializedInChildSwitch(fieldInfo)) {
-				return true;
+		if (underlying.getFieldInitializer(fieldInfo.getName()) != null) {
+			return true;
+		}
+		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {
+			if (underlying != siblingCaseFacade.getUnderlying()) {
+				if (siblingCaseFacade.isFieldInitializedInChildSwitch(fieldInfo)) {
+					return true;
+				}
+				if (siblingCaseFacade.getUnderlying().getFieldInitializer(fieldInfo.getName()) != null) {
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
 	protected boolean mustHaveListItemFacadesLocally() {
-		if (isDefaultCaseFacade()) {
-			if (underlying.getListItemInitializers().size() > 0) {
-				return true;
-			}
-			if (areListItemsInitializedInChildSwitch()) {
-				return true;
-			}
-		} else {
-			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(parent, null,
-					parent.getUnderlying().getDefaultInitializationCase());
-			if (defaultCaseFacade.mustHaveListItemFacadesLocally()) {
-				return true;
+		if (areListItemsInitializedInChildSwitch()) {
+			return true;
+		}
+		if (underlying.getListItemInitializers().size() > 0) {
+			return true;
+		}
+		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {
+			if (underlying != siblingCaseFacade.getUnderlying()) {
+				if (siblingCaseFacade.getUnderlying().getListItemInitializers().size() > 0) {
+					return true;
+				}
+				if (siblingCaseFacade.areListItemsInitializedInChildSwitch()) {
+					return true;
+				}
 			}
 		}
 		return false;
