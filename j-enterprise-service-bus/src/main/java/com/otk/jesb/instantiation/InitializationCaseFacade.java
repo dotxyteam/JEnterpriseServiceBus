@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -56,12 +58,10 @@ public class InitializationCaseFacade implements Facade {
 		}
 		if (typeInfo instanceof IListTypeInfo) {
 			if (mustHaveListItemFacadesLocally()) {
-				int i = 0;
-				for (; i < underlying.getListItemInitializers().size();) {
-					result.add(createListItemInitializerFacade(i));
-					i++;
+				for (ListItemInitializer initializer : underlying.getListItemInitializers()) {
+					result.add(createListItemInitializerFacade(initializer.getIndex()));
 				}
-				result.add(createListItemInitializerFacade(i));
+				result.add(createListItemInitializerFacade(getGreatestListItemInitializerIndex() + 1));
 			}
 		} else {
 			for (IFieldInfo fieldInfo : typeInfo.getFields()) {
@@ -117,6 +117,20 @@ public class InitializationCaseFacade implements Facade {
 
 			}
 		});
+		return result;
+	}
+
+	protected int getGreatestListItemInitializerIndex() {
+		int result = -1;
+		for (ListItemInitializer listItemInitializer : underlying.getListItemInitializers()) {
+			result = Math.max(result, listItemInitializer.getIndex());
+		}
+		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
+			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
+			for (InitializationCaseFacade caseFacade : switchFacade.getChildren()) {
+				result = Math.max(result, caseFacade.getGreatestListItemInitializerIndex());
+			}
+		}
 		return result;
 	}
 
@@ -258,7 +272,11 @@ public class InitializationCaseFacade implements Facade {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		return true;
+		if (isDefaultCaseFacade()) {
+			return parent.getUnderlying().getDefaultInitializationCase() == underlying;
+		} else {
+			return parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition);
+		}
 	}
 
 	@Override
@@ -269,6 +287,32 @@ public class InitializationCaseFacade implements Facade {
 		if (b) {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
+			}
+			if (isDefaultCaseFacade()) {
+				if (parent.getUnderlying().getDefaultInitializationCase() != underlying) {
+					parent.getUnderlying().setDefaultInitializationCase(underlying);
+				}
+			} else {
+				if (!parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition)) {
+					parent.getUnderlying().getInitializationCaseByCondition().put(condition, underlying);
+				}
+			}
+		} else {
+			if (isDefaultCaseFacade()) {
+				if (parent.getUnderlying().getDefaultInitializationCase() == underlying) {
+					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
+							.filter(Objects::nonNull).toArray()) {
+						Facade.get(childUnderlying, this).setConcrete(false);
+					}
+				}
+			} else {
+				if (parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition)) {
+					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
+							.filter(Objects::nonNull).toArray()) {
+						Facade.get(childUnderlying, this).setConcrete(false);
+					}
+					parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
+				}
 			}
 		}
 	}
@@ -283,7 +327,7 @@ public class InitializationCaseFacade implements Facade {
 		return parent;
 	}
 
-	public List<Facade> collectInitializerFacades(EvaluationContext context) {
+	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
 		List<Facade> result = new ArrayList<Facade>();
 		for (Facade facade : getChildren()) {
 			if (!facade.isConcrete()) {
@@ -296,8 +340,8 @@ public class InitializationCaseFacade implements Facade {
 			} else if (facade instanceof ListItemInitializerFacade) {
 				result.add(facade);
 			} else if (facade instanceof InitializationSwitchFacade) {
-				result.addAll(((InitializationSwitchFacade) facade)
-						.collectInitializerFacades(createEvaluationContextForChildren(context.getExecutionContext())));
+				result.addAll(((InitializationSwitchFacade) facade).collectLiveInitializerFacades(
+						createEvaluationContextForChildren(context.getExecutionContext())));
 			}
 		}
 		return result;

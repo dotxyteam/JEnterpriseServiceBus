@@ -2,6 +2,7 @@ package com.otk.jesb.instantiation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.util.MiscUtils;
 
@@ -128,10 +129,7 @@ public class ListItemInitializerFacade implements Facade {
 
 	@Override
 	public ListItemInitializer getUnderlying() {
-		if (index >= ((InitializationCase) parent.getUnderlying()).getListItemInitializers().size()) {
-			return null;
-		}
-		return ((InitializationCase) parent.getUnderlying()).getListItemInitializers().get(index);
+		return ((InitializationCase) parent.getUnderlying()).getListItemInitializer(index);
 	}
 
 	@Override
@@ -151,12 +149,72 @@ public class ListItemInitializerFacade implements Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
-			((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(index,
-					new ListItemInitializer(itemValue));
+			if (getUnderlying() == null) {
+				makeIndexAvailable(index);
+				((InitializationCase) parent.getUnderlying()).getListItemInitializers()
+						.add(new ListItemInitializer(index, itemValue));
+			}
 		} else {
-			((InitializationCase) parent.getUnderlying()).getListItemInitializers().remove(index);
-			itemValue = createDefaultItemValue();
+			if (getUnderlying() != null) {
+				((InitializationCase) parent.getUnderlying()).removeListItemInitializer(index);
+				itemValue = createDefaultItemValue();
+				makeIndexUnavailable(index);
+			}
 		}
+	}
+
+	protected void makeIndexAvailable(int index) {
+		if (isIndexAvailable(index)) {
+			return;
+		}
+		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {
+			if (listItemInitializer.getIndex() >= index) {
+				listItemInitializer.setIndex(listItemInitializer.getIndex() + 1);
+			}
+		}
+	}
+
+	protected void makeIndexUnavailable(int index) {
+		if (!isIndexAvailable(index)) {
+			return;
+		}
+		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {
+			if (listItemInitializer.getIndex() >= index) {
+				listItemInitializer.setIndex(listItemInitializer.getIndex() - 1);
+			}
+		}
+	}
+
+	protected boolean isIndexAvailable(int index) {
+		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {
+			if (listItemInitializer.getIndex() == index) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	protected List<ListItemInitializer> collectAllListItemInitializers() {
+		return collectAllConcreteListItemInitializerFacades(getCurrentInstanceBuilderFacade().getChildren()).stream()
+				.map(facade -> facade.getUnderlying()).collect(Collectors.toList());
+	}
+
+	protected List<ListItemInitializerFacade> collectAllConcreteListItemInitializerFacades(List<Facade> facades) {
+		List<ListItemInitializerFacade> result = new ArrayList<ListItemInitializerFacade>();
+		for (Facade facade : facades) {
+			if (!facade.isConcrete()) {
+				continue;
+			}
+			if (facade instanceof ListItemInitializerFacade) {
+				result.add((ListItemInitializerFacade) facade);
+			}
+			if (facade instanceof InitializationSwitchFacade) {
+				for (InitializationCaseFacade caseFacade : ((InitializationSwitchFacade) facade).getChildren()) {
+					result.addAll(collectAllConcreteListItemInitializerFacades(caseFacade.getChildren()));
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -172,7 +230,11 @@ public class ListItemInitializerFacade implements Facade {
 
 	public void duplicate() {
 		setConcrete(true);
-		((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(MiscUtils.copy(getUnderlying()));
+		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying());
+		int underlyingCopyIndex = getUnderlying().getIndex() + 1;
+		makeIndexAvailable(underlyingCopyIndex);
+		underlyingCopy.setIndex(underlyingCopyIndex);
+		((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(underlyingCopy);
 	}
 
 	@Override

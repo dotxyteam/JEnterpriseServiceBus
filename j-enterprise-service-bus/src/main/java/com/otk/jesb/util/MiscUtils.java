@@ -84,7 +84,8 @@ public class MiscUtils {
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
 				makeTypeNamesAbsolute(function.getFunctionBody(), getAncestorStructureInstanceBuilders(currentFacade)),
-				validationContext, compilationContext.getFunctionReturnType());
+				compilationContext.getVerificationContext().getValidationContext(),
+				compilationContext.getFunctionReturnType());
 		try {
 			return compiledFunction.execute(executionContext);
 		} catch (Exception e) {
@@ -125,23 +126,25 @@ public class MiscUtils {
 			if (typeInfo.getConstructors().size() == 0) {
 				return null;
 			} else {
-				List<IMethodInfo> ctors = typeInfo.getConstructors();
-				ctors = new ArrayList<IMethodInfo>(ctors);
-				Collections.sort(ctors, new Comparator<IMethodInfo>() {
-
-					@Override
-					public int compare(IMethodInfo o1, IMethodInfo o2) {
-						return Integer.valueOf(o1.getParameters().size())
-								.compareTo(Integer.valueOf(o2.getParameters().size()));
-					}
-				});
-				return (AbstractConstructorInfo) ctors.get(0);
+				return (AbstractConstructorInfo) listSortedConstructors(typeInfo).get(0);
 			}
 		} else {
 			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(),
 					selectedConstructorSignature);
 		}
 
+	}
+
+	public static List<IMethodInfo> listSortedConstructors(ITypeInfo typeInfo) {
+		List<IMethodInfo> ctors = typeInfo.getConstructors();
+		ctors = new ArrayList<IMethodInfo>(ctors);
+		Collections.sort(ctors, new Comparator<IMethodInfo>() {
+			@Override
+			public int compare(IMethodInfo o1, IMethodInfo o2) {
+				return Integer.valueOf(o1.getParameters().size()).compareTo(Integer.valueOf(o2.getParameters().size()));
+			}
+		});
+		return ctors;
 	}
 
 	public static boolean isConditionFullfilled(Function condition, EvaluationContext context) throws Exception {
@@ -153,7 +156,7 @@ public class MiscUtils {
 		if (!(conditionResult instanceof Boolean)) {
 			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
-		return !((Boolean) conditionResult);
+		return (Boolean) conditionResult;
 	}
 
 	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {

@@ -1,7 +1,11 @@
 package com.otk.jesb.instantiation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.otk.jesb.Plan;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
@@ -93,7 +97,7 @@ public class InstanceBuilder extends InitializationCase {
 						+ selectedConstructorSignature + "'");
 			}
 		}
-		List<Facade> initializerFacades = instanceBuilderFacade.collectInitializerFacades(context);
+		List<Facade> initializerFacades = instanceBuilderFacade.collectLiveInitializerFacades(context);
 		Object[] parameterValues = new Object[constructor.getParameters().size()];
 		for (Facade facade : initializerFacades) {
 			if (facade instanceof ParameterInitializerFacade) {
@@ -110,54 +114,58 @@ public class InstanceBuilder extends InitializationCase {
 		if (typeInfo instanceof IListTypeInfo) {
 			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;
 			List<Object> itemList = new ArrayList<Object>();
-			for (Facade facade : initializerFacades) {
-				if (facade instanceof ListItemInitializerFacade) {
-					ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) facade;
-					if (!listItemInitializerFacade.isConcrete()) {
-						continue;
+			List<ListItemInitializerFacade> listItemInitializerFacades = initializerFacades.stream()
+					.filter(facade -> facade instanceof ListItemInitializerFacade)
+					.map(facade -> (ListItemInitializerFacade) facade).collect(Collectors.toList());
+			listItemInitializerFacades = new ArrayList<ListItemInitializerFacade>(listItemInitializerFacades);
+			Collections.sort(listItemInitializerFacades, new Comparator<ListItemInitializerFacade>() {
+				@Override
+				public int compare(ListItemInitializerFacade o1, ListItemInitializerFacade o2) {
+					return Integer.valueOf(o1.getIndex()).compareTo(Integer.valueOf(o2.getIndex()));
+				}
+			});
+			for (ListItemInitializerFacade listItemInitializerFacade : listItemInitializerFacades) {
+				if (!listItemInitializerFacade.isConcrete()) {
+					continue;
+				}
+				if (!MiscUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
+						new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
+					continue;
+				}
+				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
+				if (itemReplicationFacade != null) {
+					Object iterationListValue = MiscUtils.interpretValue(itemReplicationFacade.getIterationListValue(),
+							TypeInfoProvider.getTypeInfo(Object.class.getName()),
+							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+					if (iterationListValue == null) {
+						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
-					if (!MiscUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
-							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
-						continue;
+					ITypeInfo iterationListTypeInfo = TypeInfoProvider
+							.getTypeInfo(iterationListValue.getClass().getName());
+					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
+						throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
+								+ iterationListValue + "'");
 					}
-					ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade
-							.getItemReplicationFacade();
-					if (itemReplicationFacade != null) {
-						Object iterationListValue = MiscUtils.interpretValue(
-								itemReplicationFacade.getIterationListValue(),
-								TypeInfoProvider.getTypeInfo(Object.class.getName()),
-								new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
-						if (iterationListValue == null) {
-							throw new AssertionError("Cannot replicate item: Iteration list value is null");
-						}
-						ITypeInfo iterationListTypeInfo = TypeInfoProvider
-								.getTypeInfo(iterationListValue.getClass().getName());
-						if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
-							throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
-									+ iterationListValue + "'");
-						}
-						Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo)
-								.toArray(iterationListValue);
-						for (Object iterationVariableValue : iterationListArray) {
-							EvaluationContext iterationContext = new EvaluationContext(
-									new Plan.ExecutionContext(context.getExecutionContext(),
-											new ListItemReplication.IterationVariable(
-													itemReplicationFacade.getUnderlying(), iterationVariableValue)),
-									context.getParentFacade());
-							Object itemValue = MiscUtils.interpretValue(listItemInitializerFacade.getItemValue(),
-									(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-											: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-									new EvaluationContext(iterationContext.getExecutionContext(),
-											listItemInitializerFacade));
-							itemList.add(itemValue);
-						}
-					} else {
-						Object itemValue = MiscUtils.interpretValue(listItemInitializerFacade.getItemValue(),
-								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-								new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
+					for (Object iterationVariableValue : iterationListArray) {
+						EvaluationContext iterationContext = new EvaluationContext(
+								new Plan.ExecutionContext(context.getExecutionContext(),
+										new ListItemReplication.IterationVariable(itemReplicationFacade.getUnderlying(),
+												iterationVariableValue)),
+								listItemInitializerFacade);
+						Object itemValue = MiscUtils
+								.interpretValue(listItemInitializerFacade.getItemValue(),
+										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+										iterationContext);
 						itemList.add(itemValue);
 					}
+				} else {
+					Object itemValue = MiscUtils.interpretValue(listItemInitializerFacade.getItemValue(),
+							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+					itemList.add(itemValue);
 				}
 			}
 			if (listTypeInfo.canReplaceContent()) {
@@ -175,9 +183,6 @@ public class InstanceBuilder extends InitializationCase {
 		for (Facade facade : initializerFacades) {
 			if (facade instanceof FieldInitializerFacade) {
 				FieldInitializerFacade fieldInitializerFacade = (FieldInitializerFacade) facade;
-				if (!fieldInitializerFacade.isConcrete()) {
-					continue;
-				}
 				if (!MiscUtils.isConditionFullfilled(fieldInitializerFacade.getCondition(), context)) {
 					continue;
 				}
@@ -193,8 +198,6 @@ public class InstanceBuilder extends InitializationCase {
 		}
 		return object;
 	}
-
-	
 
 	@Override
 	public String toString() {

@@ -2,6 +2,7 @@ package com.otk.jesb.instantiation;
 
 public class ListItemInitializer {
 
+	private int index;
 	private Object itemValue;
 	private ListItemReplication itemReplication;
 	private Function condition;
@@ -9,8 +10,17 @@ public class ListItemInitializer {
 	public ListItemInitializer() {
 	}
 
-	public ListItemInitializer(Object itemValue) {
+	public ListItemInitializer(int index, Object itemValue) {
+		this.index = index;
 		this.itemValue = itemValue;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 	public Object getItemValue() {

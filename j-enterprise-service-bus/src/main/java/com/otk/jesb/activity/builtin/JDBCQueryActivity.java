@@ -256,7 +256,7 @@ public class JDBCQueryActivity implements Activity {
 			this.connection = connection;
 		}
 
-		public static List<JDBCConnection> getConnectionChoices() {
+		public static List<JDBCConnection> getConnectionOptions() {
 			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
@@ -364,7 +364,7 @@ public class JDBCQueryActivity implements Activity {
 			this.parameterTypeName = parameterTypeName;
 		}
 
-		public static List<String> getParameterTypeNameChoices() {
+		public static List<String> getParameterTypeNameOptions() {
 			List<String> result = new ArrayList<String>();
 			for (Class<?> clazz : Arrays.asList(String.class, Boolean.class, Integer.class, Long.class, Float.class,
 					Double.class, byte[].class, java.sql.Date.class, java.sql.Time.class, java.sql.Timestamp.class)) {

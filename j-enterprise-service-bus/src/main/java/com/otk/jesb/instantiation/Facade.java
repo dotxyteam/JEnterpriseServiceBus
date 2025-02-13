@@ -31,15 +31,11 @@ public interface Facade {
 		} else if (node instanceof InstanceBuilder) {
 			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);
 		} else if (node instanceof FieldInitializer) {
-			return new FieldInitializerFacade(parentFacade,
-					((FieldInitializer) node).getFieldName());
+			return new FieldInitializerFacade(parentFacade, ((FieldInitializer) node).getFieldName());
 		} else if (node instanceof ParameterInitializer) {
-			return new ParameterInitializerFacade(parentFacade,
-					((ParameterInitializer) node).getParameterPosition());
+			return new ParameterInitializerFacade(parentFacade, ((ParameterInitializer) node).getParameterPosition());
 		} else if (node instanceof ListItemInitializer) {
-			return new ListItemInitializerFacade(parentFacade,
-					((InstanceBuilderFacade) parentFacade).getUnderlying().getListItemInitializers()
-							.indexOf((ListItemInitializer) node));
+			return new ListItemInitializerFacade(parentFacade, ((ListItemInitializer) node).getIndex());
 		} else if (node instanceof InitializationSwitch) {
 			return new InitializationSwitchFacade(parentFacade, (InitializationSwitch) node);
 		} else if (node instanceof InitializationCase) {

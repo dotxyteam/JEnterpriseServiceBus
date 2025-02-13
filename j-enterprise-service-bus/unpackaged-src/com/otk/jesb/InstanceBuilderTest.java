@@ -16,6 +16,7 @@ import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 
 public class InstanceBuilderTest {
 
@@ -24,6 +25,12 @@ public class InstanceBuilderTest {
 		Step step = new Step(new TreeActivity.Metadata());
 		plan.getSteps().add(step);
 		TreeActivity.Builder builder = (Builder) step.getActivityBuilder();
+		GUI.INSTANCE.getReflectionUI()
+				.getTypeInfo(new JavaTypeInfoSource(GUI.INSTANCE.getReflectionUI(), Plan.class, null))
+				.onFormVisibilityChange(plan, true);
+		GUI.INSTANCE.getReflectionUI()
+				.getTypeInfo(new JavaTypeInfoSource(GUI.INSTANCE.getReflectionUI(), Step.class, null))
+				.onFormVisibilityChange(step, true);
 		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder
 				.build(new EvaluationContext(new Plan.ExecutionContext(plan, step, Collections.emptyList()), null)));

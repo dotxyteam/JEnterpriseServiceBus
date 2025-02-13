@@ -98,7 +98,7 @@ public class ExecutePlanActivity implements Activity {
 			this.plan = plan;
 		}
 
-		public List<Plan> getPlanChoices() {
+		public List<Plan> getPlanOptions() {
 			final List<Plan> result = new ArrayList<Plan>();
 			Solution.INSTANCE.visitAssets(new AssetVisitor() {
 				@Override

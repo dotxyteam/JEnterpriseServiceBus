@@ -124,10 +124,10 @@ public class InstanceBuilderFacade implements Facade {
 		setConcrete(true);
 	}
 
-	public List<String> getConstructorSignatureChoices() {
+	public List<String> getConstructorSignatureOptions() {
 		List<String> result = new ArrayList<String>();
 		ITypeInfo typeInfo = getTypeInfo();
-		for (IMethodInfo constructor : typeInfo.getConstructors()) {
+		for (IMethodInfo constructor : MiscUtils.listSortedConstructors(typeInfo)) {
 			result.add(constructor.getSignature());
 		}
 		return result;
@@ -173,8 +173,8 @@ public class InstanceBuilderFacade implements Facade {
 		return util.getChildren();
 	}
 
-	public List<Facade> collectInitializerFacades(EvaluationContext context) {
-		return util.collectInitializerFacades(context);
+	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
+		return util.collectLiveInitializerFacades(context);
 	}
 
 	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {

@@ -99,8 +99,10 @@ public class FieldInitializerFacade implements Facade {
 						.add(new FieldInitializer(fieldName, fieldValue));
 			}
 		} else {
-			((InitializationCase) parent.getUnderlying()).removeFieldInitializer(fieldName);
-			fieldValue = createDefaultFieldValue();
+			if (getUnderlying() != null) {
+				((InitializationCase) parent.getUnderlying()).removeFieldInitializer(fieldName);
+				fieldValue = createDefaultFieldValue();
+			}
 		}
 	}
 

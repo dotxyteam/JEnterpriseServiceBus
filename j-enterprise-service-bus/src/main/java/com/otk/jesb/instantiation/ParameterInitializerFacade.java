@@ -36,15 +36,9 @@ public class ParameterInitializerFacade implements Facade {
 
 	@Override
 	public ParameterInitializer getUnderlying() {
-		ParameterInitializer result = ((InitializationCase) parent.getUnderlying())
-				.getParameterInitializer(parameterPosition, getParameterInfo().getType().getName());
-		if (result == null) {
-			IParameterInfo parameter = getParameterInfo();
-			result = new ParameterInitializer(parameterPosition, parameter.getType().getName(),
-					MiscUtils.getDefaultInterpretableValue(parameter.getType(), this));
-			((InitializationCase) parent.getUnderlying()).getParameterInitializers().add(result);
-		}
-		return result;
+		setConcrete(true);
+		return ((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
+				getParameterInfo().getType().getName());
 	}
 
 	public int getParameterPosition() {
@@ -70,7 +64,8 @@ public class ParameterInitializerFacade implements Facade {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		return true;
+		return ((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
+				getParameterInfo().getType().getName()) != null;
 	}
 
 	@Override
@@ -79,7 +74,21 @@ public class ParameterInitializerFacade implements Facade {
 			return;
 		}
 		if (b) {
-			parent.setConcrete(true);
+			if (!parent.isConcrete()) {
+				parent.setConcrete(true);
+			}
+			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
+					getParameterInfo().getType().getName()) == null) {
+				((InitializationCase) parent.getUnderlying()).getParameterInitializers()
+						.add(new ParameterInitializer(parameterPosition, getParameterInfo().getType().getName(),
+								MiscUtils.getDefaultInterpretableValue(getParameterInfo().getType(), this)));
+			}
+		} else {
+			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
+					getParameterInfo().getType().getName()) != null) {
+				((InitializationCase) parent.getUnderlying()).removeParameterInitializer(parameterPosition,
+						getParameterInfo().getType().getName());
+			}
 		}
 	}
 

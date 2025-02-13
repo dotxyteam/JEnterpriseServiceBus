@@ -79,5 +79,23 @@ public class InitializationCase {
 			}
 		}
 	}
+	
+	public ListItemInitializer getListItemInitializer(int index) {
+		for (ListItemInitializer listItemInitializer : listItemInitializers) {
+			if (listItemInitializer.getIndex() == index) {
+				return listItemInitializer;
+			}
+		}
+		return null;
+	}
+
+	public void removeListItemInitializer(int index) {
+		for (Iterator<ListItemInitializer> it = listItemInitializers.iterator(); it.hasNext();) {
+			ListItemInitializer listItemInitializer = it.next();
+			if (listItemInitializer.getIndex() == index) {
+				it.remove();
+			}
+		}
+	}
 
 }
