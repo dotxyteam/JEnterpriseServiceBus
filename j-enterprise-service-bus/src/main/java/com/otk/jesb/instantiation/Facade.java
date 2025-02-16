@@ -25,6 +25,14 @@ public interface Facade {
 		return result;
 	}
 
+	static Facade getRoot(Facade facade) {
+		List<Facade> ancestors = getAncestors(facade);
+		if(ancestors.size()==0) {
+			return facade;
+		}
+		return ancestors.get(ancestors.size()-1);
+	}
+
 	static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof MapEntryBuilder) {
 			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);

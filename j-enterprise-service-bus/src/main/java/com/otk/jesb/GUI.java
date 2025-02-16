@@ -7,6 +7,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,7 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -80,6 +83,7 @@ import xy.reflect.ui.control.swing.util.ControlScrollPane;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.ScrollPaneOptions;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ITransaction;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -471,11 +475,115 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				@Override
+				protected ITransaction createTransaction(ITypeInfo type, Object object) {
+					if (object instanceof Facade) {
+						return new ITransaction() {
+							ByteArrayOutputStream rootValueBuffer = new ByteArrayOutputStream();
+							RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade
+									.getRoot(((Facade) object)).getUnderlying();
+							Object rootValue = rootInstanceBuilder.getRootInitializer().getParameterValue();
+
+							@Override
+							public void begin() {
+								if (rootValue != null) {
+									try {
+										MiscUtils.serialize(rootValue, rootValueBuffer);
+									} catch (IOException e) {
+										throw new AssertionError(e);
+									}
+								}
+							}
+
+							@Override
+							public void rollback() {
+								Object rootValueCopy;
+								try {
+									rootValueCopy = (rootValue == null) ? null
+											: MiscUtils.deserialize(
+													new ByteArrayInputStream(rootValueBuffer.toByteArray()));
+								} catch (IOException e) {
+									throw new AssertionError(e);
+								}
+								rootInstanceBuilder.getRootInitializer().setParameterValue(
+										(rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
+							}
+
+							@Override
+							public void commit() {
+							}
+
+						};
+					}
+					return super.createTransaction(type, object);
+				}
+
+				@Override
+				protected Runnable getPreviousUpdateCustomRedoJob(IFieldInfo field, Object object, Object value,
+						ITypeInfo objectType) {
+					if (object instanceof Facade) {
+						ITransaction transaction = getLastActiveTransaction(object);
+						return ReflectionUIUtils.createRollbackJob(transaction);
+					}
+					return super.getPreviousUpdateCustomRedoJob(field, object, value, objectType);
+				}
+
+				@Override
+				protected Runnable getNextUpdateCustomUndoJob(IFieldInfo field, Object object, Object value,
+						ITypeInfo objectType) {
+					if (object instanceof Facade) {
+						ITransaction transaction = getLastActiveTransaction(object);
+						return ReflectionUIUtils.createRollbackJob(transaction);
+					}
+					return super.getNextUpdateCustomUndoJob(field, object, value, objectType);
+				}
+
+				@Override
+				protected Runnable getPreviousInvocationCustomRedoJob(IMethodInfo method, ITypeInfo objectType,
+						Object object, InvocationData invocationData) {
+					if (object instanceof Facade) {
+						ITransaction transaction = getLastActiveTransaction(object);
+						return ReflectionUIUtils.createRollbackJob(transaction);
+					}
+					return super.getPreviousInvocationCustomRedoJob(method, objectType, object, invocationData);
+				}
+
+				@Override
+				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
+						final Object object, InvocationData invocationData) {
+					if (object instanceof Facade) {
+						ITransaction transaction = getLastActiveTransaction(object);
+						return ReflectionUIUtils.createRollbackJob(transaction);
+					}
+					if (object instanceof FunctionEditor) {
+						if (method.getName().equals("insertSelectedPathNodeExpression")) {
+							final String oldExpression = ((FunctionEditor) object).getFunctionBody();
+							return new Runnable() {
+								@Override
+								public void run() {
+									((FunctionEditor) object).setFunctionBody(oldExpression);
+								}
+							};
+						}
+					}
+					return super.getNextInvocationUndoJob(method, objectType, object, invocationData);
+				}
+
+				@Override
 				protected List<IMethodInfo> getAlternativeListItemConstructors(IFieldInfo field, Object object,
 						ITypeInfo objectType) {
 					if (objectType.getName().equals(InitializationSwitchFacade.class.getName())) {
 						if (field.getName().equals("children")) {
 							return Collections.singletonList(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+								@Override
+								public String getSignature() {
+									return ReflectionUIUtils.buildMethodSignature(this);
+								}
+
+								@Override
+								public String getName() {
+									return "";
+								}
 
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
@@ -574,6 +682,19 @@ public class GUI extends SwingCustomizer {
 								}
 
 								@Override
+								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+									ITransaction transaction = getLastActiveTransaction(parentFacade);
+									return ReflectionUIUtils.createRollbackJob(transaction);
+								}
+
+								@Override
+								public Runnable getPreviousInvocationCustomRedoJob(Object object,
+										InvocationData invocationData) {
+									ITransaction transaction = getLastActiveTransaction(parentFacade);
+									return ReflectionUIUtils.createRollbackJob(transaction);
+								}
+
+								@Override
 								public List<ItemPosition> getPostSelection() {
 									return Collections.singletonList(
 											firstItemPosition.getSubItemPosition(0).getSubItemPosition(0));
@@ -663,28 +784,24 @@ public class GUI extends SwingCustomizer {
 										return null;
 									}
 
+									@Override
+									public Runnable getNextInvocationUndoJob(Object object,
+											InvocationData invocationData) {
+										ITransaction transaction = getLastActiveTransaction(parentFacade);
+										return ReflectionUIUtils.createRollbackJob(transaction);
+									}
+
+									@Override
+									public Runnable getPreviousInvocationCustomRedoJob(Object object,
+											InvocationData invocationData) {
+										ITransaction transaction = getLastActiveTransaction(parentFacade);
+										return ReflectionUIUtils.createRollbackJob(transaction);
+									}
 								});
 							}
 						}
 					}
 					return result;
-				}
-
-				@Override
-				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
-						final Object object, InvocationData invocationData) {
-					if (object instanceof FunctionEditor) {
-						if (method.getName().equals("insertSelectedPathNodeExpression")) {
-							final String oldExpression = ((FunctionEditor) object).getFunctionBody();
-							return new Runnable() {
-								@Override
-								public void run() {
-									((FunctionEditor) object).setFunctionBody(oldExpression);
-								}
-							};
-						}
-					}
-					return super.getNextInvocationUndoJob(method, objectType, object, invocationData);
 				}
 
 				@Override
@@ -712,6 +829,16 @@ public class GUI extends SwingCustomizer {
 					if (type.getName().equals(Function.class.getName())) {
 						List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+							@Override
+							public String getSignature() {
+								return ReflectionUIUtils.buildMethodSignature(this);
+							}
+
+							@Override
+							public String getName() {
+								return "assist";
+							}
 
 							@Override
 							public String getCaption() {
