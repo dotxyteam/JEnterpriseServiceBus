@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -83,7 +84,6 @@ import xy.reflect.ui.control.swing.util.ControlScrollPane;
 import xy.reflect.ui.control.swing.util.ControlSplitPane;
 import xy.reflect.ui.control.swing.util.ScrollPaneOptions;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
-import xy.reflect.ui.info.ITransaction;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -467,6 +467,9 @@ public class GUI extends SwingCustomizer {
 				new CallSOAPWebServiceActivity.Metadata());
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 				new WSDL.Metadata());
+
+		private static WeakHashMap<Facade, ByteArrayOutputStream> rootValueStoreByFacade = new WeakHashMap<Facade, ByteArrayOutputStream>();
+
 		private Plan currentPlan;
 		private Step currentStep;
 
@@ -474,55 +477,61 @@ public class GUI extends SwingCustomizer {
 		protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 			return new InfoProxyFactory() {
 
-				@Override
-				protected ITransaction createTransaction(ITypeInfo type, Object object) {
-					if (object instanceof Facade) {
-						return new ITransaction() {
-							ByteArrayOutputStream rootValueBuffer = new ByteArrayOutputStream();
-							RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade
-									.getRoot(((Facade) object)).getUnderlying();
-							Object rootValue = rootInstanceBuilder.getRootInitializer().getParameterValue();
-
-							@Override
-							public void begin() {
-								if (rootValue != null) {
-									try {
-										MiscUtils.serialize(rootValue, rootValueBuffer);
-									} catch (IOException e) {
-										throw new AssertionError(e);
-									}
-								}
-							}
-
-							@Override
-							public void rollback() {
-								Object rootValueCopy;
-								try {
-									rootValueCopy = (rootValue == null) ? null
-											: MiscUtils.deserialize(
-													new ByteArrayInputStream(rootValueBuffer.toByteArray()));
-								} catch (IOException e) {
-									throw new AssertionError(e);
-								}
-								rootInstanceBuilder.getRootInitializer().setParameterValue(
-										(rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
-							}
-
-							@Override
-							public void commit() {
-							}
-
-						};
+				void backupFacade(Facade facade) {
+					RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
+							.getUnderlying();
+					Object rootValue = rootInstanceBuilder.getRootInitializer().getParameterValue();
+					ByteArrayOutputStream rootValueStore;
+					if (rootValue != null) {
+						rootValueStore = new ByteArrayOutputStream();
+						try {
+							MiscUtils.serialize(rootValue, rootValueStore);
+						} catch (IOException e) {
+							throw new AssertionError(e);
+						}
+					} else {
+						rootValueStore = null;
 					}
-					return super.createTransaction(type, object);
+					rootValueStoreByFacade.put(facade, rootValueStore);
+
+				}
+
+				Runnable createFacadeRestorationJob(Facade facade) {
+					RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
+							.getUnderlying();
+					if (!rootValueStoreByFacade.containsKey(facade)) {
+						throw new AssertionError();
+					}
+					ByteArrayOutputStream rootValueStore = rootValueStoreByFacade.get(facade);
+					return new Runnable() {
+						@Override
+						public void run() {
+							Object rootValueCopy;
+							try {
+								rootValueCopy = (rootValueStore == null) ? null
+										: MiscUtils.deserialize(new ByteArrayInputStream(rootValueStore.toByteArray()));
+							} catch (IOException e) {
+								throw new AssertionError(e);
+							}
+							rootInstanceBuilder.getRootInitializer()
+									.setParameterValue((rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
+						}
+					};
+				}
+
+				@Override
+				protected void beforeModification(ITypeInfo type, Object object) {
+					if (object instanceof Facade) {
+						backupFacade((Facade) object);
+					}
+					super.beforeModification(type, object);
 				}
 
 				@Override
 				protected Runnable getPreviousUpdateCustomRedoJob(IFieldInfo field, Object object, Object value,
 						ITypeInfo objectType) {
 					if (object instanceof Facade) {
-						ITransaction transaction = getLastActiveTransaction(object);
-						return ReflectionUIUtils.createRollbackJob(transaction);
+						return createFacadeRestorationJob((Facade) object);
 					}
 					return super.getPreviousUpdateCustomRedoJob(field, object, value, objectType);
 				}
@@ -531,8 +540,7 @@ public class GUI extends SwingCustomizer {
 				protected Runnable getNextUpdateCustomUndoJob(IFieldInfo field, Object object, Object value,
 						ITypeInfo objectType) {
 					if (object instanceof Facade) {
-						ITransaction transaction = getLastActiveTransaction(object);
-						return ReflectionUIUtils.createRollbackJob(transaction);
+						return createFacadeRestorationJob((Facade) object);
 					}
 					return super.getNextUpdateCustomUndoJob(field, object, value, objectType);
 				}
@@ -541,8 +549,7 @@ public class GUI extends SwingCustomizer {
 				protected Runnable getPreviousInvocationCustomRedoJob(IMethodInfo method, ITypeInfo objectType,
 						Object object, InvocationData invocationData) {
 					if (object instanceof Facade) {
-						ITransaction transaction = getLastActiveTransaction(object);
-						return ReflectionUIUtils.createRollbackJob(transaction);
+						return createFacadeRestorationJob((Facade) object);
 					}
 					return super.getPreviousInvocationCustomRedoJob(method, objectType, object, invocationData);
 				}
@@ -551,8 +558,7 @@ public class GUI extends SwingCustomizer {
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {
 					if (object instanceof Facade) {
-						ITransaction transaction = getLastActiveTransaction(object);
-						return ReflectionUIUtils.createRollbackJob(transaction);
+						return createFacadeRestorationJob((Facade) object);
 					}
 					if (object instanceof FunctionEditor) {
 						if (method.getName().equals("insertSelectedPathNodeExpression")) {
@@ -683,15 +689,13 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
-									ITransaction transaction = getLastActiveTransaction(parentFacade);
-									return ReflectionUIUtils.createRollbackJob(transaction);
+									return createFacadeRestorationJob(parentFacade);
 								}
 
 								@Override
 								public Runnable getPreviousInvocationCustomRedoJob(Object object,
 										InvocationData invocationData) {
-									ITransaction transaction = getLastActiveTransaction(parentFacade);
-									return ReflectionUIUtils.createRollbackJob(transaction);
+									return createFacadeRestorationJob(parentFacade);
 								}
 
 								@Override
@@ -787,15 +791,13 @@ public class GUI extends SwingCustomizer {
 									@Override
 									public Runnable getNextInvocationUndoJob(Object object,
 											InvocationData invocationData) {
-										ITransaction transaction = getLastActiveTransaction(parentFacade);
-										return ReflectionUIUtils.createRollbackJob(transaction);
+										return createFacadeRestorationJob(parentFacade);
 									}
 
 									@Override
 									public Runnable getPreviousInvocationCustomRedoJob(Object object,
 											InvocationData invocationData) {
-										ITransaction transaction = getLastActiveTransaction(parentFacade);
-										return ReflectionUIUtils.createRollbackJob(transaction);
+										return createFacadeRestorationJob(parentFacade);
 									}
 								});
 							}
