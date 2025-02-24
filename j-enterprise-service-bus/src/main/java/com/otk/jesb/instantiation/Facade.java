@@ -3,19 +3,21 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Facade {
+import com.otk.jesb.util.MiscUtils;
 
-	Facade getParent();
+public abstract class Facade {
 
-	List<? extends Facade> getChildren();
+	public abstract Facade getParent();
 
-	boolean isConcrete();
+	public abstract List<? extends Facade> getChildren();
 
-	void setConcrete(boolean b);
+	public abstract boolean isConcrete();
 
-	Object getUnderlying();
+	public abstract void setConcrete(boolean b);
 
-	static List<Facade> getAncestors(Facade facade) {
+	public abstract Object getUnderlying();
+
+	public static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();
 		Facade parentFacade;
 		while ((parentFacade = facade.getParent()) != null) {
@@ -25,15 +27,15 @@ public interface Facade {
 		return result;
 	}
 
-	static Facade getRoot(Facade facade) {
+	public static Facade getRoot(Facade facade) {
 		List<Facade> ancestors = getAncestors(facade);
-		if(ancestors.size()==0) {
+		if (ancestors.size() == 0) {
 			return facade;
 		}
-		return ancestors.get(ancestors.size()-1);
+		return ancestors.get(ancestors.size() - 1);
 	}
 
-	static Facade get(Object node, Facade parentFacade) {
+	public static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof MapEntryBuilder) {
 			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
 		} else if (node instanceof InstanceBuilder) {
@@ -56,13 +58,42 @@ public interface Facade {
 		}
 	}
 
-	static boolean same(Facade facade1, Facade facade2) {
+	public static boolean same(Facade facade1, Facade facade2) {
 		if (facade1.getClass() != facade2.getClass()) {
 			return false;
 		}
 		if (!facade1.toString().equals(facade2.toString())) {
 			return false;
 		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((getParent() == null) ? 0 : getParent().hashCode());
+		result = prime * result + getClass().hashCode();
+		result = prime * result + toString().hashCode();
+		//result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Facade)) {
+			return false;
+		}
+		Facade otherFacade = (Facade) obj;
+		if (!MiscUtils.equalsOrBothNull(getParent(), otherFacade.getParent())) {
+			return false;
+		}
+		if (!same(this, otherFacade)) {
+			return false;
+		}
+		//if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {
+		//	return false;
+		//}
 		return true;
 	}
 

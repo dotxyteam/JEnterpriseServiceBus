@@ -9,7 +9,7 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
-public class ListItemInitializerFacade implements Facade {
+public class ListItemInitializerFacade extends Facade {
 
 	private Facade parent;
 	private int index;

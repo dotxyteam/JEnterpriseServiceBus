@@ -9,7 +9,7 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
-public class FieldInitializerFacade implements Facade {
+public class FieldInitializerFacade extends Facade {
 
 	private Facade parent;
 	private String fieldName;

@@ -493,16 +493,15 @@ public class GUI extends SwingCustomizer {
 						rootValueStore = null;
 					}
 					rootValueStoreByFacade.put(facade, rootValueStore);
-
 				}
 
 				Runnable createFacadeRestorationJob(Facade facade) {
-					RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
+					final RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
 							.getUnderlying();
 					if (!rootValueStoreByFacade.containsKey(facade)) {
 						throw new AssertionError();
 					}
-					ByteArrayOutputStream rootValueStore = rootValueStoreByFacade.get(facade);
+					final ByteArrayOutputStream rootValueStore = rootValueStoreByFacade.get(facade);
 					return new Runnable() {
 						@Override
 						public void run() {
@@ -520,46 +519,25 @@ public class GUI extends SwingCustomizer {
 				}
 
 				@Override
-				protected void beforeModification(ITypeInfo type, Object object) {
+				protected void onFormRefresh(ITypeInfo type, Object object) {
 					if (object instanceof Facade) {
 						backupFacade((Facade) object);
 					}
-					super.beforeModification(type, object);
+					super.onFormRefresh(type, object);
 				}
 
 				@Override
-				protected Runnable getPreviousUpdateCustomRedoJob(IFieldInfo field, Object object, Object value,
-						ITypeInfo objectType) {
+				protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
 					if (object instanceof Facade) {
 						return createFacadeRestorationJob((Facade) object);
 					}
-					return super.getPreviousUpdateCustomRedoJob(field, object, value, objectType);
+					return super.getLastFormRefreshStateRestorationJob(type, object);
 				}
 
-				@Override
-				protected Runnable getNextUpdateCustomUndoJob(IFieldInfo field, Object object, Object value,
-						ITypeInfo objectType) {
-					if (object instanceof Facade) {
-						return createFacadeRestorationJob((Facade) object);
-					}
-					return super.getNextUpdateCustomUndoJob(field, object, value, objectType);
-				}
-
-				@Override
-				protected Runnable getPreviousInvocationCustomRedoJob(IMethodInfo method, ITypeInfo objectType,
-						Object object, InvocationData invocationData) {
-					if (object instanceof Facade) {
-						return createFacadeRestorationJob((Facade) object);
-					}
-					return super.getPreviousInvocationCustomRedoJob(method, objectType, object, invocationData);
-				}
-
+				
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {
-					if (object instanceof Facade) {
-						return createFacadeRestorationJob((Facade) object);
-					}
 					if (object instanceof FunctionEditor) {
 						if (method.getName().equals("insertSelectedPathNodeExpression")) {
 							final String oldExpression = ((FunctionEditor) object).getFunctionBody();
@@ -689,13 +667,13 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
-									return createFacadeRestorationJob(parentFacade);
+									return createFacadeRestorationJob(Facade.getRoot(parentFacade));
 								}
 
 								@Override
 								public Runnable getPreviousInvocationCustomRedoJob(Object object,
 										InvocationData invocationData) {
-									return createFacadeRestorationJob(parentFacade);
+									return createFacadeRestorationJob(Facade.getRoot(parentFacade));
 								}
 
 								@Override
@@ -791,13 +769,13 @@ public class GUI extends SwingCustomizer {
 									@Override
 									public Runnable getNextInvocationUndoJob(Object object,
 											InvocationData invocationData) {
-										return createFacadeRestorationJob(parentFacade);
+										return createFacadeRestorationJob(Facade.getRoot(parentFacade));
 									}
 
 									@Override
 									public Runnable getPreviousInvocationCustomRedoJob(Object object,
 											InvocationData invocationData) {
-										return createFacadeRestorationJob(parentFacade);
+										return createFacadeRestorationJob(Facade.getRoot(parentFacade));
 									}
 								});
 							}

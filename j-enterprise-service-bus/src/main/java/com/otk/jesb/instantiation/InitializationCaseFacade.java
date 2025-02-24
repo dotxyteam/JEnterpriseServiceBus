@@ -21,7 +21,7 @@ import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
-public class InitializationCaseFacade implements Facade {
+public class InitializationCaseFacade extends Facade {
 
 	private InitializationSwitchFacade parent;
 	private Function condition;

@@ -18,7 +18,7 @@ import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
 
-public class InstanceBuilderFacade implements Facade {
+public class InstanceBuilderFacade extends Facade {
 
 	private static InstanceBuilder underlyingClipboard;
 

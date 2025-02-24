@@ -9,7 +9,7 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 
-public class ParameterInitializerFacade implements Facade {
+public class ParameterInitializerFacade extends Facade {
 
 	private Facade parent;
 	private int parameterPosition;

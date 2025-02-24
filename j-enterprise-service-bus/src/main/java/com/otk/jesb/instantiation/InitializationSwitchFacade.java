@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.otk.jesb.util.MiscUtils;
 
-public class InitializationSwitchFacade implements Facade {
+public class InitializationSwitchFacade extends Facade {
 
 	private Facade parent;
 	private InitializationSwitch underlying;
