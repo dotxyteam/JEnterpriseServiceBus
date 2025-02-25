@@ -75,7 +75,7 @@ public abstract class Facade {
 		result = prime * result + ((getParent() == null) ? 0 : getParent().hashCode());
 		result = prime * result + getClass().hashCode();
 		result = prime * result + toString().hashCode();
-		//result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
+		result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());
 		return result;
 	}
 
@@ -91,9 +91,9 @@ public abstract class Facade {
 		if (!same(this, otherFacade)) {
 			return false;
 		}
-		//if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {
-		//	return false;
-		//}
+		if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {
+			return false;
+		}
 		return true;
 	}
 

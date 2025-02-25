@@ -468,7 +468,7 @@ public class GUI extends SwingCustomizer {
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 				new WSDL.Metadata());
 
-		private static WeakHashMap<Facade, ByteArrayOutputStream> rootValueStoreByFacade = new WeakHashMap<Facade, ByteArrayOutputStream>();
+		private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootValueStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 
 		private Plan currentPlan;
 		private Step currentStep;
@@ -477,9 +477,7 @@ public class GUI extends SwingCustomizer {
 		protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 			return new InfoProxyFactory() {
 
-				void backupFacade(Facade facade) {
-					RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
-							.getUnderlying();
+				void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 					Object rootValue = rootInstanceBuilder.getRootInitializer().getParameterValue();
 					ByteArrayOutputStream rootValueStore;
 					if (rootValue != null) {
@@ -492,16 +490,14 @@ public class GUI extends SwingCustomizer {
 					} else {
 						rootValueStore = null;
 					}
-					rootValueStoreByFacade.put(facade, rootValueStore);
+					rootValueStoreByBuilder.put(rootInstanceBuilder, rootValueStore);
 				}
 
-				Runnable createFacadeRestorationJob(Facade facade) {
-					final RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) Facade.getRoot(facade)
-							.getUnderlying();
-					if (!rootValueStoreByFacade.containsKey(facade)) {
+				Runnable createRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
+					if (!rootValueStoreByBuilder.containsKey(rootInstanceBuilder)) {
 						throw new AssertionError();
 					}
-					final ByteArrayOutputStream rootValueStore = rootValueStoreByFacade.get(facade);
+					final ByteArrayOutputStream rootValueStore = rootValueStoreByBuilder.get(rootInstanceBuilder);
 					return new Runnable() {
 						@Override
 						public void run() {
@@ -520,21 +516,23 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected void onFormRefresh(ITypeInfo type, Object object) {
-					if (object instanceof Facade) {
-						backupFacade((Facade) object);
+					if ((object instanceof Facade)
+							&& (((Facade) object).getUnderlying() instanceof RootInstanceBuilder)) {
+						backupRootInstanceBuilderState((RootInstanceBuilder) ((Facade) object).getUnderlying());
 					}
 					super.onFormRefresh(type, object);
 				}
 
 				@Override
 				protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
-					if (object instanceof Facade) {
-						return createFacadeRestorationJob((Facade) object);
+					if ((object instanceof Facade)
+							&& (((Facade) object).getUnderlying() instanceof RootInstanceBuilder)) {
+						return createRootInstanceBuilderStateRestorationJob(
+								(RootInstanceBuilder) ((Facade) object).getUnderlying());
 					}
 					return super.getLastFormRefreshStateRestorationJob(type, object);
 				}
 
-				
 				@Override
 				protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
 						final Object object, InvocationData invocationData) {
@@ -667,13 +665,15 @@ public class GUI extends SwingCustomizer {
 
 								@Override
 								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
-									return createFacadeRestorationJob(Facade.getRoot(parentFacade));
+									return createRootInstanceBuilderStateRestorationJob(
+											(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
 								}
 
 								@Override
 								public Runnable getPreviousInvocationCustomRedoJob(Object object,
 										InvocationData invocationData) {
-									return createFacadeRestorationJob(Facade.getRoot(parentFacade));
+									return createRootInstanceBuilderStateRestorationJob(
+											(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
 								}
 
 								@Override
@@ -769,13 +769,15 @@ public class GUI extends SwingCustomizer {
 									@Override
 									public Runnable getNextInvocationUndoJob(Object object,
 											InvocationData invocationData) {
-										return createFacadeRestorationJob(Facade.getRoot(parentFacade));
+										return createRootInstanceBuilderStateRestorationJob(
+												(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
 									}
 
 									@Override
 									public Runnable getPreviousInvocationCustomRedoJob(Object object,
 											InvocationData invocationData) {
-										return createFacadeRestorationJob(Facade.getRoot(parentFacade));
+										return createRootInstanceBuilderStateRestorationJob(
+												(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
 									}
 								});
 							}
