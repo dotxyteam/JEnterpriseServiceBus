@@ -636,7 +636,7 @@ public class GUI extends SwingCustomizer {
 
 												@Override
 												public ITypeInfo getType() {
-													return getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+													return getTypeInfo(new JavaTypeInfoSource(
 															int.class, null));
 												}
 
@@ -728,7 +728,7 @@ public class GUI extends SwingCustomizer {
 
 													@Override
 													public ITypeInfo getType() {
-														return getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+														return getTypeInfo(new JavaTypeInfoSource(
 																InitializationSwitchFacade.class, null));
 													}
 
@@ -835,7 +835,7 @@ public class GUI extends SwingCustomizer {
 							@Override
 							public ITypeInfo getReturnValueType() {
 								return getTypeInfo(
-										new JavaTypeInfoSource(JESBReflectionUI.this, FunctionEditor.class, null));
+										new JavaTypeInfoSource(FunctionEditor.class, null));
 							}
 
 							@Override
@@ -854,14 +854,14 @@ public class GUI extends SwingCustomizer {
 					if (type.getName().equals(ActivityBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
 						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-							result.add(getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+							result.add(getTypeInfo(new JavaTypeInfoSource(
 									activityMetadata.getActivityBuilderClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Resource.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
 						for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
-							result.add(getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+							result.add(getTypeInfo(new JavaTypeInfoSource(
 									resourceMetadata.getResourceClass(), null)));
 						}
 						return result;
@@ -924,11 +924,11 @@ public class GUI extends SwingCustomizer {
 					}
 					if (object instanceof Element) {
 						if (((Element) object).getOptionality() == null) {
-							return getIconImagePath(getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
+							return getIconImagePath(getTypeInfo(new JavaTypeInfoSource(
 									ParameterInitializerFacade.class, null)), null);
 						} else {
 							return getIconImagePath(getTypeInfo(
-									new JavaTypeInfoSource(JESBReflectionUI.this, FieldInitializerFacade.class, null)),
+									new JavaTypeInfoSource(FieldInitializerFacade.class, null)),
 									null);
 						}
 					}
@@ -1086,7 +1086,7 @@ public class GUI extends SwingCustomizer {
 					Step step = (Step) node.getObject();
 					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 					ITypeInfo stepType = reflectionUI
-							.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Step.class, null));
+							.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
 					getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
 							new xy.reflect.ui.util.Accessor<Boolean>() {
 								@Override
@@ -1136,7 +1136,7 @@ public class GUI extends SwingCustomizer {
 					newTransition.setEndStep((Step) conn.getEndNode().getObject());
 					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 					ITypeInfo planType = reflectionUI
-							.getTypeInfo(new JavaTypeInfoSource(reflectionUI, Plan.class, null));
+							.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
 					DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 					IModification modification = new ListModificationFactory(
@@ -1407,7 +1407,7 @@ public class GUI extends SwingCustomizer {
 												newStep.setDiagramY(y);
 												ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 												ITypeInfo planType = reflectionUI.getTypeInfo(
-														new JavaTypeInfoSource(reflectionUI, Plan.class, null));
+														new JavaTypeInfoSource(Plan.class, null));
 												DefaultFieldControlData transitionsData = new DefaultFieldControlData(
 														reflectionUI, getPlan(), ReflectionUIUtils
 																.findInfoByName(planType.getFields(), "steps"));

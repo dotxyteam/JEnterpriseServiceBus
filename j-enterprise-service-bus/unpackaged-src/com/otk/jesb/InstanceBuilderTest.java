@@ -26,10 +26,10 @@ public class InstanceBuilderTest {
 		plan.getSteps().add(step);
 		TreeActivity.Builder builder = (Builder) step.getActivityBuilder();
 		GUI.INSTANCE.getReflectionUI()
-				.getTypeInfo(new JavaTypeInfoSource(GUI.INSTANCE.getReflectionUI(), Plan.class, null))
+				.getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI()
-				.getTypeInfo(new JavaTypeInfoSource(GUI.INSTANCE.getReflectionUI(), Step.class, null))
+				.getTypeInfo(new JavaTypeInfoSource(Step.class, null))
 				.onFormVisibilityChange(step, true);
 		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder

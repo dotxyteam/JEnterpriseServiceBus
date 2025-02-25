@@ -33,18 +33,18 @@ public class TypeInfoProvider {
 		if (typeOwner != null) {
 			if (typeOwner instanceof GetterFieldInfo) {
 				Method javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
 			} else if (typeOwner instanceof PublicFieldInfo) {
 				Field javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
 			} else if (typeOwner instanceof DefaultMethodInfo) {
 				Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
-				javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, javaTypeOwner, -1, null);
+				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
 			} else {
 				throw new AssertionError();
 			}
 		} else {
-			javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass, null);
+			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, null);
 		}
 		return reflectionUI.getTypeInfo(javaTypeInfoSource);
 	}
@@ -59,10 +59,10 @@ public class TypeInfoProvider {
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (method instanceof DefaultConstructorInfo) {
-			javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass,
+			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
 					((DefaultConstructorInfo) method).getJavaConstructor(), parameterPosition, null);
 		} else if (method instanceof DefaultMethodInfo) {
-			javaTypeInfoSource = new JavaTypeInfoSource(reflectionUI, objectClass,
+			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
 					((DefaultMethodInfo) method).getJavaMethod(), parameterPosition, null);
 		} else {
 			throw new AssertionError();
