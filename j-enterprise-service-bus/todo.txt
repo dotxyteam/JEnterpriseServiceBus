@@ -10,7 +10,6 @@
 	- add ListItemInitializer.replication.itemTypeName. It will allow to check
 the replication list value function and other functions that use the replication
 item variable
-- remove type-only nodes from PathExplorer and InstanceBuilder trees
 - Switch/Cases feature issues:
 	. should not allow to remove all switch/cases managed elements ???
 - split classes GUI, Plan, Debugger ???
