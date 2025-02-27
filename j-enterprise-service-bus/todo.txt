@@ -1,51 +1,42 @@
-- Remove InstanceBuilder nodes from the facade tree
+- smaller diagram node images
+- diagram zoom
+- diagram improvements:
+	. allow to select the current mouse action between MOVE and CONNECT
+	. do not move systematically to the mouse pointer position 
+- ListItemInitializer:
+	- ListItemReplication/iterationListValue/itemType not resolved
+	- add ListItemInitializer.replication.itemTypeName. It will allow to check
+the replication list value function and other functions that use the replication
+item variable
+- remove type-only nodes from PathExplorer and InstanceBuilder trees
 - Switch/Cases feature issues:
 	. should not allow to remove all switch/cases managed elements ???
-- FieldInitializer value setting undo management may not work correctly because 
-it modifies the "concrete" state of ancestor nodes behind the scene
-- split classes GUI, InstanceBuilder, Plan, Debugger, etc
-- control InstanceBuilder.typeName updates: the new type should inherit from the
-normal type
-- every function should have the field/parameter/listItem type so that
-its body gets type checked
+- split classes GUI, Plan, Debugger ???
+- control InstanceBuilder.typeName updates ??? (the new type should inherit from the
+normal type)
 - InstanceBuilder design issues:
-	. an InstanceBuilder can build but cannot copy (or just transfer) an instance
-	. InstanceBuilder misses these features: 'copy', 'choose when', 'with', 'auto map'
+	. InstanceBuilder misses these features: 'with', 'auto map'
 	=) the InstanceBuilder should be equivalent to the TIBCO BW mapper. It should
 	offer as much transformation specification capabilities. Actually a BW mapper
 	obtains its power from a subset of XSLT. It allows to specify how to build an 
 	XML document while the InstanceBuilder allows to specify how to build an Java
 	object. It should then be possible to have as much power in an InstanceBuilder
-	than in a BW mapper. They both allow to specify the value of a 
-	Java field/parameter or XML element/attribute. But the BW mapper allows to
-	specify how to build the root element with as much power as other elements
-	while the InstanceBuilder does not offer as much possibilities for the root
-	object as for the other descendants objects. This is because the BW mapper
-	power is in a sort of element initializer that builds the root element while
-	the InstanceBuilder power is in field/parameter/listItem initializers that
-	cannot be used for the root object. That involves a weakness in the possibilities
-	of specification of InstanceBuilders: The root object creation specification
-	with an InstanceBuilder cannot be as simple as the root element creation
-	specification with a BW mapper. 
-	. should be possible to copy complex mappings from one (probably InstanceBuilder)
-	node to another  
-- rename activity classes (remove 'Activity' suffix)
+	than in a BW mapper. 
+- rename activity classes (remove 'Activity' suffix) ???
 - wrap function editor lines ???
-- diagram improvements:
-	. allow to select the current mouse action between MOVE and CONNECT
-	. do not move systematically to the mouse pointer position 
 - generate expressions that do not crash because of a null pointer ???
 - allow to trace errors origin
+- add XML/JSON support
+	. generate automatically classes from schemas to parse and render ???
 - allow to serve/call rest/soap web services
 - allow to provide plan input through the debugger
 - create and display a PlanExecutor for each sub-plan execution
-- Structure.Element.multiple= true should generate a list instead of an array
+- Structure.Element.multiple= true should generate a list instead of an array ???
 - allow to build and reference shared structures
 - UI improvements:
-	. banner
-- JDBCConnection (driver jars location ???) + driver class name should be specified 
-- remove type-only nodes from PathExplorer and InstanceSpecification trees
-- ListItemReplication/iterationListValue/itemType not resolved
+	. banner ???
+- JDBCConnection:
+	. driver jars location ???
 - strategy: 
 	. focus on an original main feature and make it work
 	. implement quickly and minimally all the other features
@@ -53,12 +44,13 @@ its body gets type checked
 	. advertise
 	. improve the features
 - allow to drag and drop PathExplorer node to the expression editor
-- add XML/JSON support
-	. generate automatically classes from schemas to parse and render ???
+- allow to map fields graphically :
+	- add a value column to InstanceBuilder tree 
+	- add a path explorer tree to InstanceBuilder component
+	- allow to drag and drop from path explorer tree to InstanceBuilder tree 
 - add things like groups (for repetition, etc) and conditional transitions for steps
 - comment the code
 - add built-in activities (file, jdbc, jms, data format, .. activities)
-- allow to map fields graphically 
 - allow to view resources full path
 - allow to start plan execution on event (timer, file poller, etc)
 - allow to extend the framework by adding custom activities
@@ -68,12 +60,12 @@ its body gets type checked
 - change the JRE/JDK: use OpenJDK or ...
 - improve JDBCQueryActivity:
 	. check parameter type mappings
-	. can generate automatically parameter definitions ?
+	. can generate automatically parameter definitions ???
 	. should automatically retrieve result columns ???
 - some modifications can disappear from the UI when 
-ObjectSpecification.(className|selectedConstructorSignature) are modified. It may be better
+InstanceBuilder.(className|selectedConstructorSignature) are modified. It may be better
 to display incoherent nodes with an error marker
 - to ease co-working and version control, plans and resources must be stored in separate files  
-- allow to specify activity builder UI details through the code
+- allow to specify custom activity builder UI details through the code
 - add validation
 - change the look and feel (maybe the windows look and feel would be good)
