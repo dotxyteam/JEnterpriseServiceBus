@@ -74,8 +74,10 @@ public class MiscUtils {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		CompilationContext compilationContext = currentStep.getActivityBuilder()
-				.findFunctionCompilationContext(function, validationContext);
+		CompilationContext compilationContext = (currentStep!=null) ? currentStep.getActivityBuilder()
+				.findFunctionCompilationContext(function, validationContext)
+				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
+						validationContext);
 		Facade currentFacade = compilationContext.getVerificationContext().getParentFacade();
 		if (((currentFacade == null) ? null
 				: currentFacade.getUnderlying()) != ((evaluationContext.getParentFacade() == null) ? null
@@ -86,13 +88,7 @@ public class MiscUtils {
 				makeTypeNamesAbsolute(function.getFunctionBody(), getAncestorStructureInstanceBuilders(currentFacade)),
 				compilationContext.getVerificationContext().getValidationContext(),
 				compilationContext.getFunctionReturnType());
-		try {
-			return compiledFunction.execute(executionContext);
-		} catch (Exception e) {
-			throw e;
-		} catch (Throwable t) {
-			throw new RuntimeException(t);
-		}
+		return compiledFunction.execute(executionContext);
 	}
 
 	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {

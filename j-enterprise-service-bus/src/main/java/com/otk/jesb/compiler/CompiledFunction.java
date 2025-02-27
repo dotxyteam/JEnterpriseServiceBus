@@ -11,9 +11,11 @@ import com.otk.jesb.util.MiscUtils;
 public class CompiledFunction {
 
 	private Class<?> functionClass;
+	private String functionClassSource;
 
-	private CompiledFunction(Class<?> functionClass) {
+	private CompiledFunction(Class<?> functionClass, String functionClassSource) {
 		this.functionClass = functionClass;
+		this.functionClassSource = functionClassSource;
 	}
 
 	public static CompiledFunction get(String functionBody, Plan.ValidationContext context, Class<?> returnType)
@@ -31,13 +33,13 @@ public class CompiledFunction {
 		}
 		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");
 		preBody += ") throws " + Throwable.class.getName() + "{" + "\n";
-		String postBody = "";
+		String postBody = "\n";
+		postBody += "}" + "\n";
 		postBody += "}";
-		postBody += "}";
+		String functionClassSource = preBody + functionBody + postBody;
 		Class<?> functionClass;
 		try {
-			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName,
-					preBody + functionBody + postBody);
+			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName, functionClassSource);
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {
@@ -55,10 +57,10 @@ public class CompiledFunction {
 			}
 			throw new CompilationError(startPosition, endPosition, e.getMessage());
 		}
-		return new CompiledFunction(functionClass);
+		return new CompiledFunction(functionClass, functionClassSource);
 	}
 
-	public Object execute(Plan.ExecutionContext context) throws Throwable {
+	public Object execute(Plan.ExecutionContext context) throws Exception {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
@@ -76,10 +78,22 @@ public class CompiledFunction {
 			throw new AssertionError(e);
 		} catch (IllegalArgumentException e) {
 			throw new AssertionError(e);
-		} catch (InvocationTargetException e) {
-			throw e.getTargetException();
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
+		} catch (Throwable t) {
+			if (t instanceof InvocationTargetException) {
+				t = ((InvocationTargetException) t).getTargetException();
+			}
+			String errorSourceDescription;
+			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
+					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
+				errorSourceDescription = "/* Failure statement */\n"
+						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
+			} else {
+				errorSourceDescription = "/* Function class source code (" + functionClass.getSimpleName()
+						+ ".java) */\n" + functionClassSource;
+			}
+			throw new Exception("Function error: " + t.toString() + ":\n" + errorSourceDescription, t);
 		}
 	}
 

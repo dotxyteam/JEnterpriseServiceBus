@@ -1,8 +1,6 @@
+- Remove InstanceBuilder nodes from the facade tree
 - Switch/Cases feature issues:
-	. should be possible to add managed elements in a switch
-	. unsetting/removing elements from the default case automatically
-	removes potentially mapped elements from the other cases without warning
-	. should not allow to remove all switch/cases managed elements
+	. should not allow to remove all switch/cases managed elements ???
 - FieldInitializer value setting undo management may not work correctly because 
 it modifies the "concrete" state of ancestor nodes behind the scene
 - split classes GUI, InstanceBuilder, Plan, Debugger, etc

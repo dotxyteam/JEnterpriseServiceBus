@@ -245,7 +245,7 @@ public class Plan extends Asset {
 				}
 			});
 		}
-		List<Step> previousSteps = getPreviousSteps(currentStep);
+		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
 		for (Step step : previousSteps) {
 			if (step.getActivityBuilder().getActivityResultClass() != null) {
 				result.getVariableDeclarations().add(new StepEventuality(step));

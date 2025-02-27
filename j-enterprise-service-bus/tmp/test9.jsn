@@ -11,6 +11,7 @@
               <outer-class reference="../.."/>
             </dynamicTypeNameAccessor>
             <fieldInitializers/>
+            <initializationSwitches/>
             <listItemInitializers/>
             <parameterInitializers>
               <com.otk.jesb.instantiation.ParameterInitializer>
@@ -19,6 +20,7 @@
                 <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers/>
+                  <initializationSwitches/>
                   <listItemInitializers/>
                   <parameterInitializers/>
                   <selectedConstructorSignature class="null"/>
@@ -44,6 +46,7 @@
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
+                  <initializationSwitches/>
                   <listItemInitializers/>
                   <parameterInitializers>
                     <com.otk.jesb.instantiation.ParameterInitializer>
@@ -52,6 +55,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -97,8 +101,31 @@
                       <outer-class reference="../.."/>
                     </dynamicTypeNameAccessor>
                     <fieldInitializers/>
+                    <initializationSwitches/>
                     <listItemInitializers/>
-                    <parameterInitializers/>
+                    <parameterInitializers>
+                      <com.otk.jesb.instantiation.ParameterInitializer>
+                        <parameterPosition>0</parameterPosition>
+                        <parameterTypeName>com.otk.jesb.PlanOutput0070806949869407821211135311462509178070</parameterTypeName>
+                        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                          <dynamicTypeNameAccessor class="null"/>
+                          <fieldInitializers/>
+                          <initializationSwitches/>
+                          <listItemInitializers/>
+                          <parameterInitializers>
+                            <com.otk.jesb.instantiation.ParameterInitializer>
+                              <parameterPosition>0</parameterPosition>
+                              <parameterTypeName>java.lang.String</parameterTypeName>
+                              <parameterValue class="com.otk.jesb.instantiation.Function">
+                                <functionBody>return readFile.getText();</functionBody>
+                              </parameterValue>
+                            </com.otk.jesb.instantiation.ParameterInitializer>
+                          </parameterInitializers>
+                          <selectedConstructorSignature class="null"/>
+                          <typeName>com.otk.jesb.PlanOutput0070806949869407821211135311462509178070</typeName>
+                        </parameterValue>
+                      </com.otk.jesb.instantiation.ParameterInitializer>
+                    </parameterInitializers>
                     <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
                       <outer-class reference="../../.."/>
                     </rootInstanceDynamicTypeNameAccessor>
@@ -126,6 +153,7 @@
                             <outer-class reference="../.."/>
                           </dynamicTypeNameAccessor>
                           <fieldInitializers/>
+                          <initializationSwitches/>
                           <listItemInitializers/>
                           <parameterInitializers>
                             <com.otk.jesb.instantiation.ParameterInitializer>
@@ -134,6 +162,7 @@
                               <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                                 <dynamicTypeNameAccessor class="null"/>
                                 <fieldInitializers/>
+                                <initializationSwitches/>
                                 <listItemInitializers/>
                                 <parameterInitializers>
                                   <com.otk.jesb.instantiation.ParameterInitializer>
@@ -168,6 +197,7 @@
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
+                  <initializationSwitches/>
                   <listItemInitializers/>
                   <parameterInitializers>
                     <com.otk.jesb.instantiation.ParameterInitializer>
@@ -176,6 +206,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
@@ -188,6 +219,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -206,6 +238,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -224,6 +257,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -236,6 +270,44 @@
                         <typeName>com.otk.jesb.PlanInput0262371860166477648693376134089895733557</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>com.otk.jesb.PlanInput0137445695993458578545361050521776006924</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterTypeName>boolean</parameterTypeName>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.PlanInput0137445695993458578545361050521776006924</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>com.otk.jesb.PlanInput0132045584668612172182751951682585374962</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterTypeName>boolean</parameterTypeName>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.PlanInput0132045584668612172182751951682585374962</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
                     <outer-class reference="../../.."/>
@@ -246,8 +318,8 @@
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </planInputBuilder>
               </activityBuilder>
-              <diagramX>88</diagramX>
-              <diagramY>258</diagramY>
+              <diagramX>86</diagramX>
+              <diagramY>248</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>writeFile</name>
@@ -257,6 +329,7 @@
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
+                  <initializationSwitches/>
                   <listItemInitializers/>
                   <parameterInitializers>
                     <com.otk.jesb.instantiation.ParameterInitializer>
@@ -265,6 +338,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -728,6 +802,7 @@
                     <outer-class reference="../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
+                  <initializationSwitches/>
                   <listItemInitializers/>
                   <parameterInitializers>
                     <com.otk.jesb.instantiation.ParameterInitializer>
@@ -736,6 +811,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
@@ -748,6 +824,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
@@ -760,6 +837,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -783,6 +861,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -806,6 +885,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -829,6 +909,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
@@ -841,6 +922,7 @@
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="null"/>
                         <fieldInitializers/>
+                        <initializationSwitches/>
                         <listItemInitializers/>
                         <parameterInitializers/>
                         <selectedConstructorSignature class="null"/>
@@ -860,8 +942,8 @@
                 <portName>SOAPDemoSoap</portName>
                 <serviceName>SOAPDemo</serviceName>
               </activityBuilder>
-              <diagramX>282</diagramX>
-              <diagramY>438</diagramY>
+              <diagramX>292</diagramX>
+              <diagramY>450</diagramY>
             </com.otk.jesb.Step>
           </steps>
           <transitions>

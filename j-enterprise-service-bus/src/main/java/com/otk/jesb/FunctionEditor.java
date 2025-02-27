@@ -41,8 +41,8 @@ public class FunctionEditor {
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		for (Plan.ValidationContext.VariableDeclaration declaration : getCompilationContext().getVerificationContext().getValidationContext()
-				.getVariableDeclarations()) {
+		for (Plan.ValidationContext.VariableDeclaration declaration : getCompilationContext().getVerificationContext()
+				.getValidationContext().getVariableDeclarations()) {
 			result.add(new RootPathNode(
 					new PathExplorer(declaration.getVariableClass().getName(), declaration.getVariableName())));
 		}
@@ -50,8 +50,20 @@ public class FunctionEditor {
 	}
 
 	private CompilationContext getCompilationContext() {
-		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		return currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, validationContext);
+		Plan.ValidationContext validationContext;
+		CompilationContext result;
+		validationContext = currentPlan.getValidationContext(currentStep);
+		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, validationContext);
+		if (result != null) {
+			return result;
+		}
+		validationContext = currentPlan.getValidationContext(null);
+		result = currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(currentFunction,
+				validationContext);
+		if (result != null) {
+			return result;
+		}
+		throw new AssertionError();
 	}
 
 	public void validate() throws CompilationError {
