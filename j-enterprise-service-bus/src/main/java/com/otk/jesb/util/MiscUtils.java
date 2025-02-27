@@ -74,8 +74,8 @@ public class MiscUtils {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		Plan.ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-		CompilationContext compilationContext = (currentStep!=null) ? currentStep.getActivityBuilder()
-				.findFunctionCompilationContext(function, validationContext)
+		CompilationContext compilationContext = (currentStep != null)
+				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, validationContext)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
 						validationContext);
 		Facade currentFacade = compilationContext.getVerificationContext().getParentFacade();
@@ -192,7 +192,8 @@ public class MiscUtils {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
 			String functionBody;
-			if (!MiscUtils.isComplexType(type)) {
+			if (!MiscUtils.isComplexType(type)
+					&& !ClassUtils.isPrimitiveWrapperClass(((JavaTypeInfoSource) type.getSource()).getJavaType())) {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "

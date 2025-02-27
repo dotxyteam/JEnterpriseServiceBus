@@ -478,7 +478,9 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
-					Object rootValue = rootInstanceBuilder.getRootInitializer().getParameterValue();
+					Object rootValue = (rootInstanceBuilder.getRootInitializer() != null)
+							? rootInstanceBuilder.getRootInitializer().getParameterValue()
+							: null;
 					ByteArrayOutputStream rootValueStore;
 					if (rootValue != null) {
 						rootValueStore = new ByteArrayOutputStream();
@@ -508,8 +510,10 @@ public class GUI extends SwingCustomizer {
 							} catch (IOException e) {
 								throw new AssertionError(e);
 							}
-							rootInstanceBuilder.getRootInitializer()
-									.setParameterValue((rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
+							if (rootInstanceBuilder.getRootInitializer() != null) {
+								rootInstanceBuilder.getRootInitializer().setParameterValue(
+										(rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
+							}
 						}
 					};
 				}
@@ -636,8 +640,7 @@ public class GUI extends SwingCustomizer {
 
 												@Override
 												public ITypeInfo getType() {
-													return getTypeInfo(new JavaTypeInfoSource(
-															int.class, null));
+													return getTypeInfo(new JavaTypeInfoSource(int.class, null));
 												}
 
 												@Override
@@ -834,8 +837,7 @@ public class GUI extends SwingCustomizer {
 
 							@Override
 							public ITypeInfo getReturnValueType() {
-								return getTypeInfo(
-										new JavaTypeInfoSource(FunctionEditor.class, null));
+								return getTypeInfo(new JavaTypeInfoSource(FunctionEditor.class, null));
 							}
 
 							@Override
@@ -854,15 +856,14 @@ public class GUI extends SwingCustomizer {
 					if (type.getName().equals(ActivityBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
 						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-							result.add(getTypeInfo(new JavaTypeInfoSource(
-									activityMetadata.getActivityBuilderClass(), null)));
+							result.add(getTypeInfo(
+									new JavaTypeInfoSource(activityMetadata.getActivityBuilderClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Resource.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
 						for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
-							result.add(getTypeInfo(new JavaTypeInfoSource(
-									resourceMetadata.getResourceClass(), null)));
+							result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 						}
 						return result;
 					} else {
@@ -924,12 +925,11 @@ public class GUI extends SwingCustomizer {
 					}
 					if (object instanceof Element) {
 						if (((Element) object).getOptionality() == null) {
-							return getIconImagePath(getTypeInfo(new JavaTypeInfoSource(
-									ParameterInitializerFacade.class, null)), null);
+							return getIconImagePath(
+									getTypeInfo(new JavaTypeInfoSource(ParameterInitializerFacade.class, null)), null);
 						} else {
-							return getIconImagePath(getTypeInfo(
-									new JavaTypeInfoSource(FieldInitializerFacade.class, null)),
-									null);
+							return getIconImagePath(
+									getTypeInfo(new JavaTypeInfoSource(FieldInitializerFacade.class, null)), null);
 						}
 					}
 					return super.getIconImagePath(type, object);
@@ -1085,8 +1085,7 @@ public class GUI extends SwingCustomizer {
 				public void nodeMoved(JNode node) {
 					Step step = (Step) node.getObject();
 					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-					ITypeInfo stepType = reflectionUI
-							.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
+					ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
 					getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
 							new xy.reflect.ui.util.Accessor<Boolean>() {
 								@Override
@@ -1135,8 +1134,7 @@ public class GUI extends SwingCustomizer {
 					newTransition.setStartStep((Step) conn.getStartNode().getObject());
 					newTransition.setEndStep((Step) conn.getEndNode().getObject());
 					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-					ITypeInfo planType = reflectionUI
-							.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+					ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
 					DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 					IModification modification = new ListModificationFactory(
@@ -1406,8 +1404,8 @@ public class GUI extends SwingCustomizer {
 												newStep.setDiagramX(x);
 												newStep.setDiagramY(y);
 												ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-												ITypeInfo planType = reflectionUI.getTypeInfo(
-														new JavaTypeInfoSource(Plan.class, null));
+												ITypeInfo planType = reflectionUI
+														.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
 												DefaultFieldControlData transitionsData = new DefaultFieldControlData(
 														reflectionUI, getPlan(), ReflectionUIUtils
 																.findInfoByName(planType.getFields(), "steps"));

@@ -1,7 +1,6 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
@@ -92,7 +91,7 @@ public class FunctionEditor {
 
 		@Override
 		public List<PathNode> getChildren() {
-			return Collections.singletonList(pathExplorer.getRootNode());
+			return pathExplorer.getRootNode().getChildren();
 		}
 
 		@Override

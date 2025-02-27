@@ -36,7 +36,12 @@ public abstract class Facade {
 	}
 
 	public static Facade get(Object node, Facade parentFacade) {
-		if (node instanceof MapEntryBuilder) {
+		if (node instanceof RootInstanceBuilder) {
+			if(parentFacade != null) {
+				throw new AssertionError();
+			}
+			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);
+		} else if (node instanceof MapEntryBuilder) {
 			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
 		} else if (node instanceof InstanceBuilder) {
 			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);

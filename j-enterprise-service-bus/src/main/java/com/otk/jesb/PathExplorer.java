@@ -160,7 +160,7 @@ public class PathExplorer {
 			if (!MiscUtils.isComplexType(fieldTypeInfo)) {
 				return Collections.emptyList();
 			} else {
-				return Collections.singletonList(new TypeNode(this, fieldTypeInfo.getName()));
+				return new TypeNode(this, fieldTypeInfo.getName()).getChildren();
 			}
 		}
 
@@ -206,7 +206,7 @@ public class PathExplorer {
 			if (!MiscUtils.isComplexType(itemTypeInfo)) {
 				return Collections.emptyList();
 			} else {
-				return Collections.singletonList(new TypeNode(this, itemTypeInfo.getName()));
+				return new TypeNode(this, itemTypeInfo.getName()).getChildren();
 			}
 		}
 
@@ -255,7 +255,7 @@ public class PathExplorer {
 			if (!MiscUtils.isComplexType(valueTypeInfo)) {
 				return Collections.emptyList();
 			} else {
-				return Collections.singletonList(new TypeNode(this, valueTypeInfo.getName()));
+				return new TypeNode(this, valueTypeInfo.getName()).getChildren();
 			}
 		}
 

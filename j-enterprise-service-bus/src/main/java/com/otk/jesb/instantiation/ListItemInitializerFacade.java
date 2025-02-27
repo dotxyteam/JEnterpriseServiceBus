@@ -78,10 +78,17 @@ public class ListItemInitializerFacade extends Facade {
 		if (listItemInitializer == null) {
 			return null;
 		}
-		return MiscUtils.maintainInterpretableValue(listItemInitializer.getItemValue(), getItemType());
+		Object result = MiscUtils.maintainInterpretableValue(listItemInitializer.getItemValue(), getItemType());
+		if (result instanceof InstanceBuilder) {
+			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
+		}
+		return result;
 	}
 
 	public void setItemValue(Object value) {
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
 		setConcrete(true);
 		ListItemInitializer listItemInitializer = getUnderlying();
 		ITypeInfo itemType = getItemType();
@@ -101,13 +108,15 @@ public class ListItemInitializerFacade extends Facade {
 
 	public void setItemValueMode(ValueMode valueMode) {
 		setConcrete(true);
-		ListItemInitializer listItemInitializer = getUnderlying();
 		if (valueMode == getItemValueMode()) {
 			return;
 		}
 		ITypeInfo itemType = getItemType();
-		itemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode, this);
-		listItemInitializer.setItemValue(itemValue);
+		Object newItemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode, this);
+		if (newItemValue instanceof InstanceBuilder) {
+			newItemValue = new InstanceBuilderFacade(this, (InstanceBuilder) newItemValue);
+		}
+		setItemValue(newItemValue);
 	}
 
 	private Object createDefaultItemValue() {
@@ -221,9 +230,9 @@ public class ListItemInitializerFacade extends Facade {
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
 		if (itemValue instanceof MapEntryBuilder) {
-			result.add(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue));
+			result.addAll(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue).getChildren());
 		} else if (itemValue instanceof InstanceBuilder) {
-			result.add(new InstanceBuilderFacade(this, (InstanceBuilder) itemValue));
+			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) itemValue).getChildren());
 		}
 		return result;
 	}

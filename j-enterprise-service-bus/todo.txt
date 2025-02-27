@@ -1,3 +1,5 @@
+- allow to change default PathExplorer node type (it should generate a cast expression)
+- problem: WSDL resource needs Internet connection
 - smaller diagram node images
 - diagram zoom
 - diagram improvements:

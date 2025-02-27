@@ -929,6 +929,30 @@
                         <typeName>com.otk.jesb.activity.builtin.OperationInput0282600732068161958264209570894099167882</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterTypeName>com.otk.jesb.activity.builtin.OperationInput0183440505974186943010176045812152644519</parameterTypeName>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterTypeName>java.lang.Long</parameterTypeName>
+                            <parameterValue class="long">1</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>1</parameterPosition>
+                            <parameterTypeName>java.lang.Long</parameterTypeName>
+                            <parameterValue class="long">2</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.activity.builtin.OperationInput0183440505974186943010176045812152644519</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
                     <outer-class reference="../../.."/>
@@ -938,12 +962,12 @@
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </operationInputBuilder>
-                <operationSignature>java.lang.String mission()</operationSignature>
+                <operationSignature>long addInteger(java.lang.Long, java.lang.Long)</operationSignature>
                 <portName>SOAPDemoSoap</portName>
                 <serviceName>SOAPDemo</serviceName>
               </activityBuilder>
-              <diagramX>292</diagramX>
-              <diagramY>450</diagramY>
+              <diagramX>288</diagramX>
+              <diagramY>463</diagramY>
             </com.otk.jesb.Step>
           </steps>
           <transitions>

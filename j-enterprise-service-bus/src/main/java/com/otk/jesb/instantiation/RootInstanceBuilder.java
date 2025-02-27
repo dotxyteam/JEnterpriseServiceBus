@@ -1,5 +1,7 @@
 package com.otk.jesb.instantiation;
 
+import java.util.List;
+
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
@@ -31,15 +33,13 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					rootInstanceWrapperClassSourceBuilder.append("package "
 							+ MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
 					rootInstanceWrapperClassSourceBuilder.append("public class "
-							+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
-							+ " implements "
+							+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
 							+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
-					rootInstanceWrapperClassSourceBuilder
-							.append("	private " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-									+ " rootInstance;\n");
+					rootInstanceWrapperClassSourceBuilder.append("	private "
+							+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
 					rootInstanceWrapperClassSourceBuilder.append(
-							"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
-									+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
+							"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + "("
+									+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
 									+ rootInstanceName + ") {\n");
 					rootInstanceWrapperClassSourceBuilder
 							.append("		this.rootInstance = " + rootInstanceName + ";\n");
@@ -53,8 +53,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					rootInstanceWrapperClassSourceBuilder.append("}\n");
 				}
 				try {
-					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(
-							rootInstanceWrapperClassName, rootInstanceWrapperClassSourceBuilder.toString());
+					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(rootInstanceWrapperClassName,
+							rootInstanceWrapperClassSourceBuilder.toString());
 				} catch (CompilationError ce) {
 					throw new AssertionError(ce);
 				}
@@ -111,12 +111,16 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
 	}
 
-	public InstanceBuilderFacade getFacade() {
-		return (InstanceBuilderFacade) Facade.get(this, null);
+	public RootInstanceBuilderFacade getFacade() {
+		return (RootInstanceBuilderFacade) Facade.get(this, null);
 	}
 
 	public ParameterInitializer getRootInitializer() {
-		return ((ParameterInitializerFacade) getFacade().getChildren().get(0)).getUnderlying();
+		List<Facade> children = getFacade().getChildren();
+		if (children.size() == 0) {
+			return null;
+		}
+		return ((ParameterInitializerFacade) children.get(0)).getUnderlying();
 	}
 
 	@Override

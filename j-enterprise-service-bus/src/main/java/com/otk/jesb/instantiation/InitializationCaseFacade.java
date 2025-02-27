@@ -362,10 +362,9 @@ public class InitializationCaseFacade extends Facade {
 					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
 							((DefaultTypeInfo) currentFacade.getParameterInfo().getType()).getJavaType());
 				}
-				if (currentFacade.getParameterValue() instanceof InstanceBuilder) {
-					CompilationContext compilationContext = new InstanceBuilderFacade(currentFacade,
-							(InstanceBuilder) currentFacade.getParameterValue())
-									.findFunctionCompilationContext(function, validationContext);
+				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {
+					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getParameterValue())
+							.findFunctionCompilationContext(function, validationContext);
 					if (compilationContext != null) {
 						return compilationContext;
 					}
@@ -383,10 +382,9 @@ public class InitializationCaseFacade extends Facade {
 					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
 							((DefaultTypeInfo) currentFacade.getFieldInfo().getType()).getJavaType());
 				}
-				if (currentFacade.getFieldValue() instanceof InstanceBuilder) {
-					CompilationContext compilationContext = new InstanceBuilderFacade(currentFacade,
-							(InstanceBuilder) currentFacade.getFieldValue()).findFunctionCompilationContext(function,
-									validationContext);
+				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {
+					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getFieldValue())
+							.findFunctionCompilationContext(function, validationContext);
 					if (compilationContext != null) {
 						return compilationContext;
 					}
@@ -407,9 +405,10 @@ public class InitializationCaseFacade extends Facade {
 						return new CompilationContext(new VerificationContext(validationContext, currentFacade),
 								Object.class);
 					}
-					if (currentFacade.getItemReplicationFacade().getIterationListValue() instanceof InstanceBuilder) {
-						CompilationContext compilationContext = new InstanceBuilderFacade(currentFacade,
-								(InstanceBuilder) currentFacade.getItemReplicationFacade().getIterationListValue())
+					if (currentFacade.getItemReplicationFacade()
+							.getIterationListValue() instanceof InstanceBuilderFacade) {
+						CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
+								.getItemReplicationFacade().getIterationListValue())
 										.findFunctionCompilationContext(function, validationContext);
 						if (compilationContext != null) {
 							return compilationContext;
@@ -441,7 +440,7 @@ public class InitializationCaseFacade extends Facade {
 					return new CompilationContext(new VerificationContext(iterationValidationContext, currentFacade),
 							((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
 				}
-				if (currentFacade.getItemValue() instanceof InstanceBuilder) {
+				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
 					ValidationContext iterationValidationContext = validationContext;
 					if (iterationVariableDeclaration != null) {
 						List<VariableDeclaration> newVariableDeclarations = new ArrayList<Plan.ValidationContext.VariableDeclaration>(
@@ -450,9 +449,8 @@ public class InitializationCaseFacade extends Facade {
 						iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
 								newVariableDeclarations);
 					}
-					CompilationContext compilationContext = new InstanceBuilderFacade(currentFacade,
-							(InstanceBuilder) currentFacade.getItemValue()).findFunctionCompilationContext(function,
-									iterationValidationContext);
+					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getItemValue())
+							.findFunctionCompilationContext(function, iterationValidationContext);
 					if (compilationContext != null) {
 						return compilationContext;
 					}

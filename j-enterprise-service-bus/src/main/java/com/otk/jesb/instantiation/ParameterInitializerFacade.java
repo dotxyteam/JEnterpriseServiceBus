@@ -36,9 +36,14 @@ public class ParameterInitializerFacade extends Facade {
 
 	@Override
 	public ParameterInitializer getUnderlying() {
-		setConcrete(true);
-		return ((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
-				getParameterInfo().getType().getName());
+		ParameterInitializer result = ((InitializationCase) parent.getUnderlying())
+				.getParameterInitializer(parameterPosition, getParameterInfo().getType().getName());
+		if (result == null) {
+			((InitializationCase) parent.getUnderlying()).getParameterInitializers()
+					.add(result = new ParameterInitializer(parameterPosition, getParameterInfo().getType().getName(),
+							createDefaultParameterValue()));
+		}
+		return result;
 	}
 
 	public int getParameterPosition() {
@@ -68,6 +73,11 @@ public class ParameterInitializerFacade extends Facade {
 				getParameterInfo().getType().getName()) != null;
 	}
 
+	private Object createDefaultParameterValue() {
+		IParameterInfo parameter = getParameterInfo();
+		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
+	}
+
 	@Override
 	public void setConcrete(boolean b) {
 		if (b == isConcrete()) {
@@ -79,9 +89,8 @@ public class ParameterInitializerFacade extends Facade {
 			}
 			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
 					getParameterInfo().getType().getName()) == null) {
-				((InitializationCase) parent.getUnderlying()).getParameterInitializers()
-						.add(new ParameterInitializer(parameterPosition, getParameterInfo().getType().getName(),
-								MiscUtils.getDefaultInterpretableValue(getParameterInfo().getType(), this)));
+				((InitializationCase) parent.getUnderlying()).getParameterInitializers().add(new ParameterInitializer(
+						parameterPosition, getParameterInfo().getType().getName(), createDefaultParameterValue()));
 			}
 		} else {
 			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
@@ -100,17 +109,27 @@ public class ParameterInitializerFacade extends Facade {
 	public void setParameterValueMode(ValueMode valueMode) {
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
-		Object parameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
-		setParameterValue(parameterValue);
+		Object newParameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
+		if (newParameterValue instanceof InstanceBuilder) {
+			newParameterValue = new InstanceBuilderFacade(this, (InstanceBuilder) newParameterValue);
+		}
+		setParameterValue(newParameterValue);
 	}
 
 	public Object getParameterValue() {
 		ParameterInitializer parameterInitializer = getUnderlying();
-		return MiscUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
+		Object result = MiscUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
 				getParameterInfo().getType());
+		if (result instanceof InstanceBuilder) {
+			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
+		}
+		return result;
 	}
 
 	public void setParameterValue(Object value) {
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
 		if ((value == null) && (parameter.getType().isPrimitive())) {
@@ -123,9 +142,9 @@ public class ParameterInitializerFacade extends Facade {
 	@Override
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
-		Object parameterValue = getParameterValue();
+		Object parameterValue = getUnderlying().getParameterValue();
 		if (parameterValue instanceof InstanceBuilder) {
-			result.add(new InstanceBuilderFacade(this, (InstanceBuilder) parameterValue));
+			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) parameterValue).getChildren());
 		}
 		return result;
 	}

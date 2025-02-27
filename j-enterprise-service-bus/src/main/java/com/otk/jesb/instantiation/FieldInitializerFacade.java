@@ -121,6 +121,9 @@ public class FieldInitializerFacade extends Facade {
 		}
 		IFieldInfo field = getFieldInfo();
 		Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
+		if (newFieldValue instanceof InstanceBuilder) {
+			newFieldValue = new InstanceBuilderFacade(this, (InstanceBuilder) newFieldValue);
+		}
 		setFieldValue(newFieldValue);
 	}
 
@@ -129,10 +132,18 @@ public class FieldInitializerFacade extends Facade {
 		if (fieldInitializer == null) {
 			return null;
 		}
-		return MiscUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(), getFieldInfo().getType());
+		Object result = MiscUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(),
+				getFieldInfo().getType());
+		if (result instanceof InstanceBuilder) {
+			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
+		}
+		return result;
 	}
 
 	public void setFieldValue(Object value) {
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
 		setConcrete(true);
 		FieldInitializer fieldInitializer = getUnderlying();
 		IFieldInfo field = getFieldInfo();
@@ -146,7 +157,7 @@ public class FieldInitializerFacade extends Facade {
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
 		if (fieldValue instanceof InstanceBuilder) {
-			result.add(new InstanceBuilderFacade(this, (InstanceBuilder) fieldValue));
+			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) fieldValue).getChildren());
 		}
 		return result;
 	}
