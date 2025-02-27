@@ -37,11 +37,10 @@ public class ParameterInitializerFacade extends Facade {
 	@Override
 	public ParameterInitializer getUnderlying() {
 		ParameterInitializer result = ((InitializationCase) parent.getUnderlying())
-				.getParameterInitializer(parameterPosition, getParameterInfo().getType().getName());
+				.getParameterInitializer(parameterPosition);
 		if (result == null) {
 			((InitializationCase) parent.getUnderlying()).getParameterInitializers()
-					.add(result = new ParameterInitializer(parameterPosition, getParameterInfo().getType().getName(),
-							createDefaultParameterValue()));
+					.add(result = new ParameterInitializer(parameterPosition, createDefaultParameterValue()));
 		}
 		return result;
 	}
@@ -64,18 +63,25 @@ public class ParameterInitializerFacade extends Facade {
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
 
+	public Object createDefaultParameterValue() {		
+		InstanceBuilderFacade currentInstanceBuilderFacade = getCurrentInstanceBuilderFacade();
+		if(currentInstanceBuilderFacade instanceof RootInstanceBuilderFacade) {
+			RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade)currentInstanceBuilderFacade).getUnderlying();
+			InstanceBuilder result = new InstanceBuilder();
+			result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
+			result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());;
+			return result;	
+		}		
+		IParameterInfo parameter = getParameterInfo();
+		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
+	}
+
 	@Override
 	public boolean isConcrete() {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		return ((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
-				getParameterInfo().getType().getName()) != null;
-	}
-
-	private Object createDefaultParameterValue() {
-		IParameterInfo parameter = getParameterInfo();
-		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
+		return true;
 	}
 
 	@Override
@@ -87,14 +93,8 @@ public class ParameterInitializerFacade extends Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
-			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
-					getParameterInfo().getType().getName()) == null) {
-				((InitializationCase) parent.getUnderlying()).getParameterInitializers().add(new ParameterInitializer(
-						parameterPosition, getParameterInfo().getType().getName(), createDefaultParameterValue()));
-			}
 		} else {
-			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition,
-					getParameterInfo().getType().getName()) != null) {
+			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition) != null) {
 				((InitializationCase) parent.getUnderlying()).removeParameterInitializer(parameterPosition,
 						getParameterInfo().getType().getName());
 			}

@@ -170,8 +170,7 @@ public class InitializationCaseFacade extends Facade {
 			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
 			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,
 					switchFacade.getUnderlying().getDefaultInitializationCase());
-			if (defaultCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition(),
-					parameterInfo.getType().getName()) != null) {
+			if (defaultCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition()) != null) {
 				return true;
 			}
 			if (defaultCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {
@@ -200,8 +199,7 @@ public class InitializationCaseFacade extends Facade {
 		if (isParameterInitializedInChildSwitch(parameterInfo)) {
 			return false;
 		}
-		if (underlying.getParameterInitializer(parameterInfo.getPosition(),
-				parameterInfo.getType().getName()) != null) {
+		if (underlying.getParameterInitializer(parameterInfo.getPosition()) != null) {
 			return true;
 		}
 		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {
@@ -209,8 +207,7 @@ public class InitializationCaseFacade extends Facade {
 				if (siblingCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {
 					return true;
 				}
-				if (siblingCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition(),
-						parameterInfo.getType().getName()) != null) {
+				if (siblingCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition()) != null) {
 					return true;
 				}
 			}
@@ -422,7 +419,7 @@ public class InitializationCaseFacade extends Facade {
 						}
 
 						@Override
-						public Class<?> getVariableClass() {
+						public Class<?> getVariableType() {
 							return Object.class;
 						}
 					};

@@ -42,10 +42,9 @@ public class InitializationCase {
 		this.initializationSwitches = initializationSwitches;
 	}
 
-	public ParameterInitializer getParameterInitializer(int parameterPosition, String parameterTypeName) {
+	public ParameterInitializer getParameterInitializer(int parameterPosition) {
 		for (ParameterInitializer parameterInitializer : parameterInitializers) {
-			if ((parameterInitializer.getParameterPosition() == parameterPosition)
-					&& parameterTypeName.equals(parameterInitializer.getParameterTypeName())) {
+			if (parameterInitializer.getParameterPosition() == parameterPosition) {
 				return parameterInitializer;
 			}
 		}
@@ -55,8 +54,7 @@ public class InitializationCase {
 	public void removeParameterInitializer(int parameterPosition, String parameterTypeName) {
 		for (Iterator<ParameterInitializer> it = parameterInitializers.iterator(); it.hasNext();) {
 			ParameterInitializer parameterInitializer = it.next();
-			if ((parameterInitializer.getParameterPosition() == parameterPosition)
-					&& parameterTypeName.equals(parameterInitializer.getParameterTypeName())) {
+			if (parameterInitializer.getParameterPosition() == parameterPosition) {
 				it.remove();
 			}
 		}
@@ -79,7 +77,7 @@ public class InitializationCase {
 			}
 		}
 	}
-	
+
 	public ListItemInitializer getListItemInitializer(int index) {
 		for (ListItemInitializer listItemInitializer : listItemInitializers) {
 			if (listItemInitializer.getIndex() == index) {

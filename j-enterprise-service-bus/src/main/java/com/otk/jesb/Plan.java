@@ -240,7 +240,7 @@ public class Plan extends Asset {
 				}
 
 				@Override
-				public Class<?> getVariableClass() {
+				public Class<?> getVariableType() {
 					return inputClass;
 				}
 			});
@@ -333,7 +333,7 @@ public class Plan extends Asset {
 
 		public interface VariableDeclaration {
 
-			Class<?> getVariableClass();
+			Class<?> getVariableType();
 
 			String getVariableName();
 

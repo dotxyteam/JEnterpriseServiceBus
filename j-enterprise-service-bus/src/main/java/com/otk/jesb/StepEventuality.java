@@ -9,7 +9,7 @@ public class StepEventuality implements Plan.ValidationContext.VariableDeclarati
 	}
 
 	@Override
-	public Class<?> getVariableClass() {
+	public Class<?> getVariableType() {
 		return step.getActivityBuilder().getActivityResultClass();
 	}
 

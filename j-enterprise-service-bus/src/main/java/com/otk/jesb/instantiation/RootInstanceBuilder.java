@@ -79,6 +79,14 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceTypeName = rootInstanceTypeName;
 	}
 
+	@Override
+	public void setTypeName(String typeName) {
+	}
+
+	@Override
+	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
+	}
+
 	public String getRootInstanceName() {
 		return rootInstanceName;
 	}
@@ -101,14 +109,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public void setRootInstanceTypeName(String rootInstanceTypeName) {
 		this.rootInstanceTypeName = rootInstanceTypeName;
-	}
-
-	@Override
-	public void setTypeName(String typeName) {
-	}
-
-	@Override
-	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
 	}
 
 	public RootInstanceBuilderFacade getFacade() {

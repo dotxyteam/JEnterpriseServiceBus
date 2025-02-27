@@ -78,14 +78,21 @@ public class MiscUtils {
 				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, validationContext)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
 						validationContext);
-		Facade currentFacade = compilationContext.getVerificationContext().getParentFacade();
-		if (((currentFacade == null) ? null
-				: currentFacade.getUnderlying()) != ((evaluationContext.getParentFacade() == null) ? null
-						: evaluationContext.getParentFacade().getUnderlying())) {
+		if (!MiscUtils.equalsOrBothNull(compilationContext.getVerificationContext().getParentFacade(),
+				evaluationContext.getParentFacade())) {
+			throw new AssertionError();
+		}
+		if (!Arrays.equals(
+				evaluationContext.getExecutionContext().getVariables().stream().map(variable -> variable.getName())
+						.toArray(),
+				compilationContext.getVerificationContext().getValidationContext().getVariableDeclarations().stream()
+						.map(variableDeclaration -> variableDeclaration.getVariableName()).toArray())) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
-				makeTypeNamesAbsolute(function.getFunctionBody(), getAncestorStructureInstanceBuilders(currentFacade)),
+				makeTypeNamesAbsolute(function.getFunctionBody(),
+						getAncestorStructureInstanceBuilders(
+								compilationContext.getVerificationContext().getParentFacade())),
 				compilationContext.getVerificationContext().getValidationContext(),
 				compilationContext.getFunctionReturnType());
 		return compiledFunction.execute(executionContext);

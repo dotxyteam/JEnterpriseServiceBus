@@ -43,7 +43,7 @@ public class FunctionEditor {
 		for (Plan.ValidationContext.VariableDeclaration declaration : getCompilationContext().getVerificationContext()
 				.getValidationContext().getVariableDeclarations()) {
 			result.add(new RootPathNode(
-					new PathExplorer(declaration.getVariableClass().getName(), declaration.getVariableName())));
+					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));
 		}
 		return result;
 	}

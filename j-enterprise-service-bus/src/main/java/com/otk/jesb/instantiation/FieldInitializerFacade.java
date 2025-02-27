@@ -31,7 +31,7 @@ public class FieldInitializerFacade extends Facade {
 		return parent;
 	}
 
-	private Object createDefaultFieldValue() {
+	public Object createDefaultFieldValue() {
 		IFieldInfo field = getFieldInfo();
 		return MiscUtils.getDefaultInterpretableValue(field.getType(), this);
 	}

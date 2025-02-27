@@ -3,16 +3,13 @@ package com.otk.jesb.instantiation;
 public class ParameterInitializer {
 
 	private int parameterPosition;
-	private String parameterTypeName;
 	private Object parameterValue;
 
 	public ParameterInitializer() {
 	}
 
-	public ParameterInitializer(int parameterPosition, String parameterTypeName, Object parameterValue) {
-		super();
+	public ParameterInitializer(int parameterPosition, Object parameterValue) {
 		this.parameterPosition = parameterPosition;
-		this.parameterTypeName = parameterTypeName;
 		this.parameterValue = parameterValue;
 	}
 
@@ -22,14 +19,6 @@ public class ParameterInitializer {
 
 	public void setParameterPosition(int parameterPosition) {
 		this.parameterPosition = parameterPosition;
-	}
-
-	public String getParameterTypeName() {
-		return parameterTypeName;
-	}
-
-	public void setParameterTypeName(String parameterTypeName) {
-		this.parameterTypeName = parameterTypeName;
 	}
 
 	public Object getParameterValue() {

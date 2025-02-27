@@ -28,7 +28,7 @@ public class CompiledFunction {
 		preBody += "public static " + MiscUtils.adaptClassNameToSourceCode(returnType.getName()) + " execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
 		for (Plan.ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
-			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableClass().getName()) + " "
+			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
 					+ declaration.getVariableName());
 		}
 		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");

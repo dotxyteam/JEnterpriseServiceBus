@@ -119,7 +119,7 @@ public class ListItemInitializerFacade extends Facade {
 		setItemValue(newItemValue);
 	}
 
-	private Object createDefaultItemValue() {
+	public Object createDefaultItemValue() {
 		ITypeInfo itemType = getItemType();
 		return MiscUtils.getDefaultInterpretableValue(itemType, this);
 	}
