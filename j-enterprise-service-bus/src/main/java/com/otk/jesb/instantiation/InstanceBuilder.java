@@ -154,14 +154,15 @@ public class InstanceBuilder extends InitializationCase {
 												iterationVariableValue)),
 								listItemInitializerFacade);
 						Object itemValue = MiscUtils
-								.interpretValue(listItemInitializerFacade.getItemValue(),
+								.interpretValue(listItemInitializerFacade.getUnderlying().getItemValue(),
 										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
 										iterationContext);
 						itemList.add(itemValue);
 					}
 				} else {
-					Object itemValue = MiscUtils.interpretValue(listItemInitializerFacade.getItemValue(),
+					Object itemValue = MiscUtils.interpretValue(
+							listItemInitializerFacade.getUnderlying().getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
 							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
@@ -187,7 +188,7 @@ public class InstanceBuilder extends InitializationCase {
 					continue;
 				}
 				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();
-				Object fieldValue = MiscUtils.interpretValue(fieldInitializerFacade.getFieldValue(),
+				Object fieldValue = MiscUtils.interpretValue(fieldInitializerFacade.getUnderlying().getFieldValue(),
 						fieldInfo.getType(),
 						new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 				fieldInfo.setValue(object, fieldValue);
