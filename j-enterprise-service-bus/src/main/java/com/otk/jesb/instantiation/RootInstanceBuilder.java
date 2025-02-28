@@ -1,5 +1,6 @@
 package com.otk.jesb.instantiation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.compiler.CompilationError;
@@ -115,12 +116,26 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return (RootInstanceBuilderFacade) Facade.get(this, null);
 	}
 
-	public ParameterInitializer getRootInitializer() {
+	public Object getRootInitializer() {
 		List<Facade> children = getFacade().getChildren();
 		if (children.size() == 0) {
 			return null;
 		}
-		return ((ParameterInitializerFacade) children.get(0)).getUnderlying();
+		return children.get(0).getUnderlying();
+	}
+
+	public void setRootInitializer(Object initializer) {
+		List<ParameterInitializer> newParameterInitializers = new ArrayList<ParameterInitializer>();
+		List<InitializationSwitch> newInitializationSwitches = new ArrayList<InitializationSwitch>();
+		if (initializer instanceof ParameterInitializer) {
+			newParameterInitializers.add((ParameterInitializer) initializer);
+		} else if (initializer instanceof InitializationSwitch) {
+			newInitializationSwitches.add((InitializationSwitch) initializer);
+		} else {
+			throw new AssertionError();
+		}
+		setParameterInitializers(newParameterInitializers);
+		setInitializationSwitches(newInitializationSwitches);
 	}
 
 	@Override

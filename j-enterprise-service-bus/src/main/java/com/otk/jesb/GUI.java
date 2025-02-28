@@ -56,8 +56,10 @@ import com.otk.jesb.instantiation.InitializationSwitchFacade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -146,10 +148,10 @@ public class GUI extends SwingCustomizer {
 		s2.setDiagramY(100);
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
-		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
-				.add(new FieldInitializer("filePath", "tmp/test.txt"));
-		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
-				.add(new FieldInitializer("text",
+		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
+				.getFieldInitializers().add(new FieldInitializer("filePath", "tmp/test.txt"));
+		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
+				.getFieldInitializers().add(new FieldInitializer("text",
 						new Function("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
@@ -465,7 +467,7 @@ public class GUI extends SwingCustomizer {
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 				new WSDL.Metadata());
 
-		private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootValueStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
+		private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 
 		private Plan currentPlan;
 		private Step currentStep;
@@ -475,61 +477,57 @@ public class GUI extends SwingCustomizer {
 			return new InfoProxyFactory() {
 
 				void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
-					Object rootValue = (rootInstanceBuilder.getRootInitializer() != null)
-							? rootInstanceBuilder.getRootInitializer().getParameterValue()
-							: null;
-					ByteArrayOutputStream rootValueStore;
-					if (rootValue != null) {
-						rootValueStore = new ByteArrayOutputStream();
+					Object rootInitializer = rootInstanceBuilder.getRootInitializer();
+					ByteArrayOutputStream rootInitializerStore;
+					if (rootInitializer != null) {
+						rootInitializerStore = new ByteArrayOutputStream();
 						try {
-							MiscUtils.serialize(rootValue, rootValueStore);
+							MiscUtils.serialize(rootInitializer, rootInitializerStore);
 						} catch (IOException e) {
 							throw new AssertionError(e);
 						}
 					} else {
-						rootValueStore = null;
+						rootInitializerStore = null;
 					}
-					rootValueStoreByBuilder.put(rootInstanceBuilder, rootValueStore);
+					rootInitializerStoreByBuilder.put(rootInstanceBuilder, rootInitializerStore);
 				}
 
 				Runnable createRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
-					if (!rootValueStoreByBuilder.containsKey(rootInstanceBuilder)) {
+					if (!rootInitializerStoreByBuilder.containsKey(rootInstanceBuilder)) {
 						throw new AssertionError();
 					}
-					final ByteArrayOutputStream rootValueStore = rootValueStoreByBuilder.get(rootInstanceBuilder);
+					final ByteArrayOutputStream rootInitializerStore = rootInitializerStoreByBuilder
+							.get(rootInstanceBuilder);
 					return new Runnable() {
 						@Override
 						public void run() {
-							Object rootValueCopy;
+							Object rootInitializerCopy;
 							try {
-								rootValueCopy = (rootValueStore == null) ? null
-										: MiscUtils.deserialize(new ByteArrayInputStream(rootValueStore.toByteArray()));
+								rootInitializerCopy = (rootInitializerStore == null) ? null
+										: MiscUtils.deserialize(
+												new ByteArrayInputStream(rootInitializerStore.toByteArray()));
 							} catch (IOException e) {
 								throw new AssertionError(e);
 							}
-							if (rootInstanceBuilder.getRootInitializer() != null) {
-								rootInstanceBuilder.getRootInitializer().setParameterValue(
-										(rootValueCopy == null) ? null : MiscUtils.copy(rootValueCopy));
-							}
+							rootInstanceBuilder.setRootInitializer(
+									(rootInitializerCopy == null) ? null : MiscUtils.copy(rootInitializerCopy));
 						}
 					};
 				}
 
 				@Override
 				protected void onFormRefresh(ITypeInfo type, Object object) {
-					if ((object instanceof Facade)
-							&& (((Facade) object).getUnderlying() instanceof RootInstanceBuilder)) {
-						backupRootInstanceBuilderState((RootInstanceBuilder) ((Facade) object).getUnderlying());
+					if (object instanceof RootInstanceBuilderFacade) {
+						backupRootInstanceBuilderState(((RootInstanceBuilderFacade) object).getUnderlying());
 					}
 					super.onFormRefresh(type, object);
 				}
 
 				@Override
 				protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
-					if ((object instanceof Facade)
-							&& (((Facade) object).getUnderlying() instanceof RootInstanceBuilder)) {
+					if (object instanceof RootInstanceBuilderFacade) {
 						return createRootInstanceBuilderStateRestorationJob(
-								(RootInstanceBuilder) ((Facade) object).getUnderlying());
+								((RootInstanceBuilderFacade) object).getUnderlying());
 					}
 					return super.getLastFormRefreshStateRestorationJob(type, object);
 				}
@@ -664,19 +662,6 @@ public class GUI extends SwingCustomizer {
 								}
 
 								@Override
-								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
-									return createRootInstanceBuilderStateRestorationJob(
-											(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
-								}
-
-								@Override
-								public Runnable getPreviousInvocationCustomRedoJob(Object object,
-										InvocationData invocationData) {
-									return createRootInstanceBuilderStateRestorationJob(
-											(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
-								}
-
-								@Override
 								public List<ItemPosition> getPostSelection() {
 									return Collections.singletonList(
 											firstItemPosition.getSubItemPosition(0).getSubItemPosition(0));
@@ -764,20 +749,6 @@ public class GUI extends SwingCustomizer {
 												.getParameterValue(0);
 										selectedSwitchFacade.importInitializerFacades(initializerFacades);
 										return null;
-									}
-
-									@Override
-									public Runnable getNextInvocationUndoJob(Object object,
-											InvocationData invocationData) {
-										return createRootInstanceBuilderStateRestorationJob(
-												(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
-									}
-
-									@Override
-									public Runnable getPreviousInvocationCustomRedoJob(Object object,
-											InvocationData invocationData) {
-										return createRootInstanceBuilderStateRestorationJob(
-												(RootInstanceBuilder) Facade.getRoot(parentFacade).getUnderlying());
 									}
 								});
 							}

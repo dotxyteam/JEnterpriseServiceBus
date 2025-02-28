@@ -187,16 +187,13 @@ public class InstanceBuilderFacade extends Facade {
 
 	public void pasteUnderlying() {
 		parent.setConcrete(true);
-		if (parent.getUnderlying() instanceof ParameterInitializer) {
-			((ParameterInitializer) parent.getUnderlying())
-					.setParameterValue(InstanceBuilderFacade.underlyingClipboard);
-		} else if (parent.getUnderlying() instanceof FieldInitializer) {
-			((FieldInitializer) parent.getUnderlying()).setFieldValue(InstanceBuilderFacade.underlyingClipboard);
-		} else if (parent.getUnderlying() instanceof ListItemInitializer) {
-			((ListItemInitializer) parent.getUnderlying()).setItemValue(InstanceBuilderFacade.underlyingClipboard);
-		} else {
-			throw new AssertionError();
-		}
+		underlying.setDynamicTypeNameAccessor(InstanceBuilderFacade.underlyingClipboard.getDynamicTypeNameAccessor());
+		underlying.setTypeName(InstanceBuilderFacade.underlyingClipboard.getTypeName());
+		underlying.setSelectedConstructorSignature(InstanceBuilderFacade.underlyingClipboard.getSelectedConstructorSignature());
+		underlying.setParameterInitializers(InstanceBuilderFacade.underlyingClipboard.getParameterInitializers());
+		underlying.setFieldInitializers(InstanceBuilderFacade.underlyingClipboard.getFieldInitializers());
+		underlying.setListItemInitializers(InstanceBuilderFacade.underlyingClipboard.getListItemInitializers());
+		underlying.setInitializationSwitches(InstanceBuilderFacade.underlyingClipboard.getInitializationSwitches());
 		InstanceBuilderFacade.underlyingClipboard = null;
 	}
 
