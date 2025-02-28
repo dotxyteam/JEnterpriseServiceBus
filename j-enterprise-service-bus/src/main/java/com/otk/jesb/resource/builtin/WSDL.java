@@ -43,7 +43,7 @@ public class WSDL extends Resource {
 
 	public void setText(String text) {
 		this.text = text;
-		generateClasses();
+		generatedClasses = null;
 	}
 
 	public void load(Source source) {
@@ -55,16 +55,30 @@ public class WSDL extends Resource {
 	}
 
 	private void generateClasses() {
+		if (text == null) {
+			generatedClasses = Collections.emptyList();
+			return;
+		}
 		generatedClasses = null;
 		try {
 			File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
+			File metaSchemaDirectory = MiscUtils.createTemporaryDirectory();
+			File metaSchemaFile = new File(metaSchemaDirectory, "XMLSchema.xsd");
+			File metaSchemaDTDFile = new File(metaSchemaDirectory, "XMLSchema.dtd");
+			File metaSchemaDatatypesDTDFile = new File(metaSchemaDirectory, "datatypes.dtd");
 			try {
 				MiscUtils.write(wsdlFile, text, false);
+				MiscUtils.write(metaSchemaFile,
+						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaFile.getName())), false);
+				MiscUtils.write(metaSchemaDTDFile,
+						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
+				MiscUtils.write(metaSchemaDatatypesDTDFile,
+						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDatatypesDTDFile.getName())), false);
 				File sourceDirectory = MiscUtils.createTemporaryDirectory();
 				try {
 					try {
 						String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep",
-								"-Xnocompile", "-b", "http://www.w3.org/2001/XMLSchema.xsd", "-verbose",
+								"-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose",
 								wsdlFile.getPath() };
 						System.setProperty("javax.xml.accessExternalSchema", "all");
 						System.setProperty("javax.xml.accessExternalDTD", "all");
@@ -80,6 +94,10 @@ public class WSDL extends Resource {
 					MiscUtils.delete(sourceDirectory);
 				}
 			} finally {
+				MiscUtils.delete(metaSchemaDatatypesDTDFile);
+				MiscUtils.delete(metaSchemaDTDFile);
+				MiscUtils.delete(metaSchemaFile);
+				MiscUtils.delete(metaSchemaDirectory);
 				MiscUtils.delete(wsdlFile);
 			}
 		} catch (Exception e) {
@@ -89,7 +107,7 @@ public class WSDL extends Resource {
 
 	public List<WSDL.ServiceDescriptor> getServiceDescriptors() {
 		if (generatedClasses == null) {
-			return Collections.emptyList();
+			generateClasses();
 		}
 		return generatedClasses.stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
 				.map(c -> new ServiceDescriptor(c)).collect(Collectors.toList());

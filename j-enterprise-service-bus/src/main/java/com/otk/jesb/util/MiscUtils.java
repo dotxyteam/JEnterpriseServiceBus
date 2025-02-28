@@ -11,12 +11,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.math.BigInteger;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,6 +51,7 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
 import com.otk.jesb.Structure.Structured;
+
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
@@ -620,5 +624,35 @@ public class MiscUtils {
 		result.addPermission(AnyTypePermission.ANY);
 		result.ignoreUnknownElements();
 		return result;
+	}
+
+	public static String getPrintedStackTrace(Throwable t) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		t.printStackTrace(new PrintStream(out));
+		return out.toString();
+	}
+
+	public static DateFormat getDefaultDateFormat() {
+		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+	}
+
+	public static Date now() {
+		return new Date();
+	}
+
+	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
+
+	public static char standardizeNewLineSequences(char lastC, char c) {
+		for (String newLineSequence : NEW_LINE_SEQUENCES) {
+			if (newLineSequence.equals("" + lastC + c)) {
+				return 0;
+			}
+		}
+		for (String newLineSequence : NEW_LINE_SEQUENCES) {
+			if (newLineSequence.startsWith("" + c)) {
+				return '\n';
+			}
+		}
+		return c;
 	}
 }

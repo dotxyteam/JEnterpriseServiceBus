@@ -138,7 +138,7 @@ public class Debugger {
 
 		@Override
 		public String toString() {
-			return (isActive() ? "RUNNING" : "DONE");
+			return (isActive() ? "RUNNING" : (executionError == null) ? "DONE" : "FAILED");
 		}
 
 	}

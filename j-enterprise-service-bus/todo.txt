@@ -1,5 +1,6 @@
+- integrated log window (console)
+- starting a process in the debugger marks the solution as modified (to be saved) 
 - allow to change default PathExplorer node type (it should generate a cast expression)
-- problem: WSDL resource needs Internet connection
 - smaller diagram node images
 - diagram zoom
 - diagram improvements:

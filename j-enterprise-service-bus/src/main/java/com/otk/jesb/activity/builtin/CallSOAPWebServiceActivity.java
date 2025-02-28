@@ -146,8 +146,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		public void setWSDL(WSDL wsdl) {
 			this.wsdl = wsdl;
-			selectValuesAutomatically();
-			updateOperationInputClass();
+			tryToSelectValuesAutomatically();
+			tryToUpdateOperationInputClass();
 		}
 
 		public String getServiceName() {
@@ -156,8 +156,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		public void setServiceName(String serviceName) {
 			this.serviceName = serviceName;
-			selectValuesAutomatically();
-			updateOperationInputClass();
+			tryToSelectValuesAutomatically();
+			tryToUpdateOperationInputClass();
 		}
 
 		public String getPortName() {
@@ -166,8 +166,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		public void setPortName(String portName) {
 			this.portName = portName;
-			selectValuesAutomatically();
-			updateOperationInputClass();
+			tryToSelectValuesAutomatically();
+			tryToUpdateOperationInputClass();
 		}
 
 		public String getOperationSignature() {
@@ -176,8 +176,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		public void setOperationSignature(String operationSignature) {
 			this.operationSignature = operationSignature;
-			selectValuesAutomatically();
-			updateOperationInputClass();
+			tryToSelectValuesAutomatically();
+			tryToUpdateOperationInputClass();
 		}
 
 		public RootInstanceBuilder getOperationInputBuilder() {
@@ -188,38 +188,44 @@ public class CallSOAPWebServiceActivity implements Activity {
 			this.operationInputBuilder = operationInputBuilder;
 		}
 
-		private void selectValuesAutomatically() {
-			if (serviceName == null) {
-				WSDL wsdl = getWSDL();
-				if (wsdl != null) {
-					List<WSDL.ServiceDescriptor> services = wsdl.getServiceDescriptors();
-					if (services.size() > 0) {
-						serviceName = services.get(0).getServiceName();
+		private void tryToSelectValuesAutomatically() {
+			try {
+				if (serviceName == null) {
+					WSDL wsdl = getWSDL();
+					if (wsdl != null) {
+						List<WSDL.ServiceDescriptor> services = wsdl.getServiceDescriptors();
+						if (services.size() > 0) {
+							serviceName = services.get(0).getServiceName();
+						}
 					}
 				}
-			}
-			if (portName == null) {
-				WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
-				if (service != null) {
-					List<WSDL.PortDescriptor> ports = service.getPortDescriptors();
-					if (ports.size() > 0) {
-						portName = ports.get(0).getPortName();
+				if (portName == null) {
+					WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+					if (service != null) {
+						List<WSDL.PortDescriptor> ports = service.getPortDescriptors();
+						if (ports.size() > 0) {
+							portName = ports.get(0).getPortName();
+						}
 					}
 				}
-			}
-			if (operationSignature == null) {
-				WSDL.PortDescriptor port = retrievePortDescriptor();
-				if (port != null) {
-					List<WSDL.OperationDescriptor> operations = port.getOperationDescriptors();
-					if (operations.size() > 0) {
-						operationSignature = operations.get(0).getOperationSignature();
+				if (operationSignature == null) {
+					WSDL.PortDescriptor port = retrievePortDescriptor();
+					if (port != null) {
+						List<WSDL.OperationDescriptor> operations = port.getOperationDescriptors();
+						if (operations.size() > 0) {
+							operationSignature = operations.get(0).getOperationSignature();
+						}
 					}
 				}
+			} catch (Throwable t) {
 			}
 		}
 
-		private void updateOperationInputClass() {
-			operationInputClass = createOperationInputClass();
+		private void tryToUpdateOperationInputClass() {
+			try {
+				operationInputClass = createOperationInputClass();
+			} catch (Throwable t) {
+			}
 		}
 
 		@SuppressWarnings("unchecked")
