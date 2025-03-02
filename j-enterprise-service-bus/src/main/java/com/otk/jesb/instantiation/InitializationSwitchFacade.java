@@ -24,7 +24,7 @@ public class InitializationSwitchFacade extends Facade {
 		InitializationSwitch underlying = new InitializationSwitch();
 		{
 			for (int iCase = 0; iCase < caseCount; iCase++) {
-				underlying.getInitializationCaseByCondition().put(new Function("return false;"),
+				underlying.getInitializationCaseByCondition().put(InitializationCase.createDefaultCondition(),
 						new InitializationCase());
 			}
 			underlying.setDefaultInitializationCase(new InitializationCase());
@@ -79,6 +79,11 @@ public class InitializationSwitchFacade extends Facade {
 
 	}
 
+	public void addNewCase() {
+		List<InitializationCaseFacade> children = getChildren();
+		children.get(children.size()-1).insertNewSibling();
+	}
+
 	@Override
 	public List<InitializationCaseFacade> getChildren() {
 		List<InitializationCaseFacade> result = new ArrayList<InitializationCaseFacade>();
@@ -88,28 +93,6 @@ public class InitializationSwitchFacade extends Facade {
 		}
 		result.add(new InitializationCaseFacade(this, null, underlying.getDefaultInitializationCase()));
 		return result;
-	}
-
-	public void setChildren(List<InitializationCaseFacade> newChildren) {
-		if (newChildren.stream()
-				.noneMatch(newChild -> newChild.getUnderlying() == underlying.getDefaultInitializationCase())) {
-			throw new UnsupportedOperationException("Cannot remove the default case");
-		}
-		List<InitializationCaseFacade> oldChildren = getChildren();
-		List<InitializationCaseFacade> removedChildren = oldChildren.stream()
-				.filter(removedChild -> newChildren.stream()
-						.noneMatch(newChild -> newChild.getUnderlying() == removedChild.getUnderlying()))
-				.collect(Collectors.toList());
-		for (InitializationCaseFacade removedChild : removedChildren) {
-			removedChild.setConcrete(false);
-		}
-		underlying.getInitializationCaseByCondition().clear();
-		for (InitializationCaseFacade caseFacade : newChildren) {
-			if (caseFacade.getCondition() == null) {
-				continue;
-			}
-			underlying.getInitializationCaseByCondition().put(caseFacade.getCondition(), caseFacade.getUnderlying());
-		}
 	}
 
 	@Override

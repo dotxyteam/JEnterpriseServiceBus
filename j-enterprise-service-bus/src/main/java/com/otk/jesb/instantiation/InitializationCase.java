@@ -96,4 +96,8 @@ public class InitializationCase {
 		}
 	}
 
+	public static Function createDefaultCondition() {
+		return new Function("return false;");
+	}
+
 }

@@ -1,3 +1,4 @@
+- allow to load wsdl dependencies
 - integrated log window (console)
 - starting a process in the debugger marks the solution as modified (to be saved) 
 - allow to change default PathExplorer node type (it should generate a cast expression)

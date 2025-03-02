@@ -20,15 +20,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.Asset;
 import com.otk.jesb.Folder;
 import com.otk.jesb.GUI;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Solution;
+import com.otk.jesb.Step;
+import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
@@ -47,11 +52,6 @@ import com.otk.jesb.meta.TypeInfoProvider;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.security.AnyTypePermission;
-import com.otk.jesb.Asset;
-import com.otk.jesb.Solution;
-import com.otk.jesb.Step;
-import com.otk.jesb.Structure.Structured;
-
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
@@ -654,5 +654,30 @@ public class MiscUtils {
 			}
 		}
 		return c;
+	}
+
+	public static <K, V> void add(LinkedHashMap<K, V> linkedHashMap, int index, K key, V value) {
+		List<Map.Entry<K, V>> list = new ArrayList<Map.Entry<K, V>>(linkedHashMap.entrySet());
+		list.add(index, new Map.Entry<K, V>() {
+
+			@Override
+			public K getKey() {
+				return key;
+			}
+
+			@Override
+			public V getValue() {
+				return value;
+			}
+
+			@Override
+			public V setValue(V value) {
+				throw new UnsupportedOperationException();
+			}
+		});
+		linkedHashMap.clear();
+		for (Map.Entry<K, V> entry : list) {
+			linkedHashMap.put(entry.getKey(), entry.getValue());
+		}
 	}
 }

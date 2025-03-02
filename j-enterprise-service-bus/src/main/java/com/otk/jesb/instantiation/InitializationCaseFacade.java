@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -36,6 +37,62 @@ public class InitializationCaseFacade extends Facade {
 
 	public Function getCondition() {
 		return condition;
+	}
+
+	private int getIndex() {
+		return parent.getChildren().stream().map(facade -> facade.getUnderlying()).collect(Collectors.toList())
+				.indexOf(underlying);
+	}
+
+	public void duplicate() {
+		Function conditionCopy;
+		if (isDefault()) {
+			conditionCopy = InitializationCase.createDefaultCondition();
+		} else {
+			conditionCopy = MiscUtils.copy(condition);
+		}
+		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying());
+		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), getIndex(), conditionCopy,
+				underlyingCopy);
+	}
+
+	public void insertNewSibling() {
+		Function newSiblingCondition = InitializationCase.createDefaultCondition();
+		InitializationCase newSiblingUnderlying = new InitializationCase();
+		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), getIndex(), newSiblingCondition,
+				newSiblingUnderlying);
+	}
+
+	public boolean canMoveUp() {
+		if(isDefault()) {
+			return false;
+		}
+		return getIndex() > 0;
+	}
+
+	public boolean canMoveDown() {
+		if(isDefault()) {
+			return false;
+		}
+		return getIndex() < (parent.getUnderlying().getInitializationCaseByCondition().size() - 1);
+	}
+
+	public void moveUp() {
+		if(!canMoveUp()) {
+			return;
+		}
+		int index = getIndex();
+		parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
+		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), index  - 1, condition, underlying);
+	}
+
+	public void moveDown() {
+		if(!canMoveDown()) {
+			return;
+		}
+		int index = getIndex();
+		parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
+		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), index + 1, condition, underlying);
 	}
 
 	@Override
@@ -260,7 +317,7 @@ public class InitializationCaseFacade extends Facade {
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
 
-	protected boolean isDefaultCaseFacade() {
+	public boolean isDefault() {
 		return condition == null;
 	}
 
@@ -269,10 +326,10 @@ public class InitializationCaseFacade extends Facade {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		if (isDefaultCaseFacade()) {
+		if (isDefault()) {
 			return parent.getUnderlying().getDefaultInitializationCase() == underlying;
 		} else {
-			return parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition);
+			return parent.getUnderlying().getInitializationCaseByCondition().get(condition) == underlying;
 		}
 	}
 
@@ -285,7 +342,7 @@ public class InitializationCaseFacade extends Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
-			if (isDefaultCaseFacade()) {
+			if (isDefault()) {
 				if (parent.getUnderlying().getDefaultInitializationCase() != underlying) {
 					parent.getUnderlying().setDefaultInitializationCase(underlying);
 				}
@@ -295,7 +352,7 @@ public class InitializationCaseFacade extends Facade {
 				}
 			}
 		} else {
-			if (isDefaultCaseFacade()) {
+			if (isDefault()) {
 				if (parent.getUnderlying().getDefaultInitializationCase() == underlying) {
 					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
 							.filter(Objects::nonNull).toArray()) {
@@ -473,7 +530,7 @@ public class InitializationCaseFacade extends Facade {
 
 	@Override
 	public String toString() {
-		if (isDefaultCaseFacade()) {
+		if (isDefault()) {
 			return "[Default]";
 		} else {
 			return "[Case]";

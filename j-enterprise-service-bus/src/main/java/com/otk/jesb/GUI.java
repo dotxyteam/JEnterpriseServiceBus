@@ -569,7 +569,7 @@ public class GUI extends SwingCustomizer {
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
 									InitializationSwitchFacade switchFacade = (InitializationSwitchFacade) object;
-									Function condition = new Function("return false;");
+									Function condition = InitializationCase.createDefaultCondition();
 									InitializationCase initializationCase = new InitializationCase();
 									return new InitializationCaseFacade(switchFacade, condition, initializationCase);
 								}
