@@ -868,22 +868,24 @@
                   <fieldInitializers/>
                   <initializationSwitches/>
                   <listItemInitializers/>
-                  <parameterInitializers/>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer">
-                    <parameterPosition>0</parameterPosition>
-                    <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                      <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
-                        <outer-class reference="../../../../.."/>
-                      </dynamicTypeNameAccessor>
-                      <fieldInitializers/>
-                      <initializationSwitches/>
-                      <listItemInitializers/>
-                      <parameterInitializers/>
-                      <selectedConstructorSignature class="null"/>
-                      <typeName>&lt;Dynamic&gt;</typeName>
-                    </parameterValue>
-                  </rootInitializer>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../rootInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>

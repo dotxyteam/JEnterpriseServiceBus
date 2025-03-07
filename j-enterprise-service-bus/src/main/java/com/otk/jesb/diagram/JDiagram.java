@@ -51,6 +51,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private JNode newDraggedConnectionStartNode;
 	private JNode newDraggedConnectionEndNode;
 	private JNode draggedNode;
+	private Point draggedNodeOffset;
 	private Point draggingPoint;
 	private JDiagramActionScheme actionScheme;
 
@@ -142,6 +143,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				select(node);
 				if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 					draggedNode = node;
+					draggedNodeOffset = new Point(draggedNode.getX() - mouseEvent.getX(),
+							draggedNode.getY() - mouseEvent.getY());
 				}
 				break;
 			}
@@ -201,13 +204,14 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		}
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			if (draggedNode != null) {
-				draggedNode.setX(e.getX());
-				draggedNode.setY(e.getY());
+				draggedNode.setX(e.getX() + draggedNodeOffset.x);
+				draggedNode.setY(e.getY() + draggedNodeOffset.y);
 				repaint();
 				for (JDiagramListener l : listeners) {
 					l.nodeMoved(draggedNode);
 				}
 				draggedNode = null;
+				draggedNodeOffset = null;
 			}
 		}
 	}

@@ -131,7 +131,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			newParameterInitializers.add((ParameterInitializer) initializer);
 		} else if (initializer instanceof InitializationSwitch) {
 			newInitializationSwitches.add((InitializationSwitch) initializer);
-		} else {
+		} else if (initializer != null) {
 			throw new AssertionError();
 		}
 		setParameterInitializers(newParameterInitializers);

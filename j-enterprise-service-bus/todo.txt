@@ -5,7 +5,6 @@
 - diagram zoom
 - diagram improvements:
 	. allow to select the current mouse action between MOVE and CONNECT
-	. do not move systematically to the mouse pointer position 
 - ListItemInitializer:
 	- ListItemReplication/iterationListValue/itemType not resolved
 	- add ListItemInitializer.replication.itemTypeName. It will allow to check

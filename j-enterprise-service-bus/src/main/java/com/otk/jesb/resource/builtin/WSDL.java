@@ -61,6 +61,7 @@ public class WSDL extends Resource {
 
 	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {
 		this.dependencyTextByFileName = dependencyTextByFileName;
+		generatedClasses = null;
 	}
 
 	public void load(Source source) {
