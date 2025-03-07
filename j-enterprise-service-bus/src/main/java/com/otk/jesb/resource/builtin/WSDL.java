@@ -9,14 +9,22 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
 import com.sun.tools.ws.wscompile.WsimportTool;
 
@@ -26,6 +34,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class WSDL extends Resource {
 
 	private String text;
+	private Map<String, String> dependencyTextByFileName = new HashMap<String, String>();
 
 	private List<Class<?>> generatedClasses;
 
@@ -46,12 +55,82 @@ public class WSDL extends Resource {
 		generatedClasses = null;
 	}
 
+	public Map<String, String> getDependencyTextByFileName() {
+		return dependencyTextByFileName;
+	}
+
+	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {
+		this.dependencyTextByFileName = dependencyTextByFileName;
+	}
+
 	public void load(Source source) {
-		try (InputStream in = source.getInputStream()) {
-			setText(MiscUtils.read(in));
+		dependencyTextByFileName.clear();
+		try {
+			load(source, new Listener<String>() {
+				@Override
+				public void handle(String text) {
+					setText(text);
+				}
+			});
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}
+	}
+
+	private String load(Source source, Listener<String> textHandler) throws Exception {
+		try (InputStream in = source.getInputStream()) {
+			String text = MiscUtils.read(in);
+			for (String dependencyLocation : locateDependencies(text)) {
+				String dependencyFileName = loadDependency(source, dependencyLocation);
+				text = text.replace(dependencyLocation, dependencyFileName);
+			}
+			textHandler.handle(text);
+		}
+		return dependencyTextByFileName.size() + "_" + source.extractFileName();
+	}
+
+	private List<String> locateDependencies(String text) {
+		List<String> result = new ArrayList<String>();
+		for (Pattern compiledPattern : new Pattern[] {
+				Pattern.compile(
+						"<(?:[a-zA-Z0-9_]+:)?import(?:\\s+namespace=\"[^\"]*\")?\\s+schemaLocation=\"([^\"]+)\"",
+						Pattern.DOTALL),
+				Pattern.compile("<\\s*!DOCTYPE[^>]+\"([^\"]+)\"\\s*>"),
+				Pattern.compile("<\\s*!DOCTYPE[^>]+'([^']+)'\\s*>"),
+				Pattern.compile("<\\s*!ENTITY[^>]+SYSTEM\\s+\"([^\"]+)\"\\s*>"),
+				Pattern.compile("<\\s*!ENTITY[^>]+SYSTEM\\s+'([^']+)'\\s*>"),
+				Pattern.compile("<\\s*!ENTITY[^>]+PUBLIC\\s+\"[^\"]+\"\\s+\"([^\"]+)\"\\s*>"),
+				Pattern.compile("<\\s*!ENTITY[^>]+PUBLIC\\s+'[^']+'\\s+'([^']+)'\\s*>") }) {
+			Matcher matcher = compiledPattern.matcher(text);
+			while (matcher.find()) {
+				result.add(matcher.group(1));
+			}
+		}
+		return result;
+	}
+
+	private String loadDependency(Source source, String dependencyLocation) throws Exception {
+		URI sourceURI = source.toURI();
+		URI dependencyURI = sourceURI.resolve(dependencyLocation);
+		Source dependencySource;
+		try {
+			URL url = dependencyURI.toURL();
+			dependencySource = new URLSource();
+			((URLSource) dependencySource).setUrlSpecification(url.toString());
+		} catch (MalformedURLException e) {
+			File file = new File(dependencyURI);
+			dependencySource = new FileSource();
+			((FileSource) dependencySource).setFile(file);
+		}
+		final String[] dependencyTextHolder = new String[1];
+		String dependencyFileName = load(dependencySource, new Listener<String>() {
+			@Override
+			public void handle(String text) {
+				dependencyTextHolder[0] = text;
+			}
+		});
+		dependencyTextByFileName.put(dependencyFileName, dependencyTextHolder[0]);
+		return dependencyFileName;
 	}
 
 	private void generateClasses() {
@@ -61,11 +140,16 @@ public class WSDL extends Resource {
 		}
 		generatedClasses = null;
 		try {
-			File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
 			File metaSchemaDirectory = MiscUtils.createTemporaryDirectory();
+			File wsdlFile = new File(metaSchemaDirectory, "main.wsdl");
 			File metaSchemaFile = new File(metaSchemaDirectory, "XMLSchema.xsd");
 			File metaSchemaDTDFile = new File(metaSchemaDirectory, "XMLSchema.dtd");
 			File metaSchemaDatatypesDTDFile = new File(metaSchemaDirectory, "datatypes.dtd");
+			Map<File, String> dependencyTextByFile = new HashMap<File, String>();
+			for (Map.Entry<String, String> dependencyTextByFileNameEntry : dependencyTextByFileName.entrySet()) {
+				dependencyTextByFile.put(new File(metaSchemaDirectory, dependencyTextByFileNameEntry.getKey()),
+						dependencyTextByFileNameEntry.getValue());
+			}
 			try {
 				MiscUtils.write(wsdlFile, text, false);
 				MiscUtils.write(metaSchemaFile,
@@ -74,6 +158,9 @@ public class WSDL extends Resource {
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
 				MiscUtils.write(metaSchemaDatatypesDTDFile,
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDatatypesDTDFile.getName())), false);
+				for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+					MiscUtils.write(dependencyTextByFileEntry.getKey(), dependencyTextByFileEntry.getValue(), false);
+				}
 				File sourceDirectory = MiscUtils.createTemporaryDirectory();
 				try {
 					try {
@@ -94,11 +181,14 @@ public class WSDL extends Resource {
 					MiscUtils.delete(sourceDirectory);
 				}
 			} finally {
+				for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+					MiscUtils.delete(dependencyTextByFileEntry.getKey());
+				}
 				MiscUtils.delete(metaSchemaDatatypesDTDFile);
 				MiscUtils.delete(metaSchemaDTDFile);
 				MiscUtils.delete(metaSchemaFile);
-				MiscUtils.delete(metaSchemaDirectory);
 				MiscUtils.delete(wsdlFile);
+				MiscUtils.delete(metaSchemaDirectory);
 			}
 		} catch (Exception e) {
 			throw new AssertionError(e);
@@ -116,6 +206,10 @@ public class WSDL extends Resource {
 	public interface Source {
 
 		InputStream getInputStream();
+
+		String extractFileName();
+
+		URI toURI();
 
 	}
 
@@ -140,6 +234,16 @@ public class WSDL extends Resource {
 			}
 		}
 
+		@Override
+		public String extractFileName() {
+			return file.getName();
+		}
+
+		@Override
+		public URI toURI() {
+			return file.toURI();
+		}
+
 	}
 
 	public static class URLSource implements Source {
@@ -162,6 +266,28 @@ public class WSDL extends Resource {
 				throw new RuntimeException(e);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public String extractFileName() {
+			try {
+				return new File(new URL(urlSpecification).toURI().getPath()).getName();
+			} catch (MalformedURLException e) {
+				throw new AssertionError(e);
+			} catch (URISyntaxException e) {
+				throw new AssertionError(e);
+			}
+		}
+
+		@Override
+		public URI toURI() {
+			try {
+				return new URL(urlSpecification).toURI();
+			} catch (MalformedURLException e) {
+				throw new AssertionError(e);
+			} catch (URISyntaxException e) {
+				throw new AssertionError(e);
 			}
 		}
 

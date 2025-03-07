@@ -1,6 +1,5 @@
-- allow to load wsdl dependencies
+- adjust selection after a case (switch) is moved down/up
 - integrated log window (console)
-- starting a process in the debugger marks the solution as modified (to be saved) 
 - allow to change default PathExplorer node type (it should generate a cast expression)
 - smaller diagram node images
 - diagram zoom

@@ -27,6 +27,7 @@
                 </parameterValue>
               </com.otk.jesb.instantiation.ParameterInitializer>
             </parameterInitializers>
+            <rootInitializer class="null"/>
             <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
               <outer-class reference="../../.."/>
             </rootInstanceDynamicTypeNameAccessor>
@@ -68,6 +69,7 @@
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
                   <rootInstanceName>SleepActivityInput</rootInstanceName>
                   <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
@@ -123,6 +125,7 @@
                         </parameterValue>
                       </com.otk.jesb.instantiation.ParameterInitializer>
                     </parameterInitializers>
+                    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                     <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                     <rootInstanceName>PlanOutput</rootInstanceName>
                     <rootInstanceTypeName class="null"/>
@@ -169,6 +172,7 @@
                               </parameterValue>
                             </com.otk.jesb.instantiation.ParameterInitializer>
                           </parameterInitializers>
+                          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                           <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
                             <outer-class reference="../../.."/>
                           </rootInstanceDynamicTypeNameAccessor>
@@ -213,6 +217,7 @@
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>PlanInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
@@ -258,6 +263,7 @@
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
                     <outer-class reference="../../.."/>
                   </rootInstanceDynamicTypeNameAccessor>
@@ -275,13 +281,69 @@
               <name>callSOAPWebService</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
                 <WSDL>
+                  <dependencyTextByFileName>
+                    <entry>
+                      <string>0_SOAP.ByNameDataSet.cls</string>
+                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+&lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
+  &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
+    &lt;s:complexType&gt;&#xd;
+      &lt;s:choice maxOccurs=&quot;unbounded&quot;&gt;&#xd;
+        &lt;s:element name=&quot;ByName&quot;&gt;&#xd;
+          &lt;s:complexType&gt;&#xd;
+            &lt;s:sequence&gt;&#xd;
+              &lt;s:element name=&quot;ID&quot; type=&quot;s:long&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;DOB&quot; type=&quot;s:date&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+            &lt;/s:sequence&gt;&#xd;
+          &lt;/s:complexType&gt;&#xd;
+        &lt;/s:element&gt;&#xd;
+      &lt;/s:choice&gt;&#xd;
+    &lt;/s:complexType&gt;&#xd;
+    &lt;s:unique name=&quot;Constraint1&quot; msdata:PrimaryKey=&quot;true&quot;&gt;&#xd;
+      &lt;s:selector xpath=&quot;.//mstns:ByName&quot; /&gt;&#xd;
+      &lt;s:field xpath=&quot;mstns:ID&quot; /&gt;&#xd;
+    &lt;/s:unique&gt;&#xd;
+  &lt;/s:element&gt;&#xd;
+&lt;/s:schema&gt;&#xd;
+</string>
+                    </entry>
+                    <entry>
+                      <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+&lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
+  &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
+    &lt;s:complexType&gt;&#xd;
+      &lt;s:choice maxOccurs=&quot;unbounded&quot;&gt;&#xd;
+        &lt;s:element name=&quot;QueryByName&quot;&gt;&#xd;
+          &lt;s:complexType&gt;&#xd;
+            &lt;s:sequence&gt;&#xd;
+              &lt;s:element name=&quot;ID&quot; type=&quot;s:long&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;DOB&quot; type=&quot;s:date&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+            &lt;/s:sequence&gt;&#xd;
+          &lt;/s:complexType&gt;&#xd;
+        &lt;/s:element&gt;&#xd;
+      &lt;/s:choice&gt;&#xd;
+    &lt;/s:complexType&gt;&#xd;
+    &lt;s:unique name=&quot;Constraint1&quot; msdata:PrimaryKey=&quot;true&quot;&gt;&#xd;
+      &lt;s:selector xpath=&quot;.//mstns:QueryByName&quot; /&gt;&#xd;
+      &lt;s:field xpath=&quot;mstns:ID&quot; /&gt;&#xd;
+    &lt;/s:unique&gt;&#xd;
+  &lt;/s:element&gt;&#xd;
+&lt;/s:schema&gt;&#xd;
+</string>
+                    </entry>
+                  </dependencyTextByFileName>
                   <name>WSDL0067386445108691356079784258983392995390</name>
                   <text>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#xd;
 &lt;definitions xmlns=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:mime=&quot;http://schemas.xmlsoap.org/wsdl/mime/&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:s0=&quot;http://tempuri.org&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
     &lt;types&gt;&#xd;
         &lt;s:schema elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
-            &lt;s:import namespace=&quot;http://tempuri.org/ByNameDataSet&quot; schemaLocation=&quot;https://www.crcind.com:443/csp/samples/SOAP.ByNameDataSet.cls?XSD&quot;/&gt;&#xd;
-            &lt;s:import namespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; schemaLocation=&quot;https://www.crcind.com:443/csp/samples/SOAP.Demo.QueryByName.DS.cls?XSD&quot;/&gt;&#xd;
+            &lt;s:import namespace=&quot;http://tempuri.org/ByNameDataSet&quot; schemaLocation=&quot;0_SOAP.ByNameDataSet.cls&quot;/&gt;&#xd;
+            &lt;s:import namespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; schemaLocation=&quot;1_SOAP.Demo.QueryByName.DS.cls&quot;/&gt;&#xd;
             &lt;s:element name=&quot;AddInteger&quot;&gt;&#xd;
                 &lt;s:complexType&gt;&#xd;
                     &lt;s:sequence&gt;&#xd;
@@ -730,6 +792,7 @@
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>OperationInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
