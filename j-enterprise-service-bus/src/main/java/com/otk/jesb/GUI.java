@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -78,6 +79,7 @@ import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
@@ -199,12 +201,13 @@ public class GUI extends SwingCustomizer {
 					@Override
 					public Component createFieldControl() {
 						if (field.getType().getName().equals(PlanDiagram.Source.class.getName())) {
-							return new PlanDiagram(swingRenderer,
-									((PlanDiagram.Source) field.getValue(object)).getPlan(), thisForm);
+							return new PlanDiagram(swingRenderer, thisForm);
+						}
+						if (field.getType().getName().equals(PlanDiagram.PaletteSource.class.getName())) {
+							return new PlanDiagramPalette(swingRenderer, thisForm);
 						}
 						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
-							return new DebugPlanDiagram(swingRenderer,
-									((DebugPlanDiagram.Source) field.getValue(object)).getPlanExecutor(), thisForm);
+							return new DebugPlanDiagram(swingRenderer, thisForm);
 						}
 						if (object instanceof InstanceBuilderFacade) {
 							if (field.getName().equals("children")) {
@@ -790,12 +793,34 @@ public class GUI extends SwingCustomizer {
 
 							@Override
 							public Object getValue(Object object) {
-								return new PlanDiagram.Source((Plan) object);
+								return new PlanDiagram.Source();
 							}
 
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.Source.class, null));
+							}
+
+						});
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+							@Override
+							public String getName() {
+								return "palette";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Palette";
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return new PlanDiagram.PaletteSource();
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.PaletteSource.class, null));
 							}
 
 						});
@@ -815,7 +840,7 @@ public class GUI extends SwingCustomizer {
 
 							@Override
 							public Object getValue(Object object) {
-								return new DebugPlanDiagram.Source((PlanExecutor) object);
+								return new DebugPlanDiagram.Source();
 							}
 
 							@Override
@@ -997,9 +1022,9 @@ public class GUI extends SwingCustomizer {
 	public static class DebugPlanDiagram extends PlanDiagram {
 
 		private static final long serialVersionUID = 1L;
-		
-		public DebugPlanDiagram(SwingRenderer swingRenderer, PlanExecutor planExecutor, CustomizingForm parentForm) {
-			super(swingRenderer, planExecutor.getPlan(), parentForm);
+
+		public DebugPlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
+			super(swingRenderer, parentForm);
 		}
 
 		protected ListControl getStepOccurrencesControl() {
@@ -1021,11 +1046,6 @@ public class GUI extends SwingCustomizer {
 				return parentForm;
 			}
 			return SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.class.getName(), swingRenderer);
-		}
-
-		@Override
-		protected void updatePlanReference() {
-			setPlan(((PlanExecutor) getPlanExecutorView().getObject()).getPlan());
 		}
 
 		@Override
@@ -1162,16 +1182,80 @@ public class GUI extends SwingCustomizer {
 		}
 
 		public static class Source {
-			private PlanExecutor planExecutor;
+		}
+	}
 
-			public Source(PlanExecutor planExecutor) {
-				this.planExecutor = planExecutor;
+	public static class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldControl {
+
+		private static final long serialVersionUID = 1L;
+
+		private CustomizingForm parentForm;
+		private SwingRenderer swingRenderer;
+
+		public PlanDiagramPalette(SwingRenderer swingRenderer, CustomizingForm parentForm) {
+			this.swingRenderer = swingRenderer;
+			this.parentForm = parentForm;
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setLayout(new BorderLayout());
+					add(BorderLayout.CENTER, getDiagram().createActionPalette());
+					SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
+				}
+			});
+		}
+
+		protected PlanDiagram getDiagram() {
+			List<Form> forms = new ArrayList<Form>();
+			forms.add(getPlanEditor());
+			forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
+			for (Form form : forms) {
+				FieldControlPlaceHolder stepsFieldControlPlaceHolder = form.getFieldControlPlaceHolder("diagram");
+				if (stepsFieldControlPlaceHolder != null) {
+					return (PlanDiagram) stepsFieldControlPlaceHolder.getFieldControl();
+				}
 			}
+			throw new AssertionError();
+		}
 
-			public PlanExecutor getPlanExecutor() {
-				return planExecutor;
+		protected Form getPlanEditor() {
+			if (parentForm.getObject() instanceof Plan) {
+				return parentForm;
 			}
+			return SwingRendererUtils.findAncestorFormOfType(parentForm, Plan.class.getName(), swingRenderer);
+		}
 
+		@Override
+		public boolean showsCaption() {
+			return false;
+		}
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+			return true;
+		}
+
+		@Override
+		public void validateSubForms() throws Exception {
+		}
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+			return false;
+		}
+
+		@Override
+		public boolean isAutoManaged() {
+			return false;
+		}
+
+		@Override
+		public boolean displayError(String msg) {
+			return false;
 		}
 	}
 
@@ -1181,12 +1265,10 @@ public class GUI extends SwingCustomizer {
 
 		protected SwingRenderer swingRenderer;
 		protected CustomizingForm parentForm;
-		protected Plan plan;
 		protected boolean selectionListeningEnabled = true;
 
-		public PlanDiagram(SwingRenderer swingRenderer, Plan plan, CustomizingForm parentForm) {
+		public PlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
 			this.swingRenderer = swingRenderer;
-			this.plan = plan;
 			this.parentForm = parentForm;
 			setActionScheme(createActionScheme());
 			updateExternalComponentsOnInternalEvents();
@@ -1196,11 +1278,7 @@ public class GUI extends SwingCustomizer {
 		}
 
 		public Plan getPlan() {
-			return plan;
-		}
-
-		public void setPlan(Plan plan) {
-			this.plan = plan;
+			return (Plan) getPlanEditor().getObject();
 		}
 
 		protected ListControl getStepsControl() {
@@ -1221,10 +1299,6 @@ public class GUI extends SwingCustomizer {
 				return parentForm;
 			}
 			return SwingRendererUtils.findAncestorFormOfType(parentForm, Plan.class.getName(), swingRenderer);
-		}
-
-		protected void updatePlanReference() {
-			setPlan((Plan) getPlanEditor().getObject());
 		}
 
 		protected void updateExternalComponentsOnInternalEvents() {
@@ -1369,7 +1443,7 @@ public class GUI extends SwingCustomizer {
 																.findInfoByName(planType.getFields(), "steps"));
 												IModification modification = new ListModificationFactory(
 														new ItemPositionFactory(transitionsData)
-																.getRootItemPosition(-1)).add(plan.getSteps().size(),
+																.getRootItemPosition(-1)).add(getPlan().getSteps().size(),
 																		newStep);
 												parentForm.getModificationStack().apply(modification);
 												refreshUI(false);
@@ -1410,7 +1484,7 @@ public class GUI extends SwingCustomizer {
 		@Override
 		public boolean refreshUI(boolean refreshStructure) {
 			clear();
-			updatePlanReference();
+			Plan plan = getPlan();
 			for (Step step : plan.getSteps()) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
@@ -1454,17 +1528,9 @@ public class GUI extends SwingCustomizer {
 		}
 
 		public static class Source {
-			private Plan plan;
-
-			public Source(Plan plan) {
-				this.plan = plan;
-			}
-
-			public Plan getPlan() {
-				return plan;
-			}
-
 		}
 
+		public static class PaletteSource {
+		}
 	}
 }
