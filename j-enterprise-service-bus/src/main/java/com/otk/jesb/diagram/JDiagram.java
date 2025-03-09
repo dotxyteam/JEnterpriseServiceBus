@@ -54,11 +54,20 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private Point draggedNodeOffset;
 	private Point draggingPoint;
 	private JDiagramActionScheme actionScheme;
+	private DragIntent dragIntent = DragIntent.MOVE;
 
 	public JDiagram() {
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setTransferHandler(new ActionImportTransferHandler());
+	}
+
+	public DragIntent getDragIntent() {
+		return dragIntent;
+	}
+
+	public void setDragIntent(DragIntent dragIntent) {
+		this.dragIntent = dragIntent;
 	}
 
 	public JDiagramActionScheme getActionScheme() {
@@ -106,25 +115,19 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-			for (JNode node : nodes) {
-				if (node.isSelected()) {
-					draggingPoint = new Point(e.getX(), e.getY());
-					repaint();
-					for (JNode otherNode : nodes) {
-						if (node != otherNode) {
-							if (otherNode.containsPoint(e.getX(), e.getY())) {
-								newDraggedConnectionStartNode = node;
-								newDraggedConnectionEndNode = otherNode;
-							}
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (draggedNode != null) {
+				draggingPoint = new Point(e.getX(), e.getY());
+				repaint();
+				for (JNode otherNode : nodes) {
+					if (draggedNode != otherNode) {
+						if (otherNode.containsPoint(e.getX(), e.getY())) {
+							newDraggedConnectionStartNode = draggedNode;
+							newDraggedConnectionEndNode = otherNode;
 						}
 					}
 				}
 			}
-		}
-		if (draggedNode != null) {
-			draggingPoint = new Point(e.getX(), e.getY());
-			repaint();
 		}
 	}
 
@@ -186,32 +189,34 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	public void mouseReleased(MouseEvent e) {
 		draggingPoint = null;
 		repaint();
-		if (SwingUtilities.isRightMouseButton(e)) {
-			if (newDraggedConnectionStartNode != null) {
-				if (newDraggedConnectionEndNode != null) {
-					JConnection conn = new JConnection();
-					conn.setStartNode(newDraggedConnectionStartNode);
-					conn.setEndNode(newDraggedConnectionEndNode);
-					connections.add(conn);
-					newDraggedConnectionStartNode = null;
-					newDraggedConnectionEndNode = null;
-					repaint();
-					for (JDiagramListener l : listeners) {
-						l.connectionAdded(conn);
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (dragIntent == DragIntent.CONNECT) {
+				if (newDraggedConnectionStartNode != null) {
+					if (newDraggedConnectionEndNode != null) {
+						JConnection conn = new JConnection();
+						conn.setStartNode(newDraggedConnectionStartNode);
+						conn.setEndNode(newDraggedConnectionEndNode);
+						connections.add(conn);
+						newDraggedConnectionStartNode = null;
+						newDraggedConnectionEndNode = null;
+						repaint();
+						for (JDiagramListener l : listeners) {
+							l.connectionAdded(conn);
+						}
 					}
 				}
 			}
-		}
-		if (SwingUtilities.isLeftMouseButton(e)) {
-			if (draggedNode != null) {
-				draggedNode.setX(e.getX() + draggedNodeOffset.x);
-				draggedNode.setY(e.getY() + draggedNodeOffset.y);
-				repaint();
-				for (JDiagramListener l : listeners) {
-					l.nodeMoved(draggedNode);
+			if (dragIntent == DragIntent.MOVE) {
+				if (draggedNode != null) {
+					draggedNode.setX(e.getX() + draggedNodeOffset.x);
+					draggedNode.setY(e.getY() + draggedNodeOffset.y);
+					repaint();
+					for (JDiagramListener l : listeners) {
+						l.nodeMoved(draggedNode);
+					}
+					draggedNode = null;
+					draggedNodeOffset = null;
 				}
-				draggedNode = null;
-				draggedNodeOffset = null;
 			}
 		}
 	}

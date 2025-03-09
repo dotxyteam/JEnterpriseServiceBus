@@ -1,10 +1,7 @@
 package com.otk.jesb;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
@@ -20,8 +17,6 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeCellRenderer;
@@ -71,6 +66,7 @@ import com.otk.jesb.util.SquigglePainter;
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.IAdvancedFieldControl;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
@@ -79,17 +75,16 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
-import xy.reflect.ui.control.swing.util.ControlPanel;
-import xy.reflect.ui.control.swing.util.ControlScrollPane;
-import xy.reflect.ui.control.swing.util.ControlSplitPane;
-import xy.reflect.ui.control.swing.util.ScrollPaneOptions;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
+import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
@@ -190,221 +185,222 @@ public class GUI extends SwingCustomizer {
 
 	@Override
 	public CustomizingForm createForm(final Object object, IInfoFilter infoFilter) {
-		if (object instanceof Plan) {
-			return new PlanEditor(this, (Plan) object, infoFilter);
-		} else if (object instanceof PlanExecutor) {
-			return new PlanExecutorView(this, (PlanExecutor) object, infoFilter);
-		} else {
-			return new CustomizingForm(this, object, infoFilter) {
+		return new CustomizingForm(this, object, infoFilter) {
 
-				private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
 
-				CustomizingForm thisForm = this;
+			@Override
+			protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+				final CustomizingForm thisForm = this;
+				return new CustomizingFieldControlPlaceHolder(this, field) {
 
-				@Override
-				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
-					return new CustomizingFieldControlPlaceHolder(this, field) {
+					private static final long serialVersionUID = 1L;
 
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public Component createFieldControl() {
-							if (object instanceof InstanceBuilderFacade) {
-								if (field.getName().equals("children")) {
-									return new InstanceBuilderControl(GUI.this, this);
-								}
-							}
-							if (object instanceof PrecomputedTypeInstanceWrapper) {
-								Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
-								if (instance instanceof CapsuleFieldInfo.Value) {
-									Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
-									if (encapsulated instanceof FieldInitializerFacade) {
-										if (field.getName().equals("fieldValue")) {
-											return new NullableControl(this.swingRenderer, this) {
-
-												private static final long serialVersionUID = 1L;
-
-												@Override
-												protected Object getNewValue() {
-													FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-															.getInstance()).getObject();
-													if ((facade.getFieldValueMode() == null)
-															|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
-														return facade.createDefaultFieldValue();
-													} else {
-														return super.getNewValue();
-													}
-												}
-
-											};
-										}
-									}
-									if (encapsulated instanceof ParameterInitializerFacade) {
-										if (field.getName().equals("parameterValue")) {
-											return new NullableControl(this.swingRenderer, this) {
-
-												private static final long serialVersionUID = 1L;
-
-												@Override
-												protected Object getNewValue() {
-													ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-															.getInstance()).getObject();
-													if (facade.getParameterValueMode() == ValueMode.PLAIN) {
-														return facade.createDefaultParameterValue();
-													} else {
-														return super.getNewValue();
-													}
-												}
-
-											};
-										}
-									}
-									if (encapsulated instanceof ListItemInitializerFacade) {
-										if (field.getName().equals("itemValue")) {
-											return new NullableControl(this.swingRenderer, this) {
-
-												private static final long serialVersionUID = 1L;
-
-												@Override
-												protected Object getNewValue() {
-													ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-															.getInstance()).getObject();
-													if ((facade.getItemValueMode() == null)
-															|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
-														return facade.createDefaultItemValue();
-													} else {
-														return super.getNewValue();
-													}
-												}
-
-											};
-										}
-									}
-								}
-							}
-							return super.createFieldControl();
-
+					@Override
+					public Component createFieldControl() {
+						if (field.getType().getName().equals(PlanDiagram.Source.class.getName())) {
+							return new PlanDiagram(swingRenderer,
+									((PlanDiagram.Source) field.getValue(object)).getPlan(), thisForm);
 						}
+						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
+							return new DebugPlanDiagram(swingRenderer,
+									((DebugPlanDiagram.Source) field.getValue(object)).getPlanExecutor(), thisForm);
+						}
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("children")) {
+								return new InstanceBuilderControl(GUI.this, this);
+							}
+						}
+						if (object instanceof PrecomputedTypeInstanceWrapper) {
+							Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
+							if (instance instanceof CapsuleFieldInfo.Value) {
+								Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
+								if (encapsulated instanceof FieldInitializerFacade) {
+									if (field.getName().equals("fieldValue")) {
+										return new NullableControl(this.swingRenderer, this) {
 
-						@Override
-						public void refreshUI(boolean recreate) {
-							setVisible(true);
-							if (object instanceof InstanceBuilderFacade) {
-								if (field.getName().equals("selectedConstructorSignature")) {
-									setBorder(BorderFactory.createTitledBorder(field.getCaption()));
-									Object[] valueOptions = field.getValueOptions(object);
-									if (valueOptions != null) {
-										if (valueOptions.length <= 1) {
-											setVisible(false);
-										}
+											private static final long serialVersionUID = 1L;
+
+											@Override
+											protected Object getNewValue() {
+												FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+														.getInstance()).getObject();
+												if ((facade.getFieldValueMode() == null)
+														|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
+													return facade.createDefaultFieldValue();
+												} else {
+													return super.getNewValue();
+												}
+											}
+
+										};
 									}
 								}
-								if (field.getName().equals("typeGroup")) {
-									if (((InstanceBuilderFacade) object).getUnderlying()
-											.getDynamicTypeNameAccessor() != null) {
+								if (encapsulated instanceof ParameterInitializerFacade) {
+									if (field.getName().equals("parameterValue")) {
+										return new NullableControl(this.swingRenderer, this) {
+
+											private static final long serialVersionUID = 1L;
+
+											@Override
+											protected Object getNewValue() {
+												ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+														.getInstance()).getObject();
+												if (facade.getParameterValueMode() == ValueMode.PLAIN) {
+													return facade.createDefaultParameterValue();
+												} else {
+													return super.getNewValue();
+												}
+											}
+
+										};
+									}
+								}
+								if (encapsulated instanceof ListItemInitializerFacade) {
+									if (field.getName().equals("itemValue")) {
+										return new NullableControl(this.swingRenderer, this) {
+
+											private static final long serialVersionUID = 1L;
+
+											@Override
+											protected Object getNewValue() {
+												ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+														.getInstance()).getObject();
+												if ((facade.getItemValueMode() == null)
+														|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
+													return facade.createDefaultItemValue();
+												} else {
+													return super.getNewValue();
+												}
+											}
+
+										};
+									}
+								}
+							}
+						}
+						return super.createFieldControl();
+
+					}
+
+					@Override
+					public void refreshUI(boolean recreate) {
+						setVisible(true);
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("selectedConstructorSignature")) {
+								setBorder(BorderFactory.createTitledBorder(field.getCaption()));
+								Object[] valueOptions = field.getValueOptions(object);
+								if (valueOptions != null) {
+									if (valueOptions.length <= 1) {
 										setVisible(false);
 									}
 								}
 							}
-							super.refreshUI(recreate);
-						}
-
-						@Override
-						public boolean showsCaption() {
-							if (object instanceof InstanceBuilderFacade) {
-								if (field.getName().equals("selectedConstructorSignature")) {
-									return true;
+							if (field.getName().equals("typeGroup")) {
+								if (((InstanceBuilderFacade) object).getUnderlying()
+										.getDynamicTypeNameAccessor() != null) {
+									setVisible(false);
 								}
 							}
-							return super.showsCaption();
 						}
-
-					};
-				}
-
-				@Override
-				protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
-					if (object instanceof FunctionEditor) {
-						if (method.getName().equals("insertSelectedPathNodeExpression")) {
-							method = new MethodInfoProxy(method) {
-
-								@Override
-								public List<IParameterInfo> getParameters() {
-									return Collections.emptyList();
-								}
-
-								@Override
-								public Object invoke(Object object, InvocationData invocationData) {
-									TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
-											.getFieldControl();
-									invocationData.getProvidedParameterValues().put(0,
-											textControl.getTextComponent().getSelectionStart());
-									invocationData.getProvidedParameterValues().put(1,
-											textControl.getTextComponent().getSelectionEnd());
-									return super.invoke(object, invocationData);
-								}
-
-							};
-						}
+						super.refreshUI(recreate);
 					}
-					if (object instanceof PlanActivator) {
-						if (method.getName().equals("executePlan")) {
-							method = new MethodInfoProxy(method) {
 
-								@Override
-								public Object invoke(final Object object, InvocationData invocationData) {
-									SwingUtilities.invokeLater(new Runnable() {
-										@Override
-										public void run() {
-											Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
-													Debugger.class.getName(), swingRenderer);
-											ListControl planActivatorsControl = (ListControl) debuggerForm
-													.getFieldControlPlaceHolder("planActivators").getFieldControl();
-											planActivatorsControl.refreshUI(false);
-											PlanActivator currentPlanActivator = (PlanActivator) object;
-											BufferedItemPosition planActivatorPosition = planActivatorsControl
-													.findItemPositionByReference(currentPlanActivator);
-											BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition
-													.getSubItemPositions()
-													.get(planActivatorPosition.getSubItemPositions().size() - 1);
-											planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
-										}
-									});
-									return super.invoke(object, invocationData);
-								}
-
-							};
-						}
-					}
-					return super.createMethodControlPlaceHolder(method);
-				}
-
-				@Override
-				public void validateForm() throws Exception {
-					if (object instanceof FunctionEditor) {
-						TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
-								.getFieldControl();
-						JTextComponent textComponent = textControl.getTextComponent();
-						textComponent.getHighlighter().removeAllHighlights();
-						try {
-							((FunctionEditor) object).validate();
-						} catch (CompilationError e) {
-							if (textComponent.getText() != null) {
-								textComponent.getHighlighter().addHighlight(
-										(e.getStartPosition() == -1) ? 0 : e.getStartPosition(),
-										(e.getEndPosition() == -1) ? textComponent.getText().length()
-												: e.getEndPosition(),
-										new SquigglePainter(Color.RED));
+					@Override
+					public boolean showsCaption() {
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("selectedConstructorSignature")) {
+								return true;
 							}
-							throw e;
 						}
-					} else {
-						super.validateForm();
+						return super.showsCaption();
+					}
+
+				};
+			}
+
+			@Override
+			protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
+				final CustomizingForm thisForm = this;
+				if (object instanceof FunctionEditor) {
+					if (method.getName().equals("insertSelectedPathNodeExpression")) {
+						method = new MethodInfoProxy(method) {
+
+							@Override
+							public List<IParameterInfo> getParameters() {
+								return Collections.emptyList();
+							}
+
+							@Override
+							public Object invoke(Object object, InvocationData invocationData) {
+								TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
+										.getFieldControl();
+								invocationData.getProvidedParameterValues().put(0,
+										textControl.getTextComponent().getSelectionStart());
+								invocationData.getProvidedParameterValues().put(1,
+										textControl.getTextComponent().getSelectionEnd());
+								return super.invoke(object, invocationData);
+							}
+
+						};
 					}
 				}
+				if (object instanceof PlanActivator) {
+					if (method.getName().equals("executePlan")) {
+						method = new MethodInfoProxy(method) {
 
-			};
-		}
+							@Override
+							public Object invoke(final Object object, InvocationData invocationData) {
+								SwingUtilities.invokeLater(new Runnable() {
+									@Override
+									public void run() {
+										Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+												Debugger.class.getName(), swingRenderer);
+										ListControl planActivatorsControl = (ListControl) debuggerForm
+												.getFieldControlPlaceHolder("planActivators").getFieldControl();
+										planActivatorsControl.refreshUI(false);
+										PlanActivator currentPlanActivator = (PlanActivator) object;
+										BufferedItemPosition planActivatorPosition = planActivatorsControl
+												.findItemPositionByReference(currentPlanActivator);
+										BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition
+												.getSubItemPositions()
+												.get(planActivatorPosition.getSubItemPositions().size() - 1);
+										planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
+									}
+								});
+								return super.invoke(object, invocationData);
+							}
+
+						};
+					}
+				}
+				return super.createMethodControlPlaceHolder(method);
+			}
+
+			@Override
+			public void validateForm() throws Exception {
+				if (object instanceof FunctionEditor) {
+					TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
+							.getFieldControl();
+					JTextComponent textComponent = textControl.getTextComponent();
+					textComponent.getHighlighter().removeAllHighlights();
+					try {
+						((FunctionEditor) object).validate();
+					} catch (CompilationError e) {
+						if (textComponent.getText() != null) {
+							textComponent.getHighlighter().addHighlight(
+									(e.getStartPosition() == -1) ? 0 : e.getStartPosition(),
+									(e.getEndPosition() == -1) ? textComponent.getText().length() : e.getEndPosition(),
+									new SquigglePainter(Color.RED));
+						}
+						throw e;
+					}
+				} else {
+					super.validateForm();
+				}
+			}
+
+		};
 	}
 
 	@Override
@@ -778,6 +774,63 @@ public class GUI extends SwingCustomizer {
 				}
 
 				@Override
+				protected List<IFieldInfo> getFields(ITypeInfo type) {
+					if (type.getName().equals(Plan.class.getName())) {
+						List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+							@Override
+							public String getName() {
+								return "diagram";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Diagram";
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return new PlanDiagram.Source((Plan) object);
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.Source.class, null));
+							}
+
+						});
+						return result;
+					} else if (type.getName().equals(PlanExecutor.class.getName())) {
+						List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+							@Override
+							public String getName() {
+								return "diagram";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Diagram";
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return new DebugPlanDiagram.Source((PlanExecutor) object);
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(DebugPlanDiagram.Source.class, null));
+							}
+
+						});
+						return result;
+					} else {
+						return super.getFields(type);
+					}
+				}
+
+				@Override
 				protected List<IMethodInfo> getMethods(ITypeInfo type) {
 					if (type.getName().equals(Function.class.getName())) {
 						List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
@@ -941,120 +994,248 @@ public class GUI extends SwingCustomizer {
 
 	}
 
-	public static class PlanEditor extends CustomizingForm {
+	public static class DebugPlanDiagram extends PlanDiagram {
 
 		private static final long serialVersionUID = 1L;
-		private PlanDiagram diagram;
-		private boolean selectionListeningEnabled = true;
-		private ControlSplitPane splitPane;
-
-		public PlanEditor(SwingCustomizer swingRenderer, Plan plan, IInfoFilter infoFilter) {
-			super(swingRenderer, plan, infoFilter);
+		
+		public DebugPlanDiagram(SwingRenderer swingRenderer, PlanExecutor planExecutor, CustomizingForm parentForm) {
+			super(swingRenderer, planExecutor.getPlan(), parentForm);
 		}
 
-		protected void updateDiagram() {
-			if (diagram == null) {
-				return;
+		protected ListControl getStepOccurrencesControl() {
+			List<Form> forms = new ArrayList<Form>();
+			forms.add(getPlanExecutorView());
+			forms.addAll(SwingRendererUtils.findDescendantForms(getPlanExecutorView(), swingRenderer));
+			for (Form form : forms) {
+				FieldControlPlaceHolder stepOccurrencesFieldControlPlaceHolder = form
+						.getFieldControlPlaceHolder("stepOccurrences");
+				if (stepOccurrencesFieldControlPlaceHolder != null) {
+					return (ListControl) stepOccurrencesFieldControlPlaceHolder.getFieldControl();
+				}
 			}
-			diagram.setPlan(getPlan());
-			diagram.refresh();
-			ListControl stepsControl = getStepsControl();
-			BufferedItemPosition selection = stepsControl.getSingleSelection();
-			if (selection != null) {
-				diagram.select(diagram.getNode(selection.getItem()));
-			} else {
-				diagram.select(null);
-			}
+			throw new AssertionError();
 		}
 
-		public Plan getPlan() {
-			return (Plan) object;
+		protected Form getPlanExecutorView() {
+			if (parentForm.getObject() instanceof PlanExecutor) {
+				return parentForm;
+			}
+			return SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.class.getName(), swingRenderer);
 		}
 
 		@Override
-		protected void createMembersControls() {
-			super.createMembersControls();
-			diagram = createDiagram();
-			getStepsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+		protected void updatePlanReference() {
+			setPlan(((PlanExecutor) getPlanExecutorView().getObject()).getPlan());
+		}
+
+		@Override
+		protected void updateExternalComponentsOnInternalEvents() {
+			addListener(new JDiagramListener() {
+
 				@Override
-				public void handle(List<BufferedItemPosition> event) {
+				public void nodeMoved(JNode node) {
+					refreshUI(false);
+				}
+
+				@Override
+				public void nodeSelected(JNode node) {
 					if (selectionListeningEnabled) {
 						selectionListeningEnabled = false;
 						try {
-							updateDiagram();
+							if (node == null) {
+								getStepOccurrencesControl().setSingleSelection(null);
+							} else {
+								Step step = (Step) node.getObject();
+								StepOccurrence lastStepOccurrence = null;
+								for (int i = getPlanExecutor().getStepOccurrences().size() - 1; i >= 0; i--) {
+									StepOccurrence stepOccurrence = getPlanExecutor().getStepOccurrences().get(i);
+									if (stepOccurrence.getStep() == step) {
+										lastStepOccurrence = stepOccurrence;
+										break;
+									}
+								}
+								ListControl stepOccurrencesControl = getStepOccurrencesControl();
+								stepOccurrencesControl
+										.setSingleSelection(stepOccurrencesControl.getRootListItemPosition(
+												getPlanExecutor().getStepOccurrences().indexOf(lastStepOccurrence)));
+							}
 						} finally {
 							selectionListeningEnabled = true;
 						}
 					}
 				}
+
+				@Override
+				public void connectionAdded(JConnection conn) {
+					refreshUI(false);
+				}
 			});
 		}
 
-		private ListControl getStepsControl() {
-			return (ListControl) getFieldControlPlaceHolder("steps").getFieldControl();
+		@Override
+		protected void updateInternalComponentsOnExternalEvents() {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					getStepOccurrencesControl()
+							.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+								@Override
+								public void handle(List<BufferedItemPosition> event) {
+									if (selectionListeningEnabled) {
+										selectionListeningEnabled = false;
+										try {
+											updateStepSelection();
+										} finally {
+											selectionListeningEnabled = true;
+										}
+									}
+								}
+							});
+				}
+			});
 		}
 
 		@Override
-		protected void layoutMembersPanels(Container container, Container fieldsPanel, Container methodsPanel) {
-			container.setLayout(new BorderLayout());
-			splitPane = new ControlSplitPane();
-			{
-				container.add(splitPane, BorderLayout.CENTER);
-				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-				{
-					JPanel diagramAndPalette = new JPanel();
-					{
-						splitPane.setLeftComponent(new ControlScrollPane(diagramAndPalette));
-						diagramAndPalette.setLayout(new BorderLayout());
-						diagramAndPalette.add(diagram, BorderLayout.CENTER);
-						Component palette = diagram.createActionPalette();
-						{
-							palette.setPreferredSize(new Dimension(100, 100));
-							diagramAndPalette.add(palette, BorderLayout.SOUTH);
+		protected void updateStepSelection() {
+			ListControl stepOccurrencesControl = getStepOccurrencesControl();
+			BufferedItemPosition selection = stepOccurrencesControl.getSingleSelection();
+			if (selection != null) {
+				select(getNode(((StepOccurrence) selection.getItem()).getStep()));
+			} else {
+				select(null);
+			}
+		}
+
+		@Override
+		protected JDiagramActionScheme createActionScheme() {
+			return null;
+		}
+
+		public PlanExecutor getPlanExecutor() {
+			return (PlanExecutor) getPlanExecutorView().getObject();
+		}
+
+		@Override
+		protected void paintNode(Graphics g, JNode node) {
+			StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
+			if (currentStepOccurrence != null) {
+				if (currentStepOccurrence.getStep() == node.getObject()) {
+					highlightNode(g, node, (currentStepOccurrence.getActivityError() == null) ? new Color(175, 255, 200)
+							: new Color(255, 173, 173));
+				}
+			}
+			super.paintNode(g, node);
+		}
+
+		@Override
+		protected void paintConnection(Graphics g, JConnection conn) {
+			super.paintConnection(g, conn);
+			int transitionOccurrenceCount = 0;
+			List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences();
+			for (int i = 0; i < stepOccurrences.size(); i++) {
+				if (i > 0) {
+					if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getObject()) {
+						if (stepOccurrences.get(i).getStep() == conn.getEndNode().getObject()) {
+							transitionOccurrenceCount++;
 						}
 					}
 				}
-				ControlPanel membersPanel = new ControlPanel();
-				{
-					splitPane
-							.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
-					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
-				}
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						double dividerLocation = 0.5;
-						SwingRendererUtils.ensureDividerLocation(splitPane, dividerLocation);
-						splitPane.setResizeWeight(dividerLocation);
-					}
-				});
+			}
+			if (transitionOccurrenceCount > 0) {
+				annotateConnection(g, conn, "(" + transitionOccurrenceCount + ")");
 			}
 		}
 
-		@Override
-		public void refresh(boolean refreshStructure) {
-			super.refresh(refreshStructure);
-			updateDiagram();
-			if (refreshStructure) {
-				if (swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor() != null) {
-					splitPane.setBorder(BorderFactory.createLineBorder(SwingRendererUtils
-							.getColor(swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor())));
-				} else {
-					splitPane.setBorder(new JSplitPane().getBorder());
-				}
-			}
+		void annotateConnection(Graphics g, JConnection conn, String annotation) {
+			g.setColor(Color.BLUE);
+			int x = (conn.getStartNode().getX() + conn.getEndNode().getX()) / 2;
+			int y = (conn.getStartNode().getY() + conn.getEndNode().getY()) / 2;
+			g.drawString(annotation, x, y);
 		}
 
-		private PlanDiagram createDiagram() {
-			PlanDiagram result = new PlanDiagram(swingRenderer, getPlan(), PlanEditor.this);
-			result.addListener(new JDiagramListener() {
+		void highlightNode(Graphics g, JNode node, Color color) {
+			g.setColor(color);
+			int width = (node.getImage().getWidth(null) * 3) / 2;
+			int height = (node.getImage().getHeight(null) * 3) / 2;
+			g.fillRoundRect(node.getX() - (width / 2), node.getY() - (height / 2), width, height, width / 10,
+					height / 10);
+		}
+
+		public static class Source {
+			private PlanExecutor planExecutor;
+
+			public Source(PlanExecutor planExecutor) {
+				this.planExecutor = planExecutor;
+			}
+
+			public PlanExecutor getPlanExecutor() {
+				return planExecutor;
+			}
+
+		}
+	}
+
+	public static class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected SwingRenderer swingRenderer;
+		protected CustomizingForm parentForm;
+		protected Plan plan;
+		protected boolean selectionListeningEnabled = true;
+
+		public PlanDiagram(SwingRenderer swingRenderer, Plan plan, CustomizingForm parentForm) {
+			this.swingRenderer = swingRenderer;
+			this.plan = plan;
+			this.parentForm = parentForm;
+			setActionScheme(createActionScheme());
+			updateExternalComponentsOnInternalEvents();
+			updateInternalComponentsOnExternalEvents();
+			setBackground(Color.WHITE);
+			refreshUI(true);
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
+
+		public void setPlan(Plan plan) {
+			this.plan = plan;
+		}
+
+		protected ListControl getStepsControl() {
+			List<Form> forms = new ArrayList<Form>();
+			forms.add(getPlanEditor());
+			forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
+			for (Form form : forms) {
+				FieldControlPlaceHolder stepsFieldControlPlaceHolder = form.getFieldControlPlaceHolder("steps");
+				if (stepsFieldControlPlaceHolder != null) {
+					return (ListControl) stepsFieldControlPlaceHolder.getFieldControl();
+				}
+			}
+			throw new AssertionError();
+		}
+
+		protected Form getPlanEditor() {
+			if (parentForm.getObject() instanceof Plan) {
+				return parentForm;
+			}
+			return SwingRendererUtils.findAncestorFormOfType(parentForm, Plan.class.getName(), swingRenderer);
+		}
+
+		protected void updatePlanReference() {
+			setPlan((Plan) getPlanEditor().getObject());
+		}
+
+		protected void updateExternalComponentsOnInternalEvents() {
+			addListener(new JDiagramListener() {
 
 				@Override
 				public void nodeMoved(JNode node) {
 					Step step = (Step) node.getObject();
 					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 					ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
-					getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
+					parentForm.getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
 							new xy.reflect.ui.util.Accessor<Boolean>() {
 								@Override
 								public Boolean get() {
@@ -1063,14 +1244,14 @@ public class GUI extends SwingCustomizer {
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramX")),
-													node.getX(), getModificationStack(),
+													node.getX(), parentForm.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 									ReflectionUIUtils
 											.setFieldValueThroughModificationStack(
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramY")),
-													node.getY(), getModificationStack(),
+													node.getY(), parentForm.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 									return true;
 								}
@@ -1107,231 +1288,40 @@ public class GUI extends SwingCustomizer {
 							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 					IModification modification = new ListModificationFactory(
 							new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
-					getModificationStack().apply(modification);
+					parentForm.getModificationStack().apply(modification);
 				}
 			});
-			result.setBackground(Color.WHITE);
-			return result;
 		}
 
-	}
-
-	public static class PlanExecutorView extends CustomizingForm {
-
-		private static final long serialVersionUID = 1L;
-		private PlanDiagram diagram;
-		private boolean selectionListeningEnabled = true;
-		private ControlSplitPane splitPane;
-
-		public PlanExecutorView(SwingCustomizer swingRenderer, PlanExecutor planExecutor, IInfoFilter infoFilter) {
-			super(swingRenderer, planExecutor, infoFilter);
+		protected void updateInternalComponentsOnExternalEvents() {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					updateDiagram();
+					getStepsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+						@Override
+						public void handle(List<BufferedItemPosition> event) {
+							if (selectionListeningEnabled) {
+								selectionListeningEnabled = false;
+								try {
+									updateStepSelection();
+								} finally {
+									selectionListeningEnabled = true;
+								}
+							}
+						}
+					});
 				}
 			});
 		}
 
-		protected void updateDiagram() {
-			if (diagram == null) {
-				return;
-			}
-			diagram.refresh();
-			ListControl stepOccurrencesControl = getStepOccurrencesControl();
-			BufferedItemPosition selection = stepOccurrencesControl.getSingleSelection();
+		protected void updateStepSelection() {
+			ListControl stepsControl = getStepsControl();
+			BufferedItemPosition selection = stepsControl.getSingleSelection();
 			if (selection != null) {
-				diagram.select(diagram.getNode(((StepOccurrence) selection.getItem()).getStep()));
+				select(getNode(selection.getItem()));
 			} else {
-				diagram.select(null);
+				select(null);
 			}
-		}
-
-		public PlanExecutor getPlanExecutor() {
-			return (PlanExecutor) object;
-		}
-
-		@Override
-		protected void createMembersControls() {
-			super.createMembersControls();
-			diagram = createDiagram();
-			getStepOccurrencesControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
-				@Override
-				public void handle(List<BufferedItemPosition> event) {
-					if (selectionListeningEnabled) {
-						selectionListeningEnabled = false;
-						try {
-							updateDiagram();
-						} finally {
-							selectionListeningEnabled = true;
-						}
-					}
-				}
-			});
-		}
-
-		private ListControl getStepOccurrencesControl() {
-			return (ListControl) getFieldControlPlaceHolder("stepOccurrences").getFieldControl();
-		}
-
-		@Override
-		protected void layoutMembersPanels(Container container, Container fieldsPanel, Container methodsPanel) {
-			container.setLayout(new BorderLayout());
-			splitPane = new ControlSplitPane();
-			{
-				container.add(splitPane, BorderLayout.CENTER);
-				splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-				{
-					splitPane.setLeftComponent(new ControlScrollPane(diagram));
-				}
-				ControlPanel membersPanel = new ControlPanel();
-				{
-					splitPane
-							.setRightComponent(new ControlScrollPane(new ScrollPaneOptions(membersPanel, true, false)));
-					super.layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);
-				}
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						double dividerLocation = 0.5;
-						SwingRendererUtils.ensureDividerLocation(splitPane, dividerLocation);
-						splitPane.setResizeWeight(dividerLocation);
-					}
-				});
-			}
-		}
-
-		@Override
-		public void refresh(boolean refreshStructure) {
-			super.refresh(refreshStructure);
-			if (refreshStructure) {
-				if (swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor() != null) {
-					splitPane.setBorder(BorderFactory.createLineBorder(SwingRendererUtils
-							.getColor(swingRenderer.getReflectionUI().getApplicationInfo().getMainBorderColor())));
-				} else {
-					splitPane.setBorder(new JSplitPane().getBorder());
-				}
-				updateDiagram();
-			}
-		}
-
-		private PlanDiagram createDiagram() {
-			final PlanDiagram result = new PlanDiagram(swingRenderer, getPlanExecutor().getPlan(), null) {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				protected JDiagramActionScheme createActionScheme() {
-					return null;
-				}
-
-				@Override
-				protected void paintNode(Graphics g, JNode node) {
-					StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
-					if (currentStepOccurrence != null) {
-						if (currentStepOccurrence.getStep() == node.getObject()) {
-							highlightNode(g, node,
-									(currentStepOccurrence.getActivityError() == null) ? new Color(175, 255, 200)
-											: new Color(255, 173, 173));
-						}
-					}
-					super.paintNode(g, node);
-				}
-
-				@Override
-				protected void paintConnection(Graphics g, JConnection conn) {
-					super.paintConnection(g, conn);
-					int transitionOccurrenceCount = 0;
-					List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences();
-					for (int i = 0; i < stepOccurrences.size(); i++) {
-						if (i > 0) {
-							if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getObject()) {
-								if (stepOccurrences.get(i).getStep() == conn.getEndNode().getObject()) {
-									transitionOccurrenceCount++;
-								}
-							}
-						}
-					}
-					if (transitionOccurrenceCount > 0) {
-						annotateConnection(g, conn, "(" + transitionOccurrenceCount + ")");
-					}
-				}
-
-				void annotateConnection(Graphics g, JConnection conn, String annotation) {
-					g.setColor(Color.BLUE);
-					int x = (conn.getStartNode().getX() + conn.getEndNode().getX()) / 2;
-					int y = (conn.getStartNode().getY() + conn.getEndNode().getY()) / 2;
-					g.drawString(annotation, x, y);
-				}
-
-				void highlightNode(Graphics g, JNode node, Color color) {
-					g.setColor(color);
-					int width = (node.getImage().getWidth(null) * 3) / 2;
-					int height = (node.getImage().getHeight(null) * 3) / 2;
-					g.fillRoundRect(node.getX() - (width / 2), node.getY() - (height / 2), width, height, width / 10,
-							height / 10);
-				}
-
-			};
-			result.addListener(new JDiagramListener() {
-
-				@Override
-				public void nodeMoved(JNode node) {
-					updateDiagram();
-				}
-
-				@Override
-				public void nodeSelected(JNode node) {
-					if (selectionListeningEnabled) {
-						selectionListeningEnabled = false;
-						try {
-							if (node == null) {
-								getStepOccurrencesControl().setSingleSelection(null);
-							} else {
-								Step step = (Step) node.getObject();
-								StepOccurrence lastStepOccurrence = null;
-								for (int i = getPlanExecutor().getStepOccurrences().size() - 1; i >= 0; i--) {
-									StepOccurrence stepOccurrence = getPlanExecutor().getStepOccurrences().get(i);
-									if (stepOccurrence.getStep() == step) {
-										lastStepOccurrence = stepOccurrence;
-										break;
-									}
-								}
-								ListControl stepOccurrencesControl = getStepOccurrencesControl();
-								stepOccurrencesControl
-										.setSingleSelection(stepOccurrencesControl.getRootListItemPosition(
-												getPlanExecutor().getStepOccurrences().indexOf(lastStepOccurrence)));
-							}
-						} finally {
-							selectionListeningEnabled = true;
-						}
-					}
-				}
-
-				@Override
-				public void connectionAdded(JConnection conn) {
-					result.refresh();
-				}
-			});
-			result.setBackground(Color.WHITE);
-			return result;
-		}
-
-	}
-
-	public static class PlanDiagram extends JDiagram {
-
-		private static final long serialVersionUID = 1L;
-
-		private SwingRenderer swingRenderer;
-		private Plan plan;
-		private PlanEditor planEditor;
-
-		public PlanDiagram(SwingRenderer swingRenderer, Plan plan, PlanEditor planEditor) {
-			this.swingRenderer = swingRenderer;
-			this.plan = plan;
-			this.planEditor = planEditor;
-			setActionScheme(createActionScheme());
 		}
 
 		protected JDiagramActionScheme createActionScheme() {
@@ -1381,8 +1371,8 @@ public class GUI extends SwingCustomizer {
 														new ItemPositionFactory(transitionsData)
 																.getRootItemPosition(-1)).add(plan.getSteps().size(),
 																		newStep);
-												planEditor.getModificationStack().apply(modification);
-												refresh();
+												parentForm.getModificationStack().apply(modification);
+												refreshUI(false);
 											}
 
 											@Override
@@ -1412,16 +1402,15 @@ public class GUI extends SwingCustomizer {
 			};
 		}
 
-		public Plan getPlan() {
-			return plan;
+		@Override
+		public boolean showsCaption() {
+			return false;
 		}
 
-		public void setPlan(Plan plan) {
-			this.plan = plan;
-		}
-
-		public void refresh() {
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
 			clear();
+			updatePlanReference();
 			for (Step step : plan.getSteps()) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
@@ -1438,6 +1427,43 @@ public class GUI extends SwingCustomizer {
 				}
 			}
 			repaint();
+			return true;
+		}
+
+		@Override
+		public void validateSubForms() throws Exception {
+		}
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+			return false;
+		}
+
+		@Override
+		public boolean isAutoManaged() {
+			return false;
+		}
+
+		@Override
+		public boolean displayError(String msg) {
+			return false;
+		}
+
+		public static class Source {
+			private Plan plan;
+
+			public Source(Plan plan) {
+				this.plan = plan;
+			}
+
+			public Plan getPlan() {
+				return plan;
+			}
+
 		}
 
 	}
