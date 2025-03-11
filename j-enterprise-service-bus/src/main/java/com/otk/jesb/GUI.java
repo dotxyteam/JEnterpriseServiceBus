@@ -287,7 +287,7 @@ public class GUI extends SwingCustomizer {
 					}
 
 					@Override
-					public void refreshUI(boolean recreate) {
+					public void refreshUI(boolean refreshStructure) {
 						setVisible(true);
 						if (object instanceof InstanceBuilderFacade) {
 							if (field.getName().equals("selectedConstructorSignature")) {
@@ -306,7 +306,7 @@ public class GUI extends SwingCustomizer {
 								}
 							}
 						}
-						super.refreshUI(recreate);
+						super.refreshUI(refreshStructure);
 					}
 
 					@Override
@@ -1195,12 +1195,11 @@ public class GUI extends SwingCustomizer {
 		public PlanDiagramPalette(SwingRenderer swingRenderer, CustomizingForm parentForm) {
 			this.swingRenderer = swingRenderer;
 			this.parentForm = parentForm;
+			setLayout(new BorderLayout());
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					setLayout(new BorderLayout());
-					add(BorderLayout.CENTER, getDiagram().createActionPalette());
-					SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
+					PlanDiagramPalette.this.refreshUI(true);
 				}
 			});
 		}
@@ -1210,12 +1209,14 @@ public class GUI extends SwingCustomizer {
 			forms.add(getPlanEditor());
 			forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
 			for (Form form : forms) {
-				FieldControlPlaceHolder stepsFieldControlPlaceHolder = form.getFieldControlPlaceHolder("diagram");
-				if (stepsFieldControlPlaceHolder != null) {
-					return (PlanDiagram) stepsFieldControlPlaceHolder.getFieldControl();
+				FieldControlPlaceHolder diagramFieldControlPlaceHolder = form.getFieldControlPlaceHolder("diagram");
+				if (diagramFieldControlPlaceHolder != null) {
+					if (diagramFieldControlPlaceHolder.getFieldControl() instanceof PlanDiagram) {
+						return (PlanDiagram) diagramFieldControlPlaceHolder.getFieldControl();
+					}
 				}
 			}
-			throw new AssertionError();
+			return null;
 		}
 
 		protected Form getPlanEditor() {
@@ -1232,6 +1233,13 @@ public class GUI extends SwingCustomizer {
 
 		@Override
 		public boolean refreshUI(boolean refreshStructure) {
+			if (refreshStructure) {
+				removeAll();
+				if (getDiagram() != null) {
+					add(BorderLayout.CENTER, getDiagram().createActionPalette());
+					SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
+				}
+			}
 			return true;
 		}
 
@@ -1274,7 +1282,12 @@ public class GUI extends SwingCustomizer {
 			updateExternalComponentsOnInternalEvents();
 			updateInternalComponentsOnExternalEvents();
 			setBackground(Color.WHITE);
-			refreshUI(true);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					PlanDiagram.this.refreshUI(true);
+				}
+			});
 		}
 
 		public Plan getPlan() {
@@ -1443,8 +1456,8 @@ public class GUI extends SwingCustomizer {
 																.findInfoByName(planType.getFields(), "steps"));
 												IModification modification = new ListModificationFactory(
 														new ItemPositionFactory(transitionsData)
-																.getRootItemPosition(-1)).add(getPlan().getSteps().size(),
-																		newStep);
+																.getRootItemPosition(-1))
+																		.add(getPlan().getSteps().size(), newStep);
 												parentForm.getModificationStack().apply(modification);
 												refreshUI(false);
 											}
@@ -1500,7 +1513,7 @@ public class GUI extends SwingCustomizer {
 					addConnection(node1, node2);
 				}
 			}
-			repaint();
+			SwingRendererUtils.handleComponentSizeChange(this);
 			return true;
 		}
 
