@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javax.swing.SwingUtilities;
+
 import com.otk.jesb.GUI;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -28,15 +30,25 @@ public class InstanceBuilderTest {
 		Step step = new Step(new TreeActivity.Metadata());
 		plan.getSteps().add(step);
 		TreeActivity.Builder builder = (Builder) step.getActivityBuilder();
-		GUI.INSTANCE.getReflectionUI()
-				.getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
+		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
-		GUI.INSTANCE.getReflectionUI()
-				.getTypeInfo(new JavaTypeInfoSource(Step.class, null))
+		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
 				.onFormVisibilityChange(step, true);
-		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
-		GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder
-				.build(new EvaluationContext(new Plan.ExecutionContext(plan, step, Collections.emptyList()), null)));
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
+				Object instance;
+				try {
+					instance = builder.instanceBuilder.build(new EvaluationContext(
+							new Plan.ExecutionContext(plan, step, Collections.emptyList()), null));
+				} catch (Exception e) {
+					GUI.INSTANCE.handleObjectException(null, e);
+					return;
+				}
+				GUI.INSTANCE.openObjectDialog(null, instance);
+			}
+		});
 	}
 
 	public static class TreeActivity implements Activity {
