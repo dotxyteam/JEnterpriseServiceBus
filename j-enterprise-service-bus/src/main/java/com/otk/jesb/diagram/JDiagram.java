@@ -3,6 +3,7 @@ package com.otk.jesb.diagram;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -31,6 +32,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
+
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
 public class JDiagram extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -281,16 +284,16 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		node.paint(g);
 	}
 
-	public Component createActionPalette() {
+	public Component createActionPalette(int tabPlacement, int itemsBoxAxis) {
 		if (actionScheme == null) {
 			return null;
 		}
-		JTabbedPane result = new JTabbedPane(JTabbedPane.LEFT);
+		JTabbedPane result = new JTabbedPane(tabPlacement);
 		result.setBorder(BorderFactory.createTitledBorder(actionScheme.getTitle()));
 		for (JDiagramActionCategory category : actionScheme.getActionCategories()) {
 			JPanel categoryPanel = new JPanel();
 			categoryPanel.setBackground(getBackground());
-			categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.X_AXIS));
+			categoryPanel.setLayout(new BoxLayout(categoryPanel, itemsBoxAxis));
 			for (JDiagramAction action : category.getActions()) {
 				JButton button = new JButton(action.getLabel(), action.getIcon());
 				button.setHorizontalTextPosition(JButton.CENTER);
@@ -305,7 +308,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 						handle.exportAsDrag(button, e, TransferHandler.COPY);
 					}
 				});
-				categoryPanel.add(button);
+				categoryPanel.add(SwingRendererUtils.flowInLayout(button, GridBagConstraints.CENTER));
 			}
 			result.addTab(category.getName(), categoryPanel);
 		}

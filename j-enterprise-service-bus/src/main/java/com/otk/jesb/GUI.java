@@ -16,8 +16,10 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeCellRenderer;
@@ -1236,7 +1238,7 @@ public class GUI extends SwingCustomizer {
 			if (refreshStructure) {
 				removeAll();
 				if (getDiagram() != null) {
-					add(BorderLayout.CENTER, getDiagram().createActionPalette());
+					add(BorderLayout.CENTER, getDiagram().createActionPalette(JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
 					SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
 				}
 			}

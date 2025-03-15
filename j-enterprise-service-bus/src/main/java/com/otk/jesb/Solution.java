@@ -17,9 +17,6 @@ public class Solution {
 
 	private List<Asset> contents = new ArrayList<Asset>();
 
-	private Solution() {
-	}
-
 	public List<Asset> getContents() {
 		return contents;
 	}
