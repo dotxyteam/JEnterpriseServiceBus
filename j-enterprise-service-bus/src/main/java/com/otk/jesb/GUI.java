@@ -1138,6 +1138,11 @@ public class GUI extends SwingCustomizer {
 		}
 
 		@Override
+		public Plan getPlan() {
+			return getPlanExecutor().getPlan();
+		}
+
+		@Override
 		protected void paintNode(Graphics g, JNode node) {
 			StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
 			if (currentStepOccurrence != null) {
