@@ -37,6 +37,7 @@ import com.otk.jesb.activity.builtin.ReadFileActivity;
 import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
 import com.otk.jesb.diagram.JDiagramAction;
@@ -105,6 +106,7 @@ import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
@@ -469,6 +471,7 @@ public class GUI extends SwingCustomizer {
 				new WSDL.Metadata());
 
 		private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
+		private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 
 		private Plan currentPlan;
 		private Step currentStep;
@@ -823,6 +826,40 @@ public class GUI extends SwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.PaletteSource.class, null));
+							}
+
+						});
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+							@Override
+							public String getName() {
+								return "diagramDragIntent";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Diagram Drag Intent";
+							}
+
+							@Override
+							public boolean isGetOnly() {
+								return false;
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return (DragIntent) diagramDragIntentByPlan.getOrDefault((Plan) object,
+										DragIntent.MOVE);
+							}
+
+							@Override
+							public void setValue(Object object, Object value) {
+								diagramDragIntentByPlan.put((Plan) object, (DragIntent) value);
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(DragIntent.class,
+										new SpecificitiesIdentifier(Plan.class.getName(), getName())));
 							}
 
 						});
@@ -1505,6 +1542,7 @@ public class GUI extends SwingCustomizer {
 		public boolean refreshUI(boolean refreshStructure) {
 			clear();
 			Plan plan = getPlan();
+			setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
 			for (Step step : plan.getSteps()) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
