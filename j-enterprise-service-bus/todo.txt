@@ -1,5 +1,5 @@
+- ugly plan diagram expansion
 - allow to select and delete diagram connections
-- diagram node name hidden when the node is at the bottom 
 - adjust selection after a case (switch) is moved down/up
 - integrated log window (console)
 - allow to change default PathExplorer node type (it should generate a cast expression)

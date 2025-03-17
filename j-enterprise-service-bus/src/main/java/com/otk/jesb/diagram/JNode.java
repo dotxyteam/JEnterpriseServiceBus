@@ -3,30 +3,31 @@ package com.otk.jesb.diagram;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 public class JNode {
 
-	private int x = 0;
-	private int y = 0;
+	private int centerX = 0;
+	private int centerY = 0;
 	private Object object;
 	private boolean selected = false;
 	private Image image;
 
-	public int getX() {
-		return x;
+	public int getCenterX() {
+		return centerX;
 	}
 
-	public void setX(int x) {
-		this.x = x;
+	public void setCenterX(int centerX) {
+		this.centerX = centerX;
 	}
 
-	public int getY() {
-		return y;
+	public int getCenterY() {
+		return centerY;
 	}
 
-	public void setY(int y) {
-		this.y = y;
+	public void setCenterY(int centerY) {
+		this.centerY = centerY;
 	}
 
 	public Object getObject() {
@@ -56,29 +57,31 @@ public class JNode {
 	public void paint(Graphics g) {
 		Color selectionColor = new Color(184, 207, 229);
 		if (image != null) {
-			g.drawImage(image, x - (image.getWidth(null) / 2), y - (image.getHeight(null) / 2),
+			g.drawImage(image, centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
 					selected ? selectionColor : null, null);
-			if (object.toString() != null) {
-				g.setColor(Color.BLACK);
-				Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
-				g.drawString(object.toString(), (int) Math.round(x - (stringBounds.getWidth() / 2)),
-						(int) Math.round(y + (image.getHeight(null) / 2) + (stringBounds.getHeight() / 2)));
-			}
 		} else {
 			if (selected) {
 				g.setColor(selectionColor);
 			} else {
 				g.setColor(Color.DARK_GRAY);
 			}
-			g.fillOval(-10 + x, -10 + y, 20, 20);
-			if (object != null) {
-				if (object.toString() != null) {
-					g.setColor(Color.BLACK);
-					int stringWidth = g.getFontMetrics().stringWidth(object.toString());
-					g.drawString(object.toString(), x - stringWidth / 2, y);
-				}
-			}
+			g.fillOval(-10 + centerX, -10 + centerY, 20, 20);
 		}
+		if (object.toString() != null) {
+			g.setColor(Color.BLACK);
+			Rectangle labelBounds = getLabelBounds(g);
+			g.drawString(object.toString(), labelBounds.x, labelBounds.y);
+		}
+	}
+
+	public Rectangle getLabelBounds(Graphics g) {
+		if (object.toString() == null) {
+			return null;
+		}
+		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
+		return new Rectangle((int) Math.round(centerX - (stringBounds.getWidth() / 2)),
+				(int) Math.round(centerY + (getHeight() / 2) + (stringBounds.getHeight() / 2)),
+				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
 	}
 
 	public int getWidth() {
@@ -100,16 +103,16 @@ public class JNode {
 	public boolean containsPoint(int x2, int y2) {
 		int width = getWidth();
 		int height = getHeight();
-		if (x2 < (-(width / 2) + x)) {
+		if (x2 < (-(width / 2) + centerX)) {
 			return false;
 		}
-		if (x2 > ((width / 2) + x)) {
+		if (x2 > ((width / 2) + centerX)) {
 			return false;
 		}
-		if (y2 < (-(height / 2) + y)) {
+		if (y2 < (-(height / 2) + centerY)) {
 			return false;
 		}
-		if (y2 > ((height / 2) + y)) {
+		if (y2 > ((height / 2) + centerY)) {
 			return false;
 		}
 		return true;

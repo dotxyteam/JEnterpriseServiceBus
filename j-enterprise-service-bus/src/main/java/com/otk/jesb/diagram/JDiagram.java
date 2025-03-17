@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -88,8 +89,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	public JNode addNode(Object object, int x, int y) {
 		JNode newNode = new JNode();
-		newNode.setX(x);
-		newNode.setY(y);
+		newNode.setCenterX(x);
+		newNode.setCenterY(y);
 		newNode.setObject(object);
 		nodes.add(newNode);
 		return newNode;
@@ -149,8 +150,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				select(node);
 				if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 					draggedNode = node;
-					draggedNodeOffset = new Point(draggedNode.getX() - mouseEvent.getX(),
-							draggedNode.getY() - mouseEvent.getY());
+					draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
+							draggedNode.getCenterY() - mouseEvent.getY());
 				}
 				break;
 			}
@@ -211,11 +212,15 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			}
 			if (dragIntent == DragIntent.MOVE) {
 				if (draggedNode != null) {
-					draggedNode.setX(e.getX() + draggedNodeOffset.x);
-					draggedNode.setY(e.getY() + draggedNodeOffset.y);
-					repaint();
-					for (JDiagramListener l : listeners) {
-						l.nodeMoved(draggedNode);
+					int newNodeCenterX = e.getX() + draggedNodeOffset.x;
+					int newNodeCenterY = e.getY() + draggedNodeOffset.y;
+					if ((newNodeCenterX != draggedNode.getCenterX()) || (newNodeCenterY != draggedNode.getCenterY())) {
+						draggedNode.setCenterX(newNodeCenterX);
+						draggedNode.setCenterY(newNodeCenterY);
+						repaint();
+						for (JDiagramListener l : listeners) {
+							l.nodeMoved(draggedNode);
+						}
 					}
 					draggedNode = null;
 					draggedNodeOffset = null;
@@ -233,26 +238,34 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	}
 
 	public void select(JNode node) {
-		for (JNode otherNode : nodes) {
-			if (node != otherNode) {
-				otherNode.setSelected(false);
-			}
-			if (node != null) {
-				node.setSelected(true);
-			}
-			repaint();
-			for (JDiagramListener l : listeners) {
-				l.nodeSelected(node);
+		for (JNode eachNode : nodes) {
+			eachNode.setSelected(node == eachNode);
+		}
+		repaint();
+		for (JDiagramListener l : listeners) {
+			l.nodeSelected(node);
+		}
+	}
+	
+	public JNode getSelectedNode() {
+		for (JNode node : nodes) {
+			if(node.isSelected()) {
+				return node;
 			}
 		}
+		return null;
 	}
 
 	@Override
 	public Dimension getPreferredSize() {
 		Dimension result = new Dimension(0, 0);
+		Graphics g = getGraphics();
 		for (JNode node : nodes) {
-			result.width = Math.max(result.width, node.getX() + (node.getWidth() / 2));
-			result.height = Math.max(result.height, node.getY() + (node.getHeight() / 2));
+			result.width = Math.max(result.width, node.getCenterX() + (node.getWidth() / 2));
+			result.height = Math.max(result.height, node.getCenterY() + (node.getHeight() / 2));
+			Rectangle labelBounds = node.getLabelBounds(g);
+			result.width = Math.max(result.width, labelBounds.x + labelBounds.width);
+			result.height = Math.max(result.height, labelBounds.y + labelBounds.height);
 		}
 		return result;
 	}

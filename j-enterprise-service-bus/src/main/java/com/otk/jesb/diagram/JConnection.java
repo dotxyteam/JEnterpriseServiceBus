@@ -29,8 +29,8 @@ public class JConnection {
 
 	public void paint(Graphics g) {
 		g.setColor(Color.BLACK);
-		Point startPoint = new Point(startNode.getX(), startNode.getY());
-		Point endPoint = new Point(endNode.getX(), endNode.getY());
+		Point startPoint = new Point(startNode.getCenterX(), startNode.getCenterY());
+		Point endPoint = new Point(endNode.getCenterX(), endNode.getCenterY());
 		if (startNode.getImage() != null) {
 			startPoint = MiscUtils.getRectangleBorderContactOfLineToExternalPoint(startPoint.x, startPoint.y,
 					startNode.getImage().getWidth(null), startNode.getImage().getHeight(null), endPoint.x, endPoint.y);

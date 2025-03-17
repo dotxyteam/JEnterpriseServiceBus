@@ -846,6 +846,11 @@ public class GUI extends SwingCustomizer {
 							}
 
 							@Override
+							public boolean isTransient() {
+								return true;
+							}
+
+							@Override
 							public Object getValue(Object object) {
 								return (DragIntent) diagramDragIntentByPlan.getOrDefault((Plan) object,
 										DragIntent.MOVE);
@@ -1212,8 +1217,8 @@ public class GUI extends SwingCustomizer {
 
 		void annotateConnection(Graphics g, JConnection conn, String annotation) {
 			g.setColor(Color.BLUE);
-			int x = (conn.getStartNode().getX() + conn.getEndNode().getX()) / 2;
-			int y = (conn.getStartNode().getY() + conn.getEndNode().getY()) / 2;
+			int x = (conn.getStartNode().getCenterX() + conn.getEndNode().getCenterX()) / 2;
+			int y = (conn.getStartNode().getCenterY() + conn.getEndNode().getCenterY()) / 2;
 			g.drawString(annotation, x, y);
 		}
 
@@ -1221,8 +1226,8 @@ public class GUI extends SwingCustomizer {
 			g.setColor(color);
 			int width = (node.getImage().getWidth(null) * 3) / 2;
 			int height = (node.getImage().getHeight(null) * 3) / 2;
-			g.fillRoundRect(node.getX() - (width / 2), node.getY() - (height / 2), width, height, width / 10,
-					height / 10);
+			g.fillRoundRect(node.getCenterX() - (width / 2), node.getCenterY() - (height / 2), width, height,
+					width / 10, height / 10);
 		}
 
 		public static class Source {
@@ -1375,14 +1380,14 @@ public class GUI extends SwingCustomizer {
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramX")),
-													node.getX(), parentForm.getModificationStack(),
+													node.getCenterX(), parentForm.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 									ReflectionUIUtils
 											.setFieldValueThroughModificationStack(
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramY")),
-													node.getY(), parentForm.getModificationStack(),
+													node.getCenterY(), parentForm.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 									return true;
 								}
@@ -1540,9 +1545,11 @@ public class GUI extends SwingCustomizer {
 
 		@Override
 		public boolean refreshUI(boolean refreshStructure) {
-			clear();
 			Plan plan = getPlan();
 			setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
+			JNode selectedNode = getSelectedNode();
+			Step selectedStep = (selectedNode != null) ? (Step) selectedNode.getObject() : null;
+			clear();
 			for (Step step : plan.getSteps()) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
@@ -1551,6 +1558,7 @@ public class GUI extends SwingCustomizer {
 							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI())));
 				}
 			}
+			select((selectedStep != null) ? getNode(selectedStep) : null);
 			for (Transition t : plan.getTransitions()) {
 				JNode node1 = getNode(t.getStartStep());
 				JNode node2 = getNode(t.getEndStep());
