@@ -1334,7 +1334,13 @@ public class GUI extends SwingCustomizer {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					PlanDiagram.this.refreshUI(true);
+					selectionListeningEnabled = false;
+					try {
+						PlanDiagram.this.refreshUI(true);
+						updateStepSelection();
+					} finally {
+						selectionListeningEnabled = true;
+					}
 				}
 			});
 		}
