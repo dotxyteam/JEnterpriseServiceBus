@@ -1,3 +1,4 @@
+- UI components layout based on SCREEN_PERCENT not good on several screens
 - ugly plan diagram expansion
 - allow to select and delete diagram connections
 - adjust selection after a case (switch) is moved down/up
