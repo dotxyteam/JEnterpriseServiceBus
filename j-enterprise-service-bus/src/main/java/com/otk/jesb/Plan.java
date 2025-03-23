@@ -13,7 +13,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
-	private static final String INPUT_VARIABLE_NAME = "_planInput_";
+	private static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
 
 	public Plan() {
 		this(Plan.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -167,6 +167,11 @@ public class Plan extends Asset {
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws Throwable {
 		ExecutionContext context = new ExecutionContext(this);
 		if (inputClass != null) {
+			if(input != null) {
+				if(!inputClass.isInstance(input)) {
+					throw new AssertionError();
+				}
+			}
 			context.getVariables().add(new ExecutionContext.Variable() {
 
 				@Override

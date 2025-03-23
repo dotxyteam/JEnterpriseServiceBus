@@ -213,9 +213,14 @@ public class GUI extends SwingCustomizer {
 						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
 							return new DebugPlanDiagram(swingRenderer, thisForm);
 						}
-						if (object instanceof InstanceBuilderFacade) {
+						if (object instanceof RootInstanceBuilderFacade) {
 							if (field.getName().equals("children")) {
-								return new InstanceBuilderControl(GUI.this, this);
+								return new InstanceBuilderInitializerTreeControl(GUI.this, this);
+							}
+						}
+						if (object instanceof RootInstanceBuilder) {
+							if (field.getName().equals("data")) {
+								return new InstanceBuilderVariableTreeControl(GUI.this, this);
 							}
 						}
 						if (object instanceof PrecomputedTypeInstanceWrapper) {
@@ -428,11 +433,11 @@ public class GUI extends SwingCustomizer {
 		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
 	}
 
-	public static class InstanceBuilderControl extends ListControl {
+	public static class InstanceBuilderInitializerTreeControl extends ListControl {
 
 		private static final long serialVersionUID = 1L;
 
-		public InstanceBuilderControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+		public InstanceBuilderInitializerTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
 			expandItemPositions(2);
 		}
@@ -457,6 +462,16 @@ public class GUI extends SwingCustomizer {
 				}
 
 			};
+		}
+
+	}
+
+	public static class InstanceBuilderVariableTreeControl extends ListControl {
+
+		private static final long serialVersionUID = 1L;
+
+		public InstanceBuilderVariableTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+			super(swingRenderer, input);
 		}
 
 	}
@@ -890,6 +905,32 @@ public class GUI extends SwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(DebugPlanDiagram.Source.class, null));
+							}
+
+						});
+						return result;
+					} else if (type.getName().equals(RootInstanceBuilder.class.getName())) {
+						List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+							@Override
+							public String getName() {
+								return "data";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Data";
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return new PathOptionsProvider(currentPlan, currentStep).getRootPathNodes();
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(List.class,
+										new SpecificitiesIdentifier(RootInstanceBuilder.class.getName(), getName())));
 							}
 
 						});

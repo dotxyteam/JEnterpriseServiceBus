@@ -1,7 +1,6 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import javax.swing.SwingUtilities;
@@ -11,13 +10,17 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Step;
-import com.otk.jesb.InstanceBuilderTest.TreeActivity.Builder;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -27,9 +30,27 @@ public class InstanceBuilderTest {
 
 	public static void main(String[] args) throws Exception {
 		Plan plan = new Plan();
-		Step step = new Step(new TreeActivity.Metadata());
+		ClassicStructure planInputStructure = new ClassicStructure();
+		{
+			SimpleElement element = new Structure.SimpleElement();
+			element.setName("tree");
+			element.setTypeName(Tree.class.getName());
+			planInputStructure.getElements().add(element);
+			plan.setInputStructure(planInputStructure);
+		}
+		Step step = new Step(new Tree.Metadata());
 		plan.getSteps().add(step);
-		TreeActivity.Builder builder = (Builder) step.getActivityBuilder();
+		ClassicStructure planOutputStructure = new ClassicStructure();
+		{
+			SimpleElement element = new Structure.SimpleElement();
+			element.setName("tree");
+			element.setTypeName(Tree.class.getName());
+			planOutputStructure.getElements().add(element);
+			plan.setOutputStructure(planOutputStructure);
+		}
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer()).getParameterValue())
+				.getParameterInitializers()
+				.add(new ParameterInitializer(0, new Function("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
@@ -37,26 +58,29 @@ public class InstanceBuilderTest {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				Tree inputTree = new Tree();
+				GUI.INSTANCE.openObjectDialog(null, inputTree);
+				Tree.Builder builder = (Builder) step.getActivityBuilder();
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
-				Object instance;
+				Object output;
 				try {
-					instance = builder.instanceBuilder.build(new EvaluationContext(
-							new Plan.ExecutionContext(plan, step, Collections.emptyList()), null));
-				} catch (Exception e) {
-					GUI.INSTANCE.handleObjectException(null, e);
+					Object input = plan.getInputClass().getConstructor(Tree.class).newInstance(inputTree);
+					output = plan.execute(input);
+				} catch (Throwable t) {
+					GUI.INSTANCE.handleObjectException(null, t);
 					return;
 				}
-				GUI.INSTANCE.openObjectDialog(null, instance);
+				GUI.INSTANCE.openObjectDialog(null, output);
 			}
 		});
 	}
 
-	public static class TreeActivity implements Activity {
+	public static class Tree implements Activity {
 
-		public TreeActivity() {
+		public Tree() {
 		}
 
-		public TreeActivity(int intValue, String stringValue, EnumValue enumValue, ArrayList<String> stringList) {
+		public Tree(int intValue, String stringValue, EnumValue enumValue, ArrayList<String> stringList) {
 			super();
 			this.intValue = intValue;
 			this.stringValue = stringValue;
@@ -64,8 +88,8 @@ public class InstanceBuilderTest {
 			this.stringList = stringList;
 		}
 
-		public TreeActivity(TreeActivity firstChild, TreeActivity[] otherChildrenArray,
-				HashMap<String, TreeActivity> childByString, HashMap<Integer, Boolean> booleanByInteger) {
+		public Tree(Tree firstChild, Tree[] otherChildrenArray, HashMap<String, Tree> childByString,
+				HashMap<Integer, Boolean> booleanByInteger) {
 			super();
 			this.firstChild = firstChild;
 			this.otherChildrenArray = otherChildrenArray;
@@ -81,9 +105,9 @@ public class InstanceBuilderTest {
 		private String stringValue;
 		private EnumValue enumValue;
 		private ArrayList<String> stringList;
-		private TreeActivity firstChild;
-		private TreeActivity[] otherChildrenArray;
-		private HashMap<String, TreeActivity> childByString;
+		private Tree firstChild;
+		private Tree[] otherChildrenArray;
+		private HashMap<String, Tree> childByString;
 		private HashMap<Integer, Boolean> booleanByInteger;
 
 		public int getIntValue() {
@@ -118,27 +142,27 @@ public class InstanceBuilderTest {
 			this.stringList = stringList;
 		}
 
-		public TreeActivity getFirstChild() {
+		public Tree getFirstChild() {
 			return firstChild;
 		}
 
-		public void setFirstChild(TreeActivity firstChild) {
+		public void setFirstChild(Tree firstChild) {
 			this.firstChild = firstChild;
 		}
 
-		public TreeActivity[] getOtherChildrenArray() {
+		public Tree[] getOtherChildrenArray() {
 			return otherChildrenArray;
 		}
 
-		public void setOtherChildrenArray(TreeActivity[] otherChildrenArray) {
+		public void setOtherChildrenArray(Tree[] otherChildrenArray) {
 			this.otherChildrenArray = otherChildrenArray;
 		}
 
-		public HashMap<String, TreeActivity> getChildByString() {
+		public HashMap<String, Tree> getChildByString() {
 			return childByString;
 		}
 
-		public void setChildByString(HashMap<String, TreeActivity> childByString) {
+		public void setChildByString(HashMap<String, Tree> childByString) {
 			this.childByString = childByString;
 		}
 
@@ -152,20 +176,20 @@ public class InstanceBuilderTest {
 
 		@Override
 		public Object execute() throws Exception {
-			return "Test !";
+			return this;
 		}
 
 		public static class Builder implements ActivityBuilder {
-			RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("testInput", TreeActivity.class.getName());
+			RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("testInput", Tree.class.getName());
 
 			@Override
 			public Activity build(ExecutionContext context) throws Exception {
-				return (TreeActivity) instanceBuilder.build(new EvaluationContext(context, null));
+				return (Tree) instanceBuilder.build(new EvaluationContext(context, null));
 			}
 
 			@Override
 			public Class<?> getActivityResultClass() {
-				return String.class;
+				return Tree.class;
 			}
 
 			@Override

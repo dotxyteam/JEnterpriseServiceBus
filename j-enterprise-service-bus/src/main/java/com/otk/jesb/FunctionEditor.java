@@ -1,24 +1,21 @@
 package com.otk.jesb;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.util.MiscUtils;
 
-public class FunctionEditor {
+public class FunctionEditor extends PathOptionsProvider {
 
-	private Plan currentPlan;
-	private Step currentStep;
 	private Function currentFunction;
 	private PathNode selectedPathNode;
 
 	public FunctionEditor(Plan currentPlan, Step currentStep, Function currentFunction) {
-		this.currentPlan = currentPlan;
-		this.currentStep = currentStep;
+		super(currentPlan, currentStep);
 		this.currentFunction = currentFunction;
 	}
 
@@ -38,14 +35,9 @@ public class FunctionEditor {
 		this.selectedPathNode = selectedPathNode;
 	}
 
-	public List<PathNode> getRootPathNodes() {
-		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		for (Plan.ValidationContext.VariableDeclaration declaration : getCompilationContext().getVerificationContext()
-				.getValidationContext().getVariableDeclarations()) {
-			result.add(new RootPathNode(
-					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));
-		}
-		return result;
+	@Override
+	protected List<VariableDeclaration> getVariableDeclarations() {
+		return getCompilationContext().getVerificationContext().getValidationContext().getVariableDeclarations();
 	}
 
 	private CompilationContext getCompilationContext() {
@@ -79,31 +71,6 @@ public class FunctionEditor {
 			setFunctionBody(getFunctionBody().substring(0, insertStartPosition) + selectedPathNode.getExpression()
 					+ getFunctionBody().substring(insertEndPosition));
 		}
-	}
-
-	private static class RootPathNode implements PathNode {
-
-		private PathExplorer pathExplorer;
-
-		public RootPathNode(PathExplorer pathExplorer) {
-			this.pathExplorer = pathExplorer;
-		}
-
-		@Override
-		public List<PathNode> getChildren() {
-			return pathExplorer.getRootNode().getChildren();
-		}
-
-		@Override
-		public String getExpression() {
-			return pathExplorer.getRootExpression();
-		}
-
-		@Override
-		public String toString() {
-			return pathExplorer.getRootExpression();
-		}
-
 	}
 
 }

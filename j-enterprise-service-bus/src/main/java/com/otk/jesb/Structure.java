@@ -140,11 +140,11 @@ public abstract class Structure {
 			this.multiple = multiple;
 		}
 
-		private String getFinalTypeName() {
+		private String getFinalTypeNameAdaptedToSourceCode() {
 			if (multiple) {
-				return getTypeName() + "[]";
+				return MiscUtils.adaptClassNameToSourceCode(getTypeName()) + "[]";
 			} else {
-				return getTypeName();
+				return MiscUtils.adaptClassNameToSourceCode(getTypeName());
 			}
 		}
 
@@ -155,14 +155,14 @@ public abstract class Structure {
 					defaultValueSettingString = "=" + getOptionality().getDefaultValueExpression();
 				}
 			}
-			return "private " + getFinalTypeName() + " " + getName() + defaultValueSettingString + ";";
+			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString + ";";
 		}
 
 		protected String generateJavaConstructorParameterDeclarationSourceCode() {
 			if (getOptionality() != null) {
 				return null;
 			}
-			return getFinalTypeName() + " " + getName();
+			return getFinalTypeNameAdaptedToSourceCode() + " " + getName();
 		}
 
 		protected String generateJavaFieldInitializationInConstructorSourceCode() {
@@ -174,13 +174,13 @@ public abstract class Structure {
 
 		protected String generateJavaFieldAccessorsSourceCode() {
 			StringBuilder result = new StringBuilder();
-			result.append("public " + getFinalTypeName() + " get" + getName().substring(0, 1).toUpperCase()
+			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get" + getName().substring(0, 1).toUpperCase()
 					+ getName().substring(1) + "(){" + "\n");
 			result.append("return " + getName() + ";" + "\n");
 			result.append("}");
 			if (getOptionality() != null) {
 				result.append("\n" + "public void set" + getName().substring(0, 1).toUpperCase()
-						+ getName().substring(1) + "(" + getFinalTypeName() + " " + getName() + "){" + "\n");
+						+ getName().substring(1) + "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
 				result.append("this." + getName() + "=" + getName() + ";" + "\n");
 				result.append("}");
 			}
