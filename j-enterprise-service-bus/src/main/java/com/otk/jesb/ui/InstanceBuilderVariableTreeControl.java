@@ -1,8 +1,19 @@
 package com.otk.jesb.ui;
 
+import java.awt.Color;
+import java.awt.Component;
 import javax.swing.ListSelectionModel;
+import javax.swing.tree.TreePath;
+
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
+
+import com.otk.jesb.util.Pair;
+
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 
 public class InstanceBuilderVariableTreeControl extends MappingsControl.SideControl {
 
@@ -17,10 +28,25 @@ public class InstanceBuilderVariableTreeControl extends MappingsControl.SideCont
 		super.initializeTreeTableModelAndControl();
 		treeTableComponent.putClientProperty(InstanceBuilderVariableTreeControl.class, this);
 		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		treeTableComponent.setDragEnabled(true);     
+		treeTableComponent.setDragEnabled(true);
 		treeTableComponent.setTransferHandler(new MappingsControl.PathExportTransferHandler());
+		treeTableComponent.addHighlighter(new ColorHighlighter(new HighlightPredicate() {
+			@Override
+			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+				MappingsControl mappingsControl = findMappingsControl();
+				if (mappingsControl != null) {
+					for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl.getMappings()) {
+						BufferedItemPosition itemPosition = pair.getFirst();
+						TreePath treePath = getTreePath(itemPosition);
+						int row = treeTableComponent.getRowForPath(treePath);
+						if (adapter.row == row) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		}, Color.LIGHT_GRAY, Color.BLACK));
 	}
-	
-	
 
 }

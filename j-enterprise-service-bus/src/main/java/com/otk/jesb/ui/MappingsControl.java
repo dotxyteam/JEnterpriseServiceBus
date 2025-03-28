@@ -11,6 +11,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,9 @@ import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
@@ -57,7 +60,36 @@ public class MappingsControl extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		InstanceBuilderVariableTreeControl sourceControl = findControl(InstanceBuilderVariableTreeControl.class,
+		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : getMappings()) {
+			BufferedItemPosition sourceItemPosition = mapping.getFirst();
+			BufferedItemPosition targetItemPosition = mapping.getSecond();
+			int sourceY;
+			{
+				TreePath treePath = foundSourceControl.getTreePath(sourceItemPosition);
+				int row = foundSourceControl.getTreeTableComponent().getRowForPath(treePath);
+				Rectangle cellRect = foundSourceControl.getTreeTableComponent().getCellRect(row, 0, false);
+				sourceY = cellRect.y + Math.round(cellRect.height / 2f);
+				sourceY = SwingUtilities.convertPoint(foundSourceControl.getTreeTableComponent(), 0, sourceY,
+						MappingsControl.this).y;
+			}
+			int targetY;
+			{
+				TreePath treePath = foundTargetControl.getTreePath(targetItemPosition);
+				int row = foundTargetControl.getTreeTableComponent().getRowForPath(treePath);
+				Rectangle cellRect = foundTargetControl.getTreeTableComponent().getCellRect(row, 0, false);
+				targetY = cellRect.y + Math.round(cellRect.height / 2f);
+				targetY = SwingUtilities.convertPoint(foundTargetControl.getTreeTableComponent(), 0, targetY,
+						MappingsControl.this).y;
+			}
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);
+		}
+
+	}
+
+	public List<Pair<BufferedItemPosition, BufferedItemPosition>> getMappings() {
+		List<Pair<BufferedItemPosition, BufferedItemPosition>> result = new ArrayList<Pair<BufferedItemPosition, BufferedItemPosition>>();
+		InstanceBuilderVariableTreeControl sourceControl = findControl(this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
 
 					@Override
@@ -70,12 +102,28 @@ public class MappingsControl extends JPanel {
 						foundSourceControl = t;
 					}
 
+				}, new Listener<InstanceBuilderVariableTreeControl>() {
+					@Override
+					public void handle(InstanceBuilderVariableTreeControl control) {
+						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
+
+							@Override
+							public void treeExpanded(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+
+							@Override
+							public void treeCollapsed(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+						});
+					}
 				});
 		if (sourceControl == null) {
-			return;
+			return Collections.emptyList();
 		}
-		InstanceBuilderInitializerTreeControl targetControl = findControl(InstanceBuilderInitializerTreeControl.class,
-				new Accessor<InstanceBuilderInitializerTreeControl>() {
+		InstanceBuilderInitializerTreeControl targetControl = findControl(this,
+				InstanceBuilderInitializerTreeControl.class, new Accessor<InstanceBuilderInitializerTreeControl>() {
 
 					@Override
 					public InstanceBuilderInitializerTreeControl get() {
@@ -87,9 +135,25 @@ public class MappingsControl extends JPanel {
 						foundTargetControl = t;
 					}
 
+				}, new Listener<InstanceBuilderInitializerTreeControl>() {
+					@Override
+					public void handle(InstanceBuilderInitializerTreeControl control) {
+						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
+
+							@Override
+							public void treeExpanded(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+
+							@Override
+							public void treeCollapsed(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+						});
+					}
 				});
 		if (targetControl == null) {
-			return;
+			return Collections.emptyList();
 		}
 		targetControl.visitItems(new ListControl.IItemsVisitor() {
 			@Override
@@ -152,39 +216,27 @@ public class MappingsControl extends JPanel {
 						.filter(itemPosition1 -> !mappedSourceItemPositions.stream()
 								.anyMatch(itemPosition2 -> itemPosition1.equals(itemPosition2.getParentItemPosition())))
 						.collect(Collectors.toList());
+				while ((targetItemPosition.getParentItemPosition() != null)
+						&& !targetControl.isItemPositionExpanded(targetItemPosition.getParentItemPosition())) {
+					targetItemPosition = targetItemPosition.getParentItemPosition();
+				}
 				for (BufferedItemPosition sourceItemPosition : filteredMappedSourceItemPositions) {
-					int sourceY;
-					{
-						TreePath treePath = sourceControl.getTreePath(sourceItemPosition);
-						int row = sourceControl.getTreeTableComponent().getRowForPath(treePath);
-						Rectangle cellRect = sourceControl.getTreeTableComponent().getCellRect(row, 0, false);
-						sourceY = cellRect.y + Math.round(cellRect.height / 2f);
-						sourceY = SwingUtilities.convertPoint(sourceControl.getTreeTableComponent(), 0, sourceY,
-								MappingsControl.this).y;
-					}
-					int targetY;
-					{
-						TreePath treePath = targetControl.getTreePath(targetItemPosition);
-						int row = targetControl.getTreeTableComponent().getRowForPath(treePath);
-						Rectangle cellRect = targetControl.getTreeTableComponent().getCellRect(row, 0, false);
-						targetY = cellRect.y + Math.round(cellRect.height / 2f);
-						targetY = SwingUtilities.convertPoint(targetControl.getTreeTableComponent(), 0, targetY,
-								MappingsControl.this).y;
-					}
-					g.setColor(Color.BLUE);
-					g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);
+					result.add(new Pair<BufferedItemPosition, BufferedItemPosition>(sourceItemPosition,
+							targetItemPosition));
 				}
 				return VisitStatus.VISIT_NOT_INTERRUPTED;
 			}
 		});
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends SideControl> T findControl(Class<T> controlClass, Accessor<T> alreadyFoundControlAccessor) {
+	private static <T extends Component> T findControl(Component fromComponent, Class<T> controlClass,
+			Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
-		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(this,
+		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(fromComponent,
 				RootInstanceBuilder.class.getName(), GUI.INSTANCE);
 		if (rootInstanceBuilderForm == null) {
 			return null;
@@ -202,19 +254,9 @@ public class MappingsControl extends JPanel {
 				for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHolders) {
 					if (controlClass.isInstance(fieldControlPlaceHolder.getFieldControl())) {
 						alreadyFoundControlAccessor.set((T) fieldControlPlaceHolder.getFieldControl());
-						((T) fieldControlPlaceHolder.getFieldControl()).getTreeTableComponent()
-								.addTreeExpansionListener(new TreeExpansionListener() {
-
-									@Override
-									public void treeExpanded(TreeExpansionEvent event) {
-										MappingsControl.this.repaint();
-									}
-
-									@Override
-									public void treeCollapsed(TreeExpansionEvent event) {
-										MappingsControl.this.repaint();
-									}
-								});
+						if (controlConfigurator != null) {
+							controlConfigurator.handle((T) fieldControlPlaceHolder.getFieldControl());
+						}
 						return (T) fieldControlPlaceHolder.getFieldControl();
 					}
 				}
@@ -231,6 +273,8 @@ public class MappingsControl extends JPanel {
 
 		private static final long serialVersionUID = 1L;
 
+		private MappingsControl foundMappingsControl;
+
 		public SideControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
 		}
@@ -245,6 +289,21 @@ public class MappingsControl extends JPanel {
 				return null;
 			}
 			return new TreePath(node.getPath());
+		}
+
+		public MappingsControl findMappingsControl() {
+			return findControl(this, MappingsControl.class, new Accessor<MappingsControl>() {
+
+				@Override
+				public MappingsControl get() {
+					return foundMappingsControl;
+				}
+
+				@Override
+				public void set(MappingsControl t) {
+					foundMappingsControl = t;
+				}
+			}, null);
 		}
 	}
 
