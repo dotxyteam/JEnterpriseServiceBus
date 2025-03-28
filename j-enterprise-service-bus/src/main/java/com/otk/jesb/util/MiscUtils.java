@@ -24,11 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Asset;
 import com.otk.jesb.Folder;
-import com.otk.jesb.GUI;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Solution;
@@ -49,6 +49,7 @@ import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.MapEntryBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.security.AnyTypePermission;
@@ -71,6 +72,11 @@ public class MiscUtils {
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
+	}
+	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+
+	public static String escapeRegex(String str) {
+		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
 	}
 
 	public static Object executeFunction(Function function, EvaluationContext evaluationContext) throws Exception {
@@ -294,7 +300,7 @@ public class MiscUtils {
 		if (activityBuilder == null) {
 			return null;
 		}
-		for (ActivityMetadata activityMetadata : GUI.JESBReflectionUI.ACTIVITY_METADATAS) {
+		for (ActivityMetadata activityMetadata : JESBReflectionUI.ACTIVITY_METADATAS) {
 			if (activityMetadata.getActivityBuilderClass().equals(step.getActivityBuilder().getClass())) {
 				return activityMetadata.getActivityIconImagePath();
 			}

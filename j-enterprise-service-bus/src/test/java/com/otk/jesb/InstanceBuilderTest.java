@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.GUI;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
@@ -19,6 +18,7 @@ import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.Function.CompilationContext;
+import com.otk.jesb.ui.GUI;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
