@@ -2,6 +2,8 @@ package com.otk.jesb.meta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.otk.jesb.util.MiscUtils;
 
@@ -17,16 +19,29 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 
 public class TypeInfoProvider {
 
+	private static final Class<?>[] PRIMITIVE_CLASSES = new Class<?>[] { boolean.class, byte.class, short.class,
+			int.class, long.class, float.class, double.class, char.class };
+	private static final Map<String, Class<?>> PRIMITIVE_CLASS_BY_NAME = new HashMap<String, Class<?>>() {
+		private static final long serialVersionUID = 1L;
+		{
+			for (Class<?> c : PRIMITIVE_CLASSES) {
+				put(c.getName(), c);
+			}
+		}
+	};
+
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-		Class<?> objectClass;
-		try {
-			objectClass = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
-		} catch (ClassNotFoundException e) {
-			throw new AssertionError(e);
+		Class<?> objectClass = PRIMITIVE_CLASS_BY_NAME.get(typeName);
+		if (objectClass == null) {
+			try {
+				objectClass = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
+			} catch (ClassNotFoundException e) {
+				throw new AssertionError(e);
+			}
 		}
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
@@ -62,8 +77,8 @@ public class TypeInfoProvider {
 			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
 					((DefaultConstructorInfo) method).getJavaConstructor(), parameterPosition, null);
 		} else if (method instanceof DefaultMethodInfo) {
-			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
-					((DefaultMethodInfo) method).getJavaMethod(), parameterPosition, null);
+			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, ((DefaultMethodInfo) method).getJavaMethod(),
+					parameterPosition, null);
 		} else {
 			throw new AssertionError();
 		}

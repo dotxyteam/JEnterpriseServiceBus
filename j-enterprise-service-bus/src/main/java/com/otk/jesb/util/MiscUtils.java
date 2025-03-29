@@ -67,13 +67,13 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class MiscUtils {
 
-	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
-
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+
+	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
 	public static String escapeRegex(String str) {
 		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");

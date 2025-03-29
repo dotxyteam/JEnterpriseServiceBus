@@ -380,8 +380,10 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (visible) {
 					if (object instanceof Plan) {
 						currentPlan = (Plan) object;
+						return true;
 					} else if (object instanceof Step) {
 						currentStep = (Step) object;
+						return true;
 					}
 				}
 				return super.onFormVisibilityChange(type, object, visible);
