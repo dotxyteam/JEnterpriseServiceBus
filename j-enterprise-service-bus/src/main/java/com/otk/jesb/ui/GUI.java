@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponent;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Folder;
 import com.otk.jesb.FunctionEditor;
+import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
@@ -22,6 +23,7 @@ import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
@@ -30,8 +32,6 @@ import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
-import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.SquigglePainter;
@@ -53,6 +53,7 @@ import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 
@@ -154,15 +155,17 @@ public class GUI extends SwingCustomizer {
 						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
 							return new DebugPlanDiagram(swingRenderer, thisForm);
 						}
-						if (object instanceof RootInstanceBuilderFacade) {
-							if (field.getName().equals("children")) {
-								return new InstanceBuilderInitializerTreeControl(GUI.this, this);
-							}
+						if (field.getName().equals("children") && (field.getType() instanceof IListTypeInfo)
+								&& (((IListTypeInfo) field.getType()).getItemType() != null)
+								&& ((IListTypeInfo) field.getType()).getItemType().getName()
+										.equals(Facade.class.getName())) {
+							return new InstanceBuilderInitializerTreeControl(GUI.this, this);
 						}
-						if (object instanceof RootInstanceBuilder) {
-							if (field.getName().equals("data")) {
-								return new InstanceBuilderVariableTreeControl(GUI.this, this);
-							}
+						if (field.getName().equals("data") && (field.getType() instanceof IListTypeInfo)
+								&& (((IListTypeInfo) field.getType()).getItemType() != null)
+								&& ((IListTypeInfo) field.getType()).getItemType().getName()
+										.equals(PathNode.class.getName())) {
+							return new InstanceBuilderVariableTreeControl(GUI.this, this);
 						}
 						if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
 							return new MappingsControl();

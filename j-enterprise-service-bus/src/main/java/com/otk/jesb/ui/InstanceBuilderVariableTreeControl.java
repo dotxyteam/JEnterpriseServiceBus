@@ -33,20 +33,25 @@ public class InstanceBuilderVariableTreeControl extends MappingsControl.SideCont
 		treeTableComponent.addHighlighter(new ColorHighlighter(new HighlightPredicate() {
 			@Override
 			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-				MappingsControl mappingsControl = findMappingsControl();
-				if (mappingsControl != null) {
-					for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl.getMappings()) {
-						BufferedItemPosition itemPosition = pair.getFirst();
-						TreePath treePath = getTreePath(itemPosition);
-						int row = treeTableComponent.getRowForPath(treePath);
-						if (adapter.row == row) {
-							return true;
-						}
-					}
-				}
-				return false;
+				return isMapped(adapter.row);
 			}
-		}, Color.LIGHT_GRAY, Color.BLACK));
+		}, new Color(215, 230, 255), Color.BLACK));
+	}
+	
+	private boolean isMapped(int rowIndex) {
+		MappingsControl mappingsControl = findMappingsControl();
+		if (mappingsControl != null) {
+			for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
+					.listVisibleMappings()) {
+				BufferedItemPosition itemPosition = pair.getFirst();
+				TreePath treePath = getTreePath(itemPosition);
+				int row = treeTableComponent.getRowForPath(treePath);
+				if (rowIndex == row) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

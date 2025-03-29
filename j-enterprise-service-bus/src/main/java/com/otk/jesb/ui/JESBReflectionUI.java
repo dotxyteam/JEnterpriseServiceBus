@@ -11,6 +11,7 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.FunctionEditor;
+import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
@@ -513,12 +514,18 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
+							if (currentPlan == null) {
+								return null;
+							}
+							if (currentStep == null) {
+								return null;
+							}
 							return new PathOptionsProvider(currentPlan, currentStep).getRootPathNodes();
 						}
 
 						@Override
 						public ITypeInfo getType() {
-							return getTypeInfo(new JavaTypeInfoSource(List.class,
+							return getTypeInfo(new JavaTypeInfoSource(List.class, new Class<?>[] { PathNode.class },
 									new SpecificitiesIdentifier(RootInstanceBuilder.class.getName(), getName())));
 						}
 

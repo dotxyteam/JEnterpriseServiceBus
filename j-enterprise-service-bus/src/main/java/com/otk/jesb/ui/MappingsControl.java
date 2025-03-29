@@ -12,7 +12,9 @@ import java.awt.dnd.DnDConstants;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JComponent;
@@ -60,7 +62,7 @@ public class MappingsControl extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : getMappings()) {
+		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : listVisibleMappings()) {
 			BufferedItemPosition sourceItemPosition = mapping.getFirst();
 			BufferedItemPosition targetItemPosition = mapping.getSecond();
 			int sourceY;
@@ -81,14 +83,14 @@ public class MappingsControl extends JPanel {
 				targetY = SwingUtilities.convertPoint(foundTargetControl.getTreeTableComponent(), 0, targetY,
 						MappingsControl.this).y;
 			}
-			g.setColor(Color.LIGHT_GRAY);
+			g.setColor(new Color(180, 192, 217));
 			g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);
 		}
 
 	}
 
-	public List<Pair<BufferedItemPosition, BufferedItemPosition>> getMappings() {
-		List<Pair<BufferedItemPosition, BufferedItemPosition>> result = new ArrayList<Pair<BufferedItemPosition, BufferedItemPosition>>();
+	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> listVisibleMappings() {
+		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
 		InstanceBuilderVariableTreeControl sourceControl = findControl(this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
 
@@ -120,7 +122,7 @@ public class MappingsControl extends JPanel {
 					}
 				});
 		if (sourceControl == null) {
-			return Collections.emptyList();
+			return Collections.emptySet();
 		}
 		InstanceBuilderInitializerTreeControl targetControl = findControl(this,
 				InstanceBuilderInitializerTreeControl.class, new Accessor<InstanceBuilderInitializerTreeControl>() {
@@ -153,7 +155,7 @@ public class MappingsControl extends JPanel {
 					}
 				});
 		if (targetControl == null) {
-			return Collections.emptyList();
+			return Collections.emptySet();
 		}
 		targetControl.visitItems(new ListControl.IItemsVisitor() {
 			@Override

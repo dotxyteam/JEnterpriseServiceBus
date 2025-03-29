@@ -9,7 +9,6 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.util.Pair;
 
@@ -35,20 +34,9 @@ public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideC
 		treeTableComponent.addHighlighter(new ColorHighlighter(new HighlightPredicate() {
 			@Override
 			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-				MappingsControl mappingsControl = findMappingsControl();
-				if (mappingsControl != null) {
-					for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl.getMappings()) {
-						BufferedItemPosition itemPosition = pair.getSecond();
-						TreePath treePath = getTreePath(itemPosition);
-						int row = treeTableComponent.getRowForPath(treePath);
-						if (adapter.row == row) {
-							return true;
-						}
-					}
-				}
-				return false;
+				return isMapped(adapter.row);
 			}
-		}, Color.LIGHT_GRAY, Color.BLACK));
+		}, new Color(215, 230, 255), Color.BLACK));
 	}
 
 	@Override
@@ -64,6 +52,22 @@ public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideC
 				}
 			}
 		}
+	}
+	
+	private boolean isMapped(int rowIndex) {
+		MappingsControl mappingsControl = findMappingsControl();
+		if (mappingsControl != null) {
+			for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
+					.listVisibleMappings()) {
+				BufferedItemPosition itemPosition = pair.getSecond();
+				TreePath treePath = getTreePath(itemPosition);
+				int row = treeTableComponent.getRowForPath(treePath);
+				if (rowIndex == row) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }
