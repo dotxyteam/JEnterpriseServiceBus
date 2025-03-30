@@ -519,10 +519,8 @@ public class JESBReflectionUI extends CustomizedUI {
 							if (currentPlan == null) {
 								return null;
 							}
-							if (currentStep == null) {
-								return null;
-							}
-							return new PathOptionsProvider(currentPlan, currentStep).getRootPathNodes();
+							return new PathOptionsProvider(currentPlan,
+									(object == currentPlan.getOutputBuilder()) ? null : currentStep).getRootPathNodes();
 						}
 
 						@Override

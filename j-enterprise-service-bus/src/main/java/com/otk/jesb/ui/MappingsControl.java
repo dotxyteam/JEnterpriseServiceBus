@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
@@ -83,10 +85,14 @@ public class MappingsControl extends JPanel {
 				targetY = SwingUtilities.convertPoint(foundTargetControl.getTreeTableComponent(), 0, targetY,
 						MappingsControl.this).y;
 			}
-			g.setColor(new Color(180, 192, 217));
+			g.setColor(getMappingColor());
 			g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);
 		}
 
+	}
+
+	private Color getMappingColor() {
+		return Color.RED;
 	}
 
 	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> listVisibleMappings() {
@@ -277,6 +283,9 @@ public class MappingsControl extends JPanel {
 
 		private MappingsControl foundMappingsControl;
 
+		protected abstract BufferedItemPosition getSideItemPosition(
+				Pair<BufferedItemPosition, BufferedItemPosition> pair);
+
 		public SideControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
 		}
@@ -307,6 +316,42 @@ public class MappingsControl extends JPanel {
 				}
 			}, null);
 		}
+
+		@Override
+		protected void customizeCellRendererComponent(JLabel label, ItemNode node, int rowIndex, int columnIndex,
+				boolean isSelected, boolean hasFocus) {
+			super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);
+			label.setBorder(isMapped(rowIndex)
+					? BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
+							BorderFactory.createLineBorder(foundMappingsControl.getMappingColor()))
+					: BorderFactory.createEmptyBorder());
+		}
+
+		@Override
+		protected String getCellValue(ItemNode node, int columnIndex) {
+			String result = super.getCellValue(node, columnIndex);
+			if (result == null) {
+				return null;
+			}
+			result += "     ";
+			return result;
+		}
+
+		private boolean isMapped(int rowIndex) {
+			MappingsControl mappingsControl = findMappingsControl();
+			if (mappingsControl != null) {
+				for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl.listVisibleMappings()) {
+					BufferedItemPosition itemPosition = getSideItemPosition(pair);
+					TreePath treePath = getTreePath(itemPosition);
+					int row = treeTableComponent.getRowForPath(treePath);
+					if (rowIndex == row) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
 	}
 
 	public static class PathExportTransferHandler extends TransferHandler {
