@@ -9,6 +9,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
@@ -33,12 +36,12 @@ import org.jdesktop.swingx.JXTreeTable;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
-import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
@@ -125,6 +128,12 @@ public class MappingsControl extends JPanel {
 								MappingsControl.this.repaint();
 							}
 						});
+						((JScrollPane)control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+							@Override
+							public void adjustmentValueChanged(AdjustmentEvent e) {
+								MappingsControl.this.repaint();
+							}
+						});
 					}
 				});
 		if (sourceControl == null) {
@@ -155,6 +164,12 @@ public class MappingsControl extends JPanel {
 
 							@Override
 							public void treeCollapsed(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+						});
+						((JScrollPane)control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+							@Override
+							public void adjustmentValueChanged(AdjustmentEvent e) {
 								MappingsControl.this.repaint();
 							}
 						});
@@ -244,18 +259,14 @@ public class MappingsControl extends JPanel {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
-		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(fromComponent,
-				RootInstanceBuilder.class.getName(), GUI.INSTANCE);
-		if (rootInstanceBuilderForm == null) {
-			return null;
-		}
-		Form rootInstanceBuilderParentForm = SwingRendererUtils.findParentForm(rootInstanceBuilderForm, GUI.INSTANCE);
-		if (rootInstanceBuilderParentForm == null) {
+		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent,
+				FacadeOutline.class.getName(), GUI.INSTANCE);
+		if (facadeOutlineForm == null) {
 			return null;
 		}
 		List<Form> forms = new ArrayList<Form>();
-		forms.add(rootInstanceBuilderParentForm);
-		forms.addAll(SwingRendererUtils.findDescendantForms(rootInstanceBuilderParentForm, GUI.INSTANCE));
+		forms.add(facadeOutlineForm);
+		forms.addAll(SwingRendererUtils.findDescendantForms(facadeOutlineForm, GUI.INSTANCE));
 		for (Form form : forms) {
 			for (List<FieldControlPlaceHolder> fieldControlPlaceHolders : form.getFieldControlPlaceHoldersByCategory()
 					.values()) {

@@ -35,6 +35,11 @@ public class InitializationCaseFacade extends Facade {
 		this.underlying = underlying;
 	}
 
+	@Override
+	public String express() {
+		return MiscUtils.express(getCondition());
+	}
+
 	public Function getCondition() {
 		return condition;
 	}

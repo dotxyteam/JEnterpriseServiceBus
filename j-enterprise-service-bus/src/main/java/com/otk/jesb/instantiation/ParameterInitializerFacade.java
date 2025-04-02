@@ -20,6 +20,16 @@ public class ParameterInitializerFacade extends Facade {
 	}
 
 	@Override
+	public String express() {
+		Object value = getParameterValue();
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
+		String result = MiscUtils.express(value);
+		return result;
+	}
+
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -63,15 +73,16 @@ public class ParameterInitializerFacade extends Facade {
 				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
 
-	public Object createDefaultParameterValue() {		
+	public Object createDefaultParameterValue() {
 		InstanceBuilderFacade currentInstanceBuilderFacade = getCurrentInstanceBuilderFacade();
-		if(currentInstanceBuilderFacade instanceof RootInstanceBuilderFacade) {
-			RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade)currentInstanceBuilderFacade).getUnderlying();
+		if (currentInstanceBuilderFacade instanceof RootInstanceBuilderFacade) {
+			RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) currentInstanceBuilderFacade)
+					.getUnderlying();
 			InstanceBuilder result = new InstanceBuilder();
 			result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
-			result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());;
-			return result;	
-		}		
+			result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
+			return result;
+		}
 		IParameterInfo parameter = getParameterInfo();
 		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
 	}

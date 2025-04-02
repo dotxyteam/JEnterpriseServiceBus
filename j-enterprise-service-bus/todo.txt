@@ -1,5 +1,9 @@
+- allow to modify mappings in text mode
+- add connectors for:
+	. JMS
+	. Kafka
+- some activity general tabs are empty 
 - what if 2 variables have the same name ?
-- add instance builder data value column ???
 - remove "Assist" button ??
 - show a preview of the instance builder and allow to access the full editor ???  
 - rename Activities to Operations

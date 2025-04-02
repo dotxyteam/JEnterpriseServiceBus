@@ -501,7 +501,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 					});
 					return result;
-				} else if (type.getName().equals(RootInstanceBuilder.class.getName())) {
+				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
@@ -526,13 +526,10 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						public ITypeInfo getType() {
 							return getTypeInfo(new JavaTypeInfoSource(List.class, new Class<?>[] { PathNode.class },
-									new SpecificitiesIdentifier(RootInstanceBuilder.class.getName(), getName())));
+									new SpecificitiesIdentifier(RootInstanceBuilderFacade.class.getName(), getName())));
 						}
 
 					});
-					return result;
-				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName())) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
 						public String getName() {

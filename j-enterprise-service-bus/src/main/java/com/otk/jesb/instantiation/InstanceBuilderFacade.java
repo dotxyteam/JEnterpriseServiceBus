@@ -88,6 +88,11 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	@Override
+	public String express() {
+		return null;
+	}
+
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
@@ -189,7 +194,8 @@ public class InstanceBuilderFacade extends Facade {
 		parent.setConcrete(true);
 		underlying.setDynamicTypeNameAccessor(InstanceBuilderFacade.underlyingClipboard.getDynamicTypeNameAccessor());
 		underlying.setTypeName(InstanceBuilderFacade.underlyingClipboard.getTypeName());
-		underlying.setSelectedConstructorSignature(InstanceBuilderFacade.underlyingClipboard.getSelectedConstructorSignature());
+		underlying.setSelectedConstructorSignature(
+				InstanceBuilderFacade.underlyingClipboard.getSelectedConstructorSignature());
 		underlying.setParameterInitializers(InstanceBuilderFacade.underlyingClipboard.getParameterInitializers());
 		underlying.setFieldInitializers(InstanceBuilderFacade.underlyingClipboard.getFieldInitializers());
 		underlying.setListItemInitializers(InstanceBuilderFacade.underlyingClipboard.getListItemInitializers());

@@ -27,6 +27,19 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	@Override
+	public String express() {
+		Object value = getFieldValue();
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
+		String result = MiscUtils.express(value);
+		if (getCondition() != null) {
+			result = "IF " + MiscUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
+		}
+		return result;
+	}
+
+	@Override
 	public Facade getParent() {
 		return parent;
 	}

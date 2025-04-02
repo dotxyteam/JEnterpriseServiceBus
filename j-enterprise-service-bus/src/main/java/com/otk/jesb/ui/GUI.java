@@ -24,6 +24,7 @@ import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
@@ -32,6 +33,7 @@ import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
+import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.SquigglePainter;
@@ -136,6 +138,31 @@ public class GUI extends SwingCustomizer {
 		return new CustomizingForm(this, object, infoFilter) {
 
 			private static final long serialVersionUID = 1L;
+
+			{
+				if (object instanceof FacadeOutline) {
+					Form rootInstanceBuilderFacadeForm = SwingRendererUtils
+							.findDescendantFormsOfType(this, RootInstanceBuilderFacade.class.getName(), GUI.INSTANCE)
+							.get(1);
+					InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForm
+							.getFieldControlPlaceHolder("children").getFieldControl();
+					initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
+						@Override
+						public VisitStatus visitItem(BufferedItemPosition itemPosition) {
+							Facade targetFacade = ((FacadeOutline) object).getFacade();
+							Facade currentFacade = (Facade) itemPosition.getItem();
+							if (targetFacade.equals(currentFacade)) {
+								initializerTreeControl.setSingleSelection(itemPosition);
+								return VisitStatus.TREE_VISIT_INTERRUPTED;
+							}
+							if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
+								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+							}
+							return VisitStatus.VISIT_NOT_INTERRUPTED;
+						}
+					});
+				}
+			}
 
 			@Override
 			protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {

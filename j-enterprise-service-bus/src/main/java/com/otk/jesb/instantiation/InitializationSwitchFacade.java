@@ -17,6 +17,11 @@ public class InitializationSwitchFacade extends Facade {
 		this.underlying = underlying;
 	}
 
+	@Override
+	public String express() {
+		return null;
+	}
+
 	public static InitializationSwitchFacade install(Facade parent, int caseCount, List<Facade> initializerFacades) {
 		if (caseCount < 1) {
 			throw new IllegalArgumentException("Invalid number of cases: " + caseCount + "(must not be < 1)");
@@ -81,7 +86,7 @@ public class InitializationSwitchFacade extends Facade {
 
 	public void addNewCase() {
 		List<InitializationCaseFacade> children = getChildren();
-		children.get(children.size()-1).insertNewSibling();
+		children.get(children.size() - 1).insertNewSibling();
 	}
 
 	@Override

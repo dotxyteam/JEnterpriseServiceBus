@@ -172,6 +172,30 @@ public class MiscUtils {
 		return (Boolean) conditionResult;
 	}
 
+	public static String escapeJavaString(String s) {
+		return s.replace("\\", "\\\\").replace("\t", "\\t").replace("\b", "\\b").replace("\n", "\\n")
+				.replace("\r", "\\r").replace("\f", "\\f").replace("\'", "\\'") // <== not necessary
+				.replace("\"", "\\\"");
+	}
+
+	public static String express(Object value) {
+		if (value instanceof Function) {
+			return ((Function) value).getFunctionBody();
+		} else if (value instanceof InstanceBuilder) {
+			return null;
+		} else if (value instanceof EnumerationItemSelector) {
+			return ((EnumerationItemSelector) value).getSelectedItemName();
+		} else {
+			if (value == null) {
+				return null;
+			} else if (value instanceof String) {
+				return "\"" + escapeJavaString((String) value) + "\"";
+			} else {
+				return value.toString();
+			}
+		}
+	}
+
 	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {
 		if (value instanceof Function) {
 			Object result = MiscUtils.executeFunction(((Function) value), context);

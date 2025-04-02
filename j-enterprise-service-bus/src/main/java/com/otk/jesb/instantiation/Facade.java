@@ -7,6 +7,8 @@ import com.otk.jesb.util.MiscUtils;
 
 public abstract class Facade {
 
+	public abstract String express();
+
 	public abstract Facade getParent();
 
 	public abstract List<? extends Facade> getChildren();
@@ -37,7 +39,7 @@ public abstract class Facade {
 
 	public static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof RootInstanceBuilder) {
-			if(parentFacade != null) {
+			if (parentFacade != null) {
 				throw new AssertionError();
 			}
 			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);
@@ -96,8 +98,13 @@ public abstract class Facade {
 		if (!same(this, otherFacade)) {
 			return false;
 		}
-		if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {
+		if (isConcrete() != otherFacade.isConcrete()) {
 			return false;
+		}
+		if (isConcrete()) {
+			if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {
+				return false;
+			}
 		}
 		return true;
 	}

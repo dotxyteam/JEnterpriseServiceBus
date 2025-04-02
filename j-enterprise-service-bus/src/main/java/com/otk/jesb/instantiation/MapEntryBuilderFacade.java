@@ -21,7 +21,7 @@ public class MapEntryBuilderFacade extends InstanceBuilderFacade {
 
 	@Override
 	public List<Facade> getChildren() {
-		return super.getChildren().stream().filter(f -> f instanceof ParameterInitializerFacade)
+		return super.getChildren().stream().filter(f -> !(f instanceof FieldInitializerFacade))
 				.collect(Collectors.toList());
 	}
 

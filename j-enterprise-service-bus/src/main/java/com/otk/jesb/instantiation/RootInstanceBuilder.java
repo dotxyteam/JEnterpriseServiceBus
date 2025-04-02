@@ -115,6 +115,10 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	public RootInstanceBuilderFacade getFacade() {
 		return (RootInstanceBuilderFacade) Facade.get(this, null);
 	}
+	
+	public List<FacadeOutline> getFacadeOutlineChildren() {
+		return new FacadeOutline(getFacade()).getChildren();
+	}
 
 	public Object getRootInitializer() {
 		List<Facade> children = getFacade().getChildren();

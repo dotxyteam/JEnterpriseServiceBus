@@ -27,6 +27,24 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	@Override
+	public String express() {
+		Object value = getItemValue();
+		if (value instanceof InstanceBuilderFacade) {
+			value = ((InstanceBuilderFacade) value).getUnderlying();
+		}
+		String result = MiscUtils.express(value);
+		if (getItemReplicationFacade() != null) {
+			result = "FOR " + getItemReplicationFacade().getIterationVariableName() + " IN "
+					+ MiscUtils.express(getItemReplicationFacade().getIterationListValue())
+					+ ((result != null) ? (" REPLICATE " + result) : "");
+		}
+		if (getCondition() != null) {
+			result = "IF " + MiscUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
+		}
+		return result;
+	}
+
+	@Override
 	public Facade getParent() {
 		return parent;
 	}
