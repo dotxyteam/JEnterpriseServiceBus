@@ -13,20 +13,7 @@
             <fieldInitializers/>
             <initializationSwitches/>
             <listItemInitializers/>
-            <parameterInitializers>
-              <com.otk.jesb.instantiation.ParameterInitializer>
-                <parameterPosition>0</parameterPosition>
-                <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                  <dynamicTypeNameAccessor class="null"/>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>com.otk.jesb.instantiation.NullInstance</typeName>
-                </parameterValue>
-              </com.otk.jesb.instantiation.ParameterInitializer>
-            </parameterInitializers>
+            <parameterInitializers/>
             <rootInitializer class="null"/>
             <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
               <outer-class reference="../../.."/>
@@ -157,7 +144,9 @@
                             <com.otk.jesb.instantiation.ParameterInitializer>
                               <parameterPosition>0</parameterPosition>
                               <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                                <dynamicTypeNameAccessor class="null"/>
+                                <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
+                                  <outer-class reference="../../../../../.."/>
+                                </dynamicTypeNameAccessor>
                                 <fieldInitializers/>
                                 <initializationSwitches/>
                                 <listItemInitializers/>
@@ -168,14 +157,12 @@
                                   </com.otk.jesb.instantiation.ParameterInitializer>
                                 </parameterInitializers>
                                 <selectedConstructorSignature class="null"/>
-                                <typeName>com.otk.jesb.activity.builtin.ReadFileActivity$ReadTextFileActivity</typeName>
+                                <typeName>&lt;Dynamic&gt;</typeName>
                               </parameterValue>
                             </com.otk.jesb.instantiation.ParameterInitializer>
                           </parameterInitializers>
                           <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
-                            <outer-class reference="../../.."/>
-                          </rootInstanceDynamicTypeNameAccessor>
+                          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                           <rootInstanceName>ReadFileActivityInput</rootInstanceName>
                           <rootInstanceTypeName class="null"/>
                           <selectedConstructorSignature class="null"/>
@@ -209,7 +196,7 @@
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
-                            <parameterValue class="boolean">true</parameterValue>
+                            <parameterValue class="boolean">false</parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
@@ -242,7 +229,9 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="null"/>
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
                         <listItemInitializers/>
@@ -259,14 +248,12 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.WriteFileActivity$WriteTextFileActivity</typeName>
+                        <typeName>&lt;Dynamic&gt;</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
-                    <outer-class reference="../../.."/>
-                  </rootInstanceDynamicTypeNameAccessor>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>WriteFileActivityInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>

@@ -74,15 +74,6 @@ public class ParameterInitializerFacade extends Facade {
 	}
 
 	public Object createDefaultParameterValue() {
-		InstanceBuilderFacade currentInstanceBuilderFacade = getCurrentInstanceBuilderFacade();
-		if (currentInstanceBuilderFacade instanceof RootInstanceBuilderFacade) {
-			RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) currentInstanceBuilderFacade)
-					.getUnderlying();
-			InstanceBuilder result = new InstanceBuilder();
-			result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
-			result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-			return result;
-		}
 		IParameterInfo parameter = getParameterInfo();
 		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
 	}
