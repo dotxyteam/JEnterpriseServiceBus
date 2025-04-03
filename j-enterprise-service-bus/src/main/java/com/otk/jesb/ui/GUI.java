@@ -194,6 +194,13 @@ public class GUI extends SwingCustomizer {
 										.equals(PathNode.class.getName())) {
 							return new InstanceBuilderVariableTreeControl(GUI.this, this);
 						}
+						if (field.getName().equals("facadeOutlineChildren")
+								&& (field.getType() instanceof IListTypeInfo)
+								&& (((IListTypeInfo) field.getType()).getItemType() != null)
+								&& ((IListTypeInfo) field.getType()).getItemType().getName()
+										.equals(FacadeOutline.class.getName())) {
+							return new InstanceBuilderOutlineTreeControl(GUI.this, this);
+						}
 						if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
 							return new MappingsControl();
 						}
@@ -308,28 +315,28 @@ public class GUI extends SwingCustomizer {
 			@Override
 			protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
 				final CustomizingForm thisForm = this;
-				if (object instanceof FunctionEditor) {
-					if (method.getName().equals("insertSelectedPathNodeExpression")) {
-						method = new MethodInfoProxy(method) {
+				if (method.getName().equals("insertSelectedPathNodeExpression")) {
+					method = new MethodInfoProxy(method) {
 
-							@Override
-							public List<IParameterInfo> getParameters() {
-								return Collections.emptyList();
-							}
+						@Override
+						public List<IParameterInfo> getParameters() {
+							return Collections.emptyList();
+						}
 
-							@Override
-							public Object invoke(Object object, InvocationData invocationData) {
-								TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
-										.getFieldControl();
-								invocationData.getProvidedParameterValues().put(0,
-										textControl.getTextComponent().getSelectionStart());
-								invocationData.getProvidedParameterValues().put(1,
-										textControl.getTextComponent().getSelectionEnd());
-								return super.invoke(object, invocationData);
-							}
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+									FunctionEditor.class.getName(), GUI.INSTANCE);
+							TextControl textControl = (TextControl) SwingRendererUtils
+									.findDescendantFieldControl(functionEditorForm, "functionBody", GUI.INSTANCE);
+							invocationData.getProvidedParameterValues().put(0,
+									textControl.getTextComponent().getSelectionStart());
+							invocationData.getProvidedParameterValues().put(1,
+									textControl.getTextComponent().getSelectionEnd());
+							return super.invoke(object, invocationData);
+						}
 
-						};
-					}
+					};
 				}
 				if (object instanceof PlanActivator) {
 					if (method.getName().equals("executePlan")) {
@@ -366,8 +373,8 @@ public class GUI extends SwingCustomizer {
 			@Override
 			public void validateForm() throws Exception {
 				if (object instanceof FunctionEditor) {
-					TextControl textControl = (TextControl) getFieldControlPlaceHolder("functionBody")
-							.getFieldControl();
+					TextControl textControl = (TextControl) SwingRendererUtils.findDescendantFieldControl(this,
+							"functionBody", GUI.INSTANCE);
 					JTextComponent textComponent = textControl.getTextComponent();
 					textComponent.getHighlighter().removeAllHighlights();
 					try {
