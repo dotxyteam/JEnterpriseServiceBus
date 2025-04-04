@@ -95,7 +95,7 @@ public class MappingsControl extends JPanel {
 	}
 
 	private Color getMappingColor() {
-		return Color.RED;
+		return new Color(0, 0, 255);
 	}
 
 	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> listVisibleMappings() {

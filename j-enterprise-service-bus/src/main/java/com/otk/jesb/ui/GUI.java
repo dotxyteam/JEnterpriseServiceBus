@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.DropMode;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
@@ -193,6 +194,19 @@ public class GUI extends SwingCustomizer {
 								&& ((IListTypeInfo) field.getType()).getItemType().getName()
 										.equals(PathNode.class.getName())) {
 							return new InstanceBuilderVariableTreeControl(GUI.this, this);
+						}
+						if (field.getName().equals("rootPathNodes") && (field.getType() instanceof IListTypeInfo)
+								&& (((IListTypeInfo) field.getType()).getItemType() != null)
+								&& ((IListTypeInfo) field.getType()).getItemType().getName()
+										.equals(PathNode.class.getName())) {
+							return new FunctionEditorVariableTreeControl(GUI.this, this);
+						}
+						if (field.getName().equals("functionBody")
+								&& (field.getType().getName().equals(String.class.getName()))) {
+							TextControl result =  (TextControl) super.createFieldControl();
+							result.getTextComponent().setTransferHandler(new FunctionEditorVariableTreeControl.PathImportTransferHandler());
+							result.getTextComponent().setDropMode(DropMode.INSERT);
+							return result;
 						}
 						if (field.getName().equals("facadeOutlineChildren")
 								&& (field.getType() instanceof IListTypeInfo)

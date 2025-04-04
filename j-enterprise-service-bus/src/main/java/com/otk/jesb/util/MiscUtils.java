@@ -47,9 +47,7 @@ import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.MapEntryBuilder;
-import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.ui.JESBReflectionUI;
@@ -232,6 +230,11 @@ public class MiscUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
+		Object specialDefaultValue = RootInstanceBuilder.getRootInitializerSpecialDefaultInterpretableValue(type,
+				valueMode, currentFacade);
+		if (specialDefaultValue != null) {
+			return specialDefaultValue;
+		}
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -253,15 +256,6 @@ public class MiscUtils {
 			}
 			return new Function(functionBody);
 		} else if (valueMode == ValueMode.PLAIN) {
-			if ((currentFacade instanceof ParameterInitializerFacade) && (((ParameterInitializerFacade) currentFacade)
-					.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade)) {
-				RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
-						.getCurrentInstanceBuilderFacade()).getUnderlying();
-				InstanceBuilder result = new InstanceBuilder();
-				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
-				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-				return result;
-			}
 			if (!MiscUtils.isComplexType(type)) {
 				if (type instanceof IEnumerationTypeInfo) {
 					EnumerationItemSelector result = new EnumerationItemSelector();

@@ -7,6 +7,8 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.info.type.ITypeInfo;
+
 public class RootInstanceBuilder extends InstanceBuilder {
 
 	private String rootInstanceName;
@@ -115,7 +117,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	public RootInstanceBuilderFacade getFacade() {
 		return (RootInstanceBuilderFacade) Facade.get(this, null);
 	}
-	
+
 	public List<FacadeOutline> getFacadeOutlineChildren() {
 		return new FacadeOutline(getFacade()).getChildren();
 	}
@@ -149,6 +151,26 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			return null;
 		}
 		return wrapper.getRootInstance();
+	}
+
+	public static Object getRootInitializerSpecialDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode,
+			Facade currentFacade) {
+		if (valueMode == ValueMode.PLAIN) {
+			if ((currentFacade instanceof ParameterInitializerFacade) && (((ParameterInitializerFacade) currentFacade)
+					.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade)) {
+				RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
+						.getCurrentInstanceBuilderFacade()).getUnderlying();
+				InstanceBuilder result = new InstanceBuilder();
+				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
+				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
+				if (!type.getName().equals(
+						result.computeActualTypeName(MiscUtils.getAncestorStructureInstanceBuilders(currentFacade)))) {
+					throw new AssertionError();
+				}
+				return result;
+			}
+		}
+		return null;
 	}
 
 }
