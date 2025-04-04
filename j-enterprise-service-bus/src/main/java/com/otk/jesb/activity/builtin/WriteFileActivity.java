@@ -43,9 +43,10 @@ public class WriteFileActivity implements Activity {
 		private boolean append = false;
 		private String charsetName;
 
-		public WriteTextFileActivity(String filePath, String text) {
+		public WriteTextFileActivity(String filePath, String text, boolean append) {
 			this.filePath = filePath;
 			this.text = text;
+			this.append = append;
 		}
 
 		public String getFilePath() {
@@ -68,10 +69,6 @@ public class WriteFileActivity implements Activity {
 			return append;
 		}
 
-		public void setAppend(boolean append) {
-			this.append = append;
-		}
-
 		@Override
 		public Object execute() throws IOException {
 			try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
@@ -88,9 +85,10 @@ public class WriteFileActivity implements Activity {
 		private byte[] data;
 		private boolean append = false;
 
-		public WriteBinaryFileActivity(String filePath, byte[] data) {
+		public WriteBinaryFileActivity(String filePath, byte[] data, boolean append) {
 			this.filePath = filePath;
 			this.data = data;
+			this.append = append;
 		}
 
 		public String getFilePath() {
@@ -103,10 +101,6 @@ public class WriteFileActivity implements Activity {
 
 		public boolean isAppend() {
 			return append;
-		}
-
-		public void setAppend(boolean append) {
-			this.append = append;
 		}
 
 		@Override

@@ -26,7 +26,6 @@ import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
-import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.InstanceBuilder;
@@ -95,10 +94,10 @@ public class GUI extends SwingCustomizer {
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getFieldInitializers().add(new FieldInitializer("filePath", "tmp/test.txt"));
+				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getFieldInitializers().add(new FieldInitializer("text",
-						new Function("return a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+				.getParameterInitializers().add(new ParameterInitializer(1,
+						new Function("return (String)a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);

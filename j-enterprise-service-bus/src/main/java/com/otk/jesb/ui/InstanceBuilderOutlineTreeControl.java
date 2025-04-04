@@ -31,9 +31,12 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 				FacadeOutline facadeOutline = (FacadeOutline) itemPosition.getItem();
 				label.setForeground(facadeOutline.getFacade().isConcrete() ? Color.BLACK : Color.LIGHT_GRAY);
 				label.setOpaque(columnIndex == 1);
-				label.setBackground(
-						(columnIndex == 1) ? ((facadeOutline.getFacade().express() != null) ? new Color(245, 245, 255)
-								: new Color(240, 240, 240)) : null);
+				if (!isSelected) {
+					label.setBackground((columnIndex == 1)
+							? ((facadeOutline.getFacade().express() != null) ? new Color(245, 245, 255)
+									: new Color(240, 240, 240))
+							: null);
+				}
 			}
 		}
 	}
