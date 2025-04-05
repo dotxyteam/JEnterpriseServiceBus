@@ -1,76 +1,63 @@
-- allow to modify mappings in text mode
-- add connectors for:
-	. JMS
-	. Kafka
-- some activity general tabs are empty 
-- what if 2 variables have the same name ?
-- remove "Assist" button ??
-- show a preview of the instance builder and allow to access the full editor ???  
-- rename Activities to Operations
-- alternatives: 
-https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/
-- UI components layout based on SCREEN_PERCENT not good on several screens
-- ugly plan diagram expansion
-- allow to select and delete diagram connections
-- adjust selection after a case (switch) is moved down/up
-- integrated log window (console)
-- allow to change default PathExplorer node type (it should generate a cast expression)
-- smaller diagram node images
-- diagram zoom
-- diagram improvements:
-	. allow to select the current mouse action between MOVE and CONNECT
-- ListItemInitializer:
-	- ListItemReplication/iterationListValue/itemType not resolved
-	- add ListItemInitializer.replication.itemTypeName. It will allow to check
-the replication list value function and other functions that use the replication
-item variable
-- Switch/Cases feature issues:
-	. should not allow to remove all switch/cases managed elements ???
-- split classes GUI, Plan, Debugger ???
-- control InstanceBuilder.typeName updates ??? (the new type should inherit from the
-normal type)
-- InstanceBuilder design issues:
-	. InstanceBuilder misses these features: 'with', 'auto map'
-	=) the InstanceBuilder should be equivalent to the TIBCO BW mapper. It should
-	offer as much transformation specification capabilities. Actually a BW mapper
-	obtains its power from a subset of XSLT. It allows to specify how to build an 
-	XML document while the InstanceBuilder allows to specify how to build an Java
-	object. It should then be possible to have as much power in an InstanceBuilder
-	than in a BW mapper. 
-- rename activity classes (remove 'Activity' suffix) ???
-- wrap function editor lines ???
-- generate expressions that do not crash because of a null pointer ???
-- allow to trace errors origin
-- add XML/JSON support
-	. generate automatically classes from schemas to parse and render ???
-- allow to serve/call rest/soap web services
-- allow to provide plan input through the debugger
-- create and display a PlanExecutor for each sub-plan execution
-- Structure.Element.multiple= true should generate a list instead of an array ???
-- allow to build and reference shared structures
-- UI improvements:
-	. banner ???
-- JDBCConnection:
-	. driver jars location ???
 - strategy: 
 	. focus on an original main feature and make it work
 	. implement quickly and minimally all the other features
 	. release a first version
 	. advertise
 	. improve the features
-- allow to drag and drop PathExplorer node to the expression editor
-- allow to map fields graphically :
-	- add a value column to InstanceBuilder tree 
-	- add a path explorer tree to InstanceBuilder component
-	- allow to drag and drop from path explorer tree to InstanceBuilder tree 
-- add things like groups (for repetition, etc) and conditional transitions for steps
-- comment the code
-- add built-in activities (file, jdbc, jms, data format, .. activities)
-- allow to view resources full path
+- InstanceBuilder misses these features: 'with'
+- ListItemInitializer:
+	- ListItemReplication/iterationListValue/itemType not resolved
+	- add ListItemInitializer.replication.itemTypeName. It will allow to check
+	the replication list value function and other functions that use the replication
+	item variable
+- allow to provide plan input through the debugger
+- diagram improvements:
+	. allow to select and delete diagram connections
+	. smaller diagram node images
 - allow to start plan execution on event (timer, file poller, etc)
-- allow to extend the framework by adding custom activities
+- add things like groups (for repetition, etc) and conditional transitions for steps
+- create and display a Sub-PlanExecutor for each sub-plan execution
+- allow to build and reference shared structures
+- add an "Evaluate" activity (like BW "Mapper" activity
+- what if 2 variables have the same name ?
+- add validation
+- add other built-in activities (file, jdbc, jms, data format, ...)
+- to ease co-working and version control, plans and resources must be stored in separate files  
 - allow to deploy and execute a project outside of the designer in a production environment
 - allow to monitor the execution of deployed projects
+- allow to extend the framework by adding custom activities
+- allow to specify custom activity builder UI details through the code
+- replace "Assist..." by an icon ???
+- rename activity classes (remove 'Activity' suffix) ???
+- rename Activities to Operations
+- alternatives: 
+https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/
+- adjust selection after a case (switch) is moved down/up
+- integrated log window (console)
+- allow to change default PathExplorer node type (it should generate a cast expression)
+- diagram improvements:
+	. zoom
+- Switch/Cases feature issues:
+	. should not allow to remove all switch/cases managed elements ???
+- control InstanceBuilder.typeName updates ??? (the new type should inherit from the
+normal type)
+- InstanceBuilder misses these features: 'auto map'
+- wrap function editor lines ???
+- generate expressions that do not crash because of a null pointer ???
+- allow to trace errors origin
+- add XML/JSON support
+	. generate automatically classes from schemas to parse and render ???
+- allow to serve/call rest/soap web services
+- Structure.Element.multiple= true should generate a list instead of an array ???
+- UI improvements:
+	. banner ???
+- add connectors for:
+	. JMS
+	. Kafka
+- JDBCConnection:
+	. driver jars location ???
+- comment the code
+- allow to view resources full path
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
 - improve JDBCQueryActivity:
@@ -80,7 +67,4 @@ normal type)
 - some modifications can disappear from the UI when 
 InstanceBuilder.(className|selectedConstructorSignature) are modified. It may be better
 to display incoherent nodes with an error marker
-- to ease co-working and version control, plans and resources must be stored in separate files  
-- allow to specify custom activity builder UI details through the code
-- add validation
 - change the look and feel (maybe the windows look and feel would be good)
