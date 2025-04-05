@@ -21,22 +21,26 @@ import com.otk.jesb.util.Accessor;
 
 public class WriteFileActivity implements Activity {
 
-	private UnderlyingWriteFileActivity underling;
+	private SpecificWriteFileActivity specificActivity;
 
-	public WriteFileActivity(UnderlyingWriteFileActivity underling) {
-		this.underling = underling;
+	public WriteFileActivity(SpecificWriteFileActivity specificActivity) {
+		this.specificActivity = specificActivity;
+	}
+
+	public SpecificWriteFileActivity getSpecificActivity() {
+		return specificActivity;
 	}
 
 	@Override
 	public Object execute() throws Exception {
-		return underling.execute();
+		return specificActivity.execute();
 	}
 
-	private static interface UnderlyingWriteFileActivity extends Activity {
+	private static interface SpecificWriteFileActivity extends Activity {
 
 	}
 
-	public static class WriteTextFileActivity implements UnderlyingWriteFileActivity {
+	public static class WriteTextFileActivity implements SpecificWriteFileActivity {
 
 		private String filePath;
 		private String text;
@@ -79,7 +83,7 @@ public class WriteFileActivity implements Activity {
 		}
 	}
 
-	public static class WriteBinaryFileActivity implements UnderlyingWriteFileActivity {
+	public static class WriteBinaryFileActivity implements SpecificWriteFileActivity {
 
 		private String filePath;
 		private byte[] data;
@@ -176,7 +180,7 @@ public class WriteFileActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context) throws Exception {
 			return new WriteFileActivity(
-					(UnderlyingWriteFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
+					(SpecificWriteFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
 		}
 
 		@Override
