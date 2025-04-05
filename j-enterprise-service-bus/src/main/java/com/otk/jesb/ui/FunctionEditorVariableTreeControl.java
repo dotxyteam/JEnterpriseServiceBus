@@ -18,6 +18,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.util.TextTransferHandler;
 
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
@@ -68,8 +69,7 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 
 	}
 
-
-	public static class PathImportTransferHandler extends TransferHandler {
+	public static class PathImportTransferHandler extends TextTransferHandler {
 
 		private static final long serialVersionUID = 1L;
 
@@ -78,7 +78,10 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 
 		@Override
 		public boolean canImport(TransferHandler.TransferSupport support) {
-			return support.isDataFlavorSupported(TransferablePath.DATA_FLAVOR);
+			if (support.isDataFlavorSupported(TransferablePath.DATA_FLAVOR)) {
+				return true;
+			}
+			return super.canImport(support);
 		}
 
 		@Override
@@ -106,11 +109,15 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 							}
 						}
 					}
+				} catch (UnsupportedFlavorException e) {
 				} catch (Exception e) {
 					throw new AssertionError(e);
 				}
 			}
-			return accept;
+			if (accept) {
+				return true;
+			}
+			return super.importData(support);
 		}
 	}
 

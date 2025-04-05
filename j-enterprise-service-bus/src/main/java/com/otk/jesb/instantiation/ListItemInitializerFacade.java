@@ -36,7 +36,7 @@ public class ListItemInitializerFacade extends Facade {
 		if (getItemReplicationFacade() != null) {
 			result = "FOR " + getItemReplicationFacade().getIterationVariableName() + " IN "
 					+ MiscUtils.express(getItemReplicationFacade().getIterationListValue())
-					+ ((result != null) ? (" REPLICATE " + result) : "");
+					+ ((result != null) ? (" LOOP " + result) : "");
 		}
 		if (getCondition() != null) {
 			result = "IF " + MiscUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");

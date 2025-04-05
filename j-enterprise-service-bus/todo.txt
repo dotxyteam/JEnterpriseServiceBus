@@ -4,16 +4,19 @@
 	. release a first version
 	. advertise
 	. improve the features
-- InstanceBuilder misses these features: 'with'
-- ListItemInitializer:
-	- ListItemReplication/iterationListValue/itemType not resolved
-	- add ListItemInitializer.replication.itemTypeName. It will allow to check
-	the replication list value function and other functions that use the replication
-	item variable
+- InstanceBuilder misses 'with'
+- InstanceBuilder misses 'auto map'
+	. When mapping different types values, the GUI should propose to
+		* create a 'with'
+		* map automatically the target instance builder params/fields that 
+		have the same name and type as the source fields 
+	. The GUI should propose to configure fully the replication when mapping 
+	a multiple value to a list item 
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. allow to select and delete diagram connections
 	. smaller diagram node images
+	. connections are not straight and nice
 - allow to start plan execution on event (timer, file poller, etc)
 - add things like groups (for repetition, etc) and conditional transitions for steps
 - create and display a Sub-PlanExecutor for each sub-plan execution
@@ -30,6 +33,7 @@
 - replace "Assist..." by an icon ???
 - rename activity classes (remove 'Activity' suffix) ???
 - rename Activities to Operations
+- add support to Iterable for ListItemReplication.iterationListValue
 - alternatives: 
 https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/
 - adjust selection after a case (switch) is moved down/up
@@ -41,7 +45,6 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 	. should not allow to remove all switch/cases managed elements ???
 - control InstanceBuilder.typeName updates ??? (the new type should inherit from the
 normal type)
-- InstanceBuilder misses these features: 'auto map'
 - wrap function editor lines ???
 - generate expressions that do not crash because of a null pointer ???
 - allow to trace errors origin

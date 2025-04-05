@@ -480,7 +480,9 @@ public class MiscUtils {
 	}
 
 	public static String adaptClassNameToSourceCode(String className) {
-		return className.replace("$", ".");
+		className = className.replace("$", ".");
+		className = className.replaceAll("^\\[L(.+);$", "$1[]");
+		return className;
 	}
 
 	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(Facade facade) {

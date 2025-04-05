@@ -30,19 +30,24 @@ public class TypeInfoProvider {
 		}
 	};
 
+	public static Class<?> getClass(String typeName) {
+		Class<?> result = PRIMITIVE_CLASS_BY_NAME.get(typeName);
+		if (result == null) {
+			try {
+				result = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
+			} catch (ClassNotFoundException e) {
+				throw new AssertionError(e);
+			}
+		}
+		return result;
+	}
+
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-		Class<?> objectClass = PRIMITIVE_CLASS_BY_NAME.get(typeName);
-		if (objectClass == null) {
-			try {
-				objectClass = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
-			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
-			}
-		}
+		Class<?> objectClass = getClass(typeName);
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (typeOwner != null) {

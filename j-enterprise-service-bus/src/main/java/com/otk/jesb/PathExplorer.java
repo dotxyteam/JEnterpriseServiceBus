@@ -93,6 +93,8 @@ public class PathExplorer {
 				} else {
 					result.add(new ListItemNode(this));
 				}
+			} else if (!MiscUtils.isComplexType(typeInfo)) {
+				return Collections.emptyList();
 			} else {
 				for (IFieldInfo field : typeInfo.getFields()) {
 					result.add(new FieldNode(this, field.getName()));
@@ -156,12 +158,7 @@ public class PathExplorer {
 
 		@Override
 		public List<PathNode> getChildren() {
-			ITypeInfo fieldTypeInfo = getFieldInfo().getType();
-			if (!MiscUtils.isComplexType(fieldTypeInfo)) {
-				return Collections.emptyList();
-			} else {
-				return new TypeNode(this, fieldTypeInfo.getName()).getChildren();
-			}
+			return new TypeNode(this, getFieldInfo().getType().getName()).getChildren();
 		}
 
 		@Override
@@ -202,12 +199,7 @@ public class PathExplorer {
 
 		@Override
 		public List<PathNode> getChildren() {
-			ITypeInfo itemTypeInfo = getItemType();
-			if (!MiscUtils.isComplexType(itemTypeInfo)) {
-				return Collections.emptyList();
-			} else {
-				return new TypeNode(this, itemTypeInfo.getName()).getChildren();
-			}
+			return new TypeNode(this, getItemType().getName()).getChildren();
 		}
 
 		@Override
@@ -251,12 +243,7 @@ public class PathExplorer {
 
 		@Override
 		public List<PathNode> getChildren() {
-			ITypeInfo valueTypeInfo = getValueType();
-			if (!MiscUtils.isComplexType(valueTypeInfo)) {
-				return Collections.emptyList();
-			} else {
-				return new TypeNode(this, valueTypeInfo.getName()).getChildren();
-			}
+			return new TypeNode(this, getValueType().getName()).getChildren();
 		}
 
 		@Override

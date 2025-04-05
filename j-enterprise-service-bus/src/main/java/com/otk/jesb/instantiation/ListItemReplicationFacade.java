@@ -38,6 +38,22 @@ public class ListItemReplicationFacade {
 		listItemReplication.setIterationListValue(iterationListValue);
 	}
 
+	public String getIterationListValueTypeName() {
+		return listItemReplication.getIterationListValueTypeName();
+	}
+
+	public void setIterationListValueTypeName(String iterationListValueTypeName) {
+		listItemReplication.setIterationListValueTypeName(iterationListValueTypeName);
+	}
+
+	public String getIterationVariableTypeName() {
+		return listItemReplication.getIterationVariableTypeName();
+	}
+
+	public void setIterationVariableTypeName(String iterationVariableTypeName) {
+		listItemReplication.setIterationVariableTypeName(iterationVariableTypeName);
+	}
+
 	public ValueMode getIterationListValueMode() {
 		return MiscUtils.getValueMode(listItemReplication.getIterationListValue());
 	}
@@ -45,7 +61,17 @@ public class ListItemReplicationFacade {
 	public void setIterationListValueMode(ValueMode valueMode) {
 		Object iterationListValue;
 		if (valueMode == ValueMode.FUNCTION) {
-			String functionBody = "return new " + ArrayList.class.getName() + "<Object>();";
+			String functionBody;
+			if (getIterationListValueTypeName() != null) {
+				Class<?> listClass = TypeInfoProvider.getClass(getIterationListValueTypeName());
+				if (listClass.isArray()) {
+					functionBody = "return new " + listClass.getComponentType().getName() + "[]{};";
+				} else {
+					functionBody = "return new " + listClass.getName() + "();";
+				}
+			} else {
+				functionBody = "return new " + ArrayList.class.getName() + "<Object>();";
+			}
 			iterationListValue = new Function(functionBody);
 		} else {
 			iterationListValue = new ArrayList<Object>();

@@ -6,16 +6,10 @@ import com.otk.jesb.Plan.ExecutionContext.Variable;
 
 public class ListItemReplication {
 
-	private String iterationVariableName = "current";
 	private Object iterationListValue = new ArrayList<Object>();
-
-	public String getIterationVariableName() {
-		return iterationVariableName;
-	}
-
-	public void setIterationVariableName(String iterationVariableName) {
-		this.iterationVariableName = iterationVariableName;
-	}
+	private String iterationListValueTypeName;
+	private String iterationVariableName = "current";
+	private String iterationVariableTypeName;
 
 	public Object getIterationListValue() {
 		return iterationListValue;
@@ -23,6 +17,30 @@ public class ListItemReplication {
 
 	public void setIterationListValue(Object iterationListValue) {
 		this.iterationListValue = iterationListValue;
+	}
+
+	public String getIterationVariableName() {
+		return iterationVariableName;
+	}
+
+	public String getIterationListValueTypeName() {
+		return iterationListValueTypeName;
+	}
+
+	public void setIterationListValueTypeName(String iterationListValueTypeName) {
+		this.iterationListValueTypeName = iterationListValueTypeName;
+	}
+
+	public void setIterationVariableName(String iterationVariableName) {
+		this.iterationVariableName = iterationVariableName;
+	}
+
+	public String getIterationVariableTypeName() {
+		return iterationVariableTypeName;
+	}
+
+	public void setIterationVariableTypeName(String iterationVariableTypeName) {
+		this.iterationVariableTypeName = iterationVariableTypeName;
 	}
 
 	public static class IterationVariable implements Variable {
