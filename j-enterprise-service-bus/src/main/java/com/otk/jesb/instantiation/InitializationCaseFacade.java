@@ -13,7 +13,6 @@ import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 import com.otk.jesb.instantiation.Function.CompilationContext;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -461,19 +460,9 @@ public class InitializationCaseFacade extends Facade {
 				VariableDeclaration iterationVariableDeclaration = null;
 				int iterationVariableDeclarationPosition = -1;
 				if (currentFacade.getItemReplicationFacade() != null) {
-					final Class<?> listClass = (currentFacade.getItemReplicationFacade()
-							.getIterationListValueTypeName() != null)
-									? TypeInfoProvider.getClass(
-											currentFacade.getItemReplicationFacade().getIterationListValueTypeName())
-									: Object.class;
-					final Class<?> itemClass = (currentFacade.getItemReplicationFacade()
-							.getIterationVariableTypeName() != null)
-									? TypeInfoProvider.getClass(
-											currentFacade.getItemReplicationFacade().getIterationVariableTypeName())
-									: (listClass.isArray() ? listClass.getComponentType() : Object.class);
 					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {
 						return new CompilationContext(new VerificationContext(validationContext, currentFacade),
-								listClass);
+								currentFacade.getItemReplicationFacade().getIterationListValueClass());
 					}
 					if (currentFacade.getItemReplicationFacade()
 							.getIterationListValue() instanceof InstanceBuilderFacade) {
@@ -493,7 +482,7 @@ public class InitializationCaseFacade extends Facade {
 
 						@Override
 						public Class<?> getVariableType() {
-							return itemClass;
+							return currentFacade.getItemReplicationFacade().getIterationVariableClass();
 						}
 					};
 					iterationVariableDeclarationPosition = validationContext.getVariableDeclarations().size();

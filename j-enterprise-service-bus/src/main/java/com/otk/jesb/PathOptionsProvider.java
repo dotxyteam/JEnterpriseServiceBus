@@ -6,6 +6,8 @@ import java.util.List;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 
+import xy.reflect.ui.info.type.ITypeInfo;
+
 public class PathOptionsProvider {
 
 	protected Plan currentPlan;
@@ -38,13 +40,23 @@ public class PathOptionsProvider {
 		}
 
 		@Override
+		public PathNode getParent() {
+			return null;
+		}
+
+		@Override
 		public List<PathNode> getChildren() {
-			return pathExplorer.getRootNode().getChildren();
+			return pathExplorer.explore();
 		}
 
 		@Override
 		public String getExpression() {
 			return pathExplorer.getRootExpression();
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			return pathExplorer.getRootExpressionType();
 		}
 
 		@Override

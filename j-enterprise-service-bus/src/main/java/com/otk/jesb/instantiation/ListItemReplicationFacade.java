@@ -78,4 +78,16 @@ public class ListItemReplicationFacade {
 		}
 		listItemReplication.setIterationListValue(iterationListValue);
 	}
+
+	public Class<?> getIterationListValueClass() {
+		return (getIterationListValueTypeName() != null) ? TypeInfoProvider.getClass(getIterationListValueTypeName())
+				: Object.class;
+	}
+
+	public Class<?> getIterationVariableClass() {
+		Class<?> listClass = getIterationListValueClass();
+		return (getIterationVariableTypeName() != null) ? TypeInfoProvider.getClass(getIterationVariableTypeName())
+				: (listClass.isArray() ? listClass.getComponentType() : Object.class);
+	}
+
 }

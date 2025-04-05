@@ -31,59 +31,62 @@ public class PathExplorer {
 		this.rootExpression = rootExpression;
 	}
 
-	public TypeNode getRootNode() {
-		return new TypeNode(null, typeName);
+	public List<PathNode> explore() {
+		return new TypedNodeUtility(null, typeName).getChildren();
 	}
 
 	public String getRootExpression() {
 		return rootExpression;
 	}
 
+	public ITypeInfo getRootExpressionType() {
+		return new TypedNodeUtility(null, typeName).getTypeInfo();
+	}
+
 	public static interface PathNode {
+
+		PathNode getParent();
 
 		List<PathNode> getChildren();
 
 		String getExpression();
 
+		ITypeInfo getExpressionType();
+
 	}
 
-	public class TypeNode implements PathNode {
+	private class TypedNodeUtility {
 
-		protected PathNode parent;
+		protected PathNode node;
 		protected String typeName;
 
-		public TypeNode(PathNode parent, String typeName) {
-			this.parent = parent;
+		public TypedNodeUtility(PathNode node, String typeName) {
+			this.node = node;
 			this.typeName = typeName;
 		}
 
-		public PathNode getParent() {
-			return parent;
-		}
-
-		public String getTypeName() {
-			return typeName;
+		public PathNode getNode() {
+			return node;
 		}
 
 		public ITypeInfo getTypeInfo() {
 			ITypeInfo result = TypeInfoProvider.getTypeInfo(typeName);
 			if (result instanceof IListTypeInfo) {
-				if (parent instanceof FieldNode) {
-					FieldNode fieldNode = (FieldNode) parent;
+				if (node instanceof FieldNode) {
+					FieldNode fieldNode = (FieldNode) node;
 					IFieldInfo listFieldInfo = fieldNode.getFieldInfo();
 					result = TypeInfoProvider.getTypeInfo(typeName, listFieldInfo);
 				}
 			}
 			if (result instanceof IMapEntryTypeInfo) {
-				if (parent instanceof ListItemNode) {
-					ListItemNode mapEntryNode = (ListItemNode) parent;
+				if (node instanceof ListItemNode) {
+					ListItemNode mapEntryNode = (ListItemNode) node;
 					result = (StandardMapEntryTypeInfo) mapEntryNode.getItemType();
 				}
 			}
 			return result;
 		}
 
-		@Override
 		public List<PathNode> getChildren() {
 			List<PathNode> result = new ArrayList<PathNode>();
 			ITypeInfo typeInfo = getTypeInfo();
@@ -121,9 +124,8 @@ public class PathExplorer {
 			return result;
 		}
 
-		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
+			String parentExpression = (node != null) ? node.getExpression() : PathExplorer.this.getRootExpression();
 			return parentExpression;
 		}
 
@@ -136,16 +138,12 @@ public class PathExplorer {
 
 	public class FieldNode implements PathNode {
 
-		protected TypeNode parent;
+		protected TypedNodeUtility parentTypedNodeUtility;
 		protected String fieldName;
 
-		public FieldNode(TypeNode parent, String fieldName) {
-			this.parent = parent;
+		public FieldNode(TypedNodeUtility parentTypedNodeUtility, String fieldName) {
+			this.parentTypedNodeUtility = parentTypedNodeUtility;
 			this.fieldName = fieldName;
-		}
-
-		public TypeNode getParent() {
-			return parent;
 		}
 
 		public String getFieldName() {
@@ -153,17 +151,23 @@ public class PathExplorer {
 		}
 
 		public IFieldInfo getFieldInfo() {
-			return ReflectionUIUtils.findInfoByName(parent.getTypeInfo().getFields(), fieldName);
+			return ReflectionUIUtils.findInfoByName(parentTypedNodeUtility.getTypeInfo().getFields(), fieldName);
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
 		}
 
 		@Override
 		public List<PathNode> getChildren() {
-			return new TypeNode(this, getFieldInfo().getType().getName()).getChildren();
+			return new TypedNodeUtility(this, getFieldInfo().getType().getName()).getChildren();
 		}
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
+					: PathExplorer.this.getRootExpression();
 			IFieldInfo fieldInfo = getFieldInfo();
 			if (fieldInfo instanceof GetterFieldInfo) {
 				return parentExpression + "." + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName() + "()";
@@ -175,6 +179,11 @@ public class PathExplorer {
 		}
 
 		@Override
+		public ITypeInfo getExpressionType() {
+			return new TypedNodeUtility(this, getFieldInfo().getType().getName()).getTypeInfo();
+		}
+
+		@Override
 		public String toString() {
 			return fieldName;
 		}
@@ -182,30 +191,36 @@ public class PathExplorer {
 
 	public class ListItemNode implements PathNode {
 
-		protected TypeNode parent;
+		protected TypedNodeUtility parentTypedNodeUtility;
 
-		public ListItemNode(TypeNode parent) {
-			this.parent = parent;
-		}
-
-		public TypeNode getParent() {
-			return parent;
+		public ListItemNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
 		}
 
 		public ITypeInfo getItemType() {
-			IListTypeInfo parentTypeInfo = (IListTypeInfo) parent.getTypeInfo();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
 			return parentTypeInfo.getItemType();
 		}
 
 		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
 		public List<PathNode> getChildren() {
-			return new TypeNode(this, getItemType().getName()).getChildren();
+			ITypeInfo itemType = getItemType();
+			if (itemType == null) {
+				return Collections.emptyList();
+			}
+			return new TypedNodeUtility(this, itemType.getName()).getChildren();
 		}
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
-			IListTypeInfo parentTypeInfo = (IListTypeInfo) parent.getTypeInfo();
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
+					: PathExplorer.this.getRootExpression();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
 			if (parentTypeInfo instanceof ArrayTypeInfo) {
 				return parentExpression + "[i]";
 			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {
@@ -218,6 +233,13 @@ public class PathExplorer {
 		}
 
 		@Override
+		public ITypeInfo getExpressionType() {
+			ITypeInfo itemType = getItemType();
+			String itemTypeName = (itemType != null) ? itemType.getName() : Object.class.getName();
+			return new TypedNodeUtility(this, itemTypeName).getTypeInfo();
+		}
+
+		@Override
 		public String toString() {
 			return "[i]";
 		}
@@ -225,31 +247,38 @@ public class PathExplorer {
 
 	public class MapValueNode implements PathNode {
 
-		protected TypeNode parent;
+		protected TypedNodeUtility parentTypedNodeUtility;
 
-		public MapValueNode(TypeNode parent) {
-			this.parent = parent;
+		public MapValueNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
 		}
 
-		public TypeNode getParent() {
-			return parent;
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
 		}
 
 		public ITypeInfo getValueType() {
-			ITypeInfo parentTypeInfo = parent.getTypeInfo();
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
 			IMapEntryTypeInfo mapTypeInfo = (IMapEntryTypeInfo) ((IListTypeInfo) parentTypeInfo).getItemType();
 			return mapTypeInfo.getValueField().getType();
 		}
 
 		@Override
 		public List<PathNode> getChildren() {
-			return new TypeNode(this, getValueType().getName()).getChildren();
+			return new TypedNodeUtility(this, getValueType().getName()).getChildren();
 		}
 
 		@Override
 		public String getExpression() {
-			String parentExpression = (parent != null) ? parent.getExpression() : PathExplorer.this.getRootExpression();
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
+					: PathExplorer.this.getRootExpression();
 			return parentExpression + ".get(*)";
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			return new TypedNodeUtility(this, getValueType().getName()).getTypeInfo();
 		}
 
 		@Override

@@ -34,12 +34,14 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 
 import com.otk.jesb.PathExplorer;
+import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ListItemReplication;
 import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.util.Accessor;
@@ -128,12 +130,13 @@ public class MappingsControl extends JPanel {
 								MappingsControl.this.repaint();
 							}
 						});
-						((JScrollPane)control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-							@Override
-							public void adjustmentValueChanged(AdjustmentEvent e) {
-								MappingsControl.this.repaint();
-							}
-						});
+						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
+								.addAdjustmentListener(new AdjustmentListener() {
+									@Override
+									public void adjustmentValueChanged(AdjustmentEvent e) {
+										MappingsControl.this.repaint();
+									}
+								});
 					}
 				});
 		if (sourceControl == null) {
@@ -167,12 +170,13 @@ public class MappingsControl extends JPanel {
 								MappingsControl.this.repaint();
 							}
 						});
-						((JScrollPane)control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-							@Override
-							public void adjustmentValueChanged(AdjustmentEvent e) {
-								MappingsControl.this.repaint();
-							}
-						});
+						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
+								.addAdjustmentListener(new AdjustmentListener() {
+									@Override
+									public void adjustmentValueChanged(AdjustmentEvent e) {
+										MappingsControl.this.repaint();
+									}
+								});
 					}
 				});
 		if (targetControl == null) {
@@ -259,8 +263,8 @@ public class MappingsControl extends JPanel {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
-		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent,
-				FacadeOutline.class.getName(), GUI.INSTANCE);
+		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent, FacadeOutline.class.getName(),
+				GUI.INSTANCE);
 		if (facadeOutlineForm == null) {
 			return null;
 		}
@@ -422,8 +426,8 @@ public class MappingsControl extends JPanel {
 									BufferedItemPosition itemPosition = (BufferedItemPosition) ((DefaultMutableTreeNode) treePath
 											.getLastPathComponent()).getUserObject();
 									Object item = itemPosition.getItem();
-									Function pathFunction = new Function(
-											"return " + ((PathNode) data).getExpression() + ";");
+									PathNode pathNode = (PathNode) data;
+									Function pathFunction = new Function("return " + pathNode.getExpression() + ";");
 									if (item instanceof ParameterInitializerFacade) {
 										((ParameterInitializerFacade) item).setParameterValue(pathFunction);
 										accept = true;
@@ -431,8 +435,24 @@ public class MappingsControl extends JPanel {
 										((FieldInitializerFacade) item).setFieldValue(pathFunction);
 										accept = true;
 									} else if (item instanceof ListItemInitializerFacade) {
-										((ListItemInitializerFacade) item).setItemValue(pathFunction);
-										accept = true;
+										if (pathNode instanceof ListItemNode) {
+											ListItemReplication itemReplication = new ListItemReplication();
+											itemReplication.setIterationListValue(new Function("return "
+													+ ((ListItemNode) pathNode).getParent().getExpression() + ";"));
+											itemReplication.setIterationListValueTypeName(((ListItemNode) pathNode)
+													.getParent().getExpressionType().getName());
+											itemReplication.setIterationVariableTypeName(
+													((ListItemNode) pathNode).getExpressionType().getName());
+											((ListItemInitializerFacade) item).setConcrete(true);
+											((ListItemInitializerFacade) item).getUnderlying()
+													.setItemReplication(itemReplication);
+											((ListItemInitializerFacade) item).setItemValue(new Function(
+													"return " + itemReplication.getIterationVariableName() + ";"));
+											accept = true;
+										} else {
+											((ListItemInitializerFacade) item).setItemValue(pathFunction);
+											accept = true;
+										}
 									}
 									if (accept) {
 										ModificationStack modifStack = SwingRendererUtils

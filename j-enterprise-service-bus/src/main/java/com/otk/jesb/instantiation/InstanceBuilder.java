@@ -140,13 +140,9 @@ public class InstanceBuilder extends InitializationCase {
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
-					if (itemReplicationFacade.getIterationListValueTypeName() != null) {
-						Class<?> listClass = TypeInfoProvider
-								.getClass(itemReplicationFacade.getIterationListValueTypeName());
-						if (!listClass.isInstance(iterationListValue)) {
-							throw new AssertionError("The iteration list value is not an instance of '"
-									+ listClass.getName() + "' as expected: " + iterationListValue);
-						}
+					if (!itemReplicationFacade.getIterationListValueClass().isInstance(iterationListValue)) {
+						throw new AssertionError("The iteration list value is not an instance of '"
+								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: " + iterationListValue);
 					}
 					ITypeInfo iterationListTypeInfo = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
@@ -156,13 +152,9 @@ public class InstanceBuilder extends InitializationCase {
 					}
 					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
 					for (Object iterationVariableValue : iterationListArray) {
-						if (itemReplicationFacade.getIterationVariableTypeName() != null) {
-							final Class<?> itemClass = TypeInfoProvider
-									.getClass(itemReplicationFacade.getIterationVariableTypeName());
-							if (!itemClass.isInstance(iterationVariableValue)) {
-								throw new AssertionError("The iteration variable value is not an instance of '"
-										+ itemClass.getName() + "' as expected: " + iterationVariableValue);
-							}
+						if (!itemReplicationFacade.getIterationVariableClass().isInstance(iterationVariableValue)) {
+							throw new AssertionError("The iteration variable value is not an instance of '"
+									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: " + iterationVariableValue);
 						}
 						EvaluationContext iterationContext = new EvaluationContext(
 								new Plan.ExecutionContext(context.getExecutionContext(),
