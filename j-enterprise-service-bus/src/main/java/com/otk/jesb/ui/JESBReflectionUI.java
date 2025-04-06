@@ -82,48 +82,46 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Plan currentPlan;
 	private Step currentStep;
 
+	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
+		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
+		ByteArrayOutputStream rootInitializerStore;
+		if (rootInitializer != null) {
+			rootInitializerStore = new ByteArrayOutputStream();
+			try {
+				MiscUtils.serialize(rootInitializer, rootInitializerStore);
+			} catch (IOException e) {
+				throw new AssertionError(e);
+			}
+		} else {
+			rootInitializerStore = null;
+		}
+		rootInitializerStoreByBuilder.put(rootInstanceBuilder, rootInitializerStore);
+	}
+
+	public static Runnable getRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
+		if (!rootInitializerStoreByBuilder.containsKey(rootInstanceBuilder)) {
+			throw new AssertionError();
+		}
+		final ByteArrayOutputStream rootInitializerStore = rootInitializerStoreByBuilder.get(rootInstanceBuilder);
+		return new Runnable() {
+			@Override
+			public void run() {
+				Object rootInitializerCopy;
+				try {
+					rootInitializerCopy = (rootInitializerStore == null) ? null
+							: MiscUtils.deserialize(new ByteArrayInputStream(rootInitializerStore.toByteArray()));
+				} catch (IOException e) {
+					throw new AssertionError(e);
+				}
+				rootInstanceBuilder
+						.setRootInitializer((rootInitializerCopy == null) ? null : MiscUtils.copy(rootInitializerCopy));
+			}
+		};
+	}
+
 	@Override
 	protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 		return new InfoProxyFactory() {
-
-			void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
-				Object rootInitializer = rootInstanceBuilder.getRootInitializer();
-				ByteArrayOutputStream rootInitializerStore;
-				if (rootInitializer != null) {
-					rootInitializerStore = new ByteArrayOutputStream();
-					try {
-						MiscUtils.serialize(rootInitializer, rootInitializerStore);
-					} catch (IOException e) {
-						throw new AssertionError(e);
-					}
-				} else {
-					rootInitializerStore = null;
-				}
-				rootInitializerStoreByBuilder.put(rootInstanceBuilder, rootInitializerStore);
-			}
-
-			Runnable createRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
-				if (!rootInitializerStoreByBuilder.containsKey(rootInstanceBuilder)) {
-					throw new AssertionError();
-				}
-				final ByteArrayOutputStream rootInitializerStore = rootInitializerStoreByBuilder
-						.get(rootInstanceBuilder);
-				return new Runnable() {
-					@Override
-					public void run() {
-						Object rootInitializerCopy;
-						try {
-							rootInitializerCopy = (rootInitializerStore == null) ? null
-									: MiscUtils
-											.deserialize(new ByteArrayInputStream(rootInitializerStore.toByteArray()));
-						} catch (IOException e) {
-							throw new AssertionError(e);
-						}
-						rootInstanceBuilder.setRootInitializer(
-								(rootInitializerCopy == null) ? null : MiscUtils.copy(rootInitializerCopy));
-					}
-				};
-			}
 
 			@Override
 			protected void onFormRefresh(ITypeInfo type, Object object) {
@@ -136,7 +134,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
 				if (object instanceof RootInstanceBuilderFacade) {
-					return createRootInstanceBuilderStateRestorationJob(
+					return getRootInstanceBuilderStateRestorationJob(
 							((RootInstanceBuilderFacade) object).getUnderlying());
 				}
 				return super.getLastFormRefreshStateRestorationJob(type, object);

@@ -12,6 +12,7 @@
 		have the same name and type as the source fields 
 	. The GUI should propose to configure fully the replication when mapping 
 	a multiple value to a list item 
+- InstanceBuilder: allow to easily identify lines mapped on the other side  
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. allow to select and delete diagram connections
