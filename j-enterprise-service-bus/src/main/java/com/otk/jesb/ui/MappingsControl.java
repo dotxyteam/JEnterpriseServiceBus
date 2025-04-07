@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -40,6 +40,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.PathExplorer.RelativePathNode;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
@@ -192,57 +193,106 @@ public class MappingsControl extends JPanel {
 		targetControl.visitItems(new ListControl.IItemsVisitor() {
 			@Override
 			public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
-				Object item = targetItemPosition.getItem();
-				if (!(item instanceof Facade)) {
+				if (!(targetItemPosition.getItem() instanceof Facade)) {
 					return VisitStatus.BRANCH_VISIT_INTERRUPTED;
 				}
-				if (!((Facade) item).isConcrete()) {
+				final Facade initializerFacade = (Facade) targetItemPosition.getItem();
+				if (!initializerFacade.isConcrete()) {
 					return VisitStatus.BRANCH_VISIT_INTERRUPTED;
 				}
 				List<Function> functions = new ArrayList<Function>();
-				if (item instanceof ParameterInitializerFacade) {
-					if (((ParameterInitializerFacade) item).getParameterValue() instanceof Function) {
-						functions.add((Function) ((ParameterInitializerFacade) item).getParameterValue());
+				if (initializerFacade instanceof ParameterInitializerFacade) {
+					if (((ParameterInitializerFacade) initializerFacade).getParameterValue() instanceof Function) {
+						functions.add((Function) ((ParameterInitializerFacade) initializerFacade).getParameterValue());
 					}
-				} else if (item instanceof FieldInitializerFacade) {
-					if (((FieldInitializerFacade) item).getFieldValue() instanceof Function) {
-						functions.add((Function) ((FieldInitializerFacade) item).getFieldValue());
+				} else if (initializerFacade instanceof FieldInitializerFacade) {
+					if (((FieldInitializerFacade) initializerFacade).getFieldValue() instanceof Function) {
+						functions.add((Function) ((FieldInitializerFacade) initializerFacade).getFieldValue());
 					}
-					if (((FieldInitializerFacade) item).getCondition() != null) {
-						functions.add(((FieldInitializerFacade) item).getCondition());
+					if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
+						functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
 					}
-				} else if (item instanceof ListItemInitializerFacade) {
-					if (((ListItemInitializerFacade) item).getItemValue() instanceof Function) {
-						functions.add((Function) ((ListItemInitializerFacade) item).getItemValue());
+				} else if (initializerFacade instanceof ListItemInitializerFacade) {
+					if (((ListItemInitializerFacade) initializerFacade).getItemValue() instanceof Function) {
+						functions.add((Function) ((ListItemInitializerFacade) initializerFacade).getItemValue());
 					}
-					if (((ListItemInitializerFacade) item).getItemReplicationFacade() != null) {
-						ListItemReplicationFacade replication = ((ListItemInitializerFacade) item)
+					if (((ListItemInitializerFacade) initializerFacade).getItemReplicationFacade() != null) {
+						ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
 								.getItemReplicationFacade();
 						if (replication.getIterationListValue() instanceof Function) {
 							functions.add((Function) replication.getIterationListValue());
 						}
 					}
 				}
-				List<BufferedItemPosition> mappedSourceItemPositions = new ArrayList<BufferedItemPosition>();
+				Set<BufferedItemPosition> mappedSourceItemPositions = new HashSet<BufferedItemPosition>();
 				for (Function function : functions) {
 					sourceControl.visitItems(new ListControl.IItemsVisitor() {
 						@Override
 						public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
-							Object item = sourceItemPosition.getItem();
-							if (item instanceof PathNode) {
-								String pathExpression = ((PathNode) item).getExpression();
-								String pathExpressionRegex = MiscUtils.escapeRegex(pathExpression);
-								pathExpressionRegex = ".*" + pathExpressionRegex + ".*";
-								pathExpressionRegex = pathExpressionRegex.replace("\\.", "\\s*\\.\\s*");
-								pathExpressionRegex = pathExpressionRegex.replace("\\(", "\\s*\\(\\s*");
-								pathExpressionRegex = pathExpressionRegex.replace("\\)", "\\s*\\)\\s*");
-								if (function.getFunctionBody().matches(pathExpressionRegex)) {
-									mappedSourceItemPositions.add(sourceItemPosition);
+							if (sourceItemPosition.getItem() instanceof PathNode) {
+								PathNode pathNode = (PathNode) sourceItemPosition.getItem();
+								List<String> pathExpressions = new ArrayList<String>();
+								pathExpressions.add(pathNode.getExpression());
+								for (RelativePathNode relativePathNode : relativizePathNode(pathNode,
+										initializerFacade)) {
+									pathExpressions.add(relativePathNode.getExpression());
+								}
+								for (String pathExpression : pathExpressions) {
+									String pathExpressionRegex = MiscUtils.escapeRegex(pathExpression);
+									pathExpressionRegex = ".*" + pathExpressionRegex + ".*";
+									pathExpressionRegex = pathExpressionRegex.replace("\\.", "\\s*\\.\\s*");
+									pathExpressionRegex = pathExpressionRegex.replace("\\(", "\\s*\\(\\s*");
+									pathExpressionRegex = pathExpressionRegex.replace("\\)", "\\s*\\)\\s*");
+									if (function.getFunctionBody().matches(pathExpressionRegex)) {
+										mappedSourceItemPositions.add(sourceItemPosition);
+										break;
+									}
 								}
 							}
 							return (!sourceControl.isItemPositionExpanded(sourceItemPosition))
 									? VisitStatus.BRANCH_VISIT_INTERRUPTED
 									: VisitStatus.VISIT_NOT_INTERRUPTED;
+						}
+
+						private List<RelativePathNode> relativizePathNode(PathNode pathNode, Facade initializerFacade) {
+							List<RelativePathNode> result = new ArrayList<PathExplorer.RelativePathNode>();
+							List<Facade> initializerFacadeAndAncestors = new ArrayList<Facade>();
+							initializerFacadeAndAncestors.add(initializerFacade);
+							initializerFacadeAndAncestors.addAll(Facade.getAncestors(initializerFacade));
+							for (Facade initializerFacadeAncestor : initializerFacadeAndAncestors) {
+								if (initializerFacadeAncestor instanceof ListItemInitializerFacade) {
+									ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) initializerFacadeAncestor;
+									if (listItemInitializerFacade.getItemReplicationFacade() != null) {
+										ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade
+												.getItemReplicationFacade();
+										if (itemReplicationFacade.getIterationListValue() instanceof Function) {
+											Function listFunction = (Function) itemReplicationFacade
+													.getIterationListValue();
+											PathNode pathNodeOrAncestor = pathNode;
+											while (pathNodeOrAncestor != null) {
+												if (pathNodeOrAncestor instanceof ListItemNode) {
+													String functionBodyRegex = "^\\s*return\\s+"
+															+ MiscUtils.escapeRegex(
+																	pathNodeOrAncestor.getParent().getExpression())
+															+ "\\s*;\\s*$";
+													functionBodyRegex = functionBodyRegex.replace("\\.", "\\s*\\.\\s*");
+													functionBodyRegex = functionBodyRegex.replace("\\(", "\\s*\\(\\s*");
+													functionBodyRegex = functionBodyRegex.replace("\\)", "\\s*\\)\\s*");
+													if (Pattern.compile(functionBodyRegex, Pattern.DOTALL)
+															.matcher(listFunction.getFunctionBody()).matches()) {
+														result.add(new RelativePathNode(pathNode,
+																pathNodeOrAncestor.getExpression(),
+																itemReplicationFacade.getIterationVariableName()));
+														break;
+													}
+												}
+												pathNodeOrAncestor = pathNodeOrAncestor.getParent();
+											}
+										}
+									}
+								}
+							}
+							return result;
 						}
 					});
 				}
@@ -449,7 +499,8 @@ public class MappingsControl extends JPanel {
 										}
 										if (accept) {
 											ModificationStack modifStack = SwingRendererUtils
-													.findParentFormModificationStack(initializerTreeControl, GUI.INSTANCE);
+													.findParentFormModificationStack(initializerTreeControl,
+															GUI.INSTANCE);
 											modifStack.apply(new ListModificationFactory(itemPosition)
 													.set(itemPosition.getIndex(), initializerFacade));
 											initializerTreeControl.setSingleSelection(itemPosition);
@@ -475,9 +526,14 @@ public class MappingsControl extends JPanel {
 					public ITypeInfo get() {
 						return ((ParameterInitializerFacade) initializerFacade).getParameterInfo().getType();
 					}
-				}, new Consumer<Object>() {
+				}, new Accessor<Object>() {
 					@Override
-					public void accept(Object value) {
+					public Object get() {
+						return ((ParameterInitializerFacade) initializerFacade).getParameterValue();
+					}
+
+					@Override
+					public void set(Object value) {
 						((ParameterInitializerFacade) initializerFacade).setParameterValue(value);
 					}
 				}, targetComponent);
@@ -487,9 +543,14 @@ public class MappingsControl extends JPanel {
 					public ITypeInfo get() {
 						return ((FieldInitializerFacade) initializerFacade).getFieldInfo().getType();
 					}
-				}, new Consumer<Object>() {
+				}, new Accessor<Object>() {
 					@Override
-					public void accept(Object value) {
+					public Object get() {
+						return ((FieldInitializerFacade) initializerFacade).getFieldValue();
+					}
+
+					@Override
+					public void set(Object value) {
 						((FieldInitializerFacade) initializerFacade).setFieldValue(value);
 					}
 				}, targetComponent);
@@ -498,7 +559,9 @@ public class MappingsControl extends JPanel {
 				if (pathNode instanceof ListItemNode) {
 					List<String> options = Arrays.asList("Replicate the target value for each source value",
 							"Do not replicate the target value");
-					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null, "Choose an option",
+					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
+							"Choose a mapping option for: " + pathNode.toString() + " => "
+									+ initializerFacade.toString(),
 							"Mapping");
 					if (choice == options.get(0)) {
 						itemReplication = new ListItemReplication();
@@ -520,72 +583,81 @@ public class MappingsControl extends JPanel {
 				} else {
 					itemReplication = null;
 				}
-				accept = map(new PathNode() {
-					@Override
-					public PathNode getParent() {
-						return pathNode.getParent();
-					}
+				accept = map(
+						(itemReplication != null)
+								? new PathExplorer.RelativePathNode(pathNode, pathNode.getExpression(),
+										itemReplication.getIterationVariableName())
+								: pathNode,
+						initializerFacade, new Supplier<ITypeInfo>() {
+							@Override
+							public ITypeInfo get() {
+								return ((ListItemInitializerFacade) initializerFacade).getItemType();
+							}
+						}, new Accessor<Object>() {
+							@Override
+							public Object get() {
+								return ((ListItemInitializerFacade) initializerFacade).getItemValue();
+							}
 
-					@Override
-					public ITypeInfo getExpressionType() {
-						return pathNode.getExpressionType();
-					}
-
-					@Override
-					public String getExpression() {
-						return (itemReplication != null) ? itemReplication.getIterationVariableName()
-								: pathNode.getExpression();
-					}
-
-					@Override
-					public List<PathNode> getChildren() {
-						return pathNode.getChildren();
-					}
-				}, initializerFacade, new Supplier<ITypeInfo>() {
-					@Override
-					public ITypeInfo get() {
-						return ((ListItemInitializerFacade) initializerFacade).getItemType();
-					}
-				}, new Consumer<Object>() {
-					@Override
-					public void accept(Object value) {
-						((ListItemInitializerFacade) initializerFacade).setItemValue(value);
-					}
-				}, targetComponent);
+							@Override
+							public void set(Object value) {
+								((ListItemInitializerFacade) initializerFacade).setItemValue(value);
+							}
+						}, targetComponent);
 			}
 			return accept;
 		}
 
 		private boolean map(PathNode pathNode, Facade initializerFacade, Supplier<ITypeInfo> targetTypeSupplier,
-				Consumer<Object> targetValueConsumer, Component targetComponent) throws CancellationException {
+				Accessor<Object> targetValueAccessor, Component targetComponent) throws CancellationException {
+			/*
+			 * Any source node can be mapped to a target node, even if the types are
+			 * incompatible. Actually the intent of the developer may be to generate a base
+			 * expression and modify it. The role of the UI is to automate common tasks,
+			 * provide simpler representations of data, and warn the developer early when
+			 * something is wrong. If a specific mapping is likely to be done, the it should
+			 * be done systematically. If there is a doubt, then the UI should propose the
+			 * common options. Note that if a function is complex, the function editor
+			 * should be used to compose it rather than the mappings editor. Thus there is
+			 * no need to allow to specify all the possible logics in the mappings editor.
+			 */
 			boolean accept = false;
-			if (isLeafType(targetTypeSupplier.get()) && isLeafType(pathNode.getExpressionType())) {
-				targetValueConsumer.accept(new Function("return " + pathNode.getExpression() + ";"));
-				accept = true;
-			}
-			if (!isLeafType(targetTypeSupplier.get()) && !isLeafType(pathNode.getExpressionType())) {
-				List<String> options = Arrays.asList("Assign source value to target",
-						"Map corresponding children (same name) of source and target values");
-				String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
-						"Choose an option to map: " + pathNode.toString() + " => " + initializerFacade.toString(),
-						"Mapping");
-				if (choice == options.get(0)) {
-					targetValueConsumer.accept(new Function("return " + pathNode.getExpression() + ";"));
+			if (targetValueAccessor.get() instanceof Function) {
+				if (GUI.INSTANCE.openQuestionDialog(targetComponent, "Rewrite the existing function to map: "
+						+ pathNode.toString() + " => " + initializerFacade.toString() + "?", "Mapping")) {
+					targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
 					accept = true;
-				} else if (choice == options.get(1)) {
-					initializerFacade.setConcrete(true);
-					for (Facade initializerFacadeChild : initializerFacade.getChildren()) {
-						for (PathNode pathNodeChild : pathNode.getChildren()) {
-							if (initializerFacadeChild.toString().replaceAll("[^0-9a-zA-Z]", "").toLowerCase()
-									.equals(pathNodeChild.toString().replaceAll("[^0-9a-zA-Z]", "").toLowerCase())) {
-								accept = map(pathNodeChild, initializerFacadeChild, targetComponent) || accept;
-								break;
-							}
-						}
-					}
+				}
+			} else {
+				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
+					targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
 					accept = true;
 				} else {
-					throw new CancellationException();
+					List<String> options = Arrays.asList("Assign source value to target",
+							"Map corresponding children (same name) of source and target values");
+					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
+							"Choose a mapping option for: " + pathNode.toString() + " => "
+									+ initializerFacade.toString(),
+							"Mapping");
+					if (choice == options.get(0)) {
+						targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
+						accept = true;
+					} else if (choice == options.get(1)) {
+						initializerFacade.setConcrete(true);
+						for (Facade initializerFacadeChild : initializerFacade.getChildren()) {
+							for (PathNode pathNodeChild : pathNode.getChildren()) {
+								if (initializerFacadeChild.toString().replaceAll("^\\[([0-9]+)\\]$", "[i]")
+										.replaceAll("[^0-9a-zA-Z]", "").toLowerCase().equals(pathNodeChild.toString()
+												.replaceAll("[^0-9a-zA-Z]", "").toLowerCase())) {
+									accept = map(pathNodeChild, initializerFacadeChild, targetComponent) || accept;
+									break;
+								}
+							}
+						}
+						accept = true;
+					} else {
+						throw new CancellationException();
+					}
 				}
 			}
 			return accept;

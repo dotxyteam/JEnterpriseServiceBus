@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
@@ -285,6 +286,87 @@ public class PathExplorer {
 		public String toString() {
 			return "{*}";
 		}
+	}
+
+	public static class RelativePathNode implements PathNode {
+
+		private PathNode underlying;
+		private String referenceExpression;
+		private String referenceVariableName;
+
+		public RelativePathNode(PathNode underlying, String referenceExpression, String referenceVariableName) {
+			this.underlying = underlying;
+			this.referenceExpression = referenceExpression;
+			this.referenceVariableName = referenceVariableName;
+		}
+
+		@Override
+		public PathNode getParent() {
+			PathNode result = underlying.getParent();
+			if (result != null) {
+				result = new RelativePathNode(result, referenceExpression, referenceVariableName);
+			}
+			return result;
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return underlying.getChildren().stream()
+					.map(child -> new RelativePathNode(child, referenceExpression, referenceVariableName))
+					.collect(Collectors.toList());
+		}
+
+		@Override
+		public String getExpression() {
+			return underlying.getExpression().replace(referenceExpression, referenceVariableName);
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			return underlying.getExpressionType();
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((referenceExpression == null) ? 0 : referenceExpression.hashCode());
+			result = prime * result + ((referenceVariableName == null) ? 0 : referenceVariableName.hashCode());
+			result = prime * result + ((underlying == null) ? 0 : underlying.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			RelativePathNode other = (RelativePathNode) obj;
+			if (referenceExpression == null) {
+				if (other.referenceExpression != null)
+					return false;
+			} else if (!referenceExpression.equals(other.referenceExpression))
+				return false;
+			if (referenceVariableName == null) {
+				if (other.referenceVariableName != null)
+					return false;
+			} else if (!referenceVariableName.equals(other.referenceVariableName))
+				return false;
+			if (underlying == null) {
+				if (other.underlying != null)
+					return false;
+			} else if (!underlying.equals(other.underlying))
+				return false;
+			return true;
+		}
+
+		public String toString() {
+			return underlying.toString();
+		}
+
 	}
 
 }

@@ -12,6 +12,8 @@
 		have the same name and type as the source fields 
 	. The GUI should propose to configure fully the replication when mapping 
 	a multiple value to a list item 
+	. add PathNode.getExpressionPattern() to typically allow to match
+	list item expressions that will have variable index value 
 - InstanceBuilder: allow to easily identify lines mapped on the other side  
 - allow to provide plan input through the debugger
 - diagram improvements:
