@@ -102,7 +102,7 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 								int textInsertPosition = textComponent.viewToModel(dropPoint);
 								if (textInsertPosition != -1) {
 									PathNode pathNode = (PathNode) data;
-									String expression = pathNode.getExpression();
+									String expression = pathNode.getTypicalExpression();
 									textComponent.getDocument().insertString(textInsertPosition, expression, null);
 									accept = true;
 								}

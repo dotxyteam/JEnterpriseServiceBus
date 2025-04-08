@@ -50,8 +50,13 @@ public class PathOptionsProvider {
 		}
 
 		@Override
-		public String getExpression() {
-			return pathExplorer.getRootExpression();
+		public String getTypicalExpression() {
+			return pathExplorer.getTypicalRootExpression();
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			return pathExplorer.getRootExpressionPattern();
 		}
 
 		@Override
@@ -61,7 +66,7 @@ public class PathOptionsProvider {
 
 		@Override
 		public String toString() {
-			return pathExplorer.getRootExpression();
+			return pathExplorer.getTypicalRootExpression();
 		}
 
 	}

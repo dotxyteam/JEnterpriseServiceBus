@@ -25,19 +25,23 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class PathExplorer {
 
 	private String typeName;
-	private String rootExpression;
+	private String rootVariableName;
 
-	public PathExplorer(String typeName, String rootExpression) {
+	public PathExplorer(String typeName, String rootVariableName) {
 		this.typeName = typeName;
-		this.rootExpression = rootExpression;
+		this.rootVariableName = rootVariableName;
 	}
 
 	public List<PathNode> explore() {
 		return new TypedNodeUtility(null, typeName).getChildren();
 	}
 
-	public String getRootExpression() {
-		return rootExpression;
+	public String getTypicalRootExpression() {
+		return rootVariableName;
+	}
+
+	public String getRootExpressionPattern() {
+		return "\\s*" + rootVariableName + "\\s*";
 	}
 
 	public ITypeInfo getRootExpressionType() {
@@ -50,7 +54,9 @@ public class PathExplorer {
 
 		List<PathNode> getChildren();
 
-		String getExpression();
+		String getTypicalExpression();
+
+		String getExpressionPattern();
 
 		ITypeInfo getExpressionType();
 
@@ -125,9 +131,16 @@ public class PathExplorer {
 			return result;
 		}
 
-		public String getExpression() {
-			String parentExpression = (node != null) ? node.getExpression() : PathExplorer.this.getRootExpression();
+		public String getTypicalExpression() {
+			String parentExpression = (node != null) ? node.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
 			return parentExpression;
+		}
+
+		public String getExpressionPattern() {
+			String parentPattern = (node != null) ? node.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return parentPattern;
 		}
 
 		@Override
@@ -166,14 +179,29 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String getExpression() {
-			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
-					: PathExplorer.this.getRootExpression();
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
 			IFieldInfo fieldInfo = getFieldInfo();
 			if (fieldInfo instanceof GetterFieldInfo) {
 				return parentExpression + "." + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName() + "()";
 			} else if (fieldInfo instanceof PublicFieldInfo) {
 				return parentExpression + "." + ((PublicFieldInfo) fieldInfo).getJavaField().getName();
+			} else {
+				throw new AssertionError();
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			IFieldInfo fieldInfo = getFieldInfo();
+			if (fieldInfo instanceof GetterFieldInfo) {
+				return parentPattern + "\\s*\\.\\s*" + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName()
+						+ "\\s*\\(\\s*\\)\\s*";
+			} else if (fieldInfo instanceof PublicFieldInfo) {
+				return parentPattern + "\\s*\\.\\s*" + ((PublicFieldInfo) fieldInfo).getJavaField().getName() + "\\s*";
 			} else {
 				throw new AssertionError();
 			}
@@ -218,9 +246,9 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String getExpression() {
-			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
-					: PathExplorer.this.getRootExpression();
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
 			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
 			if (parentTypeInfo instanceof ArrayTypeInfo) {
 				return parentExpression + "[i]";
@@ -228,6 +256,22 @@ public class PathExplorer {
 				return parentExpression + ".get(i)";
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentExpression + ".iterator().next()";
+			} else {
+				throw new AssertionError();
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return parentPattern + "\\s*\\[\\s*[^\\[\\]]+\\s*\\]\\s*";
+			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {
+				return parentPattern + "\\s*\\.\\s*get\\s*\\(\\s*[^\\(\\)]+\\s*\\)\\s*";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return parentPattern + "\\s*\\.\\s*iterator\\s*\\(\\s*\\)\\s*\\.\\s*next\\s*\\(\\s*\\)\\s*";
 			} else {
 				throw new AssertionError();
 			}
@@ -271,10 +315,17 @@ public class PathExplorer {
 		}
 
 		@Override
-		public String getExpression() {
-			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpression()
-					: PathExplorer.this.getRootExpression();
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
 			return parentExpression + ".get(*)";
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return parentPattern + "\\s*\\.\\s*get\\s*\\(\\s*[^\\(\\)]+\\s*\\)\\s*";
 		}
 
 		@Override
@@ -291,12 +342,15 @@ public class PathExplorer {
 	public static class RelativePathNode implements PathNode {
 
 		private PathNode underlying;
-		private String referenceExpression;
+		private String typicalReferenceExpression;
+		private String referenceExpressionPattern;
 		private String referenceVariableName;
 
-		public RelativePathNode(PathNode underlying, String referenceExpression, String referenceVariableName) {
+		public RelativePathNode(PathNode underlying, String typicalReferenceExpression,
+				String referenceExpressionPattern, String referenceVariableName) {
 			this.underlying = underlying;
-			this.referenceExpression = referenceExpression;
+			this.typicalReferenceExpression = typicalReferenceExpression;
+			this.referenceExpressionPattern = referenceExpressionPattern;
 			this.referenceVariableName = referenceVariableName;
 		}
 
@@ -304,21 +358,28 @@ public class PathExplorer {
 		public PathNode getParent() {
 			PathNode result = underlying.getParent();
 			if (result != null) {
-				result = new RelativePathNode(result, referenceExpression, referenceVariableName);
+				result = new RelativePathNode(result, typicalReferenceExpression, referenceExpressionPattern,
+						referenceVariableName);
 			}
 			return result;
 		}
 
 		@Override
 		public List<PathNode> getChildren() {
-			return underlying.getChildren().stream()
-					.map(child -> new RelativePathNode(child, referenceExpression, referenceVariableName))
+			return underlying.getChildren().stream().map(child -> new RelativePathNode(child,
+					typicalReferenceExpression, referenceExpressionPattern, referenceVariableName))
 					.collect(Collectors.toList());
 		}
 
 		@Override
-		public String getExpression() {
-			return underlying.getExpression().replace(referenceExpression, referenceVariableName);
+		public String getTypicalExpression() {
+			return underlying.getTypicalExpression().replace(typicalReferenceExpression, referenceVariableName);
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			return underlying.getExpressionPattern().replace(referenceExpressionPattern,
+					"\\s*" + referenceVariableName + "\\s*");
 		}
 
 		@Override
@@ -330,8 +391,11 @@ public class PathExplorer {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((referenceExpression == null) ? 0 : referenceExpression.hashCode());
+			result = prime * result
+					+ ((referenceExpressionPattern == null) ? 0 : referenceExpressionPattern.hashCode());
 			result = prime * result + ((referenceVariableName == null) ? 0 : referenceVariableName.hashCode());
+			result = prime * result
+					+ ((typicalReferenceExpression == null) ? 0 : typicalReferenceExpression.hashCode());
 			result = prime * result + ((underlying == null) ? 0 : underlying.hashCode());
 			return result;
 		}
@@ -345,15 +409,20 @@ public class PathExplorer {
 			if (getClass() != obj.getClass())
 				return false;
 			RelativePathNode other = (RelativePathNode) obj;
-			if (referenceExpression == null) {
-				if (other.referenceExpression != null)
+			if (referenceExpressionPattern == null) {
+				if (other.referenceExpressionPattern != null)
 					return false;
-			} else if (!referenceExpression.equals(other.referenceExpression))
+			} else if (!referenceExpressionPattern.equals(other.referenceExpressionPattern))
 				return false;
 			if (referenceVariableName == null) {
 				if (other.referenceVariableName != null)
 					return false;
 			} else if (!referenceVariableName.equals(other.referenceVariableName))
+				return false;
+			if (typicalReferenceExpression == null) {
+				if (other.typicalReferenceExpression != null)
+					return false;
+			} else if (!typicalReferenceExpression.equals(other.typicalReferenceExpression))
 				return false;
 			if (underlying == null) {
 				if (other.underlying != null)

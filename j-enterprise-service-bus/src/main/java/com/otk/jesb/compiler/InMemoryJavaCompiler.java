@@ -139,11 +139,32 @@ public class InMemoryJavaCompiler {
 		for (Diagnostic<?> diagnostic : collector.getDiagnostics()) {
 			if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
 				throw new CompilationError((int) diagnostic.getStartPosition(), (int) diagnostic.getEndPosition(),
-						diagnostic.getMessage(null));
+						diagnostic.getMessage(null), extractSourceCode(diagnostic));
 			}
 		}
-		if (!success)
-			throw new CompilationError(-1, -1, "Unknown error");
+		if (!success) {
+			throw new CompilationError(-1, -1, "Unknown error", null);
+		}
+	}
+
+	private String extractSourceCode(Diagnostic<?> diagnostic) {
+		if(!(diagnostic.getSource() instanceof NamedJavaFileObject) ){
+			return null;
+		}
+		NamedJavaFileObject javaFileObject = (NamedJavaFileObject)diagnostic.getSource();
+		if(javaFileObject.getKind() !=  Kind.SOURCE) {
+			return null;
+		}
+		CharSequence charSequence;
+		try {
+			charSequence = javaFileObject.getCharContent(true);
+		} catch (IOException e) {
+			return null;
+		}
+		if(charSequence == null) {
+			return null;
+		}
+		return charSequence.toString();
 	}
 
 	private List<JavaFileObject> collectSourceFiles(UID compilationIdentifier, File sourceDirectory,

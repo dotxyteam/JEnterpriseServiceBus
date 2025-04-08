@@ -5,21 +5,18 @@
 	. advertise
 	. improve the features
 - InstanceBuilder misses 'with'
-- InstanceBuilder misses 'auto map'
-	. When mapping different types values, the GUI should propose to
-		* create a 'with'
-		* map automatically the target instance builder params/fields that 
-		have the same name and type as the source fields 
-	. The GUI should propose to configure fully the replication when mapping 
-	a multiple value to a list item 
-	. add PathNode.getExpressionPattern() to typically allow to match
-	list item expressions that will have variable index value 
+- InstanceBuilder 'auto map':
+	. the most relative path should be used whenever it is possible
+	. the initial replication item variable name should be unique
+- status bar error messages are not fully readable sometimes
+- it should be possible to view the full source code of compilation errors
 - InstanceBuilder: allow to easily identify lines mapped on the other side  
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. allow to select and delete diagram connections
 	. smaller diagram node images
 	. connections are not straight and nice
+- manage renamings
 - allow to start plan execution on event (timer, file poller, etc)
 - add things like groups (for repetition, etc) and conditional transitions for steps
 - create and display a Sub-PlanExecutor for each sub-plan execution

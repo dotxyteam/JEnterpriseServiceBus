@@ -231,19 +231,15 @@ public class MappingsControl extends JPanel {
 						public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
 							if (sourceItemPosition.getItem() instanceof PathNode) {
 								PathNode pathNode = (PathNode) sourceItemPosition.getItem();
-								List<String> pathExpressions = new ArrayList<String>();
-								pathExpressions.add(pathNode.getExpression());
+								List<String> pathExpressionPatterns = new ArrayList<String>();
+								pathExpressionPatterns.add(pathNode.getExpressionPattern());
 								for (RelativePathNode relativePathNode : relativizePathNode(pathNode,
 										initializerFacade)) {
-									pathExpressions.add(relativePathNode.getExpression());
+									pathExpressionPatterns.add(relativePathNode.getExpressionPattern());
 								}
-								for (String pathExpression : pathExpressions) {
-									String pathExpressionRegex = MiscUtils.escapeRegex(pathExpression);
-									pathExpressionRegex = ".*" + pathExpressionRegex + ".*";
-									pathExpressionRegex = pathExpressionRegex.replace("\\.", "\\s*\\.\\s*");
-									pathExpressionRegex = pathExpressionRegex.replace("\\(", "\\s*\\(\\s*");
-									pathExpressionRegex = pathExpressionRegex.replace("\\)", "\\s*\\)\\s*");
-									if (function.getFunctionBody().matches(pathExpressionRegex)) {
+								for (String pathExpressionPattern : pathExpressionPatterns) {
+									if (Pattern.compile(".*" + pathExpressionPattern + ".*", Pattern.DOTALL)
+											.matcher(function.getFunctionBody()).matches()) {
 										mappedSourceItemPositions.add(sourceItemPosition);
 										break;
 									}
@@ -271,17 +267,14 @@ public class MappingsControl extends JPanel {
 											PathNode pathNodeOrAncestor = pathNode;
 											while (pathNodeOrAncestor != null) {
 												if (pathNodeOrAncestor instanceof ListItemNode) {
-													String functionBodyRegex = "^\\s*return\\s+"
-															+ MiscUtils.escapeRegex(
-																	pathNodeOrAncestor.getParent().getExpression())
+													String functionBodyPattern = "^\\s*return\\s+"
+															+ pathNodeOrAncestor.getParent().getExpressionPattern()
 															+ "\\s*;\\s*$";
-													functionBodyRegex = functionBodyRegex.replace("\\.", "\\s*\\.\\s*");
-													functionBodyRegex = functionBodyRegex.replace("\\(", "\\s*\\(\\s*");
-													functionBodyRegex = functionBodyRegex.replace("\\)", "\\s*\\)\\s*");
-													if (Pattern.compile(functionBodyRegex, Pattern.DOTALL)
+													if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)
 															.matcher(listFunction.getFunctionBody()).matches()) {
 														result.add(new RelativePathNode(pathNode,
-																pathNodeOrAncestor.getExpression(),
+																pathNodeOrAncestor.getTypicalExpression(),
+																pathNodeOrAncestor.getExpressionPattern(),
 																itemReplicationFacade.getIterationVariableName()));
 														break;
 													}
@@ -565,8 +558,8 @@ public class MappingsControl extends JPanel {
 							"Mapping");
 					if (choice == options.get(0)) {
 						itemReplication = new ListItemReplication();
-						itemReplication.setIterationListValue(
-								new Function("return " + ((ListItemNode) pathNode).getParent().getExpression() + ";"));
+						itemReplication.setIterationListValue(new Function(
+								"return " + ((ListItemNode) pathNode).getParent().getTypicalExpression() + ";"));
 						itemReplication.setIterationListValueTypeName(
 								((ListItemNode) pathNode).getParent().getExpressionType().getName());
 						itemReplication
@@ -583,12 +576,10 @@ public class MappingsControl extends JPanel {
 				} else {
 					itemReplication = null;
 				}
-				accept = map(
-						(itemReplication != null)
-								? new PathExplorer.RelativePathNode(pathNode, pathNode.getExpression(),
-										itemReplication.getIterationVariableName())
-								: pathNode,
-						initializerFacade, new Supplier<ITypeInfo>() {
+				accept = map((itemReplication != null)
+						? new PathExplorer.RelativePathNode(pathNode, pathNode.getTypicalExpression(),
+								pathNode.getExpressionPattern(), itemReplication.getIterationVariableName())
+						: pathNode, initializerFacade, new Supplier<ITypeInfo>() {
 							@Override
 							public ITypeInfo get() {
 								return ((ListItemInitializerFacade) initializerFacade).getItemType();
@@ -625,22 +616,22 @@ public class MappingsControl extends JPanel {
 			if (targetValueAccessor.get() instanceof Function) {
 				if (GUI.INSTANCE.openQuestionDialog(targetComponent, "Rewrite the existing function to map: "
 						+ pathNode.toString() + " => " + initializerFacade.toString() + "?", "Mapping")) {
-					targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
+					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
 				}
 			} else {
 				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
-					targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
+					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
 				} else {
 					List<String> options = Arrays.asList("Assign source value to target",
-							"Map corresponding children (same name) of source and target values");
+							"Map corresponding children (same name) of source and target values", "Do not map");
 					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
 							"Choose a mapping option for: " + pathNode.toString() + " => "
 									+ initializerFacade.toString(),
 							"Mapping");
 					if (choice == options.get(0)) {
-						targetValueAccessor.set(new Function("return " + pathNode.getExpression() + ";"));
+						targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 						accept = true;
 					} else if (choice == options.get(1)) {
 						initializerFacade.setConcrete(true);
@@ -655,6 +646,8 @@ public class MappingsControl extends JPanel {
 							}
 						}
 						accept = true;
+					} else if (choice == options.get(2)) {
+						// do nothing
 					} else {
 						throw new CancellationException();
 					}

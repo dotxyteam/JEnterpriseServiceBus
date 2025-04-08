@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -202,8 +201,9 @@ public class GUI extends SwingCustomizer {
 						}
 						if (field.getName().equals("functionBody")
 								&& (field.getType().getName().equals(String.class.getName()))) {
-							TextControl result =  (TextControl) super.createFieldControl();
-							result.getTextComponent().setTransferHandler(new FunctionEditorVariableTreeControl.PathImportTransferHandler());
+							TextControl result = (TextControl) super.createFieldControl();
+							result.getTextComponent().setTransferHandler(
+									new FunctionEditorVariableTreeControl.PathImportTransferHandler());
 							result.getTextComponent().setDropMode(DropMode.INSERT);
 							return result;
 						}
@@ -293,13 +293,9 @@ public class GUI extends SwingCustomizer {
 					public void refreshUI(boolean refreshStructure) {
 						setVisible(true);
 						if (object instanceof InstanceBuilderFacade) {
-							if (field.getName().equals("selectedConstructorSignature")) {
-								setBorder(BorderFactory.createTitledBorder(field.getCaption()));
-								Object[] valueOptions = field.getValueOptions(object);
-								if (valueOptions != null) {
-									if (valueOptions.length <= 1) {
-										setVisible(false);
-									}
+							if (field.getName().equals("constructorGroup")) {
+								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
+									setVisible(false);
 								}
 							}
 							if (field.getName().equals("typeGroup")) {
@@ -310,16 +306,6 @@ public class GUI extends SwingCustomizer {
 							}
 						}
 						super.refreshUI(refreshStructure);
-					}
-
-					@Override
-					public boolean showsCaption() {
-						if (object instanceof InstanceBuilderFacade) {
-							if (field.getName().equals("selectedConstructorSignature")) {
-								return true;
-							}
-						}
-						return super.showsCaption();
 					}
 
 				};

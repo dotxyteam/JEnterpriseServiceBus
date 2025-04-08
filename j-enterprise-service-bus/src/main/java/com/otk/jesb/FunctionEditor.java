@@ -66,9 +66,9 @@ public class FunctionEditor extends PathOptionsProvider {
 			throw new IllegalStateException("Select a path node");
 		}
 		if (getFunctionBody() == null) {
-			setFunctionBody(selectedPathNode.getExpression());
+			setFunctionBody(selectedPathNode.getTypicalExpression());
 		} else {
-			setFunctionBody(getFunctionBody().substring(0, insertStartPosition) + selectedPathNode.getExpression()
+			setFunctionBody(getFunctionBody().substring(0, insertStartPosition) + selectedPathNode.getTypicalExpression()
 					+ getFunctionBody().substring(insertEndPosition));
 		}
 	}

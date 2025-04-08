@@ -55,7 +55,7 @@ public class CompiledFunction {
 			if (endPosition >= functionBody.length()) {
 				endPosition = functionBody.length() - 1;
 			}
-			throw new CompilationError(startPosition, endPosition, e.getMessage());
+			throw new CompilationError(startPosition, endPosition, e.getMessage(), functionBody, e);
 		}
 		return new CompiledFunction(functionClass, functionClassSource);
 	}
