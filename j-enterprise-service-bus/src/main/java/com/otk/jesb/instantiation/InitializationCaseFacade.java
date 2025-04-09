@@ -12,7 +12,6 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
-import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -418,7 +417,7 @@ public class InitializationCaseFacade extends Facade {
 			if (facade instanceof ParameterInitializerFacade) {
 				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;
 				if (currentFacade.getParameterValue() == function) {
-					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+					return new CompilationContext(validationContext, currentFacade,
 							((DefaultTypeInfo) currentFacade.getParameterInfo().getType()).getJavaType());
 				}
 				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {
@@ -434,11 +433,10 @@ public class InitializationCaseFacade extends Facade {
 					continue;
 				}
 				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
-							boolean.class);
+					return new CompilationContext(validationContext, currentFacade, boolean.class);
 				}
 				if (currentFacade.getFieldValue() == function) {
-					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+					return new CompilationContext(validationContext, currentFacade,
 							((DefaultTypeInfo) currentFacade.getFieldInfo().getType()).getJavaType());
 				}
 				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {
@@ -454,14 +452,13 @@ public class InitializationCaseFacade extends Facade {
 					continue;
 				}
 				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(new VerificationContext(validationContext, currentFacade),
-							boolean.class);
+					return new CompilationContext(validationContext, currentFacade, boolean.class);
 				}
 				VariableDeclaration iterationVariableDeclaration = null;
 				int iterationVariableDeclarationPosition = -1;
 				if (currentFacade.getItemReplicationFacade() != null) {
 					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {
-						return new CompilationContext(new VerificationContext(validationContext, currentFacade),
+						return new CompilationContext(validationContext, currentFacade,
 								currentFacade.getItemReplicationFacade().getIterationListValueClass());
 					}
 					if (currentFacade.getItemReplicationFacade()
@@ -496,7 +493,7 @@ public class InitializationCaseFacade extends Facade {
 						iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
 								newVariableDeclarations);
 					}
-					return new CompilationContext(new VerificationContext(iterationValidationContext, currentFacade),
+					return new CompilationContext(iterationValidationContext, currentFacade,
 							((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
 				}
 				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
@@ -519,8 +516,7 @@ public class InitializationCaseFacade extends Facade {
 				for (Facade childFacade : currentFacade.getChildren()) {
 					InitializationCaseFacade caseFacade = (InitializationCaseFacade) childFacade;
 					if (caseFacade.getCondition() == function) {
-						return new CompilationContext(new VerificationContext(validationContext, currentFacade),
-								boolean.class);
+						return new CompilationContext(validationContext, currentFacade, boolean.class);
 					}
 					CompilationContext compilationContext = caseFacade.findFunctionCompilationContext(function,
 							validationContext);

@@ -39,11 +39,11 @@ import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
+import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.Function;
-import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.MapEntryBuilder;
@@ -89,22 +89,22 @@ public class MiscUtils {
 				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, validationContext)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
 						validationContext);
-		if (!MiscUtils.equalsOrBothNull(compilationContext.getVerificationContext().getParentFacade(),
+		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(),
 				evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
 		if (!Arrays.equals(
 				evaluationContext.getExecutionContext().getVariables().stream().map(variable -> variable.getName())
 						.toArray(),
-				compilationContext.getVerificationContext().getValidationContext().getVariableDeclarations().stream()
+				compilationContext.getValidationContext().getVariableDeclarations().stream()
 						.map(variableDeclaration -> variableDeclaration.getVariableName()).toArray())) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
 				makeTypeNamesAbsolute(function.getFunctionBody(),
 						getAncestorStructureInstanceBuilders(
-								compilationContext.getVerificationContext().getParentFacade())),
-				compilationContext.getVerificationContext().getValidationContext(),
+								compilationContext.getParentFacade())),
+				compilationContext.getValidationContext(),
 				compilationContext.getFunctionReturnType());
 		return compiledFunction.execute(executionContext);
 	}
@@ -112,8 +112,8 @@ public class MiscUtils {
 	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
 		CompiledFunction.get(
 				makeTypeNamesAbsolute(functionBody,
-						getAncestorStructureInstanceBuilders(context.getVerificationContext().getParentFacade())),
-				context.getVerificationContext().getValidationContext(), context.getFunctionReturnType());
+						getAncestorStructureInstanceBuilders(context.getParentFacade())),
+				context.getValidationContext(), context.getFunctionReturnType());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {

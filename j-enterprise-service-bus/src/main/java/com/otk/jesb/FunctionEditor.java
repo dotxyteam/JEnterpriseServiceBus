@@ -5,8 +5,8 @@ import java.util.List;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.Function;
-import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.util.MiscUtils;
 
 public class FunctionEditor extends PathOptionsProvider {
@@ -37,7 +37,7 @@ public class FunctionEditor extends PathOptionsProvider {
 
 	@Override
 	protected List<VariableDeclaration> getVariableDeclarations() {
-		return getCompilationContext().getVerificationContext().getValidationContext().getVariableDeclarations();
+		return getCompilationContext().getValidationContext().getVariableDeclarations();
 	}
 
 	private CompilationContext getCompilationContext() {

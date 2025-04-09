@@ -38,13 +38,17 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 
 import com.otk.jesb.PathExplorer;
+import com.otk.jesb.PathExplorer.FieldNode;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
+import com.otk.jesb.Plan;
+import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
+import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplication;
 import com.otk.jesb.instantiation.ListItemReplicationFacade;
@@ -77,7 +81,7 @@ public class MappingsControl extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : listVisibleMappings()) {
+		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : estimateVisibleMappings()) {
 			BufferedItemPosition sourceItemPosition = mapping.getFirst();
 			BufferedItemPosition targetItemPosition = mapping.getSecond();
 			int sourceY;
@@ -108,7 +112,44 @@ public class MappingsControl extends JPanel {
 		return new Color(0, 0, 255);
 	}
 
-	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> listVisibleMappings() {
+	private static PathNode relativizePathNode(PathNode pathNode, Facade initializerFacade) {
+		if (initializerFacade.getParent() != null) {
+			pathNode = relativizePathNode(pathNode, initializerFacade.getParent());
+		}
+		if (initializerFacade instanceof ListItemInitializerFacade) {
+			ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) initializerFacade;
+			if (listItemInitializerFacade.getItemReplicationFacade() != null) {
+				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
+				if (itemReplicationFacade.getIterationListValue() instanceof Function) {
+					Function replicationFunction = (Function) itemReplicationFacade.getIterationListValue();
+					PathNode pathNodeOrAncestor = pathNode;
+					while (pathNodeOrAncestor != null) {
+						if (unrelativizePathNode(pathNodeOrAncestor)  instanceof ListItemNode) {
+							String functionBodyPattern = "^\\s*return\\s+"
+									+ pathNodeOrAncestor.getParent().getExpressionPattern() + "\\s*;\\s*$";
+							if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)
+									.matcher(replicationFunction.getFunctionBody()).matches()) {
+								return new RelativePathNode(pathNode, pathNodeOrAncestor.getTypicalExpression(),
+										pathNodeOrAncestor.getExpressionPattern(),
+										itemReplicationFacade.getIterationVariableName());
+							}
+						}
+						pathNodeOrAncestor = pathNodeOrAncestor.getParent();
+					}
+				}
+			}
+		}
+		return pathNode;
+	}
+
+	private static PathNode unrelativizePathNode(PathNode pathNode) {
+		if (pathNode instanceof RelativePathNode) {
+			return unrelativizePathNode(((RelativePathNode) pathNode).getUnderlying());
+		}
+		return pathNode;
+	}
+
+	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateVisibleMappings() {
 		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
 		InstanceBuilderVariableTreeControl sourceControl = findControl(this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
@@ -231,18 +272,10 @@ public class MappingsControl extends JPanel {
 						public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
 							if (sourceItemPosition.getItem() instanceof PathNode) {
 								PathNode pathNode = (PathNode) sourceItemPosition.getItem();
-								List<String> pathExpressionPatterns = new ArrayList<String>();
-								pathExpressionPatterns.add(pathNode.getExpressionPattern());
-								for (RelativePathNode relativePathNode : relativizePathNode(pathNode,
-										initializerFacade)) {
-									pathExpressionPatterns.add(relativePathNode.getExpressionPattern());
-								}
-								for (String pathExpressionPattern : pathExpressionPatterns) {
-									if (Pattern.compile(".*" + pathExpressionPattern + ".*", Pattern.DOTALL)
-											.matcher(function.getFunctionBody()).matches()) {
-										mappedSourceItemPositions.add(sourceItemPosition);
-										break;
-									}
+								pathNode = relativizePathNode(pathNode, initializerFacade);
+								if (Pattern.compile(".*" + pathNode.getExpressionPattern() + ".*", Pattern.DOTALL)
+										.matcher(function.getFunctionBody()).matches()) {
+									mappedSourceItemPositions.add(sourceItemPosition);
 								}
 							}
 							return (!sourceControl.isItemPositionExpanded(sourceItemPosition))
@@ -250,43 +283,6 @@ public class MappingsControl extends JPanel {
 									: VisitStatus.VISIT_NOT_INTERRUPTED;
 						}
 
-						private List<RelativePathNode> relativizePathNode(PathNode pathNode, Facade initializerFacade) {
-							List<RelativePathNode> result = new ArrayList<PathExplorer.RelativePathNode>();
-							List<Facade> initializerFacadeAndAncestors = new ArrayList<Facade>();
-							initializerFacadeAndAncestors.add(initializerFacade);
-							initializerFacadeAndAncestors.addAll(Facade.getAncestors(initializerFacade));
-							for (Facade initializerFacadeAncestor : initializerFacadeAndAncestors) {
-								if (initializerFacadeAncestor instanceof ListItemInitializerFacade) {
-									ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) initializerFacadeAncestor;
-									if (listItemInitializerFacade.getItemReplicationFacade() != null) {
-										ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade
-												.getItemReplicationFacade();
-										if (itemReplicationFacade.getIterationListValue() instanceof Function) {
-											Function listFunction = (Function) itemReplicationFacade
-													.getIterationListValue();
-											PathNode pathNodeOrAncestor = pathNode;
-											while (pathNodeOrAncestor != null) {
-												if (pathNodeOrAncestor instanceof ListItemNode) {
-													String functionBodyPattern = "^\\s*return\\s+"
-															+ pathNodeOrAncestor.getParent().getExpressionPattern()
-															+ "\\s*;\\s*$";
-													if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)
-															.matcher(listFunction.getFunctionBody()).matches()) {
-														result.add(new RelativePathNode(pathNode,
-																pathNodeOrAncestor.getTypicalExpression(),
-																pathNodeOrAncestor.getExpressionPattern(),
-																itemReplicationFacade.getIterationVariableName()));
-														break;
-													}
-												}
-												pathNodeOrAncestor = pathNodeOrAncestor.getParent();
-											}
-										}
-									}
-								}
-							}
-							return result;
-						}
 					});
 				}
 				List<BufferedItemPosition> filteredMappedSourceItemPositions = mappedSourceItemPositions.stream()
@@ -405,7 +401,8 @@ public class MappingsControl extends JPanel {
 		private boolean isMapped(int rowIndex) {
 			MappingsControl mappingsControl = findMappingsControl();
 			if (mappingsControl != null) {
-				for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl.listVisibleMappings()) {
+				for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
+						.estimateVisibleMappings()) {
 					BufferedItemPosition itemPosition = getSideItemPosition(pair);
 					TreePath treePath = getTreePath(itemPosition);
 					int row = treeTableComponent.getRowForPath(treePath);
@@ -478,10 +475,11 @@ public class MappingsControl extends JPanel {
 									Object item = itemPosition.getItem();
 									if (item instanceof Facade) {
 										Facade initializerFacade = (Facade) item;
-										PathNode pathNode = (PathNode) data;
 										RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) Facade
 												.getRoot(initializerFacade)).getUnderlying();
 										JESBReflectionUI.backupRootInstanceBuilderState(rootInstanceBuilder);
+										PathNode pathNode = (PathNode) data;
+										pathNode = relativizePathNode(pathNode, initializerFacade);
 										try {
 											accept = map(pathNode, initializerFacade, component);
 										} catch (CancellationException e) {
@@ -548,37 +546,13 @@ public class MappingsControl extends JPanel {
 					}
 				}, targetComponent);
 			} else if (initializerFacade instanceof ListItemInitializerFacade) {
-				final ListItemReplication itemReplication;
-				if (pathNode instanceof ListItemNode) {
-					List<String> options = Arrays.asList("Replicate the target value for each source value",
-							"Do not replicate the target value");
-					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
-							"Choose a mapping option for: " + pathNode.toString() + " => "
-									+ initializerFacade.toString(),
-							"Mapping");
-					if (choice == options.get(0)) {
-						itemReplication = new ListItemReplication();
-						itemReplication.setIterationListValue(new Function(
-								"return " + ((ListItemNode) pathNode).getParent().getTypicalExpression() + ";"));
-						itemReplication.setIterationListValueTypeName(
-								((ListItemNode) pathNode).getParent().getExpressionType().getName());
-						itemReplication
-								.setIterationVariableTypeName(((ListItemNode) pathNode).getExpressionType().getName());
-						((ListItemInitializerFacade) initializerFacade).setConcrete(true);
-						((ListItemInitializerFacade) initializerFacade).getUnderlying()
-								.setItemReplication(itemReplication);
-						accept = true;
-					} else if (choice == options.get(1)) {
-						itemReplication = null;
-					} else {
-						throw new CancellationException();
-					}
-				} else {
-					itemReplication = null;
-				}
-				accept = map((itemReplication != null)
+				accept = mapListItemReplication(pathNode, (ListItemInitializerFacade) initializerFacade,
+						targetComponent);
+				ListItemReplicationFacade replicationFacade = ((ListItemInitializerFacade) initializerFacade)
+						.getItemReplicationFacade();
+				accept = map((replicationFacade != null)
 						? new PathExplorer.RelativePathNode(pathNode, pathNode.getTypicalExpression(),
-								pathNode.getExpressionPattern(), itemReplication.getIterationVariableName())
+								pathNode.getExpressionPattern(), replicationFacade.getIterationVariableName())
 						: pathNode, initializerFacade, new Supplier<ITypeInfo>() {
 							@Override
 							public ITypeInfo get() {
@@ -594,24 +568,72 @@ public class MappingsControl extends JPanel {
 							public void set(Object value) {
 								((ListItemInitializerFacade) initializerFacade).setItemValue(value);
 							}
-						}, targetComponent);
+						}, targetComponent) || accept;
+			}
+			return accept;
+		}
+
+		private boolean mapListItemReplication(PathNode pathNode, ListItemInitializerFacade listItemInitializerFacade,
+				Component targetComponent) {
+			boolean accept = false;
+			if (unrelativizePathNode(pathNode) instanceof ListItemNode) {
+				List<String> options = Arrays.asList("Replicate the target value for each source value",
+						"Do not replicate the target value");
+				String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
+						"Choose a mapping option for: " + pathNode.toString() + " => "
+								+ listItemInitializerFacade.toString(),
+						"Mapping");
+				if (choice == options.get(0)) {
+					ListItemReplication itemReplication = new ListItemReplication();
+					itemReplication.setIterationListValue(
+							new Function("return " + pathNode.getParent().getTypicalExpression() + ";"));
+					itemReplication.setIterationListValueTypeName(pathNode.getParent().getExpressionType().getName());
+					itemReplication.setIterationVariableTypeName(pathNode.getExpressionType().getName());
+					((ListItemInitializerFacade) listItemInitializerFacade).setConcrete(true);
+					((ListItemInitializerFacade) listItemInitializerFacade).getUnderlying()
+							.setItemReplication(itemReplication);
+
+					if (unrelativizePathNode(pathNode.getParent()) instanceof FieldNode) {
+						String parentFieldName = ((FieldNode) unrelativizePathNode(pathNode.getParent()))
+								.getFieldName();
+						itemReplication
+								.setIterationVariableName("current" + parentFieldName.substring(0, 1).toUpperCase()
+										+ parentFieldName.substring(1) + "Item");
+					}
+					CompilationContext compilationContext = ((InstanceBuilderFacade) Facade
+							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
+									(Function) itemReplication.getIterationListValue(),
+									new Plan.ValidationContext(new Plan()));
+					final String NUMBERED_NAME_PATTERN = "^(.*)([0-9]+)$";
+					while (true) {
+						boolean nameConflictDetected = compilationContext.getValidationContext()
+								.getVariableDeclarations().stream().anyMatch(variableDeclaration -> variableDeclaration
+										.getVariableName().equals(itemReplication.getIterationVariableName()));
+						if (!nameConflictDetected) {
+							break;
+						}
+						if (!itemReplication.getIterationVariableName().matches(NUMBERED_NAME_PATTERN)) {
+							itemReplication.setIterationVariableName(itemReplication.getIterationVariableName() + "1");
+						} else {
+							int number = Integer.valueOf(
+									itemReplication.getIterationVariableName().replaceAll(NUMBERED_NAME_PATTERN, "$2"));
+							itemReplication.setIterationVariableName(
+									itemReplication.getIterationVariableName().replaceAll(NUMBERED_NAME_PATTERN, "$1")
+											+ (number + 1));
+						}
+					}
+					accept = true;
+				} else if (choice == options.get(1)) {
+					// do nothing
+				} else {
+					throw new CancellationException();
+				}
 			}
 			return accept;
 		}
 
 		private boolean map(PathNode pathNode, Facade initializerFacade, Supplier<ITypeInfo> targetTypeSupplier,
 				Accessor<Object> targetValueAccessor, Component targetComponent) throws CancellationException {
-			/*
-			 * Any source node can be mapped to a target node, even if the types are
-			 * incompatible. Actually the intent of the developer may be to generate a base
-			 * expression and modify it. The role of the UI is to automate common tasks,
-			 * provide simpler representations of data, and warn the developer early when
-			 * something is wrong. If a specific mapping is likely to be done, the it should
-			 * be done systematically. If there is a doubt, then the UI should propose the
-			 * common options. Note that if a function is complex, the function editor
-			 * should be used to compose it rather than the mappings editor. Thus there is
-			 * no need to allow to specify all the possible logics in the mappings editor.
-			 */
 			boolean accept = false;
 			if (targetValueAccessor.get() instanceof Function) {
 				if (GUI.INSTANCE.openQuestionDialog(targetComponent, "Rewrite the existing function to map: "

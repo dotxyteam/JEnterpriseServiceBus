@@ -41,7 +41,7 @@ public class PathExplorer {
 	}
 
 	public String getRootExpressionPattern() {
-		return "\\s*" + rootVariableName + "\\s*";
+		return "\\s*\\b" + rootVariableName + "\\b\\s*";
 	}
 
 	public ITypeInfo getRootExpressionType() {
@@ -201,7 +201,7 @@ public class PathExplorer {
 				return parentPattern + "\\s*\\.\\s*" + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName()
 						+ "\\s*\\(\\s*\\)\\s*";
 			} else if (fieldInfo instanceof PublicFieldInfo) {
-				return parentPattern + "\\s*\\.\\s*" + ((PublicFieldInfo) fieldInfo).getJavaField().getName() + "\\s*";
+				return parentPattern + "\\s*\\.\\s*\\b" + ((PublicFieldInfo) fieldInfo).getJavaField().getName() + "\\b\\s*";
 			} else {
 				throw new AssertionError();
 			}
@@ -354,6 +354,22 @@ public class PathExplorer {
 			this.referenceVariableName = referenceVariableName;
 		}
 
+		public PathNode getUnderlying() {
+			return underlying;
+		}
+
+		public String getTypicalReferenceExpression() {
+			return typicalReferenceExpression;
+		}
+
+		public String getReferenceExpressionPattern() {
+			return referenceExpressionPattern;
+		}
+
+		public String getReferenceVariableName() {
+			return referenceVariableName;
+		}
+
 		@Override
 		public PathNode getParent() {
 			PathNode result = underlying.getParent();
@@ -379,7 +395,7 @@ public class PathExplorer {
 		@Override
 		public String getExpressionPattern() {
 			return underlying.getExpressionPattern().replace(referenceExpressionPattern,
-					"\\s*" + referenceVariableName + "\\s*");
+					"\\s*\\b" + referenceVariableName + "\\b\\s*");
 		}
 
 		@Override

@@ -7,9 +7,9 @@ import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.Function;
-import com.otk.jesb.instantiation.Function.CompilationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
 import xy.reflect.ui.info.ResourcePath;
