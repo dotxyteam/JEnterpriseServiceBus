@@ -124,7 +124,7 @@ public class MappingsControl extends JPanel {
 					Function replicationFunction = (Function) itemReplicationFacade.getIterationListValue();
 					PathNode pathNodeOrAncestor = pathNode;
 					while (pathNodeOrAncestor != null) {
-						if (unrelativizePathNode(pathNodeOrAncestor)  instanceof ListItemNode) {
+						if (unrelativizePathNode(pathNodeOrAncestor) instanceof ListItemNode) {
 							String functionBodyPattern = "^\\s*return\\s+"
 									+ pathNodeOrAncestor.getParent().getExpressionPattern() + "\\s*;\\s*$";
 							if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)
@@ -151,83 +151,11 @@ public class MappingsControl extends JPanel {
 
 	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateVisibleMappings() {
 		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
-		InstanceBuilderVariableTreeControl sourceControl = findControl(this, InstanceBuilderVariableTreeControl.class,
-				new Accessor<InstanceBuilderVariableTreeControl>() {
-
-					@Override
-					public InstanceBuilderVariableTreeControl get() {
-						return foundSourceControl;
-					}
-
-					@Override
-					public void set(InstanceBuilderVariableTreeControl t) {
-						foundSourceControl = t;
-					}
-
-				}, new Listener<InstanceBuilderVariableTreeControl>() {
-					@Override
-					public void handle(InstanceBuilderVariableTreeControl control) {
-						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
-
-							@Override
-							public void treeExpanded(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-
-							@Override
-							public void treeCollapsed(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-						});
-						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
-								.addAdjustmentListener(new AdjustmentListener() {
-									@Override
-									public void adjustmentValueChanged(AdjustmentEvent e) {
-										MappingsControl.this.repaint();
-									}
-								});
-					}
-				});
+		InstanceBuilderVariableTreeControl sourceControl = findInstanceBuilderVariableTreeControl();
 		if (sourceControl == null) {
 			return Collections.emptySet();
 		}
-		InstanceBuilderInitializerTreeControl targetControl = findControl(this,
-				InstanceBuilderInitializerTreeControl.class, new Accessor<InstanceBuilderInitializerTreeControl>() {
-
-					@Override
-					public InstanceBuilderInitializerTreeControl get() {
-						return foundTargetControl;
-					}
-
-					@Override
-					public void set(InstanceBuilderInitializerTreeControl t) {
-						foundTargetControl = t;
-					}
-
-				}, new Listener<InstanceBuilderInitializerTreeControl>() {
-					@Override
-					public void handle(InstanceBuilderInitializerTreeControl control) {
-						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
-
-							@Override
-							public void treeExpanded(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-
-							@Override
-							public void treeCollapsed(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-						});
-						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
-								.addAdjustmentListener(new AdjustmentListener() {
-									@Override
-									public void adjustmentValueChanged(AdjustmentEvent e) {
-										MappingsControl.this.repaint();
-									}
-								});
-					}
-				});
+		InstanceBuilderInitializerTreeControl targetControl = findInstanceBuilderInitializerTreeControl();
 		if (targetControl == null) {
 			return Collections.emptySet();
 		}
@@ -301,6 +229,86 @@ public class MappingsControl extends JPanel {
 			}
 		});
 		return result;
+	}
+
+	public InstanceBuilderInitializerTreeControl findInstanceBuilderInitializerTreeControl() {
+		return findControl(this, InstanceBuilderInitializerTreeControl.class,
+				new Accessor<InstanceBuilderInitializerTreeControl>() {
+
+					@Override
+					public InstanceBuilderInitializerTreeControl get() {
+						return foundTargetControl;
+					}
+
+					@Override
+					public void set(InstanceBuilderInitializerTreeControl t) {
+						foundTargetControl = t;
+					}
+
+				}, new Listener<InstanceBuilderInitializerTreeControl>() {
+					@Override
+					public void handle(InstanceBuilderInitializerTreeControl control) {
+						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
+
+							@Override
+							public void treeExpanded(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+
+							@Override
+							public void treeCollapsed(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+						});
+						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
+								.addAdjustmentListener(new AdjustmentListener() {
+									@Override
+									public void adjustmentValueChanged(AdjustmentEvent e) {
+										MappingsControl.this.repaint();
+									}
+								});
+					}
+				});
+	}
+
+	public InstanceBuilderVariableTreeControl findInstanceBuilderVariableTreeControl() {
+		return findControl(this, InstanceBuilderVariableTreeControl.class,
+				new Accessor<InstanceBuilderVariableTreeControl>() {
+
+					@Override
+					public InstanceBuilderVariableTreeControl get() {
+						return foundSourceControl;
+					}
+
+					@Override
+					public void set(InstanceBuilderVariableTreeControl t) {
+						foundSourceControl = t;
+					}
+
+				}, new Listener<InstanceBuilderVariableTreeControl>() {
+					@Override
+					public void handle(InstanceBuilderVariableTreeControl control) {
+						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
+
+							@Override
+							public void treeExpanded(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+
+							@Override
+							public void treeCollapsed(TreeExpansionEvent event) {
+								MappingsControl.this.repaint();
+							}
+						});
+						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
+								.addAdjustmentListener(new AdjustmentListener() {
+									@Override
+									public void adjustmentValueChanged(AdjustmentEvent e) {
+										MappingsControl.this.repaint();
+									}
+								});
+					}
+				});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -470,18 +478,17 @@ public class MappingsControl extends JPanel {
 								TreePath treePath = ((JXTreeTable) component).getPathForLocation(dropPoint.x,
 										dropPoint.y);
 								if (treePath != null) {
-									BufferedItemPosition itemPosition = (BufferedItemPosition) ((DefaultMutableTreeNode) treePath
+									BufferedItemPosition initializerPosition = (BufferedItemPosition) ((DefaultMutableTreeNode) treePath
 											.getLastPathComponent()).getUserObject();
-									Object item = itemPosition.getItem();
-									if (item instanceof Facade) {
-										Facade initializerFacade = (Facade) item;
+									if (initializerPosition.getItem() instanceof Facade) {
+										Facade initializerFacade = (Facade) initializerPosition.getItem();
 										RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) Facade
 												.getRoot(initializerFacade)).getUnderlying();
 										JESBReflectionUI.backupRootInstanceBuilderState(rootInstanceBuilder);
 										PathNode pathNode = (PathNode) data;
 										pathNode = relativizePathNode(pathNode, initializerFacade);
 										try {
-											accept = map(pathNode, initializerFacade, component);
+											accept = map(pathNode, initializerPosition, initializerTreeControl);
 										} catch (CancellationException e) {
 											JESBReflectionUI
 													.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder)
@@ -492,9 +499,9 @@ public class MappingsControl extends JPanel {
 											ModificationStack modifStack = SwingRendererUtils
 													.findParentFormModificationStack(initializerTreeControl,
 															GUI.INSTANCE);
-											modifStack.apply(new ListModificationFactory(itemPosition)
-													.set(itemPosition.getIndex(), initializerFacade));
-											initializerTreeControl.setSingleSelection(itemPosition);
+											modifStack.apply(new ListModificationFactory(initializerPosition)
+													.set(initializerPosition.getIndex(), initializerFacade));
+											initializerTreeControl.setSingleSelection(initializerPosition);
 										}
 									}
 								}
@@ -508,11 +515,22 @@ public class MappingsControl extends JPanel {
 			return accept;
 		}
 
-		private boolean map(PathNode pathNode, Facade initializerFacade, Component targetComponent)
-				throws CancellationException {
+		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
 			boolean accept = false;
+			initializerTreeControl.setSingleSelection(initializerPosition);
+			for (JComponent component : new JComponent[] { initializerTreeControl,
+					initializerTreeControl.findMappingsControl(),
+					initializerTreeControl.findMappingsControl().findInstanceBuilderVariableTreeControl() })
+				component.paintImmediately(0, 0, component.getWidth(), component.getHeight());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new AssertionError(e);
+			}
+			Facade initializerFacade = (Facade) initializerPosition.getItem();
 			if (initializerFacade instanceof ParameterInitializerFacade) {
-				accept = map(pathNode, initializerFacade, new Supplier<ITypeInfo>() {
+				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
 						return ((ParameterInitializerFacade) initializerFacade).getParameterInfo().getType();
@@ -527,9 +545,9 @@ public class MappingsControl extends JPanel {
 					public void set(Object value) {
 						((ParameterInitializerFacade) initializerFacade).setParameterValue(value);
 					}
-				}, targetComponent);
+				}, initializerTreeControl);
 			} else if (initializerFacade instanceof FieldInitializerFacade) {
-				accept = map(pathNode, initializerFacade, new Supplier<ITypeInfo>() {
+				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
 						return ((FieldInitializerFacade) initializerFacade).getFieldInfo().getType();
@@ -544,16 +562,16 @@ public class MappingsControl extends JPanel {
 					public void set(Object value) {
 						((FieldInitializerFacade) initializerFacade).setFieldValue(value);
 					}
-				}, targetComponent);
+				}, initializerTreeControl);
 			} else if (initializerFacade instanceof ListItemInitializerFacade) {
 				accept = mapListItemReplication(pathNode, (ListItemInitializerFacade) initializerFacade,
-						targetComponent);
+						initializerTreeControl);
 				ListItemReplicationFacade replicationFacade = ((ListItemInitializerFacade) initializerFacade)
 						.getItemReplicationFacade();
 				accept = map((replicationFacade != null)
 						? new PathExplorer.RelativePathNode(pathNode, pathNode.getTypicalExpression(),
 								pathNode.getExpressionPattern(), replicationFacade.getIterationVariableName())
-						: pathNode, initializerFacade, new Supplier<ITypeInfo>() {
+						: pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 							@Override
 							public ITypeInfo get() {
 								return ((ListItemInitializerFacade) initializerFacade).getItemType();
@@ -568,21 +586,72 @@ public class MappingsControl extends JPanel {
 							public void set(Object value) {
 								((ListItemInitializerFacade) initializerFacade).setItemValue(value);
 							}
-						}, targetComponent) || accept;
+						}, initializerTreeControl) || accept;
+			}
+			return accept;
+		}
+
+		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
+				Supplier<ITypeInfo> targetTypeSupplier, Accessor<Object> targetValueAccessor,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
+			boolean accept = false;
+			Facade initializerFacade = (Facade) initializerPosition.getItem();
+			if (targetValueAccessor.get() instanceof Function) {
+				if (GUI.INSTANCE.openQuestionDialog(initializerTreeControl, "Rewrite the existing function to map: "
+						+ pathNode.toString() + " => " + initializerFacade.toString() + "?", "Mapping")) {
+					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+					accept = true;
+				}
+			} else {
+				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
+					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+					accept = true;
+				} else {
+					List<String> options = Arrays.asList("Assign source value to target",
+							"Map corresponding children (same name) of source and target values", "Do not map");
+					String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
+							"Choose a mapping option for: " + pathNode.toString() + " => "
+									+ initializerFacade.toString(),
+							"Mapping");
+					if (choice == options.get(0)) {
+						targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+						accept = true;
+					} else if (choice == options.get(1)) {
+						initializerFacade.setConcrete(true);
+						for (BufferedItemPosition subInitializerPosition : initializerPosition.getSubItemPositions()) {
+							Facade initializerFacadeChild = (Facade) subInitializerPosition.getItem();
+							for (PathNode pathNodeChild : pathNode.getChildren()) {
+								if (initializerFacadeChild.toString().replaceAll("^\\[([0-9]+)\\]$", "[i]")
+										.replaceAll("[^0-9a-zA-Z]", "").toLowerCase().equals(pathNodeChild.toString()
+												.replaceAll("[^0-9a-zA-Z]", "").toLowerCase())) {
+									accept = map(pathNodeChild, subInitializerPosition, initializerTreeControl)
+											|| accept;
+									break;
+								}
+							}
+						}
+						accept = true;
+					} else if (choice == options.get(2)) {
+						// do nothing
+					} else {
+						throw new CancellationException();
+					}
+				}
 			}
 			return accept;
 		}
 
 		private boolean mapListItemReplication(PathNode pathNode, ListItemInitializerFacade listItemInitializerFacade,
-				Component targetComponent) {
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
 			boolean accept = false;
 			if (unrelativizePathNode(pathNode) instanceof ListItemNode) {
 				List<String> options = Arrays.asList("Replicate the target value for each source value",
 						"Do not replicate the target value");
-				String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
-						"Choose a mapping option for: " + pathNode.toString() + " => "
-								+ listItemInitializerFacade.toString(),
-						"Mapping");
+				String choice = GUI.INSTANCE
+						.openSelectionDialog(
+								initializerTreeControl, options, null, "Choose a mapping option for: "
+										+ pathNode.toString() + " => " + listItemInitializerFacade.toString(),
+								"Mapping");
 				if (choice == options.get(0)) {
 					ListItemReplication itemReplication = new ListItemReplication();
 					itemReplication.setIterationListValue(
@@ -627,52 +696,6 @@ public class MappingsControl extends JPanel {
 					// do nothing
 				} else {
 					throw new CancellationException();
-				}
-			}
-			return accept;
-		}
-
-		private boolean map(PathNode pathNode, Facade initializerFacade, Supplier<ITypeInfo> targetTypeSupplier,
-				Accessor<Object> targetValueAccessor, Component targetComponent) throws CancellationException {
-			boolean accept = false;
-			if (targetValueAccessor.get() instanceof Function) {
-				if (GUI.INSTANCE.openQuestionDialog(targetComponent, "Rewrite the existing function to map: "
-						+ pathNode.toString() + " => " + initializerFacade.toString() + "?", "Mapping")) {
-					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
-					accept = true;
-				}
-			} else {
-				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
-					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
-					accept = true;
-				} else {
-					List<String> options = Arrays.asList("Assign source value to target",
-							"Map corresponding children (same name) of source and target values", "Do not map");
-					String choice = GUI.INSTANCE.openSelectionDialog(targetComponent, options, null,
-							"Choose a mapping option for: " + pathNode.toString() + " => "
-									+ initializerFacade.toString(),
-							"Mapping");
-					if (choice == options.get(0)) {
-						targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
-						accept = true;
-					} else if (choice == options.get(1)) {
-						initializerFacade.setConcrete(true);
-						for (Facade initializerFacadeChild : initializerFacade.getChildren()) {
-							for (PathNode pathNodeChild : pathNode.getChildren()) {
-								if (initializerFacadeChild.toString().replaceAll("^\\[([0-9]+)\\]$", "[i]")
-										.replaceAll("[^0-9a-zA-Z]", "").toLowerCase().equals(pathNodeChild.toString()
-												.replaceAll("[^0-9a-zA-Z]", "").toLowerCase())) {
-									accept = map(pathNodeChild, initializerFacadeChild, targetComponent) || accept;
-									break;
-								}
-							}
-						}
-						accept = true;
-					} else if (choice == options.get(2)) {
-						// do nothing
-					} else {
-						throw new CancellationException();
-					}
 				}
 			}
 			return accept;
