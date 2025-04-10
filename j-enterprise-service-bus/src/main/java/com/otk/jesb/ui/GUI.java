@@ -327,7 +327,9 @@ public class GUI extends SwingCustomizer {
 							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
 									FunctionEditor.class.getName(), GUI.INSTANCE);
 							TextControl textControl = (TextControl) SwingRendererUtils
-									.findDescendantFieldControl(functionEditorForm, "functionBody", GUI.INSTANCE);
+									.findDescendantFieldControlPlaceHolder(functionEditorForm, "functionBody",
+											GUI.INSTANCE)
+									.getFieldControl();
 							invocationData.getProvidedParameterValues().put(0,
 									textControl.getTextComponent().getSelectionStart());
 							invocationData.getProvidedParameterValues().put(1,
@@ -372,8 +374,9 @@ public class GUI extends SwingCustomizer {
 			@Override
 			public void validateForm() throws Exception {
 				if (object instanceof FunctionEditor) {
-					TextControl textControl = (TextControl) SwingRendererUtils.findDescendantFieldControl(this,
-							"functionBody", GUI.INSTANCE);
+					TextControl textControl = (TextControl) SwingRendererUtils
+							.findDescendantFieldControlPlaceHolder(this, "functionBody", GUI.INSTANCE)
+							.getFieldControl();
 					JTextComponent textComponent = textControl.getTextComponent();
 					textComponent.getHighlighter().removeAllHighlights();
 					try {

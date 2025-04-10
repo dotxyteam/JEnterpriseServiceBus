@@ -1,20 +1,24 @@
 package com.otk.jesb.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
+import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,15 +27,20 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -81,7 +90,18 @@ public class MappingsControl extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : estimateVisibleMappings()) {
+		List<Pair<BufferedItemPosition, BufferedItemPosition>> allMappings = new ArrayList<Pair<BufferedItemPosition, BufferedItemPosition>>(
+				estimateVisibleMappings());
+		final Set<Pair<BufferedItemPosition, BufferedItemPosition>> highlightedMappings = estimateHighlightedVisibleMappings();
+		Collections.sort(allMappings, new Comparator<Pair<BufferedItemPosition, BufferedItemPosition>>() {
+			@Override
+			public int compare(Pair<BufferedItemPosition, BufferedItemPosition> o1,
+					Pair<BufferedItemPosition, BufferedItemPosition> o2) {
+				return ((Boolean) highlightedMappings.contains(o1))
+						.compareTo(((Boolean) highlightedMappings.contains(o2)));
+			}
+		});
+		for (Pair<BufferedItemPosition, BufferedItemPosition> mapping : allMappings) {
 			BufferedItemPosition sourceItemPosition = mapping.getFirst();
 			BufferedItemPosition targetItemPosition = mapping.getSecond();
 			int sourceY;
@@ -102,14 +122,32 @@ public class MappingsControl extends JPanel {
 				targetY = SwingUtilities.convertPoint(foundTargetControl.getTreeTableComponent(), 0, targetY,
 						MappingsControl.this).y;
 			}
-			g.setColor(getMappingColor());
+			g.setColor(
+					highlightedMappings.contains(mapping) ? getHighlightedMappingLinesColor() : getMappingLinesColor());
+			((Graphics2D) g).setStroke(new BasicStroke(getMappingLinesThickness()));
 			g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);
 		}
 
 	}
 
-	private Color getMappingColor() {
-		return new Color(0, 0, 255);
+	public static int getMappingLinesThickness() {
+		return 2;
+	}
+
+	public static Color getMappingLinesColor() {
+		return new Color(190, 190, 255);
+	}
+
+	public static Color getHighlightedMappingLinesColor() {
+		return new Color(0, 0, 230);
+	}
+
+	public static Color getConcreteElementTextColor() {
+		return Color.BLACK;
+	}
+
+	public static Color getAbstractElementTextColor() {
+		return Color.LIGHT_GRAY;
 	}
 
 	private static PathNode relativizePathNode(PathNode pathNode, Facade initializerFacade) {
@@ -149,89 +187,142 @@ public class MappingsControl extends JPanel {
 		return pathNode;
 	}
 
-	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateVisibleMappings() {
-		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
-		InstanceBuilderVariableTreeControl sourceControl = findInstanceBuilderVariableTreeControl();
+	private static BufferedItemPosition getMappingItemPosition(Pair<BufferedItemPosition, BufferedItemPosition> pair,
+			Side side) {
+		if (side == Side.SOURCE) {
+			return pair.getFirst();
+		} else if (side == Side.TARGET) {
+			return pair.getSecond();
+		} else {
+			throw new AssertionError();
+		}
+	}
+
+	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateHighlightedVisibleMappings() {
+		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();
 		if (sourceControl == null) {
 			return Collections.emptySet();
 		}
-		InstanceBuilderInitializerTreeControl targetControl = findInstanceBuilderInitializerTreeControl();
+		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();
 		if (targetControl == null) {
 			return Collections.emptySet();
 		}
-		targetControl.visitItems(new ListControl.IItemsVisitor() {
-			@Override
-			public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
-				if (!(targetItemPosition.getItem() instanceof Facade)) {
-					return VisitStatus.BRANCH_VISIT_INTERRUPTED;
-				}
-				final Facade initializerFacade = (Facade) targetItemPosition.getItem();
-				if (!initializerFacade.isConcrete()) {
-					return VisitStatus.BRANCH_VISIT_INTERRUPTED;
-				}
-				List<Function> functions = new ArrayList<Function>();
-				if (initializerFacade instanceof ParameterInitializerFacade) {
-					if (((ParameterInitializerFacade) initializerFacade).getParameterValue() instanceof Function) {
-						functions.add((Function) ((ParameterInitializerFacade) initializerFacade).getParameterValue());
-					}
-				} else if (initializerFacade instanceof FieldInitializerFacade) {
-					if (((FieldInitializerFacade) initializerFacade).getFieldValue() instanceof Function) {
-						functions.add((Function) ((FieldInitializerFacade) initializerFacade).getFieldValue());
-					}
-					if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
-						functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
-					}
-				} else if (initializerFacade instanceof ListItemInitializerFacade) {
-					if (((ListItemInitializerFacade) initializerFacade).getItemValue() instanceof Function) {
-						functions.add((Function) ((ListItemInitializerFacade) initializerFacade).getItemValue());
-					}
-					if (((ListItemInitializerFacade) initializerFacade).getItemReplicationFacade() != null) {
-						ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
-								.getItemReplicationFacade();
-						if (replication.getIterationListValue() instanceof Function) {
-							functions.add((Function) replication.getIterationListValue());
-						}
-					}
-				}
-				Set<BufferedItemPosition> mappedSourceItemPositions = new HashSet<BufferedItemPosition>();
-				for (Function function : functions) {
-					sourceControl.visitItems(new ListControl.IItemsVisitor() {
-						@Override
-						public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
-							if (sourceItemPosition.getItem() instanceof PathNode) {
-								PathNode pathNode = (PathNode) sourceItemPosition.getItem();
-								pathNode = relativizePathNode(pathNode, initializerFacade);
-								if (Pattern.compile(".*" + pathNode.getExpressionPattern() + ".*", Pattern.DOTALL)
-										.matcher(function.getFunctionBody()).matches()) {
-									mappedSourceItemPositions.add(sourceItemPosition);
-								}
-							}
-							return (!sourceControl.isItemPositionExpanded(sourceItemPosition))
-									? VisitStatus.BRANCH_VISIT_INTERRUPTED
-									: VisitStatus.VISIT_NOT_INTERRUPTED;
-						}
-
-					});
-				}
-				List<BufferedItemPosition> filteredMappedSourceItemPositions = mappedSourceItemPositions.stream()
-						.filter(itemPosition1 -> !mappedSourceItemPositions.stream()
-								.anyMatch(itemPosition2 -> itemPosition1.equals(itemPosition2.getParentItemPosition())))
-						.collect(Collectors.toList());
-				while ((targetItemPosition.getParentItemPosition() != null)
-						&& !targetControl.isItemPositionExpanded(targetItemPosition.getParentItemPosition())) {
-					targetItemPosition = targetItemPosition.getParentItemPosition();
-				}
-				for (BufferedItemPosition sourceItemPosition : filteredMappedSourceItemPositions) {
-					result.add(new Pair<BufferedItemPosition, BufferedItemPosition>(sourceItemPosition,
-							targetItemPosition));
-				}
-				return VisitStatus.VISIT_NOT_INTERRUPTED;
-			}
-		});
-		return result;
+		List<BufferedItemPosition> sourceSelection = sourceControl.getSelection();
+		List<BufferedItemPosition> targetSelection = targetControl.getSelection();
+		return estimateVisibleMappings().stream()
+				.filter(pair -> sourceSelection.contains(getMappingItemPosition(pair, Side.SOURCE))
+						|| targetSelection.contains(getMappingItemPosition(pair, Side.TARGET)))
+				.collect(Collectors.toSet());
 	}
 
-	public InstanceBuilderInitializerTreeControl findInstanceBuilderInitializerTreeControl() {
+	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateVisibleMappings() {
+		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();
+		if (sourceControl == null) {
+			return Collections.emptySet();
+		}
+		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();
+		if (targetControl == null) {
+			return Collections.emptySet();
+		}
+		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = estimateMappings();
+		return result.stream().map(pair -> {
+			BufferedItemPosition sourceItemPosition = pair.getFirst();
+			BufferedItemPosition targetItemPosition = pair.getSecond();
+			while ((sourceItemPosition.getParentItemPosition() != null)
+					&& !sourceControl.isItemPositionExpanded(sourceItemPosition.getParentItemPosition())) {
+				sourceItemPosition = sourceItemPosition.getParentItemPosition();
+			}
+			while ((targetItemPosition.getParentItemPosition() != null)
+					&& !targetControl.isItemPositionExpanded(targetItemPosition.getParentItemPosition())) {
+				targetItemPosition = targetItemPosition.getParentItemPosition();
+			}
+			return new Pair<BufferedItemPosition, BufferedItemPosition>(sourceItemPosition, targetItemPosition);
+		}).collect(Collectors.toSet());
+	}
+
+	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateMappings() {
+		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
+		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();
+		if (sourceControl == null) {
+			return Collections.emptySet();
+		}
+		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();
+		if (targetControl == null) {
+			return Collections.emptySet();
+		}
+		sourceControl.visitItems(new ListControl.IItemsVisitor() {
+			boolean mappingFound;
+
+			@Override
+			public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
+				mappingFound = false;
+				if (sourceItemPosition.getItem() instanceof PathNode) {
+					PathNode pathNode = (PathNode) sourceItemPosition.getItem();
+					targetControl.visitItems(new ListControl.IItemsVisitor() {
+						@Override
+						public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
+							if (!(targetItemPosition.getItem() instanceof Facade)) {
+								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+							}
+							final Facade initializerFacade = (Facade) targetItemPosition.getItem();
+							if (!initializerFacade.isConcrete()) {
+								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+							}
+							List<Function> functions = new ArrayList<Function>();
+							if (initializerFacade instanceof ParameterInitializerFacade) {
+								if (((ParameterInitializerFacade) initializerFacade)
+										.getParameterValue() instanceof Function) {
+									functions.add((Function) ((ParameterInitializerFacade) initializerFacade)
+											.getParameterValue());
+								}
+							} else if (initializerFacade instanceof FieldInitializerFacade) {
+								if (((FieldInitializerFacade) initializerFacade).getFieldValue() instanceof Function) {
+									functions.add(
+											(Function) ((FieldInitializerFacade) initializerFacade).getFieldValue());
+								}
+								if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
+									functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
+								}
+							} else if (initializerFacade instanceof ListItemInitializerFacade) {
+								if (((ListItemInitializerFacade) initializerFacade)
+										.getItemValue() instanceof Function) {
+									functions.add(
+											(Function) ((ListItemInitializerFacade) initializerFacade).getItemValue());
+								}
+								if (((ListItemInitializerFacade) initializerFacade)
+										.getItemReplicationFacade() != null) {
+									ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
+											.getItemReplicationFacade();
+									if (replication.getIterationListValue() instanceof Function) {
+										functions.add((Function) replication.getIterationListValue());
+									}
+								}
+							}
+							for (Function function : functions) {
+								if (Pattern.compile(".*"
+										+ relativizePathNode(pathNode, initializerFacade).getExpressionPattern() + ".*",
+										Pattern.DOTALL).matcher(function.getFunctionBody()).matches()) {
+									result.add(new Pair<BufferedItemPosition, BufferedItemPosition>(sourceItemPosition,
+											targetItemPosition));
+									mappingFound = true;
+								}
+
+							}
+							return VisitStatus.VISIT_NOT_INTERRUPTED;
+						}
+					});
+				}
+				return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.BRANCH_VISIT_INTERRUPTED;
+			}
+		});
+		return result.stream()
+				.filter(pair -> result.stream()
+						.noneMatch(otherPair -> pair.getSecond().equals(otherPair.getSecond())
+								&& pair.getFirst().equals(otherPair.getFirst().getParentItemPosition())))
+				.collect(Collectors.toSet());
+	}
+
+	public InstanceBuilderInitializerTreeControl findTargetControl() {
 		return findControl(this, InstanceBuilderInitializerTreeControl.class,
 				new Accessor<InstanceBuilderInitializerTreeControl>() {
 
@@ -245,33 +336,10 @@ public class MappingsControl extends JPanel {
 						foundTargetControl = t;
 					}
 
-				}, new Listener<InstanceBuilderInitializerTreeControl>() {
-					@Override
-					public void handle(InstanceBuilderInitializerTreeControl control) {
-						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
-
-							@Override
-							public void treeExpanded(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-
-							@Override
-							public void treeCollapsed(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-						});
-						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
-								.addAdjustmentListener(new AdjustmentListener() {
-									@Override
-									public void adjustmentValueChanged(AdjustmentEvent e) {
-										MappingsControl.this.repaint();
-									}
-								});
-					}
-				});
+				}, null);
 	}
 
-	public InstanceBuilderVariableTreeControl findInstanceBuilderVariableTreeControl() {
+	public InstanceBuilderVariableTreeControl findSourceControl() {
 		return findControl(this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
 
@@ -285,30 +353,17 @@ public class MappingsControl extends JPanel {
 						foundSourceControl = t;
 					}
 
-				}, new Listener<InstanceBuilderVariableTreeControl>() {
-					@Override
-					public void handle(InstanceBuilderVariableTreeControl control) {
-						control.getTreeTableComponent().addTreeExpansionListener(new TreeExpansionListener() {
+				}, null);
+	}
 
-							@Override
-							public void treeExpanded(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-
-							@Override
-							public void treeCollapsed(TreeExpansionEvent event) {
-								MappingsControl.this.repaint();
-							}
-						});
-						((JScrollPane) control.getTreeTableComponent().getParent().getParent()).getVerticalScrollBar()
-								.addAdjustmentListener(new AdjustmentListener() {
-									@Override
-									public void adjustmentValueChanged(AdjustmentEvent e) {
-										MappingsControl.this.repaint();
-									}
-								});
-					}
-				});
+	public SideControl findSideControl(Side side) {
+		if (side == Side.SOURCE) {
+			return findSourceControl();
+		} else if (side == Side.TARGET) {
+			return findTargetControl();
+		} else {
+			throw new AssertionError();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -346,14 +401,27 @@ public class MappingsControl extends JPanel {
 
 	}
 
+	public enum Side {
+		SOURCE, TARGET;
+
+		public static Side getOther(Side side) {
+			if (side == SOURCE) {
+				return TARGET;
+			} else if (side == TARGET) {
+				return SOURCE;
+			} else {
+				throw new AssertionError();
+			}
+		}
+	}
+
 	public static abstract class SideControl extends ListControl {
 
 		private static final long serialVersionUID = 1L;
 
 		private MappingsControl foundMappingsControl;
 
-		protected abstract BufferedItemPosition getSideItemPosition(
-				Pair<BufferedItemPosition, BufferedItemPosition> pair);
+		protected abstract Side getSide();
 
 		public SideControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 			super(swingRenderer, input);
@@ -361,6 +429,128 @@ public class MappingsControl extends JPanel {
 
 		public JXTreeTable getTreeTableComponent() {
 			return treeTableComponent;
+		}
+
+		protected void repaintAllControls() {
+			MappingsControl mappingsControl = findMappingsControl();
+			if (mappingsControl != null) {
+				mappingsControl.repaint();
+			} else {
+				return;
+			}
+			InstanceBuilderVariableTreeControl sourceControl = mappingsControl.findSourceControl();
+			if (sourceControl != null) {
+				sourceControl.repaint();
+			}
+			InstanceBuilderInitializerTreeControl targetControl = mappingsControl.findTargetControl();
+			if (targetControl != null) {
+				targetControl.repaint();
+			}
+		}
+
+		@Override
+		protected void initializeTreeTableModelAndControl() {
+			super.initializeTreeTableModelAndControl();
+			treeTableComponent.addTreeExpansionListener(new TreeExpansionListener() {
+
+				@Override
+				public void treeExpanded(TreeExpansionEvent event) {
+					repaintAllControls();
+				}
+
+				@Override
+				public void treeCollapsed(TreeExpansionEvent event) {
+					repaintAllControls();
+				}
+			});
+			((JScrollPane) treeTableComponent.getParent().getParent()).getVerticalScrollBar()
+					.addAdjustmentListener(new AdjustmentListener() {
+						@Override
+						public void adjustmentValueChanged(AdjustmentEvent e) {
+							repaintAllControls();
+						}
+					});
+			treeTableComponent.addTreeSelectionListener(new TreeSelectionListener() {
+				@Override
+				public void valueChanged(TreeSelectionEvent e) {
+					preventSelectionOnBothSides();
+					repaintAllControls();
+				}
+
+				private void preventSelectionOnBothSides() {
+					if (getSelection().size() == 0) {
+						return;
+					}
+					MappingsControl mappingsControl = findMappingsControl();
+					if (mappingsControl == null) {
+						return;
+					}
+					SideControl otherSideControl = mappingsControl.findSideControl(Side.getOther(getSide()));
+					if (otherSideControl == null) {
+						return;
+					}
+					otherSideControl.setSelection(Collections.emptyList());
+				}
+			});
+		}
+
+		@Override
+		protected JPopupMenu createPopupMenu() {
+			JPopupMenu result = super.createPopupMenu();
+			result.add(new AbstractAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object getValue(String key) {
+					if (Action.NAME.equals(key)) {
+						return "Reveal Mappings";
+					} else {
+						return super.getValue(key);
+					}
+				}
+
+				@Override
+				public boolean isEnabled() {
+					BufferedItemPosition selectedItemPosition = getSingleSelection();
+					if (selectedItemPosition == null) {
+						return false;
+					}
+					TreePath treePath = getTreePath(selectedItemPosition);
+					int rowIndex = treeTableComponent.getRowForPath(treePath);
+					return isVisiblyMapped(rowIndex);
+				}
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					BufferedItemPosition selectedItemPosition = getSingleSelection();
+					MappingsControl mappingsControl = findMappingsControl();
+					SideControl otherSideControl = mappingsControl.findSideControl(Side.getOther(getSide()));
+					if (mappingsControl != null) {
+						for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
+								.estimateMappings()) {
+							BufferedItemPosition thisSideMappedItemPosition = getMappingItemPosition(pair, getSide());
+							final boolean mappingSelected;
+							if (isItemPositionExpanded(selectedItemPosition)) {
+								mappingSelected = thisSideMappedItemPosition.equals(selectedItemPosition);
+							} else {
+								mappingSelected = thisSideMappedItemPosition.equals(selectedItemPosition)
+										|| thisSideMappedItemPosition.getAncestors().contains(selectedItemPosition);
+							}
+							if (mappingSelected) {
+								BufferedItemPosition otherSideItemPosition = getMappingItemPosition(pair,
+										Side.getOther(getSide()));
+								if (otherSideItemPosition.getParentItemPosition() != null) {
+									otherSideControl.expandItemPosition(otherSideItemPosition.getParentItemPosition());
+									otherSideControl.scrollTo(otherSideItemPosition);
+								}
+							}
+						}
+					}
+				}
+
+			});
+			return result;
 		}
 
 		public TreePath getTreePath(BufferedItemPosition itemPosition) {
@@ -390,10 +580,14 @@ public class MappingsControl extends JPanel {
 		protected void customizeCellRendererComponent(JLabel label, ItemNode node, int rowIndex, int columnIndex,
 				boolean isSelected, boolean hasFocus) {
 			super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);
-			label.setBorder(isMapped(rowIndex)
-					? BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
-							BorderFactory.createLineBorder(foundMappingsControl.getMappingColor()))
-					: BorderFactory.createEmptyBorder());
+			label.setBorder(
+					isVisiblyMapped(rowIndex)
+							? BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
+									BorderFactory
+											.createLineBorder(isHighlighted(node) ? getHighlightedMappingLinesColor()
+													: getMappingLinesColor(), getMappingLinesThickness()))
+							: BorderFactory.createEmptyBorder());
+			label.setText(getCellValue(node, columnIndex));
 		}
 
 		@Override
@@ -402,16 +596,22 @@ public class MappingsControl extends JPanel {
 			if (result == null) {
 				return null;
 			}
-			result += "     ";
+			result += "   ";
+			for (int i = 0; i < getMappingLinesThickness(); i++) {
+				result += "  ";
+			}
 			return result;
 		}
 
-		private boolean isMapped(int rowIndex) {
+		protected boolean isVisiblyMapped(int rowIndex) {
+			if (rowIndex == -1) {
+				return false;
+			}
 			MappingsControl mappingsControl = findMappingsControl();
 			if (mappingsControl != null) {
 				for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
 						.estimateVisibleMappings()) {
-					BufferedItemPosition itemPosition = getSideItemPosition(pair);
+					BufferedItemPosition itemPosition = getMappingItemPosition(pair, getSide());
 					TreePath treePath = getTreePath(itemPosition);
 					int row = treeTableComponent.getRowForPath(treePath);
 					if (rowIndex == row) {
@@ -422,6 +622,23 @@ public class MappingsControl extends JPanel {
 			return false;
 		}
 
+		protected boolean isHighlighted(ItemNode node) {
+			BufferedItemPosition itemPosition = getItemPositionByNode(node);
+			if (itemPosition == null) {
+				return false;
+			}
+			MappingsControl mappingsControl = findMappingsControl();
+			if (mappingsControl != null) {
+				for (Pair<BufferedItemPosition, BufferedItemPosition> pair : mappingsControl
+						.estimateHighlightedVisibleMappings()) {
+					BufferedItemPosition highlightedMappingItemPosition = getMappingItemPosition(pair, getSide());
+					if (highlightedMappingItemPosition.equals(itemPosition)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	}
 
 	public static class PathExportTransferHandler extends TransferHandler {
@@ -501,7 +718,6 @@ public class MappingsControl extends JPanel {
 															GUI.INSTANCE);
 											modifStack.apply(new ListModificationFactory(initializerPosition)
 													.set(initializerPosition.getIndex(), initializerFacade));
-											initializerTreeControl.setSingleSelection(initializerPosition);
 										}
 									}
 								}
@@ -515,21 +731,26 @@ public class MappingsControl extends JPanel {
 			return accept;
 		}
 
-		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
-				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
-			boolean accept = false;
+		private void beforeMpping(BufferedItemPosition initializerPosition,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
 			initializerTreeControl.setSingleSelection(initializerPosition);
 			for (JComponent component : new JComponent[] { initializerTreeControl,
 					initializerTreeControl.findMappingsControl(),
-					initializerTreeControl.findMappingsControl().findInstanceBuilderVariableTreeControl() })
+					initializerTreeControl.findMappingsControl().findSourceControl() })
 				component.paintImmediately(0, 0, component.getWidth(), component.getHeight());
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				throw new AssertionError(e);
 			}
+		}
+
+		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
+			boolean accept = false;
 			Facade initializerFacade = (Facade) initializerPosition.getItem();
 			if (initializerFacade instanceof ParameterInitializerFacade) {
+				beforeMpping(initializerPosition, initializerTreeControl);
 				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
@@ -547,6 +768,7 @@ public class MappingsControl extends JPanel {
 					}
 				}, initializerTreeControl);
 			} else if (initializerFacade instanceof FieldInitializerFacade) {
+				beforeMpping(initializerPosition, initializerTreeControl);
 				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
@@ -564,6 +786,7 @@ public class MappingsControl extends JPanel {
 					}
 				}, initializerTreeControl);
 			} else if (initializerFacade instanceof ListItemInitializerFacade) {
+				beforeMpping(initializerPosition, initializerTreeControl);
 				accept = mapListItemReplication(pathNode, (ListItemInitializerFacade) initializerFacade,
 						initializerTreeControl);
 				ListItemReplicationFacade replicationFacade = ((ListItemInitializerFacade) initializerFacade)
@@ -597,26 +820,30 @@ public class MappingsControl extends JPanel {
 			boolean accept = false;
 			Facade initializerFacade = (Facade) initializerPosition.getItem();
 			if (targetValueAccessor.get() instanceof Function) {
-				if (GUI.INSTANCE.openQuestionDialog(initializerTreeControl, "Rewrite the existing function to map: "
-						+ pathNode.toString() + " => " + initializerFacade.toString() + "?", "Mapping")) {
+				int choice = openMappingOptionSelectionDialog(
+						Arrays.asList("Rewrite the existing function", "Do not rewrite the existing function"),
+						pathNode, initializerFacade, initializerTreeControl);
+				if (choice == 0) {
 					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
+				} else if (choice == 1) {
+					// do nothing
+				} else {
+					throw new CancellationException();
 				}
 			} else {
 				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
 					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
 				} else {
-					List<String> options = Arrays.asList("Assign source value to target",
-							"Map corresponding children (same name) of source and target values", "Do not map");
-					String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
-							"Choose a mapping option for: " + pathNode.toString() + " => "
-									+ initializerFacade.toString(),
-							"Mapping");
-					if (choice == options.get(0)) {
+					int choice = openMappingOptionSelectionDialog(
+							Arrays.asList("Assign source value to target",
+									"Map corresponding children (same name) of source and target values", "Do not map"),
+							pathNode, initializerFacade, initializerTreeControl);
+					if (choice == 0) {
 						targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
 						accept = true;
-					} else if (choice == options.get(1)) {
+					} else if (choice == 1) {
 						initializerFacade.setConcrete(true);
 						for (BufferedItemPosition subInitializerPosition : initializerPosition.getSubItemPositions()) {
 							Facade initializerFacadeChild = (Facade) subInitializerPosition.getItem();
@@ -631,7 +858,7 @@ public class MappingsControl extends JPanel {
 							}
 						}
 						accept = true;
-					} else if (choice == options.get(2)) {
+					} else if (choice == 2) {
 						// do nothing
 					} else {
 						throw new CancellationException();
@@ -645,14 +872,11 @@ public class MappingsControl extends JPanel {
 				InstanceBuilderInitializerTreeControl initializerTreeControl) {
 			boolean accept = false;
 			if (unrelativizePathNode(pathNode) instanceof ListItemNode) {
-				List<String> options = Arrays.asList("Replicate the target value for each source value",
-						"Do not replicate the target value");
-				String choice = GUI.INSTANCE
-						.openSelectionDialog(
-								initializerTreeControl, options, null, "Choose a mapping option for: "
-										+ pathNode.toString() + " => " + listItemInitializerFacade.toString(),
-								"Mapping");
-				if (choice == options.get(0)) {
+				int choice = openMappingOptionSelectionDialog(
+						Arrays.asList("Replicate the target value for each source value",
+								"Do not replicate the target value"),
+						pathNode, listItemInitializerFacade, initializerTreeControl);
+				if (choice == 0) {
 					ListItemReplication itemReplication = new ListItemReplication();
 					itemReplication.setIterationListValue(
 							new Function("return " + pathNode.getParent().getTypicalExpression() + ";"));
@@ -692,13 +916,21 @@ public class MappingsControl extends JPanel {
 						}
 					}
 					accept = true;
-				} else if (choice == options.get(1)) {
+				} else if (choice == 1) {
 					// do nothing
 				} else {
 					throw new CancellationException();
 				}
 			}
 			return accept;
+		}
+
+		private int openMappingOptionSelectionDialog(List<String> options, PathNode pathNode, Facade initializerFacade,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
+			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
+					"Choose a mapping option for: " + pathNode.toString() + " => " + initializerFacade.toString(),
+					"Mapping");
+			return options.indexOf(choice);
 		}
 
 		private boolean isLeafType(ITypeInfo type) {

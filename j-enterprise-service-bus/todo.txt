@@ -6,8 +6,7 @@
 	. improve the features
 - InstanceBuilder misses 'with'
 - InstanceBuilder 'auto map':
-	. the most relative path should be used whenever it is possible
-	. the initial replication item variable name should be unique
+	. optimize mappings estimation
 - status bar error messages are not fully readable sometimes
 - it should be possible to view the full source code of compilation errors
 - InstanceBuilder: allow to easily identify lines mapped on the other side  

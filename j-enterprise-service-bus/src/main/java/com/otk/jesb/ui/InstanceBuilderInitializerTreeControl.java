@@ -1,11 +1,10 @@
 package com.otk.jesb.ui;
 
-import java.awt.Color;
 import javax.swing.DropMode;
 import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
 import com.otk.jesb.instantiation.Facade;
-import com.otk.jesb.util.Pair;
-
+import com.otk.jesb.ui.MappingsControl.Side;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
@@ -20,14 +19,15 @@ public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideC
 	}
 
 	@Override
-	protected BufferedItemPosition getSideItemPosition(Pair<BufferedItemPosition, BufferedItemPosition> pair) {
-		return pair.getSecond();
+	protected Side getSide() {
+		return Side.TARGET;
 	}
 
 	@Override
 	protected void initializeTreeTableModelAndControl() {
 		super.initializeTreeTableModelAndControl();
 		treeTableComponent.putClientProperty(InstanceBuilderInitializerTreeControl.class, this);
+		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		treeTableComponent.setTransferHandler(new MappingsControl.PathImportTransferHandler());
 		treeTableComponent.setDropMode(DropMode.ON);
 	}
@@ -40,9 +40,8 @@ public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideC
 		if (itemPosition != null) {
 			if (itemPosition.getItem() instanceof Facade) {
 				Facade facade = (Facade) itemPosition.getItem();
-				if (!facade.isConcrete()) {
-					label.setForeground(Color.LIGHT_GRAY);
-				}
+				label.setForeground(facade.isConcrete() ? MappingsControl.getConcreteElementTextColor()
+						: MappingsControl.getAbstractElementTextColor());
 			}
 		}
 	}
