@@ -29,16 +29,25 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		if (itemPosition != null) {
 			if (itemPosition.getItem() instanceof FacadeOutline) {
 				FacadeOutline facadeOutline = (FacadeOutline) itemPosition.getItem();
-				label.setForeground(facadeOutline.getFacade().isConcrete() ? Color.BLACK : Color.LIGHT_GRAY);
+				label.setForeground(facadeOutline.getFacade().isConcrete() ? MappingsControl.getConcreteElementTextColor()
+						: MappingsControl.getAbstractElementTextColor() );
 				label.setOpaque(columnIndex == 1);
 				if (!isSelected) {
 					label.setBackground((columnIndex == 1)
-							? ((facadeOutline.getFacade().express() != null) ? new Color(245, 245, 255)
-									: new Color(240, 240, 240))
+							? ((facadeOutline.getFacade().express() != null) ? getExpressionBackgroudColor()
+									: getNoExpressionBackgroundColor())
 							: null);
 				}
 			}
 		}
+	}
+
+	private Color getNoExpressionBackgroundColor() {
+		return new Color(240, 240, 240);
+	}
+
+	private Color getExpressionBackgroudColor() {
+		return new Color(245, 245, 255);
 	}
 
 }

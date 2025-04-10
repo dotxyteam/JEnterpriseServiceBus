@@ -1,12 +1,12 @@
 package com.otk.jesb.ui;
 
+import java.util.Collections;
+
 import javax.swing.ListSelectionModel;
 
-import com.otk.jesb.util.Pair;
-
+import com.otk.jesb.ui.MappingsControl.Side;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
-import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 
 public class InstanceBuilderVariableTreeControl extends MappingsControl.SideControl {
 
@@ -14,11 +14,12 @@ public class InstanceBuilderVariableTreeControl extends MappingsControl.SideCont
 
 	public InstanceBuilderVariableTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 		super(swingRenderer, input);
+		setSelection(Collections.emptyList());
 	}
 
 	@Override
-	protected BufferedItemPosition getSideItemPosition(Pair<BufferedItemPosition, BufferedItemPosition> pair) {
-		return pair.getFirst();
+	protected Side getSide() {
+		return Side.SOURCE;
 	}
 
 	@Override
@@ -28,6 +29,11 @@ public class InstanceBuilderVariableTreeControl extends MappingsControl.SideCont
 		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		treeTableComponent.setDragEnabled(true);
 		treeTableComponent.setTransferHandler(new MappingsControl.PathExportTransferHandler());
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+		return false;
 	}
 
 }
