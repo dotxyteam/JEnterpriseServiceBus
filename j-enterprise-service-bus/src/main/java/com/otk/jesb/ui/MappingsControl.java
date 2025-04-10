@@ -69,23 +69,60 @@ import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 
+import xy.reflect.ui.control.IAdvancedFieldControl;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.MenuModel;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.ModificationStack;
 
-public class MappingsControl extends JPanel {
+public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	private static final long serialVersionUID = 1L;
 
 	private InstanceBuilderVariableTreeControl foundSourceControl;
 	private InstanceBuilderInitializerTreeControl foundTargetControl;
+
+	private Set<Pair<BufferedItemPosition, BufferedItemPosition>> mappingsCache;
+
+	@Override
+	public boolean showsCaption() {
+		return false;
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+		return true;
+	}
+
+	@Override
+	public void validateSubForms() throws Exception {
+	}
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+		return false;
+	}
+
+	@Override
+	public boolean isAutoManaged() {
+		return false;
+	}
+
+	@Override
+	public boolean displayError(String msg) {
+		return false;
+	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -241,85 +278,94 @@ public class MappingsControl extends JPanel {
 	}
 
 	public Set<Pair<BufferedItemPosition, BufferedItemPosition>> estimateMappings() {
-		Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
-		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();
-		if (sourceControl == null) {
-			return Collections.emptySet();
-		}
-		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();
-		if (targetControl == null) {
-			return Collections.emptySet();
-		}
-		sourceControl.visitItems(new ListControl.IItemsVisitor() {
-			boolean mappingFound;
+		if (mappingsCache == null) {
+			Set<Pair<BufferedItemPosition, BufferedItemPosition>> result = new HashSet<Pair<BufferedItemPosition, BufferedItemPosition>>();
+			InstanceBuilderVariableTreeControl sourceControl = findSourceControl();
+			if (sourceControl == null) {
+				return Collections.emptySet();
+			}
+			InstanceBuilderInitializerTreeControl targetControl = findTargetControl();
+			if (targetControl == null) {
+				return Collections.emptySet();
+			}
+			sourceControl.visitItems(new ListControl.IItemsVisitor() {
+				boolean mappingFound;
 
-			@Override
-			public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
-				mappingFound = false;
-				if (sourceItemPosition.getItem() instanceof PathNode) {
-					PathNode pathNode = (PathNode) sourceItemPosition.getItem();
-					targetControl.visitItems(new ListControl.IItemsVisitor() {
-						@Override
-						public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
-							if (!(targetItemPosition.getItem() instanceof Facade)) {
-								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
-							}
-							final Facade initializerFacade = (Facade) targetItemPosition.getItem();
-							if (!initializerFacade.isConcrete()) {
-								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
-							}
-							List<Function> functions = new ArrayList<Function>();
-							if (initializerFacade instanceof ParameterInitializerFacade) {
-								if (((ParameterInitializerFacade) initializerFacade)
-										.getParameterValue() instanceof Function) {
-									functions.add((Function) ((ParameterInitializerFacade) initializerFacade)
-											.getParameterValue());
+				@Override
+				public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
+					mappingFound = false;
+					if (sourceItemPosition.getItem() instanceof PathNode) {
+						PathNode pathNode = (PathNode) sourceItemPosition.getItem();
+						targetControl.visitItems(new ListControl.IItemsVisitor() {
+							@Override
+							public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
+								if (!(targetItemPosition.getItem() instanceof Facade)) {
+									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
 								}
-							} else if (initializerFacade instanceof FieldInitializerFacade) {
-								if (((FieldInitializerFacade) initializerFacade).getFieldValue() instanceof Function) {
-									functions.add(
-											(Function) ((FieldInitializerFacade) initializerFacade).getFieldValue());
+								final Facade initializerFacade = (Facade) targetItemPosition.getItem();
+								if (!initializerFacade.isConcrete()) {
+									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
 								}
-								if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
-									functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
-								}
-							} else if (initializerFacade instanceof ListItemInitializerFacade) {
-								if (((ListItemInitializerFacade) initializerFacade)
-										.getItemValue() instanceof Function) {
-									functions.add(
-											(Function) ((ListItemInitializerFacade) initializerFacade).getItemValue());
-								}
-								if (((ListItemInitializerFacade) initializerFacade)
-										.getItemReplicationFacade() != null) {
-									ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
-											.getItemReplicationFacade();
-									if (replication.getIterationListValue() instanceof Function) {
-										functions.add((Function) replication.getIterationListValue());
+								List<Function> functions = new ArrayList<Function>();
+								if (initializerFacade instanceof ParameterInitializerFacade) {
+									if (((ParameterInitializerFacade) initializerFacade)
+											.getParameterValue() instanceof Function) {
+										functions.add((Function) ((ParameterInitializerFacade) initializerFacade)
+												.getParameterValue());
+									}
+								} else if (initializerFacade instanceof FieldInitializerFacade) {
+									if (((FieldInitializerFacade) initializerFacade)
+											.getFieldValue() instanceof Function) {
+										functions.add((Function) ((FieldInitializerFacade) initializerFacade)
+												.getFieldValue());
+									}
+									if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
+										functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
+									}
+								} else if (initializerFacade instanceof ListItemInitializerFacade) {
+									if (((ListItemInitializerFacade) initializerFacade)
+											.getItemValue() instanceof Function) {
+										functions.add((Function) ((ListItemInitializerFacade) initializerFacade)
+												.getItemValue());
+									}
+									if (((ListItemInitializerFacade) initializerFacade)
+											.getItemReplicationFacade() != null) {
+										ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
+												.getItemReplicationFacade();
+										if (replication.getIterationListValue() instanceof Function) {
+											functions.add((Function) replication.getIterationListValue());
+										}
 									}
 								}
-							}
-							for (Function function : functions) {
-								if (Pattern.compile(".*"
-										+ relativizePathNode(pathNode, initializerFacade).getExpressionPattern() + ".*",
-										Pattern.DOTALL).matcher(function.getFunctionBody()).matches()) {
-									result.add(new Pair<BufferedItemPosition, BufferedItemPosition>(sourceItemPosition,
-											targetItemPosition));
-									mappingFound = true;
-								}
+								for (Function function : functions) {
+									if (Pattern
+											.compile(".*" + relativizePathNode(pathNode, initializerFacade)
+													.getExpressionPattern() + ".*", Pattern.DOTALL)
+											.matcher(function.getFunctionBody()).matches()) {
+										result.add(new Pair<BufferedItemPosition, BufferedItemPosition>(
+												sourceItemPosition, targetItemPosition));
+										mappingFound = true;
+									}
 
+								}
+								return VisitStatus.VISIT_NOT_INTERRUPTED;
 							}
-							return VisitStatus.VISIT_NOT_INTERRUPTED;
-						}
-					});
+						});
+					}
+					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.BRANCH_VISIT_INTERRUPTED;
 				}
-				return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.BRANCH_VISIT_INTERRUPTED;
-			}
-		});
-		return result.stream()
-				.filter(pair -> result.stream()
-						.noneMatch(otherPair -> pair.getSecond().equals(otherPair.getSecond())
-								&& pair.getFirst().equals(otherPair.getFirst().getParentItemPosition())))
-				.collect(Collectors.toSet());
+			});
+			mappingsCache = result.stream()
+					.filter(pair -> result.stream()
+							.noneMatch(otherPair -> pair.getSecond().equals(otherPair.getSecond())
+									&& pair.getFirst().equals(otherPair.getFirst().getParentItemPosition())))
+					.collect(Collectors.toSet());
+		}
+		return mappingsCache;
+	}
+
+	public void resetMappingsCache() {
+		mappingsCache = null;
 	}
 
 	public InstanceBuilderInitializerTreeControl findTargetControl() {
@@ -431,13 +477,14 @@ public class MappingsControl extends JPanel {
 			return treeTableComponent;
 		}
 
-		protected void repaintAllControls() {
+		protected void reestimateAndRepaintMappings() {
 			MappingsControl mappingsControl = findMappingsControl();
 			if (mappingsControl != null) {
 				mappingsControl.repaint();
 			} else {
 				return;
 			}
+			mappingsControl.resetMappingsCache();
 			InstanceBuilderVariableTreeControl sourceControl = mappingsControl.findSourceControl();
 			if (sourceControl != null) {
 				sourceControl.repaint();
@@ -455,26 +502,26 @@ public class MappingsControl extends JPanel {
 
 				@Override
 				public void treeExpanded(TreeExpansionEvent event) {
-					repaintAllControls();
+					reestimateAndRepaintMappings();
 				}
 
 				@Override
 				public void treeCollapsed(TreeExpansionEvent event) {
-					repaintAllControls();
+					reestimateAndRepaintMappings();
 				}
 			});
 			((JScrollPane) treeTableComponent.getParent().getParent()).getVerticalScrollBar()
 					.addAdjustmentListener(new AdjustmentListener() {
 						@Override
 						public void adjustmentValueChanged(AdjustmentEvent e) {
-							repaintAllControls();
+							reestimateAndRepaintMappings();
 						}
 					});
 			treeTableComponent.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
 				public void valueChanged(TreeSelectionEvent e) {
 					preventSelectionOnBothSides();
-					repaintAllControls();
+					reestimateAndRepaintMappings();
 				}
 
 				private void preventSelectionOnBothSides() {
@@ -734,6 +781,7 @@ public class MappingsControl extends JPanel {
 		private void beforeMpping(BufferedItemPosition initializerPosition,
 				InstanceBuilderInitializerTreeControl initializerTreeControl) {
 			initializerTreeControl.setSingleSelection(initializerPosition);
+			initializerTreeControl.findMappingsControl().resetMappingsCache();
 			for (JComponent component : new JComponent[] { initializerTreeControl,
 					initializerTreeControl.findMappingsControl(),
 					initializerTreeControl.findMappingsControl().findSourceControl() })

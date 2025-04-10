@@ -5,8 +5,6 @@
 	. advertise
 	. improve the features
 - InstanceBuilder misses 'with'
-- InstanceBuilder 'auto map':
-	. optimize mappings estimation
 - status bar error messages are not fully readable sometimes
 - it should be possible to view the full source code of compilation errors
 - InstanceBuilder: allow to easily identify lines mapped on the other side  
