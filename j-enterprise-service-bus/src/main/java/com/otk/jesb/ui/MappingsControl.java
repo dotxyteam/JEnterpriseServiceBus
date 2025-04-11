@@ -98,6 +98,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
+		resetMappingsCache();
 		return true;
 	}
 

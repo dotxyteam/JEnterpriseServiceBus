@@ -415,4 +415,11 @@ public class GUI extends SwingCustomizer {
 		}
 		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
 	}
+
+	@Override
+	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
+		openObjectDialog(activatorComponent, error);
+	}
+	
+	
 }

@@ -5,9 +5,7 @@
 	. advertise
 	. improve the features
 - InstanceBuilder misses 'with'
-- status bar error messages are not fully readable sometimes
-- it should be possible to view the full source code of compilation errors
-- InstanceBuilder: allow to easily identify lines mapped on the other side  
+- beautify error details dialogs
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. allow to select and delete diagram connections
