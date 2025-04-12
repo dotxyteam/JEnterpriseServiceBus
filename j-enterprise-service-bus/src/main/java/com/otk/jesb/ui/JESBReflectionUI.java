@@ -30,12 +30,16 @@ import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.InitializationCase;
 import com.otk.jesb.instantiation.InitializationCaseFacade;
+import com.otk.jesb.instantiation.InitializationSwitch;
 import com.otk.jesb.instantiation.InitializationSwitchFacade;
+import com.otk.jesb.instantiation.ListItemInitializer;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
@@ -358,6 +362,80 @@ public class JESBReflectionUI extends CustomizedUI {
 									selectedSwitchFacade.importInitializerFacades(initializerFacades);
 									return null;
 								}
+							});
+						}
+						if (parentFacade instanceof InitializationCaseFacade) {
+							final ItemPosition parentCasePosition = firstItemPosition.getParentItemPosition();
+							final ItemPosition switchPosition = parentCasePosition.getParentItemPosition();
+							final ItemPosition destinationPosition = switchPosition.getParentItemPosition();
+							final InitializationSwitchFacade switchFacade = (InitializationSwitchFacade) switchPosition
+									.getItem();
+							final Facade destinationFacade = switchFacade.getParent();
+							final String firstInitializerFacadeString = ((Facade) firstItemPosition.getItem())
+									.toString();
+							result.add(new AbstractDynamicListAction() {
+
+								@Override
+								public String getName() {
+									return "moveOutOfParentSwitchCases";
+								}
+
+								@Override
+								public String getCaption() {
+									return "Move Out Of Parent Switch/Cases";
+								}
+
+								@Override
+								public DisplayMode getDisplayMode() {
+									return DisplayMode.CONTEXT_MENU;
+								}
+
+								@Override
+								public Object invoke(Object object, InvocationData invocationData) {
+									List<Facade> initializerFacades = selection.stream()
+											.map(itemPosition -> (Facade) itemPosition.getItem())
+											.collect(Collectors.toList());
+									List<Facade> managedFacades = switchFacade.getManagedInitializerFacades();
+									InitializationCase destination = (InitializationCase) destinationFacade
+											.getUnderlying();
+									for (Facade initializerFacade : initializerFacades) {
+										if (initializerFacade instanceof ParameterInitializerFacade) {
+											ParameterInitializer initializer = ((ParameterInitializerFacade) initializerFacade)
+													.getUnderlying();
+											destination.getParameterInitializers().add(initializer);
+										} else if (initializerFacade instanceof FieldInitializerFacade) {
+											((FieldInitializerFacade) initializerFacade).setConcrete(true);
+											FieldInitializer initializer = ((FieldInitializerFacade) initializerFacade)
+													.getUnderlying();
+											destination.getFieldInitializers().add(initializer);
+										} else if (initializerFacade instanceof ListItemInitializerFacade) {
+											((ListItemInitializerFacade) initializerFacade).setConcrete(true);
+											ListItemInitializer initializer = ((ListItemInitializerFacade) initializerFacade)
+													.getUnderlying();
+											destination.getListItemInitializers().add(initializer);
+										} else if (initializerFacade instanceof InitializationSwitchFacade) {
+											InitializationSwitch initializer = ((InitializationSwitchFacade) initializerFacade)
+													.getUnderlying();
+											destination.getInitializationSwitches().add(initializer);
+										} else {
+											throw new AssertionError();
+										}
+										if (!managedFacades.remove(initializerFacade)) {
+											throw new AssertionError();
+										}
+									}
+									switchFacade.setManagedInitializerFacades(managedFacades);
+									return null;
+								}
+
+								@Override
+								public List<ItemPosition> getPostSelection() {
+									return destinationPosition.getSubItemPositions().stream()
+											.filter(itemPosition -> ((Facade) itemPosition.getItem()).toString()
+													.equals(firstInitializerFacadeString))
+											.collect(Collectors.toList());
+								}
+
 							});
 						}
 					}

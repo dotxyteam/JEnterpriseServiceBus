@@ -779,19 +779,9 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			return accept;
 		}
 
-		private void beforeMpping(BufferedItemPosition initializerPosition,
+		private void beforeMapping(BufferedItemPosition initializerPosition,
 				InstanceBuilderInitializerTreeControl initializerTreeControl) {
 			initializerTreeControl.setSingleSelection(initializerPosition);
-			initializerTreeControl.findMappingsControl().resetMappingsCache();
-			for (JComponent component : new JComponent[] { initializerTreeControl,
-					initializerTreeControl.findMappingsControl(),
-					initializerTreeControl.findMappingsControl().findSourceControl() })
-				component.paintImmediately(0, 0, component.getWidth(), component.getHeight());
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				throw new AssertionError(e);
-			}
 		}
 
 		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
@@ -799,7 +789,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			boolean accept = false;
 			Facade initializerFacade = (Facade) initializerPosition.getItem();
 			if (initializerFacade instanceof ParameterInitializerFacade) {
-				beforeMpping(initializerPosition, initializerTreeControl);
+				beforeMapping(initializerPosition, initializerTreeControl);
 				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
@@ -817,7 +807,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					}
 				}, initializerTreeControl);
 			} else if (initializerFacade instanceof FieldInitializerFacade) {
-				beforeMpping(initializerPosition, initializerTreeControl);
+				beforeMapping(initializerPosition, initializerTreeControl);
 				accept = map(pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 					@Override
 					public ITypeInfo get() {
@@ -835,7 +825,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					}
 				}, initializerTreeControl);
 			} else if (initializerFacade instanceof ListItemInitializerFacade) {
-				beforeMpping(initializerPosition, initializerTreeControl);
+				beforeMapping(initializerPosition, initializerTreeControl);
 				accept = mapListItemReplication(pathNode, (ListItemInitializerFacade) initializerFacade,
 						initializerTreeControl);
 				ListItemReplicationFacade replicationFacade = ((ListItemInitializerFacade) initializerFacade)
@@ -931,9 +921,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							new Function("return " + pathNode.getParent().getTypicalExpression() + ";"));
 					itemReplication.setIterationListValueTypeName(pathNode.getParent().getExpressionType().getName());
 					itemReplication.setIterationVariableTypeName(pathNode.getExpressionType().getName());
-					((ListItemInitializerFacade) listItemInitializerFacade).setConcrete(true);
-					((ListItemInitializerFacade) listItemInitializerFacade).getUnderlying()
-							.setItemReplication(itemReplication);
+					listItemInitializerFacade.setConcrete(true);
+					listItemInitializerFacade.getUnderlying().setItemReplication(itemReplication);
 
 					if (unrelativizePathNode(pathNode.getParent()) instanceof FieldNode) {
 						String parentFieldName = ((FieldNode) unrelativizePathNode(pathNode.getParent()))
@@ -976,6 +965,16 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 		private int openMappingOptionSelectionDialog(List<String> options, PathNode pathNode, Facade initializerFacade,
 				InstanceBuilderInitializerTreeControl initializerTreeControl) {
+			initializerTreeControl.findMappingsControl().resetMappingsCache();
+			for (JComponent component : new JComponent[] { initializerTreeControl,
+					initializerTreeControl.findMappingsControl(),
+					initializerTreeControl.findMappingsControl().findSourceControl() })
+				component.paintImmediately(0, 0, component.getWidth(), component.getHeight());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new AssertionError(e);
+			}
 			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
 					"Choose a mapping option for: " + pathNode.toString() + " => " + initializerFacade.toString(),
 					"Mapping");
