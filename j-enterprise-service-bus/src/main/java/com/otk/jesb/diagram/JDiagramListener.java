@@ -8,4 +8,6 @@ public interface JDiagramListener {
 
 	void connectionAdded(JConnection conn);
 
+	void connectionSelected(JConnection connection);
+
 }

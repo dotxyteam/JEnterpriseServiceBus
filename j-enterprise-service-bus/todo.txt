@@ -8,9 +8,9 @@
 - InstanceBuilder: new var names not chosen according preceding steps
 - allow to provide plan input through the debugger
 - diagram improvements:
-	. allow to select and delete diagram connections
 	. smaller diagram node images
 	. connections are not straight and nice
+	. allow multiple selections
 - manage renamings
 - allow to start plan execution on event (timer, file poller, etc)
 - add things like groups (for repetition, etc) and conditional transitions for steps

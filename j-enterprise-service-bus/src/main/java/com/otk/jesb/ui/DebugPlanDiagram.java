@@ -2,9 +2,11 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Plan;
@@ -12,7 +14,6 @@ import com.otk.jesb.Step;
 import com.otk.jesb.StepOccurrence;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.diagram.JConnection;
-import com.otk.jesb.diagram.JDiagramActionScheme;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JNode;
 
@@ -92,6 +93,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 			}
 
 			@Override
+			public void connectionSelected(JConnection connection) {
+			}
+
+			@Override
 			public void connectionAdded(JConnection conn) {
 				refreshUI(false);
 			}
@@ -128,13 +133,15 @@ public class DebugPlanDiagram extends PlanDiagram {
 		if (selection != null) {
 			select(getNode(((StepOccurrence) selection.getItem()).getStep()));
 		} else {
-			select(null);
+			select((JNode)null);
 		}
 	}
 
 	@Override
-	protected JDiagramActionScheme createActionScheme() {
-		return null;
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+		JPopupMenu result = super.createContextMenu(mouseEvent);
+		result.removeAll();
+		return result;
 	}
 
 	public PlanExecutor getPlanExecutor() {

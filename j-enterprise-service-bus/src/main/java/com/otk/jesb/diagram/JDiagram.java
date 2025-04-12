@@ -66,6 +66,14 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		setTransferHandler(new ActionImportTransferHandler());
 	}
 
+	public List<JNode> getNodes() {
+		return nodes;
+	}
+
+	public List<JConnection> getConnections() {
+		return connections;
+	}
+
 	public DragIntent getDragIntent() {
 		return dragIntent;
 	}
@@ -105,10 +113,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		return null;
 	}
 
-	public JConnection addConnection(JNode node1, JNode node2) {
+	public JConnection addConnection(JNode node1, JNode node2, Object object) {
 		JConnection newConn = new JConnection();
 		newConn.setStartNode(node1);
 		newConn.setEndNode(node2);
+		newConn.setObject(object);
 		connections.add(newConn);
 		return newConn;
 	}
@@ -145,48 +154,64 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
-		for (JNode node : nodes) {
-			if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
-				select(node);
-				if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
-					draggedNode = node;
-					draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
-							draggedNode.getCenterY() - mouseEvent.getY());
+		List<Object> diagramObjects = new ArrayList<Object>();
+		diagramObjects.addAll(nodes);
+		diagramObjects.addAll(connections);
+		for (Object object : diagramObjects) {
+			if (object instanceof JNode) {
+				JNode node = (JNode) object;
+				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
+					select(node);
+					if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
+						draggedNode = node;
+						draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
+								draggedNode.getCenterY() - mouseEvent.getY());
+					}
+					break;
 				}
-				break;
+			}
+			if (object instanceof JConnection) {
+				JConnection connection = (JConnection) object;
+				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
+					select(connection);
+					break;
+				}
 			}
 		}
 		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			{
-				if (actionScheme != null) {
-					JMenu addMenu = new JMenu(actionScheme.getTitle());
-					{
-						popupMenu.add(addMenu);
-						for (JDiagramActionCategory category : actionScheme.getActionCategories()) {
-							JMenu categoryMenu = new JMenu(category.getName());
-							{
-								addMenu.add(categoryMenu);
-								for (JDiagramAction action : category.getActions()) {
-									categoryMenu
-											.add(new JMenuItem(new AbstractAction(action.getLabel(), action.getIcon()) {
-												private static final long serialVersionUID = 1L;
+			JPopupMenu popupMenu = createContextMenu(mouseEvent);
+			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
+		}
 
-												@Override
-												public void actionPerformed(ActionEvent e) {
-													action.perform(mouseEvent.getX(), mouseEvent.getY());
-												}
-											}));
-								}
+	}
+
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+		JPopupMenu popupMenu = new JPopupMenu();
+		{
+			if (actionScheme != null) {
+				JMenu addMenu = new JMenu(actionScheme.getTitle());
+				{
+					popupMenu.add(addMenu);
+					for (JDiagramActionCategory category : actionScheme.getActionCategories()) {
+						JMenu categoryMenu = new JMenu(category.getName());
+						{
+							addMenu.add(categoryMenu);
+							for (JDiagramAction action : category.getActions()) {
+								categoryMenu.add(new JMenuItem(new AbstractAction(action.getLabel(), action.getIcon()) {
+									private static final long serialVersionUID = 1L;
+
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										action.perform(mouseEvent.getX(), mouseEvent.getY());
+									}
+								}));
 							}
 						}
 					}
 				}
-
 			}
-			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
 		}
-
+		return popupMenu;
 	}
 
 	@Override
@@ -241,16 +266,41 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		for (JNode eachNode : nodes) {
 			eachNode.setSelected(node == eachNode);
 		}
+		for (JConnection eachConnection : connections) {
+			eachConnection.setSelected(false);
+		}
 		repaint();
 		for (JDiagramListener l : listeners) {
 			l.nodeSelected(node);
 		}
 	}
-	
+
+	public void select(JConnection connection) {
+		for (JNode eachNode : nodes) {
+			eachNode.setSelected(false);
+		}
+		for (JConnection eachConnection : connections) {
+			eachConnection.setSelected(connection == eachConnection);
+		}
+		repaint();
+		for (JDiagramListener l : listeners) {
+			l.connectionSelected(connection);
+		}
+	}
+
 	public JNode getSelectedNode() {
 		for (JNode node : nodes) {
-			if(node.isSelected()) {
+			if (node.isSelected()) {
 				return node;
+			}
+		}
+		return null;
+	}
+
+	public JConnection getSelectedConnection() {
+		for (JConnection connection : connections) {
+			if (connection.isSelected()) {
+				return connection;
 			}
 		}
 		return null;

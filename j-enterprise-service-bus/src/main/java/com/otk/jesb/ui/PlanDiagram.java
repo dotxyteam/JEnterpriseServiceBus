@@ -2,10 +2,14 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.Icon;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Plan;
@@ -147,6 +151,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 
 			@Override
+			public void connectionSelected(JConnection connection) {
+			}
+
+			@Override
 			public void connectionAdded(JConnection conn) {
 				Transition newTransition = new Transition();
 				newTransition.setStartStep((Step) conn.getStartNode().getObject());
@@ -189,7 +197,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		if (selection != null) {
 			select(getNode(selection.getItem()));
 		} else {
-			select(null);
+			select((JNode) null);
 		}
 	}
 
@@ -233,13 +241,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 											ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 											ITypeInfo planType = reflectionUI
 													.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-											DefaultFieldControlData transitionsData = new DefaultFieldControlData(
-													reflectionUI, getPlan(), ReflectionUIUtils
-															.findInfoByName(planType.getFields(), "steps"));
+											DefaultFieldControlData stepsData = new DefaultFieldControlData(
+													reflectionUI, getPlan(),
+													ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
 											IModification modification = new ListModificationFactory(
-													new ItemPositionFactory(transitionsData)
-															.getRootItemPosition(-1))
-																	.add(getPlan().getSteps().size(), newStep);
+													new ItemPositionFactory(stepsData).getRootItemPosition(-1))
+															.add(getPlan().getSteps().size(), newStep);
 											parentForm.getModificationStack().apply(modification);
 											refreshUI(false);
 										}
@@ -251,13 +258,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 										@Override
 										public Icon getIcon() {
-											return SwingRendererUtils
-													.getIcon(SwingRendererUtils.scalePreservingRatio(
-															SwingRendererUtils.loadImageThroughCache(
-																	metadata.getActivityIconImagePath(),
-																	ReflectionUIUtils.getDebugLogListener(
-																			swingRenderer.getReflectionUI())),
-															32, 32, Image.SCALE_SMOOTH));
+											return SwingRendererUtils.getIcon(SwingRendererUtils.scalePreservingRatio(
+													SwingRendererUtils.loadImageThroughCache(
+															metadata.getActivityIconImagePath(),
+															ReflectionUIUtils.getDebugLogListener(
+																	swingRenderer.getReflectionUI())),
+													32, 32, Image.SCALE_SMOOTH));
 										}
 									});
 								}
@@ -269,6 +275,39 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				return result;
 			}
 		};
+	}
+
+	@Override
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+		JPopupMenu result = super.createContextMenu(mouseEvent);
+		JConnection selectedConnection = null;
+		for (JConnection connection : getConnections()) {
+			if (connection.isSelected()) {
+				selectedConnection = connection;
+				break;
+			}
+		}
+		if (selectedConnection != null) {
+			Transition selectedTransition = (Transition) selectedConnection.getObject();
+			final int selectedTransitionIndex = getPlan().getTransitions().indexOf(selectedTransition);
+			result.insert(new AbstractAction("Remove Transition") {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+					ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+					DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
+					IModification modification = new ListModificationFactory(
+							new ItemPositionFactory(transitionsData).getRootItemPosition(-1))
+									.remove(selectedTransitionIndex);
+					parentForm.getModificationStack().apply(modification);
+					refreshUI(false);
+				}
+			}, 0);
+		}
+		return result;
 	}
 
 	@Override
@@ -296,7 +335,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			JNode node1 = getNode(t.getStartStep());
 			JNode node2 = getNode(t.getEndStep());
 			if ((node1 != null) && (node2 != null)) {
-				addConnection(node1, node2);
+				addConnection(node1, node2, t);
 			}
 		}
 		SwingRendererUtils.handleComponentSizeChange(this);
