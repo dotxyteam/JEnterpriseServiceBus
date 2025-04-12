@@ -1,5 +1,6 @@
 package com.otk.jesb.diagram;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -93,6 +94,10 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	public void clear() {
 		nodes.clear();
 		connections.clear();
+	}
+
+	protected Color getSelectionColor() {
+		return new Color(184, 207, 229);
 	}
 
 	public JNode addNode(Object object, int x, int y) {
@@ -340,11 +345,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	}
 
 	protected void paintConnection(Graphics g, JConnection conn) {
-		conn.paint(g);
+		conn.paint(g, this);
 	}
 
 	protected void paintNode(Graphics g, JNode node) {
-		node.paint(g);
+		node.paint(g, this);
 	}
 
 	public Component createActionPalette(int tabPlacement, int itemsBoxAxis) {

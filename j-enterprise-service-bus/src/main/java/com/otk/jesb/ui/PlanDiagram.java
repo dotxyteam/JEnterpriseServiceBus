@@ -5,8 +5,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -51,9 +52,13 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final int STEP_ICON_WIDTH = 64;
+	private static final int STEP_ICON_HEIGHT = 64;
+
 	protected SwingRenderer swingRenderer;
 	protected CustomizingForm parentForm;
 	protected boolean selectionListeningEnabled = true;
+	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
 		this.swingRenderer = swingRenderer;
@@ -326,8 +331,15 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 			ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
 			if (iconImagePath != null) {
-				node.setImage(SwingRendererUtils.loadImageThroughCache(iconImagePath,
-						ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI())));
+				Image iconImage = adaptedIconImageByPath.get(iconImagePath);
+				if (iconImage == null) {
+					iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
+							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
+					iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH, STEP_ICON_HEIGHT,
+							Image.SCALE_SMOOTH);
+					adaptedIconImageByPath.put(iconImagePath, iconImage);
+				}
+				node.setImage(iconImage);
 			}
 		}
 		select((selectedStep != null) ? getNode(selectedStep) : null);

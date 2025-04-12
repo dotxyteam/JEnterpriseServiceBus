@@ -49,8 +49,8 @@ public class JConnection {
 		this.selected = selected;
 	}
 
-	public void paint(Graphics g) {
-		Color selectionColor = new Color(184, 207, 229);
+	public void paint(Graphics g, JDiagram diagram) {
+		Color selectionColor = diagram.getSelectionColor();
 		g.setColor(selected ? selectionColor : Color.BLACK);
 		for (Polygon polygon : computePolygons()) {
 			g.fillPolygon(polygon);
@@ -79,7 +79,7 @@ public class JConnection {
 		if (endNode.getImage() != null) {
 			arrowSize = (endNode.getImage().getWidth(null) + endNode.getImage().getHeight(null)) / 10;
 		}
-		Polygon linePolygon = lineToPolygon(startPoint, endPoint, 5);
+		Polygon linePolygon = lineToPolygon(startPoint, endPoint, 4);
 		result.add(linePolygon);
 		{
 			int firstTrianglePointX = endPoint.x;

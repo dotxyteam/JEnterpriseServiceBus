@@ -54,8 +54,8 @@ public class JNode {
 		this.image = image;
 	}
 
-	public void paint(Graphics g) {
-		Color selectionColor = new Color(184, 207, 229);
+	public void paint(Graphics g , JDiagram diagram) {
+		Color selectionColor = diagram.getSelectionColor();
 		if (image != null) {
 			g.drawImage(image, centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
 					selected ? selectionColor : null, null);

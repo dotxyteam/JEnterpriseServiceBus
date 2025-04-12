@@ -8,7 +8,6 @@
 - InstanceBuilder: new var names not chosen according preceding steps
 - allow to provide plan input through the debugger
 - diagram improvements:
-	. smaller diagram node images
 	. connections are not straight and nice
 	. allow multiple selections
 - manage renamings
