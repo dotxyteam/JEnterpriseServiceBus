@@ -6,7 +6,6 @@
 	. improve the features
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
-- beautify error details dialogs
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. allow to select and delete diagram connections

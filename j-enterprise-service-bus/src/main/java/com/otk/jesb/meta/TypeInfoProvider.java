@@ -70,12 +70,7 @@ public class TypeInfoProvider {
 	}
 
 	public static ITypeInfo getTypeInfo(String parameterTypeName, IMethodInfo method, int parameterPosition) {
-		Class<?> objectClass;
-		try {
-			objectClass = Class.forName(parameterTypeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
-		} catch (ClassNotFoundException e) {
-			throw new AssertionError(e);
-		}
+		Class<?> objectClass = getClass(parameterTypeName);
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (method instanceof DefaultConstructorInfo) {

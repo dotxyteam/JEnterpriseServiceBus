@@ -6,17 +6,21 @@ public class CompilationError extends Exception {
 
 	private int startPosition;
 	private int endPosition;
+	private String sourceFilePath;
 	private String sourceCode;
 
-	public CompilationError(int startPosition, int endPosition, String message, String sourceCode, Throwable cause) {
+	public CompilationError(int startPosition, int endPosition, String message, String sourceFilePath,
+			String sourceCode, Throwable cause) {
 		super(message, cause);
 		this.startPosition = startPosition;
 		this.endPosition = endPosition;
+		this.sourceFilePath = sourceFilePath;
 		this.sourceCode = sourceCode;
 	}
 
-	public CompilationError(int startPosition, int endPosition, String message, String sourceCode) {
-		this(startPosition, endPosition, message, sourceCode, null);
+	public CompilationError(int startPosition, int endPosition, String message, String sourceFilePath,
+			String sourceCode) {
+		this(startPosition, endPosition, message, sourceFilePath, sourceCode, null);
 	}
 
 	public int getStartPosition() {
@@ -25,6 +29,10 @@ public class CompilationError extends Exception {
 
 	public int getEndPosition() {
 		return endPosition;
+	}
+
+	public String getSourceFilePath() {
+		return sourceFilePath;
 	}
 
 	public String getSourceCode() {

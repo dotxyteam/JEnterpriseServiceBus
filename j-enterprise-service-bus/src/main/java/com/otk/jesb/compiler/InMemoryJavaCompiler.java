@@ -139,12 +139,23 @@ public class InMemoryJavaCompiler {
 		for (Diagnostic<?> diagnostic : collector.getDiagnostics()) {
 			if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
 				throw new CompilationError((int) diagnostic.getStartPosition(), (int) diagnostic.getEndPosition(),
-						diagnostic.getMessage(null), extractSourceCode(diagnostic));
+						diagnostic.getMessage(null),extractSourceFilePath(diagnostic), extractSourceCode(diagnostic));
 			}
 		}
 		if (!success) {
-			throw new CompilationError(-1, -1, "Unknown error", null);
+			throw new CompilationError(-1, -1, "Unknown error", null, null);
 		}
+	}
+
+	private String extractSourceFilePath(Diagnostic<?> diagnostic) {
+		if(!(diagnostic.getSource() instanceof NamedJavaFileObject) ){
+			return null;
+		}
+		NamedJavaFileObject javaFileObject = (NamedJavaFileObject)diagnostic.getSource();
+		if(javaFileObject.getKind() !=  Kind.SOURCE) {
+			return null;
+		}
+		return javaFileObject.getName();
 	}
 
 	private String extractSourceCode(Diagnostic<?> diagnostic) {

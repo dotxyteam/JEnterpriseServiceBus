@@ -68,7 +68,9 @@ import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
 import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class JESBReflectionUI extends CustomizedUI {
@@ -699,6 +701,9 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected String getCaption(ITypeInfo type) {
+				if (type.getName().equals(ReflectionUIError.class.getName())) {
+					return "Error";
+				}
 				for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
 					if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
 						return activityMetadata.getActivityTypeName();
@@ -759,6 +764,54 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 				}
 				return super.getIconImagePath(type, object);
+			}
+
+			@Override
+			protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
+				if (!field.getName().equals("message") && !field.getName().equals("cause")) {
+					try {
+						Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+						if (Throwable.class.isAssignableFrom(objectClass)) {
+							for (IFieldInfo throwableField : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
+									.getFields()) {
+								if (field.getName().equals(throwableField.getName())) {
+									return true;
+								}
+							}
+						}
+					} catch (ClassNotFoundException e) {
+					}
+				}
+				return super.isHidden(field, objectType);
+			}
+
+			@Override
+			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
+				try {
+					Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+					if (Throwable.class.isAssignableFrom(objectClass)) {
+						for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
+								.getMethods()) {
+							if (method.getSignature().equals(throwableMethod.getSignature())) {
+								return true;
+							}
+						}
+					}
+				} catch (ClassNotFoundException e) {
+				}
+				return super.isHidden(method, objectType);
+			}
+
+			@Override
+			protected boolean isModificationStackAccessible(ITypeInfo type) {
+				try {
+					Class<?> objectClass = ClassUtils.getCachedClassForName(type.getName());
+					if (Throwable.class.isAssignableFrom(objectClass)) {
+						return false;
+					}
+				} catch (ClassNotFoundException e) {
+				}
+				return super.isModificationStackAccessible(type);
 			}
 
 		}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
