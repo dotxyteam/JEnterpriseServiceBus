@@ -1,5 +1,8 @@
 package com.otk.jesb.instantiation;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,14 +194,7 @@ public class InstanceBuilderFacade extends Facade {
 
 	public void pasteUnderlying() {
 		parent.setConcrete(true);
-		underlying.setDynamicTypeNameAccessor(InstanceBuilderFacade.underlyingClipboard.getDynamicTypeNameAccessor());
-		underlying.setTypeName(InstanceBuilderFacade.underlyingClipboard.getTypeName());
-		underlying.setSelectedConstructorSignature(
-				InstanceBuilderFacade.underlyingClipboard.getSelectedConstructorSignature());
-		underlying.setParameterInitializers(InstanceBuilderFacade.underlyingClipboard.getParameterInitializers());
-		underlying.setFieldInitializers(InstanceBuilderFacade.underlyingClipboard.getFieldInitializers());
-		underlying.setListItemInitializers(InstanceBuilderFacade.underlyingClipboard.getListItemInitializers());
-		underlying.setInitializationSwitches(InstanceBuilderFacade.underlyingClipboard.getInitializationSwitches());
+		transferValuesToUnderlying(InstanceBuilderFacade.underlyingClipboard);
 		InstanceBuilderFacade.underlyingClipboard = null;
 	}
 
@@ -210,6 +206,37 @@ public class InstanceBuilderFacade extends Facade {
 			return false;
 		}
 		return true;
+	}
+
+	public String getSource() {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			MiscUtils.serialize(underlying, output);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+		return output.toString();
+	}
+
+	public void setSource(String source) {
+		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());
+		InstanceBuilder deserialized;
+		try {
+			deserialized = (InstanceBuilder) MiscUtils.deserialize(input);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+		transferValuesToUnderlying(deserialized);
+	}
+
+	private void transferValuesToUnderlying(InstanceBuilder source) {
+		underlying.setDynamicTypeNameAccessor(source.getDynamicTypeNameAccessor());
+		underlying.setTypeName(source.getTypeName());
+		underlying.setSelectedConstructorSignature(source.getSelectedConstructorSignature());
+		underlying.setParameterInitializers(source.getParameterInitializers());
+		underlying.setFieldInitializers(source.getFieldInitializers());
+		underlying.setListItemInitializers(source.getListItemInitializers());
+		underlying.setInitializationSwitches(source.getInitializationSwitches());
 	}
 
 	@Override
