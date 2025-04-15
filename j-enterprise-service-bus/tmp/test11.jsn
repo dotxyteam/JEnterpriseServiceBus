@@ -64,8 +64,8 @@
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
               </activityBuilder>
-              <diagramX>90</diagramX>
-              <diagramY>62</diagramY>
+              <diagramX>88</diagramX>
+              <diagramY>56</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>executePlan</name>
@@ -212,8 +212,8 @@
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </planInputBuilder>
               </activityBuilder>
-              <diagramX>94</diagramX>
-              <diagramY>247</diagramY>
+              <diagramX>200</diagramX>
+              <diagramY>58</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>writeFile</name>
@@ -246,6 +246,10 @@
                               <functionBody>return executePlan.getReadFileResult();</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>2</parameterPosition>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
                         <typeName>&lt;Dynamic&gt;</typeName>
@@ -261,8 +265,8 @@
                 </instanceBuilder>
                 <mode>TEXT</mode>
               </activityBuilder>
-              <diagramX>96</diagramX>
-              <diagramY>436</diagramY>
+              <diagramX>321</diagramX>
+              <diagramY>57</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>callSOAPWebService</name>
@@ -793,8 +797,8 @@
                 <portName>SOAPDemoSoap</portName>
                 <serviceName>SOAPDemo</serviceName>
               </activityBuilder>
-              <diagramX>339</diagramX>
-              <diagramY>426</diagramY>
+              <diagramX>443</diagramX>
+              <diagramY>58</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>jDBCQuery</name>
@@ -840,8 +844,8 @@
                 <resultColumnDefinitions class="null"/>
                 <statement class="null"/>
               </activityBuilder>
-              <diagramX>332</diagramX>
-              <diagramY>254</diagramY>
+              <diagramX>555</diagramX>
+              <diagramY>60</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>jDBCUpdate</name>
@@ -880,8 +884,8 @@
                 </parameterValuesBuilder>
                 <statement class="null"/>
               </activityBuilder>
-              <diagramX>337</diagramX>
-              <diagramY>87</diagramY>
+              <diagramX>665</diagramX>
+              <diagramY>60</diagramY>
             </com.otk.jesb.Step>
           </steps>
           <transitions>

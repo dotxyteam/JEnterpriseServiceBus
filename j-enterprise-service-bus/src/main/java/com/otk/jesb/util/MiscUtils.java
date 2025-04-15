@@ -331,7 +331,7 @@ public class MiscUtils {
 			return null;
 		}
 		for (ActivityMetadata activityMetadata : JESBReflectionUI.ACTIVITY_METADATAS) {
-			if (activityMetadata.getActivityBuilderClass().equals(step.getActivityBuilder().getClass())) {
+			if (activityMetadata.getActivityBuilderClass().equals(activityBuilder.getClass())) {
 				return activityMetadata.getActivityIconImagePath();
 			}
 		}

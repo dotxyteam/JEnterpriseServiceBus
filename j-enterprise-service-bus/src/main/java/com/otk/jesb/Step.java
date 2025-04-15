@@ -9,6 +9,7 @@ public class Step {
 	private ActivityBuilder activityBuilder;
 	private int diagramX = 0;
 	private int diagramY = 0;
+	private CompositeStep parent;
 
 	public Step(ActivityMetadata activityMetadata) {
 		if (activityMetadata != null) {
@@ -54,10 +55,19 @@ public class Step {
 	public void setDiagramY(int diagramY) {
 		this.diagramY = diagramY;
 	}
-	
+
+	public CompositeStep getParent() {
+		return parent;
+	}
+
+	public void setParent(CompositeStep parent) {
+		this.parent = parent;
+	}
+
 	public void validate() throws Exception {
-		if(!name.matches("[a-zA-Z][a-zA-Z0-9_]*")){
-			throw new Exception("The step name must match the following regular expression: [a-zA-Z][a-zA-Z0-9_]*");
+		String NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
+		if (!name.matches(NAME_PATTERN)) {
+			throw new Exception("The step name must match the following regular expression: " + NAME_PATTERN);
 		}
 	}
 

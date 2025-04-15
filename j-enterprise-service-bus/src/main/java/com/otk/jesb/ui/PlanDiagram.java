@@ -342,7 +342,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				node.setImage(iconImage);
 			}
 		}
-		select((selectedStep != null) ? getNode(selectedStep) : null);
+		selectionListeningEnabled = false;
+		try {
+			select((selectedStep != null) ? getNode(selectedStep) : null);
+		} finally {
+			selectionListeningEnabled = true;
+		}
 		for (Transition t : plan.getTransitions()) {
 			JNode node1 = getNode(t.getStartStep());
 			JNode node2 = getNode(t.getEndStep());

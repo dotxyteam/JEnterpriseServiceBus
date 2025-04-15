@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
@@ -218,7 +219,7 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context) throws Exception {
+		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCUpdateActivity result = new JDBCUpdateActivity();
 			result.setConnection(connection);
 			result.setStatement(statement);

@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponent;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Folder;
 import com.otk.jesb.FunctionEditor;
+import com.otk.jesb.LoopCompositeStep;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Solution;
@@ -85,22 +86,31 @@ public class GUI extends SwingCustomizer {
 		ab1.setConnection(c);
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
+		LoopCompositeStep ls = new LoopCompositeStep();
+		plan.getSteps().add(ls);
+		ls.setName("loop");
+		ls.setDiagramX(200);
+		ls.setDiagramY(100);
+		ls.getActivityBuilder().setIterationIndexVariableName("index");
+		ls.getActivityBuilder().setLoopEndCondition(new Function("return index==3;"));
+		
 		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
 		s2.setName("w");
-		s2.setDiagramX(200);
+		s2.setDiagramX(300);
 		s2.setDiagramY(100);
+		s2.setParent(ls);
 		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
 		s2.setActivityBuilder(ab2);
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(1,
-						new Function("return (String)a.getRows().get(0).getCellValues().get(\"TABLE_NAME\");")));
+						new Function("return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
-		t1.setEndStep(s2);
+		t1.setEndStep(ls);
 		plan.getTransitions().add(t1);
 
 		SwingUtilities.invokeLater(new Runnable() {

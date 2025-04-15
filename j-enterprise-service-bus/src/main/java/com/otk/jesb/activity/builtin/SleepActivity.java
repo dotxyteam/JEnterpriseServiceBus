@@ -3,6 +3,7 @@ package com.otk.jesb.activity.builtin;
 import java.io.IOException;
 
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -74,7 +75,7 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context) throws Exception {
+		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return (SleepActivity) instanceBuilder.build(new EvaluationContext(context, null));
 		}
 

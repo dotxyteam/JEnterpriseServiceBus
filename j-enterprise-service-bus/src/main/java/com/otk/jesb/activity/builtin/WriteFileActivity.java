@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
@@ -178,7 +179,7 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context) throws Exception {
+		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new WriteFileActivity(
 					(SpecificWriteFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
 		}

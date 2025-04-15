@@ -18,6 +18,7 @@ import com.otk.jesb.Step;
 import com.otk.jesb.StepOccurrence;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -78,7 +79,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
 			new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
 			new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
-			new CallSOAPWebServiceActivity.Metadata());
+			new CallSOAPWebServiceActivity.Metadata(), new LoopActivity.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 			new WSDL.Metadata());
 
@@ -787,17 +788,19 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
-				try {
-					Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
-					if (Throwable.class.isAssignableFrom(objectClass)) {
-						for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
-								.getMethods()) {
-							if (method.getSignature().equals(throwableMethod.getSignature())) {
-								return true;
+				if (!method.getSignature().equals("void printStackTrace()")) {
+					try {
+						Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+						if (Throwable.class.isAssignableFrom(objectClass)) {
+							for (IMethodInfo throwableMethod : getTypeInfo(
+									new JavaTypeInfoSource(Throwable.class, null)).getMethods()) {
+								if (method.getSignature().equals(throwableMethod.getSignature())) {
+									return true;
+								}
 							}
 						}
+					} catch (ClassNotFoundException e) {
 					}
-				} catch (ClassNotFoundException e) {
 				}
 				return super.isHidden(method, objectType);
 			}

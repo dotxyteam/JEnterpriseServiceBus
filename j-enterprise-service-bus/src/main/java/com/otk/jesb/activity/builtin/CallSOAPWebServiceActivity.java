@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Solution;
 import com.otk.jesb.activity.Activity;
@@ -314,7 +315,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context) throws Exception {
+		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
 			result.setWSDL(wsdl);
 			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());

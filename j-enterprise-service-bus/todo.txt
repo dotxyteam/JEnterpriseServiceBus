@@ -4,6 +4,21 @@
 	. release a first version
 	. advertise
 	. improve the features
+- add things like 
+	. groups 
+		* for repetition: loop while with the ability to break
+		* etc 
+	. conditional transitions for steps
+- allow to build and reference shared structures
+- allow to start plan execution on event (timer, file poller, etc)
+- create and display a Sub-PlanExecutor for each sub-plan execution
+- add an "Evaluate" activity (like BW "Mapper" activity
+- to ease co-working and version control, plans and resources must be stored in separate files  
+- add validation
+- allow to deploy and execute a project outside of the designer in a production environment
+- allow to monitor the execution of deployed projects
+- allow to extend the framework by adding custom activities
+- allow to specify custom activity builder UI details through the code
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
 - allow to provide plan input through the debugger
@@ -11,19 +26,9 @@
 	. connections are not straight and nice
 	. allow multiple selections
 - manage renamings
-- allow to start plan execution on event (timer, file poller, etc)
-- add things like groups (for repetition, etc) and conditional transitions for steps
-- create and display a Sub-PlanExecutor for each sub-plan execution
-- allow to build and reference shared structures
-- add an "Evaluate" activity (like BW "Mapper" activity
+- Plan.isPreviousStep() too CPU greedy
 - what if 2 variables have the same name ?
-- add validation
 - add other built-in activities (file, jdbc, jms, data format, ...)
-- to ease co-working and version control, plans and resources must be stored in separate files  
-- allow to deploy and execute a project outside of the designer in a production environment
-- allow to monitor the execution of deployed projects
-- allow to extend the framework by adding custom activities
-- allow to specify custom activity builder UI details through the code
 - replace "Assist..." by an icon ???
 - rename activity classes (remove 'Activity' suffix) ???
 - rename Activities to Operations

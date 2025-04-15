@@ -2,7 +2,9 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
@@ -167,8 +169,8 @@ public class Plan extends Asset {
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws Throwable {
 		ExecutionContext context = new ExecutionContext(this);
 		if (inputClass != null) {
-			if(input != null) {
-				if(!inputClass.isInstance(input)) {
+			if (input != null) {
+				if (!inputClass.isInstance(input)) {
 					throw new AssertionError();
 				}
 			}
@@ -185,11 +187,12 @@ public class Plan extends Asset {
 				}
 			});
 		}
-		execute(steps, context, executionInspector);
+		execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
+				executionInspector);
 		return outputBuilder.build(new EvaluationContext(context, null));
 	}
 
-	private void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
+	public void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
 			throws Throwable {
 		if (executionInspector.isExecutionInterrupted()) {
 			return;
@@ -219,7 +222,7 @@ public class Plan extends Asset {
 		StepOccurrence stepOccurrence = new StepOccurrence(step);
 		executionInspector.beforeActivityCreation(stepOccurrence);
 		try {
-			Activity activity = step.getActivityBuilder().build(context);
+			Activity activity = step.getActivityBuilder().build(context, executionInspector);
 			stepOccurrence.setActivity(activity);
 			Object activityResult = activity.execute();
 			stepOccurrence.setActivityResult(activityResult);
@@ -235,20 +238,28 @@ public class Plan extends Asset {
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
-		ValidationContext result = new ValidationContext(this);
-		if (inputClass != null) {
-			result.getVariableDeclarations().add(new ValidationContext.VariableDeclaration() {
+		ValidationContext result;
+		if (currentStep.getParent() != null) {
+			result = getValidationContext(currentStep.getParent());
+			for (VariableDeclaration declaration : currentStep.getParent().getChildrenVariableDeclarations()) {
+				result = new ValidationContext(result, declaration);
+			}
+		} else {
+			result = new ValidationContext(this);
+			if (inputClass != null) {
+				result.getVariableDeclarations().add(new ValidationContext.VariableDeclaration() {
 
-				@Override
-				public String getVariableName() {
-					return INPUT_VARIABLE_NAME;
-				}
+					@Override
+					public String getVariableName() {
+						return INPUT_VARIABLE_NAME;
+					}
 
-				@Override
-				public Class<?> getVariableType() {
-					return inputClass;
-				}
-			});
+					@Override
+					public Class<?> getVariableType() {
+						return inputClass;
+					}
+				});
+			}
 		}
 		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
 		for (Step step : previousSteps) {
@@ -322,8 +333,8 @@ public class Plan extends Asset {
 			this.variableDeclarations = variableDeclarations;
 		}
 
-		public ValidationContext(Plan plan, ValidationContext parentContext, VariableDeclaration newDeclaration) {
-			this.plan = plan;
+		public ValidationContext(ValidationContext parentContext, VariableDeclaration newDeclaration) {
+			this.plan = parentContext.getPlan();
 			variableDeclarations.addAll(parentContext.getVariableDeclarations());
 			variableDeclarations.add(newDeclaration);
 		}

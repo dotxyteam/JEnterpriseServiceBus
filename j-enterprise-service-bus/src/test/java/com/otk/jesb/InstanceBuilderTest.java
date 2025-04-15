@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.Step;
 import com.otk.jesb.Structure.ClassicStructure;
@@ -183,7 +184,7 @@ public class InstanceBuilderTest {
 			RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("testInput", Tree.class.getName());
 
 			@Override
-			public Activity build(ExecutionContext context) throws Exception {
+			public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 				return (Tree) instanceBuilder.build(new EvaluationContext(context, null));
 			}
 

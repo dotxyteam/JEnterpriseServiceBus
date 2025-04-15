@@ -52,12 +52,12 @@ public class JConnection {
 	public void paint(Graphics g, JDiagram diagram) {
 		Color selectionColor = diagram.getSelectionColor();
 		g.setColor(selected ? selectionColor : Color.BLACK);
-		for (Polygon polygon : computePolygons()) {
+		for (Polygon polygon : computePolygons(2, 10)) {
 			g.fillPolygon(polygon);
 		}
 	}
 
-	private List<Polygon> computePolygons() {
+	private List<Polygon> computePolygons(int lineThickness, int arrowSize) {
 		List<Polygon> result = new ArrayList<Polygon>();
 		Point startPoint = new Point(startNode.getCenterX(), startNode.getCenterY());
 		Point endPoint = new Point(endNode.getCenterX(), endNode.getCenterY());
@@ -75,11 +75,10 @@ public class JConnection {
 		if (endPoint == null) {
 			return Collections.emptyList();
 		}
-		int arrowSize = 10;
 		if (endNode.getImage() != null) {
 			arrowSize = (endNode.getImage().getWidth(null) + endNode.getImage().getHeight(null)) / 10;
 		}
-		Polygon linePolygon = lineToPolygon(startPoint, endPoint, 4);
+		Polygon linePolygon = lineToPolygon(startPoint, endPoint, lineThickness);
 		result.add(linePolygon);
 		{
 			int firstTrianglePointX = endPoint.x;
@@ -130,7 +129,7 @@ public class JConnection {
 	}
 
 	public boolean containsPoint(int x, int y) {
-		for (Polygon polygon : computePolygons()) {
+		for (Polygon polygon : computePolygons(4, 12)) {
 			if (polygon.contains(x, y)) {
 				return true;
 			}
