@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +21,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.LoopCompositeStep;
+import com.otk.jesb.LoopCompositeStep.LoopActivity.Metadata;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
 import com.otk.jesb.Transition;
@@ -69,7 +73,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public PlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
 		this.swingRenderer = swingRenderer;
 		this.parentForm = parentForm;
-		setActionScheme(createActionScheme());
+		setActionSchemes(createActionSchemes());
 		updateExternalComponentsOnInternalEvents();
 		updateInternalComponentsOnExternalEvents();
 		setBackground(Color.WHITE);
@@ -170,13 +174,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				Transition newTransition = new Transition();
 				newTransition.setStartStep((Step) conn.getStartNode().getObject());
 				newTransition.setEndStep((Step) conn.getEndNode().getObject());
-				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-				ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-				DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
-						ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
-				IModification modification = new ListModificationFactory(
-						new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
-				parentForm.getModificationStack().apply(modification);
+				onTransitionInsertionRequest(newTransition);
 			}
 		});
 	}
@@ -212,12 +210,40 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		}
 	}
 
-	protected JDiagramActionScheme createActionScheme() {
-		return new JDiagramActionScheme() {
+	protected void onStepInsertionRequest(Step newStep, int x, int y) {
+		newStep.setDiagramX(x);
+		newStep.setDiagramY(y);
+		JNode selectedNode = getSelectedNode();
+		if (selectedNode != null) {
+			if (selectedNode.getObject() instanceof CompositeStep) {
+				newStep.setParent((CompositeStep) selectedNode.getObject());
+			}
+		}
+		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+				ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
+		IModification modification = new ListModificationFactory(
+				new ItemPositionFactory(stepsData).getRootItemPosition(-1)).add(getPlan().getSteps().size(), newStep);
+		parentForm.getModificationStack().apply(modification);
+	}
+
+	protected void onTransitionInsertionRequest(Transition newTransition) {
+		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
+		IModification modification = new ListModificationFactory(
+				new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
+		parentForm.getModificationStack().apply(modification);
+	}
+
+	protected List<JDiagramActionScheme> createActionSchemes() {
+		return Arrays.asList(new JDiagramActionScheme() {
 
 			@Override
 			public String getTitle() {
-				return "Add";
+				return "Add Activity";
 			}
 
 			@Override
@@ -247,19 +273,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 										@Override
 										public void perform(int x, int y) {
 											Step newStep = new Step(metadata);
-											newStep.setDiagramX(x);
-											newStep.setDiagramY(y);
-											ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-											ITypeInfo planType = reflectionUI
-													.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-											DefaultFieldControlData stepsData = new DefaultFieldControlData(
-													reflectionUI, getPlan(),
-													ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
-											IModification modification = new ListModificationFactory(
-													new ItemPositionFactory(stepsData).getRootItemPosition(-1))
-															.add(getPlan().getSteps().size(), newStep);
-											parentForm.getModificationStack().apply(modification);
-											refreshUI(false);
+											onStepInsertionRequest(newStep, x, y);
 										}
 
 										@Override
@@ -285,7 +299,60 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				}
 				return result;
 			}
-		};
+		}, new JDiagramActionScheme() {
+
+			@Override
+			public String getTitle() {
+				return "Add Composite";
+			}
+
+			@Override
+			public List<JDiagramActionCategory> getActionCategories() {
+				List<JDiagramActionCategory> result = new ArrayList<JDiagramActionCategory>();
+				result.add(new JDiagramActionCategory() {
+
+					final Metadata metadata = new Metadata();
+
+					@Override
+					public String getName() {
+						return "Flow Control";
+					}
+
+					@Override
+					public List<JDiagramAction> getActions() {
+						List<JDiagramAction> result = new ArrayList<JDiagramAction>();
+						result.add(new JDiagramAction() {
+
+							@Override
+							public void perform(int x, int y) {
+								LoopCompositeStep newComposite = new LoopCompositeStep();
+								onStepInsertionRequest(newComposite, x, y);
+
+							}
+
+							@Override
+							public String getLabel() {
+								return metadata.getActivityTypeName();
+							}
+
+							@Override
+							public Icon getIcon() {
+								return SwingRendererUtils
+										.getIcon(
+												SwingRendererUtils.scalePreservingRatio(
+														SwingRendererUtils.loadImageThroughCache(
+																metadata.getActivityIconImagePath(),
+																ReflectionUIUtils.getDebugLogListener(
+																		swingRenderer.getReflectionUI())),
+														32, 32, Image.SCALE_SMOOTH));
+							}
+						});
+						return result;
+					}
+				});
+				return result;
+			}
+		});
 	}
 
 	@Override
@@ -364,13 +431,22 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				node.setImage(iconImage);
 			}
 			if (step instanceof CompositeStep) {
-				Rectangle compositeBounds = ((CompositeStep) step).getChildrenDiagramBounds(plan,
-						(int) (STEP_ICON_WIDTH * 1.75), (int) (STEP_ICON_HEIGHT * 1.75));
+				int headerHeight = 16;
+				int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
+				int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
+				Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan,
+						STEP_ICON_WIDTH + horizontalPadding, STEP_ICON_HEIGHT + verticalPadding + (headerHeight * 2));
 				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
 						BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = compositeImage.createGraphics();
 				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, compositeBounds.width - 1, compositeBounds.height - 1);
+				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+				g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
+						node.getImage().getHeight(null), null);
+				g.setColor(Color.BLACK);
+				g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
 				g.dispose();
 				node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
 				node.setCenterY((int) Math.round(compositeBounds.getCenterY()));

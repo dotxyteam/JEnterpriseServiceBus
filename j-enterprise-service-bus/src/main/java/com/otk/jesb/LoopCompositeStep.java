@@ -2,6 +2,7 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
@@ -56,6 +57,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 	public static class LoopActivity implements Activity {
 
+		
 		private ExecutionContext context;
 		private ExecutionInspector executionInspector;
 		private Function loopEndCondition;

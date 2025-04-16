@@ -7,12 +7,15 @@
 - add things like 
 	. groups 
 		* for repetition: loop while with the ability to break
+			# allow to copy/cut and paste into loop composite
+			# allow to create a parent loop for the current selection
 		* etc 
 	. conditional transitions for steps
 - allow to build and reference shared structures
 - allow to start plan execution on event (timer, file poller, etc)
 - create and display a Sub-PlanExecutor for each sub-plan execution
 - add an "Evaluate" activity (like BW "Mapper" activity
+- allow to manage exceptions
 - to ease co-working and version control, plans and resources must be stored in separate files  
 - add validation
 - allow to deploy and execute a project outside of the designer in a production environment
@@ -25,6 +28,7 @@
 - diagram improvements:
 	. connections are not straight and nice
 	. allow multiple selections
+- prevent or warn about multiply defined transitions
 - manage renamings
 - Plan.isPreviousStep() too CPU greedy
 - what if 2 variables have the same name ?

@@ -79,7 +79,8 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
 			new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
 			new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
-			new CallSOAPWebServiceActivity.Metadata(), new LoopActivity.Metadata());
+			new CallSOAPWebServiceActivity.Metadata());
+	public static final List<ActivityMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopActivity.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 			new WSDL.Metadata());
 
@@ -580,7 +581,9 @@ public class JESBReflectionUI extends CustomizedUI {
 
 					});
 					return result;
-				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName())) {
+				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName()))
+
+				{
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override

@@ -331,6 +331,11 @@ public class MiscUtils {
 				return activityMetadata.getActivityIconImagePath();
 			}
 		}
+		for (ActivityMetadata activityMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
+			if (activityMetadata.getActivityBuilderClass().equals(activityBuilder.getClass())) {
+				return activityMetadata.getActivityIconImagePath();
+			}
+		}
 		return null;
 	}
 

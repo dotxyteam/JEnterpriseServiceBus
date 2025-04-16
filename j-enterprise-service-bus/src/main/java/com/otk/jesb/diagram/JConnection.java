@@ -57,6 +57,15 @@ public class JConnection {
 		}
 	}
 
+	public boolean containsPoint(int x, int y, JDiagram diagram) {
+		for (Polygon polygon : computePolygons(4, diagram.getConnectionArrowSize() + 2)) {
+			if (polygon.contains(x, y)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private List<Polygon> computePolygons(int lineThickness, int arrowSize) {
 		List<Polygon> result = new ArrayList<Polygon>();
 		Point startPoint = new Point(startNode.getCenterX(), startNode.getCenterY());
@@ -125,12 +134,4 @@ public class JConnection {
 		return new Polygon(xPoints, yPoints, 4);
 	}
 
-	public boolean containsPoint(int x, int y, JDiagram diagram) {
-		for (Polygon polygon : computePolygons(4, diagram.getConnectionArrowSize() + 2)) {
-			if (polygon.contains(x, y)) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

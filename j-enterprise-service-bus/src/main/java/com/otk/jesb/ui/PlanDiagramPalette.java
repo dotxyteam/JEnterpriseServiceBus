@@ -70,7 +70,7 @@ public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldCo
 		if (refreshStructure) {
 			removeAll();
 			if (getDiagram() != null) {
-				add(BorderLayout.CENTER, getDiagram().createActionPalette(JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
+				add(BorderLayout.CENTER, getDiagram().createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
 				SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
 			}
 		}
