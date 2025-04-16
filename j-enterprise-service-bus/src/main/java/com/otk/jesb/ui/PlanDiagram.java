@@ -1,10 +1,15 @@
 package com.otk.jesb.ui;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +18,7 @@ import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
 import com.otk.jesb.Transition;
@@ -327,7 +333,23 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		JNode selectedNode = getSelectedNode();
 		Step selectedStep = (selectedNode != null) ? (Step) selectedNode.getObject() : null;
 		clear();
-		for (Step step : plan.getSteps()) {
+		List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
+		Collections.sort(sortedSteps, new Comparator<Step>() {
+			@Override
+			public int compare(Step o1, Step o2) {
+				if ((o1.getParent() == null) && (o2.getParent() != null)) {
+					return -1;
+				}
+				if ((o1.getParent() != null) && (o2.getParent() == null)) {
+					return 1;
+				}
+				if ((o1.getParent() != null) && (o2.getParent() != null)) {
+					return compare(o1.getParent(), o2.getParent());
+				}
+				return 0;
+			}
+		});
+		for (Step step : sortedSteps) {
 			JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
 			ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
 			if (iconImagePath != null) {
@@ -340,6 +362,19 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					adaptedIconImageByPath.put(iconImagePath, iconImage);
 				}
 				node.setImage(iconImage);
+			}
+			if (step instanceof CompositeStep) {
+				Rectangle compositeBounds = ((CompositeStep) step).getChildrenDiagramBounds(plan,
+						(int) (STEP_ICON_WIDTH * 1.75), (int) (STEP_ICON_HEIGHT * 1.75));
+				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
+						BufferedImage.TYPE_INT_ARGB);
+				Graphics2D g = compositeImage.createGraphics();
+				g.setColor(Color.BLACK);
+				g.drawRect(0, 0, compositeBounds.width - 1, compositeBounds.height - 1);
+				g.dispose();
+				node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
+				node.setCenterY((int) Math.round(compositeBounds.getCenterY()));
+				node.setImage(compositeImage);
 			}
 		}
 		selectionListeningEnabled = false;

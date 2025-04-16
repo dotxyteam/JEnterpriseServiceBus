@@ -52,7 +52,7 @@ public class JConnection {
 	public void paint(Graphics g, JDiagram diagram) {
 		Color selectionColor = diagram.getSelectionColor();
 		g.setColor(selected ? selectionColor : Color.BLACK);
-		for (Polygon polygon : computePolygons(2, 10)) {
+		for (Polygon polygon : computePolygons(2, diagram.getConnectionArrowSize())) {
 			g.fillPolygon(polygon);
 		}
 	}
@@ -74,9 +74,6 @@ public class JConnection {
 		}
 		if (endPoint == null) {
 			return Collections.emptyList();
-		}
-		if (endNode.getImage() != null) {
-			arrowSize = (endNode.getImage().getWidth(null) + endNode.getImage().getHeight(null)) / 10;
 		}
 		Polygon linePolygon = lineToPolygon(startPoint, endPoint, lineThickness);
 		result.add(linePolygon);
@@ -128,8 +125,8 @@ public class JConnection {
 		return new Polygon(xPoints, yPoints, 4);
 	}
 
-	public boolean containsPoint(int x, int y) {
-		for (Polygon polygon : computePolygons(4, 12)) {
+	public boolean containsPoint(int x, int y, JDiagram diagram) {
+		for (Polygon polygon : computePolygons(4, diagram.getConnectionArrowSize() + 2)) {
 			if (polygon.contains(x, y)) {
 				return true;
 			}

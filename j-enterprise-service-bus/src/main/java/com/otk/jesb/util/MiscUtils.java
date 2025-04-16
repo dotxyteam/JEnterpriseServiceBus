@@ -89,8 +89,7 @@ public class MiscUtils {
 				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, validationContext)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
 						validationContext);
-		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(),
-				evaluationContext.getParentFacade())) {
+		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
 		if (!Arrays.equals(
@@ -102,17 +101,14 @@ public class MiscUtils {
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
 				makeTypeNamesAbsolute(function.getFunctionBody(),
-						getAncestorStructureInstanceBuilders(
-								compilationContext.getParentFacade())),
-				compilationContext.getValidationContext(),
-				compilationContext.getFunctionReturnType());
+						getAncestorStructureInstanceBuilders(compilationContext.getParentFacade())),
+				compilationContext.getValidationContext(), compilationContext.getFunctionReturnType());
 		return compiledFunction.execute(executionContext);
 	}
 
 	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
 		CompiledFunction.get(
-				makeTypeNamesAbsolute(functionBody,
-						getAncestorStructureInstanceBuilders(context.getParentFacade())),
+				makeTypeNamesAbsolute(functionBody, getAncestorStructureInstanceBuilders(context.getParentFacade())),
 				context.getValidationContext(), context.getFunctionReturnType());
 	}
 
@@ -718,4 +714,11 @@ public class MiscUtils {
 			linkedHashMap.put(entry.getKey(), entry.getValue());
 		}
 	}
+
+	public static <T> List<T> getReverse(List<T> ts) {
+		List<T> result = new ArrayList<T>(ts);
+		Collections.reverse(result);
+		return result;
+	}
+	
 }

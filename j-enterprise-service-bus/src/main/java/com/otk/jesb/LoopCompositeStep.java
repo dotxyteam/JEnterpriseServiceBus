@@ -2,8 +2,6 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
@@ -74,8 +72,7 @@ public class LoopCompositeStep extends CompositeStep {
 		@Override
 		public Object execute() throws Exception {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
-			List<Step> insideLoopSteps = context.getPlan().getSteps().stream()
-					.filter(step -> loopCompositeStep.equals(step.getParent())).collect(Collectors.toList());
+			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
 			int index = 0;
 			while (true) {
 				final int finalIndex = index;

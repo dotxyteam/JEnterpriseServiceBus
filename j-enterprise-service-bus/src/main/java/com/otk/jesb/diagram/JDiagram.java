@@ -35,6 +35,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
 public class JDiagram extends JPanel implements MouseListener, MouseMotionListener {
@@ -60,6 +62,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private Point draggingPoint;
 	private JDiagramActionScheme actionScheme;
 	private DragIntent dragIntent = DragIntent.MOVE;
+	private int connectionArrowSize = 10;
 
 	public JDiagram() {
 		addMouseListener(this);
@@ -91,6 +94,14 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		this.actionScheme = actionScheme;
 	}
 
+	public int getConnectionArrowSize() {
+		return connectionArrowSize;
+	}
+
+	public void setConnectionArrowSize(int connectionArrowSize) {
+		this.connectionArrowSize = connectionArrowSize;
+	}
+
 	public void clear() {
 		nodes.clear();
 		connections.clear();
@@ -100,10 +111,10 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		return new Color(184, 207, 229);
 	}
 
-	public JNode addNode(Object object, int x, int y) {
+	public JNode addNode(Object object, int centerX, int centerY) {
 		JNode newNode = new JNode();
-		newNode.setCenterX(x);
-		newNode.setCenterY(y);
+		newNode.setCenterX(centerX);
+		newNode.setCenterY(centerY);
 		newNode.setObject(object);
 		nodes.add(newNode);
 		return newNode;
@@ -137,9 +148,9 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			if (draggedNode != null) {
 				draggingPoint = new Point(e.getX(), e.getY());
 				repaint();
-				for (JNode otherNode : nodes) {
+				for (JNode otherNode : MiscUtils.getReverse(nodes)) {
 					if (draggedNode != otherNode) {
-						if (otherNode.containsPoint(e.getX(), e.getY())) {
+						if (otherNode.containsPoint(e.getX(), e.getY(), this)) {
 							newDraggedConnectionStartNode = draggedNode;
 							newDraggedConnectionEndNode = otherNode;
 						}
@@ -160,12 +171,12 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
 		List<Object> diagramObjects = new ArrayList<Object>();
-		diagramObjects.addAll(nodes);
-		diagramObjects.addAll(connections);
+		diagramObjects.addAll(MiscUtils.getReverse(nodes));
+		diagramObjects.addAll(MiscUtils.getReverse(connections));
 		for (Object object : diagramObjects) {
 			if (object instanceof JNode) {
 				JNode node = (JNode) object;
-				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
+				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
 					select(node);
 					if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 						draggedNode = node;
@@ -177,7 +188,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			}
 			if (object instanceof JConnection) {
 				JConnection connection = (JConnection) object;
-				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY())) {
+				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
 					select(connection);
 					break;
 				}

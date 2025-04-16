@@ -54,7 +54,7 @@ public class JNode {
 		this.image = image;
 	}
 
-	public void paint(Graphics g , JDiagram diagram) {
+	public void paint(Graphics g, JDiagram diagram) {
 		Color selectionColor = diagram.getSelectionColor();
 		if (image != null) {
 			g.drawImage(image, centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
@@ -70,7 +70,7 @@ public class JNode {
 		if (object.toString() != null) {
 			g.setColor(Color.BLACK);
 			Rectangle labelBounds = getLabelBounds(g);
-			g.drawString(object.toString(), labelBounds.x, labelBounds.y);
+			g.drawString(object.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
 		}
 	}
 
@@ -80,8 +80,8 @@ public class JNode {
 		}
 		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
 		return new Rectangle((int) Math.round(centerX - (stringBounds.getWidth() / 2)),
-				(int) Math.round(centerY + (getHeight() / 2) + (stringBounds.getHeight() / 2)),
-				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
+				(int) Math.round(centerY + (getHeight() / 2)), (int) Math.round(stringBounds.getWidth()),
+				(int) Math.round(stringBounds.getHeight()));
 	}
 
 	public int getWidth() {
@@ -100,7 +100,7 @@ public class JNode {
 		}
 	}
 
-	public boolean containsPoint(int x2, int y2) {
+	public boolean containsPoint(int x2, int y2, JDiagram jDiagram) {
 		int width = getWidth();
 		int height = getHeight();
 		if (x2 < (-(width / 2) + centerX)) {
