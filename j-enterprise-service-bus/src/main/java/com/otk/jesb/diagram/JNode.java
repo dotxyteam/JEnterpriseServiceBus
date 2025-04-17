@@ -6,11 +6,10 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
-public class JNode {
+public class JNode extends JDiagramObject {
 
 	private int centerX = 0;
 	private int centerY = 0;
-	private Object object;
 	private boolean selected = false;
 	private Image image;
 
@@ -28,14 +27,6 @@ public class JNode {
 
 	public void setCenterY(int centerY) {
 		this.centerY = centerY;
-	}
-
-	public Object getObject() {
-		return object;
-	}
-
-	public void setObject(Object object) {
-		this.object = object;
 	}
 
 	public boolean isSelected() {
@@ -67,18 +58,18 @@ public class JNode {
 			}
 			g.fillOval(-10 + centerX, -10 + centerY, 20, 20);
 		}
-		if (object.toString() != null) {
+		if (value.toString() != null) {
 			g.setColor(Color.BLACK);
 			Rectangle labelBounds = getLabelBounds(g);
-			g.drawString(object.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
+			g.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
 		}
 	}
 
 	public Rectangle getLabelBounds(Graphics g) {
-		if (object.toString() == null) {
+		if (value.toString() == null) {
 			return null;
 		}
-		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(object.toString(), g);
+		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(value.toString(), g);
 		return new Rectangle((int) Math.round(centerX - (stringBounds.getWidth() / 2)),
 				(int) Math.round(centerY + (getHeight() / 2)), (int) Math.round(stringBounds.getWidth()),
 				(int) Math.round(stringBounds.getHeight()));

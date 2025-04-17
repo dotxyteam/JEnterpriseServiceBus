@@ -15,6 +15,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -34,6 +37,7 @@ import com.otk.jesb.diagram.JDiagramAction;
 import com.otk.jesb.diagram.JDiagramActionCategory;
 import com.otk.jesb.diagram.JDiagramActionScheme;
 import com.otk.jesb.diagram.JDiagramListener;
+import com.otk.jesb.diagram.JDiagramObject;
 import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.util.MiscUtils;
 
@@ -120,7 +124,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 			@Override
 			public void nodeMoved(JNode node) {
-				Step step = (Step) node.getObject();
+				Step step = (Step) node.getValue();
 				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 				ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
 				parentForm.getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
@@ -147,18 +151,16 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 
 			@Override
-			public void nodeSelected(JNode node) {
+			public void selectionChanged() {
 				if (selectionListeningEnabled) {
 					selectionListeningEnabled = false;
 					try {
-						if (node == null) {
-							getStepsControl().setSingleSelection(null);
-						} else {
-							Step step = (Step) node.getObject();
-							ListControl stepsControl = getStepsControl();
-							getStepsControl().setSingleSelection(
-									stepsControl.getRootListItemPosition(getPlan().getSteps().indexOf(step)));
-						}
+						ListControl stepsControl = getStepsControl();
+						stepsControl.setSelection(PlanDiagram.this.getSelection().stream()
+								.filter(diagramObject -> diagramObject instanceof JNode)
+								.map(diagramObject -> stepsControl
+										.findItemPositionByReference(diagramObject.getValue()))
+								.collect(Collectors.toList()));
 					} finally {
 						selectionListeningEnabled = true;
 					}
@@ -166,14 +168,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 
 			@Override
-			public void connectionSelected(JConnection connection) {
-			}
-
-			@Override
 			public void connectionAdded(JConnection conn) {
 				Transition newTransition = new Transition();
-				newTransition.setStartStep((Step) conn.getStartNode().getObject());
-				newTransition.setEndStep((Step) conn.getEndNode().getObject());
+				newTransition.setStartStep((Step) conn.getStartNode().getValue());
+				newTransition.setEndStep((Step) conn.getEndNode().getValue());
 				onTransitionInsertionRequest(newTransition);
 			}
 		});
@@ -201,22 +199,18 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected void updateStepSelection() {
-		ListControl stepsControl = getStepsControl();
-		BufferedItemPosition selection = stepsControl.getSingleSelection();
-		if (selection != null) {
-			select(getNode(selection.getItem()));
-		} else {
-			select((JNode) null);
-		}
+		setSelection(getStepsControl().getSelection().stream()
+				.map(itemPosition -> (JDiagramObject) findNode(itemPosition.getItem())).collect(Collectors.toSet()));
 	}
 
 	protected void onStepInsertionRequest(Step newStep, int x, int y) {
 		newStep.setDiagramX(x);
 		newStep.setDiagramY(y);
-		JNode selectedNode = getSelectedNode();
-		if (selectedNode != null) {
-			if (selectedNode.getObject() instanceof CompositeStep) {
-				newStep.setParent((CompositeStep) selectedNode.getObject());
+		Set<JDiagramObject> selection = getSelection();
+		if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
+			JNode selectedNode = (JNode) selection.iterator().next();
+			if (selectedNode.getValue() instanceof CompositeStep) {
+				newStep.setParent((CompositeStep) selectedNode.getValue());
 			}
 		}
 		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
@@ -366,7 +360,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 		}
 		if (selectedConnection != null) {
-			Transition selectedTransition = (Transition) selectedConnection.getObject();
+			Transition selectedTransition = (Transition) selectedConnection.getValue();
 			final int selectedTransitionIndex = getPlan().getTransitions().indexOf(selectedTransition);
 			result.insert(new AbstractAction("Remove Transition") {
 				private static final long serialVersionUID = 1L;
@@ -397,8 +391,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public boolean refreshUI(boolean refreshStructure) {
 		Plan plan = getPlan();
 		setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
-		JNode selectedNode = getSelectedNode();
-		Step selectedStep = (selectedNode != null) ? (Step) selectedNode.getObject() : null;
+		Set<JDiagramObject> selection = getSelection();
+		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
+				.collect(Collectors.toList());
 		clear();
 		List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
 		Collections.sort(sortedSteps, new Comparator<Step>() {
@@ -455,13 +450,21 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		}
 		selectionListeningEnabled = false;
 		try {
-			select((selectedStep != null) ? getNode(selectedStep) : null);
+			setSelection(selectedStepAndTransitions.stream().map(selectedStepOrTransition -> {
+				if (selectedStepOrTransition instanceof Step) {
+					return findNode(selectedStepOrTransition);
+				} else if (selectedStepOrTransition instanceof Transition) {
+					return findConnection(selectedStepOrTransition);
+				} else {
+					throw new AssertionError();
+				}
+			}).collect(Collectors.toSet()));
 		} finally {
 			selectionListeningEnabled = true;
 		}
 		for (Transition t : plan.getTransitions()) {
-			JNode node1 = getNode(t.getStartStep());
-			JNode node2 = getNode(t.getEndStep());
+			JNode node1 = findNode(t.getStartStep());
+			JNode node2 = findNode(t.getEndStep());
 			if ((node1 != null) && (node2 != null)) {
 				addConnection(node1, node2, t);
 			}

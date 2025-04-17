@@ -10,11 +10,10 @@ import java.util.List;
 
 import com.otk.jesb.util.MiscUtils;
 
-public class JConnection {
+public class JConnection extends JDiagramObject {
 
 	private JNode startNode;
 	private JNode endNode;
-	private Object object;
 	private boolean selected = false;
 
 	public JNode getStartNode() {
@@ -31,14 +30,6 @@ public class JConnection {
 
 	public void setEndNode(JNode endNode) {
 		this.endNode = endNode;
-	}
-
-	public Object getObject() {
-		return object;
-	}
-
-	public void setObject(Object object) {
-		this.object = object;
 	}
 
 	public boolean isSelected() {

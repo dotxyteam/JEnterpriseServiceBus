@@ -19,7 +19,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -114,15 +117,24 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		JNode newNode = new JNode();
 		newNode.setCenterX(centerX);
 		newNode.setCenterY(centerY);
-		newNode.setObject(object);
+		newNode.setValue(object);
 		nodes.add(newNode);
 		return newNode;
 	}
 
-	public JNode getNode(Object object) {
+	public JNode findNode(Object value) {
 		for (JNode node : nodes) {
-			if (object.equals(node.getObject())) {
+			if (value.equals(node.getValue())) {
 				return node;
+			}
+		}
+		return null;
+	}
+
+	public JConnection findConnection(Object value) {
+		for (JConnection connection : connections) {
+			if (value.equals(connection.getValue())) {
+				return connection;
 			}
 		}
 		return null;
@@ -132,7 +144,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		JConnection newConn = new JConnection();
 		newConn.setStartNode(node1);
 		newConn.setEndNode(node2);
-		newConn.setObject(object);
+		newConn.setValue(object);
 		connections.add(newConn);
 		return newConn;
 	}
@@ -177,7 +189,13 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			if (object instanceof JNode) {
 				JNode node = (JNode) object;
 				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-					select(node);
+					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+						newSelection.add(node);
+						setSelection(newSelection);
+					} else {
+						setSelection(Collections.singleton(node));
+					}
 					if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 						draggedNode = node;
 						draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
@@ -189,7 +207,13 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			if (object instanceof JConnection) {
 				JConnection connection = (JConnection) object;
 				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-					select(connection);
+					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+						newSelection.add(connection);
+						setSelection(newSelection);
+					} else {
+						setSelection(Collections.singleton(connection));
+					}
 					break;
 				}
 			}
@@ -281,48 +305,32 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	public void mouseExited(MouseEvent e) {
 	}
 
-	public void select(JNode node) {
-		for (JNode eachNode : nodes) {
-			eachNode.setSelected(node == eachNode);
-		}
-		for (JConnection eachConnection : connections) {
-			eachConnection.setSelected(false);
-		}
-		repaint();
-		for (JDiagramListener l : listeners) {
-			l.nodeSelected(node);
-		}
-	}
-
-	public void select(JConnection connection) {
-		for (JNode eachNode : nodes) {
-			eachNode.setSelected(false);
-		}
-		for (JConnection eachConnection : connections) {
-			eachConnection.setSelected(connection == eachConnection);
-		}
-		repaint();
-		for (JDiagramListener l : listeners) {
-			l.connectionSelected(connection);
-		}
-	}
-
-	public JNode getSelectedNode() {
+	public Set<JDiagramObject> getSelection() {
+		Set<JDiagramObject> result = new HashSet<JDiagramObject>();
 		for (JNode node : nodes) {
 			if (node.isSelected()) {
-				return node;
+				result.add(node);
 			}
 		}
-		return null;
-	}
-
-	public JConnection getSelectedConnection() {
 		for (JConnection connection : connections) {
 			if (connection.isSelected()) {
-				return connection;
+				result.add(connection);
 			}
 		}
-		return null;
+		return result;
+	}
+
+	public void setSelection(Set<JDiagramObject> selection) {
+		for (JNode eachNode : nodes) {
+			eachNode.setSelected(selection.contains(eachNode));
+		}
+		for (JConnection eachConnection : connections) {
+			eachConnection.setSelected(selection.contains(eachConnection));
+		}
+		repaint();
+		for (JDiagramListener l : listeners) {
+			l.selectionChanged();
+		}
 	}
 
 	@Override

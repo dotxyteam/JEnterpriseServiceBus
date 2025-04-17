@@ -11,6 +11,7 @@
 			# allow to create a parent loop for the current selection
 		* etc 
 	. conditional transitions for steps
+- improve the step list view (sort, add hierarchy, ...)
 - allow to build and reference shared structures
 - allow to start plan execution on event (timer, file poller, etc)
 - create and display a Sub-PlanExecutor for each sub-plan execution

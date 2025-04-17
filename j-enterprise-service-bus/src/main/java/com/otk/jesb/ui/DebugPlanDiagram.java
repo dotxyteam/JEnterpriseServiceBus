@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -15,6 +16,7 @@ import com.otk.jesb.StepOccurrence;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagramListener;
+import com.otk.jesb.diagram.JDiagramObject;
 import com.otk.jesb.diagram.JNode;
 
 import xy.reflect.ui.control.swing.ListControl;
@@ -65,35 +67,28 @@ public class DebugPlanDiagram extends PlanDiagram {
 			}
 
 			@Override
-			public void nodeSelected(JNode node) {
+			public void selectionChanged() {
 				if (selectionListeningEnabled) {
 					selectionListeningEnabled = false;
 					try {
-						if (node == null) {
-							getStepOccurrencesControl().setSingleSelection(null);
-						} else {
-							Step step = (Step) node.getObject();
-							StepOccurrence lastStepOccurrence = null;
-							for (int i = getPlanExecutor().getStepOccurrences().size() - 1; i >= 0; i--) {
-								StepOccurrence stepOccurrence = getPlanExecutor().getStepOccurrences().get(i);
-								if (stepOccurrence.getStep() == step) {
-									lastStepOccurrence = stepOccurrence;
-									break;
-								}
-							}
-							ListControl stepOccurrencesControl = getStepOccurrencesControl();
-							stepOccurrencesControl
-									.setSingleSelection(stepOccurrencesControl.getRootListItemPosition(
-											getPlanExecutor().getStepOccurrences().indexOf(lastStepOccurrence)));
-						}
+						ListControl stepOccurrencesControl = getStepOccurrencesControl();
+						stepOccurrencesControl.setSelection(DebugPlanDiagram.this.getSelection().stream()
+								.filter(diagramObject -> diagramObject instanceof JNode).map(diagramObject -> {
+									Step step = (Step) diagramObject.getValue();
+									for (int i = getPlanExecutor().getStepOccurrences().size() - 1; i >= 0; i--) {
+										StepOccurrence stepOccurrence = getPlanExecutor().getStepOccurrences().get(i);
+										if (stepOccurrence.getStep() == step) {
+											return stepOccurrence;
+										}
+									}
+									throw new AssertionError();
+								}).map(stepOccurrence -> stepOccurrencesControl
+										.findItemPositionByReference(stepOccurrence))
+								.collect(Collectors.toList()));
 					} finally {
 						selectionListeningEnabled = true;
 					}
 				}
-			}
-
-			@Override
-			public void connectionSelected(JConnection connection) {
 			}
 
 			@Override
@@ -108,33 +103,28 @@ public class DebugPlanDiagram extends PlanDiagram {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				getStepOccurrencesControl()
-						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
-							@Override
-							public void handle(List<BufferedItemPosition> event) {
-								if (selectionListeningEnabled) {
-									selectionListeningEnabled = false;
-									try {
-										updateStepSelection();
-									} finally {
-										selectionListeningEnabled = true;
-									}
-								}
+				getStepOccurrencesControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+					@Override
+					public void handle(List<BufferedItemPosition> event) {
+						if (selectionListeningEnabled) {
+							selectionListeningEnabled = false;
+							try {
+								updateStepSelection();
+							} finally {
+								selectionListeningEnabled = true;
 							}
-						});
+						}
+					}
+				});
 			}
 		});
 	}
 
 	@Override
 	protected void updateStepSelection() {
-		ListControl stepOccurrencesControl = getStepOccurrencesControl();
-		BufferedItemPosition selection = stepOccurrencesControl.getSingleSelection();
-		if (selection != null) {
-			select(getNode(((StepOccurrence) selection.getItem()).getStep()));
-		} else {
-			select((JNode)null);
-		}
+		setSelection(getStepOccurrencesControl().getSelection().stream()
+				.map(itemPosition -> (JDiagramObject) findNode(((StepOccurrence) itemPosition.getItem()).getStep()))
+				.collect(Collectors.toSet()));
 	}
 
 	@Override
@@ -157,7 +147,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 	protected void paintNode(Graphics g, JNode node) {
 		StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
 		if (currentStepOccurrence != null) {
-			if (currentStepOccurrence.getStep() == node.getObject()) {
+			if (currentStepOccurrence.getStep() == node.getValue()) {
 				highlightNode(g, node, (currentStepOccurrence.getActivityError() == null) ? new Color(175, 255, 200)
 						: new Color(255, 173, 173));
 			}
@@ -172,8 +162,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 		List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences();
 		for (int i = 0; i < stepOccurrences.size(); i++) {
 			if (i > 0) {
-				if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getObject()) {
-					if (stepOccurrences.get(i).getStep() == conn.getEndNode().getObject()) {
+				if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getValue()) {
+					if (stepOccurrences.get(i).getStep() == conn.getEndNode().getValue()) {
 						transitionOccurrenceCount++;
 					}
 				}
@@ -195,8 +185,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 		g.setColor(color);
 		int width = (node.getImage().getWidth(null) * 3) / 2;
 		int height = (node.getImage().getHeight(null) * 3) / 2;
-		g.fillRoundRect(node.getCenterX() - (width / 2), node.getCenterY() - (height / 2), width, height,
-				width / 10, height / 10);
+		g.fillRoundRect(node.getCenterX() - (width / 2), node.getCenterY() - (height / 2), width, height, width / 10,
+				height / 10);
 	}
 
 	public static class Source {
