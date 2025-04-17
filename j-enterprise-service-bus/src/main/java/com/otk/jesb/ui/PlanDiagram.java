@@ -352,32 +352,29 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
-		JConnection selectedConnection = null;
-		for (JConnection connection : getConnections()) {
-			if (connection.isSelected()) {
-				selectedConnection = connection;
-				break;
-			}
-		}
-		if (selectedConnection != null) {
-			Transition selectedTransition = (Transition) selectedConnection.getValue();
-			final int selectedTransitionIndex = getPlan().getTransitions().indexOf(selectedTransition);
-			result.insert(new AbstractAction("Remove Transition") {
-				private static final long serialVersionUID = 1L;
+		Set<JDiagramObject> selection = getSelection();
+		if(selection.size() == 1) {
+			if(selection.iterator().next() instanceof JConnection) {
+				JConnection selectedConnection = (JConnection) selection.iterator().next();
+				Transition selectedTransition = (Transition) selectedConnection.getValue();
+				final int selectedTransitionIndex = getPlan().getTransitions().indexOf(selectedTransition);
+				result.insert(new AbstractAction("Remove Transition") {
+					private static final long serialVersionUID = 1L;
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-					ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-					DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
-							ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
-					IModification modification = new ListModificationFactory(
-							new ItemPositionFactory(transitionsData).getRootItemPosition(-1))
-									.remove(selectedTransitionIndex);
-					parentForm.getModificationStack().apply(modification);
-					refreshUI(false);
-				}
-			}, 0);
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+						ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+						DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+								ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
+						IModification modification = new ListModificationFactory(
+								new ItemPositionFactory(transitionsData).getRootItemPosition(-1))
+										.remove(selectedTransitionIndex);
+						parentForm.getModificationStack().apply(modification);
+						refreshUI(false);
+					}
+				}, 0);
+			}
 		}
 		return result;
 	}

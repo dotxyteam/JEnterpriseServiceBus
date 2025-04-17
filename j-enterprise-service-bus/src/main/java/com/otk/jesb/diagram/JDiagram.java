@@ -191,7 +191,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
 					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
 						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-						newSelection.add(node);
+						if (newSelection.contains(node)) {
+							newSelection.remove(node);
+						} else {
+							newSelection.add(node);
+						}
 						setSelection(newSelection);
 					} else {
 						setSelection(Collections.singleton(node));
@@ -209,7 +213,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
 					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
 						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-						newSelection.add(connection);
+						if (newSelection.contains(connection)) {
+							newSelection.remove(connection);
+						} else {
+							newSelection.add(connection);
+						}
 						setSelection(newSelection);
 					} else {
 						setSelection(Collections.singleton(connection));

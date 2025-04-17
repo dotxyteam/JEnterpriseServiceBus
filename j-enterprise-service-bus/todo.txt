@@ -28,7 +28,6 @@
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. connections are not straight and nice
-	. allow multiple selections
 - prevent or warn about multiply defined transitions
 - manage renamings
 - Plan.isPreviousStep() too CPU greedy
