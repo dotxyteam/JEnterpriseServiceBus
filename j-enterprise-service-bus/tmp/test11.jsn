@@ -64,8 +64,8 @@
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
               </activityBuilder>
-              <diagramX>88</diagramX>
-              <diagramY>56</diagramY>
+              <diagramX>55</diagramX>
+              <diagramY>55</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>executePlan</name>
@@ -110,8 +110,8 @@
                   <assetClass>com.otk.jesb.Plan</assetClass>
                 </planReference>
               </activityBuilder>
-              <diagramX>200</diagramX>
-              <diagramY>58</diagramY>
+              <diagramX>167</diagramX>
+              <diagramY>57</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>writeFile</name>
@@ -163,8 +163,8 @@
                 </instanceBuilder>
                 <mode>TEXT</mode>
               </activityBuilder>
-              <diagramX>321</diagramX>
-              <diagramY>57</diagramY>
+              <diagramX>288</diagramX>
+              <diagramY>56</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>callSOAPWebService</name>
@@ -203,7 +203,7 @@
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInitializer class="null"/>
                   <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>OperationInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
@@ -218,8 +218,8 @@
                   <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
                 </wsdlReference>
               </activityBuilder>
-              <diagramX>443</diagramX>
-              <diagramY>58</diagramY>
+              <diagramX>410</diagramX>
+              <diagramY>57</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>jDBCQuery</name>
@@ -262,8 +262,8 @@
                 <resultColumnDefinitions class="null"/>
                 <statement class="null"/>
               </activityBuilder>
-              <diagramX>554</diagramX>
-              <diagramY>59</diagramY>
+              <diagramX>521</diagramX>
+              <diagramY>58</diagramY>
             </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>jDBCUpdate</name>
@@ -305,8 +305,8 @@
                 </parameterValuesBuilder>
                 <statement class="null"/>
               </activityBuilder>
-              <diagramX>665</diagramX>
-              <diagramY>60</diagramY>
+              <diagramX>632</diagramX>
+              <diagramY>59</diagramY>
             </com.otk.jesb.Step>
           </steps>
           <transitions>

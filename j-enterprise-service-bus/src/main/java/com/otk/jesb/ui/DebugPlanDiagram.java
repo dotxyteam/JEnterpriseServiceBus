@@ -26,6 +26,7 @@ import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.MenuModel;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.util.Listener;
 
@@ -133,6 +134,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
 		result.removeAll();
 		return result;
+	}
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
 	}
 
 	public PlanExecutor getPlanExecutor() {

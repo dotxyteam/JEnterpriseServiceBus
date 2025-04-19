@@ -86,8 +86,11 @@ public class ExecutePlanActivity implements Activity {
 					@Override
 					public String get() {
 						Plan plan = getPlan();
-						if ((plan == null) || (plan.getInputClass() == null)) {
+						if (plan == null) {
 							return null;
+						}
+						if (plan.getInputClass() == null) {
+							plan.setInputStructure(plan.getInputStructure());
 						}
 						return plan.getInputClass().getName();
 					}

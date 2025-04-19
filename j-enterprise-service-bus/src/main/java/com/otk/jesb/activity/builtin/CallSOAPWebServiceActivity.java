@@ -133,7 +133,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 					@Override
 					public String get() {
 						if (operationInputClass == null) {
-							return null;
+							operationInputClass = createOperationInputClass();
 						}
 						return operationInputClass.getName();
 					}
@@ -241,9 +241,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 				return null;
 			}
 			Method operationMethod = operation.retrieveMethod();
-			if (operationMethod.getParameterCount() == 0) {
-				return null;
-			}
 			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();

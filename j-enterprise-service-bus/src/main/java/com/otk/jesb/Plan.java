@@ -9,6 +9,7 @@ import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.NullInstance;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
@@ -36,7 +37,7 @@ public class Plan extends Asset {
 				@Override
 				public String get() {
 					if (outputClass == null) {
-						return null;
+						updateOutputClass();
 					}
 					return outputClass.getName();
 				}
@@ -86,7 +87,7 @@ public class Plan extends Asset {
 
 	private void updateInputClass() {
 		if (inputStructure == null) {
-			inputClass = null;
+			inputClass = NullInstance.class;
 		} else {
 			try {
 				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
@@ -101,7 +102,7 @@ public class Plan extends Asset {
 
 	private void updateOutputClass() {
 		if (outputStructure == null) {
-			outputClass = null;
+			outputClass = NullInstance.class;
 		} else {
 			try {
 				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
@@ -239,7 +240,7 @@ public class Plan extends Asset {
 
 	public ValidationContext getValidationContext(Step currentStep) {
 		ValidationContext result;
-		if (currentStep.getParent() != null) {
+		if ((currentStep != null) && (currentStep.getParent() != null)) {
 			result = getValidationContext(currentStep.getParent());
 			for (VariableDeclaration declaration : currentStep.getParent().getChildrenVariableDeclarations()) {
 				result = new ValidationContext(result, declaration);

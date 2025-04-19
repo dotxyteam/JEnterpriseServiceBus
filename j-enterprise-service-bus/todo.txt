@@ -31,6 +31,7 @@ ExecutePlan.inputBuilder is filled
 - allow to provide plan input through the debugger
 - diagram improvements:
 	. connections are not straight and nice
+- plain/function mode as a toggle button ???
 - prevent or warn about multiply defined transitions
 - manage renamings
 - Plan.isPreviousStep() too CPU greedy

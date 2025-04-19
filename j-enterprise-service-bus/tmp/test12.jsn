@@ -1,0 +1,1015 @@
+<com.otk.jesb.Solution>
+  <contents>
+    <com.otk.jesb.Folder>
+      <name>plans</name>
+      <contents>
+        <com.otk.jesb.Plan>
+          <inputStructure class="null"/>
+          <name>Test</name>
+          <outputBuilder>
+            <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+              <outer-class reference="../.."/>
+            </dynamicTypeNameAccessor>
+            <fieldInitializers/>
+            <initializationSwitches/>
+            <listItemInitializers/>
+            <parameterInitializers/>
+            <rootInitializer class="null"/>
+            <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
+              <outer-class reference="../../.."/>
+            </rootInstanceDynamicTypeNameAccessor>
+            <rootInstanceName>PlanOutput</rootInstanceName>
+            <rootInstanceTypeName class="null"/>
+            <selectedConstructorSignature class="null"/>
+            <typeName>&lt;Dynamic&gt;</typeName>
+          </outputBuilder>
+          <outputStructure class="null"/>
+          <steps>
+            <com.otk.jesb.Step>
+              <name>sleep</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="com.otk.jesb.Function">
+                              <functionBody>return 100;</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="null"/>
+                  <rootInstanceName>SleepActivityInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+              </activityBuilder>
+              <diagramX>55</diagramX>
+              <diagramY>55</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>executePlan</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
+                <planInputBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>PlanInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </planInputBuilder>
+                <planReference>
+                  <path>plans &gt; SubPlan</path>
+                  <assetClass>com.otk.jesb.Plan</assetClass>
+                </planReference>
+              </activityBuilder>
+              <diagramX>167</diagramX>
+              <diagramY>57</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>writeFile</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="string">tmp/out.txt</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>1</parameterPosition>
+                            <parameterValue class="com.otk.jesb.Function">
+                              <functionBody>return executePlan.getReadFileResult();</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>2</parameterPosition>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>WriteFileActivityInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+                <mode>TEXT</mode>
+              </activityBuilder>
+              <diagramX>288</diagramX>
+              <diagramY>56</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>callSOAPWebService</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
+                <operationInputBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="long">1</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>1</parameterPosition>
+                            <parameterValue class="com.otk.jesb.Function">
+                              <functionBody>return 2l;</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>OperationInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </operationInputBuilder>
+                <operationSignature>long addInteger(java.lang.Long, java.lang.Long)</operationSignature>
+                <portName>SOAPDemoSoap</portName>
+                <serviceName>SOAPDemo</serviceName>
+                <wsdlReference>
+                  <path>resources &gt; WSDL0067386445108691356079784258983392995390</path>
+                  <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+                </wsdlReference>
+              </activityBuilder>
+              <diagramX>410</diagramX>
+              <diagramY>57</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>jDBCQuery</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
+                <connectionReference>
+                  <path>resources &gt; db</path>
+                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+                </connectionReference>
+                <parameterDefinitions/>
+                <parameterValuesBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>Parameters</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValuesBuilder>
+                <resultColumnDefinitions>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TABLE_CAT</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TABLE_SCHEM</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TABLE_NAME</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TABLE_TYPE</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>REMARKS</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TYPE_CAT</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TYPE_SCHEM</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>TYPE_NAME</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>SELF_REFERENCING_COL_NAME</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>REF_GENERATION</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>HSQLDB_TYPE</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>READ_ONLY</columnName>
+                    <columnTypeName>java.lang.Boolean</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <columnName>COMMIT_ACTION</columnName>
+                    <columnTypeName>java.lang.String</columnTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                </resultColumnDefinitions>
+                <statement>SELECT * 
+FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
+              </activityBuilder>
+              <diagramX>521</diagramX>
+              <diagramY>58</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>jDBCUpdate</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
+                <connectionReference>
+                  <path>resources &gt; db</path>
+                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+                </connectionReference>
+                <parameterDefinitions>
+                  <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                    <parameterName>adress</parameterName>
+                    <parameterTypeName>java.lang.String</parameterTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                </parameterDefinitions>
+                <parameterValuesBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="com.otk.jesb.Function">
+                              <functionBody>return executePlan.getReadFileResult();</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>Parameters</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValuesBuilder>
+                <statement>INSERT INTO Persons (
+    PersonID,
+    LastName,
+    FirstName,
+    Address,
+    City
+) VALUES (
+    0,
+    &apos;TANKOANO&amp;apos&apos;,
+    &apos;OLIVIER&apos;,
+    ?,
+    &apos;Clichy&apos;
+);</statement>
+              </activityBuilder>
+              <diagramX>632</diagramX>
+              <diagramY>59</diagramY>
+            </com.otk.jesb.Step>
+          </steps>
+          <transitions>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[6]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[5]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[5]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[4]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[4]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[3]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step"/>
+            </com.otk.jesb.Transition>
+          </transitions>
+        </com.otk.jesb.Plan>
+        <com.otk.jesb.Plan>
+          <inputStructure>
+            <elements>
+              <com.otk.jesb.Structure_-SimpleElement>
+                <multiple>false</multiple>
+                <name>b</name>
+                <optionality class="null"/>
+                <typeName>boolean</typeName>
+              </com.otk.jesb.Structure_-SimpleElement>
+            </elements>
+          </inputStructure>
+          <name>SubPlan</name>
+          <outputBuilder>
+            <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+              <outer-class reference="../.."/>
+            </dynamicTypeNameAccessor>
+            <fieldInitializers/>
+            <initializationSwitches/>
+            <listItemInitializers/>
+            <parameterInitializers>
+              <com.otk.jesb.instantiation.ParameterInitializer>
+                <parameterPosition>0</parameterPosition>
+                <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
+                    <outer-class reference="../../../../../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.Function">
+                        <functionBody>return readFile.getText();</functionBody>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValue>
+              </com.otk.jesb.instantiation.ParameterInitializer>
+            </parameterInitializers>
+            <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+            <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+            <rootInstanceName>PlanOutput</rootInstanceName>
+            <rootInstanceTypeName class="null"/>
+            <selectedConstructorSignature class="null"/>
+            <typeName>&lt;Dynamic&gt;</typeName>
+          </outputBuilder>
+          <outputStructure>
+            <elements>
+              <com.otk.jesb.Structure_-SimpleElement>
+                <multiple>false</multiple>
+                <name>readFileResult</name>
+                <optionality class="null"/>
+                <typeName>java.lang.String</typeName>
+              </com.otk.jesb.Structure_-SimpleElement>
+            </elements>
+          </outputStructure>
+          <steps>
+            <com.otk.jesb.Step>
+              <name>readFile</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="string">tmp/test.txt</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>ReadFileActivityInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+                <mode>TEXT</mode>
+              </activityBuilder>
+              <diagramX>126</diagramX>
+              <diagramY>90</diagramY>
+            </com.otk.jesb.Step>
+          </steps>
+          <transitions/>
+        </com.otk.jesb.Plan>
+      </contents>
+    </com.otk.jesb.Folder>
+    <com.otk.jesb.Folder>
+      <name>resources</name>
+      <contents>
+        <com.otk.jesb.resource.builtin.JDBCConnection>
+          <driverClassName>org.hsqldb.jdbcDriver</driverClassName>
+          <name>db</name>
+          <password class="null"/>
+          <url>jdbc:hsqldb:file:tmp/db;shutdown=true;hsqldb.write_delay=false;</url>
+          <userName class="null"/>
+        </com.otk.jesb.resource.builtin.JDBCConnection>
+        <com.otk.jesb.resource.builtin.WSDL>
+          <dependencyTextByFileName>
+            <entry>
+              <string>0_SOAP.ByNameDataSet.cls</string>
+              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+&lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
+  &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
+    &lt;s:complexType&gt;&#xd;
+      &lt;s:choice maxOccurs=&quot;unbounded&quot;&gt;&#xd;
+        &lt;s:element name=&quot;ByName&quot;&gt;&#xd;
+          &lt;s:complexType&gt;&#xd;
+            &lt;s:sequence&gt;
+
+
+
+              &lt;s:element name=&quot;ID&quot; type=&quot;s:long&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;DOB&quot; type=&quot;s:date&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+            &lt;/s:sequence&gt;&#xd;
+          &lt;/s:complexType&gt;&#xd;
+        &lt;/s:element&gt;&#xd;
+      &lt;/s:choice&gt;&#xd;
+    &lt;/s:complexType&gt;&#xd;
+    &lt;s:unique name=&quot;Constraint1&quot; msdata:PrimaryKey=&quot;true&quot;&gt;&#xd;
+      &lt;s:selector xpath=&quot;.//mstns:ByName&quot; /&gt;&#xd;
+      &lt;s:field xpath=&quot;mstns:ID&quot; /&gt;&#xd;
+    &lt;/s:unique&gt;&#xd;
+  &lt;/s:element&gt;&#xd;
+&lt;/s:schema&gt;&#xd;
+</string>
+            </entry>
+            <entry>
+              <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+&lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
+  &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
+    &lt;s:complexType&gt;&#xd;
+      &lt;s:choice maxOccurs=&quot;unbounded&quot;&gt;&#xd;
+        &lt;s:element name=&quot;QueryByName&quot;&gt;&#xd;
+          &lt;s:complexType&gt;&#xd;
+            &lt;s:sequence&gt;&#xd;
+              &lt;s:element name=&quot;ID&quot; type=&quot;s:long&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;DOB&quot; type=&quot;s:date&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+              &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot; minOccurs=&quot;0&quot; /&gt;&#xd;
+            &lt;/s:sequence&gt;&#xd;
+          &lt;/s:complexType&gt;&#xd;
+        &lt;/s:element&gt;&#xd;
+      &lt;/s:choice&gt;&#xd;
+    &lt;/s:complexType&gt;&#xd;
+    &lt;s:unique name=&quot;Constraint1&quot; msdata:PrimaryKey=&quot;true&quot;&gt;&#xd;
+      &lt;s:selector xpath=&quot;.//mstns:QueryByName&quot; /&gt;&#xd;
+      &lt;s:field xpath=&quot;mstns:ID&quot; /&gt;&#xd;
+    &lt;/s:unique&gt;&#xd;
+  &lt;/s:element&gt;&#xd;
+&lt;/s:schema&gt;&#xd;
+</string>
+            </entry>
+          </dependencyTextByFileName>
+          <name>WSDL0067386445108691356079784258983392995390</name>
+          <text>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#xd;
+&lt;definitions xmlns=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:mime=&quot;http://schemas.xmlsoap.org/wsdl/mime/&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:s0=&quot;http://tempuri.org&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
+    &lt;types&gt;&#xd;
+        &lt;s:schema elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
+            &lt;s:import namespace=&quot;http://tempuri.org/ByNameDataSet&quot; schemaLocation=&quot;0_SOAP.ByNameDataSet.cls&quot;/&gt;&#xd;
+            &lt;s:import namespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; schemaLocation=&quot;1_SOAP.Demo.QueryByName.DS.cls&quot;/&gt;&#xd;
+            &lt;s:element name=&quot;AddInteger&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;Arg1&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;Arg2&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;AddIntegerResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;AddIntegerResult&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;DivideInteger&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;Arg1&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;Arg2&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;DivideIntegerResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;DivideIntegerResult&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;FindPerson&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;id&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;FindPersonResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;FindPersonResult&quot; type=&quot;s0:Person&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:complexType name=&quot;Employee&quot;&gt;&#xd;
+                &lt;s:complexContent&gt;&#xd;
+                    &lt;s:extension base=&quot;s0:Person&quot;&gt;&#xd;
+                        &lt;s:sequence&gt;&#xd;
+                            &lt;s:element minOccurs=&quot;0&quot; name=&quot;Title&quot;&gt;&#xd;
+                                &lt;s:simpleType&gt;&#xd;
+                                    &lt;s:restriction base=&quot;s:string&quot;&gt;&#xd;
+                                        &lt;s:maxLength value=&quot;50&quot;/&gt;&#xd;
+                                    &lt;/s:restriction&gt;&#xd;
+                                &lt;/s:simpleType&gt;&#xd;
+                            &lt;/s:element&gt;&#xd;
+                            &lt;s:element minOccurs=&quot;0&quot; name=&quot;Salary&quot;&gt;&#xd;
+                                &lt;s:simpleType&gt;&#xd;
+                                    &lt;s:restriction base=&quot;s:long&quot;&gt;&#xd;
+                                        &lt;s:maxInclusive value=&quot;100000&quot;/&gt;&#xd;
+                                        &lt;s:minInclusive value=&quot;0&quot;/&gt;&#xd;
+                                    &lt;/s:restriction&gt;&#xd;
+                                &lt;/s:simpleType&gt;&#xd;
+                            &lt;/s:element&gt;&#xd;
+                            &lt;s:element minOccurs=&quot;0&quot; name=&quot;Notes&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                            &lt;s:element minOccurs=&quot;0&quot; name=&quot;Picture&quot; type=&quot;s:base64Binary&quot;/&gt;&#xd;
+                        &lt;/s:sequence&gt;&#xd;
+                    &lt;/s:extension&gt;&#xd;
+                &lt;/s:complexContent&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:complexType name=&quot;Person&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;DOB&quot; type=&quot;s:date&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Home&quot; type=&quot;s0:Address&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Office&quot; type=&quot;s0:Address&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Spouse&quot; type=&quot;s0:Person&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;FavoriteColors&quot; type=&quot;s0:ArrayOfFavoriteColorsItemString&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Age&quot; type=&quot;s:long&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:complexType name=&quot;Address&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Street&quot;&gt;&#xd;
+                        &lt;s:simpleType&gt;&#xd;
+                            &lt;s:restriction base=&quot;s:string&quot;&gt;&#xd;
+                                &lt;s:maxLength value=&quot;80&quot;/&gt;&#xd;
+                            &lt;/s:restriction&gt;&#xd;
+                        &lt;/s:simpleType&gt;&#xd;
+                    &lt;/s:element&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;City&quot;&gt;&#xd;
+                        &lt;s:simpleType&gt;&#xd;
+                            &lt;s:restriction base=&quot;s:string&quot;&gt;&#xd;
+                                &lt;s:maxLength value=&quot;80&quot;/&gt;&#xd;
+                            &lt;/s:restriction&gt;&#xd;
+                        &lt;/s:simpleType&gt;&#xd;
+                    &lt;/s:element&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;State&quot;&gt;&#xd;
+                        &lt;s:simpleType&gt;&#xd;
+                            &lt;s:restriction base=&quot;s:string&quot;&gt;&#xd;
+                                &lt;s:maxLength value=&quot;2&quot;/&gt;&#xd;
+                            &lt;/s:restriction&gt;&#xd;
+                        &lt;/s:simpleType&gt;&#xd;
+                    &lt;/s:element&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;Zip&quot;&gt;&#xd;
+                        &lt;s:simpleType&gt;&#xd;
+                            &lt;s:restriction base=&quot;s:string&quot;&gt;&#xd;
+                                &lt;s:maxLength value=&quot;5&quot;/&gt;&#xd;
+                            &lt;/s:restriction&gt;&#xd;
+                        &lt;/s:simpleType&gt;&#xd;
+                    &lt;/s:element&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:complexType name=&quot;ArrayOfFavoriteColorsItemString&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;0&quot; name=&quot;FavoriteColorsItem&quot; nillable=&quot;true&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:element name=&quot;GetByName&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;GetByNameResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;GetByNameResult&quot; type=&quot;s0:DataSet&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:complexType name=&quot;DataSet&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element ref=&quot;s:schema&quot;/&gt;&#xd;
+                    &lt;s:any/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:element name=&quot;GetDataSetByName&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;GetDataSetByNameResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;GetDataSetByNameResult&quot; type=&quot;s0:ByNameDataSet&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:complexType name=&quot;ByNameDataSet&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:any namespace=&quot;http://tempuri.org/ByNameDataSet&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:element name=&quot;GetListByName&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;GetListByNameResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;GetListByNameResult&quot; type=&quot;s0:ArrayOfPersonIdentificationPersonIdentification&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:complexType name=&quot;ArrayOfPersonIdentificationPersonIdentification&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;0&quot; name=&quot;PersonIdentification&quot; nillable=&quot;true&quot; type=&quot;s0:PersonIdentification&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:complexType name=&quot;PersonIdentification&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;ID&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;s:element name=&quot;Name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;s:element name=&quot;SSN&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;s:element minOccurs=&quot;0&quot; name=&quot;DOB&quot; type=&quot;s:date&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+            &lt;s:element name=&quot;LookupCity&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;zip&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;LookupCityResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;LookupCityResult&quot; type=&quot;s0:Address&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;Mission&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence/&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;MissionResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;MissionResult&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;QueryByName&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element minOccurs=&quot;0&quot; name=&quot;name&quot; type=&quot;s:string&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:element name=&quot;QueryByNameResponse&quot;&gt;&#xd;
+                &lt;s:complexType&gt;&#xd;
+                    &lt;s:sequence&gt;&#xd;
+                        &lt;s:element name=&quot;QueryByNameResult&quot; type=&quot;s0:QueryByName_DataSet&quot;/&gt;&#xd;
+                    &lt;/s:sequence&gt;&#xd;
+                &lt;/s:complexType&gt;&#xd;
+            &lt;/s:element&gt;&#xd;
+            &lt;s:complexType name=&quot;QueryByName_DataSet&quot;&gt;&#xd;
+                &lt;s:sequence&gt;&#xd;
+                    &lt;s:any namespace=&quot;http://tempuri.org/QueryByName_DataSet&quot;/&gt;&#xd;
+                &lt;/s:sequence&gt;&#xd;
+            &lt;/s:complexType&gt;&#xd;
+        &lt;/s:schema&gt;&#xd;
+    &lt;/types&gt;&#xd;
+    &lt;message name=&quot;AddIntegerSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:AddInteger&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;AddIntegerSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:AddIntegerResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;DivideIntegerSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:DivideInteger&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;DivideIntegerSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:DivideIntegerResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;FindPersonSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:FindPerson&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;FindPersonSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:FindPersonResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetByNameSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetByName&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetByNameSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetByNameResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetDataSetByNameSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetDataSetByName&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetDataSetByNameSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetDataSetByNameResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetListByNameSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetListByName&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;GetListByNameSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:GetListByNameResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;LookupCitySoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:LookupCity&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;LookupCitySoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:LookupCityResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;MissionSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:Mission&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;MissionSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:MissionResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;QueryByNameSoapIn&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:QueryByName&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;message name=&quot;QueryByNameSoapOut&quot;&gt;&#xd;
+        &lt;part name=&quot;parameters&quot; element=&quot;s0:QueryByNameResponse&quot;/&gt;&#xd;
+    &lt;/message&gt;&#xd;
+    &lt;portType name=&quot;SOAPDemoSoap&quot;&gt;&#xd;
+        &lt;operation name=&quot;AddInteger&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:AddIntegerSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:AddIntegerSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;DivideInteger&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:DivideIntegerSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:DivideIntegerSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;FindPerson&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:FindPersonSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:FindPersonSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetByName&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:GetByNameSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:GetByNameSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetDataSetByName&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:GetDataSetByNameSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:GetDataSetByNameSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetListByName&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:GetListByNameSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:GetListByNameSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;LookupCity&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:LookupCitySoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:LookupCitySoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;Mission&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:MissionSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:MissionSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;QueryByName&quot;&gt;&#xd;
+            &lt;input message=&quot;s0:QueryByNameSoapIn&quot;/&gt;&#xd;
+            &lt;output message=&quot;s0:QueryByNameSoapOut&quot;/&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+    &lt;/portType&gt;&#xd;
+    &lt;binding name=&quot;SOAPDemoSoap&quot; type=&quot;s0:SOAPDemoSoap&quot;&gt;&#xd;
+        &lt;soap:binding transport=&quot;http://schemas.xmlsoap.org/soap/http&quot; style=&quot;document&quot;/&gt;&#xd;
+        &lt;operation name=&quot;AddInteger&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.AddInteger&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;DivideInteger&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.DivideInteger&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;FindPerson&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.FindPerson&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetByName&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.GetByName&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetDataSetByName&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.GetDataSetByName&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;GetListByName&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.GetListByName&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;LookupCity&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.LookupCity&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;Mission&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.Mission&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+        &lt;operation name=&quot;QueryByName&quot;&gt;&#xd;
+            &lt;soap:operation soapAction=&quot;http://tempuri.org/SOAP.Demo.QueryByName&quot; style=&quot;document&quot;/&gt;&#xd;
+            &lt;input&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/input&gt;&#xd;
+            &lt;output&gt;&#xd;
+                &lt;soap:body use=&quot;literal&quot;/&gt;&#xd;
+            &lt;/output&gt;&#xd;
+        &lt;/operation&gt;&#xd;
+    &lt;/binding&gt;&#xd;
+    &lt;service name=&quot;SOAPDemo&quot;&gt;&#xd;
+        &lt;port name=&quot;SOAPDemoSoap&quot; binding=&quot;s0:SOAPDemoSoap&quot;&gt;&#xd;
+            &lt;soap:address location=&quot;https://www.crcind.com:443/csp/samples/SOAP.Demo.cls&quot;/&gt;&#xd;
+        &lt;/port&gt;&#xd;
+    &lt;/service&gt;&#xd;
+&lt;/definitions&gt;</text>
+        </com.otk.jesb.resource.builtin.WSDL>
+      </contents>
+    </com.otk.jesb.Folder>
+  </contents>
+</com.otk.jesb.Solution>
