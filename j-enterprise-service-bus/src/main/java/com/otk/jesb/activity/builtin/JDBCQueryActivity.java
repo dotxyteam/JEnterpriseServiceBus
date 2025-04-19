@@ -17,6 +17,7 @@ import com.otk.jesb.Solution;
 import com.otk.jesb.ValidationContext;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
+import com.otk.jesb.Reference;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -114,7 +115,7 @@ public class JDBCQueryActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private JDBCConnection connection;
+		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
@@ -249,12 +250,16 @@ public class JDBCQueryActivity implements Activity {
 			}
 		}
 
-		public JDBCConnection getConnection() {
-			return connection;
+		private JDBCConnection getConnection() {
+			return connectionReference.resolve();
 		}
 
-		public void setConnection(JDBCConnection connection) {
-			this.connection = connection;
+		public Reference<JDBCConnection> getConnectionReference() {
+			return connectionReference;
+		}
+
+		public void setConnectionReference(Reference<JDBCConnection> connectionReference) {
+			this.connectionReference = connectionReference;
 		}
 
 		public static List<JDBCConnection> getConnectionOptions() {
@@ -299,6 +304,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		public void retrieveResultColumnDefinitions() throws SQLException {
+			JDBCConnection connection = getConnection();
 			Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 					connection.getPassword());
 			PreparedStatement preparedStatement = conn.prepareStatement(statement);
@@ -319,7 +325,7 @@ public class JDBCQueryActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCQueryActivity result = new JDBCQueryActivity();
-			result.setConnection(connection);
+			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
 					.build(new EvaluationContext(context, null));

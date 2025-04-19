@@ -18,6 +18,7 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.LoopCompositeStep;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Plan;
+import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
 import com.otk.jesb.Transition;
@@ -83,7 +84,7 @@ public class GUI extends SwingCustomizer {
 		s1.setDiagramY(100);
 		JDBCQueryActivity.Builder ab1 = new JDBCQueryActivity.Builder();
 		s1.setActivityBuilder(ab1);
-		ab1.setConnection(c);
+		ab1.setConnectionReference(Reference.get(c));
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
 		LoopCompositeStep ls = new LoopCompositeStep();

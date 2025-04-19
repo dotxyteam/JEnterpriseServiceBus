@@ -9,6 +9,7 @@ import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
+import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
 import com.otk.jesb.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -79,11 +80,12 @@ public class ExecutePlanActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private Plan plan;
+		private Reference<Plan> planReference = new Reference<Plan>(Plan.class);
 		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
 				new Accessor<String>() {
 					@Override
 					public String get() {
+						Plan plan = getPlan();
 						if ((plan == null) || (plan.getInputClass() == null)) {
 							return null;
 						}
@@ -91,12 +93,16 @@ public class ExecutePlanActivity implements Activity {
 					}
 				});
 
-		public Plan getPlan() {
-			return plan;
+		private Plan getPlan() {
+			return planReference.resolve();
 		}
 
-		public void setPlan(Plan plan) {
-			this.plan = plan;
+		public Reference<Plan> getPlanReference() {
+			return planReference;
+		}
+
+		public void setPlanReference(Reference<Plan> planReference) {
+			this.planReference = planReference;
 		}
 
 		public List<Plan> getPlanOptions() {
@@ -124,13 +130,14 @@ public class ExecutePlanActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			ExecutePlanActivity result = new ExecutePlanActivity();
-			result.setPlan(plan);
+			result.setPlan(getPlan());
 			result.setPlanInput(planInputBuilder.build(new EvaluationContext(context, null)));
 			return result;
 		}
 
 		@Override
 		public Class<?> getActivityResultClass() {
+			Plan plan = getPlan();
 			if (plan == null) {
 				return null;
 			}

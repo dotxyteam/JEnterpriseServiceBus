@@ -10,6 +10,7 @@ import java.util.List;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Function;
+import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
 import com.otk.jesb.ValidationContext;
 import com.otk.jesb.activity.Activity;
@@ -100,7 +101,7 @@ public class JDBCUpdateActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private JDBCConnection connection;
+		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
@@ -178,12 +179,16 @@ public class JDBCUpdateActivity implements Activity {
 			}
 		}
 
-		public JDBCConnection getConnection() {
-			return connection;
+		private JDBCConnection getConnection() {
+			return connectionReference.resolve();
 		}
 
-		public void setConnection(JDBCConnection connection) {
-			this.connection = connection;
+		public Reference<JDBCConnection> getConnectionReference() {
+			return connectionReference;
+		}
+
+		public void setConnectionReference(Reference<JDBCConnection> connectionReference) {
+			this.connectionReference = connectionReference;
 		}
 
 		public static List<JDBCConnection> getConnectionOptions() {
@@ -221,7 +226,7 @@ public class JDBCUpdateActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCUpdateActivity result = new JDBCUpdateActivity();
-			result.setConnection(connection);
+			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
 					.build(new EvaluationContext(context, null));

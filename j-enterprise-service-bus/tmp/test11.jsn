@@ -70,112 +70,6 @@
             <com.otk.jesb.Step>
               <name>executePlan</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
-                <plan>
-                  <inputStructure>
-                    <elements>
-                      <com.otk.jesb.Structure_-SimpleElement>
-                        <multiple>false</multiple>
-                        <name>b</name>
-                        <optionality class="null"/>
-                        <typeName>boolean</typeName>
-                      </com.otk.jesb.Structure_-SimpleElement>
-                    </elements>
-                  </inputStructure>
-                  <name>SubPlan</name>
-                  <outputBuilder>
-                    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                      <outer-class reference="../.."/>
-                    </dynamicTypeNameAccessor>
-                    <fieldInitializers/>
-                    <initializationSwitches/>
-                    <listItemInitializers/>
-                    <parameterInitializers>
-                      <com.otk.jesb.instantiation.ParameterInitializer>
-                        <parameterPosition>0</parameterPosition>
-                        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                          <dynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
-                            <outer-class reference="../../../../../.."/>
-                          </dynamicTypeNameAccessor>
-                          <fieldInitializers/>
-                          <initializationSwitches/>
-                          <listItemInitializers/>
-                          <parameterInitializers>
-                            <com.otk.jesb.instantiation.ParameterInitializer>
-                              <parameterPosition>0</parameterPosition>
-                              <parameterValue class="com.otk.jesb.Function">
-                                <functionBody>return readFile.getText();</functionBody>
-                              </parameterValue>
-                            </com.otk.jesb.instantiation.ParameterInitializer>
-                          </parameterInitializers>
-                          <selectedConstructorSignature class="null"/>
-                          <typeName>&lt;Dynamic&gt;</typeName>
-                        </parameterValue>
-                      </com.otk.jesb.instantiation.ParameterInitializer>
-                    </parameterInitializers>
-                    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                    <rootInstanceName>PlanOutput</rootInstanceName>
-                    <rootInstanceTypeName class="null"/>
-                    <selectedConstructorSignature class="null"/>
-                    <typeName>&lt;Dynamic&gt;</typeName>
-                  </outputBuilder>
-                  <outputStructure>
-                    <elements>
-                      <com.otk.jesb.Structure_-SimpleElement>
-                        <multiple>false</multiple>
-                        <name>readFileResult</name>
-                        <optionality class="null"/>
-                        <typeName>java.lang.String</typeName>
-                      </com.otk.jesb.Structure_-SimpleElement>
-                    </elements>
-                  </outputStructure>
-                  <steps>
-                    <com.otk.jesb.Step>
-                      <name>readFile</name>
-                      <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
-                        <instanceBuilder>
-                          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                            <outer-class reference="../.."/>
-                          </dynamicTypeNameAccessor>
-                          <fieldInitializers/>
-                          <initializationSwitches/>
-                          <listItemInitializers/>
-                          <parameterInitializers>
-                            <com.otk.jesb.instantiation.ParameterInitializer>
-                              <parameterPosition>0</parameterPosition>
-                              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                                <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
-                                  <outer-class reference="../../../../../.."/>
-                                </dynamicTypeNameAccessor>
-                                <fieldInitializers/>
-                                <initializationSwitches/>
-                                <listItemInitializers/>
-                                <parameterInitializers>
-                                  <com.otk.jesb.instantiation.ParameterInitializer>
-                                    <parameterPosition>0</parameterPosition>
-                                    <parameterValue class="string">tmp/test.txt</parameterValue>
-                                  </com.otk.jesb.instantiation.ParameterInitializer>
-                                </parameterInitializers>
-                                <selectedConstructorSignature class="null"/>
-                                <typeName>&lt;Dynamic&gt;</typeName>
-                              </parameterValue>
-                            </com.otk.jesb.instantiation.ParameterInitializer>
-                          </parameterInitializers>
-                          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                          <rootInstanceName>ReadFileActivityInput</rootInstanceName>
-                          <rootInstanceTypeName class="null"/>
-                          <selectedConstructorSignature class="null"/>
-                          <typeName>&lt;Dynamic&gt;</typeName>
-                        </instanceBuilder>
-                        <mode>TEXT</mode>
-                      </activityBuilder>
-                      <diagramX>126</diagramX>
-                      <diagramY>90</diagramY>
-                    </com.otk.jesb.Step>
-                  </steps>
-                  <transitions/>
-                </plan>
                 <planInputBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <outer-class reference="../.."/>
@@ -211,6 +105,10 @@
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </planInputBuilder>
+                <planReference>
+                  <path>plans &gt; SubPlan</path>
+                  <assetClass>com.otk.jesb.Plan</assetClass>
+                </planReference>
               </activityBuilder>
               <diagramX>200</diagramX>
               <diagramY>58</diagramY>
@@ -271,11 +169,292 @@
             <com.otk.jesb.Step>
               <name>callSOAPWebService</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
-                <WSDL>
-                  <dependencyTextByFileName>
-                    <entry>
-                      <string>0_SOAP.ByNameDataSet.cls</string>
-                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                <operationInputBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="long">1</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>1</parameterPosition>
+                            <parameterValue class="com.otk.jesb.Function">
+                              <functionBody>return 2l;</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>OperationInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </operationInputBuilder>
+                <operationSignature>long addInteger(java.lang.Long, java.lang.Long)</operationSignature>
+                <portName>SOAPDemoSoap</portName>
+                <serviceName>SOAPDemo</serviceName>
+                <wsdlReference>
+                  <path>resources &gt; WSDL0067386445108691356079784258983392995390</path>
+                  <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+                </wsdlReference>
+              </activityBuilder>
+              <diagramX>443</diagramX>
+              <diagramY>58</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>jDBCQuery</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
+                <connectionReference>
+                  <path>resources &gt; db</path>
+                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+                </connectionReference>
+                <parameterDefinitions/>
+                <parameterValuesBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>Parameters</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValuesBuilder>
+                <resultColumnDefinitions class="null"/>
+                <statement class="null"/>
+              </activityBuilder>
+              <diagramX>554</diagramX>
+              <diagramY>59</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>jDBCUpdate</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
+                <connectionReference>
+                  <path>resources &gt; db</path>
+                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+                </connectionReference>
+                <parameterDefinitions/>
+                <parameterValuesBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers/>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>Parameters</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValuesBuilder>
+                <statement class="null"/>
+              </activityBuilder>
+              <diagramX>665</diagramX>
+              <diagramY>60</diagramY>
+            </com.otk.jesb.Step>
+          </steps>
+          <transitions>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[6]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[5]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[5]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[4]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[4]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[3]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step"/>
+            </com.otk.jesb.Transition>
+          </transitions>
+        </com.otk.jesb.Plan>
+        <com.otk.jesb.Plan>
+          <inputStructure>
+            <elements>
+              <com.otk.jesb.Structure_-SimpleElement>
+                <multiple>false</multiple>
+                <name>b</name>
+                <optionality class="null"/>
+                <typeName>boolean</typeName>
+              </com.otk.jesb.Structure_-SimpleElement>
+            </elements>
+          </inputStructure>
+          <name>SubPlan</name>
+          <outputBuilder>
+            <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+              <outer-class reference="../.."/>
+            </dynamicTypeNameAccessor>
+            <fieldInitializers/>
+            <initializationSwitches/>
+            <listItemInitializers/>
+            <parameterInitializers>
+              <com.otk.jesb.instantiation.ParameterInitializer>
+                <parameterPosition>0</parameterPosition>
+                <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.Plan$1">
+                    <outer-class reference="../../../../../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.Function">
+                        <functionBody>return readFile.getText();</functionBody>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValue>
+              </com.otk.jesb.instantiation.ParameterInitializer>
+            </parameterInitializers>
+            <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+            <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.Plan$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+            <rootInstanceName>PlanOutput</rootInstanceName>
+            <rootInstanceTypeName class="null"/>
+            <selectedConstructorSignature class="null"/>
+            <typeName>&lt;Dynamic&gt;</typeName>
+          </outputBuilder>
+          <outputStructure>
+            <elements>
+              <com.otk.jesb.Structure_-SimpleElement>
+                <multiple>false</multiple>
+                <name>readFileResult</name>
+                <optionality class="null"/>
+                <typeName>java.lang.String</typeName>
+              </com.otk.jesb.Structure_-SimpleElement>
+            </elements>
+          </outputStructure>
+          <steps>
+            <com.otk.jesb.Step>
+              <name>readFile</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="string">tmp/test.txt</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>ReadFileActivityInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+                <mode>TEXT</mode>
+              </activityBuilder>
+              <diagramX>126</diagramX>
+              <diagramY>90</diagramY>
+            </com.otk.jesb.Step>
+          </steps>
+          <transitions/>
+        </com.otk.jesb.Plan>
+      </contents>
+    </com.otk.jesb.Folder>
+    <com.otk.jesb.Folder>
+      <name>resources</name>
+      <contents>
+        <com.otk.jesb.resource.builtin.JDBCConnection>
+          <driverClassName>org.hsqldb.jdbcDriver</driverClassName>
+          <name>db</name>
+          <password class="null"/>
+          <url>jdbc:hsqldb:file:tmp/db;shutdown=true;hsqldb.write_delay=false;</url>
+          <userName class="null"/>
+        </com.otk.jesb.resource.builtin.JDBCConnection>
+        <com.otk.jesb.resource.builtin.WSDL>
+          <dependencyTextByFileName>
+            <entry>
+              <string>0_SOAP.ByNameDataSet.cls</string>
+              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -302,10 +481,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                    </entry>
-                    <entry>
-                      <string>1_SOAP.Demo.QueryByName.DS.cls</string>
-                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+            </entry>
+            <entry>
+              <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -329,10 +508,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                    </entry>
-                  </dependencyTextByFileName>
-                  <name>WSDL0067386445108691356079784258983392995390</name>
-                  <text>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#xd;
+            </entry>
+          </dependencyTextByFileName>
+          <name>WSDL0067386445108691356079784258983392995390</name>
+          <text>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#xd;
 &lt;definitions xmlns=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:mime=&quot;http://schemas.xmlsoap.org/wsdl/mime/&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:s0=&quot;http://tempuri.org&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
     &lt;types&gt;&#xd;
         &lt;s:schema elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://tempuri.org&quot;&gt;&#xd;
@@ -751,174 +930,7 @@
         &lt;/port&gt;&#xd;
     &lt;/service&gt;&#xd;
 &lt;/definitions&gt;</text>
-                </WSDL>
-                <operationInputBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
-                          <outer-class reference="../../../../../.."/>
-                        </dynamicTypeNameAccessor>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>0</parameterPosition>
-                            <parameterValue class="long">1</parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>1</parameterPosition>
-                            <parameterValue class="com.otk.jesb.Function">
-                              <functionBody>return 2l;</functionBody>
-                            </parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                        </parameterInitializers>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                  <rootInstanceName>OperationInput</rootInstanceName>
-                  <rootInstanceTypeName class="null"/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </operationInputBuilder>
-                <operationSignature>long addInteger(java.lang.Long, java.lang.Long)</operationSignature>
-                <portName>SOAPDemoSoap</portName>
-                <serviceName>SOAPDemo</serviceName>
-              </activityBuilder>
-              <diagramX>443</diagramX>
-              <diagramY>58</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
-              <name>jDBCQuery</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
-                <connection>
-                  <driverClassName>org.hsqldb.jdbcDriver</driverClassName>
-                  <name>db</name>
-                  <password class="null"/>
-                  <url>jdbc:hsqldb:file:tmp/db;shutdown=true;hsqldb.write_delay=false;</url>
-                  <userName class="null"/>
-                </connection>
-                <parameterDefinitions/>
-                <parameterValuesBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
-                          <outer-class reference="../../../../../.."/>
-                        </dynamicTypeNameAccessor>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers/>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                  <rootInstanceName>Parameters</rootInstanceName>
-                  <rootInstanceTypeName class="null"/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </parameterValuesBuilder>
-                <resultColumnDefinitions class="null"/>
-                <statement class="null"/>
-              </activityBuilder>
-              <diagramX>555</diagramX>
-              <diagramY>60</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
-              <name>jDBCUpdate</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                <connection class="null"/>
-                <parameterDefinitions/>
-                <parameterValuesBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
-                          <outer-class reference="../../../../../.."/>
-                        </dynamicTypeNameAccessor>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers/>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                  <rootInstanceName>Parameters</rootInstanceName>
-                  <rootInstanceTypeName class="null"/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </parameterValuesBuilder>
-                <statement class="null"/>
-              </activityBuilder>
-              <diagramX>665</diagramX>
-              <diagramY>60</diagramY>
-            </com.otk.jesb.Step>
-          </steps>
-          <transitions>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[6]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[5]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[5]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[4]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[4]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[3]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[2]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step"/>
-            </com.otk.jesb.Transition>
-          </transitions>
-        </com.otk.jesb.Plan>
-        <com.otk.jesb.Plan reference="../com.otk.jesb.Plan/steps/com.otk.jesb.Step[2]/activityBuilder/plan"/>
-      </contents>
-    </com.otk.jesb.Folder>
-    <com.otk.jesb.Folder>
-      <name>resources</name>
-      <contents>
-        <com.otk.jesb.resource.builtin.JDBCConnection reference="../../../com.otk.jesb.Folder/contents/com.otk.jesb.Plan/steps/com.otk.jesb.Step[5]/activityBuilder/connection"/>
-        <com.otk.jesb.resource.builtin.WSDL reference="../../../com.otk.jesb.Folder/contents/com.otk.jesb.Plan/steps/com.otk.jesb.Step[4]/activityBuilder/WSDL"/>
+        </com.otk.jesb.resource.builtin.WSDL>
       </contents>
     </com.otk.jesb.Folder>
   </contents>

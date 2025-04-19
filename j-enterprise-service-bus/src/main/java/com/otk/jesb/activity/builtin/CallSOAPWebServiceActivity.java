@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.Function;
+import com.otk.jesb.Reference;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Solution;
@@ -126,7 +127,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		private Class<? extends OperationInput> operationInputClass;
 
-		private WSDL wsdl;
+		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
 				OperationInput.class.getSimpleName(), new Accessor<String>() {
 					@Override
@@ -141,12 +142,16 @@ public class CallSOAPWebServiceActivity implements Activity {
 		private String portName;
 		private String operationSignature;
 
-		public WSDL getWSDL() {
-			return wsdl;
+		private WSDL getWSDL() {
+			return wsdlReference.resolve();
 		}
 
-		public void setWSDL(WSDL wsdl) {
-			this.wsdl = wsdl;
+		public Reference<WSDL> getWsdlReference() {
+			return wsdlReference;
+		}
+
+		public void setWsdlReference(Reference<WSDL> wsdlReference) {
+			this.wsdlReference = wsdlReference;
 			tryToSelectValuesAutomatically();
 			tryToUpdateOperationInputClass();
 		}
@@ -317,7 +322,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
-			result.setWSDL(wsdl);
+			result.setWSDL(getWSDL());
 			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
 			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
