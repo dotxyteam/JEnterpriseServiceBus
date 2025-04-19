@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -60,7 +61,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private JNode newDraggedConnectionStartNode;
 	private JNode newDraggedConnectionEndNode;
 	private JNode draggedNode;
-	private Point draggedNodeOffset;
+	private Point draggedNodeCenterOffset;
 	private Point draggingPoint;
 	private List<JDiagramActionScheme> actionSchemes;
 	private DragIntent dragIntent = DragIntent.MOVE;
@@ -183,9 +184,77 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
+			for (JNode node : MiscUtils.getReverse(nodes)) {
+				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
+					draggedNode = node;
+					draggedNodeCenterOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
+							draggedNode.getCenterY() - mouseEvent.getY());
+					break;
+				}
+			}
+		}
+		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
+			JPopupMenu popupMenu = createContextMenu(mouseEvent);
+			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent mouseEvent) {
+		draggingPoint = null;
+		repaint();
+		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
+			if (dragIntent == DragIntent.CONNECT) {
+				if (newDraggedConnectionStartNode != null) {
+					if (newDraggedConnectionEndNode != null) {
+						JConnection conn = new JConnection();
+						conn.setStartNode(newDraggedConnectionStartNode);
+						conn.setEndNode(newDraggedConnectionEndNode);
+						connections.add(conn);
+						newDraggedConnectionStartNode = null;
+						newDraggedConnectionEndNode = null;
+						repaint();
+						for (JDiagramListener l : listeners) {
+							l.connectionAdded(conn);
+						}
+					}
+				}
+			}
+			if (dragIntent == DragIntent.MOVE) {
+				if (draggedNode != null) {
+					Point draggedNodeMove = new Point(
+							mouseEvent.getX() + draggedNodeCenterOffset.x - draggedNode.getCenterX(),
+							mouseEvent.getY() + draggedNodeCenterOffset.y - draggedNode.getCenterY());
+					if ((draggedNodeMove.x != 0) || (draggedNodeMove.y != 0)) {
+						Set<JNode> modesToMove = new HashSet<JNode>();
+						modesToMove.add(draggedNode);
+						if (draggedNode.isSelected()) {
+							modesToMove.addAll(
+									getSelection().stream().filter(diagramObject -> diagramObject instanceof JNode)
+											.map(diagramObject -> (JNode) diagramObject).collect(Collectors.toSet()));
+						}
+						for (JNode node : modesToMove) {
+							node.setCenterX(node.getCenterX() + draggedNodeMove.x);
+							node.setCenterY(node.getCenterY() + draggedNodeMove.y);
+						}
+						repaint();
+						for (JDiagramListener l : listeners) {
+							l.nodesMoved(modesToMove);
+						}
+						draggedNode = null;
+						draggedNodeCenterOffset = null;
+						return;
+					}
+					draggedNode = null;
+					draggedNodeCenterOffset = null;
+				}
+			}
+		}
+		if (!SwingUtilities.isRightMouseButton(mouseEvent) || (getSelection().size() == 0)) {
 			List<Object> diagramObjects = new ArrayList<Object>();
 			diagramObjects.addAll(MiscUtils.getReverse(nodes));
 			diagramObjects.addAll(MiscUtils.getReverse(connections));
+			boolean diagramObjectTouched = false;
 			for (Object object : diagramObjects) {
 				if (object instanceof JNode) {
 					JNode node = (JNode) object;
@@ -201,9 +270,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 						} else {
 							setSelection(Collections.singleton(node));
 						}
-						draggedNode = node;
-						draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
-								draggedNode.getCenterY() - mouseEvent.getY());
+						diagramObjectTouched = true;
 						break;
 					}
 				}
@@ -221,16 +288,23 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 						} else {
 							setSelection(Collections.singleton(connection));
 						}
+						diagramObjectTouched = true;
 						break;
 					}
 				}
 			}
+			if (!diagramObjectTouched) {
+				setSelection(Collections.emptySet());
+			}
 		}
-		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
-			JPopupMenu popupMenu = createContextMenu(mouseEvent);
-			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
-		}
+	}
 
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
@@ -263,54 +337,6 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			}
 		}
 		return popupMenu;
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		draggingPoint = null;
-		repaint();
-		if (SwingUtilities.isLeftMouseButton(e)) {
-			if (dragIntent == DragIntent.CONNECT) {
-				if (newDraggedConnectionStartNode != null) {
-					if (newDraggedConnectionEndNode != null) {
-						JConnection conn = new JConnection();
-						conn.setStartNode(newDraggedConnectionStartNode);
-						conn.setEndNode(newDraggedConnectionEndNode);
-						connections.add(conn);
-						newDraggedConnectionStartNode = null;
-						newDraggedConnectionEndNode = null;
-						repaint();
-						for (JDiagramListener l : listeners) {
-							l.connectionAdded(conn);
-						}
-					}
-				}
-			}
-			if (dragIntent == DragIntent.MOVE) {
-				if (draggedNode != null) {
-					int newNodeCenterX = e.getX() + draggedNodeOffset.x;
-					int newNodeCenterY = e.getY() + draggedNodeOffset.y;
-					if ((newNodeCenterX != draggedNode.getCenterX()) || (newNodeCenterY != draggedNode.getCenterY())) {
-						draggedNode.setCenterX(newNodeCenterX);
-						draggedNode.setCenterY(newNodeCenterY);
-						repaint();
-						for (JDiagramListener l : listeners) {
-							l.nodeMoved(draggedNode);
-						}
-					}
-					draggedNode = null;
-					draggedNodeOffset = null;
-				}
-			}
-		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
 	}
 
 	public Set<JDiagramObject> getSelection() {

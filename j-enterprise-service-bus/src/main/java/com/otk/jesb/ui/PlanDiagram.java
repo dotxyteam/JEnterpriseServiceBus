@@ -3,11 +3,15 @@ package com.otk.jesb.ui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,11 +21,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
@@ -52,6 +58,9 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.MenuItemCategory;
 import xy.reflect.ui.info.menu.MenuModel;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
@@ -125,28 +134,30 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		addListener(new JDiagramListener() {
 
 			@Override
-			public void nodeMoved(JNode node) {
-				Step step = (Step) node.getValue();
+			public void nodesMoved(Set<JNode> nodes) {
 				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 				ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
-				parentForm.getModificationStack().insideComposite("Change Step Position", UndoOrder.getNormal(),
+				parentForm.getModificationStack().insideComposite("Move Step(s)", UndoOrder.getNormal(),
 						new xy.reflect.ui.util.Accessor<Boolean>() {
 							@Override
 							public Boolean get() {
-								ReflectionUIUtils
-										.setFieldValueThroughModificationStack(
-												new DefaultFieldControlData(reflectionUI, step,
-														ReflectionUIUtils.findInfoByName(stepType.getFields(),
-																"diagramX")),
-												node.getCenterX(), parentForm.getModificationStack(),
-												ReflectionUIUtils.getDebugLogListener(reflectionUI));
-								ReflectionUIUtils
-										.setFieldValueThroughModificationStack(
-												new DefaultFieldControlData(reflectionUI, step,
-														ReflectionUIUtils.findInfoByName(stepType.getFields(),
-																"diagramY")),
-												node.getCenterY(), parentForm.getModificationStack(),
-												ReflectionUIUtils.getDebugLogListener(reflectionUI));
+								for (JNode node : nodes) {
+									Step step = (Step) node.getValue();
+									ReflectionUIUtils
+											.setFieldValueThroughModificationStack(
+													new DefaultFieldControlData(reflectionUI, step,
+															ReflectionUIUtils.findInfoByName(stepType.getFields(),
+																	"diagramX")),
+													node.getCenterX(), parentForm.getModificationStack(),
+													ReflectionUIUtils.getDebugLogListener(reflectionUI));
+									ReflectionUIUtils
+											.setFieldValueThroughModificationStack(
+													new DefaultFieldControlData(reflectionUI, step,
+															ReflectionUIUtils.findInfoByName(stepType.getFields(),
+																	"diagramY")),
+													node.getCenterY(), parentForm.getModificationStack(),
+													ReflectionUIUtils.getDebugLogListener(reflectionUI));
+								}
 								return true;
 							}
 						}, false);
@@ -163,6 +174,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								.map(diagramObject -> stepsControl
 										.findItemPositionByReference(diagramObject.getValue()))
 								.collect(Collectors.toList()));
+						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
 						selectionListeningEnabled = true;
 					}
@@ -205,9 +217,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				.map(itemPosition -> (JDiagramObject) findNode(itemPosition.getItem())).collect(Collectors.toSet()));
 	}
 
-	protected void onStepInsertionRequest(Step newStep, int x, int y) {
-		newStep.setDiagramX(x);
-		newStep.setDiagramY(y);
+	protected void onStepInsertionRequest(Step newStep) {
 		Set<JDiagramObject> selection = getSelection();
 		if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
 			JNode selectedNode = (JNode) selection.iterator().next();
@@ -234,10 +244,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		parentForm.getModificationStack().apply(modification);
 	}
 
-	protected void onDeletionRequest(Set<Object> selectedStepAndTransitions) {
-		if (!swingRenderer.openQuestionDialog(this, "Remove the element(s)?", null, "OK", "Cancel")) {
-			return;
-		}
+	protected void onDeletionRequest() {
+		Set<Object> selectedStepAndTransitions = getSelection().stream()
+				.map(selectedObject -> selectedObject.getValue()).collect(Collectors.toSet());
 		Plan plan = getPlan();
 		Set<Step> stepsToDelete = new HashSet<Step>();
 		Set<Transition> transitionsToDelete = new HashSet<Transition>();
@@ -318,7 +327,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 										@Override
 										public void perform(int x, int y) {
 											Step newStep = new Step(metadata);
-											onStepInsertionRequest(newStep, x, y);
+											newStep.setDiagramX(x);
+											newStep.setDiagramY(y);
+											onStepInsertionRequest(newStep);
 										}
 
 										@Override
@@ -371,7 +382,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							@Override
 							public void perform(int x, int y) {
 								LoopCompositeStep newComposite = new LoopCompositeStep();
-								onStepInsertionRequest(newComposite, x, y);
+								newComposite.setDiagramX(x);
+								newComposite.setDiagramY(y);
+								onStepInsertionRequest(newComposite);
 
 							}
 
@@ -403,20 +416,83 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
-		Set<JDiagramObject> selection = getSelection();
-		Set<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
-				.collect(Collectors.toSet());
-		if (selectedStepAndTransitions.size() > 0) {
-			result.insert(new AbstractAction("Delete") {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					onDeletionRequest(selectedStepAndTransitions);
-				}
-			}, 0);
-		}
+		result.add(new JSeparator());
+		result.add(createCopyAction());
+		result.add(createCutAction());
+		result.add(createPasteAction(mouseEvent.getX(), mouseEvent.getY()));
+		result.add(new JSeparator());
+		result.add(createDeleteAction());
 		return result;
+	}
+
+	private AbstractAction createCopyAction() {
+		return new AbstractAction("Copy") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				return Clipboard.canCopy(PlanDiagram.this);
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Clipboard.copy(PlanDiagram.this);
+				SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
+			}
+		};
+	}
+
+	private AbstractAction createCutAction() {
+		return new AbstractAction("Cut") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				return (getSelection().size() > 0) && Clipboard.canCopy(PlanDiagram.this);
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Clipboard.copy(PlanDiagram.this);
+				onDeletionRequest();
+			}
+		};
+	}
+
+	private AbstractAction createPasteAction(int x, int y) {
+		return new AbstractAction("Paste") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				return Clipboard.canPaste(PlanDiagram.this);
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Clipboard.paste(PlanDiagram.this, x, y);
+			}
+		};
+	}
+
+	private AbstractAction createDeleteAction() {
+		return new AbstractAction("Delete") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				return getSelection().size() > 0;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!swingRenderer.openQuestionDialog(PlanDiagram.this, "Remove the selected element(s)?", null, "OK",
+						"Cancel")) {
+					return;
+				}
+				onDeletionRequest();
+			}
+		};
 	}
 
 	@Override
@@ -516,6 +592,36 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	public void addMenuContributions(MenuModel menuModel) {
+		MenuInfo editMenu = menuModel.getMenus().stream().filter(menu -> menu.getCaption().equals("Edit")).findFirst()
+				.get();
+		{
+			MenuItemCategory category = new MenuItemCategory();
+			{
+				editMenu.addItemCategory(category);
+				for (AbstractAction action : Arrays.asList(createCopyAction(), createCutAction(),
+						createPasteAction(getWidth() / 2, getHeight() / 2), null, createDeleteAction())) {
+					if (action == null) {
+						category = new MenuItemCategory();
+						editMenu.addItemCategory(category);
+						continue;
+					}
+					category.addItem(new CustomActionMenuItemInfo(swingRenderer.getReflectionUI(),
+							(String) action.getValue(AbstractAction.NAME), null, new Supplier<Boolean>() {
+								@Override
+								public Boolean get() {
+									return action.isEnabled();
+								}
+							}, new Runnable() {
+								@Override
+								public void run() {
+									action.actionPerformed(null);
+								}
+							}));
+				}
+			}
+
+		}
+
 	}
 
 	@Override
@@ -537,5 +643,122 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	public static class PaletteSource {
+	}
+
+	private static class Clipboard {
+
+		private static Clipboard current;
+
+		private ByteArrayOutputStream planStore = new ByteArrayOutputStream();
+		private Set<Integer> selectedStepIndexes = new HashSet<Integer>();
+		private Set<Integer> selectedTransitionIndexes = new HashSet<Integer>();
+
+		public static boolean canCopy(PlanDiagram planDiagram) {
+			return planDiagram.getSelection().size() > 0;
+		}
+
+		public static boolean canPaste(PlanDiagram planDiagram) {
+			return current != null;
+		}
+
+		public static void copy(PlanDiagram planDiagram) {
+			current = new Clipboard();
+			Plan plan = planDiagram.getPlan();
+			Set<Object> selectedStepAndTransitions = planDiagram.getSelection().stream()
+					.map(selectedObject -> selectedObject.getValue()).collect(Collectors.toSet());
+			try {
+				MiscUtils.serialize(plan, current.planStore);
+			} catch (IOException e) {
+				throw new AssertionError(e);
+			}
+			for (Object object : selectedStepAndTransitions) {
+				if (object instanceof Step) {
+					current.selectedStepIndexes.add(plan.getSteps().indexOf(object));
+				} else if (object instanceof Transition) {
+					current.selectedTransitionIndexes.add(plan.getTransitions().indexOf(object));
+				} else {
+					throw new AssertionError();
+				}
+			}
+		}
+
+		public static void paste(PlanDiagram planDiagram, int x, int y) {
+			Plan planCopy;
+			try {
+				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()));
+			} catch (IOException e) {
+				throw new AssertionError(e);
+			}
+			planDiagram.parentForm.getModificationStack().insideComposite("Paste", UndoOrder.getNormal(),
+					new Accessor<Boolean>() {
+						@Override
+						public Boolean get() {
+							Set<Step> allStepsToPaste = new HashSet<Step>();
+							for (int stepIndex : current.selectedStepIndexes) {
+								Step stepCopy = planCopy.getSteps().get(stepIndex);
+								allStepsToPaste.add(stepCopy);
+								if (stepCopy instanceof CompositeStep) {
+									allStepsToPaste
+											.addAll(MiscUtils.getDescendants((CompositeStep) stepCopy, planCopy));
+								}
+							}
+							CompositeStep selectedCompositeStep = null;
+							{
+								Set<JDiagramObject> selection = planDiagram.getSelection();
+								if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
+									JNode selectedNode = (JNode) selection.iterator().next();
+									if (selectedNode.getValue() instanceof CompositeStep) {
+										selectedCompositeStep = (CompositeStep) selectedNode.getValue();
+									}
+								}
+							}
+							Plan destinationPlan = planDiagram.getPlan();
+							Rectangle boundsOfAllStepsToPaste = null;
+							for (Step stepCopy : allStepsToPaste) {
+								if ((stepCopy.getParent() == null) || !allStepsToPaste.contains(stepCopy.getParent())) {
+									stepCopy.setParent(selectedCompositeStep);
+								}
+								while (destinationPlan.getSteps().stream().anyMatch(
+										destinationStep -> destinationStep.getName().equals(stepCopy.getName()))
+										|| allStepsToPaste.stream()
+												.anyMatch(otherStepCopy -> (otherStepCopy != stepCopy)
+														&& otherStepCopy.getName().equals(stepCopy.getName()))) {
+									stepCopy.setName(MiscUtils.nextNumbreredName(stepCopy.getName()));
+								}
+								Rectangle stepCopyBounds = (stepCopy instanceof CompositeStep)
+										? ((CompositeStep) stepCopy).getChildrenBounds(planCopy, STEP_ICON_WIDTH,
+												STEP_ICON_HEIGHT)
+										: new Rectangle(stepCopy.getDiagramX() - (STEP_ICON_WIDTH / 2),
+												stepCopy.getDiagramY() - (STEP_ICON_HEIGHT / 2), STEP_ICON_WIDTH,
+												STEP_ICON_HEIGHT);
+								if (boundsOfAllStepsToPaste == null) {
+									boundsOfAllStepsToPaste = stepCopyBounds;
+								} else {
+									boundsOfAllStepsToPaste.add(stepCopyBounds);
+								}
+							}
+							Point stepCopyMoveAtDestination = new Point(x - (int) boundsOfAllStepsToPaste.getCenterX(),
+									y - (int) boundsOfAllStepsToPaste.getCenterY());
+							for (Step stepCopy : allStepsToPaste) {
+								stepCopy.setDiagramX(stepCopy.getDiagramX() + stepCopyMoveAtDestination.x);
+								stepCopy.setDiagramY(stepCopy.getDiagramY() + stepCopyMoveAtDestination.y);
+								planDiagram.onStepInsertionRequest(stepCopy);
+							}
+							for (Transition transitionCopy : planCopy.getTransitions()) {
+								if (allStepsToPaste.contains(transitionCopy.getStartStep())
+										&& allStepsToPaste.contains(transitionCopy.getEndStep())) {
+									planDiagram.onTransitionInsertionRequest(transitionCopy);
+								}
+							}
+							planDiagram.refreshUI(false);
+							planDiagram.getStepsControl().refreshUI(false);
+							planDiagram.setSelection(new HashSet<JDiagramObject>(
+									allStepsToPaste.stream().map(step -> (JDiagramObject) planDiagram.findNode(step))
+											.collect(Collectors.toSet())));
+							return true;
+						}
+					}, false);
+		}
+
 	}
 }

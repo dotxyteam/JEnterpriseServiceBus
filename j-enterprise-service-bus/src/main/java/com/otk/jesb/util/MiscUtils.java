@@ -481,4 +481,14 @@ public class MiscUtils {
 		return result;
 	}
 
+	public static String nextNumbreredName(String name) {
+		final String NUMBERED_NAME_PATTERN = "^(.*)([0-9]+)$";
+		if (!name.matches(NUMBERED_NAME_PATTERN)) {
+			return name + "1";
+		} else {
+			int number = Integer.valueOf(name.replaceAll(NUMBERED_NAME_PATTERN, "$2"));
+			return name.replaceAll(NUMBERED_NAME_PATTERN, "$1") + (number + 1);
+		}
+	}
+
 }

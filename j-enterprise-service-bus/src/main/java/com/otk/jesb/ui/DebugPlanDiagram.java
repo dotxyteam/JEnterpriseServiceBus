@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JPopupMenu;
@@ -62,7 +63,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		addListener(new JDiagramListener() {
 
 			@Override
-			public void nodeMoved(JNode node) {
+			public void nodesMoved(Set<JNode> nodes) {
 				refreshUI(false);
 			}
 

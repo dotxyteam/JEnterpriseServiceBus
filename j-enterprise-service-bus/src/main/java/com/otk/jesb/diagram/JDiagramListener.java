@@ -1,8 +1,10 @@
 package com.otk.jesb.diagram;
 
+import java.util.Set;
+
 public interface JDiagramListener {
 
-	void nodeMoved(JNode node);
+	void nodesMoved(Set<JNode> nodes);
 
 	void connectionAdded(JConnection conn);
 

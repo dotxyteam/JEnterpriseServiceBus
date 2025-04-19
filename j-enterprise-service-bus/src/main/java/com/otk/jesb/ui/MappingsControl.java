@@ -67,6 +67,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.Listener;
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.control.IAdvancedFieldControl;
@@ -933,9 +934,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					}
 					CompilationContext compilationContext = ((InstanceBuilderFacade) Facade
 							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
-									(Function) itemReplication.getIterationListValue(),
-									new ValidationContext());
-					final String NUMBERED_NAME_PATTERN = "^(.*)([0-9]+)$";
+									(Function) itemReplication.getIterationListValue(), new ValidationContext());
 					while (true) {
 						boolean nameConflictDetected = compilationContext.getValidationContext()
 								.getVariableDeclarations().stream().anyMatch(variableDeclaration -> variableDeclaration
@@ -943,15 +942,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						if (!nameConflictDetected) {
 							break;
 						}
-						if (!itemReplication.getIterationVariableName().matches(NUMBERED_NAME_PATTERN)) {
-							itemReplication.setIterationVariableName(itemReplication.getIterationVariableName() + "1");
-						} else {
-							int number = Integer.valueOf(
-									itemReplication.getIterationVariableName().replaceAll(NUMBERED_NAME_PATTERN, "$2"));
-							itemReplication.setIterationVariableName(
-									itemReplication.getIterationVariableName().replaceAll(NUMBERED_NAME_PATTERN, "$1")
-											+ (number + 1));
-						}
+						itemReplication.setIterationVariableName(
+								MiscUtils.nextNumbreredName(itemReplication.getIterationVariableName()));
 					}
 					accept = true;
 				} else if (choice == 1) {
