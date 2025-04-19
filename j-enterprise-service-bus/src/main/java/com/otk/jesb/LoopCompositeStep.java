@@ -5,16 +5,13 @@ import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Plan.ValidationContext;
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
-import com.otk.jesb.instantiation.Function;
-import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.ResourcePath;
 
 public class LoopCompositeStep extends CompositeStep {
@@ -38,7 +35,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 	@Override
 	protected List<VariableDeclaration> getChildrenVariableDeclarations() {
-		List<VariableDeclaration> result = new ArrayList<Plan.ValidationContext.VariableDeclaration>();
+		List<VariableDeclaration> result = new ArrayList<ValidationContext.VariableDeclaration>();
 		result.add(new VariableDeclaration() {
 
 			@Override
@@ -91,7 +88,7 @@ public class LoopCompositeStep extends CompositeStep {
 					}
 				});
 				EvaluationContext evaluationContext = new EvaluationContext(iterationContext, null);
-				if ((Boolean) MiscUtils.executeFunction(loopEndCondition, evaluationContext)) {
+				if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
 					break;
 				}
 				try {

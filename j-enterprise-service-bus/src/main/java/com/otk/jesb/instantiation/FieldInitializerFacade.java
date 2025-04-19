@@ -3,8 +3,8 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.Function;
+import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -32,9 +32,9 @@ public class FieldInitializerFacade extends Facade {
 		if (value instanceof InstanceBuilderFacade) {
 			value = ((InstanceBuilderFacade) value).getUnderlying();
 		}
-		String result = MiscUtils.express(value);
+		String result = InstantiationUtils.express(value);
 		if (getCondition() != null) {
-			result = "IF " + MiscUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
+			result = "IF " + InstantiationUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
 		}
 		return result;
 	}
@@ -46,7 +46,7 @@ public class FieldInitializerFacade extends Facade {
 
 	public Object createDefaultFieldValue() {
 		IFieldInfo field = getFieldInfo();
-		return MiscUtils.getDefaultInterpretableValue(field.getType(), this);
+		return InstantiationUtils.getDefaultInterpretableValue(field.getType(), this);
 	}
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
@@ -69,8 +69,8 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	public String getFieldTypeName() {
-		return MiscUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
-				MiscUtils.getAncestorStructureInstanceBuilders(this));
+		return InstantiationUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
+				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
 	}
 
 	public Function getCondition() {
@@ -124,7 +124,7 @@ public class FieldInitializerFacade extends Facade {
 		if (fieldInitializer == null) {
 			return null;
 		}
-		return MiscUtils.getValueMode(fieldInitializer.getFieldValue());
+		return InstantiationUtils.getValueMode(fieldInitializer.getFieldValue());
 	}
 
 	public void setFieldValueMode(ValueMode valueMode) {
@@ -133,7 +133,7 @@ public class FieldInitializerFacade extends Facade {
 			return;
 		}
 		IFieldInfo field = getFieldInfo();
-		Object newFieldValue = MiscUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
+		Object newFieldValue = InstantiationUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
 		if (newFieldValue instanceof InstanceBuilder) {
 			newFieldValue = new InstanceBuilderFacade(this, (InstanceBuilder) newFieldValue);
 		}
@@ -145,7 +145,7 @@ public class FieldInitializerFacade extends Facade {
 		if (fieldInitializer == null) {
 			return null;
 		}
-		Object result = MiscUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(),
+		Object result = InstantiationUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(),
 				getFieldInfo().getType());
 		if (result instanceof InstanceBuilder) {
 			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);

@@ -61,7 +61,7 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterTypeName>long</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.instantiation.Function">
+                            <parameterValue class="com.otk.jesb.Function">
                               <functionBody>return 100;</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -116,7 +116,7 @@
                             <com.otk.jesb.instantiation.ParameterInitializer>
                               <parameterPosition>0</parameterPosition>
                               <parameterTypeName>java.lang.String</parameterTypeName>
-                              <parameterValue class="com.otk.jesb.instantiation.Function">
+                              <parameterValue class="com.otk.jesb.Function">
                                 <functionBody>return readFile.getText();</functionBody>
                               </parameterValue>
                             </com.otk.jesb.instantiation.ParameterInitializer>
@@ -406,7 +406,7 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.String</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.instantiation.Function">
+                            <parameterValue class="com.otk.jesb.Function">
                               <functionBody>return executePlan.getReadFileResult();</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -1003,7 +1003,7 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.instantiation.Function">
+                            <parameterValue class="com.otk.jesb.Function">
                               <functionBody>return 2l;</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -1029,7 +1029,7 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterTypeName>java.lang.Long</parameterTypeName>
-                            <parameterValue class="com.otk.jesb.instantiation.Function">
+                            <parameterValue class="com.otk.jesb.Function">
                               <functionBody>return 2l;</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>

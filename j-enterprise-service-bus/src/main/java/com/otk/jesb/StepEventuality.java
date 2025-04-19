@@ -1,6 +1,6 @@
 package com.otk.jesb;
 
-public class StepEventuality implements Plan.ValidationContext.VariableDeclaration {
+public class StepEventuality implements ValidationContext.VariableDeclaration {
 
 	private Step step;
 

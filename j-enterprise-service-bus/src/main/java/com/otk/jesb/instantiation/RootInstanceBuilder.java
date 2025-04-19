@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -164,7 +165,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
 				if (!type.getName().equals(
-						result.computeActualTypeName(MiscUtils.getAncestorStructureInstanceBuilders(currentFacade)))) {
+						result.computeActualTypeName(InstantiationUtils.getAncestorStructureInstanceBuilders(currentFacade)))) {
 					throw new AssertionError();
 				}
 				return result;

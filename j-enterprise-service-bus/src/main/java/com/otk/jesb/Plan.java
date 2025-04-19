@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.EvaluationContext;
@@ -245,7 +245,7 @@ public class Plan extends Asset {
 				result = new ValidationContext(result, declaration);
 			}
 		} else {
-			result = new ValidationContext(this);
+			result = new ValidationContext();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new ValidationContext.VariableDeclaration() {
 
@@ -314,44 +314,6 @@ public class Plan extends Asset {
 			Object getValue();
 
 			String getName();
-
-		}
-
-	}
-
-	public static class ValidationContext {
-
-		private Plan plan;
-		private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
-
-		public ValidationContext(Plan plan) {
-			this.plan = plan;
-		}
-
-		public ValidationContext(Plan plan, List<VariableDeclaration> variableDeclarations) {
-			this.plan = plan;
-			this.variableDeclarations = variableDeclarations;
-		}
-
-		public ValidationContext(ValidationContext parentContext, VariableDeclaration newDeclaration) {
-			this.plan = parentContext.getPlan();
-			variableDeclarations.addAll(parentContext.getVariableDeclarations());
-			variableDeclarations.add(newDeclaration);
-		}
-
-		public Plan getPlan() {
-			return plan;
-		}
-
-		public List<VariableDeclaration> getVariableDeclarations() {
-			return variableDeclarations;
-		}
-
-		public interface VariableDeclaration {
-
-			Class<?> getVariableType();
-
-			String getVariableName();
 
 		}
 

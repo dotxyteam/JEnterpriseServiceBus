@@ -140,7 +140,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.instantiation.Function">
+                      <parameterValue class="com.otk.jesb.Function">
                         <functionBody>return jDBCQuery.getRows().get(0).getTABLE_NAME();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
@@ -259,7 +259,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.instantiation.ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.instantiation.Function">
+                        <parameterValue class="com.otk.jesb.Function">
                           <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.instantiation.ParameterInitializer>
@@ -314,7 +314,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.instantiation.ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.instantiation.Function">
+                        <parameterValue class="com.otk.jesb.Function">
                           <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.instantiation.ParameterInitializer>

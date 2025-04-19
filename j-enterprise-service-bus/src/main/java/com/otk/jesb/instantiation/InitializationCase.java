@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.otk.jesb.Function;
+
 public class InitializationCase {
 	private List<ParameterInitializer> parameterInitializers = new ArrayList<ParameterInitializer>();
 	private List<FieldInitializer> fieldInitializers = new ArrayList<FieldInitializer>();

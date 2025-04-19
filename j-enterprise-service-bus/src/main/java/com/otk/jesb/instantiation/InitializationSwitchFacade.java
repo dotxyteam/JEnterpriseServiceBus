@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.otk.jesb.Function;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 public class InitializationSwitchFacade extends Facade {
@@ -195,7 +198,7 @@ public class InitializationSwitchFacade extends Facade {
 			boolean caseConditionFullfilled;
 			if (caseFacade.getCondition() != null) {
 				try {
-					caseConditionFullfilled = MiscUtils.isConditionFullfilled(caseFacade.getCondition(), childContext);
+					caseConditionFullfilled = InstantiationUtils.isConditionFullfilled(caseFacade.getCondition(), childContext);
 				} catch (Exception e) {
 					throw new AssertionError(e);
 				}

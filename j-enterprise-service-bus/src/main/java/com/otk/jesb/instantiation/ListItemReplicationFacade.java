@@ -2,8 +2,9 @@ package com.otk.jesb.instantiation;
 
 import java.util.ArrayList;
 
+import com.otk.jesb.Function;
 import com.otk.jesb.meta.TypeInfoProvider;
-import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.InstantiationUtils;
 
 public class ListItemReplicationFacade {
 
@@ -30,7 +31,7 @@ public class ListItemReplicationFacade {
 	}
 
 	public Object getIterationListValue() {
-		return MiscUtils.maintainInterpretableValue(listItemReplication.getIterationListValue(),
+		return InstantiationUtils.maintainInterpretableValue(listItemReplication.getIterationListValue(),
 				TypeInfoProvider.getTypeInfo(Object.class.getName()));
 	}
 
@@ -55,7 +56,7 @@ public class ListItemReplicationFacade {
 	}
 
 	public ValueMode getIterationListValueMode() {
-		return MiscUtils.getValueMode(listItemReplication.getIterationListValue());
+		return InstantiationUtils.getValueMode(listItemReplication.getIterationListValue());
 	}
 
 	public void setIterationListValueMode(ValueMode valueMode) {

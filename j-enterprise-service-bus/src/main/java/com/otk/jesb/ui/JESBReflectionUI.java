@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.Function;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
@@ -33,7 +34,6 @@ import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.InitializationCase;
 import com.otk.jesb.instantiation.InitializationCaseFacade;
 import com.otk.jesb.instantiation.InitializationSwitch;

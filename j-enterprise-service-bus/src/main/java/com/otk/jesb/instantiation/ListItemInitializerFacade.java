@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.Function;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -32,14 +34,14 @@ public class ListItemInitializerFacade extends Facade {
 		if (value instanceof InstanceBuilderFacade) {
 			value = ((InstanceBuilderFacade) value).getUnderlying();
 		}
-		String result = MiscUtils.express(value);
+		String result = InstantiationUtils.express(value);
 		if (getItemReplicationFacade() != null) {
 			result = "FOR " + getItemReplicationFacade().getIterationVariableName() + " IN "
-					+ MiscUtils.express(getItemReplicationFacade().getIterationListValue())
+					+ InstantiationUtils.express(getItemReplicationFacade().getIterationListValue())
 					+ ((result != null) ? (" LOOP " + result) : "");
 		}
 		if (getCondition() != null) {
-			result = "IF " + MiscUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
+			result = "IF " + InstantiationUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
 		}
 		return result;
 	}
@@ -96,7 +98,8 @@ public class ListItemInitializerFacade extends Facade {
 		if (listItemInitializer == null) {
 			return null;
 		}
-		Object result = MiscUtils.maintainInterpretableValue(listItemInitializer.getItemValue(), getItemType());
+		Object result = InstantiationUtils.maintainInterpretableValue(listItemInitializer.getItemValue(),
+				getItemType());
 		if (result instanceof InstanceBuilder) {
 			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
 		}
@@ -121,7 +124,7 @@ public class ListItemInitializerFacade extends Facade {
 		if (listItemInitializer == null) {
 			return null;
 		}
-		return MiscUtils.getValueMode(listItemInitializer.getItemValue());
+		return InstantiationUtils.getValueMode(listItemInitializer.getItemValue());
 	}
 
 	public void setItemValueMode(ValueMode valueMode) {
@@ -130,7 +133,7 @@ public class ListItemInitializerFacade extends Facade {
 			return;
 		}
 		ITypeInfo itemType = getItemType();
-		Object newItemValue = MiscUtils.getDefaultInterpretableValue(itemType, valueMode, this);
+		Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
 		if (newItemValue instanceof InstanceBuilder) {
 			newItemValue = new InstanceBuilderFacade(this, (InstanceBuilder) newItemValue);
 		}
@@ -139,7 +142,7 @@ public class ListItemInitializerFacade extends Facade {
 
 	public Object createDefaultItemValue() {
 		ITypeInfo itemType = getItemType();
-		return MiscUtils.getDefaultInterpretableValue(itemType, this);
+		return InstantiationUtils.getDefaultInterpretableValue(itemType, this);
 	}
 
 	public ITypeInfo getItemType() {
@@ -150,7 +153,8 @@ public class ListItemInitializerFacade extends Facade {
 	public String getItemTypeName() {
 		ITypeInfo itemType = getItemType();
 		String result = (itemType == null) ? Object.class.getName() : itemType.getName();
-		result = MiscUtils.makeTypeNamesRelative(result, MiscUtils.getAncestorStructureInstanceBuilders(this));
+		result = InstantiationUtils.makeTypeNamesRelative(result,
+				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
 		return result;
 	}
 

@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.Plan;
 import com.otk.jesb.meta.TypeInfoProvider;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
@@ -17,6 +15,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 
 public class InstanceBuilder extends InitializationCase {
 
@@ -70,7 +69,7 @@ public class InstanceBuilder extends InitializationCase {
 		} else {
 			result = typeName;
 		}
-		result = MiscUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
+		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
 		return result;
 	}
 
@@ -86,10 +85,10 @@ public class InstanceBuilder extends InitializationCase {
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
 				context.getParentFacade());
 		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
-		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
+		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					MiscUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
+					InstantiationUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
 				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
@@ -103,7 +102,7 @@ public class InstanceBuilder extends InitializationCase {
 			if (facade instanceof ParameterInitializerFacade) {
 				ParameterInitializerFacade parameterInitializerFacade = (ParameterInitializerFacade) facade;
 				Object parameterValue;
-				parameterValue = MiscUtils.interpretValue(
+				parameterValue = InstantiationUtils.interpretValue(
 						parameterInitializerFacade.getUnderlying().getParameterValue(),
 						parameterInitializerFacade.getParameterInfo().getType(),
 						new EvaluationContext(context.getExecutionContext(), parameterInitializerFacade));
@@ -128,13 +127,13 @@ public class InstanceBuilder extends InitializationCase {
 				if (!listItemInitializerFacade.isConcrete()) {
 					continue;
 				}
-				if (!MiscUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
+				if (!InstantiationUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
 						new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
 					continue;
 				}
 				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
 				if (itemReplicationFacade != null) {
-					Object iterationListValue = MiscUtils.interpretValue(itemReplicationFacade.getIterationListValue(),
+					Object iterationListValue = InstantiationUtils.interpretValue(itemReplicationFacade.getIterationListValue(),
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
 							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
 					if (iterationListValue == null) {
@@ -161,7 +160,7 @@ public class InstanceBuilder extends InitializationCase {
 										new ListItemReplication.IterationVariable(itemReplicationFacade.getUnderlying(),
 												iterationVariableValue)),
 								listItemInitializerFacade);
-						Object itemValue = MiscUtils
+						Object itemValue = InstantiationUtils
 								.interpretValue(listItemInitializerFacade.getUnderlying().getItemValue(),
 										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
@@ -169,7 +168,7 @@ public class InstanceBuilder extends InitializationCase {
 						itemList.add(itemValue);
 					}
 				} else {
-					Object itemValue = MiscUtils.interpretValue(
+					Object itemValue = InstantiationUtils.interpretValue(
 							listItemInitializerFacade.getUnderlying().getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
@@ -192,11 +191,11 @@ public class InstanceBuilder extends InitializationCase {
 		for (Facade facade : initializerFacades) {
 			if (facade instanceof FieldInitializerFacade) {
 				FieldInitializerFacade fieldInitializerFacade = (FieldInitializerFacade) facade;
-				if (!MiscUtils.isConditionFullfilled(fieldInitializerFacade.getCondition(), context)) {
+				if (!InstantiationUtils.isConditionFullfilled(fieldInitializerFacade.getCondition(), context)) {
 					continue;
 				}
 				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();
-				Object fieldValue = MiscUtils.interpretValue(fieldInitializerFacade.getUnderlying().getFieldValue(),
+				Object fieldValue = InstantiationUtils.interpretValue(fieldInitializerFacade.getUnderlying().getFieldValue(),
 						fieldInfo.getType(),
 						new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 				fieldInfo.setValue(object, fieldValue);

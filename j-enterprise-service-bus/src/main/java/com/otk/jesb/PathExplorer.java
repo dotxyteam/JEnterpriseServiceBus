@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.meta.TypeInfoProvider;
-import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.field.PublicFieldInfo;
@@ -103,7 +102,7 @@ public class PathExplorer {
 				} else {
 					result.add(new ListItemNode(this));
 				}
-			} else if (!MiscUtils.isComplexType(typeInfo)) {
+			} else if (!InstantiationUtils.isComplexType(typeInfo)) {
 				return Collections.emptyList();
 			} else {
 				for (IFieldInfo field : typeInfo.getFields()) {

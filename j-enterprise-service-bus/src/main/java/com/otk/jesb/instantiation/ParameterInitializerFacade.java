@@ -3,8 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -25,7 +24,7 @@ public class ParameterInitializerFacade extends Facade {
 		if (value instanceof InstanceBuilderFacade) {
 			value = ((InstanceBuilderFacade) value).getUnderlying();
 		}
-		String result = MiscUtils.express(value);
+		String result = InstantiationUtils.express(value);
 		return result;
 	}
 
@@ -36,7 +35,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	public IParameterInfo getParameterInfo() {
 		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		IMethodInfo constructor = MiscUtils.getConstructorInfo(parentTypeInfo,
+		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
 				getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
 		if (constructor == null) {
 			throw new AssertionError();
@@ -64,8 +63,8 @@ public class ParameterInitializerFacade extends Facade {
 	}
 
 	public String getParameterTypeName() {
-		return MiscUtils.makeTypeNamesRelative(getParameterInfo().getType().getName(),
-				MiscUtils.getAncestorStructureInstanceBuilders(this));
+		return InstantiationUtils.makeTypeNamesRelative(getParameterInfo().getType().getName(),
+				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
 	}
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
@@ -75,7 +74,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	public Object createDefaultParameterValue() {
 		IParameterInfo parameter = getParameterInfo();
-		return MiscUtils.getDefaultInterpretableValue(parameter.getType(), this);
+		return InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), this);
 	}
 
 	@Override
@@ -105,13 +104,13 @@ public class ParameterInitializerFacade extends Facade {
 
 	public ValueMode getParameterValueMode() {
 		ParameterInitializer parameterInitializer = getUnderlying();
-		return MiscUtils.getValueMode(parameterInitializer.getParameterValue());
+		return InstantiationUtils.getValueMode(parameterInitializer.getParameterValue());
 	}
 
 	public void setParameterValueMode(ValueMode valueMode) {
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
-		Object newParameterValue = MiscUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
+		Object newParameterValue = InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
 		if (newParameterValue instanceof InstanceBuilder) {
 			newParameterValue = new InstanceBuilderFacade(this, (InstanceBuilder) newParameterValue);
 		}
@@ -120,7 +119,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	public Object getParameterValue() {
 		ParameterInitializer parameterInitializer = getUnderlying();
-		Object result = MiscUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
+		Object result = InstantiationUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
 				getParameterInfo().getType());
 		if (result instanceof InstanceBuilder) {
 			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Plan;
+import com.otk.jesb.ValidationContext;
 import com.otk.jesb.util.MiscUtils;
 
 public class CompiledFunction {
@@ -18,7 +19,7 @@ public class CompiledFunction {
 		this.functionClassSource = functionClassSource;
 	}
 
-	public static CompiledFunction get(String functionBody, Plan.ValidationContext context, Class<?> returnType)
+	public static CompiledFunction get(String functionBody, ValidationContext context, Class<?> returnType)
 			throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
@@ -27,7 +28,7 @@ public class CompiledFunction {
 		preBody += "public class " + MiscUtils.extractSimpleNameFromClassName(functionClassName) + "{" + "\n";
 		preBody += "public static " + MiscUtils.adaptClassNameToSourceCode(returnType.getName()) + " execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
-		for (Plan.ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
+		for (ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
 			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
 					+ declaration.getVariableName());
 		}

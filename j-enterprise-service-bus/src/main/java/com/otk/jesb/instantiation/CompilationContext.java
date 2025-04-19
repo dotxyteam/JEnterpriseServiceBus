@@ -1,6 +1,6 @@
 package com.otk.jesb.instantiation;
 
-import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.ValidationContext;
 
 public class CompilationContext {
 	private ValidationContext validationContext;

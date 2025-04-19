@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.Function;
+import com.otk.jesb.ValidationContext;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -134,7 +136,7 @@ public class InstanceBuilderFacade extends Facade {
 	public List<String> getConstructorSignatureOptions() {
 		List<String> result = new ArrayList<String>();
 		ITypeInfo typeInfo = getTypeInfo();
-		for (IMethodInfo constructor : MiscUtils.listSortedConstructors(typeInfo)) {
+		for (IMethodInfo constructor : InstantiationUtils.listSortedConstructors(typeInfo)) {
 			result.add(constructor.getSignature());
 		}
 		return result;
@@ -147,7 +149,7 @@ public class InstanceBuilderFacade extends Facade {
 
 	public ITypeInfo getTypeInfo() {
 		String actualTypeName = underlying
-				.computeActualTypeName(MiscUtils.getAncestorStructureInstanceBuilders(parent));
+				.computeActualTypeName(InstantiationUtils.getAncestorStructureInstanceBuilders(parent));
 		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
 		if (result instanceof IListTypeInfo) {
 			if (parent instanceof FieldInitializerFacade) {
@@ -159,7 +161,7 @@ public class InstanceBuilderFacade extends Facade {
 				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
 				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
 						.getCurrentInstanceBuilderFacade();
-				AbstractConstructorInfo parentInstanceConstructor = MiscUtils.getConstructorInfo(
+				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
 						parentInstanceBuilderFacade.getTypeInfo(),
 						parentInstanceBuilderFacade.getSelectedConstructorSignature());
 				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,

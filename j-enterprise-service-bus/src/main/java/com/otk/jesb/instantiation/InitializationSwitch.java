@@ -1,6 +1,8 @@
 package com.otk.jesb.instantiation;
 
 import java.util.LinkedHashMap;
+
+import com.otk.jesb.Function;
 import com.otk.jesb.util.MiscUtils;
 
 public class InitializationSwitch {

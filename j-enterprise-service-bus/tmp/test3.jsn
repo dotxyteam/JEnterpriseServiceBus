@@ -115,7 +115,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>milliseconds</fieldName>
-                      <fieldValue class="com.otk.jesb.instantiation.Function">
+                      <fieldValue class="com.otk.jesb.Function">
                         <functionBody>return jDBCQuery.getRows().size();</functionBody>
                       </fieldValue>
                     </com.otk.jesb.instantiation.FieldInitializer>
@@ -154,7 +154,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                      <parameterValue class="com.otk.jesb.instantiation.Function">
+                      <parameterValue class="com.otk.jesb.Function">
                         <functionBody>return jDBCQuery.getRows().get(0).getTABLE_NAME();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
@@ -193,7 +193,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>text</fieldName>
-                      <fieldValue class="com.otk.jesb.instantiation.Function">
+                      <fieldValue class="com.otk.jesb.Function">
                         <functionBody>return 
 &quot;Query result: &quot; + jDBCQuery.getRows() 
 + &quot;\n&quot; + 
@@ -263,7 +263,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.instantiation.ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.instantiation.Function">
+                        <parameterValue class="com.otk.jesb.Function">
                           <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.instantiation.ParameterInitializer>
@@ -318,7 +318,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       <com.otk.jesb.instantiation.ParameterInitializer>
                         <parameterPosition>0</parameterPosition>
                         <parameterTypeName>java.lang.String</parameterTypeName>
-                        <parameterValue class="com.otk.jesb.instantiation.Function">
+                        <parameterValue class="com.otk.jesb.Function">
                           <functionBody>return readFile.getText();</functionBody>
                         </parameterValue>
                       </com.otk.jesb.instantiation.ParameterInitializer>

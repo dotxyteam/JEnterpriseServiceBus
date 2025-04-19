@@ -2,9 +2,9 @@ package com.otk.jesb.activity;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.Function;
+import com.otk.jesb.ValidationContext;
 import com.otk.jesb.instantiation.CompilationContext;
-import com.otk.jesb.instantiation.Function;
 
 public interface ActivityBuilder {
 

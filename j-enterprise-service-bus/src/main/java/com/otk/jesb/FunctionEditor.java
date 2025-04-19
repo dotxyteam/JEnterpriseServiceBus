@@ -3,11 +3,10 @@ package com.otk.jesb;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.CompilationContext;
-import com.otk.jesb.instantiation.Function;
-import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.InstantiationUtils;
 
 public class FunctionEditor extends PathOptionsProvider {
 
@@ -41,7 +40,7 @@ public class FunctionEditor extends PathOptionsProvider {
 	}
 
 	private CompilationContext getCompilationContext() {
-		Plan.ValidationContext validationContext;
+		ValidationContext validationContext;
 		CompilationContext result;
 		validationContext = currentPlan.getValidationContext(currentStep);
 		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, validationContext);
@@ -58,7 +57,7 @@ public class FunctionEditor extends PathOptionsProvider {
 	}
 
 	public void validate() throws CompilationError {
-		MiscUtils.validateFunction(getFunctionBody(), getCompilationContext());
+		InstantiationUtils.validateFunction(getFunctionBody(), getCompilationContext());
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {

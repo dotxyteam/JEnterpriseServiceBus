@@ -46,17 +46,17 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTreeTable;
 
+import com.otk.jesb.Function;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.FieldNode;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
-import com.otk.jesb.Plan;
+import com.otk.jesb.ValidationContext;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplication;
@@ -65,8 +65,8 @@ import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.Listener;
-import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.control.IAdvancedFieldControl;
@@ -934,7 +934,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					CompilationContext compilationContext = ((InstanceBuilderFacade) Facade
 							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
 									(Function) itemReplication.getIterationListValue(),
-									new Plan.ValidationContext(new Plan()));
+									new ValidationContext());
 					final String NUMBERED_NAME_PATTERN = "^(.*)([0-9]+)$";
 					while (true) {
 						boolean nameConflictDetected = compilationContext.getValidationContext()
@@ -982,7 +982,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 
 		private boolean isLeafType(ITypeInfo type) {
-			if (!MiscUtils.isComplexType(type)) {
+			if (!InstantiationUtils.isComplexType(type)) {
 				return true;
 			}
 			if (type.getName().equals(Object.class.getName())) {

@@ -13,6 +13,7 @@ import javax.swing.text.JTextComponent;
 
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Folder;
+import com.otk.jesb.Function;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.LoopCompositeStep;
 import com.otk.jesb.PathExplorer.PathNode;
@@ -27,7 +28,6 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.Function;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;

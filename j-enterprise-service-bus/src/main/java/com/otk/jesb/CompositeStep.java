@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.ActivityMetadata;
 
 public abstract class CompositeStep extends Step {

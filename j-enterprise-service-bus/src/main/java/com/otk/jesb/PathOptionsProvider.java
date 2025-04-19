@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
 
 import xy.reflect.ui.info.type.ITypeInfo;
 
@@ -20,7 +20,7 @@ public class PathOptionsProvider {
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		for (Plan.ValidationContext.VariableDeclaration declaration : getVariableDeclarations()) {
+		for (ValidationContext.VariableDeclaration declaration : getVariableDeclarations()) {
 			result.add(new RootPathNode(
 					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));
 		}

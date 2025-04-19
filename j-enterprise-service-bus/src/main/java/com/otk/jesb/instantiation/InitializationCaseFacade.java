@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ValidationContext;
-import com.otk.jesb.Plan.ValidationContext.VariableDeclaration;
+import com.otk.jesb.Function;
+import com.otk.jesb.ValidationContext;
+import com.otk.jesb.ValidationContext.VariableDeclaration;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -36,7 +37,7 @@ public class InitializationCaseFacade extends Facade {
 
 	@Override
 	public String express() {
-		return MiscUtils.express(getCondition());
+		return InstantiationUtils.express(getCondition());
 	}
 
 	public Function getCondition() {
@@ -107,7 +108,7 @@ public class InitializationCaseFacade extends Facade {
 		}
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
 		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
-		IMethodInfo constructor = MiscUtils.getConstructorInfo(typeInfo,
+		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo,
 				instanceBuilderFacade.getSelectedConstructorSignature());
 		if (constructor != null) {
 			for (IParameterInfo parameterInfo : constructor.getParameters()) {
@@ -470,7 +471,7 @@ public class InitializationCaseFacade extends Facade {
 							return compilationContext;
 						}
 					}
-					iterationVariableDeclaration = new Plan.ValidationContext.VariableDeclaration() {
+					iterationVariableDeclaration = new ValidationContext.VariableDeclaration() {
 
 						@Override
 						public String getVariableName() {
@@ -487,11 +488,10 @@ public class InitializationCaseFacade extends Facade {
 				if (currentFacade.getItemValue() == function) {
 					ValidationContext iterationValidationContext = validationContext;
 					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<Plan.ValidationContext.VariableDeclaration>(
+						List<VariableDeclaration> newVariableDeclarations = new ArrayList<ValidationContext.VariableDeclaration>(
 								validationContext.getVariableDeclarations());
 						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
-								newVariableDeclarations);
+						iterationValidationContext = new ValidationContext(newVariableDeclarations);
 					}
 					return new CompilationContext(iterationValidationContext, currentFacade,
 							((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
@@ -499,11 +499,10 @@ public class InitializationCaseFacade extends Facade {
 				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
 					ValidationContext iterationValidationContext = validationContext;
 					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<Plan.ValidationContext.VariableDeclaration>(
+						List<VariableDeclaration> newVariableDeclarations = new ArrayList<ValidationContext.VariableDeclaration>(
 								validationContext.getVariableDeclarations());
 						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(iterationValidationContext.getPlan(),
-								newVariableDeclarations);
+						iterationValidationContext = new ValidationContext(newVariableDeclarations);
 					}
 					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getItemValue())
 							.findFunctionCompilationContext(function, iterationValidationContext);

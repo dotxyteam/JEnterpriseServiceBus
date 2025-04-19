@@ -1,5 +1,7 @@
 package com.otk.jesb.instantiation;
 
+import com.otk.jesb.Function;
+
 public class ListItemInitializer {
 
 	private int index;
