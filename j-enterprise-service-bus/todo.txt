@@ -5,11 +5,6 @@
 	. advertise
 	. improve the features
 - add things like 
-	. groups 
-		* for repetition: loop while with the ability to break
-			# allow to copy/cut and paste into loop composite
-			# allow to create a parent loop for the current selection
-		* etc 
 	. conditional transitions for steps
 - improve the step list view (sort, add hierarchy, ...)
 - error marker do not disappear when deselecting and selecting a plan while

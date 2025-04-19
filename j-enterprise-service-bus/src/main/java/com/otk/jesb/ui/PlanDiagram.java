@@ -322,35 +322,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
 							for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
 								if (name.equals(metadata.getCategoryName())) {
-									result.add(new JDiagramAction() {
-
+									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
-										public void perform(int x, int y) {
-											Step newStep = new Step(metadata);
-											newStep.setDiagramX(x);
-											newStep.setDiagramY(y);
-											onStepInsertionRequest(newStep);
+										public Step get() {
+											return new Step(metadata);
 										}
-
-										@Override
-										public String getLabel() {
-											return metadata.getActivityTypeName();
-										}
-
-										@Override
-										public Icon getIcon() {
-											return SwingRendererUtils.getIcon(SwingRendererUtils.scalePreservingRatio(
-													SwingRendererUtils.loadImageThroughCache(
-															metadata.getActivityIconImagePath(),
-															ReflectionUIUtils.getDebugLogListener(
-																	swingRenderer.getReflectionUI())),
-													32, 32, Image.SCALE_SMOOTH));
-										}
-									});
+									}, metadata.getActivityTypeName(), metadata.getActivityIconImagePath()));
 								}
 							}
 							return result;
 						}
+
 					});
 				}
 				return result;
@@ -377,40 +359,145 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					@Override
 					public List<JDiagramAction> getActions() {
 						List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-						result.add(new JDiagramAction() {
-
+						result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 							@Override
-							public void perform(int x, int y) {
-								LoopCompositeStep newComposite = new LoopCompositeStep();
-								newComposite.setDiagramX(x);
-								newComposite.setDiagramY(y);
-								onStepInsertionRequest(newComposite);
-
+							public Step get() {
+								return new LoopCompositeStep();
 							}
-
-							@Override
-							public String getLabel() {
-								return metadata.getActivityTypeName();
-							}
-
-							@Override
-							public Icon getIcon() {
-								return SwingRendererUtils
-										.getIcon(
-												SwingRendererUtils.scalePreservingRatio(
-														SwingRendererUtils.loadImageThroughCache(
-																metadata.getActivityIconImagePath(),
-																ReflectionUIUtils.getDebugLogListener(
-																		swingRenderer.getReflectionUI())),
-														32, 32, Image.SCALE_SMOOTH));
-							}
-						});
+						}, metadata.getActivityTypeName(), metadata.getActivityIconImagePath()));
 						return result;
 					}
 				});
 				return result;
 			}
 		});
+	}
+
+	private JDiagramAction createStepInsertionDiagramAction(Supplier<Step> newStepSupplier, String label,
+			ResourcePath iconResourcePath) {
+		return new JDiagramAction() {
+
+			@Override
+			public void perform(int x, int y) {
+				parentForm.getModificationStack().insideComposite("Add '" + label + "'", UndoOrder.getNormal(),
+						new Accessor<Boolean>() {
+							@Override
+							public Boolean get() {
+								Step newStep = newStepSupplier.get();
+								newStep.setDiagramX(x);
+								newStep.setDiagramY(y);
+								Plan plan = getPlan();
+								while (plan.getSteps().stream()
+										.anyMatch(step -> step.getName().equals(newStep.getName()))) {
+									newStep.setName(MiscUtils.nextNumbreredName(newStep.getName()));
+								}
+								newStep.setParent(getDestinationCompositeStep(x, y));
+								if (newStep instanceof CompositeStep) {
+									Set<Step> selectedSteps = getSelection().stream()
+											.filter(diagramObject -> diagramObject.getValue() instanceof Step)
+											.map(diagramObject -> (Step) diagramObject.getValue())
+											.collect(Collectors.toSet());
+									if (selectedSteps.size() > 0) {
+										CompositeStep selectedStepsCommonParent = selectedSteps.iterator().next()
+												.getParent();
+										ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+										ITypeInfo stepType = reflectionUI
+												.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
+										for (Step selectedStep : selectedSteps) {
+											ReflectionUIUtils.setFieldValueThroughModificationStack(
+													new DefaultFieldControlData(reflectionUI, selectedStep,
+															ReflectionUIUtils.findInfoByName(stepType.getFields(),
+																	"parent")),
+													(CompositeStep) newStep, parentForm.getModificationStack(),
+													ReflectionUIUtils.getDebugLogListener(reflectionUI));
+											if ((selectedStep.getParent() == null)
+													|| MiscUtils.getDescendants(selectedStep.getParent(), plan)
+															.contains(selectedStepsCommonParent)) {
+												selectedStepsCommonParent = selectedStep.getParent();
+											}
+										}
+										ITypeInfo transitionType = reflectionUI
+												.getTypeInfo(new JavaTypeInfoSource(Transition.class, null));
+										ITypeInfo planType = reflectionUI
+												.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+										for (Transition transition : new ArrayList<Transition>(plan.getTransitions())) {
+											if (!selectedSteps.contains(transition.getStartStep())
+													&& selectedSteps.contains(transition.getEndStep())) {
+												if (plan.getTransitions().stream()
+														.anyMatch(otherTransition -> (otherTransition != transition)
+																&& (otherTransition.getStartStep() == transition
+																		.getStartStep())
+																&& (otherTransition.getEndStep() == newStep))) {
+													DefaultFieldControlData transitionsData = new DefaultFieldControlData(
+															reflectionUI, plan, ReflectionUIUtils.findInfoByName(
+																	planType.getFields(), "transitions"));
+													ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
+															new ItemPositionFactory(transitionsData)
+																	.getRootItemPosition(-1));
+													IModification modification = transitionsModificationFactory
+															.remove(plan.getTransitions().indexOf(transition));
+													parentForm.getModificationStack().apply(modification);
+												} else {
+													ReflectionUIUtils.setFieldValueThroughModificationStack(
+															new DefaultFieldControlData(reflectionUI, transition,
+																	ReflectionUIUtils.findInfoByName(
+																			transitionType.getFields(), "endStep")),
+															(CompositeStep) newStep, parentForm.getModificationStack(),
+															ReflectionUIUtils.getDebugLogListener(reflectionUI));
+												}
+											}
+											if (selectedSteps.contains(transition.getStartStep())
+													&& !selectedSteps.contains(transition.getEndStep())) {
+												if (plan.getTransitions().stream()
+														.anyMatch(otherTransition -> (otherTransition != transition)
+																&& (otherTransition.getStartStep() == newStep)
+																&& (otherTransition.getEndStep() == transition
+																		.getEndStep()))) {
+													DefaultFieldControlData transitionsData = new DefaultFieldControlData(
+															reflectionUI, plan, ReflectionUIUtils.findInfoByName(
+																	planType.getFields(), "transitions"));
+													ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
+															new ItemPositionFactory(transitionsData)
+																	.getRootItemPosition(-1));
+													IModification modification = transitionsModificationFactory
+															.remove(plan.getTransitions().indexOf(transition));
+													parentForm.getModificationStack().apply(modification);
+												} else {
+													ReflectionUIUtils.setFieldValueThroughModificationStack(
+															new DefaultFieldControlData(reflectionUI, transition,
+																	ReflectionUIUtils.findInfoByName(
+																			transitionType.getFields(), "startStep")),
+															(CompositeStep) newStep, parentForm.getModificationStack(),
+															ReflectionUIUtils.getDebugLogListener(reflectionUI));
+												}
+											}
+										}
+										newStep.setParent(selectedStepsCommonParent);
+									}
+								}
+								onStepInsertionRequest(newStep);
+								return true;
+							}
+						}, false);
+			}
+
+			@Override
+			public String getLabel() {
+				return label;
+			}
+
+			@Override
+			public Icon getIcon() {
+				return SwingRendererUtils
+						.getIcon(
+								SwingRendererUtils
+										.scalePreservingRatio(
+												SwingRendererUtils.loadImageThroughCache(iconResourcePath,
+														ReflectionUIUtils
+																.getDebugLogListener(swingRenderer.getReflectionUI())),
+												32, 32, Image.SCALE_SMOOTH));
+			}
+		};
 	}
 
 	@Override
@@ -495,6 +582,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		};
 	}
 
+	private CompositeStep getDestinationCompositeStep(int x, int y) {
+		for (JNode node : MiscUtils.getReverse(getNodes())) {
+			if (node.getValue() instanceof CompositeStep) {
+				if (node.containsPoint(x, y, this)) {
+					return (CompositeStep) node.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public boolean showsCaption() {
 		return false;
@@ -542,8 +640,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				int headerHeight = 16;
 				int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
 				int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
-				Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan,
-						STEP_ICON_WIDTH + horizontalPadding, STEP_ICON_HEIGHT + verticalPadding + (headerHeight * 2));
+				Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
+						STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
 				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
 						BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = compositeImage.createGraphics();
@@ -702,21 +800,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 											.addAll(MiscUtils.getDescendants((CompositeStep) stepCopy, planCopy));
 								}
 							}
-							CompositeStep selectedCompositeStep = null;
-							{
-								Set<JDiagramObject> selection = planDiagram.getSelection();
-								if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
-									JNode selectedNode = (JNode) selection.iterator().next();
-									if (selectedNode.getValue() instanceof CompositeStep) {
-										selectedCompositeStep = (CompositeStep) selectedNode.getValue();
-									}
-								}
-							}
+							CompositeStep destinationCompositeStep = planDiagram.getDestinationCompositeStep(x, y);
 							Plan destinationPlan = planDiagram.getPlan();
 							Rectangle boundsOfAllStepsToPaste = null;
 							for (Step stepCopy : allStepsToPaste) {
 								if ((stepCopy.getParent() == null) || !allStepsToPaste.contains(stepCopy.getParent())) {
-									stepCopy.setParent(selectedCompositeStep);
+									stepCopy.setParent(destinationCompositeStep);
 								}
 								while (destinationPlan.getSteps().stream().anyMatch(
 										destinationStep -> destinationStep.getName().equals(stepCopy.getName()))
@@ -727,7 +816,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								}
 								Rectangle stepCopyBounds = (stepCopy instanceof CompositeStep)
 										? ((CompositeStep) stepCopy).getChildrenBounds(planCopy, STEP_ICON_WIDTH,
-												STEP_ICON_HEIGHT)
+												STEP_ICON_HEIGHT, 0, 0)
 										: new Rectangle(stepCopy.getDiagramX() - (STEP_ICON_WIDTH / 2),
 												stepCopy.getDiagramY() - (STEP_ICON_HEIGHT / 2), STEP_ICON_WIDTH,
 												STEP_ICON_HEIGHT);
@@ -761,4 +850,5 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		}
 
 	}
+
 }

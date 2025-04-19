@@ -19,16 +19,19 @@ public abstract class CompositeStep extends Step {
 		return plan.getSteps().stream().filter(step -> this.equals(step.getParent())).collect(Collectors.toList());
 	}
 
-	public Rectangle getChildrenBounds(Plan plan, int stepIconWidth, int stepIconHeight) {
+	public Rectangle getChildrenBounds(Plan plan, int stepIconWidth, int stepIconHeight, int horizontalPadding,
+			int verticalPadding) {
 		Rectangle result = null;
 		for (Step child : getChildren(plan)) {
 			Rectangle childBounds;
 			if (child instanceof CompositeStep) {
-				childBounds = ((CompositeStep) child).getChildrenBounds(plan, stepIconWidth, stepIconHeight);
+				childBounds = ((CompositeStep) child).getChildrenBounds(plan, stepIconWidth, stepIconHeight,
+						horizontalPadding, verticalPadding);
 			} else {
 				childBounds = new Rectangle(child.getDiagramX() - (stepIconWidth / 2),
 						child.getDiagramY() - (stepIconHeight / 2), stepIconWidth, stepIconHeight);
 			}
+			childBounds.grow(horizontalPadding, verticalPadding);
 			if (result == null) {
 				result = childBounds;
 			} else {

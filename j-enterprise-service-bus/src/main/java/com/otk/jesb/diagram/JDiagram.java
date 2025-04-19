@@ -249,8 +249,6 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 					draggedNodeCenterOffset = null;
 				}
 			}
-		}
-		if (!SwingUtilities.isRightMouseButton(mouseEvent) || (getSelection().size() == 0)) {
 			List<Object> diagramObjects = new ArrayList<Object>();
 			diagramObjects.addAll(MiscUtils.getReverse(nodes));
 			diagramObjects.addAll(MiscUtils.getReverse(connections));
