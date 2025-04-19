@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,7 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
+import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -232,6 +234,55 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		parentForm.getModificationStack().apply(modification);
 	}
 
+	protected void onDeletionRequest(Set<Object> selectedStepAndTransitions) {
+		if (!swingRenderer.openQuestionDialog(this, "Remove the element(s)?", null, "OK", "Cancel")) {
+			return;
+		}
+		Plan plan = getPlan();
+		Set<Step> stepsToDelete = new HashSet<Step>();
+		Set<Transition> transitionsToDelete = new HashSet<Transition>();
+		for (Object object : selectedStepAndTransitions) {
+			if (object instanceof Step) {
+				stepsToDelete.add((Step) object);
+				if (object instanceof CompositeStep) {
+					stepsToDelete.addAll(MiscUtils.getDescendants((CompositeStep) object, plan));
+				}
+			} else if (object instanceof Transition) {
+				transitionsToDelete.add((Transition) object);
+			}
+		}
+		for (Transition transition : plan.getTransitions()) {
+			if (stepsToDelete.contains(transition.getStartStep()) || stepsToDelete.contains(transition.getEndStep())) {
+				transitionsToDelete.add(transition);
+			}
+		}
+		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
+		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, plan,
+				ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
+		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, plan,
+				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
+		ListModificationFactory stepsModificationFactory = new ListModificationFactory(
+				new ItemPositionFactory(stepsData).getRootItemPosition(-1));
+		ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
+				new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
+		parentForm.getModificationStack().insideComposite("Delete", UndoOrder.getNormal(), new Accessor<Boolean>() {
+			@Override
+			public Boolean get() {
+				for (Step step : stepsToDelete) {
+					IModification modification = stepsModificationFactory.remove(plan.getSteps().indexOf(step));
+					parentForm.getModificationStack().apply(modification);
+				}
+				for (Transition transition : transitionsToDelete) {
+					IModification modification = transitionsModificationFactory
+							.remove(plan.getTransitions().indexOf(transition));
+					parentForm.getModificationStack().apply(modification);
+				}
+				return true;
+			}
+		}, false);
+	}
+
 	protected List<JDiagramActionScheme> createActionSchemes() {
 		return Arrays.asList(new JDiagramActionScheme() {
 
@@ -353,28 +404,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
 		Set<JDiagramObject> selection = getSelection();
-		if(selection.size() == 1) {
-			if(selection.iterator().next() instanceof JConnection) {
-				JConnection selectedConnection = (JConnection) selection.iterator().next();
-				Transition selectedTransition = (Transition) selectedConnection.getValue();
-				final int selectedTransitionIndex = getPlan().getTransitions().indexOf(selectedTransition);
-				result.insert(new AbstractAction("Remove Transition") {
-					private static final long serialVersionUID = 1L;
+		Set<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
+				.collect(Collectors.toSet());
+		if (selectedStepAndTransitions.size() > 0) {
+			result.insert(new AbstractAction("Delete") {
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
-						ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-						DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
-								ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
-						IModification modification = new ListModificationFactory(
-								new ItemPositionFactory(transitionsData).getRootItemPosition(-1))
-										.remove(selectedTransitionIndex);
-						parentForm.getModificationStack().apply(modification);
-						refreshUI(false);
-					}
-				}, 0);
-			}
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					onDeletionRequest(selectedStepAndTransitions);
+				}
+			}, 0);
 		}
 		return result;
 	}

@@ -182,47 +182,47 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
-		List<Object> diagramObjects = new ArrayList<Object>();
-		diagramObjects.addAll(MiscUtils.getReverse(nodes));
-		diagramObjects.addAll(MiscUtils.getReverse(connections));
-		for (Object object : diagramObjects) {
-			if (object instanceof JNode) {
-				JNode node = (JNode) object;
-				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
-						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-						if (newSelection.contains(node)) {
-							newSelection.remove(node);
+		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
+			List<Object> diagramObjects = new ArrayList<Object>();
+			diagramObjects.addAll(MiscUtils.getReverse(nodes));
+			diagramObjects.addAll(MiscUtils.getReverse(connections));
+			for (Object object : diagramObjects) {
+				if (object instanceof JNode) {
+					JNode node = (JNode) object;
+					if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
+						if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+							Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+							if (newSelection.contains(node)) {
+								newSelection.remove(node);
+							} else {
+								newSelection.add(node);
+							}
+							setSelection(newSelection);
 						} else {
-							newSelection.add(node);
+							setSelection(Collections.singleton(node));
 						}
-						setSelection(newSelection);
-					} else {
-						setSelection(Collections.singleton(node));
-					}
-					if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 						draggedNode = node;
 						draggedNodeOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
 								draggedNode.getCenterY() - mouseEvent.getY());
+						break;
 					}
-					break;
 				}
-			}
-			if (object instanceof JConnection) {
-				JConnection connection = (JConnection) object;
-				if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
-						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-						if (newSelection.contains(connection)) {
-							newSelection.remove(connection);
+				if (object instanceof JConnection) {
+					JConnection connection = (JConnection) object;
+					if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
+						if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+							Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+							if (newSelection.contains(connection)) {
+								newSelection.remove(connection);
+							} else {
+								newSelection.add(connection);
+							}
+							setSelection(newSelection);
 						} else {
-							newSelection.add(connection);
+							setSelection(Collections.singleton(connection));
 						}
-						setSelection(newSelection);
-					} else {
-						setSelection(Collections.singleton(connection));
+						break;
 					}
-					break;
 				}
 			}
 		}

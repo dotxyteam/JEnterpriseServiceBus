@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Asset;
+import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Folder;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -725,5 +726,16 @@ public class MiscUtils {
 		Collections.reverse(result);
 		return result;
 	}
-	
+
+	public static List<Step> getDescendants(CompositeStep compositeStep, Plan plan) {
+		List<Step> result = new ArrayList<Step>();
+		for (Step childStep : compositeStep.getChildren(plan)) {
+			result.add(childStep);
+			if (childStep instanceof CompositeStep) {
+				result.addAll(getDescendants((CompositeStep) childStep, plan));
+			}
+		}
+		return result;
+	}
+
 }
