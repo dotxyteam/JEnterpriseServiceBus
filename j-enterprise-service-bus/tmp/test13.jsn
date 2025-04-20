@@ -291,7 +291,8 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterValue class="com.otk.jesb.Function">
-                              <functionBody>return executePlan.getReadFileResult();</functionBody>
+                              <functionBody>return jDBCQuery.getRows().get(0).getTODAY().toString()
++ &quot; &quot; + jDBCQuery.getRows().get(0).getNOW().toString();</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>

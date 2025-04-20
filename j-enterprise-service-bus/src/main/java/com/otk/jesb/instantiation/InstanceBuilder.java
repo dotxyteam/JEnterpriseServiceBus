@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan;
 import com.otk.jesb.meta.TypeInfoProvider;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -133,7 +132,8 @@ public class InstanceBuilder extends InitializationCase {
 				}
 				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
 				if (itemReplicationFacade != null) {
-					Object iterationListValue = InstantiationUtils.interpretValue(itemReplicationFacade.getIterationListValue(),
+					Object iterationListValue = InstantiationUtils.interpretValue(
+							itemReplicationFacade.getIterationListValue(),
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
 							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
 					if (iterationListValue == null) {
@@ -141,7 +141,8 @@ public class InstanceBuilder extends InitializationCase {
 					}
 					if (!itemReplicationFacade.getIterationListValueClass().isInstance(iterationListValue)) {
 						throw new AssertionError("The iteration list value is not an instance of '"
-								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: " + iterationListValue);
+								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: "
+								+ iterationListValue);
 					}
 					ITypeInfo iterationListTypeInfo = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
@@ -153,18 +154,22 @@ public class InstanceBuilder extends InitializationCase {
 					for (Object iterationVariableValue : iterationListArray) {
 						if (!itemReplicationFacade.getIterationVariableClass().isInstance(iterationVariableValue)) {
 							throw new AssertionError("The iteration variable value is not an instance of '"
-									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: " + iterationVariableValue);
+									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: "
+									+ iterationVariableValue);
 						}
-						EvaluationContext iterationContext = new EvaluationContext(
-								new Plan.ExecutionContext(context.getExecutionContext(),
-										new ListItemReplication.IterationVariable(itemReplicationFacade.getUnderlying(),
-												iterationVariableValue)),
-								listItemInitializerFacade);
-						Object itemValue = InstantiationUtils
-								.interpretValue(listItemInitializerFacade.getUnderlying().getItemValue(),
-										(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-												: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-										iterationContext);
+						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
+								itemReplicationFacade.getUnderlying(), iterationVariableValue);
+						context.getExecutionContext().getVariables().add(iterationVariable);
+						Object itemValue;
+						try {
+							itemValue = InstantiationUtils.interpretValue(
+									listItemInitializerFacade.getUnderlying().getItemValue(),
+									(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+											: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+									context);
+						} finally {
+							context.getExecutionContext().getVariables().remove(iterationVariable);
+						}
 						itemList.add(itemValue);
 					}
 				} else {
@@ -195,8 +200,8 @@ public class InstanceBuilder extends InitializationCase {
 					continue;
 				}
 				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();
-				Object fieldValue = InstantiationUtils.interpretValue(fieldInitializerFacade.getUnderlying().getFieldValue(),
-						fieldInfo.getType(),
+				Object fieldValue = InstantiationUtils.interpretValue(
+						fieldInitializerFacade.getUnderlying().getFieldValue(), fieldInfo.getType(),
 						new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
 				fieldInfo.setValue(object, fieldValue);
 			}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
@@ -12,6 +13,8 @@ import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.info.ResourcePath;
 
 public class LoopCompositeStep extends CompositeStep {
@@ -34,7 +37,7 @@ public class LoopCompositeStep extends CompositeStep {
 	}
 
 	@Override
-	protected List<VariableDeclaration> getChildrenVariableDeclarations() {
+	protected List<VariableDeclaration> getContextualVariableDeclarations() {
 		List<VariableDeclaration> result = new ArrayList<ValidationContext.VariableDeclaration>();
 		result.add(new VariableDeclaration() {
 
@@ -54,7 +57,6 @@ public class LoopCompositeStep extends CompositeStep {
 
 	public static class LoopActivity implements Activity {
 
-		
 		private ExecutionContext context;
 		private ExecutionInspector executionInspector;
 		private Function loopEndCondition;
@@ -72,33 +74,42 @@ public class LoopCompositeStep extends CompositeStep {
 		public Object execute() throws Exception {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
 			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
-			int index = 0;
-			while (true) {
-				final int finalIndex = index;
-				ExecutionContext iterationContext = new ExecutionContext(context, new ExecutionContext.Variable() {
+			final int[] index = new int[] { 0 };
+			Variable iterationIndexVariable = new ExecutionContext.Variable() {
 
-					@Override
-					public String getName() {
-						return iterationIndexVariableName;
-					}
+				@Override
+				public String getName() {
+					return iterationIndexVariableName;
+				}
 
-					@Override
-					public Object getValue() {
-						return finalIndex;
+				@Override
+				public Object getValue() {
+					return index[0];
+				}
+			};
+			context.getVariables().add(iterationIndexVariable);
+			try {
+				List<ExecutionContext.Variable> initialVariables = new ArrayList<ExecutionContext.Variable>(
+						context.getVariables());
+				while (true) {
+					EvaluationContext evaluationContext = new EvaluationContext(context, null);
+					if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
+						break;
 					}
-				});
-				EvaluationContext evaluationContext = new EvaluationContext(iterationContext, null);
-				if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
-					break;
+					context.getVariables().clear();
+					context.getVariables().addAll(initialVariables);
+					try {
+						context.getPlan().execute(insideLoopSteps, context, executionInspector);
+					} catch (Exception e) {
+						throw e;
+					} catch (Throwable t) {
+						throw new AssertionError(t);
+					}
+					context.setCutrrentStep(loopCompositeStep);
+					index[0]++;
 				}
-				try {
-					context.getPlan().execute(insideLoopSteps, iterationContext, executionInspector);
-				} catch (Exception e) {
-					throw e;
-				} catch (Throwable t) {
-					throw new AssertionError(t);
-				}
-				index++;
+			} finally {
+				context.getVariables().remove(iterationIndexVariable);
 			}
 			return null;
 		}
@@ -130,7 +141,7 @@ public class LoopCompositeStep extends CompositeStep {
 		public static class Builder implements ActivityBuilder {
 
 			private String iterationIndexVariableName = "iterationIndex";
-			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3");
+			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
 
 			public String getIterationIndexVariableName() {
 				return iterationIndexVariableName;
@@ -159,11 +170,12 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public CompilationContext findFunctionCompilationContext(Function function,
-					ValidationContext validationContext) {
+			public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
+					Plan currentPlan) {
 				if (function != loopEndCondition) {
 					throw new AssertionError();
 				}
+				ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
 				validationContext = new ValidationContext(validationContext,
 						new ValidationContext.VariableDeclaration() {
 							@Override
@@ -177,6 +189,12 @@ public class LoopCompositeStep extends CompositeStep {
 							}
 
 						});
+				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
+				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
+					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+						validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep));
+					}
+				}
 				return new CompilationContext(validationContext, null, boolean.class);
 			}
 

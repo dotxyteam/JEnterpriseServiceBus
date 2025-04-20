@@ -418,9 +418,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 										}
 										ITypeInfo transitionType = reflectionUI
 												.getTypeInfo(new JavaTypeInfoSource(Transition.class, null));
-										ITypeInfo planType = reflectionUI
-												.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-										for (Transition transition : new ArrayList<Transition>(plan.getTransitions())) {
+										Set<Transition> transitionsToDelete = new HashSet<Transition>();
+										for (Transition transition : plan.getTransitions()) {
 											if (!selectedSteps.contains(transition.getStartStep())
 													&& selectedSteps.contains(transition.getEndStep())) {
 												if (plan.getTransitions().stream()
@@ -428,15 +427,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 																&& (otherTransition.getStartStep() == transition
 																		.getStartStep())
 																&& (otherTransition.getEndStep() == newStep))) {
-													DefaultFieldControlData transitionsData = new DefaultFieldControlData(
-															reflectionUI, plan, ReflectionUIUtils.findInfoByName(
-																	planType.getFields(), "transitions"));
-													ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-															new ItemPositionFactory(transitionsData)
-																	.getRootItemPosition(-1));
-													IModification modification = transitionsModificationFactory
-															.remove(plan.getTransitions().indexOf(transition));
-													parentForm.getModificationStack().apply(modification);
+													transitionsToDelete.add(transition);
 												} else {
 													ReflectionUIUtils.setFieldValueThroughModificationStack(
 															new DefaultFieldControlData(reflectionUI, transition,
@@ -453,15 +444,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 																&& (otherTransition.getStartStep() == newStep)
 																&& (otherTransition.getEndStep() == transition
 																		.getEndStep()))) {
-													DefaultFieldControlData transitionsData = new DefaultFieldControlData(
-															reflectionUI, plan, ReflectionUIUtils.findInfoByName(
-																	planType.getFields(), "transitions"));
-													ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-															new ItemPositionFactory(transitionsData)
-																	.getRootItemPosition(-1));
-													IModification modification = transitionsModificationFactory
-															.remove(plan.getTransitions().indexOf(transition));
-													parentForm.getModificationStack().apply(modification);
+													transitionsToDelete.add(transition);
 												} else {
 													ReflectionUIUtils.setFieldValueThroughModificationStack(
 															new DefaultFieldControlData(reflectionUI, transition,
@@ -471,6 +454,18 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 															ReflectionUIUtils.getDebugLogListener(reflectionUI));
 												}
 											}
+										}
+										ITypeInfo planType = reflectionUI
+												.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
+										for (Transition transition : transitionsToDelete) {
+											DefaultFieldControlData transitionsData = new DefaultFieldControlData(
+													reflectionUI, plan, ReflectionUIUtils
+															.findInfoByName(planType.getFields(), "transitions"));
+											ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
+													new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
+											IModification modification = transitionsModificationFactory
+													.remove(plan.getTransitions().indexOf(transition));
+											parentForm.getModificationStack().apply(modification);
 										}
 										newStep.setParent(selectedStepsCommonParent);
 									}
@@ -507,8 +502,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		result.add(createCopyAction());
 		result.add(createCutAction());
 		result.add(createPasteAction(mouseEvent.getX(), mouseEvent.getY()));
-		result.add(new JSeparator());
 		result.add(createDeleteAction());
+		result.add(new JSeparator());
+		result.add(createSelectAllAction());
 		return result;
 	}
 
@@ -578,6 +574,25 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					return;
 				}
 				onDeletionRequest();
+			}
+		};
+	}
+
+	private AbstractAction createSelectAllAction() {
+		return new AbstractAction("Select All") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				return true;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Set<JDiagramObject> all = new HashSet<JDiagramObject>();
+				all.addAll(getNodes());
+				all.addAll(getConnections());
+				setSelection(all);
 			}
 		};
 	}
@@ -697,7 +712,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			{
 				editMenu.addItemCategory(category);
 				for (AbstractAction action : Arrays.asList(createCopyAction(), createCutAction(),
-						createPasteAction(getWidth() / 2, getHeight() / 2), null, createDeleteAction())) {
+						createPasteAction(getWidth() / 2, getHeight() / 2), createDeleteAction(), null,
+						createSelectAllAction())) {
 					if (action == null) {
 						category = new MenuItemCategory();
 						editMenu.addItemCategory(category);

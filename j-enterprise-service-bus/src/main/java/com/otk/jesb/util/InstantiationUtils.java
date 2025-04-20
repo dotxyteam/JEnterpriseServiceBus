@@ -1,10 +1,10 @@
 package com.otk.jesb.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Function;
@@ -12,7 +12,6 @@ import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Step;
 import com.otk.jesb.Structure.Structured;
-import com.otk.jesb.ValidationContext;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.instantiation.CompilationContext;
@@ -44,19 +43,19 @@ public class InstantiationUtils {
 		ExecutionContext executionContext = evaluationContext.getExecutionContext();
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
-		ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
 		CompilationContext compilationContext = (currentStep != null)
-				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, validationContext)
+				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, currentStep, currentPlan)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
-						validationContext);
+						currentPlan.getValidationContext(currentStep));
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
-		if (!Arrays.equals(
-				evaluationContext.getExecutionContext().getVariables().stream().map(variable -> variable.getName())
-						.toArray(),
-				compilationContext.getValidationContext().getVariableDeclarations().stream()
-						.map(variableDeclaration -> variableDeclaration.getVariableName()).toArray())) {
+		Set<String> actualVariableNames = evaluationContext.getExecutionContext().getVariables().stream()
+				.map(variable -> variable.getName()).collect(Collectors.toSet());
+		Set<String> expectedVariableNames = compilationContext.getValidationContext().getVariableDeclarations().stream()
+				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
+		if (actualVariableNames.stream()
+				.anyMatch(actualVariableName -> !expectedVariableNames.contains(actualVariableName))) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
@@ -102,15 +101,15 @@ public class InstantiationUtils {
 			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(),
 					selectedConstructorSignature);
 		}
-	
+
 	}
 
 	public static boolean isConditionFullfilled(Function condition, EvaluationContext context) throws Exception {
 		if (condition == null) {
 			return true;
 		}
-		Object conditionResult = interpretValue(condition,
-				TypeInfoProvider.getTypeInfo(Boolean.class.getName()), context);
+		Object conditionResult = interpretValue(condition, TypeInfoProvider.getTypeInfo(Boolean.class.getName()),
+				context);
 		if (!(conditionResult instanceof Boolean)) {
 			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}

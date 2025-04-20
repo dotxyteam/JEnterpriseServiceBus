@@ -2,7 +2,9 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +21,7 @@ import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JDiagramObject;
 import com.otk.jesb.diagram.JNode;
+import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
@@ -180,14 +183,19 @@ public class DebugPlanDiagram extends PlanDiagram {
 		}
 	}
 
-	void annotateConnection(Graphics g, JConnection conn, String annotation) {
+	private void annotateConnection(Graphics g, JConnection conn, String annotation) {
 		g.setColor(Color.BLUE);
-		int x = (conn.getStartNode().getCenterX() + conn.getEndNode().getCenterX()) / 2;
-		int y = (conn.getStartNode().getCenterY() + conn.getEndNode().getCenterY()) / 2;
-		g.drawString(annotation, x, y);
+		Pair<Point, Point> lineSegment = conn.getLineSegment();
+		if (lineSegment == null) {
+			return;
+		}
+		int x = (lineSegment.getFirst().x + lineSegment.getSecond().x) / 2;
+		int y = (lineSegment.getFirst().y + lineSegment.getSecond().y) / 2;
+		Rectangle2D annotationBounds = g.getFontMetrics().getStringBounds(annotation, g);
+		g.drawString(annotation, x - (int) (annotationBounds.getWidth() / 2d), y - getConnectionArrowSize());
 	}
 
-	void highlightNode(Graphics g, JNode node, Color color) {
+	private void highlightNode(Graphics g, JNode node, Color color) {
 		g.setColor(color);
 		int width = (node.getImage().getWidth(null) * 3) / 2;
 		int height = (node.getImage().getHeight(null) * 3) / 2;

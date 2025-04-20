@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 public class JConnection extends JDiagramObject {
 
@@ -59,22 +60,12 @@ public class JConnection extends JDiagramObject {
 
 	private List<Polygon> computePolygons(int lineThickness, int arrowSize) {
 		List<Polygon> result = new ArrayList<Polygon>();
-		Point startPoint = new Point(startNode.getCenterX(), startNode.getCenterY());
-		Point endPoint = new Point(endNode.getCenterX(), endNode.getCenterY());
-		if (startNode.getImage() != null) {
-			startPoint = MiscUtils.getRectangleBorderContactOfLineToExternalPoint(startPoint.x, startPoint.y,
-					startNode.getImage().getWidth(null), startNode.getImage().getHeight(null), endPoint.x, endPoint.y);
-		}
-		if (startPoint == null) {
+		Pair<Point, Point> lineSegment = getLineSegment();
+		if (lineSegment == null) {
 			return Collections.emptyList();
 		}
-		if (endNode.getImage() != null) {
-			endPoint = MiscUtils.getRectangleBorderContactOfLineToExternalPoint(endPoint.x, endPoint.y,
-					endNode.getImage().getWidth(null), endNode.getImage().getHeight(null), startPoint.x, startPoint.y);
-		}
-		if (endPoint == null) {
-			return Collections.emptyList();
-		}
+		Point startPoint = lineSegment.getFirst();
+		Point endPoint = lineSegment.getSecond();
 		Polygon linePolygon = lineToPolygon(startPoint, endPoint, lineThickness);
 		result.add(linePolygon);
 		{
@@ -99,6 +90,26 @@ public class JConnection extends JDiagramObject {
 			result.add(arrowPolygon);
 		}
 		return result;
+	}
+
+	public Pair<Point, Point> getLineSegment() {
+		Point startPoint = new Point(startNode.getCenterX(), startNode.getCenterY());
+		Point endPoint = new Point(endNode.getCenterX(), endNode.getCenterY());
+		if (startNode.getImage() != null) {
+			startPoint = MiscUtils.getRectangleBorderContactOfLineToExternalPoint(startPoint.x, startPoint.y,
+					startNode.getImage().getWidth(null), startNode.getImage().getHeight(null), endPoint.x, endPoint.y);
+		}
+		if (startPoint == null) {
+			return null;
+		}
+		if (endNode.getImage() != null) {
+			endPoint = MiscUtils.getRectangleBorderContactOfLineToExternalPoint(endPoint.x, endPoint.y,
+					endNode.getImage().getWidth(null), endNode.getImage().getHeight(null), startPoint.x, startPoint.y);
+		}
+		if (endPoint == null) {
+			return null;
+		}
+		return new Pair<Point, Point>(startPoint, endPoint);
 	}
 
 	private static Polygon lineToPolygon(Point p1, Point p2, double thickness) {

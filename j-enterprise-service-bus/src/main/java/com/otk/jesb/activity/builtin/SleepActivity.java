@@ -5,7 +5,8 @@ import java.io.IOException;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Function;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.Plan;
+import com.otk.jesb.Step;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -85,9 +86,10 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function function,
-				ValidationContext validationContext) {
-			return instanceBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
+		public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
+				Plan currentPlan) {
+			return instanceBuilder.getFacade().findFunctionCompilationContext(function,
+					currentPlan.getValidationContext(currentStep));
 		}
 	}
 

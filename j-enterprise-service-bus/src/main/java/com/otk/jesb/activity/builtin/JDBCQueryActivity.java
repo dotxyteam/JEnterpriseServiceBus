@@ -13,8 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.otk.jesb.Function;
+import com.otk.jesb.Plan;
 import com.otk.jesb.Solution;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.Step;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Reference;
@@ -344,9 +345,10 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function function,
-				ValidationContext validationContext) {
-			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
+		public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
+				Plan currentPlan) {
+			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(function,
+					currentPlan.getValidationContext(currentStep));
 		}
 	}
 

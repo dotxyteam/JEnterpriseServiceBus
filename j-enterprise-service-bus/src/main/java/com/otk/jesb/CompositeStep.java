@@ -9,7 +9,7 @@ import com.otk.jesb.activity.ActivityMetadata;
 
 public abstract class CompositeStep extends Step {
 
-	protected abstract List<VariableDeclaration> getChildrenVariableDeclarations();
+	protected abstract List<VariableDeclaration> getContextualVariableDeclarations();
 
 	public CompositeStep(ActivityMetadata activityMetadata) {
 		super(activityMetadata);

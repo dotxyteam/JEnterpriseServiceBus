@@ -10,9 +10,10 @@ import java.util.List;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Function;
+import com.otk.jesb.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.Step;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -235,10 +236,10 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function currentFunction,
-				ValidationContext validationContext) {
+		public CompilationContext findFunctionCompilationContext(Function currentFunction, Step currentStep,
+				Plan currentPlan) {
 			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(currentFunction,
-					validationContext);
+					currentPlan.getValidationContext(currentStep));
 		}
 
 		@Override

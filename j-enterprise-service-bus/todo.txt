@@ -5,6 +5,10 @@
 	. advertise
 	. improve the features
 - add things like 
+	. groups 
+		* for repetition: loop while
+			# allow to accumulate ???
+		* etc 
 	. conditional transitions for steps
 - improve the step list view (sort, add hierarchy, ...)
 - error marker do not disappear when deselecting and selecting a plan while

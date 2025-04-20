@@ -242,7 +242,7 @@ public class Plan extends Asset {
 		ValidationContext result;
 		if ((currentStep != null) && (currentStep.getParent() != null)) {
 			result = getValidationContext(currentStep.getParent());
-			for (VariableDeclaration declaration : currentStep.getParent().getChildrenVariableDeclarations()) {
+			for (VariableDeclaration declaration : currentStep.getParent().getContextualVariableDeclarations()) {
 				result = new ValidationContext(result, declaration);
 			}
 		} else {
@@ -267,6 +267,13 @@ public class Plan extends Asset {
 			if (step.getActivityBuilder().getActivityResultClass() != null) {
 				result.getVariableDeclarations().add(new StepEventuality(step));
 			}
+			if (step instanceof CompositeStep) {
+				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
+					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+						result.getVariableDeclarations().add(new StepEventuality(descendantStep));
+					}
+				}
+			}
 		}
 		return result;
 	}
@@ -279,19 +286,6 @@ public class Plan extends Asset {
 
 		public ExecutionContext(Plan plan) {
 			this.plan = plan;
-		}
-
-		public ExecutionContext(Plan plan, Step currentStep, List<Variable> variables) {
-			this.plan = plan;
-			this.currentStep = currentStep;
-			this.variables = variables;
-		}
-
-		public ExecutionContext(ExecutionContext parentContext, Variable newVariable) {
-			this.plan = parentContext.getPlan();
-			this.currentStep = parentContext.getCurrentStep();
-			variables.addAll(parentContext.getVariables());
-			variables.add(newVariable);
 		}
 
 		public Plan getPlan() {

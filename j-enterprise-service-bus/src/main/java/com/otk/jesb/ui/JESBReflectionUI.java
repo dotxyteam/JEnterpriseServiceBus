@@ -31,6 +31,7 @@ import com.otk.jesb.activity.builtin.ReadFileActivity;
 import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.diagram.DragIntent;
+import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
@@ -791,10 +792,10 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
-				if (!method.getSignature().equals("void printStackTrace()")) {
-					try {
-						Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
-						if (Throwable.class.isAssignableFrom(objectClass)) {
+				try {
+					Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+					if (Throwable.class.isAssignableFrom(objectClass)) {
+						if (!method.getSignature().equals("void printStackTrace()")) {
 							for (IMethodInfo throwableMethod : getTypeInfo(
 									new JavaTypeInfoSource(Throwable.class, null)).getMethods()) {
 								if (method.getSignature().equals(throwableMethod.getSignature())) {
@@ -802,8 +803,15 @@ public class JESBReflectionUI extends CustomizedUI {
 								}
 							}
 						}
-					} catch (ClassNotFoundException e) {
 					}
+					if (ActivityBuilder.class.isAssignableFrom(objectClass)) {
+						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(
+								CompilationContext.class.getName(), "findFunctionCompilationContext",
+								Arrays.asList(Function.class.getName(), Step.class.getName(), Plan.class.getName())))) {
+							return true;
+						}
+					}
+				} catch (ClassNotFoundException e) {
 				}
 				return super.isHidden(method, objectType);
 			}

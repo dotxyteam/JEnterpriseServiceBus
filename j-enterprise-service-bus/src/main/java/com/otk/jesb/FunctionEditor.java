@@ -42,8 +42,8 @@ public class FunctionEditor extends PathOptionsProvider {
 	private CompilationContext getCompilationContext() {
 		ValidationContext validationContext;
 		CompilationContext result;
-		validationContext = currentPlan.getValidationContext(currentStep);
-		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, validationContext);
+		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, currentStep,
+				currentPlan);
 		if (result != null) {
 			return result;
 		}
@@ -67,8 +67,8 @@ public class FunctionEditor extends PathOptionsProvider {
 		if (getFunctionBody() == null) {
 			setFunctionBody(selectedPathNode.getTypicalExpression());
 		} else {
-			setFunctionBody(getFunctionBody().substring(0, insertStartPosition) + selectedPathNode.getTypicalExpression()
-					+ getFunctionBody().substring(insertEndPosition));
+			setFunctionBody(getFunctionBody().substring(0, insertStartPosition)
+					+ selectedPathNode.getTypicalExpression() + getFunctionBody().substring(insertEndPosition));
 		}
 	}
 

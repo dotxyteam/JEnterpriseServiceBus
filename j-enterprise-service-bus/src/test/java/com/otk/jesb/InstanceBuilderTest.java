@@ -192,9 +192,10 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public CompilationContext findFunctionCompilationContext(Function function,
-					ValidationContext validationContext) {
-				return instanceBuilder.getFacade().findFunctionCompilationContext(function, validationContext);
+			public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
+					Plan currentPlan) {
+				return instanceBuilder.getFacade().findFunctionCompilationContext(function,
+						currentPlan.getValidationContext(currentStep));
 			}
 
 		}
