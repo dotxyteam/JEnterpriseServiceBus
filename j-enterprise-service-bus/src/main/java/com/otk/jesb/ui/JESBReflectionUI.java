@@ -20,6 +20,7 @@ import com.otk.jesb.StepOccurrence;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.LoopCompositeStep.LoopActivity;
+import com.otk.jesb.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -676,6 +677,48 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
 							return new FunctionEditor(currentPlan, currentStep, (Function) object);
+						}
+
+						@Override
+						public boolean isReadOnly() {
+							return true;
+						}
+					});
+					return result;
+				} else if (type.getName().equals(LoopActivity.Builder.class.getName())) {
+					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "retrieveResultsCollectionConfigurationEntries";
+						}
+
+						@Override
+						public String getCaption() {
+							return "Configure Results Collection...";
+						}
+
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return getTypeInfo(new JavaTypeInfoSource(List.class,
+									new Class<?>[] { ResultsCollectionConfigurationEntry.class }, null));
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							return ((LoopActivity.Builder) object)
+									.retrieveResultsCollectionConfigurationEntries(currentPlan, currentStep);
+						}
+
+						@Override
+						public boolean isReadOnly() {
+							return true;
 						}
 					});
 					return result;

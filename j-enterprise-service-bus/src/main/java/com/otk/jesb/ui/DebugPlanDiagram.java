@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
 import com.otk.jesb.StepOccurrence;
+import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagramListener;
@@ -168,11 +169,16 @@ public class DebugPlanDiagram extends PlanDiagram {
 	protected void paintConnection(Graphics g, JConnection conn) {
 		super.paintConnection(g, conn);
 		int transitionOccurrenceCount = 0;
-		List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences();
+		Step startStep = (Step) conn.getStartNode().getValue();
+		Step endStep = (Step) conn.getEndNode().getValue();
+		CompositeStep parent = startStep.getParent();
+		List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences().stream()
+				.filter(stepOccurrence -> (stepOccurrence.getStep().getParent() == parent))
+				.collect(Collectors.toList());
 		for (int i = 0; i < stepOccurrences.size(); i++) {
 			if (i > 0) {
-				if (stepOccurrences.get(i - 1).getStep() == conn.getStartNode().getValue()) {
-					if (stepOccurrences.get(i).getStep() == conn.getEndNode().getValue()) {
+				if (stepOccurrences.get(i - 1).getStep() == startStep) {
+					if (stepOccurrences.get(i).getStep() == endStep) {
 						transitionOccurrenceCount++;
 					}
 				}

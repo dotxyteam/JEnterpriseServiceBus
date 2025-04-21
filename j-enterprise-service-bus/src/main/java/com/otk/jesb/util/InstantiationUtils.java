@@ -54,8 +54,7 @@ public class InstantiationUtils {
 				.map(variable -> variable.getName()).collect(Collectors.toSet());
 		Set<String> expectedVariableNames = compilationContext.getValidationContext().getVariableDeclarations().stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
-		if (actualVariableNames.stream()
-				.anyMatch(actualVariableName -> !expectedVariableNames.contains(actualVariableName))) {
+		if (!actualVariableNames.equals(expectedVariableNames)) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(

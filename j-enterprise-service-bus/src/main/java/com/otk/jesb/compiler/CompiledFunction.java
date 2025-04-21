@@ -65,7 +65,7 @@ public class CompiledFunction {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
-			for (Plan.ExecutionContext.Variable variable : context.getVariables()) {
+			for (Plan.ExecutionContext.Variable variable : MiscUtils.getReverse(context.getVariables())) {
 				if (param.getName().equals(variable.getName())) {
 					functionParameterValues[i] = variable.getValue();
 					break;

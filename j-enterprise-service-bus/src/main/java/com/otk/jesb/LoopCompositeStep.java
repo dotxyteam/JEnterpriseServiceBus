@@ -1,8 +1,9 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ExecutionInspector;
@@ -91,6 +92,23 @@ public class LoopCompositeStep extends CompositeStep {
 			try {
 				List<ExecutionContext.Variable> initialVariables = new ArrayList<ExecutionContext.Variable>(
 						context.getVariables());
+				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, context.getPlan())) {
+					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+						context.getVariables().add(new Variable() {
+
+							@Override
+							public String getName() {
+								return descendantStep.getName();
+							}
+
+							@Override
+							public Object getValue() {
+								return null;
+							}
+
+						});
+					}
+				}
 				while (true) {
 					EvaluationContext evaluationContext = new EvaluationContext(context, null);
 					if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
@@ -142,6 +160,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 			private String iterationIndexVariableName = "iterationIndex";
 			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
+			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
 
 			public String getIterationIndexVariableName() {
 				return iterationIndexVariableName;
@@ -157,6 +176,26 @@ public class LoopCompositeStep extends CompositeStep {
 
 			public void setLoopEndCondition(Function loopEndCondition) {
 				this.loopEndCondition = loopEndCondition;
+			}
+
+			public Set<String> getResultsCollectionTargetedStepNames() {
+				return resultsCollectionTargetedStepNames;
+			}
+
+			public void setResultsCollectionTargetedStepNames(Set<String> resultsCollectionTargetedStepNames) {
+				this.resultsCollectionTargetedStepNames = resultsCollectionTargetedStepNames;
+			}
+
+			public List<ResultsCollectionConfigurationEntry> retrieveResultsCollectionConfigurationEntries(
+					Plan currentPlan, Step currentStep) {
+				List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry>();
+				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
+				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
+					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+						result.add(new ResultsCollectionConfigurationEntry(descendantStep.getName()));
+					}
+				}
+				return result;
 			}
 
 			@Override
@@ -196,6 +235,31 @@ public class LoopCompositeStep extends CompositeStep {
 					}
 				}
 				return new CompilationContext(validationContext, null, boolean.class);
+			}
+
+			public class ResultsCollectionConfigurationEntry {
+				private String stepName;
+
+				public ResultsCollectionConfigurationEntry(String stepName) {
+					this.stepName = stepName;
+				}
+
+				public String getStepName() {
+					return stepName;
+				}
+
+				public boolean isResultsCollectionEnabled() {
+					return resultsCollectionTargetedStepNames.contains(stepName);
+				}
+
+				public void setResultsCollectionEnabled(boolean resultsCollectionEnabled) {
+					if (resultsCollectionEnabled) {
+						resultsCollectionTargetedStepNames.add(stepName);
+					} else {
+						resultsCollectionTargetedStepNames.remove(stepName);
+					}
+				}
+
 			}
 
 		}
