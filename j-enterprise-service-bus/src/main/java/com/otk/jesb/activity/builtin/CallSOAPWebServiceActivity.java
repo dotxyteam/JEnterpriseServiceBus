@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
-import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Plan.ExecutionContext;
@@ -23,8 +22,9 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.util.Accessor;
@@ -324,8 +324,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
 			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
-			result.setOperationInput(
-					(OperationInput) operationInputBuilder.build(new EvaluationContext(context, null)));
+			result.setOperationInput((OperationInput) operationInputBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider())));
 			return result;
 		}
 
@@ -366,10 +366,10 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
-				Plan currentPlan) {
+		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
+				Step currentStep, Plan currentPlan) {
 			return operationInputBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep));
+					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
 		}
 
 	}

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Function;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
@@ -32,7 +32,7 @@ import com.otk.jesb.activity.builtin.ReadFileActivity;
 import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
 import com.otk.jesb.diagram.DragIntent;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
@@ -40,6 +40,7 @@ import com.otk.jesb.instantiation.InitializationCase;
 import com.otk.jesb.instantiation.InitializationCaseFacade;
 import com.otk.jesb.instantiation.InitializationSwitch;
 import com.otk.jesb.instantiation.InitializationSwitchFacade;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializer;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializer;
@@ -187,7 +188,7 @@ public class JESBReflectionUI extends CustomizedUI {
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
 								InitializationSwitchFacade switchFacade = (InitializationSwitchFacade) object;
-								Function condition = InitializationCase.createDefaultCondition();
+								InstantiationFunction condition = InitializationCase.createDefaultCondition();
 								InitializationCase initializationCase = new InitializationCase();
 								return new InitializationCaseFacade(switchFacade, condition, initializationCase);
 							}
@@ -603,8 +604,10 @@ public class JESBReflectionUI extends CustomizedUI {
 							if (currentPlan == null) {
 								return null;
 							}
-							return new PathOptionsProvider(currentPlan,
-									(object == currentPlan.getOutputBuilder()) ? null : currentStep).getRootPathNodes();
+							return new PathOptionsProvider(currentPlan
+									.getValidationContext(
+											(object == currentPlan.getOutputBuilder()) ? null : currentStep)
+									.getVariableDeclarations()).getRootPathNodes();
 						}
 
 						@Override
@@ -645,7 +648,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected List<IMethodInfo> getMethods(ITypeInfo type) {
-				if (type.getName().equals(Function.class.getName())) {
+				if (type.getName().equals(InstantiationFunction.class.getName())) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -676,7 +679,22 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							return new FunctionEditor(currentPlan, currentStep, (Function) object);
+							ValidationContext validationContext;
+							InstantiationFunctionCompilationContext compilationContext;
+							compilationContext = currentStep.getActivityBuilder().findFunctionCompilationContext(
+									(InstantiationFunction) object, currentStep, currentPlan);
+							if (compilationContext == null) {
+								validationContext = currentPlan.getValidationContext(null);
+								compilationContext = currentPlan.getOutputBuilder().getFacade()
+										.findFunctionCompilationContext((InstantiationFunction) object,
+												validationContext.getVariableDeclarations());
+								if (compilationContext == null) {
+									throw new AssertionError();
+								}
+							}
+							return new FunctionEditor((InstantiationFunction) object,
+									compilationContext.getPrecompiler(), compilationContext.getVariableDeclarations(),
+									compilationContext.getFunctionReturnType());
 						}
 
 						@Override
@@ -849,8 +867,9 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					if (ActivityBuilder.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(
-								CompilationContext.class.getName(), "findFunctionCompilationContext",
-								Arrays.asList(Function.class.getName(), Step.class.getName(), Plan.class.getName())))) {
+								InstantiationFunctionCompilationContext.class.getName(),
+								"findFunctionCompilationContext", Arrays.asList(InstantiationFunction.class.getName(),
+										Step.class.getName(), Plan.class.getName())))) {
 							return true;
 						}
 					}

@@ -5,14 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ExecutionContext.Variable;
 import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.ValidationContext.VariableDeclaration;
+import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -39,7 +39,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 	@Override
 	protected List<VariableDeclaration> getContextualVariableDeclarations() {
-		List<VariableDeclaration> result = new ArrayList<ValidationContext.VariableDeclaration>();
+		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>();
 		result.add(new VariableDeclaration() {
 
 			@Override
@@ -60,11 +60,11 @@ public class LoopCompositeStep extends CompositeStep {
 
 		private ExecutionContext context;
 		private ExecutionInspector executionInspector;
-		private Function loopEndCondition;
+		private InstantiationFunction loopEndCondition;
 		private String iterationIndexVariableName;
 
-		public LoopActivity(ExecutionContext context, ExecutionInspector executionInspector, Function loopEndCondition,
-				String iterationIndexVariableName) {
+		public LoopActivity(ExecutionContext context, ExecutionInspector executionInspector,
+				InstantiationFunction loopEndCondition, String iterationIndexVariableName) {
 			this.context = context;
 			this.executionInspector = executionInspector;
 			this.loopEndCondition = loopEndCondition;
@@ -76,7 +76,7 @@ public class LoopCompositeStep extends CompositeStep {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
 			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
 			final int[] index = new int[] { 0 };
-			Variable iterationIndexVariable = new ExecutionContext.Variable() {
+			Variable iterationIndexVariable = new Variable() {
 
 				@Override
 				public String getName() {
@@ -90,8 +90,7 @@ public class LoopCompositeStep extends CompositeStep {
 			};
 			context.getVariables().add(iterationIndexVariable);
 			try {
-				List<ExecutionContext.Variable> initialVariables = new ArrayList<ExecutionContext.Variable>(
-						context.getVariables());
+				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, context.getPlan())) {
 					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
 						context.getVariables().add(new Variable() {
@@ -110,7 +109,8 @@ public class LoopCompositeStep extends CompositeStep {
 					}
 				}
 				while (true) {
-					EvaluationContext evaluationContext = new EvaluationContext(context, null);
+					EvaluationContext evaluationContext = new EvaluationContext(context.getVariables(), null,
+							context.getComilationContextProvider());
 					if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
 						break;
 					}
@@ -159,7 +159,8 @@ public class LoopCompositeStep extends CompositeStep {
 		public static class Builder implements ActivityBuilder {
 
 			private String iterationIndexVariableName = "iterationIndex";
-			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
+			private InstantiationFunction loopEndCondition = new InstantiationFunction(
+					"return " + iterationIndexVariableName + "==3;");
 			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
 
 			public String getIterationIndexVariableName() {
@@ -170,11 +171,11 @@ public class LoopCompositeStep extends CompositeStep {
 				this.iterationIndexVariableName = iterationIndexVariableName;
 			}
 
-			public Function getLoopEndCondition() {
+			public InstantiationFunction getLoopEndCondition() {
 				return loopEndCondition;
 			}
 
-			public void setLoopEndCondition(Function loopEndCondition) {
+			public void setLoopEndCondition(InstantiationFunction loopEndCondition) {
 				this.loopEndCondition = loopEndCondition;
 			}
 
@@ -209,32 +210,32 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
-					Plan currentPlan) {
+			public InstantiationFunctionCompilationContext findFunctionCompilationContext(
+					InstantiationFunction function, Step currentStep, Plan currentPlan) {
 				if (function != loopEndCondition) {
 					throw new AssertionError();
 				}
 				ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-				validationContext = new ValidationContext(validationContext,
-						new ValidationContext.VariableDeclaration() {
-							@Override
-							public String getVariableName() {
-								return iterationIndexVariableName;
-							}
+				validationContext = new ValidationContext(validationContext, new VariableDeclaration() {
+					@Override
+					public String getVariableName() {
+						return iterationIndexVariableName;
+					}
 
-							@Override
-							public Class<?> getVariableType() {
-								return int.class;
-							}
+					@Override
+					public Class<?> getVariableType() {
+						return int.class;
+					}
 
-						});
+				});
 				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
 					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
 						validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep));
 					}
 				}
-				return new CompilationContext(validationContext, null, boolean.class);
+				return new InstantiationFunctionCompilationContext(validationContext.getVariableDeclarations(), null,
+						boolean.class);
 			}
 
 			public class ResultsCollectionConfigurationEntry {

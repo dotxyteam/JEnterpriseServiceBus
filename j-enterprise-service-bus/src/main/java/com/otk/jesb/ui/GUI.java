@@ -13,7 +13,6 @@ import javax.swing.text.JTextComponent;
 
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Folder;
-import com.otk.jesb.Function;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.LoopCompositeStep;
 import com.otk.jesb.PathExplorer.PathNode;
@@ -31,6 +30,7 @@ import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
@@ -93,7 +93,7 @@ public class GUI extends SwingCustomizer {
 		ls.setDiagramX(200);
 		ls.setDiagramY(100);
 		ls.getActivityBuilder().setIterationIndexVariableName("index");
-		ls.getActivityBuilder().setLoopEndCondition(new Function("return index==3;"));
+		ls.getActivityBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
 		
 		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
@@ -107,7 +107,7 @@ public class GUI extends SwingCustomizer {
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(1,
-						new Function("return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
+						new InstantiationFunction("return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);

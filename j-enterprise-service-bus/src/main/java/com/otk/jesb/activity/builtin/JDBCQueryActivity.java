@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Solution;
 import com.otk.jesb.Step;
@@ -23,8 +22,9 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
@@ -329,7 +329,7 @@ public class JDBCQueryActivity implements Activity {
 			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context, null));
+					.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
 			result.setParameterValues(parameterValues);
 			result.setCustomResultClass(customResultClass);
 			return result;
@@ -345,10 +345,10 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
-				Plan currentPlan) {
+		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
+				Step currentStep, Plan currentPlan) {
 			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep));
+					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
 		}
 	}
 

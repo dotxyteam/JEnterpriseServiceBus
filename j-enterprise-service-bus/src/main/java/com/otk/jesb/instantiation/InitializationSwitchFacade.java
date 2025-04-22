@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Function;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -95,7 +94,7 @@ public class InitializationSwitchFacade extends Facade {
 	@Override
 	public List<InitializationCaseFacade> getChildren() {
 		List<InitializationCaseFacade> result = new ArrayList<InitializationCaseFacade>();
-		for (Map.Entry<Function, InitializationCase> caseEntry : underlying.getInitializationCaseByCondition()
+		for (Map.Entry<InstantiationFunction, InitializationCase> caseEntry : underlying.getInitializationCaseByCondition()
 				.entrySet()) {
 			result.add(new InitializationCaseFacade(this, caseEntry.getKey(), caseEntry.getValue()));
 		}
@@ -193,7 +192,7 @@ public class InitializationSwitchFacade extends Facade {
 
 	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
 		List<InitializationCaseFacade> children = getChildren();
-		EvaluationContext childContext = new EvaluationContext(context.getExecutionContext(), this);
+		EvaluationContext childContext = new EvaluationContext(context, this);
 		for (InitializationCaseFacade caseFacade : children) {
 			boolean caseConditionFullfilled;
 			if (caseFacade.getCondition() != null) {

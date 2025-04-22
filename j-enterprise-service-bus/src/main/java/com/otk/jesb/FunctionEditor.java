@@ -3,27 +3,31 @@ package com.otk.jesb;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.CompilationContext;
-import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.compiler.CompiledFunction;
 
 public class FunctionEditor extends PathOptionsProvider {
 
-	private Function currentFunction;
+	private Function function;
+	private java.util.function.Function<String, String> precompiler;
+	private Class<?> returnType;
+
 	private PathNode selectedPathNode;
 
-	public FunctionEditor(Plan currentPlan, Step currentStep, Function currentFunction) {
-		super(currentPlan, currentStep);
-		this.currentFunction = currentFunction;
+	public FunctionEditor(Function function, java.util.function.Function<String, String> precompiler,
+			List<VariableDeclaration> variableDeclarations, Class<?> returnType) {
+		super(variableDeclarations);
+		this.function = function;
+		this.precompiler = precompiler;
+		this.returnType = returnType;
 	}
 
 	public String getFunctionBody() {
-		return currentFunction.getFunctionBody();
+		return function.getFunctionBody();
 	}
 
 	public void setFunctionBody(String functionBody) {
-		this.currentFunction.setFunctionBody(functionBody);
+		this.function.setFunctionBody(functionBody);
 	}
 
 	public PathNode getSelectedPathNode() {
@@ -34,30 +38,9 @@ public class FunctionEditor extends PathOptionsProvider {
 		this.selectedPathNode = selectedPathNode;
 	}
 
-	@Override
-	protected List<VariableDeclaration> getVariableDeclarations() {
-		return getCompilationContext().getValidationContext().getVariableDeclarations();
-	}
-
-	private CompilationContext getCompilationContext() {
-		ValidationContext validationContext;
-		CompilationContext result;
-		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, currentStep,
-				currentPlan);
-		if (result != null) {
-			return result;
-		}
-		validationContext = currentPlan.getValidationContext(null);
-		result = currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(currentFunction,
-				validationContext);
-		if (result != null) {
-			return result;
-		}
-		throw new AssertionError();
-	}
-
 	public void validate() throws CompilationError {
-		InstantiationUtils.validateFunction(getFunctionBody(), getCompilationContext());
+		CompiledFunction.get((precompiler != null) ? precompiler.apply(getFunctionBody()) : getFunctionBody(),
+				getVariableDeclarations(), returnType);
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {

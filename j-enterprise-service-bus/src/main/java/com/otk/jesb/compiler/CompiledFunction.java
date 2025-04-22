@@ -5,8 +5,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.Plan;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
 
 public class CompiledFunction {
@@ -19,8 +19,8 @@ public class CompiledFunction {
 		this.functionClassSource = functionClassSource;
 	}
 
-	public static CompiledFunction get(String functionBody, ValidationContext context, Class<?> returnType)
-			throws CompilationError {
+	public static CompiledFunction get(String functionBody, List<VariableDeclaration> variableDeclarations,
+			Class<?> returnType) throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
 		String preBody = "";
@@ -28,7 +28,7 @@ public class CompiledFunction {
 		preBody += "public class " + MiscUtils.extractSimpleNameFromClassName(functionClassName) + "{" + "\n";
 		preBody += "public static " + MiscUtils.adaptClassNameToSourceCode(returnType.getName()) + " execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
-		for (ValidationContext.VariableDeclaration declaration : context.getVariableDeclarations()) {
+		for (VariableDeclaration declaration : variableDeclarations) {
 			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
 					+ declaration.getVariableName());
 		}
@@ -61,11 +61,11 @@ public class CompiledFunction {
 		return new CompiledFunction(functionClass, functionClassSource);
 	}
 
-	public Object execute(Plan.ExecutionContext context) throws Exception {
+	public Object execute(List<Variable> variables) throws Exception {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
-			for (Plan.ExecutionContext.Variable variable : MiscUtils.getReverse(context.getVariables())) {
+			for (Variable variable : MiscUtils.getReverse(variables)) {
 				if (param.getName().equals(variable.getName())) {
 					functionParameterValues[i] = variable.getValue();
 					break;

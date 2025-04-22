@@ -8,14 +8,14 @@ import java.nio.charset.Charset;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -163,8 +163,8 @@ public class ReadFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new ReadFileActivity(
-					(UnderlyingReadFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
+			return new ReadFileActivity((UnderlyingReadFileActivity) instanceBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider())));
 		}
 
 		@Override
@@ -179,10 +179,10 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
-				Plan currentPlan) {
+		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
+				Step currentStep, Plan currentPlan) {
 			return instanceBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep));
+					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
 		}
 
 	}

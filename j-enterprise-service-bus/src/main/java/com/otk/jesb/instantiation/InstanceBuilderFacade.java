@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Function;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -84,8 +82,8 @@ public class InstanceBuilderFacade extends Facade {
 			}
 
 			@Override
-			protected EvaluationContext createEvaluationContextForChildren(ExecutionContext executionContext) {
-				return new EvaluationContext(executionContext, InstanceBuilderFacade.this);
+			protected EvaluationContext createEvaluationContextForChildren(EvaluationContext context) {
+				return new EvaluationContext(context, InstanceBuilderFacade.this);
 			}
 
 		};
@@ -186,8 +184,9 @@ public class InstanceBuilderFacade extends Facade {
 		return util.collectLiveInitializerFacades(context);
 	}
 
-	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {
-		return util.findFunctionCompilationContext(function, validationContext);
+	public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
+			List<VariableDeclaration> variableDeclarations) {
+		return util.findFunctionCompilationContext(function, variableDeclarations);
 	}
 
 	public void copyUnderlying() {

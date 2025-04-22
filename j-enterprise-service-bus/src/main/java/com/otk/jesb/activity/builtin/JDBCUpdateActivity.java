@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
@@ -18,8 +17,9 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.util.MiscUtils;
@@ -230,16 +230,16 @@ public class JDBCUpdateActivity implements Activity {
 			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context, null));
+					.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
 			result.setParameterValues(parameterValues);
 			return result;
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(Function currentFunction, Step currentStep,
-				Plan currentPlan) {
+		public InstantiationFunctionCompilationContext findFunctionCompilationContext(
+				InstantiationFunction currentFunction, Step currentStep, Plan currentPlan) {
 			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(currentFunction,
-					currentPlan.getValidationContext(currentStep));
+					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
 		}
 
 		@Override

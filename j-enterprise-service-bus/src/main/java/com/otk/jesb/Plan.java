@@ -2,13 +2,15 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.ClassicStructure;
-import com.otk.jesb.ValidationContext.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.NullInstance;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
@@ -175,7 +177,7 @@ public class Plan extends Asset {
 					throw new AssertionError();
 				}
 			}
-			context.getVariables().add(new ExecutionContext.Variable() {
+			context.getVariables().add(new Variable() {
 
 				@Override
 				public Object getValue() {
@@ -190,7 +192,8 @@ public class Plan extends Asset {
 		}
 		execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 				executionInspector);
-		return outputBuilder.build(new EvaluationContext(context, null));
+		return outputBuilder
+				.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
 	}
 
 	public void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
@@ -246,9 +249,9 @@ public class Plan extends Asset {
 				result = new ValidationContext(result, declaration);
 			}
 		} else {
-			result = new ValidationContext();
+			result = new ValidationContext(this, currentStep);
 			if (inputClass != null) {
-				result.getVariableDeclarations().add(new ValidationContext.VariableDeclaration() {
+				result.getVariableDeclarations().add(new VariableDeclaration() {
 
 					@Override
 					public String getVariableName() {
@@ -278,6 +281,38 @@ public class Plan extends Asset {
 		return result;
 	}
 
+	public static class ValidationContext {
+
+		private Plan plan;
+		private Step step;
+		private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
+
+		public ValidationContext(Plan plan, Step step) {
+			this.plan = plan;
+			this.step = step;
+		}
+
+		public ValidationContext(ValidationContext parentContext, VariableDeclaration newDeclaration) {
+			plan = parentContext.getPlan();
+			step = parentContext.getStep();
+			variableDeclarations.addAll(parentContext.getVariableDeclarations());
+			variableDeclarations.add(newDeclaration);
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
+
+		public Step getStep() {
+			return step;
+		}
+
+		public List<VariableDeclaration> getVariableDeclarations() {
+			return variableDeclarations;
+		}
+
+	}
+
 	public static class ExecutionContext {
 
 		private Plan plan;
@@ -304,12 +339,18 @@ public class Plan extends Asset {
 			return variables;
 		}
 
-		public interface Variable {
+		public Function<InstantiationFunction, InstantiationFunctionCompilationContext> getComilationContextProvider() {
+			return new Function<InstantiationFunction, InstantiationFunctionCompilationContext>() {
 
-			Object getValue();
-
-			String getName();
-
+				@Override
+				public InstantiationFunctionCompilationContext apply(InstantiationFunction function) {
+					return (currentStep != null)
+							? currentStep.getActivityBuilder().findFunctionCompilationContext(function, currentStep,
+									plan)
+							: plan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
+									plan.getValidationContext(currentStep).getVariableDeclarations());
+				}
+			};
 		}
 
 	}

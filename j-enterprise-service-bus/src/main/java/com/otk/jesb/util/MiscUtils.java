@@ -491,4 +491,14 @@ public class MiscUtils {
 		}
 	}
 
+	public static <T> List<T> added(List<T> ts, int index, T newItem) {
+		List<T> result = new ArrayList<T>(ts);
+		if (index == -1) {
+			result.add(newItem);
+		} else {
+			result.add(index, newItem);
+		}
+		return result;
+	}
+
 }

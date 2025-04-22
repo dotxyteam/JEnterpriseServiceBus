@@ -7,19 +7,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Function;
-import com.otk.jesb.Plan;
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Step;
 import com.otk.jesb.Structure.Structured;
-import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.MapEntryBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.ValueMode;
@@ -39,35 +35,24 @@ public class InstantiationUtils {
 
 	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
-	public static Object executeFunction(Function function, EvaluationContext evaluationContext) throws Exception {
-		ExecutionContext executionContext = evaluationContext.getExecutionContext();
-		Plan currentPlan = executionContext.getPlan();
-		Step currentStep = executionContext.getCurrentStep();
-		CompilationContext compilationContext = (currentStep != null)
-				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, currentStep, currentPlan)
-				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
-						currentPlan.getValidationContext(currentStep));
+	public static Object executeFunction(InstantiationFunction function, EvaluationContext evaluationContext)
+			throws Exception {
+		InstantiationFunctionCompilationContext compilationContext = evaluationContext.getInstantiationFunctionCompilationContextMapper()
+				.apply(function);
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
-		Set<String> actualVariableNames = evaluationContext.getExecutionContext().getVariables().stream()
-				.map(variable -> variable.getName()).collect(Collectors.toSet());
-		Set<String> expectedVariableNames = compilationContext.getValidationContext().getVariableDeclarations().stream()
+		Set<String> actualVariableNames = evaluationContext.getVariables().stream().map(variable -> variable.getName())
+				.collect(Collectors.toSet());
+		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
 		if (!actualVariableNames.equals(expectedVariableNames)) {
 			throw new AssertionError();
 		}
 		CompiledFunction compiledFunction = CompiledFunction.get(
-				makeTypeNamesAbsolute(function.getFunctionBody(),
-						getAncestorStructureInstanceBuilders(compilationContext.getParentFacade())),
-				compilationContext.getValidationContext(), compilationContext.getFunctionReturnType());
-		return compiledFunction.execute(executionContext);
-	}
-
-	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
-		CompiledFunction.get(
-				makeTypeNamesAbsolute(functionBody, getAncestorStructureInstanceBuilders(context.getParentFacade())),
-				context.getValidationContext(), context.getFunctionReturnType());
+				compilationContext.getPrecompiler().apply(function.getFunctionBody()),
+				compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
+		return compiledFunction.execute(evaluationContext.getVariables());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -82,7 +67,7 @@ public class InstantiationUtils {
 	}
 
 	public static ValueMode getValueMode(Object value) {
-		if (value instanceof Function) {
+		if (value instanceof InstantiationFunction) {
 			return ValueMode.FUNCTION;
 		} else {
 			return ValueMode.PLAIN;
@@ -103,7 +88,8 @@ public class InstantiationUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(Function condition, EvaluationContext context) throws Exception {
+	public static boolean isConditionFullfilled(InstantiationFunction condition, EvaluationContext context)
+			throws Exception {
 		if (condition == null) {
 			return true;
 		}
@@ -116,8 +102,8 @@ public class InstantiationUtils {
 	}
 
 	public static String express(Object value) {
-		if (value instanceof Function) {
-			return ((Function) value).getFunctionBody();
+		if (value instanceof InstantiationFunction) {
+			return ((InstantiationFunction) value).getFunctionBody();
 		} else if (value instanceof InstanceBuilder) {
 			return null;
 		} else if (value instanceof EnumerationItemSelector) {
@@ -134,8 +120,8 @@ public class InstantiationUtils {
 	}
 
 	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {
-		if (value instanceof Function) {
-			Object result = executeFunction(((Function) value), context);
+		if (value instanceof InstantiationFunction) {
+			Object result = executeFunction(((InstantiationFunction) value), context);
 			if (!type.supports(result)) {
 				throw new Exception(
 						"Invalid function result '" + result + "': Expected value of type <" + type.getName() + ">");
@@ -190,7 +176,7 @@ public class InstantiationUtils {
 			} else {
 				functionBody = "return null;";
 			}
-			return new Function(functionBody);
+			return new InstantiationFunction(functionBody);
 		} else if (valueMode == ValueMode.PLAIN) {
 			if (!isComplexType(type)) {
 				if (type instanceof IEnumerationTypeInfo) {

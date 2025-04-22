@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Function;
-import com.otk.jesb.ValidationContext;
-import com.otk.jesb.ValidationContext.VariableDeclaration;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -25,10 +22,10 @@ import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 public class InitializationCaseFacade extends Facade {
 
 	private InitializationSwitchFacade parent;
-	private Function condition;
+	private InstantiationFunction condition;
 	private InitializationCase underlying;
 
-	public InitializationCaseFacade(InitializationSwitchFacade parent, Function condition,
+	public InitializationCaseFacade(InitializationSwitchFacade parent, InstantiationFunction condition,
 			InitializationCase underlying) {
 		this.parent = parent;
 		this.condition = condition;
@@ -40,7 +37,7 @@ public class InitializationCaseFacade extends Facade {
 		return InstantiationUtils.express(getCondition());
 	}
 
-	public Function getCondition() {
+	public InstantiationFunction getCondition() {
 		return condition;
 	}
 
@@ -50,7 +47,7 @@ public class InitializationCaseFacade extends Facade {
 	}
 
 	public void duplicate() {
-		Function conditionCopy;
+		InstantiationFunction conditionCopy;
 		if (isDefault()) {
 			conditionCopy = InitializationCase.createDefaultCondition();
 		} else {
@@ -62,7 +59,7 @@ public class InitializationCaseFacade extends Facade {
 	}
 
 	public void insertNewSibling() {
-		Function newSiblingCondition = InitializationCase.createDefaultCondition();
+		InstantiationFunction newSiblingCondition = InitializationCase.createDefaultCondition();
 		InitializationCase newSiblingUnderlying = new InitializationCase();
 		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), getIndex(), newSiblingCondition,
 				newSiblingUnderlying);
@@ -399,18 +396,19 @@ public class InitializationCaseFacade extends Facade {
 			} else if (facade instanceof ListItemInitializerFacade) {
 				result.add(facade);
 			} else if (facade instanceof InitializationSwitchFacade) {
-				result.addAll(((InitializationSwitchFacade) facade).collectLiveInitializerFacades(
-						createEvaluationContextForChildren(context.getExecutionContext())));
+				result.addAll(((InitializationSwitchFacade) facade)
+						.collectLiveInitializerFacades(createEvaluationContextForChildren(context)));
 			}
 		}
 		return result;
 	}
 
-	protected EvaluationContext createEvaluationContextForChildren(ExecutionContext executionContext) {
-		return new EvaluationContext(executionContext, this);
+	protected EvaluationContext createEvaluationContextForChildren(EvaluationContext context) {
+		return new EvaluationContext(context, this);
 	}
 
-	public CompilationContext findFunctionCompilationContext(Function function, ValidationContext validationContext) {
+	public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
+			List<VariableDeclaration> variableDeclarations) {
 		for (Facade facade : getChildren()) {
 			if (!facade.isConcrete()) {
 				continue;
@@ -418,12 +416,12 @@ public class InitializationCaseFacade extends Facade {
 			if (facade instanceof ParameterInitializerFacade) {
 				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;
 				if (currentFacade.getParameterValue() == function) {
-					return new CompilationContext(validationContext, currentFacade,
+					return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
 							((DefaultTypeInfo) currentFacade.getParameterInfo().getType()).getJavaType());
 				}
 				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getParameterValue())
-							.findFunctionCompilationContext(function, validationContext);
+					InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
+							.getParameterValue()).findFunctionCompilationContext(function, variableDeclarations);
 					if (compilationContext != null) {
 						return compilationContext;
 					}
@@ -434,15 +432,16 @@ public class InitializationCaseFacade extends Facade {
 					continue;
 				}
 				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(validationContext, currentFacade, boolean.class);
+					return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
+							boolean.class);
 				}
 				if (currentFacade.getFieldValue() == function) {
-					return new CompilationContext(validationContext, currentFacade,
+					return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
 							((DefaultTypeInfo) currentFacade.getFieldInfo().getType()).getJavaType());
 				}
 				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getFieldValue())
-							.findFunctionCompilationContext(function, validationContext);
+					InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
+							.getFieldValue()).findFunctionCompilationContext(function, variableDeclarations);
 					if (compilationContext != null) {
 						return compilationContext;
 					}
@@ -453,25 +452,26 @@ public class InitializationCaseFacade extends Facade {
 					continue;
 				}
 				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(validationContext, currentFacade, boolean.class);
+					return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
+							boolean.class);
 				}
 				VariableDeclaration iterationVariableDeclaration = null;
 				int iterationVariableDeclarationPosition = -1;
 				if (currentFacade.getItemReplicationFacade() != null) {
 					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {
-						return new CompilationContext(validationContext, currentFacade,
+						return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
 								currentFacade.getItemReplicationFacade().getIterationListValueClass());
 					}
 					if (currentFacade.getItemReplicationFacade()
 							.getIterationListValue() instanceof InstanceBuilderFacade) {
-						CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
+						InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
 								.getItemReplicationFacade().getIterationListValue())
-										.findFunctionCompilationContext(function, validationContext);
+										.findFunctionCompilationContext(function, variableDeclarations);
 						if (compilationContext != null) {
 							return compilationContext;
 						}
 					}
-					iterationVariableDeclaration = new ValidationContext.VariableDeclaration() {
+					iterationVariableDeclaration = new VariableDeclaration() {
 
 						@Override
 						public String getVariableName() {
@@ -483,29 +483,29 @@ public class InitializationCaseFacade extends Facade {
 							return currentFacade.getItemReplicationFacade().getIterationVariableClass();
 						}
 					};
-					iterationVariableDeclarationPosition = validationContext.getVariableDeclarations().size();
+					iterationVariableDeclarationPosition = variableDeclarations.size();
 				}
 				if (currentFacade.getItemValue() == function) {
-					ValidationContext iterationValidationContext = validationContext;
+					List<VariableDeclaration> iterationVariableDeclarations = variableDeclarations;
 					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<ValidationContext.VariableDeclaration>(
-								validationContext.getVariableDeclarations());
+						List<VariableDeclaration> newVariableDeclarations = new ArrayList<VariableDeclaration>(
+								variableDeclarations);
 						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(newVariableDeclarations);
+						iterationVariableDeclarations = newVariableDeclarations;
 					}
-					return new CompilationContext(iterationValidationContext, currentFacade,
+					return new InstantiationFunctionCompilationContext(iterationVariableDeclarations, currentFacade,
 							((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
 				}
 				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
-					ValidationContext iterationValidationContext = validationContext;
+					List<VariableDeclaration> iterationVariableDeclarations = variableDeclarations;
 					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<ValidationContext.VariableDeclaration>(
-								validationContext.getVariableDeclarations());
+						List<VariableDeclaration> newVariableDeclarations = new ArrayList<VariableDeclaration>(
+								variableDeclarations);
 						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(newVariableDeclarations);
+						iterationVariableDeclarations = newVariableDeclarations;
 					}
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getItemValue())
-							.findFunctionCompilationContext(function, iterationValidationContext);
+					InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
+							.getItemValue()).findFunctionCompilationContext(function, iterationVariableDeclarations);
 					if (compilationContext != null) {
 						return compilationContext;
 					}
@@ -515,10 +515,11 @@ public class InitializationCaseFacade extends Facade {
 				for (Facade childFacade : currentFacade.getChildren()) {
 					InitializationCaseFacade caseFacade = (InitializationCaseFacade) childFacade;
 					if (caseFacade.getCondition() == function) {
-						return new CompilationContext(validationContext, currentFacade, boolean.class);
+						return new InstantiationFunctionCompilationContext(variableDeclarations, currentFacade,
+								boolean.class);
 					}
-					CompilationContext compilationContext = caseFacade.findFunctionCompilationContext(function,
-							validationContext);
+					InstantiationFunctionCompilationContext compilationContext = caseFacade
+							.findFunctionCompilationContext(function, variableDeclarations);
 					if (compilationContext != null) {
 						return compilationContext;
 					}

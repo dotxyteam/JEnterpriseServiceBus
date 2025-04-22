@@ -46,7 +46,7 @@
                         <parameterInitializers>
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
-                            <parameterValue class="com.otk.jesb.Function">
+                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return 100;</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -140,7 +140,7 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
-                            <parameterValue class="com.otk.jesb.Function">
+                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return executePlan.getReadFileResult();</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -193,7 +193,7 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
-                            <parameterValue class="com.otk.jesb.Function">
+                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return 2l;</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
@@ -364,7 +364,7 @@
                   <parameterInitializers>
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.Function">
+                      <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
                         <functionBody>return readFile.getText();</functionBody>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>

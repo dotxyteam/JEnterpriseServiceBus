@@ -119,7 +119,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>milliseconds</fieldName>
-                      <fieldValue class="com.otk.jesb.Function">
+                      <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
                         <functionBody>return (long)jDBCQuery.getRows().size() * 10;</functionBody>
                       </fieldValue>
                     </com.otk.jesb.instantiation.FieldInitializer>
@@ -185,14 +185,14 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                     <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>filePath</fieldName>
-                      <fieldValue class="com.otk.jesb.Function">
+                      <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
                         <functionBody>return &quot;tmp/out.txt&quot;;</functionBody>
                       </fieldValue>
                     </com.otk.jesb.instantiation.FieldInitializer>
                     <com.otk.jesb.instantiation.FieldInitializer>
                       <condition class="null"/>
                       <fieldName>text</fieldName>
-                      <fieldValue class="com.otk.jesb.Function">
+                      <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
                         <functionBody>return jDBCQuery.getRows().get(0).getHSQLDB_TYPE();</functionBody>
                       </fieldValue>
                     </com.otk.jesb.instantiation.FieldInitializer>
@@ -297,7 +297,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.instantiation.ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="com.otk.jesb.Function">
+                            <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return ${..}$TheEnumStructure.E1;</functionBody>
                             </itemValue>
                           </com.otk.jesb.instantiation.ListItemInitializer>
@@ -325,7 +325,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.instantiation.ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="com.otk.jesb.Function">
+                            <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return &quot;bla bla bla&quot;;</functionBody>
                             </itemValue>
                           </com.otk.jesb.instantiation.ListItemInitializer>
@@ -435,7 +435,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.instantiation.ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="com.otk.jesb.Function">
+                            <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return currentType.newInstance();</functionBody>
                             </itemValue>
                           </com.otk.jesb.instantiation.ListItemInitializer>
@@ -460,7 +460,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.instantiation.ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="com.otk.jesb.Function">
+                            <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return currentType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
                             </itemValue>
                           </com.otk.jesb.instantiation.ListItemInitializer>
@@ -485,7 +485,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                           <com.otk.jesb.instantiation.ListItemInitializer>
                             <condition class="null"/>
                             <itemReplication class="null"/>
-                            <itemValue class="com.otk.jesb.Function">
+                            <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return _currentFunctionResultType.getConstructor(String.class).newInstance(&quot;bla bla bla&quot;);</functionBody>
                             </itemValue>
                           </com.otk.jesb.instantiation.ListItemInitializer>

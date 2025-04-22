@@ -3,9 +3,9 @@ package com.otk.jesb.activity;
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Step;
-import com.otk.jesb.Function;
 import com.otk.jesb.Plan;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
 
 public interface ActivityBuilder {
 
@@ -13,6 +13,6 @@ public interface ActivityBuilder {
 
 	Class<?> getActivityResultClass();
 
-	CompilationContext findFunctionCompilationContext(Function function, Step currentStep, Plan currentPlan);
+	InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function, Step currentStep, Plan currentPlan);
 
 }

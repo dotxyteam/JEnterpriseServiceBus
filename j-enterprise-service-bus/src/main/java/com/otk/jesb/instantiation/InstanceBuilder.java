@@ -104,7 +104,7 @@ public class InstanceBuilder extends InitializationCase {
 				parameterValue = InstantiationUtils.interpretValue(
 						parameterInitializerFacade.getUnderlying().getParameterValue(),
 						parameterInitializerFacade.getParameterInfo().getType(),
-						new EvaluationContext(context.getExecutionContext(), parameterInitializerFacade));
+						new EvaluationContext(context, parameterInitializerFacade));
 				parameterValues[parameterInitializerFacade.getParameterPosition()] = parameterValue;
 			}
 		}
@@ -127,7 +127,7 @@ public class InstanceBuilder extends InitializationCase {
 					continue;
 				}
 				if (!InstantiationUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
-						new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
+						new EvaluationContext(context, listItemInitializerFacade))) {
 					continue;
 				}
 				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
@@ -135,7 +135,7 @@ public class InstanceBuilder extends InitializationCase {
 					Object iterationListValue = InstantiationUtils.interpretValue(
 							itemReplicationFacade.getIterationListValue(),
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+							new EvaluationContext(context, listItemInitializerFacade));
 					if (iterationListValue == null) {
 						throw new AssertionError("Cannot replicate item: Iteration list value is null");
 					}
@@ -159,17 +159,11 @@ public class InstanceBuilder extends InitializationCase {
 						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
-						context.getExecutionContext().getVariables().add(iterationVariable);
-						Object itemValue;
-						try {
-							itemValue = InstantiationUtils.interpretValue(
-									listItemInitializerFacade.getUnderlying().getItemValue(),
-									(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-											: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-									context);
-						} finally {
-							context.getExecutionContext().getVariables().remove(iterationVariable);
-						}
+						Object itemValue = InstantiationUtils.interpretValue(
+								listItemInitializerFacade.getUnderlying().getItemValue(),
+								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+								new EvaluationContext(context, iterationVariable));
 						itemList.add(itemValue);
 					}
 				} else {
@@ -177,7 +171,7 @@ public class InstanceBuilder extends InitializationCase {
 							listItemInitializerFacade.getUnderlying().getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+							new EvaluationContext(context, listItemInitializerFacade));
 					itemList.add(itemValue);
 				}
 			}
@@ -202,7 +196,7 @@ public class InstanceBuilder extends InitializationCase {
 				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();
 				Object fieldValue = InstantiationUtils.interpretValue(
 						fieldInitializerFacade.getUnderlying().getFieldValue(), fieldInfo.getType(),
-						new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
+						new EvaluationContext(context, fieldInitializerFacade));
 				fieldInfo.setValue(object, fieldValue);
 			}
 		}

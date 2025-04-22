@@ -46,18 +46,18 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTreeTable;
 
-import com.otk.jesb.Function;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.FieldNode;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
-import com.otk.jesb.ValidationContext;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplication;
 import com.otk.jesb.instantiation.ListItemReplicationFacade;
@@ -197,8 +197,9 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) initializerFacade;
 			if (listItemInitializerFacade.getItemReplicationFacade() != null) {
 				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
-				if (itemReplicationFacade.getIterationListValue() instanceof Function) {
-					Function replicationFunction = (Function) itemReplicationFacade.getIterationListValue();
+				if (itemReplicationFacade.getIterationListValue() instanceof InstantiationFunction) {
+					InstantiationFunction replicationFunction = (InstantiationFunction) itemReplicationFacade
+							.getIterationListValue();
 					PathNode pathNodeOrAncestor = pathNode;
 					while (pathNodeOrAncestor != null) {
 						if (unrelativizePathNode(pathNodeOrAncestor) instanceof ListItemNode) {
@@ -308,38 +309,41 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 								if (!initializerFacade.isConcrete()) {
 									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
 								}
-								List<Function> functions = new ArrayList<Function>();
+								List<InstantiationFunction> functions = new ArrayList<InstantiationFunction>();
 								if (initializerFacade instanceof ParameterInitializerFacade) {
 									if (((ParameterInitializerFacade) initializerFacade)
-											.getParameterValue() instanceof Function) {
-										functions.add((Function) ((ParameterInitializerFacade) initializerFacade)
-												.getParameterValue());
+											.getParameterValue() instanceof InstantiationFunction) {
+										functions.add(
+												(InstantiationFunction) ((ParameterInitializerFacade) initializerFacade)
+														.getParameterValue());
 									}
 								} else if (initializerFacade instanceof FieldInitializerFacade) {
 									if (((FieldInitializerFacade) initializerFacade)
-											.getFieldValue() instanceof Function) {
-										functions.add((Function) ((FieldInitializerFacade) initializerFacade)
-												.getFieldValue());
+											.getFieldValue() instanceof InstantiationFunction) {
+										functions.add(
+												(InstantiationFunction) ((FieldInitializerFacade) initializerFacade)
+														.getFieldValue());
 									}
 									if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {
 										functions.add(((FieldInitializerFacade) initializerFacade).getCondition());
 									}
 								} else if (initializerFacade instanceof ListItemInitializerFacade) {
 									if (((ListItemInitializerFacade) initializerFacade)
-											.getItemValue() instanceof Function) {
-										functions.add((Function) ((ListItemInitializerFacade) initializerFacade)
-												.getItemValue());
+											.getItemValue() instanceof InstantiationFunction) {
+										functions.add(
+												(InstantiationFunction) ((ListItemInitializerFacade) initializerFacade)
+														.getItemValue());
 									}
 									if (((ListItemInitializerFacade) initializerFacade)
 											.getItemReplicationFacade() != null) {
 										ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)
 												.getItemReplicationFacade();
-										if (replication.getIterationListValue() instanceof Function) {
-											functions.add((Function) replication.getIterationListValue());
+										if (replication.getIterationListValue() instanceof InstantiationFunction) {
+											functions.add((InstantiationFunction) replication.getIterationListValue());
 										}
 									}
 								}
-								for (Function function : functions) {
+								for (InstantiationFunction function : functions) {
 									if (Pattern
 											.compile(".*" + relativizePathNode(pathNode, initializerFacade)
 													.getExpressionPattern() + ".*", Pattern.DOTALL)
@@ -859,12 +863,13 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
 			boolean accept = false;
 			Facade initializerFacade = (Facade) initializerPosition.getItem();
-			if (targetValueAccessor.get() instanceof Function) {
+			if (targetValueAccessor.get() instanceof InstantiationFunction) {
 				int choice = openMappingOptionSelectionDialog(
 						Arrays.asList("Rewrite the existing function", "Do not rewrite the existing function"),
 						pathNode, initializerFacade, initializerTreeControl);
 				if (choice == 0) {
-					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+					targetValueAccessor
+							.set(new InstantiationFunction("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
 				} else if (choice == 1) {
 					// do nothing
@@ -873,7 +878,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 				}
 			} else {
 				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {
-					targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+					targetValueAccessor
+							.set(new InstantiationFunction("return " + pathNode.getTypicalExpression() + ";"));
 					accept = true;
 				} else {
 					int choice = openMappingOptionSelectionDialog(
@@ -881,7 +887,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 									"Map corresponding children (same name) of source and target values", "Do not map"),
 							pathNode, initializerFacade, initializerTreeControl);
 					if (choice == 0) {
-						targetValueAccessor.set(new Function("return " + pathNode.getTypicalExpression() + ";"));
+						targetValueAccessor
+								.set(new InstantiationFunction("return " + pathNode.getTypicalExpression() + ";"));
 						accept = true;
 					} else if (choice == 1) {
 						initializerFacade.setConcrete(true);
@@ -919,7 +926,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 				if (choice == 0) {
 					ListItemReplication itemReplication = new ListItemReplication();
 					itemReplication.setIterationListValue(
-							new Function("return " + pathNode.getParent().getTypicalExpression() + ";"));
+							new InstantiationFunction("return " + pathNode.getParent().getTypicalExpression() + ";"));
 					itemReplication.setIterationListValueTypeName(pathNode.getParent().getExpressionType().getName());
 					itemReplication.setIterationVariableTypeName(pathNode.getExpressionType().getName());
 					listItemInitializerFacade.setConcrete(true);
@@ -932,13 +939,14 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 								.setIterationVariableName("current" + parentFieldName.substring(0, 1).toUpperCase()
 										+ parentFieldName.substring(1) + "Item");
 					}
-					CompilationContext compilationContext = ((InstanceBuilderFacade) Facade
+					InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) Facade
 							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
-									(Function) itemReplication.getIterationListValue(), new ValidationContext());
+									(InstantiationFunction) itemReplication.getIterationListValue(),
+									new ArrayList<VariableDeclaration>());
 					while (true) {
-						boolean nameConflictDetected = compilationContext.getValidationContext()
-								.getVariableDeclarations().stream().anyMatch(variableDeclaration -> variableDeclaration
-										.getVariableName().equals(itemReplication.getIterationVariableName()));
+						boolean nameConflictDetected = compilationContext.getVariableDeclarations().stream()
+								.anyMatch(variableDeclaration -> variableDeclaration.getVariableName()
+										.equals(itemReplication.getIterationVariableName()));
 						if (!nameConflictDetected) {
 							break;
 						}

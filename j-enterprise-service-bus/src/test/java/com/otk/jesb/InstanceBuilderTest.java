@@ -15,10 +15,11 @@ import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
@@ -49,7 +50,7 @@ public class InstanceBuilderTest {
 		}
 		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers()
-				.add(new ParameterInitializer(0, new Function("return " + step.getName() + ";")));
+				.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
@@ -183,7 +184,8 @@ public class InstanceBuilderTest {
 
 			@Override
 			public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-				return (Tree) instanceBuilder.build(new EvaluationContext(context, null));
+				return (Tree) instanceBuilder.build(
+						new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
 			}
 
 			@Override
@@ -192,10 +194,10 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public CompilationContext findFunctionCompilationContext(Function function, Step currentStep,
-					Plan currentPlan) {
+			public InstantiationFunctionCompilationContext findFunctionCompilationContext(
+					InstantiationFunction function, Step currentStep, Plan currentPlan) {
 				return instanceBuilder.getFacade().findFunctionCompilationContext(function,
-						currentPlan.getValidationContext(currentStep));
+						currentPlan.getValidationContext(currentStep).getVariableDeclarations());
 			}
 
 		}

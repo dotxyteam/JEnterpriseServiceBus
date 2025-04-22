@@ -4,23 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.ValidationContext.VariableDeclaration;
 
 import xy.reflect.ui.info.type.ITypeInfo;
 
 public class PathOptionsProvider {
 
-	protected Plan currentPlan;
-	protected Step currentStep;
+	protected List<VariableDeclaration> variableDeclarations;
 
-	public PathOptionsProvider(Plan currentPlan, Step currentStep) {
-		this.currentPlan = currentPlan;
-		this.currentStep = currentStep;
+	public PathOptionsProvider(List<VariableDeclaration> variableDeclarations) {
+		this.variableDeclarations = variableDeclarations;
 	}
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
-		for (ValidationContext.VariableDeclaration declaration : getVariableDeclarations()) {
+		for (VariableDeclaration declaration : getVariableDeclarations()) {
 			result.add(new RootPathNode(
 					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));
 		}
@@ -28,7 +25,7 @@ public class PathOptionsProvider {
 	}
 
 	protected List<VariableDeclaration> getVariableDeclarations() {
-		return currentPlan.getValidationContext(currentStep).getVariableDeclarations();
+		return variableDeclarations;
 	}
 
 	private static class RootPathNode implements PathNode {
