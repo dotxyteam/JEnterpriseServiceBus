@@ -11,7 +11,6 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
-import com.otk.jesb.instantiation.NullInstance;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
@@ -89,7 +88,7 @@ public class Plan extends Asset {
 
 	private void updateInputClass() {
 		if (inputStructure == null) {
-			inputClass = NullInstance.class;
+			inputClass = null;
 		} else {
 			try {
 				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
@@ -104,7 +103,7 @@ public class Plan extends Asset {
 
 	private void updateOutputClass() {
 		if (outputStructure == null) {
-			outputClass = NullInstance.class;
+			outputClass = null;
 		} else {
 			try {
 				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"

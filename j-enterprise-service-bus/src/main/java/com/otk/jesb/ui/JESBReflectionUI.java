@@ -659,12 +659,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public String getName() {
-							return "assist";
+							return "edit";
 						}
 
 						@Override
 						public String getCaption() {
-							return "Assist...";
+							return "Edit...";
 						}
 
 						@Override

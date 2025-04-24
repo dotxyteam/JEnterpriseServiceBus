@@ -90,7 +90,7 @@ public class ExecutePlanActivity implements Activity {
 							return null;
 						}
 						if (plan.getInputClass() == null) {
-							plan.setInputStructure(plan.getInputStructure());
+							return null;
 						}
 						return plan.getInputClass().getName();
 					}

@@ -706,7 +706,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	public void addMenuContributions(MenuModel menuModel) {
 		MenuInfo editMenu = menuModel.getMenus().stream().filter(menu -> menu.getCaption().equals("Edit")).findFirst()
-				.get();
+				.orElse(null);
 		{
 			MenuItemCategory category = new MenuItemCategory();
 			{

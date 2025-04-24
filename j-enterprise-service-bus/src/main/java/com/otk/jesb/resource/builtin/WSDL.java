@@ -56,7 +56,7 @@ public class WSDL extends Resource {
 	}
 
 	public Map<String, String> getDependencyTextByFileName() {
-		return dependencyTextByFileName;
+		return Collections.unmodifiableMap(dependencyTextByFileName);
 	}
 
 	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {

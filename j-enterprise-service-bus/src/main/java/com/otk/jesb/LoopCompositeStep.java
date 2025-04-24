@@ -242,7 +242,7 @@ public class LoopCompositeStep extends CompositeStep {
 					resultClass = null;
 					return;
 				}
-				String resultClassName = LoopActivity.class.getName() + "Result"
+				String resultClassName = LoopCompositeStep.class.getName() + "Result"
 						+ MiscUtils.getDigitalUniqueIdentifier();
 				StringBuilder javaSource = new StringBuilder();
 				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
