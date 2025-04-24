@@ -316,7 +316,7 @@ public class InitializationCaseFacade extends Facade {
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
+				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);
 	}
 
 	public boolean isDefault() {

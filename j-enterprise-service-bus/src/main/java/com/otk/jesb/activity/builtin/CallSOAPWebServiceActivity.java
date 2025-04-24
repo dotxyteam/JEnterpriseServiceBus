@@ -134,7 +134,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 					@Override
 					public String get() {
 						if (operationInputClass == null) {
-							operationInputClass = createOperationInputClass();
+							return null;
 						}
 						return operationInputClass.getName();
 					}
@@ -344,7 +344,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				return null;
 			}
 			return wsdl.getServiceDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName)).findFirst()
-					.get();
+					.orElse(null);
 		}
 
 		private WSDL.PortDescriptor retrievePortDescriptor() {
@@ -353,7 +353,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				return null;
 			}
 			return service.getPortDescriptors().stream().filter(p -> p.getPortName().equals(portName)).findFirst()
-					.get();
+					.orElse(null);
 		}
 
 		private WSDL.OperationDescriptor retrieveOperationDescriptor() {
@@ -362,7 +362,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				return null;
 			}
 			return port.getOperationDescriptors().stream()
-					.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().get();
+					.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);
 		}
 
 		@Override

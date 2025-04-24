@@ -69,7 +69,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
+				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);
 	}
 
 	public Object createDefaultParameterValue() {
@@ -110,7 +110,8 @@ public class ParameterInitializerFacade extends Facade {
 	public void setParameterValueMode(ValueMode valueMode) {
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
-		Object newParameterValue = InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), valueMode, this);
+		Object newParameterValue = InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), valueMode,
+				this);
 		if (newParameterValue instanceof InstanceBuilder) {
 			newParameterValue = new InstanceBuilderFacade(this, (InstanceBuilder) newParameterValue);
 		}
