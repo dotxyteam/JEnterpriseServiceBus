@@ -267,13 +267,13 @@ public class Plan extends Asset {
 		}
 		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
 		for (Step step : previousSteps) {
-			if (step.getActivityBuilder().getActivityResultClass() != null) {
-				result.getVariableDeclarations().add(new StepEventuality(step));
+			if (step.getActivityBuilder().getActivityResultClass(this, step) != null) {
+				result.getVariableDeclarations().add(new StepEventuality(step, this));
 			}
 			if (step instanceof CompositeStep) {
 				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
-						result.getVariableDeclarations().add(new StepEventuality(descendantStep));
+					if (descendantStep.getActivityBuilder().getActivityResultClass(this, descendantStep) != null) {
+						result.getVariableDeclarations().add(new StepEventuality(descendantStep, this));
 					}
 				}
 			}

@@ -336,7 +336,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {

@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.otk.jesb.Plan.ExecutionContext;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
@@ -92,7 +95,8 @@ public class LoopCompositeStep extends CompositeStep {
 			try {
 				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, context.getPlan())) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+					if (descendantStep.getActivityBuilder().getActivityResultClass(context.getPlan(),
+							descendantStep) != null) {
 						context.getVariables().add(new Variable() {
 
 							@Override
@@ -162,6 +166,7 @@ public class LoopCompositeStep extends CompositeStep {
 			private InstantiationFunction loopEndCondition = new InstantiationFunction(
 					"return " + iterationIndexVariableName + "==3;");
 			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
+			private Class<?> resultClass;
 
 			public String getIterationIndexVariableName() {
 				return iterationIndexVariableName;
@@ -189,14 +194,98 @@ public class LoopCompositeStep extends CompositeStep {
 
 			public List<ResultsCollectionConfigurationEntry> retrieveResultsCollectionConfigurationEntries(
 					Plan currentPlan, Step currentStep) {
-				List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry>();
-				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
-				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
-						result.add(new ResultsCollectionConfigurationEntry(descendantStep.getName()));
+				if (resultsCollectionTargetedStepNames == null) {
+					return null;
+				} else {
+					List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry>();
+					LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
+					for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
+						if (descendantStep.getActivityBuilder().getActivityResultClass(currentPlan,
+								descendantStep) != null) {
+							result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));
+						}
+					}
+					resultsCollectionTargetedStepNames.stream()
+							.filter(targetedStepName -> result.stream()
+									.noneMatch(entry -> entry.getStepName().equals(targetedStepName)))
+							.forEach(notFoundStepName -> result
+									.add(new ResultsCollectionConfigurationEntry(null, false) {
+										@Override
+										public String getStepName() {
+											return notFoundStepName;
+										}
+									}));
+					return result;
+				}
+			}
+
+			public void updateResultsCollectionConfigurationEntries(List<ResultsCollectionConfigurationEntry> entries,
+					Plan currentPlan, Step currentStep) {
+				if (entries == null) {
+					resultsCollectionTargetedStepNames = null;
+				} else {
+					Set<String> tmp = new HashSet<String>();
+					for (ResultsCollectionConfigurationEntry entry : entries) {
+						if (entry.isResultsCollectionEnabled()) {
+							tmp.add(entry.getStepName());
+						}
+					}
+					resultsCollectionTargetedStepNames = tmp;
+				}
+				updateResultClass(currentPlan, currentStep);
+			}
+
+			private void updateResultClass(Plan currentPlan, Step currentStep) {
+				List<ResultsCollectionConfigurationEntry> resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(
+						currentPlan, currentStep);
+				if (resultsCollectionEntries == null) {
+					resultClass = null;
+					return;
+				}
+				String resultClassName = LoopActivity.class.getName() + "Result"
+						+ MiscUtils.getDigitalUniqueIdentifier();
+				StringBuilder javaSource = new StringBuilder();
+				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
+				javaSource.append(
+						"public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "{" + "\n");
+				StringBuilder privateFieldDeclarationsSource = new StringBuilder();
+				StringBuilder getterDeclarationsSource = new StringBuilder();
+				for (ResultsCollectionConfigurationEntry resultsCollectionEntry : resultsCollectionEntries) {
+					if (!resultsCollectionEntry.isValid()) {
+						continue;
+					}
+					String fieldName = resultsCollectionEntry.getStepName();
+					String fieldTypeName = List.class.getName() + "<" + MiscUtils.adaptClassNameToSourceCode(
+							resultsCollectionEntry.getActivityResultClass(currentPlan).getName()) + ">";
+					privateFieldDeclarationsSource.append("  private " + fieldTypeName + " " + fieldName + ";\n");
+					String getterMethoName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+					getterDeclarationsSource
+							.append("  public " + fieldTypeName + " " + getterMethoName + "() {" + "\n");
+					getterDeclarationsSource.append("    return " + fieldName + ";" + "\n");
+					getterDeclarationsSource.append("  }" + "\n");
+				}
+				javaSource.append(privateFieldDeclarationsSource.toString());
+				javaSource.append(getterDeclarationsSource.toString());
+				javaSource.append("}" + "\n");
+				try {
+					resultClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
+				} catch (CompilationError e) {
+					throw new AssertionError(e);
+				}
+			}
+
+			public void validate(Plan currentPlan, Step currentStep) throws ValidationError {
+				List<ResultsCollectionConfigurationEntry> resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(
+						currentPlan, currentStep);
+				if (resultsCollectionEntries != null) {
+					List<ResultsCollectionConfigurationEntry> invalidEntries = resultsCollectionEntries.stream()
+							.filter(entry -> !entry.isValid()).collect(Collectors.toList());
+					if (invalidEntries.size() > 0) {
+						throw new ValidationError("Invalid results collection step names: " + MiscUtils.stringJoin(
+								invalidEntries.stream().map(entry -> entry.getStepName()).collect(Collectors.toList()),
+								", "));
 					}
 				}
-				return result;
 			}
 
 			@Override
@@ -205,8 +294,8 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public Class<?> getActivityResultClass() {
-				return null;
+			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+				return resultClass;
 			}
 
 			@Override
@@ -230,8 +319,10 @@ public class LoopCompositeStep extends CompositeStep {
 				});
 				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
-						validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep));
+					if (descendantStep.getActivityBuilder().getActivityResultClass(currentPlan,
+							descendantStep) != null) {
+						validationContext.getVariableDeclarations()
+								.add(new StepEventuality(descendantStep, currentPlan));
 					}
 				}
 				return new InstantiationFunctionCompilationContext(validationContext.getVariableDeclarations(), null,
@@ -239,25 +330,45 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			public class ResultsCollectionConfigurationEntry {
-				private String stepName;
+				private Step targetedStep;
+				private boolean valid;
 
-				public ResultsCollectionConfigurationEntry(String stepName) {
-					this.stepName = stepName;
+				public ResultsCollectionConfigurationEntry(Step targetedStep, boolean valid) {
+					this.targetedStep = targetedStep;
+					this.valid = valid;
+				}
+
+				public Step getTargetedStep() {
+					return targetedStep;
 				}
 
 				public String getStepName() {
-					return stepName;
+					if (targetedStep == null) {
+						return null;
+					}
+					return targetedStep.getName();
+				}
+
+				public Class<?> getActivityResultClass(Plan currentPlan) {
+					if (targetedStep == null) {
+						return null;
+					}
+					return targetedStep.getActivityBuilder().getActivityResultClass(currentPlan, targetedStep);
+				}
+
+				public boolean isValid() {
+					return valid;
 				}
 
 				public boolean isResultsCollectionEnabled() {
-					return resultsCollectionTargetedStepNames.contains(stepName);
+					return resultsCollectionTargetedStepNames.contains(getStepName());
 				}
 
 				public void setResultsCollectionEnabled(boolean resultsCollectionEnabled) {
 					if (resultsCollectionEnabled) {
-						resultsCollectionTargetedStepNames.add(stepName);
+						resultsCollectionTargetedStepNames.add(getStepName());
 					} else {
-						resultsCollectionTargetedStepNames.remove(stepName);
+						resultsCollectionTargetedStepNames.remove(getStepName());
 					}
 				}
 

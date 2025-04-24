@@ -330,7 +330,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;

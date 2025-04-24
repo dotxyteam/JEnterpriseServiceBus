@@ -243,7 +243,7 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			return Result.class;
 		}
 

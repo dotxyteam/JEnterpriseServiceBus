@@ -189,7 +189,7 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public Class<?> getActivityResultClass() {
+			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 				return Tree.class;
 			}
 

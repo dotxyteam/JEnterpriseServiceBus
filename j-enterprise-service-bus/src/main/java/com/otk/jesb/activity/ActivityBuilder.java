@@ -11,7 +11,7 @@ public interface ActivityBuilder {
 
 	Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
 
-	Class<?> getActivityResultClass();
+	Class<?> getActivityResultClass(Plan currentPlan, Step currentStep);
 
 	InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function, Step currentStep, Plan currentPlan);
 

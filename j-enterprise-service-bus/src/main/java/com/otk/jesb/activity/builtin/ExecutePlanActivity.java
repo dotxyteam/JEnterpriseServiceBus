@@ -140,7 +140,7 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			Plan plan = getPlan();
 			if (plan == null) {
 				return null;

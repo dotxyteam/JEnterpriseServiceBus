@@ -186,7 +186,7 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			return null;
 		}
 

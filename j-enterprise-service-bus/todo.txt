@@ -10,14 +10,19 @@
 			# allow to accumulate ???
 		* etc 
 	. conditional transitions for steps
+- loop accumulation vars not usable
 - improve the step list view (sort, add hierarchy, ...)
 - error marker do not disappear when deselecting and selecting a plan while
 ExecutePlan.inputBuilder is filled
+- PLAN_INPUT var displayed though ther is no input
 - allow to build and reference shared structures
+- I often try to drag vars and drop them in a function body on the mapper window
+yet it must be done on the function editor 
 - allow to start plan execution on event (timer, file poller, etc)
 - create and display a Sub-PlanExecutor for each sub-plan execution
 - add an "Evaluate" activity (like BW "Mapper" activity
 - allow to manage exceptions
+- status bar not stable when hanging mouse over the validation error message
 - to ease co-working and version control, plans and resources must be stored in separate files  
 - add validation
 - optimize functions (do not recompile systematically)

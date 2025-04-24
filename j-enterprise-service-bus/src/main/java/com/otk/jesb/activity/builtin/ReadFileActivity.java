@@ -168,7 +168,7 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			if (mode == Mode.TEXT) {
 				return TextResult.class;
 			} else if (mode == Mode.BINARY) {

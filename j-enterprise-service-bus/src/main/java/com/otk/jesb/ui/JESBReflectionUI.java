@@ -719,7 +719,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public String getCaption() {
-							return "Configure Results Collection...";
+							return ReflectionUIUtils.identifierToCaption(getName());
 						}
 
 						@Override
@@ -733,10 +733,79 @@ public class JESBReflectionUI extends CustomizedUI {
 							return ((LoopActivity.Builder) object)
 									.retrieveResultsCollectionConfigurationEntries(currentPlan, currentStep);
 						}
+					});
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
 						@Override
-						public boolean isReadOnly() {
-							return true;
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "updateResultsCollectionConfigurationEntries";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName()) + "...";
+						}
+
+						@Override
+						public List<IParameterInfo> getParameters() {
+							return Collections
+									.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+										@Override
+										public String getName() {
+											return "entries";
+										}
+
+										@Override
+										public String getCaption() {
+											return ReflectionUIUtils.identifierToCaption(getName());
+										}
+
+										@Override
+										public ITypeInfo getType() {
+											return getTypeInfo(new JavaTypeInfoSource(List.class,
+													new Class<?>[] { ResultsCollectionConfigurationEntry.class },
+													null));
+										}
+									});
+						}
+
+						@SuppressWarnings("unchecked")
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							((LoopActivity.Builder) object).updateResultsCollectionConfigurationEntries(
+									(List<ResultsCollectionConfigurationEntry>) invocationData.getParameterValue(0),
+									currentPlan, currentStep);
+							return null;
+						}
+					});
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "validate";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName());
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							((LoopActivity.Builder) object).validate(
+									currentPlan, currentStep);
+							return null;
 						}
 					});
 					return result;
@@ -870,6 +939,10 @@ public class JESBReflectionUI extends CustomizedUI {
 								InstantiationFunctionCompilationContext.class.getName(),
 								"findFunctionCompilationContext", Arrays.asList(InstantiationFunction.class.getName(),
 										Step.class.getName(), Plan.class.getName())))) {
+							return true;
+						}
+						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
+								"getActivityResultClass", Arrays.asList(Plan.class.getName(), Step.class.getName())))) {
 							return true;
 						}
 					}
