@@ -14,6 +14,7 @@ import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 public class Plan extends Asset {
 
@@ -31,19 +32,62 @@ public class Plan extends Asset {
 	private List<Transition> transitions = new ArrayList<Transition>();
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
-	private Class<?> inputClass;
-	private Class<?> outputClass;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new Accessor<String>() {
 				@Override
 				public String get() {
+					Class<?> outputClass = upToDateOutputClass.get();
 					if (outputClass == null) {
-						updateOutputClass();
+						return null;
 					}
 					return outputClass.getName();
 				}
 			});
 
+	private UpToDate<Class<?>> upToDateInputClass = new UpToDate<Class<?>>() {
+		@Override
+		protected Object getLastModificationIdentifier() {
+			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
+		}
+
+		@Override
+		protected Class<?> obtainLatest() {
+			if (inputStructure == null) {
+				return null;
+			} else {
+				try {
+					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
+							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
+					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+							inputStructure.generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new AssertionError(e);
+				}
+			}
+		}
+	};
+	private UpToDate<Class<?>> upToDateOutputClass = new UpToDate<Class<?>>() {
+		@Override
+		protected Object getLastModificationIdentifier() {
+			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
+		}
+
+		@Override
+		protected Class<?> obtainLatest() {
+			if (outputStructure == null) {
+				return null;
+			} else {
+				try {
+					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
+							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
+					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+							outputStructure.generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new AssertionError(e);
+				}
+			}
+		}
+	};
 	public List<Step> getSteps() {
 		return steps;
 	}
@@ -66,7 +110,6 @@ public class Plan extends Asset {
 
 	public void setInputStructure(ClassicStructure inputStructure) {
 		this.inputStructure = inputStructure;
-		updateInputClass();
 	}
 
 	public ClassicStructure getOutputStructure() {
@@ -75,7 +118,6 @@ public class Plan extends Asset {
 
 	public void setOutputStructure(ClassicStructure outputStructure) {
 		this.outputStructure = outputStructure;
-		updateOutputClass();
 	}
 
 	public RootInstanceBuilder getOutputBuilder() {
@@ -86,42 +128,12 @@ public class Plan extends Asset {
 		this.outputBuilder = outputBuilder;
 	}
 
-	private void updateInputClass() {
-		if (inputStructure == null) {
-			inputClass = null;
-		} else {
-			try {
-				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-						+ MiscUtils.getDigitalUniqueIdentifier();
-				inputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						inputStructure.generateJavaTypeSourceCode(className));
-			} catch (CompilationError e) {
-				throw new AssertionError(e);
-			}
-		}
-	}
-
-	private void updateOutputClass() {
-		if (outputStructure == null) {
-			outputClass = null;
-		} else {
-			try {
-				String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-						+ MiscUtils.getDigitalUniqueIdentifier();
-				outputClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
-						outputStructure.generateJavaTypeSourceCode(className));
-			} catch (CompilationError e) {
-				throw new AssertionError(e);
-			}
-		}
-	}
-
 	public Class<?> getInputClass() {
-		return inputClass;
+		return upToDateInputClass.get();
 	}
 
 	public Class<?> getOutputClass() {
-		return outputClass;
+		return upToDateOutputClass.get();
 	}
 
 	public List<Step> getPreviousSteps(Step step) {
@@ -170,6 +182,7 @@ public class Plan extends Asset {
 
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws Throwable {
 		ExecutionContext context = new ExecutionContext(this);
+		Class<?> inputClass = upToDateInputClass.get();
 		if (inputClass != null) {
 			if (input != null) {
 				if (!inputClass.isInstance(input)) {
@@ -249,6 +262,7 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
+			Class<?> inputClass = upToDateInputClass.get();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 

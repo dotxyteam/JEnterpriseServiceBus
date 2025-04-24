@@ -145,7 +145,7 @@ public class JDBCQueryActivity implements Activity {
 				return null;
 			}
 			String resultClassName = JDBCQueryActivity.class.getName() + "Result"
-					+ MiscUtils.getDigitalUniqueIdentifier();
+					+ MiscUtils.getDigitalUniqueIdentifier(this);
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
@@ -197,7 +197,7 @@ public class JDBCQueryActivity implements Activity {
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
 			String className = JDBCQueryActivity.class.getName() + "ParameterValues"
-					+ MiscUtils.getDigitalUniqueIdentifier();
+					+ MiscUtils.getDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "

@@ -27,6 +27,11 @@ during the runtime, for example to create an instance and compile a function
 that will use that instance. The generated class must then be exactly the 
 same. The ideal solution would be to detect the dependency value changes
 and update the class, but it seems to be impossible unless implementing
-a heavy solution. In fact the class is a weird calculated value that
+a heavy solution. In fact such a class is a weird calculated value that
 must not be recalculated when the model is stable. This constraint does
-not seem to be normal. 
+not seem to be normal. But it is common in complex applications. A dependency 
+management system should be used to keep model objects up to date at a 
+reasonable cost. A change in a part of the model could be detected by
+analyzing the serialized version of this model part. Actually the real
+model is the serialized model, and model objects are just tools used to
+exploit this model.

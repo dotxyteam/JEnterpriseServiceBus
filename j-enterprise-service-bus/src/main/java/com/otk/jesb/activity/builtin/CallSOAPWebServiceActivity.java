@@ -29,6 +29,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -126,19 +127,30 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		private Class<? extends OperationInput> operationInputClass;
-
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
 				OperationInput.class.getSimpleName(), new Accessor<String>() {
 					@Override
 					public String get() {
+						Class<?> operationInputClass = upToDateOperationInputClass.get();
 						if (operationInputClass == null) {
 							return null;
 						}
 						return operationInputClass.getName();
 					}
 				});
+		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDate<Class<?>>() {
+			@Override
+			protected Object getLastModificationIdentifier() {
+				WSDL wsdl = getWSDL();
+				return (wsdl != null) ? MiscUtils.serialize(wsdl) : null;
+			}
+
+			@Override
+			protected Class<?> obtainLatest() {
+				return obtainOperationInputClass();
+			}
+		};
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
@@ -154,7 +166,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 		public void setWsdlReference(Reference<WSDL> wsdlReference) {
 			this.wsdlReference = wsdlReference;
 			tryToSelectValuesAutomatically();
-			tryToUpdateOperationInputClass();
 		}
 
 		public String getServiceName() {
@@ -164,7 +175,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 		public void setServiceName(String serviceName) {
 			this.serviceName = serviceName;
 			tryToSelectValuesAutomatically();
-			tryToUpdateOperationInputClass();
 		}
 
 		public String getPortName() {
@@ -174,7 +184,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 		public void setPortName(String portName) {
 			this.portName = portName;
 			tryToSelectValuesAutomatically();
-			tryToUpdateOperationInputClass();
 		}
 
 		public String getOperationSignature() {
@@ -184,7 +193,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 		public void setOperationSignature(String operationSignature) {
 			this.operationSignature = operationSignature;
 			tryToSelectValuesAutomatically();
-			tryToUpdateOperationInputClass();
 		}
 
 		public RootInstanceBuilder getOperationInputBuilder() {
@@ -228,22 +236,17 @@ public class CallSOAPWebServiceActivity implements Activity {
 			}
 		}
 
-		private void tryToUpdateOperationInputClass() {
-			try {
-				operationInputClass = createOperationInputClass();
-			} catch (Throwable t) {
-			}
-		}
+		
 
 		@SuppressWarnings("unchecked")
-		private Class<? extends OperationInput> createOperationInputClass() {
+		private Class<? extends OperationInput> obtainOperationInputClass() {
 			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;
 			}
 			Method operationMethod = operation.retrieveMethod();
 			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
-					+ MiscUtils.getDigitalUniqueIdentifier();
+					+ MiscUtils.getDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "

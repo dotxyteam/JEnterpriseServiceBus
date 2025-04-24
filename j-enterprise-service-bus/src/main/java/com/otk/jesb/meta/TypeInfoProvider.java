@@ -34,7 +34,7 @@ public class TypeInfoProvider {
 		Class<?> result = PRIMITIVE_CLASS_BY_NAME.get(typeName);
 		if (result == null) {
 			try {
-				result = Class.forName(typeName, false, MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader());
+				result = MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader().loadClass(typeName);
 			} catch (ClassNotFoundException e) {
 				throw new AssertionError(e);
 			}

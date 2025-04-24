@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
 import com.otk.jesb.Asset;
@@ -43,12 +45,17 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class MiscUtils {
 
+	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
+	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
+	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
+	
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
+	
 	public static String escapeRegex(String str) {
 		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
 	}
@@ -61,6 +68,17 @@ public class MiscUtils {
 
 	public static String getDigitalUniqueIdentifier() {
 		return String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16));
+	}
+
+	public static String getDigitalUniqueIdentifier(Object object) {
+		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
+			String result = DIGITAL_UNIQUE_IDENTIFIER_CACHE.get(object);
+			if (result == null) {
+				result = getDigitalUniqueIdentifier();
+				DIGITAL_UNIQUE_IDENTIFIER_CACHE.put(object, result);
+			}
+			return result;
+		}
 	}
 
 	public static <E> Iterable<E> secureIterable(Iterable<E> iterable) {
@@ -393,12 +411,40 @@ public class MiscUtils {
 		}
 	}
 
-	public static Object deserialize(InputStream input) throws IOException {
-		return getXStream().fromXML(new InputStreamReader(input, "UTF-8"));
+	public static void serialize(Object object, OutputStream output) throws IOException {
+		getXStream().toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
 	}
 
-	public static void serialize(Object object, OutputStream output) throws IOException {
-		getXStream().toXML(object, new OutputStreamWriter(output, "UTF-8"));
+	public static Object deserialize(InputStream input) throws IOException {
+		return getXStream().fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+	}
+
+	public static String serialize(Object object) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			serialize(object, output);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+		try {
+			return output.toString(SERIALIZATION_CHARSET_NAME);
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public static Object deserialize(String inputString) {
+		ByteArrayInputStream input;
+		try {
+			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
+		try {
+			return deserialize(input);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	private static XStream getXStream() {
