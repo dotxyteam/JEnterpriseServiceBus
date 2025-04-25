@@ -239,8 +239,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			}
 		}
 
-		
-
 		@SuppressWarnings("unchecked")
 		private Class<? extends OperationInput> obtainOperationInputClass() {
 			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();

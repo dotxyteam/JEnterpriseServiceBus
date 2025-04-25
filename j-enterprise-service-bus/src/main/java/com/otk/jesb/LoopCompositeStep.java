@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,11 +77,20 @@ public class LoopCompositeStep extends CompositeStep {
 			this.iterationIndexVariableName = iterationIndexVariableName;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute() throws Exception {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
 			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
 			final int[] index = new int[] { 0 };
+			LoopActivityResult result = null;
+			{
+				Class<?> resultClass = loopCompositeStep.getActivityBuilder().getActivityResultClass(context.getPlan(),
+						loopCompositeStep);
+				if (resultClass != null) {
+					result = (LoopActivityResult) resultClass.getConstructor().newInstance();
+				}
+			}
 			Variable iterationIndexVariable = new Variable() {
 
 				@Override
@@ -127,12 +137,21 @@ public class LoopCompositeStep extends CompositeStep {
 						throw new AssertionError(t);
 					}
 					context.setCutrrentStep(loopCompositeStep);
+					if (result != null) {
+						for (Variable variable : context.getVariables()) {
+							if (variable.getValue() != null) {
+								if (result.listResultsCollectionTargetedStepNames().contains(variable.getName())) {
+									result.accessCollectedStepResults(variable.getName()).add(variable.getValue());
+								}
+							}
+						}
+					}
 					index[0]++;
 				}
 			} finally {
 				context.getVariables().remove(iterationIndexVariable);
 			}
-			return null;
+			return result;
 		}
 
 		private static List<Step> getLoopDescendantSteps(Plan currentPlan, Step currentStep) {
@@ -144,6 +163,14 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 			}
 			return result;
+		}
+
+		public static interface LoopActivityResult {
+
+			List<String> listResultsCollectionTargetedStepNames();
+
+			@SuppressWarnings("rawtypes")
+			List accessCollectedStepResults(String stepName);
 		}
 
 		public static class Metadata implements ActivityMetadata {
@@ -275,11 +302,21 @@ public class LoopCompositeStep extends CompositeStep {
 						+ MiscUtils.getDigitalUniqueIdentifier(this);
 				StringBuilder javaSource = new StringBuilder();
 				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
-				javaSource.append(
-						"public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "{" + "\n");
+				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName)
+						+ " implements " + MiscUtils.adaptClassNameToSourceCode(LoopActivityResult.class.getName())
+						+ "{" + "\n");
 				StringBuilder privateFieldDeclarationsSource = new StringBuilder();
 				StringBuilder getterDeclarationsSource = new StringBuilder();
-				for (ResultsCollectionConfigurationEntry resultsCollectionEntry : resultsCollectionEntries) {
+				StringBuilder resultsCollectionTargetedStepNameListingMethodDeclarationSource = new StringBuilder();
+				StringBuilder collectedStepResultsAccessorDeclarationSource = new StringBuilder();
+				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append("  @Override\n  public  "
+						+ List.class.getName() + "<String> listResultsCollectionTargetedStepNames() {" + "\n");
+				resultsCollectionTargetedStepNameListingMethodDeclarationSource
+						.append("    return " + Arrays.class.getName() + ".asList(");
+				collectedStepResultsAccessorDeclarationSource.append("  @Override\n  public  " + List.class.getName()
+						+ " accessCollectedStepResults(String stepName) {" + "\n");
+				for (int i = 0; i < resultsCollectionEntries.size(); i++) {
+					ResultsCollectionConfigurationEntry resultsCollectionEntry = resultsCollectionEntries.get(i);
 					if (!resultsCollectionEntry.isValid()) {
 						continue;
 					}
@@ -289,15 +326,31 @@ public class LoopCompositeStep extends CompositeStep {
 					String fieldName = resultsCollectionEntry.getStepName();
 					String fieldTypeName = List.class.getName() + "<" + MiscUtils.adaptClassNameToSourceCode(
 							resultsCollectionEntry.getActivityResultClass(currentPlan).getName()) + ">";
-					privateFieldDeclarationsSource.append("  private " + fieldTypeName + " " + fieldName + ";\n");
+					privateFieldDeclarationsSource.append("  private " + fieldTypeName + " " + fieldName + " = new "
+							+ fieldTypeName.replace(List.class.getName(), ArrayList.class.getName()) + "();\n");
 					String getterMethoName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 					getterDeclarationsSource
 							.append("  public " + fieldTypeName + " " + getterMethoName + "() {" + "\n");
 					getterDeclarationsSource.append("    return " + fieldName + ";" + "\n");
 					getterDeclarationsSource.append("  }" + "\n");
+					resultsCollectionTargetedStepNameListingMethodDeclarationSource
+							.append(((i > 0) ? ", " : "") + "\"" + fieldName + "\"");
+					collectedStepResultsAccessorDeclarationSource.append(
+							((i > 0) ? "    else " : "    ") + "if(stepName.equals(\"" + fieldName + "\")){" + "\n");
+					collectedStepResultsAccessorDeclarationSource.append("      return " + fieldName + ";" + "\n");
+					collectedStepResultsAccessorDeclarationSource.append("    }" + "\n");
 				}
+				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append(");" + "\n");
+				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append("  }" + "\n");
+				collectedStepResultsAccessorDeclarationSource
+						.append("    throw new " + IllegalArgumentException.class.getName()
+								+ "(\"Invalid step name: '\" + stepName + \"'\");\n");
+				collectedStepResultsAccessorDeclarationSource.append("  }" + "\n");
+
 				javaSource.append(privateFieldDeclarationsSource.toString());
 				javaSource.append(getterDeclarationsSource.toString());
+				javaSource.append(resultsCollectionTargetedStepNameListingMethodDeclarationSource.toString());
+				javaSource.append(collectedStepResultsAccessorDeclarationSource.toString());
 				javaSource.append("}" + "\n");
 				try {
 					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
