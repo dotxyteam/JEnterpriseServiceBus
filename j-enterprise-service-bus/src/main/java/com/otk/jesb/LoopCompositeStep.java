@@ -179,17 +179,17 @@ public class LoopCompositeStep extends CompositeStep {
 			private UpToDate<Class<?>> upToDateResultClass = new UpToDate<Class<?>>() {
 
 				@Override
-				protected Object getLastModificationIdentifier() {
+				protected Object retrieveLastModificationIdentifier() {
 					@SuppressWarnings("unchecked")
 					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
 					Plan currentPlan = pair.getFirst();
 					Step currentStep = pair.getSecond();
 					List<ResultsCollectionConfigurationEntry> resultsCollectionConfigurationEntries = retrieveResultsCollectionConfigurationEntries(
 							currentPlan, currentStep);
-					return MiscUtils.stringJoin(resultsCollectionConfigurationEntries.stream()
+					return resultsCollectionConfigurationEntries.stream()
 							.filter(entry -> entry.isValid() && entry.isResultsCollectionEnabled())
-							.map(targetedStep -> MiscUtils.serialize(targetedStep)).collect(Collectors.toList()),
-							"\n");
+							.map(targetedStep -> targetedStep.getActivityResultClass(currentPlan))
+							.collect(Collectors.toList());
 				}
 
 				@Override

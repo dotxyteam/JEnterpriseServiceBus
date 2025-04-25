@@ -2,13 +2,20 @@ package com.otk.jesb.util;
 
 public abstract class UpToDate<T> {
 
-	private static final Object UNDEFINED = new Object();
+	private static final Object UNDEFINED = new Object() {
+
+		@Override
+		public String toString() {
+			return UpToDate.class.getName() + ".UNDEFINED";
+		}
+
+	};
 
 	private Object lastModificationIdentifier = UNDEFINED;
 	private T latest;
 	private Object customValue;
 
-	protected abstract Object getLastModificationIdentifier();
+	protected abstract Object retrieveLastModificationIdentifier();
 
 	protected abstract T obtainLatest();
 
@@ -21,7 +28,7 @@ public abstract class UpToDate<T> {
 	}
 
 	public T get() {
-		Object identifier = getLastModificationIdentifier();
+		Object identifier = retrieveLastModificationIdentifier();
 		if (!MiscUtils.equalsOrBothNull(identifier, lastModificationIdentifier)) {
 			latest = obtainLatest();
 			lastModificationIdentifier = identifier;

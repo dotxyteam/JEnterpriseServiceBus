@@ -141,9 +141,12 @@ public class CallSOAPWebServiceActivity implements Activity {
 				});
 		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDate<Class<?>>() {
 			@Override
-			protected Object getLastModificationIdentifier() {
-				WSDL wsdl = getWSDL();
-				return (wsdl != null) ? MiscUtils.serialize(wsdl) : null;
+			protected Object retrieveLastModificationIdentifier() {
+				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+				if (operation == null) {
+					return null;
+				}
+				return operation.retrieveMethod();
 			}
 
 			@Override

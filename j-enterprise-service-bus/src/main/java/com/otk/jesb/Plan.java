@@ -46,7 +46,7 @@ public class Plan extends Asset {
 
 	private UpToDate<Class<?>> upToDateInputClass = new UpToDate<Class<?>>() {
 		@Override
-		protected Object getLastModificationIdentifier() {
+		protected Object retrieveLastModificationIdentifier() {
 			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
 		}
 
@@ -68,7 +68,7 @@ public class Plan extends Asset {
 	};
 	private UpToDate<Class<?>> upToDateOutputClass = new UpToDate<Class<?>>() {
 		@Override
-		protected Object getLastModificationIdentifier() {
+		protected Object retrieveLastModificationIdentifier() {
 			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
 		}
 
