@@ -91,19 +91,25 @@ public class JNode extends JDiagramObject {
 		}
 	}
 
-	public boolean containsPoint(int x2, int y2, JDiagram jDiagram) {
+	public boolean containsPoint(int x, int y, JDiagram diagram) {
+		Rectangle labelBounds = getLabelBounds(diagram.getGraphics());
+		if (labelBounds != null) {
+			if (labelBounds.contains(x, y)) {
+				return true;
+			}
+		}
 		int width = getWidth();
 		int height = getHeight();
-		if (x2 < (-(width / 2) + centerX)) {
+		if (x < (-(width / 2) + centerX)) {
 			return false;
 		}
-		if (x2 > ((width / 2) + centerX)) {
+		if (x > ((width / 2) + centerX)) {
 			return false;
 		}
-		if (y2 < (-(height / 2) + centerY)) {
+		if (y < (-(height / 2) + centerY)) {
 			return false;
 		}
-		if (y2 > ((height / 2) + centerY)) {
+		if (y > ((height / 2) + centerY)) {
 			return false;
 		}
 		return true;
