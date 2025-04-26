@@ -30,6 +30,7 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
+	private Object focusedStepOrTransition;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
@@ -88,6 +89,7 @@ public class Plan extends Asset {
 			}
 		}
 	};
+
 	public List<Step> getSteps() {
 		return steps;
 	}
@@ -138,6 +140,36 @@ public class Plan extends Asset {
 
 	public List<Step> getPreviousSteps(Step step) {
 		return getPreviousSteps(step, steps);
+	}
+
+	public Object getFocusedStepOrTransition() {
+		return focusedStepOrTransition;
+	}
+
+	public void setFocusedStepOrTransition(Object focusedStepOrTransition) {
+		this.focusedStepOrTransition = focusedStepOrTransition;
+	}
+
+	public List<Object> getFocusedStepOrTransitionSurroundings() {
+		List<Object> result = new ArrayList<Object>();
+		if (focusedStepOrTransition != null) {
+			if (focusedStepOrTransition instanceof Step) {
+				Step step = (Step) focusedStepOrTransition;
+				result.addAll(transitions.stream().filter(transition -> transition.getEndStep() == step)
+						.collect(Collectors.toList()));
+				result.add(step);
+				result.addAll(transitions.stream().filter(transition -> transition.getStartStep() == step)
+						.collect(Collectors.toList()));
+			} else if (focusedStepOrTransition instanceof Transition) {
+				Transition transition = (Transition) focusedStepOrTransition;
+				result.add(transition.getStartStep());
+				result.add(transition);
+				result.add(transition.getEndStep());
+			} else {
+				throw new AssertionError();
+			}
+		}
+		return result;
 	}
 
 	private List<Step> getPreviousSteps(Step step, List<Step> steps) {

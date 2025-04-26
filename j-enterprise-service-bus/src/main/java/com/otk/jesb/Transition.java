@@ -20,5 +20,11 @@ public class Transition {
 	public void setEndStep(Step endStep) {
 		this.endStep = endStep;
 	}
+	
+
+	@Override
+	public String toString() {
+		return "<Transition>";
+	}
 
 }

@@ -110,14 +110,15 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		return (Plan) getPlanEditor().getObject();
 	}
 
-	protected ListControl getStepsControl() {
+	protected ListControl getCurrentPlanElementsControl() {
 		List<Form> forms = new ArrayList<Form>();
 		forms.add(getPlanEditor());
 		forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
 		for (Form form : forms) {
-			FieldControlPlaceHolder stepsFieldControlPlaceHolder = form.getFieldControlPlaceHolder("steps");
-			if (stepsFieldControlPlaceHolder != null) {
-				return (ListControl) stepsFieldControlPlaceHolder.getFieldControl();
+			FieldControlPlaceHolder fieldControlPlaceHolder = form
+					.getFieldControlPlaceHolder("focusedStepOrTransitionSurroundings");
+			if (fieldControlPlaceHolder != null) {
+				return (ListControl) fieldControlPlaceHolder.getFieldControl();
 			}
 		}
 		throw new AssertionError();
@@ -168,12 +169,15 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				if (selectionListeningEnabled) {
 					selectionListeningEnabled = false;
 					try {
-						ListControl stepsControl = getStepsControl();
-						stepsControl.setSelection(PlanDiagram.this.getSelection().stream()
-								.filter(diagramObject -> diagramObject instanceof JNode)
-								.map(diagramObject -> stepsControl
+						Set<JDiagramObject> selection = PlanDiagram.this.getSelection();
+						getPlan().setFocusedStepOrTransition(
+								(selection.size() == 1) ? selection.iterator().next().getValue() : null);
+						ListControl currentPlanElementsControl = getCurrentPlanElementsControl();
+						currentPlanElementsControl.refreshUI(false);
+						currentPlanElementsControl.setSelection((selection.size() == 1) ? selection.stream()
+								.map(diagramObject -> currentPlanElementsControl
 										.findItemPositionByReference(diagramObject.getValue()))
-								.collect(Collectors.toList()));
+								.collect(Collectors.toList()) : Collections.emptyList());
 						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
 						selectionListeningEnabled = true;
@@ -196,26 +200,34 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				getStepsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
-					@Override
-					public void handle(List<BufferedItemPosition> event) {
-						if (selectionListeningEnabled) {
-							selectionListeningEnabled = false;
-							try {
-								updateStepSelection();
-							} finally {
-								selectionListeningEnabled = true;
+				getCurrentPlanElementsControl()
+						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+							@Override
+							public void handle(List<BufferedItemPosition> event) {
+								if (selectionListeningEnabled) {
+									selectionListeningEnabled = false;
+									try {
+										updateStepSelection();
+									} finally {
+										selectionListeningEnabled = true;
+									}
+								}
 							}
-						}
-					}
-				});
+						});
 			}
 		});
 	}
 
 	protected void updateStepSelection() {
-		setSelection(getStepsControl().getSelection().stream()
-				.map(itemPosition -> (JDiagramObject) findNode(itemPosition.getItem())).collect(Collectors.toSet()));
+		setSelection(getCurrentPlanElementsControl().getSelection().stream().map(itemPosition -> {
+			if (itemPosition.getItem() instanceof Step) {
+				return (JDiagramObject) findNode(itemPosition.getItem());
+			} else if (itemPosition.getItem() instanceof Transition) {
+				return (JDiagramObject) findConnection(itemPosition.getItem());
+			} else {
+				throw new AssertionError();
+			}
+		}).collect(Collectors.toSet()));
 	}
 
 	protected void onStepInsertionRequest(Step newStep) {
@@ -857,10 +869,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								}
 							}
 							planDiagram.refreshUI(false);
-							planDiagram.getStepsControl().refreshUI(false);
 							planDiagram.setSelection(new HashSet<JDiagramObject>(
 									allStepsToPaste.stream().map(step -> (JDiagramObject) planDiagram.findNode(step))
 											.collect(Collectors.toSet())));
+							planDiagram.getCurrentPlanElementsControl().refreshUI(false);
 							return true;
 						}
 					}, false);
