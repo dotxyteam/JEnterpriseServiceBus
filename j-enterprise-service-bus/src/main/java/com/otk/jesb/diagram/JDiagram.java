@@ -58,8 +58,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private List<JConnection> connections = new ArrayList<JConnection>();
 	private List<JDiagramListener> listeners = new ArrayList<JDiagramListener>();
 
-	private JNode newDraggedConnectionStartNode;
-	private JNode newDraggedConnectionEndNode;
+	private JNode newConnectionStartNode;
+	private JNode newConnectionEndNode;
 	private JNode draggedNode;
 	private Point draggedNodeCenterOffset;
 	private Point draggingPoint;
@@ -163,8 +163,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				for (JNode otherNode : MiscUtils.getReverse(nodes)) {
 					if (draggedNode != otherNode) {
 						if (otherNode.containsPoint(e.getX(), e.getY(), this)) {
-							newDraggedConnectionStartNode = draggedNode;
-							newDraggedConnectionEndNode = otherNode;
+							newConnectionStartNode = draggedNode;
+							newConnectionEndNode = otherNode;
 							break;
 						}
 					}
@@ -204,50 +204,52 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		draggingPoint = null;
 		repaint();
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
-			if (dragIntent == DragIntent.CONNECT) {
-				if (newDraggedConnectionStartNode != null) {
-					if (newDraggedConnectionEndNode != null) {
-						JConnection conn = new JConnection();
-						conn.setStartNode(newDraggedConnectionStartNode);
-						conn.setEndNode(newDraggedConnectionEndNode);
-						connections.add(conn);
-						newDraggedConnectionStartNode = null;
-						newDraggedConnectionEndNode = null;
-						repaint();
-						for (JDiagramListener l : listeners) {
-							l.connectionAdded(conn);
+			try {
+				if (dragIntent == DragIntent.CONNECT) {
+					if (newConnectionStartNode != null) {
+						if (newConnectionEndNode != null) {
+							JConnection conn = new JConnection();
+							conn.setStartNode(newConnectionStartNode);
+							conn.setEndNode(newConnectionEndNode);
+							connections.add(conn);
+							newConnectionStartNode = null;
+							newConnectionEndNode = null;
+							repaint();
+							for (JDiagramListener l : listeners) {
+								l.connectionAdded(conn);
+							}
+							return;
 						}
 					}
 				}
-			}
-			if (dragIntent == DragIntent.MOVE) {
-				if (draggedNode != null) {
-					Point draggedNodeMove = new Point(
-							mouseEvent.getX() + draggedNodeCenterOffset.x - draggedNode.getCenterX(),
-							mouseEvent.getY() + draggedNodeCenterOffset.y - draggedNode.getCenterY());
-					if ((draggedNodeMove.x != 0) || (draggedNodeMove.y != 0)) {
-						Set<JNode> modesToMove = new HashSet<JNode>();
-						modesToMove.add(draggedNode);
-						if (draggedNode.isSelected()) {
-							modesToMove.addAll(
-									getSelection().stream().filter(diagramObject -> diagramObject instanceof JNode)
-											.map(diagramObject -> (JNode) diagramObject).collect(Collectors.toSet()));
+				if (dragIntent == DragIntent.MOVE) {
+					if (draggedNode != null) {
+						Point draggedNodeMove = new Point(
+								mouseEvent.getX() + draggedNodeCenterOffset.x - draggedNode.getCenterX(),
+								mouseEvent.getY() + draggedNodeCenterOffset.y - draggedNode.getCenterY());
+						if ((draggedNodeMove.x != 0) || (draggedNodeMove.y != 0)) {
+							Set<JNode> modesToMove = new HashSet<JNode>();
+							modesToMove.add(draggedNode);
+							if (draggedNode.isSelected()) {
+								modesToMove.addAll(getSelection().stream()
+										.filter(diagramObject -> diagramObject instanceof JNode)
+										.map(diagramObject -> (JNode) diagramObject).collect(Collectors.toSet()));
+							}
+							for (JNode node : modesToMove) {
+								node.setCenterX(node.getCenterX() + draggedNodeMove.x);
+								node.setCenterY(node.getCenterY() + draggedNodeMove.y);
+							}
+							repaint();
+							for (JDiagramListener l : listeners) {
+								l.nodesMoved(modesToMove);
+							}
+							return;
 						}
-						for (JNode node : modesToMove) {
-							node.setCenterX(node.getCenterX() + draggedNodeMove.x);
-							node.setCenterY(node.getCenterY() + draggedNodeMove.y);
-						}
-						repaint();
-						for (JDiagramListener l : listeners) {
-							l.nodesMoved(modesToMove);
-						}
-						draggedNode = null;
-						draggedNodeCenterOffset = null;
-						return;
 					}
-					draggedNode = null;
-					draggedNodeCenterOffset = null;
 				}
+			} finally {
+				draggedNode = null;
+				draggedNodeCenterOffset = null;				
 			}
 			List<Object> diagramObjects = new ArrayList<Object>();
 			diagramObjects.addAll(MiscUtils.getReverse(nodes));
