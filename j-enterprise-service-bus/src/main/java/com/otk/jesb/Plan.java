@@ -6,6 +6,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Transition.ElseCondition;
+import com.otk.jesb.Transition.ExceptionCondition;
+import com.otk.jesb.Transition.IfCondition;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.EvaluationContext;
@@ -194,6 +197,14 @@ public class Plan extends Asset {
 		return false;
 	}
 
+	private List<Step> findFirstSteps(List<Step> steps) {
+		List<Step> result = new ArrayList<Step>(steps);
+		for (Transition t : transitions) {
+			result.remove(t.getEndStep());
+		}
+		return result;
+	}
+
 	public Object execute(Object input) throws Throwable {
 		return execute(input, new ExecutionInspector() {
 
@@ -237,7 +248,7 @@ public class Plan extends Asset {
 		execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 				executionInspector);
 		return outputBuilder
-				.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
+				.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 	}
 
 	public void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
@@ -248,21 +259,84 @@ public class Plan extends Asset {
 		if (steps.size() == 0) {
 			return;
 		}
-		Step step = steps.get(0);
-		List<Step> previousSteps = getPreviousSteps(step, steps);
-		if (previousSteps.size() > 0) {
-			execute(previousSteps, context, executionInspector);
+		List<Step> firstSteps = findFirstSteps(steps);
+		if (firstSteps.size() == 0) {
+			throw new Exception("Could not find any initial step (without a predecessor)");
 		}
-		execute(step, context, executionInspector);
-		List<Step> followingSteps = new ArrayList<Step>();
-		{
-			followingSteps.addAll(steps);
-			followingSteps.removeAll(previousSteps);
-			followingSteps.remove(step);
+		for (Step firstStep : firstSteps) {
+			continueExecution(firstStep, context, executionInspector);
 		}
-		if (followingSteps.size() > 0) {
-			execute(followingSteps, context, executionInspector);
+	}
+
+	private void continueExecution(Step currentStep, ExecutionContext context, ExecutionInspector executionInspector)
+			throws Throwable {
+		Throwable thrown;
+		try {
+			execute(currentStep, context, executionInspector);
+			thrown = null;
+		} catch (Throwable t) {
+			thrown = t;
 		}
+		List<Transition> currentStepTransitions = transitions.stream()
+				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
+		currentStepTransitions = filterValidTranstions(currentStepTransitions, thrown, context);
+		if (currentStepTransitions.size() == 0) {
+			throw new Exception("Could not find any valid transition from step '" + currentStep + "'");
+		}
+		for (Transition transition : currentStepTransitions) {
+			continueExecution(transition.getEndStep(), context, executionInspector);
+		}
+	}
+
+	private List<Transition> filterValidTranstions(List<Transition> transitions, Throwable thrown,
+			ExecutionContext context) {
+		List<Transition> result = new ArrayList<Transition>();
+		List<Transition> elseTransitions = new ArrayList<Transition>();
+		for (Transition transition : transitions) {
+			if (transition.getCondition() != null) {
+				if (transition.getCondition() instanceof IfCondition) {
+					if (thrown == null) {
+						if (((IfCondition) transition.getCondition()).isFulfilled(getTransitionContextVariableDeclarations(transition),
+								context.getVariables())) {
+							result.add(transition);
+						}
+					}
+				} else if (transition.getCondition() instanceof ElseCondition) {
+					if (thrown == null) {
+						elseTransitions.add(transition);
+					}
+				} else if (transition.getCondition() instanceof ExceptionCondition) {
+					if (thrown != null) {
+						if (((ExceptionCondition) transition.getCondition()).isFullfilled(thrown)) {
+							result.add(transition);
+						}
+					}
+				} else {
+					throw new AssertionError();
+				}
+			} else {
+				if (thrown == null) {
+					result.add(transition);
+				}
+			}
+		}
+		if (elseTransitions.size() > 0) {
+			if (result.stream().noneMatch(transition -> (transition.getCondition() instanceof IfCondition))) {
+				result.addAll(elseTransitions);
+			}
+		}
+		return result;
+	}
+
+	public List<VariableDeclaration> getTransitionContextVariableDeclarations(Transition transition) {
+		List<VariableDeclaration> result = getValidationContext(transition.getStartStep())
+				.getVariableDeclarations();
+		VariableDeclaration startStepVariableDeclaration = getVariableDeclaration(transition.getStartStep());
+		if (startStepVariableDeclaration != null) {
+			result = new ArrayList<VariableDeclaration>(result);
+			result.add(startStepVariableDeclaration);
+		}
+		return result;
 	}
 
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
@@ -312,8 +386,9 @@ public class Plan extends Asset {
 		}
 		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
 		for (Step step : previousSteps) {
-			if (step.getActivityBuilder().getActivityResultClass(this, step) != null) {
-				result.getVariableDeclarations().add(new StepEventuality(step, this));
+			VariableDeclaration stepVariableDeclaration = getVariableDeclaration(step);
+			if (stepVariableDeclaration != null) {
+				result.getVariableDeclarations().add(stepVariableDeclaration);
 			}
 			if (step instanceof CompositeStep) {
 				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
@@ -324,6 +399,14 @@ public class Plan extends Asset {
 			}
 		}
 		return result;
+	}
+
+	private VariableDeclaration getVariableDeclaration(Step step) {
+		if (step.getActivityBuilder().getActivityResultClass(this, step) != null) {
+			return new StepEventuality(step, this);
+		} else {
+			return null;
+		}
 	}
 
 	public static class ValidationContext {
@@ -384,7 +467,7 @@ public class Plan extends Asset {
 			return variables;
 		}
 
-		public Function<InstantiationFunction, InstantiationFunctionCompilationContext> getComilationContextProvider() {
+		public Function<InstantiationFunction, InstantiationFunctionCompilationContext> getCompilationContextProvider() {
 			return new Function<InstantiationFunction, InstantiationFunctionCompilationContext>() {
 
 				@Override

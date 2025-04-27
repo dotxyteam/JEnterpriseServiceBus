@@ -329,7 +329,7 @@ public class JDBCQueryActivity implements Activity {
 			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
+					.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 			result.setParameterValues(parameterValues);
 			result.setCustomResultClass(customResultClass);
 			return result;

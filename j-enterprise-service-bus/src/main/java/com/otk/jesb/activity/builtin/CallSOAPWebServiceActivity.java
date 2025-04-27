@@ -329,7 +329,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
 			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
 			result.setOperationInput((OperationInput) operationInputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider())));
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
 			return result;
 		}
 

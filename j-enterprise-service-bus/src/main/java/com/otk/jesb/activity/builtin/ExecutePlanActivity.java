@@ -135,7 +135,7 @@ public class ExecutePlanActivity implements Activity {
 			ExecutePlanActivity result = new ExecutePlanActivity();
 			result.setPlan(getPlan());
 			result.setPlanInput(planInputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider())));
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
 			return result;
 		}
 

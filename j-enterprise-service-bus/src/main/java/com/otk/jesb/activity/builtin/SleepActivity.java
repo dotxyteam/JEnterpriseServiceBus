@@ -78,7 +78,7 @@ public class SleepActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return (SleepActivity) instanceBuilder
-					.build(new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider()));
+					.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 		}
 
 		@Override

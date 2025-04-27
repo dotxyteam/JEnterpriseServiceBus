@@ -164,7 +164,7 @@ public class ReadFileActivity implements Activity {
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new ReadFileActivity((UnderlyingReadFileActivity) instanceBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getComilationContextProvider())));
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
 		}
 
 		@Override

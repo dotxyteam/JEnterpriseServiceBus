@@ -61,7 +61,7 @@ public class CompiledFunction {
 		return new CompiledFunction(functionClass, functionClassSource);
 	}
 
-	public Object execute(List<Variable> variables) throws Exception {
+	public Object execute(List<Variable> variables) throws RuntimeException {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
@@ -94,7 +94,7 @@ public class CompiledFunction {
 				errorSourceDescription = "/* Function class source code (" + functionClass.getSimpleName()
 						+ ".java) */\n" + functionClassSource;
 			}
-			throw new Exception("Function error: " + t.toString() + ":\n" + errorSourceDescription, t);
+			throw new RuntimeException("Function error: " + t.toString() + ":\n" + errorSourceDescription, t);
 		}
 	}
 

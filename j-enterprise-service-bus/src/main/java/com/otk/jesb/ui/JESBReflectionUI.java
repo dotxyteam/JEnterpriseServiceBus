@@ -22,6 +22,7 @@ import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.Structure.Element;
+import com.otk.jesb.Transition;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
@@ -92,6 +93,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	private Plan currentPlan;
 	private Step currentStep;
+	private Transition currentTransition;
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
@@ -467,6 +469,9 @@ public class JESBReflectionUI extends CustomizedUI {
 					} else if (object instanceof Step) {
 						currentStep = (Step) object;
 						return true;
+					} else if (object instanceof Transition) {
+						currentTransition = (Transition) object;
+						return true;
 					}
 				}
 				return super.onFormVisibilityChange(type, object, visible);
@@ -703,6 +708,48 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
+				} else if (type.getName().equals(Transition.IfCondition.class.getName())) {
+					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "edit";
+						}
+
+						@Override
+						public String getCaption() {
+							return "Edit...";
+						}
+
+						@Override
+						public String getOnlineHelp() {
+							return "Open the Expression Editor";
+						}
+
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return getTypeInfo(new JavaTypeInfoSource(FunctionEditor.class, null));
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							return new FunctionEditor((Transition.IfCondition) object, null,
+									currentPlan.getTransitionContextVariableDeclarations(currentTransition),
+									boolean.class);
+						}
+
+						@Override
+						public boolean isReadOnly() {
+							return true;
+						}
+					});
+					return result;
 				} else if (type.getName().equals(LoopActivity.Builder.class.getName())) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
@@ -803,8 +850,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							((LoopActivity.Builder) object).validate(
-									currentPlan, currentStep);
+							((LoopActivity.Builder) object).validate(currentPlan, currentStep);
 							return null;
 						}
 					});

@@ -123,7 +123,7 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 				while (true) {
 					EvaluationContext evaluationContext = new EvaluationContext(context.getVariables(), null,
-							context.getComilationContextProvider());
+							context.getCompilationContextProvider());
 					if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
 						break;
 					}
