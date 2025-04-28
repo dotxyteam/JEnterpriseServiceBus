@@ -120,7 +120,7 @@ public class InMemoryJavaCompiler {
 
 	private void compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
 		if (files.isEmpty())
-			throw new RuntimeException("No input files");
+			throw new CompilationError(-1, -1, "No input files", null, null);
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 		CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
 		boolean success;
@@ -139,7 +139,7 @@ public class InMemoryJavaCompiler {
 		for (Diagnostic<?> diagnostic : collector.getDiagnostics()) {
 			if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
 				throw new CompilationError((int) diagnostic.getStartPosition(), (int) diagnostic.getEndPosition(),
-						diagnostic.getMessage(null),extractSourceFilePath(diagnostic), extractSourceCode(diagnostic));
+						diagnostic.getMessage(null), extractSourceFilePath(diagnostic), extractSourceCode(diagnostic));
 			}
 		}
 		if (!success) {
@@ -148,22 +148,22 @@ public class InMemoryJavaCompiler {
 	}
 
 	private String extractSourceFilePath(Diagnostic<?> diagnostic) {
-		if(!(diagnostic.getSource() instanceof NamedJavaFileObject) ){
+		if (!(diagnostic.getSource() instanceof NamedJavaFileObject)) {
 			return null;
 		}
-		NamedJavaFileObject javaFileObject = (NamedJavaFileObject)diagnostic.getSource();
-		if(javaFileObject.getKind() !=  Kind.SOURCE) {
+		NamedJavaFileObject javaFileObject = (NamedJavaFileObject) diagnostic.getSource();
+		if (javaFileObject.getKind() != Kind.SOURCE) {
 			return null;
 		}
 		return javaFileObject.getName();
 	}
 
 	private String extractSourceCode(Diagnostic<?> diagnostic) {
-		if(!(diagnostic.getSource() instanceof NamedJavaFileObject) ){
+		if (!(diagnostic.getSource() instanceof NamedJavaFileObject)) {
 			return null;
 		}
-		NamedJavaFileObject javaFileObject = (NamedJavaFileObject)diagnostic.getSource();
-		if(javaFileObject.getKind() !=  Kind.SOURCE) {
+		NamedJavaFileObject javaFileObject = (NamedJavaFileObject) diagnostic.getSource();
+		if (javaFileObject.getKind() != Kind.SOURCE) {
 			return null;
 		}
 		CharSequence charSequence;
@@ -172,7 +172,7 @@ public class InMemoryJavaCompiler {
 		} catch (IOException e) {
 			return null;
 		}
-		if(charSequence == null) {
+		if (charSequence == null) {
 			return null;
 		}
 		return charSequence.toString();

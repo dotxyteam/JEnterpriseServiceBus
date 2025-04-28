@@ -7,6 +7,7 @@ import com.otk.jesb.Asset;
 import com.otk.jesb.AssetVisitor;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.Plan.ExecutionError;
 import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Solution;
@@ -44,13 +45,11 @@ public class ExecutePlanActivity implements Activity {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute() throws Throwable {
 		try {
 			return plan.execute(planInput);
-		} catch (Exception e) {
-			throw e;
-		} catch (Throwable t) {
-			throw new AssertionError(t);
+		} catch (ExecutionError e) {
+			throw e.getCause();
 		}
 	}
 

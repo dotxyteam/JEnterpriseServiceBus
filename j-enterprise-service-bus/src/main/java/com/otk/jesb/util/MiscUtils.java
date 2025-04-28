@@ -48,14 +48,13 @@ public class MiscUtils {
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
-	
+
 	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
-	
 	public static String escapeRegex(String str) {
 		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
 	}
@@ -258,11 +257,11 @@ public class MiscUtils {
 		return className;
 	}
 
-	public static String read(InputStream in) throws Exception {
+	public static String read(InputStream in) throws IOException {
 		return new String(readBinary(in));
 	}
 
-	public static byte[] readBinary(InputStream in) throws Exception {
+	public static byte[] readBinary(InputStream in) throws IOException {
 		try {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			int nRead;
@@ -273,15 +272,15 @@ public class MiscUtils {
 			buffer.flush();
 			return buffer.toByteArray();
 		} catch (IOException e) {
-			throw new Exception("Error while reading input stream: " + e.getMessage(), e);
+			throw new IOException("Error while reading input stream: " + e.getMessage(), e);
 		}
 	}
 
-	public static void write(File file, String text, boolean append) throws Exception {
+	public static void write(File file, String text, boolean append) throws IOException {
 		writeBinary(file, text.getBytes(), append);
 	}
 
-	public static void writeBinary(File file, byte[] bytes, boolean append) throws Exception {
+	public static void writeBinary(File file, byte[] bytes, boolean append) throws IOException {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(file, append);
@@ -289,7 +288,7 @@ public class MiscUtils {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			throw new Exception("Unable to write file : '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+			throw new IOException("Unable to write file : '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
 		} finally {
 			if (out != null) {
 				try {
@@ -301,7 +300,7 @@ public class MiscUtils {
 
 	}
 
-	public static File createTemporaryFile(String extension) throws Exception {
+	public static File createTemporaryFile(String extension) throws IOException {
 		return File.createTempFile("file-", "." + extension);
 	}
 
@@ -312,25 +311,25 @@ public class MiscUtils {
 		return result;
 	}
 
-	public static void createDirectory(File dir) throws Exception {
+	public static void createDirectory(File dir) throws IOException {
 		if (dir.isDirectory()) {
 			return;
 		}
 		try {
 			if (!dir.mkdir()) {
-				throw new Exception("System error");
+				throw new IOException("System error");
 			}
 		} catch (Exception e) {
-			throw new Exception("Failed to create directory: '" + dir + "': " + e.toString(), e);
+			throw new IOException("Failed to create directory: '" + dir + "': " + e.toString(), e);
 		}
 	}
 
-	public static void delete(File file) throws Exception {
+	public static void delete(File file) throws IOException {
 		delete(file, null, null);
 	}
 
 	public static void delete(File file, FilenameFilter filter, Listener<Pair<File, Exception>> errorHandler)
-			throws Exception {
+			throws IOException {
 		if (file.isDirectory()) {
 			for (File childFile : file.listFiles(filter)) {
 				delete(childFile, filter, errorHandler);
@@ -343,10 +342,11 @@ public class MiscUtils {
 		try {
 			success = file.delete();
 			if (!success) {
-				throw new Exception("System error");
+				throw new IOException("System error");
 			}
-		} catch (Exception e) {
-			e = new Exception("Failed to delete resource: '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+		} catch (IOException e) {
+			e = new IOException(
+					"Failed to delete file system resource: '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
 			if (errorHandler != null) {
 				errorHandler.handle(new Pair<File, Exception>(file, e));
 			} else {

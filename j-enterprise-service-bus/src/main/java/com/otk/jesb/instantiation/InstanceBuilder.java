@@ -45,7 +45,7 @@ public class InstanceBuilder extends InitializationCase {
 			if ("<Dynamic>".equals(typeName)) {
 				return;
 			}
-			throw new UnsupportedOperationException();
+			throw new AssertionError();
 		}
 		this.typeName = typeName;
 	}

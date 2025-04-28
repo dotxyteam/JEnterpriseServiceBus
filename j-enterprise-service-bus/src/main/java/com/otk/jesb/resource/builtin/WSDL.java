@@ -3,7 +3,6 @@ package com.otk.jesb.resource.builtin;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -23,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceError;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
@@ -164,18 +164,25 @@ public class WSDL extends Resource {
 				}
 				File sourceDirectory = MiscUtils.createTemporaryDirectory();
 				try {
+					String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep", "-Xnocompile",
+							"-b", metaSchemaFile.toURI().toString(), "-verbose", wsdlFile.getPath() };
+					System.setProperty("javax.xml.accessExternalSchema", "all");
+					System.setProperty("javax.xml.accessExternalDTD", "all");
+					ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
+					boolean importStatus;
+					Throwable importException;
 					try {
-						String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep",
-								"-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose",
-								wsdlFile.getPath() };
-						System.setProperty("javax.xml.accessExternalSchema", "all");
-						System.setProperty("javax.xml.accessExternalDTD", "all");
-						ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
-						if (!new WsimportTool(logsBuffer).run(wsImportArguments)) {
-							throw new Exception("Failed to generate classes:\n" + logsBuffer.toString());
-						}
+						importStatus = new WsimportTool(logsBuffer).run(wsImportArguments);
+						importException = null;
 					} catch (Throwable t) {
-						throw new RuntimeException(t);
+						importStatus = false;
+						importException = t;
+					}
+					if (!importStatus || (importException != null)) {
+						throw new ResourceError(
+								"Failed to generate classes"
+										+ ((logsBuffer.size() > 0) ? (":\n" + logsBuffer.toString()) : ""),
+								importException);
 					}
 					generatedClasses = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(sourceDirectory);
 				} finally {
@@ -206,7 +213,7 @@ public class WSDL extends Resource {
 
 	public interface Source {
 
-		InputStream getInputStream();
+		InputStream getInputStream() throws IOException;
 
 		String extractFileName();
 
@@ -227,12 +234,8 @@ public class WSDL extends Resource {
 		}
 
 		@Override
-		public InputStream getInputStream() {
-			try {
-				return new FileInputStream(file);
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+		public InputStream getInputStream() throws IOException {
+			return new FileInputStream(file);
 		}
 
 		@Override
@@ -260,13 +263,11 @@ public class WSDL extends Resource {
 		}
 
 		@Override
-		public InputStream getInputStream() {
+		public InputStream getInputStream() throws IOException{
 			try {
 				return new URL(urlSpecification).openStream();
 			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IOException(e);
 			}
 		}
 

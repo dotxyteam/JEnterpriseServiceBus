@@ -67,7 +67,7 @@ public class Step {
 	public void validate() throws Exception {
 		String NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
 		if (!name.matches(NAME_PATTERN)) {
-			throw new Exception("The step name must match the following regular expression: " + NAME_PATTERN);
+			throw new ValidationError("The step name must match the following regular expression: " + NAME_PATTERN);
 		}
 	}
 

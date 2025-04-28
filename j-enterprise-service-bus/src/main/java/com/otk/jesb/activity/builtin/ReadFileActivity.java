@@ -30,7 +30,7 @@ public class ReadFileActivity implements Activity {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute() throws Throwable {
 		return underling.execute();
 	}
 

@@ -11,6 +11,7 @@ import com.otk.jesb.Transition.ExceptionCondition;
 import com.otk.jesb.Transition.IfCondition;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
@@ -205,7 +206,7 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	public Object execute(Object input) throws Throwable {
+	public Object execute(Object input) throws ExecutionError {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
@@ -223,36 +224,40 @@ public class Plan extends Asset {
 		});
 	}
 
-	public Object execute(final Object input, ExecutionInspector executionInspector) throws Throwable {
-		ExecutionContext context = new ExecutionContext(this);
-		Class<?> inputClass = upToDateInputClass.get();
-		if (inputClass != null) {
-			if (input != null) {
-				if (!inputClass.isInstance(input)) {
-					throw new AssertionError();
+	public Object execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
+		try {
+			ExecutionContext context = new ExecutionContext(this);
+			Class<?> inputClass = upToDateInputClass.get();
+			if (inputClass != null) {
+				if (input != null) {
+					if (!inputClass.isInstance(input)) {
+						throw new AssertionError();
+					}
 				}
+				context.getVariables().add(new Variable() {
+
+					@Override
+					public Object getValue() {
+						return input;
+					}
+
+					@Override
+					public String getName() {
+						return INPUT_VARIABLE_NAME;
+					}
+				});
 			}
-			context.getVariables().add(new Variable() {
-
-				@Override
-				public Object getValue() {
-					return input;
-				}
-
-				@Override
-				public String getName() {
-					return INPUT_VARIABLE_NAME;
-				}
-			});
+			execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
+					executionInspector);
+			return outputBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+		} catch (Throwable t) {
+			throw new ExecutionError("Failed to execute plan '" + getName() + "'", t);
 		}
-		execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
-				executionInspector);
-		return outputBuilder
-				.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 	}
 
 	public void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
-			throws Throwable {
+			throws ExecutionError {
 		if (executionInspector.isExecutionInterrupted()) {
 			return;
 		}
@@ -261,7 +266,7 @@ public class Plan extends Asset {
 		}
 		List<Step> firstSteps = findFirstSteps(steps);
 		if (firstSteps.size() == 0) {
-			throw new Exception("Could not find any initial step (without a predecessor)");
+			throw new ExecutionError(new PlanificationError("Could not find any initial step"));
 		}
 		for (Step firstStep : firstSteps) {
 			continueExecution(firstStep, context, executionInspector);
@@ -269,36 +274,48 @@ public class Plan extends Asset {
 	}
 
 	private void continueExecution(Step currentStep, ExecutionContext context, ExecutionInspector executionInspector)
-			throws Throwable {
-		Throwable thrown;
+			throws ExecutionError {
+		ExecutionError thrown;
 		try {
 			execute(currentStep, context, executionInspector);
 			thrown = null;
-		} catch (Throwable t) {
-			thrown = t;
+		} catch (ExecutionError e) {
+			thrown = e;
 		}
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
-		currentStepTransitions = filterValidTranstions(currentStepTransitions, thrown, context);
 		if (currentStepTransitions.size() == 0) {
-			throw new Exception("Could not find any valid transition from step '" + currentStep + "'");
+			return;
 		}
-		for (Transition transition : currentStepTransitions) {
+		List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, thrown, context);
+		if (validTransitions.size() == 0) {
+			if (thrown != null) {
+				throw thrown;
+			} else {
+				throw new ExecutionError(
+						new PlanificationError("Could not find any valid transition from step '" + currentStep + "'"));
+			}
+		}
+		for (Transition transition : validTransitions) {
 			continueExecution(transition.getEndStep(), context, executionInspector);
 		}
 	}
 
-	private List<Transition> filterValidTranstions(List<Transition> transitions, Throwable thrown,
-			ExecutionContext context) {
+	private List<Transition> filterValidTranstions(List<Transition> transitions, ExecutionError thrown,
+			ExecutionContext context) throws ExecutionError {
 		List<Transition> result = new ArrayList<Transition>();
 		List<Transition> elseTransitions = new ArrayList<Transition>();
 		for (Transition transition : transitions) {
 			if (transition.getCondition() != null) {
 				if (transition.getCondition() instanceof IfCondition) {
 					if (thrown == null) {
-						if (((IfCondition) transition.getCondition()).isFulfilled(getTransitionContextVariableDeclarations(transition),
-								context.getVariables())) {
-							result.add(transition);
+						try {
+							if (((IfCondition) transition.getCondition()).isFulfilled(
+									getTransitionContextVariableDeclarations(transition), context.getVariables())) {
+								result.add(transition);
+							}
+						} catch (FunctionCallError e) {
+							throw new ExecutionError(e);
 						}
 					}
 				} else if (transition.getCondition() instanceof ElseCondition) {
@@ -307,7 +324,8 @@ public class Plan extends Asset {
 					}
 				} else if (transition.getCondition() instanceof ExceptionCondition) {
 					if (thrown != null) {
-						if (((ExceptionCondition) transition.getCondition()).isFullfilled(thrown)) {
+						if (((ExceptionCondition) transition.getCondition())
+								.isFullfilled(thrown.getCause())) {
 							result.add(transition);
 						}
 					}
@@ -329,8 +347,7 @@ public class Plan extends Asset {
 	}
 
 	public List<VariableDeclaration> getTransitionContextVariableDeclarations(Transition transition) {
-		List<VariableDeclaration> result = getValidationContext(transition.getStartStep())
-				.getVariableDeclarations();
+		List<VariableDeclaration> result = getValidationContext(transition.getStartStep()).getVariableDeclarations();
 		VariableDeclaration startStepVariableDeclaration = getVariableDeclaration(transition.getStartStep());
 		if (startStepVariableDeclaration != null) {
 			result = new ArrayList<VariableDeclaration>(result);
@@ -339,24 +356,29 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
-		context.setCutrrentStep(step);
-		StepOccurrence stepOccurrence = new StepOccurrence(step);
-		executionInspector.beforeActivityCreation(stepOccurrence);
+	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector)
+			throws ExecutionError {
 		try {
-			Activity activity = step.getActivityBuilder().build(context, executionInspector);
-			stepOccurrence.setActivity(activity);
-			Object activityResult = activity.execute();
-			stepOccurrence.setActivityResult(activityResult);
-			if (activityResult != null) {
-				context.getVariables().add(stepOccurrence);
+			context.setCutrrentStep(step);
+			StepOccurrence stepOccurrence = new StepOccurrence(step);
+			executionInspector.beforeActivityCreation(stepOccurrence);
+			try {
+				Activity activity = step.getActivityBuilder().build(context, executionInspector);
+				stepOccurrence.setActivity(activity);
+				Object activityResult = activity.execute();
+				stepOccurrence.setActivityResult(activityResult);
+				if (activityResult != null) {
+					context.getVariables().add(stepOccurrence);
+				}
+			} catch (Throwable t) {
+				stepOccurrence.setActivityError(t);
+				throw t;
 			}
+			executionInspector.afterActivityExecution(stepOccurrence);
+			context.setCutrrentStep(null);
 		} catch (Throwable t) {
-			stepOccurrence.setActivityError(t);
-			throw t;
+			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		}
-		executionInspector.afterActivityExecution(stepOccurrence);
-		context.setCutrrentStep(null);
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
@@ -490,6 +512,43 @@ public class Plan extends Asset {
 		boolean isExecutionInterrupted();
 
 		void afterActivityExecution(StepOccurrence stepOccurrence);
+
+	}
+
+	public static class PlanificationError extends JESBError {
+
+		private static final long serialVersionUID = 1L;
+
+		public PlanificationError(String message) {
+			super(message);
+		}
+
+	}
+
+	public static class ExecutionError extends JESBError {
+
+		private static final long serialVersionUID = 1L;
+
+		public ExecutionError(Throwable cause) {
+			this(null, cause);
+		}
+
+		private ExecutionError(String contextualMessage, Throwable cause) {
+			super((contextualMessage != null) ? (contextualMessage + ":\n" + cause.toString()) : cause.toString(),
+					(cause instanceof ExecutionError) ? cause.getCause() : cause);
+		}
+
+		@Override
+		public synchronized Throwable getCause() {
+			Throwable result = super.getCause();
+			if(result instanceof FunctionCallError) {
+				result = ((FunctionCallError)result).getCause();
+			}
+			return result;
+		}
+
+		
+		
 
 	}
 

@@ -5,6 +5,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.JESBError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
@@ -61,7 +62,7 @@ public class CompiledFunction {
 		return new CompiledFunction(functionClass, functionClassSource);
 	}
 
-	public Object execute(List<Variable> variables) throws RuntimeException {
+	public Object call(List<Variable> variables) throws FunctionCallError {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
@@ -85,17 +86,37 @@ public class CompiledFunction {
 			if (t instanceof InvocationTargetException) {
 				t = ((InvocationTargetException) t).getTargetException();
 			}
-			String errorSourceDescription;
+			throw new FunctionCallError(t);
+		}
+	}
+
+	public class FunctionCallError extends JESBError {
+
+		private static final long serialVersionUID = 1L;
+
+		public FunctionCallError(Throwable cause) {
+			super(cause);
+		}
+
+		@Override
+		public String getMessage() {
+			return getCause().toString() + "\n" + describeSource();
+		}
+
+		public String describeSource() {
+			String result;
+			Throwable t = getCause();
 			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
 					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
-				errorSourceDescription = "/* Failure statement */\n"
+				result = "/* Failure statement */\n"
 						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
-				errorSourceDescription = "/* Function class source code (" + functionClass.getSimpleName()
-						+ ".java) */\n" + functionClassSource;
+				result = "/* Function class source code (" + functionClass.getSimpleName() + ".java) */\n"
+						+ functionClassSource;
 			}
-			throw new RuntimeException("Function error: " + t.toString() + ":\n" + errorSourceDescription, t);
+			return result;
 		}
+
 	}
 
 }

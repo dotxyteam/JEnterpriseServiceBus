@@ -14,6 +14,7 @@ ExecutePlan.inputBuilder is filled
 - add an "Evaluate" activity (like BW "Mapper" activity
 - allow to manage exceptions
 - to ease co-working and version control, plans and resources must be stored in separate files  
+- replace AssertionError by a better formatted UnexpectedError ???
 - add validation
 - optimize functions (do not recompile systematically)
 - allow to deploy and execute a project outside of the designer in a production environment

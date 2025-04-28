@@ -11,7 +11,7 @@ public class MapEntryBuilderFacade extends InstanceBuilderFacade {
 
 	@Override
 	public void setTypeName(String typeName) {
-		throw new UnsupportedOperationException("Cannot change map entry type name");
+		throw new AssertionError("Cannot change map entry type name");
 	}
 
 	@Override

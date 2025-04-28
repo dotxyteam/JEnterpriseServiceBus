@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 
 public class Transition {
 
@@ -64,14 +65,14 @@ public class Transition {
 			return "If{" + getFunctionBody() + "}";
 		}
 
-		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
+		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables) throws FunctionCallError {
 			CompiledFunction compiledFunction;
 			try {
 				compiledFunction = CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
 				throw new AssertionError(e);
 			}
-			return (boolean) compiledFunction.execute(variables);
+			return (boolean) compiledFunction.call(variables);
 		}
 	}
 

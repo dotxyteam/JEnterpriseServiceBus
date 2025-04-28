@@ -23,6 +23,7 @@ import com.otk.jesb.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.Transition;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
@@ -850,7 +851,11 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							((LoopActivity.Builder) object).validate(currentPlan, currentStep);
+							try {
+								((LoopActivity.Builder) object).validate(currentPlan, currentStep);
+							} catch (ValidationError e) {
+								throw new ReflectionUIError(e);
+							}
 							return null;
 						}
 					});

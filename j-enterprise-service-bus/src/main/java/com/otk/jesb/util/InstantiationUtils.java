@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.Structured;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
 import com.otk.jesb.instantiation.EvaluationContext;
@@ -36,9 +38,9 @@ public class InstantiationUtils {
 	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
 	public static Object executeFunction(InstantiationFunction function, EvaluationContext evaluationContext)
-			throws Exception {
-		InstantiationFunctionCompilationContext compilationContext = evaluationContext.getInstantiationFunctionCompilationContextMapper()
-				.apply(function);
+			throws FunctionCallError {
+		InstantiationFunctionCompilationContext compilationContext = evaluationContext
+				.getInstantiationFunctionCompilationContextMapper().apply(function);
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
@@ -49,10 +51,15 @@ public class InstantiationUtils {
 		if (!actualVariableNames.equals(expectedVariableNames)) {
 			throw new AssertionError();
 		}
-		CompiledFunction compiledFunction = CompiledFunction.get(
-				compilationContext.getPrecompiler().apply(function.getFunctionBody()),
-				compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
-		return compiledFunction.execute(evaluationContext.getVariables());
+		CompiledFunction compiledFunction;
+		try {
+			compiledFunction = CompiledFunction.get(
+					compilationContext.getPrecompiler().apply(function.getFunctionBody()),
+					compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
+		} catch (CompilationError e) {
+			throw new AssertionError(e);
+		}
+		return compiledFunction.call(evaluationContext.getVariables());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -123,15 +130,15 @@ public class InstantiationUtils {
 		if (value instanceof InstantiationFunction) {
 			Object result = executeFunction(((InstantiationFunction) value), context);
 			if (!type.supports(result)) {
-				throw new Exception(
+				throw new InstantiationError(
 						"Invalid function result '" + result + "': Expected value of type <" + type.getName() + ">");
 			}
 			return result;
 		} else if (value instanceof InstanceBuilder) {
 			Object result = ((InstanceBuilder) value).build(context);
 			if (!type.supports(result)) {
-				throw new Exception("Invalid instance builder result '" + result + "': Expected value of type <"
-						+ type.getName() + ">");
+				throw new InstantiationError("Invalid instance builder result '" + result
+						+ "': Expected value of type <" + type.getName() + ">");
 			}
 			return result;
 		} else if (value instanceof EnumerationItemSelector) {
