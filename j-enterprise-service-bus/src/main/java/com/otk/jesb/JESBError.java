@@ -26,7 +26,7 @@ public class JESBError extends Exception {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ": " + getMessage();
+		return getClass().getName() + ": " + getMessage();
 	}
 
 }

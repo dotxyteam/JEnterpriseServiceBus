@@ -58,15 +58,17 @@ public class JNode extends JDiagramObject {
 			}
 			g.fillOval(-10 + centerX, -10 + centerY, 20, 20);
 		}
-		if (value.toString() != null) {
+		if (value != null) {
 			g.setColor(Color.BLACK);
 			Rectangle labelBounds = getLabelBounds(g);
-			g.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
+			if (labelBounds != null) {
+				g.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
+			}
 		}
 	}
 
 	public Rectangle getLabelBounds(Graphics g) {
-		if (value.toString() == null) {
+		if ((value == null) || (value.toString().length() == 0)) {
 			return null;
 		}
 		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(value.toString(), g);

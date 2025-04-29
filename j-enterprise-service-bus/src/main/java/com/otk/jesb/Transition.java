@@ -47,8 +47,7 @@ public class Transition {
 
 	@Override
 	public String toString() {
-		return ((label != null) && (label.length() > 0)) ? ("(" + label + ")")
-				: ((condition != null) ? ("(" + condition.toString() + ")") : "");
+		return ((label != null) && (label.length() > 0)) ? label : ((condition != null) ? condition.toString() : "");
 	}
 
 	public static interface Condition {
@@ -62,10 +61,11 @@ public class Transition {
 
 		@Override
 		public String toString() {
-			return "If{" + getFunctionBody() + "}";
+			return "If: " + getFunctionBody();
 		}
 
-		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables) throws FunctionCallError {
+		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables)
+				throws FunctionCallError {
 			CompiledFunction compiledFunction;
 			try {
 				compiledFunction = CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
@@ -106,7 +106,7 @@ public class Transition {
 
 		@Override
 		public String toString() {
-			return "When Try/Catch(" + exceptionTypeName + ")";
+			return "Try/Catch: " + exceptionTypeName;
 		}
 
 	}

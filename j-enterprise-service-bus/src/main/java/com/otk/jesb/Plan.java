@@ -252,7 +252,7 @@ public class Plan extends Asset {
 			return outputBuilder.build(
 					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 		} catch (Throwable t) {
-			throw new ExecutionError("Failed to execute plan '" + getName() + "'", t);
+			throw new ExecutionError("Failed to execute plan (" + Reference.get(this).getPath() + ")", t);
 		}
 	}
 
@@ -285,7 +285,11 @@ public class Plan extends Asset {
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
 		if (currentStepTransitions.size() == 0) {
-			return;
+			if (thrown != null) {
+				throw thrown;
+			} else {
+				return;
+			}
 		}
 		List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, thrown, context);
 		if (validTransitions.size() == 0) {
@@ -324,8 +328,7 @@ public class Plan extends Asset {
 					}
 				} else if (transition.getCondition() instanceof ExceptionCondition) {
 					if (thrown != null) {
-						if (((ExceptionCondition) transition.getCondition())
-								.isFullfilled(thrown.getCause())) {
+						if (((ExceptionCondition) transition.getCondition()).isFullfilled(thrown.getCause())) {
 							result.add(transition);
 						}
 					}
@@ -530,25 +533,22 @@ public class Plan extends Asset {
 		private static final long serialVersionUID = 1L;
 
 		public ExecutionError(Throwable cause) {
-			this(null, cause);
+			this("A problem occured", cause);
 		}
 
-		private ExecutionError(String contextualMessage, Throwable cause) {
-			super((contextualMessage != null) ? (contextualMessage + ":\n" + cause.toString()) : cause.toString(),
+		private ExecutionError(String message, Throwable cause) {
+			super((cause instanceof ExecutionError) ? (message + ":\n" + cause.getMessage()) : message,
 					(cause instanceof ExecutionError) ? cause.getCause() : cause);
 		}
 
 		@Override
 		public synchronized Throwable getCause() {
 			Throwable result = super.getCause();
-			if(result instanceof FunctionCallError) {
-				result = ((FunctionCallError)result).getCause();
+			if (result instanceof FunctionCallError) {
+				result = ((FunctionCallError) result).getCause();
 			}
 			return result;
 		}
-
-		
-		
 
 	}
 

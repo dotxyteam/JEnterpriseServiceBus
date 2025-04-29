@@ -22,10 +22,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.resource.Resource;
-import com.otk.jesb.resource.ResourceError;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
+import com.sun.tools.ws.processor.ProcessorException;
 import com.sun.tools.ws.wscompile.WsimportTool;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -179,8 +179,8 @@ public class WSDL extends Resource {
 						importException = t;
 					}
 					if (!importStatus || (importException != null)) {
-						throw new ResourceError(
-								"Failed to generate classes"
+						throw new ProcessorException(
+								"Failed to generate WSDL classes"
 										+ ((logsBuffer.size() > 0) ? (":\n" + logsBuffer.toString()) : ""),
 								importException);
 					}

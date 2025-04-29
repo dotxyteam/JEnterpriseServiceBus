@@ -2,8 +2,10 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +24,7 @@ import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JDiagramObject;
 import com.otk.jesb.diagram.JNode;
-import com.otk.jesb.util.Pair;
-
+import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
@@ -155,22 +156,26 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
-		StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
-		if (currentStepOccurrence != null) {
-			if (currentStepOccurrence.getStep() == node.getValue()) {
-				highlightNode(g, node, (currentStepOccurrence.getActivityError() == null) ? new Color(175, 255, 200)
-						: new Color(255, 173, 173));
+		StepOccurrence lastStepOccurrence = MiscUtils.getReverse(getPlanExecutor().getStepOccurrences()).stream()
+				.filter(candidateStepOccurrence -> (candidateStepOccurrence.getStep() == node.getValue())).findFirst()
+				.orElse(null);
+		if ((lastStepOccurrence != null) && (lastStepOccurrence.getActivityError() != null)) {
+			highlightNode(g, node, new Color(255, 173, 173));
+		} else {
+			StepOccurrence currentStepOccurrence = getPlanExecutor().getCurrentStepOccurrence();
+			if ((currentStepOccurrence != null) && (currentStepOccurrence.getStep() == node.getValue())) {
+				highlightNode(g, node, new Color(175, 255, 200));
 			}
 		}
 		super.paintNode(g, node);
 	}
 
 	@Override
-	protected void paintConnection(Graphics g, JConnection conn) {
-		super.paintConnection(g, conn);
+	protected void paintConnection(Graphics g, JConnection connection) {
+		super.paintConnection(g, connection);
 		int transitionOccurrenceCount = 0;
-		Step startStep = (Step) conn.getStartNode().getValue();
-		Step endStep = (Step) conn.getEndNode().getValue();
+		Step startStep = (Step) connection.getStartNode().getValue();
+		Step endStep = (Step) connection.getEndNode().getValue();
 		CompositeStep parent = startStep.getParent();
 		List<StepOccurrence> stepOccurrences = getPlanExecutor().getStepOccurrences().stream()
 				.filter(stepOccurrence -> (stepOccurrence.getStep().getParent() == parent))
@@ -185,20 +190,26 @@ public class DebugPlanDiagram extends PlanDiagram {
 			}
 		}
 		if (transitionOccurrenceCount > 0) {
-			annotateConnection(g, conn, "(" + transitionOccurrenceCount + ")");
+			annotateConnection(g, connection, "(" + transitionOccurrenceCount + ")");
 		}
 	}
 
-	private void annotateConnection(Graphics g, JConnection conn, String annotation) {
+	private void annotateConnection(Graphics g, JConnection connection, String annotation) {
 		g.setColor(Color.BLUE);
-		Pair<Point, Point> lineSegment = conn.getLineSegment();
-		if (lineSegment == null) {
+		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(annotation, g);
+		Point2D center = connection.getCenter();
+		if (center == null) {
 			return;
 		}
-		int x = (lineSegment.getFirst().x + lineSegment.getSecond().x) / 2;
-		int y = (lineSegment.getFirst().y + lineSegment.getSecond().y) / 2;
-		Rectangle2D annotationBounds = g.getFontMetrics().getStringBounds(annotation, g);
-		g.drawString(annotation, x - (int) (annotationBounds.getWidth() / 2d), y - getConnectionArrowSize());
+		Rectangle annotationBounds = new Rectangle((int) Math.round(center.getX() - (stringBounds.getWidth() / 2)),
+				(int) Math.round(center.getY() - stringBounds.getHeight() * 2.5),
+				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
+		double rotationAngle = connection.getLabelRotationAngleRadians();
+		Point2D rotationCenter = connection.getLabelRotationCenter();
+		Graphics2D g2D = (Graphics2D) g.create();
+		g2D.rotate(rotationAngle, rotationCenter.getX(), rotationCenter.getY());
+		g2D.drawString(annotation, annotationBounds.x, annotationBounds.y + annotationBounds.height);
+		g2D.dispose();
 	}
 
 	private void highlightNode(Graphics g, JNode node, Color color) {

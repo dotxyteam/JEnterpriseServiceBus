@@ -2,8 +2,14 @@ package com.otk.jesb.diagram;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,9 +53,75 @@ public class JConnection extends JDiagramObject {
 		for (Polygon polygon : computePolygons(2, diagram.getConnectionArrowSize())) {
 			g.fillPolygon(polygon);
 		}
+		if (value != null) {
+			g.setColor(Color.BLACK);
+			Rectangle labelBounds = getLabelBounds(g);
+			if (labelBounds != null) {
+				double rotationAngle = getLabelRotationAngleRadians();
+				Point2D rotationCenter = getLabelRotationCenter();
+				Graphics2D g2D = (Graphics2D) g.create();
+				g2D.rotate(rotationAngle, rotationCenter.getX(), rotationCenter.getY());
+				g2D.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
+				g2D.dispose();
+			}
+		}
+	}
+
+	public Rectangle getLabelBounds(Graphics g) {
+		if ((value == null) || (value.toString().length() == 0)) {
+			return null;
+		}
+		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(value.toString(), g);
+		Point2D center = getCenter();
+		if (center == null) {
+			return null;
+		}
+		return new Rectangle((int) Math.round(center.getX() - (stringBounds.getWidth() / 2)),
+				(int) Math.round(center.getY() - stringBounds.getHeight() * 1.5),
+				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
+	}
+
+	public Point2D getLabelRotationCenter() {
+		return getCenter();
+	}
+
+	public double getLabelRotationAngleRadians() {
+		Pair<Point, Point> lineSegment = getLineSegment();
+		if (lineSegment == null) {
+			return 0.0;
+		}
+		double result = Math.atan2(lineSegment.getSecond().y - lineSegment.getFirst().y,
+				lineSegment.getSecond().x - lineSegment.getFirst().x);
+		double resultBetweenMinusPiAndPi = Math.atan2(Math.sin(result), Math.cos(result));
+		boolean upsideDown = Math.abs(resultBetweenMinusPiAndPi) > (Math.PI / 2);
+		if (upsideDown) {
+			result += Math.PI;
+		}
+		return result;
+	}
+
+	public Point2D getCenter() {
+		Pair<Point, Point> lineSegment = getLineSegment();
+		if (lineSegment == null) {
+			return null;
+		}
+		double centerX = (lineSegment.getFirst().x + lineSegment.getSecond().x) / 2.0;
+		double centerY = (lineSegment.getFirst().y + lineSegment.getSecond().y) / 2.0;
+		return new Point2D.Double(centerX, centerY);
 	}
 
 	public boolean containsPoint(int x, int y, JDiagram diagram) {
+		Rectangle labelBounds = getLabelBounds(diagram.getGraphics());
+		if (labelBounds != null) {
+			double rotationAngle = getLabelRotationAngleRadians();
+			Point2D rotationCenter = getLabelRotationCenter();
+			AffineTransform rotation = AffineTransform.getRotateInstance(rotationAngle, rotationCenter.getX(),
+					rotationCenter.getY());
+			Shape rotatedLabelBounds = rotation.createTransformedShape(labelBounds);
+			if (rotatedLabelBounds.contains(x, y)) {
+				return true;
+			}
+		}
 		for (Polygon polygon : computePolygons(4, diagram.getConnectionArrowSize() + 2)) {
 			if (polygon.contains(x, y)) {
 				return true;

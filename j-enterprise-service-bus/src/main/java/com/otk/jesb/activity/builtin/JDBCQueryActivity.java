@@ -20,7 +20,6 @@ import com.otk.jesb.Plan.ExecutionInspector;
 import com.otk.jesb.Reference;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityError;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
@@ -76,7 +75,7 @@ public class JDBCQueryActivity implements Activity {
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
 		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 		if (expectedParameterCount != parameterValues.countParameters()) {
-			throw new ActivityError("Unexpected defined parameter count: " + parameterValues.countParameters()
+			throw new IllegalStateException("Unexpected defined parameter count: " + parameterValues.countParameters()
 					+ ". Expected " + expectedParameterCount + " parameter(s).");
 		}
 		for (int i = 0; i < expectedParameterCount; i++) {

@@ -458,6 +458,9 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (object instanceof ActivityMetadata) {
 					return ((ActivityMetadata) object).getActivityTypeName();
 				}
+				if (object instanceof Throwable) {
+					return object.toString();
+				}
 				return super.toString(type, object);
 			}
 
