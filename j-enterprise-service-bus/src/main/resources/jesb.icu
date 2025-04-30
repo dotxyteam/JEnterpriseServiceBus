@@ -984,6 +984,32 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>4e8354f:19687e3970d:-4710</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getPrecedingSteps</methodName>
+            <methodSignature>java.util.List getPrecedingSteps(com.otk.jesb.Step)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>4e8354f:19687e3970d:-470b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>4e8354f:19687e3970d:-470a</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>step</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.Plan</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -3172,7 +3198,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:178e</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d4d</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3232,7 +3258,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:178f</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d4c</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3287,7 +3313,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1790</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d4b</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3321,7 +3347,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1791</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d4a</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3433,7 +3459,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1792</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d49</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3547,7 +3573,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1793</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d48</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -3623,7 +3649,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1794</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d47</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4987,7 +5013,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1795</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d46</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -5073,7 +5099,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1796</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d45</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -11918,7 +11944,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1797</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d44</uniqueIdentifier>
                 <caption>Activity</caption>
                 <name>Activity</name>
             </category>
@@ -11978,7 +12004,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1798</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d43</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -12012,7 +12038,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:1799</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d42</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -12088,6 +12114,32 @@
             <specificTypeCustomizations>
                 <applicationCustomization>
                     <uniqueIdentifier>-7372f88b:1940edbbf05:7254</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>4e8354f:19687e3970d:-45ce</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>UNDEFINED_VALUE</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>4e8354f:19687e3970d:-45cc</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>4e8354f:19687e3970d:-45cd</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
@@ -12380,7 +12432,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179a</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d41</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -12414,7 +12466,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179b</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d40</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -12742,7 +12794,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179c</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3f</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13157,7 +13209,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179d</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3e</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13295,7 +13347,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179e</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3d</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13961,7 +14013,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:179f</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14000,7 +14052,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a0</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14060,7 +14112,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a1</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d3a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -16679,7 +16731,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a2</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d39</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17153,7 +17205,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a3</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d38</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -17213,7 +17265,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a4</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d37</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -17302,7 +17354,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a5</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d36</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -24176,7 +24228,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a6</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d35</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24235,7 +24287,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a7</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d34</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24295,7 +24347,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a8</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d33</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24448,7 +24500,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17a9</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d32</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24507,7 +24559,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17aa</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d31</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24567,7 +24619,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17ab</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d30</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24622,7 +24674,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17ac</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d2f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24671,7 +24723,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7e3c01d6:19680a0ac94:17ad</uniqueIdentifier>
+                <uniqueIdentifier>-cd51f43:196880d118d:-2d2e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>

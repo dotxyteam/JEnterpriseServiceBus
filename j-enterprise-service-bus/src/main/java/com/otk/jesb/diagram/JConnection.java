@@ -61,6 +61,7 @@ public class JConnection extends JDiagramObject {
 				Point2D rotationCenter = getLabelRotationCenter();
 				Graphics2D g2D = (Graphics2D) g.create();
 				g2D.rotate(rotationAngle, rotationCenter.getX(), rotationCenter.getY());
+				MiscUtils.improveRenderingQuality(g2D);
 				g2D.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
 				g2D.dispose();
 			}
@@ -77,7 +78,7 @@ public class JConnection extends JDiagramObject {
 			return null;
 		}
 		return new Rectangle((int) Math.round(center.getX() - (stringBounds.getWidth() / 2)),
-				(int) Math.round(center.getY() - stringBounds.getHeight() * 1.5),
+				(int) Math.round(center.getY() - stringBounds.getHeight() * 1.3),
 				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
 	}
 

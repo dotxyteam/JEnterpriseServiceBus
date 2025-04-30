@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.Structured;
+import com.otk.jesb.Variable;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
@@ -44,7 +45,8 @@ public class InstantiationUtils {
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
 			throw new AssertionError();
 		}
-		Set<String> actualVariableNames = evaluationContext.getVariables().stream().map(variable -> variable.getName())
+		Set<String> actualVariableNames = evaluationContext.getVariables().stream()
+				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
 				.collect(Collectors.toSet());
 		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());

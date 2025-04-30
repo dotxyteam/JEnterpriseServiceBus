@@ -108,10 +108,10 @@ public class CompiledFunction {
 			Throwable t = getCause();
 			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
 					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
-				result = "/* Failure statement */\n"
+				result = "/* Function statement that crashed */\n"
 						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
-				result = "/* Function class source code (" + functionClass.getSimpleName() + ".java) */\n"
+				result = "/* Source code of the function that crashed (" + functionClass.getSimpleName() + ".java) */\n"
 						+ functionClassSource;
 			}
 			return result;

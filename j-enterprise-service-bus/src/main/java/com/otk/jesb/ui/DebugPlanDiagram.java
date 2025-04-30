@@ -202,7 +202,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 			return;
 		}
 		Rectangle annotationBounds = new Rectangle((int) Math.round(center.getX() - (stringBounds.getWidth() / 2)),
-				(int) Math.round(center.getY() - stringBounds.getHeight() * 2.5),
+				(int) Math.round(center.getY() - stringBounds.getHeight() * 2.3),
 				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));
 		double rotationAngle = connection.getLabelRotationAngleRadians();
 		Point2D rotationCenter = connection.getLabelRotationCenter();

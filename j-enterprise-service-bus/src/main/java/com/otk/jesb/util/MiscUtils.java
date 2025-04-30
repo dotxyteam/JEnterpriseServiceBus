@@ -1,6 +1,8 @@
 package com.otk.jesb.util;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -545,6 +547,11 @@ public class MiscUtils {
 			result.add(index, newItem);
 		}
 		return result;
+	}
+
+	public static void improveRenderingQuality(Graphics2D g) {
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	}
 
 }

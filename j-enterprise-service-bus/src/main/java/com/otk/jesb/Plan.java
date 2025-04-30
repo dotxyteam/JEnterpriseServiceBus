@@ -1,7 +1,10 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -10,6 +13,7 @@ import com.otk.jesb.Transition.ElseCondition;
 import com.otk.jesb.Transition.ExceptionCondition;
 import com.otk.jesb.Transition.IfCondition;
 import com.otk.jesb.activity.Activity;
+import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.EvaluationContext;
@@ -142,8 +146,8 @@ public class Plan extends Asset {
 		return upToDateOutputClass.get();
 	}
 
-	public List<Step> getPreviousSteps(Step step) {
-		return getPreviousSteps(step, steps);
+	public List<Step> getPrecedingSteps(Step step) {
+		return getPrecedingSteps(step, steps);
 	}
 
 	public Object getFocusedStepOrTransition() {
@@ -176,22 +180,22 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private List<Step> getPreviousSteps(Step step, List<Step> steps) {
+	private List<Step> getPrecedingSteps(Step step, List<Step> steps) {
 		List<Step> result = new ArrayList<Step>();
 		for (Step candidate : steps) {
-			if (isPreviousStep(candidate, step)) {
+			if (isPrecedingStep(candidate, step)) {
 				result.add(candidate);
 			}
 		}
 		return result;
 	}
 
-	private boolean isPreviousStep(Step s1, Step s2) {
+	private boolean isPrecedingStep(Step s1, Step s2) {
 		for (Transition t : transitions) {
 			if ((t.getStartStep() == s1) && (t.getEndStep() == s2)) {
 				return true;
 			}
-			if ((t.getStartStep() == s1) && isPreviousStep(t.getEndStep(), s2)) {
+			if ((t.getStartStep() == s1) && isPrecedingStep(t.getEndStep(), s2)) {
 				return true;
 			}
 		}
@@ -269,50 +273,117 @@ public class Plan extends Asset {
 			throw new ExecutionError(new PlanificationError("Could not find any initial step"));
 		}
 		for (Step firstStep : firstSteps) {
-			continueExecution(firstStep, context, executionInspector);
+			continueExecution(firstStep, true, context, executionInspector);
 		}
 	}
 
-	private void continueExecution(Step currentStep, ExecutionContext context, ExecutionInspector executionInspector)
-			throws ExecutionError {
-		ExecutionError thrown;
-		try {
-			execute(currentStep, context, executionInspector);
-			thrown = null;
-		} catch (ExecutionError e) {
-			thrown = e;
-		}
+	private void continueExecution(Step currentStep, boolean branchActive, ExecutionContext context,
+			ExecutionInspector executionInspector) throws ExecutionError {
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
-		if (currentStepTransitions.size() == 0) {
-			if (thrown != null) {
-				throw thrown;
-			} else {
-				return;
+		if (branchActive) {
+			StepOccurrence stepOccurrence = new StepOccurrence(currentStep);
+			ExecutionError executionError;
+			try {
+				execute(stepOccurrence, context, executionInspector);
+				executionError = null;
+			} catch (ExecutionError e) {
+				executionError = e;
+				stepOccurrence.setActivityError(e.getCause());
+			} finally {
+				context.getVariables().add(stepOccurrence);
 			}
-		}
-		List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, thrown, context);
-		if (validTransitions.size() == 0) {
-			if (thrown != null) {
-				throw thrown;
+			if (currentStepTransitions.size() == 0) {
+				stepOccurrence.setValidTransitions(Collections.emptyList());
+				if (executionError != null) {
+					throw executionError;
+				} else {
+					return;
+				}
 			} else {
-				throw new ExecutionError(
-						new PlanificationError("Could not find any valid transition from step '" + currentStep + "'"));
+				List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, executionError,
+						context);
+				stepOccurrence.setValidTransitions(validTransitions);
+				if (validTransitions.size() == 0) {
+					if (executionError != null) {
+						throw executionError;
+					} else {
+						throw new ExecutionError(new PlanificationError(
+								"Could not find any valid transition from step '" + currentStep + "'"));
+					}
+				}
 			}
+		} else {
+			context.getVariables().add(new Variable() {
+
+				@Override
+				public String getName() {
+					return currentStep.getName();
+				}
+
+				@Override
+				public Object getValue() {
+					return (getVariableDeclaration(currentStep) == null) ? Variable.UNDEFINED_VALUE : null;
+				}
+			});
 		}
-		for (Transition transition : validTransitions) {
-			continueExecution(transition.getEndStep(), context, executionInspector);
+		final int TRANSITION_NOT_REACHED = 0;
+		final int TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH = 1;
+		final int TRANSITION_REACHED_THROUGH_INACTIVE_BRANCH = 2;
+		for (Transition transition : currentStepTransitions) {
+			boolean endStepALreadyExecuted = context.getVariables().stream()
+					.anyMatch(variable -> variable.getName().equals(transition.getEndStep().getName()));
+			if (endStepALreadyExecuted) {
+				continue;
+			}
+			List<Transition> convergentTransitions = transitions.stream()
+					.filter(candidateConvergentTransition -> (candidateConvergentTransition.getEndStep() == transition
+							.getEndStep()))
+					.collect(Collectors.toList());
+			Map<Transition, Integer> statusByConvergentTransition = new HashMap<Transition, Integer>();
+			Map<Transition, StepOccurrence> startStepOccurrenceByConvergentTransition = new HashMap<Transition, StepOccurrence>();
+			for (Transition convergentTransition : convergentTransitions) {
+				int convergentTransitionStatus = TRANSITION_NOT_REACHED;
+				for (Variable variable : context.getVariables()) {
+					if (variable.getName().equals(convergentTransition.getStartStep().getName())) {
+						if (variable instanceof StepOccurrence) {
+							startStepOccurrenceByConvergentTransition.put(convergentTransition,
+									(StepOccurrence) variable);
+							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH;
+							break;
+						} else {
+							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INACTIVE_BRANCH;
+							break;
+						}
+					}
+				}
+				statusByConvergentTransition.put(convergentTransition, convergentTransitionStatus);
+			}
+			if (!statusByConvergentTransition.containsValue(TRANSITION_NOT_REACHED)) {
+				boolean futureBranchActive = statusByConvergentTransition.entrySet().stream().anyMatch(entry -> {
+					Transition convergentTransition = entry.getKey();
+					int convergentTransitionStatus = entry.getValue();
+					StepOccurrence convergentTransitionStartStepOccurrence = startStepOccurrenceByConvergentTransition
+							.get(convergentTransition);
+					List<Transition> validTransitionsFromConvergentTransitionStartStep = (convergentTransitionStartStepOccurrence != null)
+							? convergentTransitionStartStepOccurrence.getValidTransitions()
+							: null;
+					return (convergentTransitionStatus == TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH)
+							&& validTransitionsFromConvergentTransitionStartStep.contains(convergentTransition);
+				});
+				continueExecution(transition.getEndStep(), futureBranchActive, context, executionInspector);
+			}
 		}
 	}
 
-	private List<Transition> filterValidTranstions(List<Transition> transitions, ExecutionError thrown,
+	private List<Transition> filterValidTranstions(List<Transition> transitions, ExecutionError executionError,
 			ExecutionContext context) throws ExecutionError {
 		List<Transition> result = new ArrayList<Transition>();
 		List<Transition> elseTransitions = new ArrayList<Transition>();
 		for (Transition transition : transitions) {
 			if (transition.getCondition() != null) {
 				if (transition.getCondition() instanceof IfCondition) {
-					if (thrown == null) {
+					if (executionError == null) {
 						try {
 							if (((IfCondition) transition.getCondition()).isFulfilled(
 									getTransitionContextVariableDeclarations(transition), context.getVariables())) {
@@ -323,12 +394,12 @@ public class Plan extends Asset {
 						}
 					}
 				} else if (transition.getCondition() instanceof ElseCondition) {
-					if (thrown == null) {
+					if (executionError == null) {
 						elseTransitions.add(transition);
 					}
 				} else if (transition.getCondition() instanceof ExceptionCondition) {
-					if (thrown != null) {
-						if (((ExceptionCondition) transition.getCondition()).isFullfilled(thrown.getCause())) {
+					if (executionError != null) {
+						if (((ExceptionCondition) transition.getCondition()).isFullfilled(executionError.getCause())) {
 							result.add(transition);
 						}
 					}
@@ -336,7 +407,7 @@ public class Plan extends Asset {
 					throw new AssertionError();
 				}
 			} else {
-				if (thrown == null) {
+				if (executionError == null) {
 					result.add(transition);
 				}
 			}
@@ -359,29 +430,25 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector)
+	private void execute(StepOccurrence stepOccurrence, ExecutionContext context, ExecutionInspector executionInspector)
 			throws ExecutionError {
+		Step step = stepOccurrence.getStep();
+		context.setCutrrentStep(step);
+		executionInspector.beforeActivityCreation(stepOccurrence);
+		ActivityBuilder activityBuilder = step.getActivityBuilder();
 		try {
-			context.setCutrrentStep(step);
-			StepOccurrence stepOccurrence = new StepOccurrence(step);
-			executionInspector.beforeActivityCreation(stepOccurrence);
-			try {
-				Activity activity = step.getActivityBuilder().build(context, executionInspector);
-				stepOccurrence.setActivity(activity);
-				Object activityResult = activity.execute();
-				stepOccurrence.setActivityResult(activityResult);
-				if (activityResult != null) {
-					context.getVariables().add(stepOccurrence);
-				}
-			} catch (Throwable t) {
-				stepOccurrence.setActivityError(t);
-				throw t;
-			}
-			executionInspector.afterActivityExecution(stepOccurrence);
-			context.setCutrrentStep(null);
+			Activity activity = activityBuilder.build(context, executionInspector);
+			stepOccurrence.setActivity(activity);
+			Object activityResult = activity.execute();
+			stepOccurrence
+					.setActivityResult((activityBuilder.getActivityResultClass(this, step) != null) ? activityResult
+							: Variable.UNDEFINED_VALUE);
 		} catch (Throwable t) {
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
+		} finally {
+			executionInspector.afterActivityExecution(stepOccurrence);
 		}
+		context.setCutrrentStep(null);
 	}
 
 	public ValidationContext getValidationContext(Step currentStep) {
@@ -409,8 +476,8 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
-		for (Step step : previousSteps) {
+		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep) : steps;
+		for (Step step : precedingSteps) {
 			VariableDeclaration stepVariableDeclaration = getVariableDeclaration(step);
 			if (stepVariableDeclaration != null) {
 				result.getVariableDeclarations().add(stepVariableDeclaration);
@@ -539,6 +606,15 @@ public class Plan extends Asset {
 		private ExecutionError(String message, Throwable cause) {
 			super((cause instanceof ExecutionError) ? (message + ":\n" + cause.getMessage()) : message,
 					(cause instanceof ExecutionError) ? cause.getCause() : cause);
+		}
+
+		@Override
+		public String getMessage() {
+			String result = super.getMessage();
+			if (super.getCause() instanceof FunctionCallError) {
+				result += "\n" + ((FunctionCallError) super.getCause()).describeSource();
+			}
+			return result;
 		}
 
 		@Override

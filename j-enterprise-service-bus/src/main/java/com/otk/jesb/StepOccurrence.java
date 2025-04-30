@@ -1,5 +1,7 @@
 package com.otk.jesb;
 
+import java.util.List;
+
 import com.otk.jesb.activity.Activity;
 
 public class StepOccurrence implements Variable {
@@ -8,6 +10,7 @@ public class StepOccurrence implements Variable {
 	private Activity activity;
 	private Object activityResult;
 	private Throwable activityError;
+	private List<Transition> validTransitions;
 
 	public StepOccurrence() {
 	}
@@ -42,6 +45,14 @@ public class StepOccurrence implements Variable {
 
 	public void setActivityError(Throwable activityError) {
 		this.activityError = activityError;
+	}
+
+	public List<Transition> getValidTransitions() {
+		return validTransitions;
+	}
+
+	public void setValidTransitions(List<Transition> validTransitions) {
+		this.validTransitions = validTransitions;
 	}
 
 	@Override

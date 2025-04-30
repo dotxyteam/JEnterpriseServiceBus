@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -675,8 +674,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				Graphics2D g = compositeImage.createGraphics();
 				g.setColor(Color.BLACK);
 				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
-				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+				MiscUtils.improveRenderingQuality(g);
 				g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
 						node.getImage().getHeight(null), null);
 				g.setColor(Color.BLACK);
