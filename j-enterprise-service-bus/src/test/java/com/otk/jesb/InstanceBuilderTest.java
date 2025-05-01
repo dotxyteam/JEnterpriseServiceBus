@@ -5,10 +5,6 @@ import java.util.HashMap;
 
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.Plan;
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Step;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
@@ -22,6 +18,10 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;

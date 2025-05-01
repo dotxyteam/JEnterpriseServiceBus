@@ -12,18 +12,11 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.PathOptionsProvider;
-import com.otk.jesb.Plan;
-import com.otk.jesb.Step;
-import com.otk.jesb.StepGoingThrough;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
-import com.otk.jesb.LoopCompositeStep.LoopActivity;
-import com.otk.jesb.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.Structure.Element;
-import com.otk.jesb.Transition;
-import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
@@ -53,6 +46,13 @@ import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.StepGoingThrough;
+import com.otk.jesb.solution.Transition;
+import com.otk.jesb.solution.LoopCompositeStep.LoopActivity;
+import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
+import com.otk.jesb.solution.Plan.ValidationContext;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.CustomizedUI;
@@ -932,14 +932,14 @@ public class JESBReflectionUI extends CustomizedUI {
 					PlanExecutor executor = (PlanExecutor) object;
 					if (executor.isActive()) {
 						return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-								PlanExecutor.class.getPackage().getName().replace(".", "/") + "/running.png"));
+								JESBReflectionUI.class.getPackage().getName().replace(".", "/") + "/running.png"));
 					} else {
 						if (executor.getExecutionError() == null) {
 							return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-									PlanExecutor.class.getPackage().getName().replace(".", "/") + "/success.png"));
+									JESBReflectionUI.class.getPackage().getName().replace(".", "/") + "/success.png"));
 						} else {
 							return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-									PlanExecutor.class.getPackage().getName().replace(".", "/") + "/failure.png"));
+									JESBReflectionUI.class.getPackage().getName().replace(".", "/") + "/failure.png"));
 						}
 					}
 				}

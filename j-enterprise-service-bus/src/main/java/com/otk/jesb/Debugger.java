@@ -3,6 +3,12 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.AssetVisitor;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.StepGoingThrough;
+
 public class Debugger {
 
 	private Solution solution;

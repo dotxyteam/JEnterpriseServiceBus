@@ -8,7 +8,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.Plan;
+import com.otk.jesb.solution.Plan;
 
 import xy.reflect.ui.control.IAdvancedFieldControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;

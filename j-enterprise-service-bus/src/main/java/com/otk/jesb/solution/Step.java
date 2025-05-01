@@ -1,5 +1,7 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
+import com.otk.jesb.CompositeStep;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 

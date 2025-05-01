@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import com.otk.jesb.Asset;
+import com.otk.jesb.solution.Asset;
 import com.otk.jesb.CompositeStep;
-import com.otk.jesb.Folder;
-import com.otk.jesb.Plan;
-import com.otk.jesb.Solution;
-import com.otk.jesb.Step;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.Step;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;

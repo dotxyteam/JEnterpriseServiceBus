@@ -12,12 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.otk.jesb.Plan;
-import com.otk.jesb.Solution;
-import com.otk.jesb.Step;
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Reference;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -27,6 +21,12 @@ import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Reference;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;

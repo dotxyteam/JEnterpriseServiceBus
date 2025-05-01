@@ -4,8 +4,6 @@
 	. release a first version
 	. advertise
 	. improve the features
-- add things like 
-	. conditional transitions for steps
 - error marker do not disappear when deselecting and selecting a plan while
 ExecutePlan.inputBuilder is filled
 - allow to build and reference shared structures

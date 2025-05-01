@@ -1,4 +1,6 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
+
+import com.otk.jesb.VariableDeclaration;
 
 public class StepEventuality implements VariableDeclaration {
 

@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.Plan;
-import com.otk.jesb.Step;
-import com.otk.jesb.StepGoingThrough;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.StepGoingThrough;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.diagram.JConnection;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.ValidationContext;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;

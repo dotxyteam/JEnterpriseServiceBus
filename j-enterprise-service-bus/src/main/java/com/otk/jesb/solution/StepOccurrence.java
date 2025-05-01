@@ -1,7 +1,9 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otk.jesb.Variable;
 
 public abstract class StepOccurrence implements Variable {
 	private Step step;

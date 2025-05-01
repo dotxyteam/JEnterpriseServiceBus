@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,14 +7,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Plan.ValidationContext;
+import com.otk.jesb.CompositeStep;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Plan.ValidationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.util.InstantiationUtils;
@@ -44,7 +48,7 @@ public class LoopCompositeStep extends CompositeStep {
 	}
 
 	@Override
-	protected List<VariableDeclaration> getContextualVariableDeclarations() {
+	public List<VariableDeclaration> getContextualVariableDeclarations() {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>();
 		result.add(new VariableDeclaration() {
 

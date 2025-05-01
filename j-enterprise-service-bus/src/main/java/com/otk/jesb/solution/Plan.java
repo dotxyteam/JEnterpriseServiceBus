@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.CompositeStep;
+import com.otk.jesb.JESBError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
-import com.otk.jesb.Transition.ElseCondition;
-import com.otk.jesb.Transition.ExceptionCondition;
-import com.otk.jesb.Transition.IfCondition;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
@@ -19,6 +20,9 @@ import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.solution.Transition.ElseCondition;
+import com.otk.jesb.solution.Transition.ExceptionCondition;
+import com.otk.jesb.solution.Transition.IfCondition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;

@@ -1,6 +1,6 @@
 package com.otk.jesb.instantiation;
 
-import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionContext;
 
 public class EvaluationContext {
 

@@ -1,14 +1,14 @@
-<com.otk.jesb.Solution>
+<com.otk.jesb.solution.Solution>
   <contents>
-    <com.otk.jesb.Folder>
+    <com.otk.jesb.solution.Folder>
       <name>plans</name>
       <contents>
-        <com.otk.jesb.Plan>
+        <com.otk.jesb.solution.Plan>
           <inputStructure class="null"/>
           <name>test</name>
           <outputStructure class="null"/>
           <steps>
-            <com.otk.jesb.Step>
+            <com.otk.jesb.solution.Step>
               <name>readFile</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
                 <instanceBuilder>
@@ -31,8 +31,8 @@
               </activityBuilder>
               <diagramX>64</diagramX>
               <diagramY>322</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>jDBCQuery</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
                 <connection>
@@ -112,8 +112,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>67</diagramX>
               <diagramY>96</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>sleep</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
                 <instanceBuilder>
@@ -135,11 +135,11 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>206</diagramX>
               <diagramY>101</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>jDBCUpdate</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                <connection reference="../../../com.otk.jesb.Step[2]/activityBuilder/connection"/>
+                <connection reference="../../../com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
                 <parameterDefinitions>
                   <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
                     <parameterName>address</parameterName>
@@ -180,8 +180,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>194</diagramX>
               <diagramY>326</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>writeFile</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
                 <instanceBuilder>
@@ -227,8 +227,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>343</diagramX>
               <diagramY>325</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>executePlan</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
                 <plan>
@@ -302,7 +302,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <name>subTest</name>
                   <outputStructure class="null"/>
                   <steps>
-                    <com.otk.jesb.Step>
+                    <com.otk.jesb.solution.Step>
                       <name>writeFile</name>
                       <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
                         <instanceBuilder>
@@ -336,7 +336,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       </activityBuilder>
                       <diagramX>96</diagramX>
                       <diagramY>103</diagramY>
-                    </com.otk.jesb.Step>
+                    </com.otk.jesb.solution.Step>
                   </steps>
                   <transitions/>
                 </plan>
@@ -634,8 +634,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>348</diagramX>
               <diagramY>103</diagramY>
-            </com.otk.jesb.Step>
-            <com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step>
               <name>callSOAPWebService</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
                 <WSDL>
@@ -1092,18 +1092,18 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               </activityBuilder>
               <diagramX>483</diagramX>
               <diagramY>102</diagramY>
-            </com.otk.jesb.Step>
+            </com.otk.jesb.solution.Step>
           </steps>
           <transitions>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[7]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[6]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
               <endStep>
                 <name>callSOAPWebService</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
-                  <WSDL reference="../../../../../steps/com.otk.jesb.Step[7]/activityBuilder/WSDL"/>
+                  <WSDL reference="../../../../../steps/com.otk.jesb.solution.Step[7]/activityBuilder/WSDL"/>
                   <operationInputBuilder>
                     <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
                       <outer-class reference="../../.."/>
@@ -1127,13 +1127,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>434</diagramX>
                 <diagramY>125</diagramY>
               </endStep>
-              <startStep reference="../../../steps/com.otk.jesb.Step[6]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
               <endStep>
                 <name>callSOAPWebService</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
-                  <WSDL reference="../../../../../steps/com.otk.jesb.Step[7]/activityBuilder/WSDL"/>
+                  <WSDL reference="../../../../../steps/com.otk.jesb.solution.Step[7]/activityBuilder/WSDL"/>
                   <operationInputBuilder>
                     <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
                       <outer-class reference="../../.."/>
@@ -1167,22 +1167,22 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>453</diagramX>
                 <diagramY>152</diagramY>
               </endStep>
-              <startStep reference="../../../steps/com.otk.jesb.Step[6]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[6]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[5]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[5]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[4]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[6]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
               <startStep>
                 <name>writeFile</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
@@ -1214,21 +1214,21 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>414</diagramX>
                 <diagramY>322</diagramY>
               </startStep>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../com.otk.jesb.Transition[7]/startStep"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[4]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[4]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[3]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[2]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../com.otk.jesb.solution.Transition[7]/startStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
               <startStep>
                 <name>readFile</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
@@ -1269,13 +1269,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>66</diagramX>
                 <diagramY>319</diagramY>
               </startStep>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../com.otk.jesb.Transition[7]/startStep"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../com.otk.jesb.solution.Transition[7]/startStep"/>
               <startStep>
                 <name>jDBCUpdate</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                  <connection reference="../../../../../steps/com.otk.jesb.Step[2]/activityBuilder/connection"/>
+                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
                   <parameterDefinitions>
                     <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
                       <parameterName>s</parameterName>
@@ -1309,17 +1309,17 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>241</diagramX>
                 <diagramY>348</diagramY>
               </startStep>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../com.otk.jesb.Transition[12]/startStep"/>
-              <startStep reference="../../../steps/com.otk.jesb.Step[3]"/>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../com.otk.jesb.solution.Transition[12]/startStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
               <startStep>
                 <name>jDBCQuery</name>
                 <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
-                  <connection reference="../../../../../steps/com.otk.jesb.Step[2]/activityBuilder/connection"/>
+                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
                   <parameterDefinitions/>
                   <parameterValuesBuilder>
                     <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
@@ -1391,22 +1391,22 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                 <diagramX>73</diagramX>
                 <diagramY>125</diagramY>
               </startStep>
-            </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition>
-              <endStep reference="../../com.otk.jesb.Transition[14]/startStep"/>
-              <startStep reference="../../com.otk.jesb.Transition[11]/startStep"/>
-            </com.otk.jesb.Transition>
+            </com.otk.jesb.solution.Transition>
+            <com.otk.jesb.solution.Transition>
+              <endStep reference="../../com.otk.jesb.solution.Transition[14]/startStep"/>
+              <startStep reference="../../com.otk.jesb.solution.Transition[11]/startStep"/>
+            </com.otk.jesb.solution.Transition>
           </transitions>
-        </com.otk.jesb.Plan>
-        <com.otk.jesb.Plan reference="../com.otk.jesb.Plan/steps/com.otk.jesb.Step[6]/activityBuilder/plan"/>
+        </com.otk.jesb.solution.Plan>
+        <com.otk.jesb.solution.Plan reference="../com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[6]/activityBuilder/plan"/>
       </contents>
-    </com.otk.jesb.Folder>
-    <com.otk.jesb.Folder>
+    </com.otk.jesb.solution.Folder>
+    <com.otk.jesb.solution.Folder>
       <name>resources</name>
       <contents>
-        <com.otk.jesb.resource.builtin.JDBCConnection reference="../../../com.otk.jesb.Folder/contents/com.otk.jesb.Plan/steps/com.otk.jesb.Step[2]/activityBuilder/connection"/>
-        <com.otk.jesb.resource.builtin.WSDL reference="../../../com.otk.jesb.Folder/contents/com.otk.jesb.Plan/steps/com.otk.jesb.Step[7]/activityBuilder/WSDL"/>
+        <com.otk.jesb.resource.builtin.JDBCConnection reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
+        <com.otk.jesb.resource.builtin.WSDL reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[7]/activityBuilder/WSDL"/>
       </contents>
-    </com.otk.jesb.Folder>
+    </com.otk.jesb.solution.Folder>
   </contents>
-</com.otk.jesb.Solution>
+</com.otk.jesb.solution.Solution>

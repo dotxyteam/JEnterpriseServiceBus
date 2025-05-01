@@ -31,11 +31,11 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
-import com.otk.jesb.LoopCompositeStep;
-import com.otk.jesb.LoopCompositeStep.LoopActivity.Metadata;
-import com.otk.jesb.Plan;
-import com.otk.jesb.Step;
-import com.otk.jesb.Transition;
+import com.otk.jesb.solution.LoopCompositeStep;
+import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Transition;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.diagram.JConnection;

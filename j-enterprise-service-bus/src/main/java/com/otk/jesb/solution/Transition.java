@@ -1,7 +1,10 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.util.List;
 
+import com.otk.jesb.Function;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;

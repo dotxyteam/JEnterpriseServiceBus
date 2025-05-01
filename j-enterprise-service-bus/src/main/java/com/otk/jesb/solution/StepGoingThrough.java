@@ -1,7 +1,8 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.util.List;
 
+import com.otk.jesb.Variable;
 import com.otk.jesb.activity.Activity;
 
 public class StepGoingThrough extends StepOccurrence {

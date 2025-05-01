@@ -104,7 +104,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Step</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Step</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -479,7 +479,7 @@
                     <menuModel>
                         <uniqueIdentifier>-1651ba40:1957c394375:-5cf9</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -531,7 +531,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6d10c194:19581d64d84:-5e3d</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -584,7 +584,7 @@
                     <menuModel>
                         <uniqueIdentifier>-38bf6b34:195822bcd14:-ffe</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=centerAndBottom]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=centerAndBottom]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -626,7 +626,7 @@
                         <customCaption></customCaption>
                         <hidden>false</hidden>
                         <iconImagePath>
-                            <specification>&lt;class-path-resource&gt; com/otk/jesb/connect.png</specification>
+                            <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/connect.png</specification>
                         </iconImagePath>
                         <itemName>CONNECT</itemName>
                     </itemCustomizations>
@@ -636,7 +636,7 @@
                         <customCaption></customCaption>
                         <hidden>false</hidden>
                         <iconImagePath>
-                            <specification>&lt;class-path-resource&gt; com/otk/jesb/move.png</specification>
+                            <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/move.png</specification>
                         </iconImagePath>
                         <itemName>MOVE</itemName>
                     </itemCustomizations>
@@ -751,7 +751,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>execute</methodName>
-            <methodSignature>void execute(com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>void execute(com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-2b9b52c3:1940f2995ad:-6c54</uniqueIdentifier>
                 <specificProperties/>
@@ -777,7 +777,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getPreviousSteps</methodName>
-            <methodSignature>java.util.List getPreviousSteps(com.otk.jesb.Step)</methodSignature>
+            <methodSignature>java.util.List getPreviousSteps(com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-7814a8da:193c70b8260:-7483</uniqueIdentifier>
                 <specificProperties/>
@@ -803,7 +803,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getValidationContext</methodName>
-            <methodSignature>com.otk.jesb.ValidationContext getValidationContext(com.otk.jesb.Step)</methodSignature>
+            <methodSignature>com.otk.jesb.ValidationContext getValidationContext(com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>1c3aff65:1940674d72c:6d5d</uniqueIdentifier>
                 <specificProperties/>
@@ -829,7 +829,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>execute</methodName>
-            <methodSignature>java.lang.Object execute(java.lang.Object, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>java.lang.Object execute(java.lang.Object, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>5ccdaa5b:19466870aef:-7e73</uniqueIdentifier>
                 <specificProperties/>
@@ -892,7 +892,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>execute</methodName>
-            <methodSignature>void execute(java.util.List, com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>void execute(java.util.List, com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:-1b</uniqueIdentifier>
                 <specificProperties/>
@@ -940,7 +940,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getValidationContext</methodName>
-            <methodSignature>com.otk.jesb.Plan$ValidationContext getValidationContext(com.otk.jesb.Step)</methodSignature>
+            <methodSignature>com.otk.jesb.solution.Plan$ValidationContext getValidationContext(com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:196633a36c3:1336</uniqueIdentifier>
                 <specificProperties/>
@@ -966,7 +966,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getTransitionContextVariableDeclarations</methodName>
-            <methodSignature>java.util.List getTransitionContextVariableDeclarations(com.otk.jesb.Transition)</methodSignature>
+            <methodSignature>java.util.List getTransitionContextVariableDeclarations(com.otk.jesb.solution.Transition)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3141b5dd:19678ff8032:-474c</uniqueIdentifier>
                 <specificProperties/>
@@ -992,7 +992,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getPrecedingSteps</methodName>
-            <methodSignature>java.util.List getPrecedingSteps(com.otk.jesb.Step)</methodSignature>
+            <methodSignature>java.util.List getPrecedingSteps(com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>4e8354f:19687e3970d:-470b</uniqueIdentifier>
                 <specificProperties/>
@@ -1018,7 +1018,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getVariableDeclaration</methodName>
-            <methodSignature>com.otk.jesb.VariableDeclaration getVariableDeclaration(com.otk.jesb.Step)</methodSignature>
+            <methodSignature>com.otk.jesb.VariableDeclaration getVariableDeclaration(com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-362194e:1968b0721b7:-4701</uniqueIdentifier>
                 <specificProperties/>
@@ -1036,7 +1036,33 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Plan</typeName>
+        <methodsCustomizations>
+            <uniqueIdentifier>585c2a14:1968b6dc244:-46e4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getResultVariableDeclaration</methodName>
+            <methodSignature>com.otk.jesb.VariableDeclaration getResultVariableDeclaration(com.otk.jesb.solution.Step)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-46e1</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>585c2a14:1968b6dc244:-46e0</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>step</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <typeName>com.otk.jesb.solution.Plan</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -1290,7 +1316,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Step</typeName>
+        <typeName>com.otk.jesb.solution.Step</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
         <virtualFieldDeclarations>
@@ -3224,7 +3250,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2583</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3693</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3284,7 +3310,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2582</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3692</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3339,7 +3365,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2581</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3691</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3373,7 +3399,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2580</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3690</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3485,7 +3511,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257f</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368f</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3566,7 +3592,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a7b</uniqueIdentifier>
                 <specificProperties/>
@@ -3599,7 +3625,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257e</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368e</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -3675,7 +3701,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257d</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368d</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3850,7 +3876,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:9b</uniqueIdentifier>
                 <specificProperties/>
@@ -4233,7 +4259,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>java.lang.Object build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>java.lang.Object build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-3a7ac6e8:193938ceb84:4fc6</uniqueIdentifier>
                 <specificProperties/>
@@ -5039,7 +5065,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257c</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -5125,7 +5151,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257b</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -5171,7 +5197,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>5f36fd58:193939fc3b4:5cb1</uniqueIdentifier>
                 <specificProperties/>
@@ -5393,7 +5419,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:195</uniqueIdentifier>
                 <specificProperties/>
@@ -7329,7 +7355,7 @@
         <menuModel>
             <uniqueIdentifier>3063d432:193ca0aa405:57e3</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=steps, objectType=com.otk.jesb.Plan], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Step]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=steps, objectType=com.otk.jesb.solution.Plan], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Step]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -7345,7 +7371,7 @@
         <menuModel>
             <uniqueIdentifier>35d408fa:193d09d64d8:-7366</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.Plan]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Plan]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -7440,7 +7466,7 @@
         <menuModel>
             <uniqueIdentifier>35d408fa:193d09d64d8:57f7</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activityBuilder, objectType=com.otk.jesb.Step], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activity.ActivityBuilder]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activityBuilder, objectType=com.otk.jesb.solution.Step], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activity.ActivityBuilder]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -9599,7 +9625,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Asset</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Asset</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -9608,7 +9634,7 @@
                         <uniqueIdentifier>-e239d82:193f3d2e88e:69fb</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>-e239d82:193f3d2e88e:6a1f</uniqueIdentifier>
-                            <className>com.otk.jesb.Asset</className>
+                            <className>com.otk.jesb.solution.Asset</className>
                         </javaClassBasedTypeInfoFinder>
                         <excludedSubListFields>
                             <uniqueIdentifier>-e239d82:193f3d4c0d0:-7254</uniqueIdentifier>
@@ -9880,7 +9906,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>visitAssets</methodName>
-            <methodSignature>void visitAssets(com.otk.jesb.AssetVisitor)</methodSignature>
+            <methodSignature>void visitAssets(com.otk.jesb.solution.AssetVisitor)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-7372f88b:1940edbbf05:-5a0c</uniqueIdentifier>
                 <specificProperties/>
@@ -9899,7 +9925,7 @@
             <validating>false</validating>
         </methodsCustomizations>
         <savingMethodName>saveToStream</savingMethodName>
-        <typeName>com.otk.jesb.Solution</typeName>
+        <typeName>com.otk.jesb.solution.Solution</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -9916,17 +9942,17 @@
         </menuModel>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:-160c</uniqueIdentifier>
-            <className>com.otk.jesb.Folder</className>
+            <className>com.otk.jesb.solution.Folder</className>
         </javaClassBasedTypeInfoFinder>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:-15f6</uniqueIdentifier>
-            <className>com.otk.jesb.Plan</className>
+            <className>com.otk.jesb.solution.Plan</className>
         </javaClassBasedTypeInfoFinder>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:-15f5</uniqueIdentifier>
             <className>com.otk.jesb.resource.Resource</className>
         </javaClassBasedTypeInfoFinder>
-        <typeName>com.otk.jesb.Asset</typeName>
+        <typeName>com.otk.jesb.solution.Asset</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -9974,7 +10000,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Asset</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Asset</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -9983,7 +10009,7 @@
                         <uniqueIdentifier>-e239d82:193f3d2e88e:7b60</uniqueIdentifier>
                         <javaClassBasedTypeInfoFinder>
                             <uniqueIdentifier>-e239d82:193f3d2e88e:7b61</uniqueIdentifier>
-                            <className>com.otk.jesb.Asset</className>
+                            <className>com.otk.jesb.solution.Asset</className>
                         </javaClassBasedTypeInfoFinder>
                         <heterogeneousTree>false</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -10027,7 +10053,7 @@
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Asset</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Asset</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -10043,7 +10069,7 @@
         <menuModel>
             <uniqueIdentifier>-e239d82:193f3d2e88e:6822</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.Folder</typeName>
+        <typeName>com.otk.jesb.solution.Folder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -10086,7 +10112,7 @@
         <menuModel>
             <uniqueIdentifier>-e239d82:193f3d2e88e:6824</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Asset]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -10129,7 +10155,7 @@
         <menuModel>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:-15d4</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Folder]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Folder]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -10180,7 +10206,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6d10c194:19581d64d84:-5e33</uniqueIdentifier>
                     </menuModel>
-                    <typeName>com.otk.jesb.Plan</typeName>
+                    <typeName>com.otk.jesb.solution.Plan</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -10192,7 +10218,7 @@
         <menuModel>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:1a15</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Plan]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Plan]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -10236,7 +10262,7 @@
         <menuModel>
             <uniqueIdentifier>-1c5011de:193f4fa8f43:-5fe0</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.Solution]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Solution]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -11660,7 +11686,7 @@
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7098</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Debugger createDebugger(), objectType=com.otk.jesb.Solution], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Debugger]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Debugger createDebugger(), objectType=com.otk.jesb.solution.Solution], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Debugger]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -11802,7 +11828,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.StepGoingThrough</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.StepGoingThrough</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -11970,7 +11996,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-257a</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-368a</uniqueIdentifier>
                 <caption>Activity</caption>
                 <name>Activity</name>
             </category>
@@ -12030,7 +12056,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2579</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3689</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -12064,7 +12090,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2578</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3688</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -12321,7 +12347,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.StepGoingThrough</typeName>
+        <typeName>com.otk.jesb.solution.StepGoingThrough</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -12362,7 +12388,7 @@
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edf0b80:298b</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activityResult, objectType=com.otk.jesb.StepGoingThrough], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.activity.builtin.JDBCQueryActivity$GenericResult]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activityResult, objectType=com.otk.jesb.solution.StepGoingThrough], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.activity.builtin.JDBCQueryActivity$GenericResult]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -12588,7 +12614,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2577</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3687</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -12622,7 +12648,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2576</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3686</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -12705,7 +12731,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-2d3840e6:1941ecd0845:77cb</uniqueIdentifier>
                 <specificProperties/>
@@ -12879,7 +12905,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>21d9a335:1963e344cd9:7e57</uniqueIdentifier>
                 <specificProperties/>
@@ -12950,7 +12976,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2575</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3685</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13035,7 +13061,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-6893d1df:1941efd615d:77eb</uniqueIdentifier>
                 <specificProperties/>
@@ -13209,7 +13235,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>21d9a335:1963e344cd9:57e0</uniqueIdentifier>
                 <specificProperties/>
@@ -13365,7 +13391,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2574</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3684</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13503,7 +13529,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2573</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3683</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13578,7 +13604,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>49810c2e:1941f1474f4:77d0</uniqueIdentifier>
                 <specificProperties/>
@@ -13805,7 +13831,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>21d9a335:1963e344cd9:7e3d</uniqueIdentifier>
                 <specificProperties/>
@@ -14055,7 +14081,7 @@
         <menuModel>
             <uniqueIdentifier>-e8fddb1:1941f2ef2c9:780a</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=ContructorContext [type=com.otk.jesb.Step, signature=com.otk.jesb.Step (com.otk.jesb.activity.ActivityMetadata)]]</typeName>
+        <typeName>MethodSetupObject [context=ContructorContext [type=com.otk.jesb.solution.Step, signature=com.otk.jesb.solution.Step (com.otk.jesb.activity.ActivityMetadata)]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14169,7 +14195,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2572</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3682</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14208,7 +14234,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2571</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3681</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14268,7 +14294,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2570</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3680</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14352,7 +14378,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>5ccdaa5b:19466870aef:-7d7c</uniqueIdentifier>
                 <specificProperties/>
@@ -14526,7 +14552,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>21d9a335:1963e344cd9:57f9</uniqueIdentifier>
                 <specificProperties/>
@@ -14681,7 +14707,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-7c53</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14782,7 +14808,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-7c3a</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=top]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14825,7 +14851,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-7a16</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=planGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=planGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14876,14 +14902,14 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>interface.get</methodName>
-            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface] interface.get()</methodSignature>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface] interface.get()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interfaceGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interfaceGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14927,7 +14953,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-787f</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface] interface.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interfaceGroup]], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface] interface.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interfaceGroup]], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -14968,7 +14994,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-6996</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -15009,7 +15035,7 @@
         <menuModel>
             <uniqueIdentifier>-24d9c4b0:1946b683ed4:-4b87</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -15183,7 +15209,7 @@
         <menuModel>
             <uniqueIdentifier>2c253423:19475727861:-7d50</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -15530,7 +15556,7 @@
         <menuModel>
             <uniqueIdentifier>-e4da46d:1947923a3bb:-78f3</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -15571,7 +15597,7 @@
         <menuModel>
             <uniqueIdentifier>-e4da46d:1947923a3bb:-7810</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=interface]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -16887,7 +16913,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256f</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367f</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17083,7 +17109,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-26abd643:194b6e911ea:-7184</uniqueIdentifier>
                 <specificProperties/>
@@ -17183,7 +17209,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>21d9a335:1963e344cd9:7df1</uniqueIdentifier>
                 <specificProperties/>
@@ -17361,7 +17387,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256e</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367e</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -17421,7 +17447,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256d</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367d</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -17510,7 +17536,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256c</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367c</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -21355,7 +21381,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Step</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Step</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -21427,7 +21453,7 @@
         <menuModel>
             <uniqueIdentifier>-1651ba40:1957c394375:-5d01</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21470,7 +21496,7 @@
         <menuModel>
             <uniqueIdentifier>-1651ba40:1957c394375:-5c71</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=steps, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Step]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=steps, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Step]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21490,7 +21516,7 @@
         <menuModel>
             <uniqueIdentifier>-1651ba40:1957c394375:-4538</uniqueIdentifier>
         </menuModel>
-        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]]</typeName>
+        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21542,7 +21568,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Step</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.Step</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -21560,7 +21586,7 @@
         <menuModel>
             <uniqueIdentifier>-76ae5457:1957c3fa009:-5e10</uniqueIdentifier>
         </menuModel>
-        <typeName>SplitFormType2 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]]</typeName>
+        <typeName>SplitFormType2 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21695,7 +21721,7 @@
                         <customCaption></customCaption>
                         <hidden>false</hidden>
                         <iconImagePath>
-                            <specification>&lt;class-path-resource&gt; com/otk/jesb/connect.png</specification>
+                            <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/connect.png</specification>
                         </iconImagePath>
                         <itemName>CONNECT</itemName>
                     </itemCustomizations>
@@ -21705,7 +21731,7 @@
                         <customCaption></customCaption>
                         <hidden>false</hidden>
                         <iconImagePath>
-                            <specification>&lt;class-path-resource&gt; com/otk/jesb/move.png</specification>
+                            <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/move.png</specification>
                         </iconImagePath>
                         <itemName>MOVE</itemName>
                     </itemCustomizations>
@@ -21744,7 +21770,7 @@
         <menuModel>
             <uniqueIdentifier>43ff8db7:19581aacce3:-5b5c</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21803,7 +21829,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6d10c194:19581d64d84:-5e3d</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -21851,7 +21877,7 @@
                     <menuModel>
                         <uniqueIdentifier>-1651ba40:1957c394375:-5cf9</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -21862,7 +21888,7 @@
         <menuModel>
             <uniqueIdentifier>-38bf6b34:195822bcd14:-1006</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=centerAndBottom]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=centerAndBottom]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21916,7 +21942,7 @@
                     <menuModel>
                         <uniqueIdentifier>-38bf6b34:195822bcd14:224a</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -21927,7 +21953,7 @@
         <menuModel>
             <uniqueIdentifier>-38bf6b34:195822bcd14:-f58</uniqueIdentifier>
         </menuModel>
-        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=centerAndBottom]]</typeName>
+        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=centerAndBottom]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21957,7 +21983,7 @@
         <menuModel>
             <uniqueIdentifier>-63f311be:19596907da4:-5a55</uniqueIdentifier>
         </menuModel>
-        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]]</typeName>
+        <typeName>SplitFormType1 [base=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -22054,7 +22080,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.StepGoingThrough</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.StepGoingThrough</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -22087,7 +22113,7 @@
         <menuModel>
             <uniqueIdentifier>-74b27fd1:195a02563ea:-5190</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=center]], fieldName=diagramBox]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]], fieldName=diagramBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -22103,7 +22129,7 @@
         <menuModel>
             <uniqueIdentifier>-74b27fd1:195a0398f14:-4f5d</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=outputBuilder, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=top]], encapsulatedObjectType=com.otk.jesb.instantiation.RootInstanceBuilder]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=outputBuilder, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], encapsulatedObjectType=com.otk.jesb.instantiation.RootInstanceBuilder]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -24147,7 +24173,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getChildren</methodName>
-            <methodSignature>java.util.List getChildren(com.otk.jesb.Plan)</methodSignature>
+            <methodSignature>java.util.List getChildren(com.otk.jesb.solution.Plan)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:139</uniqueIdentifier>
                 <specificProperties/>
@@ -24173,7 +24199,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getChildrenDiagramBounds</methodName>
-            <methodSignature>java.awt.Rectangle getChildrenDiagramBounds(com.otk.jesb.Plan, int, int)</methodSignature>
+            <methodSignature>java.awt.Rectangle getChildrenDiagramBounds(com.otk.jesb.solution.Plan, int, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:13b</uniqueIdentifier>
                 <specificProperties/>
@@ -24247,7 +24273,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getChildrenBounds</methodName>
-            <methodSignature>java.awt.Rectangle getChildrenBounds(com.otk.jesb.Plan, int, int)</methodSignature>
+            <methodSignature>java.awt.Rectangle getChildrenBounds(com.otk.jesb.solution.Plan, int, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>53332fd2:19645b1983e:7ee</uniqueIdentifier>
                 <specificProperties/>
@@ -24295,7 +24321,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getChildrenBounds</methodName>
-            <methodSignature>java.awt.Rectangle getChildrenBounds(com.otk.jesb.Plan, int, int, int, int)</methodSignature>
+            <methodSignature>java.awt.Rectangle getChildrenBounds(com.otk.jesb.solution.Plan, int, int, int, int)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>1545b59b:196501f9bb8:e7e</uniqueIdentifier>
                 <specificProperties/>
@@ -24357,7 +24383,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.LoopCompositeStep</typeName>
+        <typeName>com.otk.jesb.solution.LoopCompositeStep</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
         <virtualFieldDeclarations>
@@ -24384,7 +24410,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256b</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24443,7 +24469,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-256a</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-367a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24503,7 +24529,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2569</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3679</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24549,7 +24575,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.Plan$ExecutionContext, com.otk.jesb.Plan$ExecutionInspector)</methodSignature>
+            <methodSignature>com.otk.jesb.activity.Activity build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-38ab5d3b:1963e0701fb:2947</uniqueIdentifier>
                 <specificProperties/>
@@ -24623,7 +24649,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>retrieveResultsCollectionEnablementStatusByStepName</methodName>
-            <methodSignature>java.util.Map retrieveResultsCollectionEnablementStatusByStepName(com.otk.jesb.Plan, com.otk.jesb.Step)</methodSignature>
+            <methodSignature>java.util.Map retrieveResultsCollectionEnablementStatusByStepName(com.otk.jesb.solution.Plan, com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-66c25530:19658b1a74c:10b1</uniqueIdentifier>
                 <specificProperties/>
@@ -24656,7 +24682,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2568</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3678</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24682,7 +24708,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>retrieveResultsCollectionConfigurationEntries</methodName>
-            <methodSignature>java.util.List retrieveResultsCollectionConfigurationEntries(com.otk.jesb.Plan, com.otk.jesb.Step)</methodSignature>
+            <methodSignature>java.util.List retrieveResultsCollectionConfigurationEntries(com.otk.jesb.solution.Plan, com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>49f00072:19658bc8a61:128c</uniqueIdentifier>
                 <specificProperties/>
@@ -24715,7 +24741,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2567</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3677</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24742,7 +24768,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>validate</methodName>
-            <methodSignature>void validate(com.otk.jesb.Plan, com.otk.jesb.Step)</methodSignature>
+            <methodSignature>void validate(com.otk.jesb.solution.Plan, com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:196633a36c3:14b2</uniqueIdentifier>
                 <specificProperties/>
@@ -24775,7 +24801,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2566</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3676</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24786,7 +24812,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>updateResultsCollectionConfigurationEntries</methodName>
-            <methodSignature>void updateResultsCollectionConfigurationEntries(java.util.List, com.otk.jesb.Plan, com.otk.jesb.Step)</methodSignature>
+            <methodSignature>void updateResultsCollectionConfigurationEntries(java.util.List, com.otk.jesb.solution.Plan, com.otk.jesb.solution.Step)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:196633a36c3:14c0</uniqueIdentifier>
                 <specificProperties/>
@@ -24830,7 +24856,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2565</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3675</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24879,7 +24905,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e705899:1968b2ef15f:-2564</uniqueIdentifier>
+                <uniqueIdentifier>585c2a14:1968b6dc244:-3674</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -24891,14 +24917,14 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>resultsCollectionGroup.get</methodName>
-            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup] resultsCollectionGroup.get()</methodSignature>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup] resultsCollectionGroup.get()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder</typeName>
+        <typeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -24942,7 +24968,7 @@
         <menuModel>
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:119</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=steps, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Plan], fieldName=bottom]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Step]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=steps, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=bottom]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Step]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25024,7 +25050,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>resolve</methodName>
-            <methodSignature>com.otk.jesb.Asset resolve()</methodSignature>
+            <methodSignature>com.otk.jesb.solution.Asset resolve()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <runWhenObjectHidden>false</runWhenObjectHidden>
@@ -25039,7 +25065,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>get</methodName>
-            <methodSignature>com.otk.jesb.Reference get(com.otk.jesb.Asset)</methodSignature>
+            <methodSignature>com.otk.jesb.solution.Reference get(com.otk.jesb.solution.Asset)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>15abc306:1964dacde0c:7f6</uniqueIdentifier>
                 <specificProperties/>
@@ -25057,7 +25083,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Reference</typeName>
+        <typeName>com.otk.jesb.solution.Reference</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25193,7 +25219,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getActivityResultClass</methodName>
-            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.Plan)</methodSignature>
+            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.solution.Plan)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:1966349ed38:-440d</uniqueIdentifier>
                 <specificProperties/>
@@ -25211,7 +25237,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$1</typeName>
+        <typeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$1</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25276,7 +25302,7 @@
         <menuModel>
             <uniqueIdentifier>-66c25530:19658b1a74c:13fe</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=java.util.Map retrieveResultsCollectionEnablementStatusByStepName(), objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.Map]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=java.util.Map retrieveResultsCollectionEnablementStatusByStepName(), objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.Map]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25409,7 +25435,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getActivityResultClass</methodName>
-            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.Plan)</methodSignature>
+            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.solution.Plan)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:196633a36c3:3e71</uniqueIdentifier>
                 <specificProperties/>
@@ -25427,7 +25453,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</typeName>
+        <typeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25472,7 +25498,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -25509,7 +25535,7 @@
         <menuModel>
             <uniqueIdentifier>49f00072:19658bc8a61:14b5</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=java.util.List retrieveResultsCollectionConfigurationEntries(), objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.List]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=java.util.List retrieveResultsCollectionConfigurationEntries(), objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.List]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25525,7 +25551,7 @@
         <menuModel>
             <uniqueIdentifier>-95ad573:19658c157a5:14b5</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=java.util.List retrieveResultsCollectionConfigurationEntries(), objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=java.util.List retrieveResultsCollectionConfigurationEntries(), objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25684,7 +25710,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25730,7 +25756,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e90</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup] resultsCollectionGroup.get(), objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup] resultsCollectionGroup.get(), objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
         <virtualFieldDeclarations>
@@ -25786,7 +25812,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -25823,7 +25849,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:196633a36c3:418f</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25839,7 +25865,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:196633a36c3:419b</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25855,7 +25881,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:1966349ed38:-4423</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$1]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.List]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$1]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25935,7 +25961,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:196634fdf91:5db8</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25951,7 +25977,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:196634fdf91:5dcd</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25967,7 +25993,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:19663617ace:-4dcf</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$ResultsCollectionConfigurationEntry]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -25983,7 +26009,7 @@
         <menuModel>
             <uniqueIdentifier>-1e8ee84e:19663617ace:-2364</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$1]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$1]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26119,7 +26145,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>getActivityResultClass</methodName>
-            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.Plan)</methodSignature>
+            <methodSignature>java.lang.Class getActivityResultClass(com.otk.jesb.solution.Plan)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-1e8ee84e:1966349ed38:-440d</uniqueIdentifier>
                 <specificProperties/>
@@ -26137,7 +26163,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$2</typeName>
+        <typeName>com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$2</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26153,7 +26179,7 @@
         <menuModel>
             <uniqueIdentifier>-74b550e9:19669c11f5b:-712f</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.LoopCompositeStep$LoopActivity$Builder$2]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=returnValueOf-java.util.List-retrieveResultsCollectionConfigurationEntries, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder], fieldName=resultsCollectionGroup]], subContext=NullableInstance, encapsulatedObjectType=java.util.ArrayList]], subContext=ListItem, encapsulatedObjectType=java.lang.Object]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder$2]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26332,13 +26358,13 @@
             <transientForced>false</transientForced>
         </fieldsCustomizations>
         <iconImagePath>
-            <specification>&lt;class-path-resource&gt; com/otk/jesb/connect.png</specification>
+            <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/connect.png</specification>
         </iconImagePath>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-2bd82204:19673cc67e7:-4813</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.Transition</typeName>
+        <typeName>com.otk.jesb.solution.Transition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26355,17 +26381,17 @@
         </menuModel>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>75d753d6:19678437b25:-24be</uniqueIdentifier>
-            <className>com.otk.jesb.Transition$IfCondition</className>
+            <className>com.otk.jesb.solution.Transition$IfCondition</className>
         </javaClassBasedTypeInfoFinder>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>75d753d6:19678437b25:-24a2</uniqueIdentifier>
-            <className>com.otk.jesb.Transition$ElseCondition</className>
+            <className>com.otk.jesb.solution.Transition$ElseCondition</className>
         </javaClassBasedTypeInfoFinder>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>75d753d6:19678437b25:-24a1</uniqueIdentifier>
-            <className>com.otk.jesb.Transition$ExceptionCondition</className>
+            <className>com.otk.jesb.solution.Transition$ExceptionCondition</className>
         </javaClassBasedTypeInfoFinder>
-        <typeName>com.otk.jesb.Transition$Condition</typeName>
+        <typeName>com.otk.jesb.solution.Transition$Condition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26553,7 +26579,7 @@
         <menuModel>
             <uniqueIdentifier>75d753d6:19678437b25:-3f1e</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Transition], fieldName=stepsGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Transition], fieldName=stepsGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
         <virtualFieldDeclarations>
@@ -26615,7 +26641,7 @@
                     <menuModel>
                         <uniqueIdentifier>75d753d6:19678437b25:-2490</uniqueIdentifier>
                     </menuModel>
-                    <typeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.Transition$Condition]</typeName>
+                    <typeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Transition$Condition]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -26626,7 +26652,7 @@
         <menuModel>
             <uniqueIdentifier>75d753d6:19678437b25:-2497</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.Transition], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.Transition$Condition]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.solution.Transition], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Transition$Condition]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26734,7 +26760,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Transition$IfCondition</typeName>
+        <typeName>com.otk.jesb.solution.Transition$IfCondition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26802,7 +26828,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Transition$ExceptionCondition</typeName>
+        <typeName>com.otk.jesb.solution.Transition$ExceptionCondition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26843,7 +26869,7 @@
         <menuModel>
             <uniqueIdentifier>-744d7312:19678e9e4d2:-46a1</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Transition$IfCondition]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.solution.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Transition$IfCondition]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26884,7 +26910,7 @@
         <menuModel>
             <uniqueIdentifier>-744d7312:19678e9e4d2:-270a</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Transition$ElseCondition]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.solution.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Transition$ElseCondition]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26925,7 +26951,7 @@
         <menuModel>
             <uniqueIdentifier>-744d7312:19678e9e4d2:-26f8</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Transition$ExceptionCondition]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.solution.Transition], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Transition$ExceptionCondition]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -26962,27 +26988,27 @@
                 <enumerationCustomizations>
                     <uniqueIdentifier>-3141b5dd:19678ff8032:-44bc</uniqueIdentifier>
                     <dynamicEnumerationForced>false</dynamicEnumerationForced>
-                    <enumerationTypeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.Transition$Condition]</enumerationTypeName>
+                    <enumerationTypeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Transition$Condition]</enumerationTypeName>
                     <itemCustomizations>
                         <uniqueIdentifier>-3141b5dd:19678ff8032:-44b6</uniqueIdentifier>
                         <specificProperties/>
                         <customCaption>Else</customCaption>
                         <hidden>false</hidden>
-                        <itemName>com.otk.jesb.Transition$ElseCondition</itemName>
+                        <itemName>com.otk.jesb.solution.Transition$ElseCondition</itemName>
                     </itemCustomizations>
                     <itemCustomizations>
                         <uniqueIdentifier>-3141b5dd:19678ff8032:-44b5</uniqueIdentifier>
                         <specificProperties/>
                         <customCaption>Exception</customCaption>
                         <hidden>false</hidden>
-                        <itemName>com.otk.jesb.Transition$ExceptionCondition</itemName>
+                        <itemName>com.otk.jesb.solution.Transition$ExceptionCondition</itemName>
                     </itemCustomizations>
                     <itemCustomizations>
                         <uniqueIdentifier>-3141b5dd:19678ff8032:-44b7</uniqueIdentifier>
                         <specificProperties/>
                         <customCaption>If</customCaption>
                         <hidden>false</hidden>
-                        <itemName>com.otk.jesb.Transition$IfCondition</itemName>
+                        <itemName>com.otk.jesb.solution.Transition$IfCondition</itemName>
                     </itemCustomizations>
                 </enumerationCustomizations>
             </specificTypeCustomizations>
@@ -26992,7 +27018,7 @@
         <menuModel>
             <uniqueIdentifier>-3141b5dd:19678ff8032:-44c3</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.Transition], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.Transition$Condition]]], subContext=NullableInstance, encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.Transition$Condition]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=condition, objectType=com.otk.jesb.solution.Transition], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Transition$Condition]]], subContext=NullableInstance, encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Transition$Condition]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -27050,7 +27076,7 @@
         <menuModel>
             <uniqueIdentifier>-3141b5dd:19678ff8032:-3133</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Transition], fieldName=stepsGroup]], fieldName=fromGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Transition], fieldName=stepsGroup]], fieldName=fromGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -27108,7 +27134,7 @@
         <menuModel>
             <uniqueIdentifier>-3141b5dd:19678ff8032:-301e</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Transition], fieldName=stepsGroup]], fieldName=toGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Transition], fieldName=stepsGroup]], fieldName=toGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

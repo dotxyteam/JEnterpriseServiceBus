@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.ValidationContext;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;

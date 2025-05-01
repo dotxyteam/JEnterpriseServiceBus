@@ -1,4 +1,4 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.solution.AssetVisitor;
+import com.otk.jesb.Debugger;
 import com.otk.jesb.util.MiscUtils;
 
 public class Solution {

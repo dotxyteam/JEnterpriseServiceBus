@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import com.otk.jesb.Plan.ExecutionContext;
-import com.otk.jesb.Plan.ExecutionInspector;
-import com.otk.jesb.Plan;
-import com.otk.jesb.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
