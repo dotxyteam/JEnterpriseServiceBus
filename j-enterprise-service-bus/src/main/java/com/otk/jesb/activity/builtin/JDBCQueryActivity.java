@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -190,7 +191,7 @@ public class JDBCQueryActivity implements Activity {
 			try {
 				return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
@@ -228,7 +229,7 @@ public class JDBCQueryActivity implements Activity {
 				javaSource
 						.append("    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
 			}
-			javaSource.append("    throw new " + AssertionError.class.getName() + "();" + "\n");
+			javaSource.append("    throw new " + UnexpectedError.class.getName() + "();" + "\n");
 			javaSource.append("  }" + "\n");
 			javaSource.append("  @Override" + "\n");
 			javaSource.append("  public int countParameters() {" + "\n");
@@ -247,7 +248,7 @@ public class JDBCQueryActivity implements Activity {
 				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
@@ -290,7 +291,7 @@ public class JDBCQueryActivity implements Activity {
 
 		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
 			if (parameterValuesBuilder == null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			this.parameterValuesBuilder = parameterValuesBuilder;
 		}

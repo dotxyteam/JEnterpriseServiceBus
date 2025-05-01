@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -140,7 +141,7 @@ public class ReadFileActivity implements Activity {
 						} else if (mode == Mode.BINARY) {
 							return ReadBinaryFileActivity.class.getName();
 						} else {
-							throw new AssertionError();
+							throw new UnexpectedError();
 						}
 					}
 				});
@@ -174,7 +175,7 @@ public class ReadFileActivity implements Activity {
 			} else if (mode == Mode.BINARY) {
 				return BinaryResult.class;
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 

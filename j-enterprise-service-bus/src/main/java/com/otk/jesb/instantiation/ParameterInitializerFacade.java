@@ -3,6 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
@@ -38,7 +39,7 @@ public class ParameterInitializerFacade extends Facade {
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
 				getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
 		if (constructor == null) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		return constructor.getParameters().get(parameterPosition);
 	}
@@ -135,7 +136,7 @@ public class ParameterInitializerFacade extends Facade {
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
 		if ((value == null) && (parameter.getType().isPrimitive())) {
-			throw new AssertionError("Cannot set null to primitive field");
+			throw new UnexpectedError("Cannot set null to primitive field");
 		}
 		ParameterInitializer parameterInitializer = getUnderlying();
 		parameterInitializer.setParameterValue(value);

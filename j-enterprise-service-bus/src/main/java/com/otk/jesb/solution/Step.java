@@ -1,6 +1,7 @@
 package com.otk.jesb.solution;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -21,7 +22,7 @@ public class Step {
 			try {
 				activityBuilder = activityMetadata.getActivityBuilderClass().newInstance();
 			} catch (Exception e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 	}

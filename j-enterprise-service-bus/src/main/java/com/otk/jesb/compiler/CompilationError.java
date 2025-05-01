@@ -1,8 +1,8 @@
 package com.otk.jesb.compiler;
 
-import com.otk.jesb.JESBError;
+import com.otk.jesb.StandardError;
 
-public class CompilationError extends JESBError {
+public class CompilationError extends StandardError {
 
 	private static final long serialVersionUID = 1L;
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -113,7 +114,7 @@ public class ListItemInitializerFacade extends Facade {
 		ListItemInitializer listItemInitializer = getUnderlying();
 		ITypeInfo itemType = getItemType();
 		if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
-			throw new AssertionError("Cannot add null item to primitive item list");
+			throw new UnexpectedError("Cannot add null item to primitive item list");
 		}
 		listItemInitializer.setItemValue(value);
 	}

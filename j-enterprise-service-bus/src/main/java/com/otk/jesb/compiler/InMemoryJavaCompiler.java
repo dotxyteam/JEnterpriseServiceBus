@@ -29,6 +29,7 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.util.MiscUtils;
 
@@ -43,7 +44,7 @@ public class InMemoryJavaCompiler {
 		@Override
 		public JavaFileObject getJavaFileForOutput(Location loc, String className, Kind kind, FileObject obj) {
 			if (currentCompilationIdentifier == null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind);
 		}
@@ -99,7 +100,7 @@ public class InMemoryJavaCompiler {
 					try {
 						return l.loadClass(l.getMainClassIdentifier().className);
 					} catch (ClassNotFoundException e) {
-						throw new AssertionError(e);
+						throw new UnexpectedError(e);
 					}
 				}).collect(Collectors.toList());
 	}
@@ -110,7 +111,7 @@ public class InMemoryJavaCompiler {
 		try {
 			return new MemoryClassLoader(classIdentifier).loadClass(className);
 		} catch (ClassNotFoundException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -193,7 +194,7 @@ public class InMemoryJavaCompiler {
 					try (FileInputStream in = new FileInputStream(fileOrDirectory)) {
 						source = MiscUtils.read(in);
 					} catch (Exception e) {
-						throw new AssertionError(e);
+						throw new UnexpectedError(e);
 					}
 					result.add(sourceFile(new ClassIdentifier(compilationIdentifier, className), source));
 				}
@@ -202,7 +203,7 @@ public class InMemoryJavaCompiler {
 						+ fileOrDirectory.getName();
 				result.addAll(collectSourceFiles(compilationIdentifier, fileOrDirectory, subPackageName));
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 		return result;
@@ -251,7 +252,7 @@ public class InMemoryJavaCompiler {
 	private void storeClass(ClassIdentifier classIdentifier, byte[] bytes) {
 		synchronized (classStoreMutex) {
 			if (classes.containsKey(classIdentifier)) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			classes.put(classIdentifier, bytes);
 			NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes);
@@ -264,7 +265,7 @@ public class InMemoryJavaCompiler {
 	private void unstoreClass(ClassIdentifier classIdentifier) {
 		synchronized (classStoreMutex) {
 			if (!classes.containsKey(classIdentifier)) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			classes.remove(classIdentifier);
 			int dot = classIdentifier.getClassName().lastIndexOf('.');
@@ -424,7 +425,7 @@ public class InMemoryJavaCompiler {
 				throw new ClassNotFoundException(className);
 			try {
 				if (getParent().loadClass(className) != null) {
-					throw new AssertionError(
+					throw new UnexpectedError(
 							"Cannot define a class that is already defined by the parent class loader: " + className);
 				}
 			} catch (ClassNotFoundException e) {

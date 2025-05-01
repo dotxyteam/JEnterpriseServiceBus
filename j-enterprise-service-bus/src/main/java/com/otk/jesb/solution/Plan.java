@@ -8,10 +8,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
-import com.otk.jesb.JESBError;
+import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
@@ -73,7 +74,7 @@ public class Plan extends Asset {
 					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 		}
@@ -95,7 +96,7 @@ public class Plan extends Asset {
 					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 		}
@@ -177,7 +178,7 @@ public class Plan extends Asset {
 				result.add(transition);
 				result.add(transition.getEndStep());
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 		return result;
@@ -238,7 +239,7 @@ public class Plan extends Asset {
 			if (inputClass != null) {
 				if (input != null) {
 					if (!inputClass.isInstance(input)) {
-						throw new AssertionError();
+						throw new UnexpectedError();
 					}
 				}
 				context.getVariables().add(new Variable() {
@@ -348,7 +349,7 @@ public class Plan extends Asset {
 						} else if (variable instanceof StepSkipping) {
 							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INVALID_BRANCH;
 						} else {
-							throw new AssertionError();
+							throw new UnexpectedError();
 						}
 						break;
 					}
@@ -362,7 +363,7 @@ public class Plan extends Asset {
 					startStepOccurrenceByConvergentTransition.entrySet().stream().forEach(entry -> {
 						StepOccurrence startStepOccurrence = entry.getValue();
 						if (startStepOccurrence == null) {
-							throw new AssertionError();
+							throw new UnexpectedError();
 						}
 						for (Variable variable : startStepOccurrence.getPostVariablesSnapshot()) {
 							if (!convergentTransitionsMergedVariables.contains(variable)) {
@@ -418,7 +419,7 @@ public class Plan extends Asset {
 						}
 					}
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 			} else {
 				if (executionError == null) {
@@ -596,7 +597,7 @@ public class Plan extends Asset {
 
 	}
 
-	public static class PlanificationError extends JESBError {
+	public static class PlanificationError extends StandardError {
 
 		private static final long serialVersionUID = 1L;
 
@@ -606,7 +607,7 @@ public class Plan extends Asset {
 
 	}
 
-	public static class ExecutionError extends JESBError {
+	public static class ExecutionError extends StandardError {
 
 		private static final long serialVersionUID = 1L;
 

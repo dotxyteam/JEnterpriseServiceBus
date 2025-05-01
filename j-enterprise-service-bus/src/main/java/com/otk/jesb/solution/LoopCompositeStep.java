@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
@@ -42,7 +43,7 @@ public class LoopCompositeStep extends CompositeStep {
 	@Override
 	public void setActivityBuilder(ActivityBuilder activityBuilder) {
 		if (!(activityBuilder instanceof LoopActivity.Builder)) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		super.setActivityBuilder(activityBuilder);
 	}
@@ -126,7 +127,7 @@ public class LoopCompositeStep extends CompositeStep {
 					} catch (Exception e) {
 						throw e;
 					} catch (Throwable t) {
-						throw new AssertionError(t);
+						throw new UnexpectedError(t);
 					}
 					context.setCutrrentStep(loopCompositeStep);
 					if (result != null) {
@@ -347,7 +348,7 @@ public class LoopCompositeStep extends CompositeStep {
 				try {
 					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
 				} catch (CompilationError e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 
@@ -380,7 +381,7 @@ public class LoopCompositeStep extends CompositeStep {
 			public InstantiationFunctionCompilationContext findFunctionCompilationContext(
 					InstantiationFunction function, Step currentStep, Plan currentPlan) {
 				if (function != loopEndCondition) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
 				validationContext = new ValidationContext(validationContext, new VariableDeclaration() {

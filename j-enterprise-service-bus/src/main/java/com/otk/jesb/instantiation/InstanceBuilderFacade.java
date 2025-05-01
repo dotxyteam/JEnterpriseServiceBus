@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
@@ -214,7 +215,7 @@ public class InstanceBuilderFacade extends Facade {
 		try {
 			MiscUtils.serialize(underlying, output);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		return output.toString();
 	}
@@ -225,7 +226,7 @@ public class InstanceBuilderFacade extends Facade {
 		try {
 			deserialized = (InstanceBuilder) MiscUtils.deserialize(input);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		transferValuesToUnderlying(deserialized);
 	}

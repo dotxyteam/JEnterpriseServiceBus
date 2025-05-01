@@ -5,7 +5,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.JESBError;
+import com.otk.jesb.StandardError;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
@@ -77,11 +78,11 @@ public class CompiledFunction {
 		try {
 			return functionClass.getMethods()[0].invoke(null, functionParameterValues);
 		} catch (IllegalAccessException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (IllegalArgumentException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (SecurityException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (Throwable t) {
 			if (t instanceof InvocationTargetException) {
 				t = ((InvocationTargetException) t).getTargetException();
@@ -90,7 +91,7 @@ public class CompiledFunction {
 		}
 	}
 
-	public class FunctionCallError extends JESBError {
+	public class FunctionCallError extends StandardError {
 
 		private static final long serialVersionUID = 1L;
 

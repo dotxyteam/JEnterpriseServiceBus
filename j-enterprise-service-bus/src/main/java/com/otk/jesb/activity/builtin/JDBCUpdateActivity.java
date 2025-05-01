@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -157,7 +158,7 @@ public class JDBCUpdateActivity implements Activity {
 				javaSource
 						.append("    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
 			}
-			javaSource.append("    throw new " + AssertionError.class.getName() + "();" + "\n");
+			javaSource.append("    throw new " + UnexpectedError.class.getName() + "();" + "\n");
 			javaSource.append("  }" + "\n");
 			javaSource.append("  @Override" + "\n");
 			javaSource.append("  public int countParameters() {" + "\n");
@@ -176,7 +177,7 @@ public class JDBCUpdateActivity implements Activity {
 				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
@@ -219,7 +220,7 @@ public class JDBCUpdateActivity implements Activity {
 
 		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
 			if (parameterValuesBuilder == null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			this.parameterValuesBuilder = parameterValuesBuilder;
 		}

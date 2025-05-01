@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponent;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
@@ -138,7 +139,7 @@ public class GUI extends SwingCustomizer {
 				getInfoCustomizations()
 						.loadFromStream(getClass().getResourceAsStream("/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME), null);
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 	}

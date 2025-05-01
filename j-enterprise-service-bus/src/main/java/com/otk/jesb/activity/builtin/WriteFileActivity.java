@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -158,7 +159,7 @@ public class WriteFileActivity implements Activity {
 						} else if (mode == Mode.BINARY) {
 							return WriteBinaryFileActivity.class.getName();
 						} else {
-							throw new AssertionError();
+							throw new UnexpectedError();
 						}
 					}
 				});

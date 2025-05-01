@@ -3,6 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -160,7 +161,7 @@ public class FieldInitializerFacade extends Facade {
 		FieldInitializer fieldInitializer = getUnderlying();
 		IFieldInfo field = getFieldInfo();
 		if ((value == null) && (field.getType().isPrimitive())) {
-			throw new AssertionError("Cannot set null to primitive field");
+			throw new UnexpectedError("Cannot set null to primitive field");
 		}
 		fieldInitializer.setFieldValue(fieldValue = value);
 	}

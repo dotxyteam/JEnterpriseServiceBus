@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -45,7 +46,7 @@ public class InstanceBuilder extends InitializationCase {
 			if ("<Dynamic>".equals(typeName)) {
 				return;
 			}
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		this.typeName = typeName;
 	}
@@ -89,9 +90,9 @@ public class InstanceBuilder extends InitializationCase {
 			String actualTypeName = computeActualTypeName(
 					InstantiationUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
-				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
+				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
-				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
+				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}
@@ -137,23 +138,23 @@ public class InstanceBuilder extends InitializationCase {
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
 							new EvaluationContext(context, listItemInitializerFacade));
 					if (iterationListValue == null) {
-						throw new AssertionError("Cannot replicate item: Iteration list value is null");
+						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
 					if (!itemReplicationFacade.getIterationListValueClass().isInstance(iterationListValue)) {
-						throw new AssertionError("The iteration list value is not an instance of '"
+						throw new UnexpectedError("The iteration list value is not an instance of '"
 								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: "
 								+ iterationListValue);
 					}
 					ITypeInfo iterationListTypeInfo = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
 					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
-						throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
+						throw new UnexpectedError("Cannot replicate item: Iteration list value is not iterable: '"
 								+ iterationListValue + "'");
 					}
 					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
 					for (Object iterationVariableValue : iterationListArray) {
 						if (!itemReplicationFacade.getIterationVariableClass().isInstance(iterationVariableValue)) {
-							throw new AssertionError("The iteration variable value is not an instance of '"
+							throw new UnexpectedError("The iteration variable value is not an instance of '"
 									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: "
 									+ iterationVariableValue);
 						}
@@ -181,7 +182,7 @@ public class InstanceBuilder extends InitializationCase {
 			} else if (listTypeInfo.canInstantiateFromArray()) {
 				object = listTypeInfo.fromArray(itemList.toArray());
 			} else {
-				throw new AssertionError("Cannot initialize list of type " + listTypeInfo
+				throw new UnexpectedError("Cannot initialize list of type " + listTypeInfo
 						+ ": Cannot replace instance content or instantiate from array");
 			}
 		} else {

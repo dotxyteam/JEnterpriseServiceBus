@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -171,7 +172,7 @@ public class InitializationCaseFacade extends Facade {
 				} else if ((o1 instanceof InitializationSwitchFacade) && (o2 instanceof InitializationSwitchFacade)) {
 					return 0;
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 
 			}

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.Structured;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
@@ -43,7 +44,7 @@ public class InstantiationUtils {
 		InstantiationFunctionCompilationContext compilationContext = evaluationContext
 				.getInstantiationFunctionCompilationContextMapper().apply(function);
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		Set<String> actualVariableNames = evaluationContext.getVariables().stream()
 				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
@@ -51,7 +52,7 @@ public class InstantiationUtils {
 		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
 		if (!actualVariableNames.equals(expectedVariableNames)) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		CompiledFunction compiledFunction;
 		try {
@@ -59,7 +60,7 @@ public class InstantiationUtils {
 					compilationContext.getPrecompiler().apply(function.getFunctionBody()),
 					compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
 		} catch (CompilationError e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		return compiledFunction.call(evaluationContext.getVariables());
 	}
@@ -105,7 +106,7 @@ public class InstantiationUtils {
 		Object conditionResult = interpretValue(condition, TypeInfoProvider.getTypeInfo(Boolean.class.getName()),
 				context);
 		if (!(conditionResult instanceof Boolean)) {
-			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
+			throw new UnexpectedError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
 		return (Boolean) conditionResult;
 	}
@@ -150,7 +151,7 @@ public class InstantiationUtils {
 					return item;
 				}
 			}
-			throw new AssertionError();
+			throw new UnexpectedError();
 		} else {
 			return value;
 		}

@@ -3,6 +3,7 @@ package com.otk.jesb.solution;
 import java.util.List;
 
 import com.otk.jesb.Function;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
@@ -73,7 +74,7 @@ public class Transition {
 			try {
 				compiledFunction = CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			return (boolean) compiledFunction.call(variables);
 		}
@@ -102,7 +103,7 @@ public class Transition {
 			try {
 				exceptionClass = Class.forName(exceptionTypeName);
 			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			return exceptionClass.isInstance(thrown);
 		}

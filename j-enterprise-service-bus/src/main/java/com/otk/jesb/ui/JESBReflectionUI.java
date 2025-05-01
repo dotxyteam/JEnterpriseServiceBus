@@ -17,6 +17,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.Structure.Element;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
@@ -104,7 +105,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			try {
 				MiscUtils.serialize(rootInitializer, rootInitializerStore);
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		} else {
 			rootInitializerStore = null;
@@ -114,7 +115,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	public static Runnable getRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
 		if (!rootInitializerStoreByBuilder.containsKey(rootInstanceBuilder)) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		final ByteArrayOutputStream rootInitializerStore = rootInitializerStoreByBuilder.get(rootInstanceBuilder);
 		return new Runnable() {
@@ -125,7 +126,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					rootInitializerCopy = (rootInitializerStore == null) ? null
 							: MiscUtils.deserialize(new ByteArrayInputStream(rootInitializerStore.toByteArray()));
 				} catch (IOException e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 				rootInstanceBuilder
 						.setRootInitializer((rootInitializerCopy == null) ? null : MiscUtils.copy(rootInitializerCopy));
@@ -428,10 +429,10 @@ public class JESBReflectionUI extends CustomizedUI {
 													.getUnderlying();
 											destination.getInitializationSwitches().add(initializer);
 										} else {
-											throw new AssertionError();
+											throw new UnexpectedError();
 										}
 										if (!managedFacades.remove(initializerFacade)) {
-											throw new AssertionError();
+											throw new UnexpectedError();
 										}
 									}
 									switchFacade.setManagedInitializerFacades(managedFacades);
@@ -698,7 +699,7 @@ public class JESBReflectionUI extends CustomizedUI {
 										.findFunctionCompilationContext((InstantiationFunction) object,
 												validationContext.getVariableDeclarations());
 								if (compilationContext == null) {
-									throw new AssertionError();
+									throw new UnexpectedError();
 								}
 							}
 							return new FunctionEditor((InstantiationFunction) object,

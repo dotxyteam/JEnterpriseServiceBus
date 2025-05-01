@@ -38,6 +38,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
@@ -51,7 +52,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		try {
 			DRAGGING_IMAGE = ImageIO.read(JDiagram.class.getResource("Dragging.png"));
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 	private List<JNode> nodes = new ArrayList<JNode>();
@@ -525,7 +526,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 						}
 					}
 				} catch (Exception e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 			return accept;

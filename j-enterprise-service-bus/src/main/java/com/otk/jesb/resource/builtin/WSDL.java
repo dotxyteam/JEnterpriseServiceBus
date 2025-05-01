@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Listener;
@@ -74,7 +75,7 @@ public class WSDL extends Resource {
 				}
 			});
 		} catch (Exception e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -199,7 +200,7 @@ public class WSDL extends Resource {
 				MiscUtils.delete(metaSchemaDirectory);
 			}
 		} catch (Exception e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -276,9 +277,9 @@ public class WSDL extends Resource {
 			try {
 				return new File(new URL(urlSpecification).toURI().getPath()).getName();
 			} catch (MalformedURLException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			} catch (URISyntaxException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
@@ -287,9 +288,9 @@ public class WSDL extends Resource {
 			try {
 				return new URL(urlSpecification).toURI();
 			} catch (MalformedURLException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			} catch (URISyntaxException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 

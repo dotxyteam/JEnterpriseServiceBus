@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.ReflectionUI;
@@ -36,7 +37,7 @@ public class TypeInfoProvider {
 			try {
 				result = MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader().loadClass(typeName);
 			} catch (ClassNotFoundException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 		return result;
@@ -61,7 +62,7 @@ public class TypeInfoProvider {
 				Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
 				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		} else {
 			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, null);
@@ -80,7 +81,7 @@ public class TypeInfoProvider {
 			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, ((DefaultMethodInfo) method).getJavaMethod(),
 					parameterPosition, null);
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		return reflectionUI.getTypeInfo(javaTypeInfoSource);
 	}

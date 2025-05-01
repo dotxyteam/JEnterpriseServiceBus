@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagramListener;
 import com.otk.jesb.diagram.JDiagramObject;
@@ -54,7 +55,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 				return (ListControl) stepGoingThroughsFieldControlPlaceHolder.getFieldControl();
 			}
 		}
-		throw new AssertionError();
+		throw new UnexpectedError();
 	}
 
 	protected Form getPlanExecutorView() {
@@ -89,7 +90,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 											return stepGoingThrough;
 										}
 									}
-									throw new AssertionError();
+									throw new UnexpectedError();
 								}).map(stepGoingThrough -> stepGoingThroughsControl
 										.findItemPositionByReference(stepGoingThrough))
 								.collect(Collectors.toList()));

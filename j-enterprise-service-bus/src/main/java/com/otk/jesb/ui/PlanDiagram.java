@@ -30,6 +30,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.diagram.JConnection;
@@ -120,7 +121,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				return (ListControl) fieldControlPlaceHolder.getFieldControl();
 			}
 		}
-		throw new AssertionError();
+		throw new UnexpectedError();
 	}
 
 	protected Form getPlanEditor() {
@@ -224,7 +225,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			} else if (itemPosition.getItem() instanceof Transition) {
 				return (JDiagramObject) findConnection(itemPosition.getItem());
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}).collect(Collectors.toSet()));
 	}
@@ -693,7 +694,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				} else if (selectedStepOrTransition instanceof Transition) {
 					return findConnection(selectedStepOrTransition);
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 			}).collect(Collectors.toSet()));
 		} finally {
@@ -794,7 +795,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			try {
 				MiscUtils.serialize(plan, current.planStore);
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			for (Object object : selectedStepAndTransitions) {
 				if (object instanceof Step) {
@@ -802,7 +803,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				} else if (object instanceof Transition) {
 					current.selectedTransitionIndexes.add(plan.getTransitions().indexOf(object));
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 			}
 		}
@@ -812,7 +813,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			try {
 				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()));
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			planDiagram.parentForm.getModificationStack().insideComposite("Paste", UndoOrder.getNormal(),
 					new Accessor<Boolean>() {

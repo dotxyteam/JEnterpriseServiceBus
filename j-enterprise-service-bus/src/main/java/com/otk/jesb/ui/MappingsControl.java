@@ -51,6 +51,7 @@ import com.otk.jesb.PathExplorer.FieldNode;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
@@ -234,7 +235,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		} else if (side == Side.TARGET) {
 			return pair.getSecond();
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 
@@ -414,7 +415,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		} else if (side == Side.TARGET) {
 			return findTargetControl();
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 
@@ -462,7 +463,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			} else if (side == TARGET) {
 				return SOURCE;
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 	}
@@ -778,7 +779,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						}
 					}
 				} catch (Exception e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 			return accept;
@@ -973,7 +974,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
 					"Choose a mapping option for: " + pathNode.toString() + " => " + initializerFacade.toString(),

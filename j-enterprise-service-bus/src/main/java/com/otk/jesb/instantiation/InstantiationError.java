@@ -1,8 +1,8 @@
 package com.otk.jesb.instantiation;
 
-import com.otk.jesb.JESBError;
+import com.otk.jesb.StandardError;
 
-public class InstantiationError extends JESBError {
+public class InstantiationError extends StandardError {
 
 	private static final long serialVersionUID = 1L;
 

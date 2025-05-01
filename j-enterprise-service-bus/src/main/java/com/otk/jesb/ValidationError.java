@@ -1,6 +1,6 @@
 package com.otk.jesb;
 
-public class ValidationError extends JESBError {
+public class ValidationError extends StandardError {
 
 	private static final long serialVersionUID = 1L;
 

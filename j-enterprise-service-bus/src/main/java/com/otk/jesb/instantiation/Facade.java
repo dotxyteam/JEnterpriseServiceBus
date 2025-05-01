@@ -3,6 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
 public abstract class Facade {
@@ -40,7 +41,7 @@ public abstract class Facade {
 	public static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof RootInstanceBuilder) {
 			if (parentFacade != null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);
 		} else if (node instanceof MapEntryBuilder) {
@@ -61,7 +62,7 @@ public abstract class Facade {
 							.findCondition((InitializationCase) node),
 					(InitializationCase) node);
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 

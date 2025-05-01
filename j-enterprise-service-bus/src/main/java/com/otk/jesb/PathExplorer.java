@@ -123,7 +123,7 @@ public class PathExplorer {
 						FieldNode fn2 = (FieldNode) o2;
 						return fn1.getFieldName().compareTo(fn2.getFieldName());
 					} else {
-						throw new AssertionError();
+						throw new UnexpectedError();
 					}
 				}
 			});
@@ -187,7 +187,7 @@ public class PathExplorer {
 			} else if (fieldInfo instanceof PublicFieldInfo) {
 				return parentExpression + "." + ((PublicFieldInfo) fieldInfo).getJavaField().getName();
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -202,7 +202,7 @@ public class PathExplorer {
 			} else if (fieldInfo instanceof PublicFieldInfo) {
 				return parentPattern + "\\s*\\.\\s*\\b" + ((PublicFieldInfo) fieldInfo).getJavaField().getName() + "\\b\\s*";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -256,7 +256,7 @@ public class PathExplorer {
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentExpression + ".iterator().next()";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -272,7 +272,7 @@ public class PathExplorer {
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentPattern + "\\s*\\.\\s*iterator\\s*\\(\\s*\\)\\s*\\.\\s*next\\s*\\(\\s*\\)\\s*";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 

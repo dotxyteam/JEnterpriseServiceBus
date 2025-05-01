@@ -3,6 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
@@ -60,7 +61,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(rootInstanceWrapperClassName,
 							rootInstanceWrapperClassSourceBuilder.toString());
 				} catch (CompilationError ce) {
-					throw new AssertionError(ce);
+					throw new UnexpectedError(ce);
 				}
 			}
 			return rootInstanceWrapperClass.getName();
@@ -139,7 +140,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		} else if (initializer instanceof InitializationSwitch) {
 			newInitializationSwitches.add((InitializationSwitch) initializer);
 		} else if (initializer != null) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 		setParameterInitializers(newParameterInitializers);
 		setInitializationSwitches(newInitializationSwitches);
@@ -166,7 +167,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
 				if (!type.getName().equals(
 						result.computeActualTypeName(InstantiationUtils.getAncestorStructureInstanceBuilders(currentFacade)))) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				return result;
 			}

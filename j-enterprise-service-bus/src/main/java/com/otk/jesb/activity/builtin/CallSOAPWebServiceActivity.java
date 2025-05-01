@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
@@ -278,7 +279,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 

@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
@@ -213,7 +214,7 @@ public class MiscUtils {
 			return new Point(x, y);
 		}
 		// Should never happen :) If it does, please tell me!
-		throw new AssertionError();
+		throw new UnexpectedError();
 	}
 
 	public static <T> String stringJoin(T[] array, String separator) {
@@ -409,7 +410,7 @@ public class MiscUtils {
 			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
 			return (T) deserialize(input);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -426,12 +427,12 @@ public class MiscUtils {
 		try {
 			serialize(object, output);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		try {
 			return output.toString(SERIALIZATION_CHARSET_NAME);
 		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -440,12 +441,12 @@ public class MiscUtils {
 		try {
 			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));
 		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		try {
 			return deserialize(input);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 

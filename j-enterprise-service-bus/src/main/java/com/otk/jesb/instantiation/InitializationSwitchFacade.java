@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -48,7 +49,7 @@ public class InitializationSwitchFacade extends Facade {
 			if (initializerFacade instanceof ParameterInitializerFacade) {
 				ParameterInitializer initializer = ((ParameterInitializerFacade) initializerFacade).getUnderlying();
 				if (!((InitializationCase) parent.getUnderlying()).getParameterInitializers().remove(initializer)) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				for (InitializationCaseFacade caseFacade : getChildren()) {
 					caseFacade.getUnderlying().getParameterInitializers().add(MiscUtils.copy(initializer));
@@ -57,7 +58,7 @@ public class InitializationSwitchFacade extends Facade {
 				((FieldInitializerFacade) initializerFacade).setConcrete(true);
 				FieldInitializer initializer = ((FieldInitializerFacade) initializerFacade).getUnderlying();
 				if (!((InitializationCase) parent.getUnderlying()).getFieldInitializers().remove(initializer)) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				for (InitializationCaseFacade caseFacade : getChildren()) {
 					caseFacade.getUnderlying().getFieldInitializers().add(MiscUtils.copy(initializer));
@@ -66,7 +67,7 @@ public class InitializationSwitchFacade extends Facade {
 				((ListItemInitializerFacade) initializerFacade).setConcrete(true);
 				ListItemInitializer initializer = ((ListItemInitializerFacade) initializerFacade).getUnderlying();
 				if (!((InitializationCase) parent.getUnderlying()).getListItemInitializers().remove(initializer)) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				for (InitializationCaseFacade caseFacade : getChildren()) {
 					caseFacade.getUnderlying().getListItemInitializers().add(MiscUtils.copy(initializer));
@@ -74,13 +75,13 @@ public class InitializationSwitchFacade extends Facade {
 			} else if (initializerFacade instanceof InitializationSwitchFacade) {
 				InitializationSwitch initializer = ((InitializationSwitchFacade) initializerFacade).getUnderlying();
 				if (!((InitializationCase) parent.getUnderlying()).getInitializationSwitches().remove(initializer)) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				for (InitializationCaseFacade caseFacade : getChildren()) {
 					caseFacade.getUnderlying().getInitializationSwitches().add(MiscUtils.copy(initializer));
 				}
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -199,11 +200,11 @@ public class InitializationSwitchFacade extends Facade {
 				try {
 					caseConditionFullfilled = InstantiationUtils.isConditionFullfilled(caseFacade.getCondition(), childContext);
 				} catch (Exception e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			} else {
 				if (children.indexOf(caseFacade) != (children.size() - 1)) {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 				caseConditionFullfilled = true;
 			}
