@@ -1,7 +1,6 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -214,11 +213,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepOccurrence stepOccurrence) {
+			public void beforeActivityCreation(StepGoingThrough stepGoingThrough) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepOccurrence stepOccurrence) {
+			public void afterActivityExecution(StepGoingThrough stepGoingThrough) {
 			}
 
 			@Override
@@ -277,24 +276,24 @@ public class Plan extends Asset {
 		}
 	}
 
-	private void continueExecution(Step currentStep, boolean branchActive, ExecutionContext context,
+	private void continueExecution(Step currentStep, boolean executionBranchValid, ExecutionContext context,
 			ExecutionInspector executionInspector) throws ExecutionError {
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
-		if (branchActive) {
-			StepOccurrence stepOccurrence = new StepOccurrence(currentStep);
+		if (executionBranchValid) {
+			StepGoingThrough stepGoingThrough = new StepGoingThrough(currentStep, this);
 			ExecutionError executionError;
 			try {
-				execute(stepOccurrence, context, executionInspector);
+				execute(stepGoingThrough, context, executionInspector);
 				executionError = null;
 			} catch (ExecutionError e) {
 				executionError = e;
-				stepOccurrence.setActivityError(e.getCause());
+				stepGoingThrough.setActivityError(e.getCause());
 			} finally {
-				context.getVariables().add(stepOccurrence);
+				context.getVariables().add(stepGoingThrough);
+				stepGoingThrough.capturePostVariables(context.getVariables());
 			}
 			if (currentStepTransitions.size() == 0) {
-				stepOccurrence.setValidTransitions(Collections.emptyList());
 				if (executionError != null) {
 					throw executionError;
 				} else {
@@ -303,7 +302,7 @@ public class Plan extends Asset {
 			} else {
 				List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, executionError,
 						context);
-				stepOccurrence.setValidTransitions(validTransitions);
+				stepGoingThrough.setValidTransitions(validTransitions);
 				if (validTransitions.size() == 0) {
 					if (executionError != null) {
 						throw executionError;
@@ -314,26 +313,17 @@ public class Plan extends Asset {
 				}
 			}
 		} else {
-			context.getVariables().add(new Variable() {
-
-				@Override
-				public String getName() {
-					return currentStep.getName();
-				}
-
-				@Override
-				public Object getValue() {
-					return (getVariableDeclaration(currentStep) == null) ? Variable.UNDEFINED_VALUE : null;
-				}
-			});
+			StepSkipping stepSkipping = new StepSkipping(currentStep, this);
+			context.getVariables().add(stepSkipping);
+			stepSkipping.capturePostVariables(context.getVariables());
 		}
 		final int TRANSITION_NOT_REACHED = 0;
-		final int TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH = 1;
-		final int TRANSITION_REACHED_THROUGH_INACTIVE_BRANCH = 2;
+		final int TRANSITION_REACHED_THROUGH_VALID_BRANCH = 1;
+		final int TRANSITION_REACHED_THROUGH_INVALID_BRANCH = 2;
 		for (Transition transition : currentStepTransitions) {
-			boolean endStepALreadyExecuted = context.getVariables().stream()
+			boolean endStepAlreadyExecuted = context.getVariables().stream()
 					.anyMatch(variable -> variable.getName().equals(transition.getEndStep().getName()));
-			if (endStepALreadyExecuted) {
+			if (endStepAlreadyExecuted) {
 				continue;
 			}
 			List<Transition> convergentTransitions = transitions.stream()
@@ -344,34 +334,54 @@ public class Plan extends Asset {
 			Map<Transition, StepOccurrence> startStepOccurrenceByConvergentTransition = new HashMap<Transition, StepOccurrence>();
 			for (Transition convergentTransition : convergentTransitions) {
 				int convergentTransitionStatus = TRANSITION_NOT_REACHED;
+				StepOccurrence startStepOccurrence = null;
 				for (Variable variable : context.getVariables()) {
-					if (variable.getName().equals(convergentTransition.getStartStep().getName())) {
-						if (variable instanceof StepOccurrence) {
-							startStepOccurrenceByConvergentTransition.put(convergentTransition,
-									(StepOccurrence) variable);
-							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH;
-							break;
+					if ((variable instanceof StepOccurrence)
+							&& (((StepOccurrence) variable).getStep() == convergentTransition.getStartStep())) {
+						startStepOccurrence = (StepOccurrence) variable;
+						if (variable instanceof StepGoingThrough) {
+							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_VALID_BRANCH;
+						} else if (variable instanceof StepSkipping) {
+							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INVALID_BRANCH;
 						} else {
-							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INACTIVE_BRANCH;
-							break;
+							throw new AssertionError();
 						}
+						break;
 					}
 				}
+				startStepOccurrenceByConvergentTransition.put(convergentTransition, startStepOccurrence);
 				statusByConvergentTransition.put(convergentTransition, convergentTransitionStatus);
 			}
 			if (!statusByConvergentTransition.containsValue(TRANSITION_NOT_REACHED)) {
-				boolean futureBranchActive = statusByConvergentTransition.entrySet().stream().anyMatch(entry -> {
-					Transition convergentTransition = entry.getKey();
-					int convergentTransitionStatus = entry.getValue();
-					StepOccurrence convergentTransitionStartStepOccurrence = startStepOccurrenceByConvergentTransition
-							.get(convergentTransition);
-					List<Transition> validTransitionsFromConvergentTransitionStartStep = (convergentTransitionStartStepOccurrence != null)
-							? convergentTransitionStartStepOccurrence.getValidTransitions()
-							: null;
-					return (convergentTransitionStatus == TRANSITION_REACHED_THROUGH_ACTIVE_BRANCH)
-							&& validTransitionsFromConvergentTransitionStartStep.contains(convergentTransition);
-				});
-				continueExecution(transition.getEndStep(), futureBranchActive, context, executionInspector);
+				List<Variable> convergentTransitionsMergedVariables = new ArrayList<Variable>();
+				{
+					startStepOccurrenceByConvergentTransition.entrySet().stream().forEach(entry -> {
+						StepOccurrence startStepOccurrence = entry.getValue();
+						if (startStepOccurrence == null) {
+							throw new AssertionError();
+						}
+						for (Variable variable : startStepOccurrence.getPostVariablesSnapshot()) {
+							if (!convergentTransitionsMergedVariables.contains(variable)) {
+								convergentTransitionsMergedVariables.add(variable);
+							}
+						}
+					});
+				}
+				context.getVariables().clear();
+				context.getVariables().addAll(convergentTransitionsMergedVariables);
+				boolean futureExecutionBranchValid = statusByConvergentTransition.entrySet().stream()
+						.anyMatch(entry -> {
+							Transition convergentTransition = entry.getKey();
+							int convergentTransitionStatus = entry.getValue();
+							if (convergentTransitionStatus != TRANSITION_REACHED_THROUGH_VALID_BRANCH) {
+								return false;
+							}
+							StepGoingThrough convergentTransitionStartStepGoingThrough = (StepGoingThrough) startStepOccurrenceByConvergentTransition
+									.get(convergentTransition);
+							return convergentTransitionStartStepGoingThrough.getValidTransitions()
+									.contains(convergentTransition);
+						});
+				continueExecution(transition.getEndStep(), futureExecutionBranchValid, context, executionInspector);
 			}
 		}
 	}
@@ -422,7 +432,7 @@ public class Plan extends Asset {
 
 	public List<VariableDeclaration> getTransitionContextVariableDeclarations(Transition transition) {
 		List<VariableDeclaration> result = getValidationContext(transition.getStartStep()).getVariableDeclarations();
-		VariableDeclaration startStepVariableDeclaration = getVariableDeclaration(transition.getStartStep());
+		VariableDeclaration startStepVariableDeclaration = getResultVariableDeclaration(transition.getStartStep());
 		if (startStepVariableDeclaration != null) {
 			result = new ArrayList<VariableDeclaration>(result);
 			result.add(startStepVariableDeclaration);
@@ -430,23 +440,20 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private void execute(StepOccurrence stepOccurrence, ExecutionContext context, ExecutionInspector executionInspector)
-			throws ExecutionError {
-		Step step = stepOccurrence.getStep();
+	private void execute(StepGoingThrough stepGoingThrough, ExecutionContext context,
+			ExecutionInspector executionInspector) throws ExecutionError {
+		Step step = stepGoingThrough.getStep();
 		context.setCutrrentStep(step);
-		executionInspector.beforeActivityCreation(stepOccurrence);
+		executionInspector.beforeActivityCreation(stepGoingThrough);
 		ActivityBuilder activityBuilder = step.getActivityBuilder();
 		try {
 			Activity activity = activityBuilder.build(context, executionInspector);
-			stepOccurrence.setActivity(activity);
-			Object activityResult = activity.execute();
-			stepOccurrence
-					.setActivityResult((activityBuilder.getActivityResultClass(this, step) != null) ? activityResult
-							: Variable.UNDEFINED_VALUE);
+			stepGoingThrough.setActivity(activity);
+			stepGoingThrough.setActivityResult(activity.execute());
 		} catch (Throwable t) {
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		} finally {
-			executionInspector.afterActivityExecution(stepOccurrence);
+			executionInspector.afterActivityExecution(stepGoingThrough);
 		}
 		context.setCutrrentStep(null);
 	}
@@ -478,7 +485,7 @@ public class Plan extends Asset {
 		}
 		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep) : steps;
 		for (Step step : precedingSteps) {
-			VariableDeclaration stepVariableDeclaration = getVariableDeclaration(step);
+			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);
 			if (stepVariableDeclaration != null) {
 				result.getVariableDeclarations().add(stepVariableDeclaration);
 			}
@@ -493,7 +500,7 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private VariableDeclaration getVariableDeclaration(Step step) {
+	public VariableDeclaration getResultVariableDeclaration(Step step) {
 		if (step.getActivityBuilder().getActivityResultClass(this, step) != null) {
 			return new StepEventuality(step, this);
 		} else {
@@ -577,11 +584,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepOccurrence stepOccurrence);
+		void beforeActivityCreation(StepGoingThrough stepGoingThrough);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepOccurrence stepOccurrence);
+		void afterActivityExecution(StepGoingThrough stepGoingThrough);
 
 	}
 

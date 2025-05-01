@@ -1,10 +1,12 @@
 package com.otk.jesb.diagram;
 
-import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+
+import com.otk.jesb.util.MiscUtils;
 
 public class JNode extends JDiagramObject {
 
@@ -46,20 +48,20 @@ public class JNode extends JDiagramObject {
 	}
 
 	public void paint(Graphics g, JDiagram diagram) {
-		Color selectionColor = diagram.getSelectionColor();
+		MiscUtils.improveRenderingQuality((Graphics2D) g);
 		if (image != null) {
 			g.drawImage(image, centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
-					selected ? selectionColor : null, null);
+					selected ? diagram.getSelectionColor() : null, null);
 		} else {
 			if (selected) {
-				g.setColor(selectionColor);
+				g.setColor(diagram.getSelectionColor());
 			} else {
-				g.setColor(Color.DARK_GRAY);
+				g.setColor(diagram.getNodeColor());
 			}
 			g.fillOval(-10 + centerX, -10 + centerY, 20, 20);
 		}
 		if (value != null) {
-			g.setColor(Color.BLACK);
+			g.setColor(diagram.getTextColor());
 			Rectangle labelBounds = getLabelBounds(g);
 			if (labelBounds != null) {
 				g.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);

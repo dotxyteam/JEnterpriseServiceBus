@@ -16,7 +16,7 @@ import com.otk.jesb.Plan.ValidationContext;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Plan;
 import com.otk.jesb.Step;
-import com.otk.jesb.StepOccurrence;
+import com.otk.jesb.StepGoingThrough;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.LoopCompositeStep.LoopActivity;
@@ -921,8 +921,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (object instanceof Step) {
 					return MiscUtils.getIconImagePath((Step) object);
 				}
-				if (object instanceof StepOccurrence) {
-					return MiscUtils.getIconImagePath(((StepOccurrence) object).getStep());
+				if (object instanceof StepGoingThrough) {
+					return MiscUtils.getIconImagePath(((StepGoingThrough) object).getStep());
 				}
 				if (object instanceof PlanActivator) {
 					return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,

@@ -107,19 +107,7 @@ public class LoopCompositeStep extends CompositeStep {
 			try {
 				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 				for (Step descendantStep : getLoopDescendantSteps(context.getPlan(), context.getCurrentStep())) {
-					context.getVariables().add(new Variable() {
-
-						@Override
-						public String getName() {
-							return descendantStep.getName();
-						}
-
-						@Override
-						public Object getValue() {
-							return null;
-						}
-
-					});
+					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
 				}
 				while (true) {
 					EvaluationContext evaluationContext = new EvaluationContext(context.getVariables(), null,

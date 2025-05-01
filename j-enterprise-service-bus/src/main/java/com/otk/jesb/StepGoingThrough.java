@@ -1,23 +1,18 @@
 package com.otk.jesb;
 
+import java.util.List;
+
 import com.otk.jesb.activity.Activity;
 
-public class StepGoingThrough implements Variable {
+public class StepGoingThrough extends StepOccurrence {
 
-	private Step step;
 	private Activity activity;
 	private Object activityResult;
 	private Throwable activityError;
+	private List<Transition> validTransitions;
 
-	public StepGoingThrough() {
-	}
-
-	public StepGoingThrough(Step step) {
-		this.step = step;
-	}
-
-	public Step getStep() {
-		return step;
+	public StepGoingThrough(Step step, Plan plan) {
+		super(step, plan);
 	}
 
 	public Object getActivityResult() {
@@ -44,19 +39,22 @@ public class StepGoingThrough implements Variable {
 		this.activityError = activityError;
 	}
 
-	@Override
-	public Object getValue() {
-		return activityResult;
+	public List<Transition> getValidTransitions() {
+		return validTransitions;
+	}
+
+	public void setValidTransitions(List<Transition> validTransitions) {
+		this.validTransitions = validTransitions;
 	}
 
 	@Override
-	public String getName() {
-		return step.getName();
+	public Object getValue() {
+		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? activityResult : Variable.UNDEFINED_VALUE;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + ((activityError == null) ? "OK" : "KO") + "] " + step.getName();
+		return "[" + ((activityError == null) ? "OK" : "KO") + "] " + getStep().getName();
 	}
 
 }

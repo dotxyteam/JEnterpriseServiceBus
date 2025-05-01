@@ -67,6 +67,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private DragIntent dragIntent = DragIntent.MOVE;
 	private int connectionArrowSize = 25;
 
+	private Color nodeColor = Color.BLACK;
+	private Color connectionColor = Color.BLACK;
+	private Color textColor = Color.BLACK;
+	private Color selectionColor = new Color(184, 207, 229);
+
 	public JDiagram() {
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -105,13 +110,41 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		this.connectionArrowSize = connectionArrowSize;
 	}
 
+	public Color getNodeColor() {
+		return nodeColor;
+	}
+
+	public void setNodeColor(Color nodeColor) {
+		this.nodeColor = nodeColor;
+	}
+
+	public Color getConnectionColor() {
+		return connectionColor;
+	}
+
+	public void setConnectionColor(Color connectionColor) {
+		this.connectionColor = connectionColor;
+	}
+
+	public Color getTextColor() {
+		return textColor;
+	}
+
+	public void setTextColor(Color textColor) {
+		this.textColor = textColor;
+	}
+
+	public Color getSelectionColor() {
+		return selectionColor;
+	}
+
+	public void setSelectionColor(Color selectionColor) {
+		this.selectionColor = selectionColor;
+	}
+
 	public void clear() {
 		nodes.clear();
 		connections.clear();
-	}
-
-	protected Color getSelectionColor() {
-		return new Color(184, 207, 229);
 	}
 
 	public JNode addNode(Object object, int centerX, int centerY) {
@@ -249,7 +282,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				}
 			} finally {
 				draggedNode = null;
-				draggedNodeCenterOffset = null;				
+				draggedNodeCenterOffset = null;
 			}
 			List<Object> diagramObjects = new ArrayList<Object>();
 			diagramObjects.addAll(MiscUtils.getReverse(nodes));
@@ -400,8 +433,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 				draggingPoint.y - DRAGGING_IMAGE.getHeight(null) / 2, null);
 	}
 
-	protected void paintConnection(Graphics g, JConnection conn) {
-		conn.paint(g, this);
+	protected void paintConnection(Graphics g, JConnection connection) {
+		connection.paint(g, this);
 	}
 
 	protected void paintNode(Graphics g, JNode node) {

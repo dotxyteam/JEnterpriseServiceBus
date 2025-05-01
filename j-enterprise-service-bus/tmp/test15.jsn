@@ -4,106 +4,45 @@
       <name>plans</name>
       <contents>
         <com.otk.jesb.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.Transition">
-            <condition class="com.otk.jesb.Transition$IfCondition">
-              <functionBody>return 1==2;</functionBody>
-            </condition>
-            <endStep>
-              <name>writeFile</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
-                <instanceBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
-                          <outer-class reference="../../../../../.."/>
-                        </dynamicTypeNameAccessor>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>0</parameterPosition>
-                            <parameterValue class="string">tmp/out.txt</parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>1</parameterPosition>
-                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                              <functionBody>return (executePlan!=null) 
-? executePlan.getReadFileResult()
-: &quot;sub-plan execution failed !&quot;;</functionBody>
-                            </parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>2</parameterPosition>
-                            <parameterValue class="boolean">false</parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                        </parameterInitializers>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                  <rootInstanceName>WriteFileActivityInput</rootInstanceName>
-                  <rootInstanceTypeName class="null"/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </instanceBuilder>
-                <mode>TEXT</mode>
-              </activityBuilder>
-              <diagramX>229</diagramX>
-              <diagramY>81</diagramY>
-            </endStep>
-            <label class="null"/>
-            <startStep>
-              <name>sleep1</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
-                <instanceBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="null"/>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>0</parameterPosition>
-                            <parameterValue class="long">0</parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                        </parameterInitializers>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="null"/>
-                  <rootInstanceName>SleepActivityInput</rootInstanceName>
-                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </instanceBuilder>
-              </activityBuilder>
-              <diagramX>228</diagramX>
-              <diagramY>299</diagramY>
-            </startStep>
+          <focusedStepOrTransition class="com.otk.jesb.Step">
+            <name>sleep3</name>
+            <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <instanceBuilder>
+                <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                  <outer-class reference="../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers/>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>0</parameterPosition>
+                          <parameterValue class="long">0</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                      </parameterInitializers>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                <rootInstanceDynamicTypeNameAccessor class="null"/>
+                <rootInstanceName>SleepActivityInput</rootInstanceName>
+                <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </instanceBuilder>
+            </activityBuilder>
+            <diagramX>435</diagramX>
+            <diagramY>367</diagramY>
           </focusedStepOrTransition>
           <inputStructure class="null"/>
           <name>Test</name>
@@ -172,7 +111,61 @@
               <diagramX>113</diagramX>
               <diagramY>78</diagramY>
             </com.otk.jesb.Step>
-            <com.otk.jesb.Step reference="../../focusedStepOrTransition/endStep"/>
+            <com.otk.jesb.Step>
+              <name>writeFile</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="string">tmp/out.txt</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>1</parameterPosition>
+                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                              <functionBody>return (executePlan!=null) 
+? executePlan.getReadFileResult()
+: &quot;sub-plan execution failed !&quot;;</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>2</parameterPosition>
+                            <parameterValue class="boolean">false</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>WriteFileActivityInput</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+                <mode>TEXT</mode>
+              </activityBuilder>
+              <diagramX>229</diagramX>
+              <diagramY>81</diagramY>
+            </com.otk.jesb.Step>
             <com.otk.jesb.Step>
               <name>callSOAPWebService</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
@@ -408,27 +401,126 @@
               <diagramY>75</diagramY>
               <parent class="com.otk.jesb.LoopCompositeStep" reference="../../com.otk.jesb.Step[4]/parent"/>
             </com.otk.jesb.Step>
-            <com.otk.jesb.Step reference="../../focusedStepOrTransition/startStep"/>
+            <com.otk.jesb.Step>
+              <name>sleep1</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="long">0</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="null"/>
+                  <rootInstanceName>SleepActivityInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+              </activityBuilder>
+              <diagramX>222</diagramX>
+              <diagramY>369</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step>
+              <name>sleep2</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+                <instanceBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="null"/>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="long">0</parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="null"/>
+                  <rootInstanceName>SleepActivityInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </instanceBuilder>
+              </activityBuilder>
+              <diagramX>330</diagramX>
+              <diagramY>367</diagramY>
+            </com.otk.jesb.Step>
+            <com.otk.jesb.Step reference="../../focusedStepOrTransition"/>
           </steps>
           <transitions>
             <com.otk.jesb.Transition>
               <condition class="null"/>
+              <endStep reference="../../../focusedStepOrTransition"/>
+              <label class="null"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[8]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <condition class="null"/>
+              <endStep reference="../../../steps/com.otk.jesb.Step[8]"/>
+              <label class="null"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[7]"/>
+            </com.otk.jesb.Transition>
+            <com.otk.jesb.Transition>
+              <condition class="null"/>
               <endStep class="com.otk.jesb.LoopCompositeStep" reference="../../../steps/com.otk.jesb.Step[4]/parent"/>
               <label>always</label>
-              <startStep reference="../../../focusedStepOrTransition/startStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[7]"/>
             </com.otk.jesb.Transition>
             <com.otk.jesb.Transition>
               <condition class="com.otk.jesb.Transition$ElseCondition"/>
               <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition/startStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[7]"/>
             </com.otk.jesb.Transition>
-            <com.otk.jesb.Transition reference="../../focusedStepOrTransition"/>
+            <com.otk.jesb.Transition>
+              <condition class="com.otk.jesb.Transition$IfCondition">
+                <functionBody>return 1==2;</functionBody>
+              </condition>
+              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
+              <label class="null"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[7]"/>
+            </com.otk.jesb.Transition>
             <com.otk.jesb.Transition>
               <condition class="com.otk.jesb.Transition$ExceptionCondition">
                 <exceptionTypeName>java.lang.AssertionError</exceptionTypeName>
               </condition>
-              <endStep reference="../../../focusedStepOrTransition/startStep"/>
+              <endStep reference="../../../steps/com.otk.jesb.Step[7]"/>
               <label>AssertionError</label>
               <startStep reference="../../../steps/com.otk.jesb.Step"/>
             </com.otk.jesb.Transition>
@@ -454,11 +546,11 @@
               <condition class="null"/>
               <endStep reference="../../../steps/com.otk.jesb.Step[3]"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition/endStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.Step[2]"/>
             </com.otk.jesb.Transition>
             <com.otk.jesb.Transition>
               <condition class="null"/>
-              <endStep reference="../../../focusedStepOrTransition/endStep"/>
+              <endStep reference="../../../steps/com.otk.jesb.Step[2]"/>
               <label class="null"/>
               <startStep reference="../../../steps/com.otk.jesb.Step"/>
             </com.otk.jesb.Transition>
@@ -590,10 +682,11 @@
             <m class="java.util.Collections$UnmodifiableMap">
               <m class="java.util.Collections$UnmodifiableMap">
                 <m class="java.util.Collections$UnmodifiableMap">
-                  <m>
-                    <entry>
-                      <string>0_SOAP.ByNameDataSet.cls</string>
-                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                  <m class="java.util.Collections$UnmodifiableMap">
+                    <m>
+                      <entry>
+                        <string>0_SOAP.ByNameDataSet.cls</string>
+                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -620,10 +713,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                    </entry>
-                    <entry>
-                      <string>1_SOAP.Demo.QueryByName.DS.cls</string>
-                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                      </entry>
+                      <entry>
+                        <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -647,7 +740,8 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                    </entry>
+                      </entry>
+                    </m>
                   </m>
                 </m>
               </m>

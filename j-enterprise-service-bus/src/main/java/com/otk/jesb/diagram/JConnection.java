@@ -1,6 +1,5 @@
 package com.otk.jesb.diagram;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -48,20 +47,19 @@ public class JConnection extends JDiagramObject {
 	}
 
 	public void paint(Graphics g, JDiagram diagram) {
-		Color selectionColor = diagram.getSelectionColor();
-		g.setColor(selected ? selectionColor : Color.BLACK);
+		MiscUtils.improveRenderingQuality((Graphics2D) g);
+		g.setColor(selected ? diagram.getSelectionColor() : diagram.getConnectionColor());
 		for (Polygon polygon : computePolygons(2, diagram.getConnectionArrowSize())) {
 			g.fillPolygon(polygon);
 		}
 		if (value != null) {
-			g.setColor(Color.BLACK);
+			g.setColor(diagram.getTextColor());
 			Rectangle labelBounds = getLabelBounds(g);
 			if (labelBounds != null) {
 				double rotationAngle = getLabelRotationAngleRadians();
 				Point2D rotationCenter = getLabelRotationCenter();
 				Graphics2D g2D = (Graphics2D) g.create();
 				g2D.rotate(rotationAngle, rotationCenter.getX(), rotationCenter.getY());
-				MiscUtils.improveRenderingQuality(g2D);
 				g2D.drawString(value.toString(), labelBounds.x, labelBounds.y + labelBounds.height);
 				g2D.dispose();
 			}

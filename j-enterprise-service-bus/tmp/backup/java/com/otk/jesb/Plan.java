@@ -152,11 +152,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepOccurrence stepOccurrence) {
+			public void beforeActivityCreation(StepGoingThrough stepGoingThrough) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepOccurrence stepOccurrence) {
+			public void afterActivityExecution(StepGoingThrough stepGoingThrough) {
 			}
 
 			@Override
@@ -219,21 +219,21 @@ public class Plan extends Asset {
 
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
 		context.setCutrrentStep(step);
-		StepOccurrence stepOccurrence = new StepOccurrence(step);
-		executionInspector.beforeActivityCreation(stepOccurrence);
+		StepGoingThrough stepGoingThrough = new StepGoingThrough(step);
+		executionInspector.beforeActivityCreation(stepGoingThrough);
 		try {
 			Activity activity = step.getActivityBuilder().build(context, executionInspector);
-			stepOccurrence.setActivity(activity);
+			stepGoingThrough.setActivity(activity);
 			Object activityResult = activity.execute();
-			stepOccurrence.setActivityResult(activityResult);
+			stepGoingThrough.setActivityResult(activityResult);
 			if (activityResult != null) {
-				context.getVariables().add(stepOccurrence);
+				context.getVariables().add(stepGoingThrough);
 			}
 		} catch (Throwable t) {
-			stepOccurrence.setActivityError(t);
+			stepGoingThrough.setActivityError(t);
 			throw t;
 		}
-		executionInspector.afterActivityExecution(stepOccurrence);
+		executionInspector.afterActivityExecution(stepGoingThrough);
 		context.setCutrrentStep(null);
 	}
 
@@ -307,11 +307,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepOccurrence stepOccurrence);
+		void beforeActivityCreation(StepGoingThrough stepGoingThrough);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepOccurrence stepOccurrence);
+		void afterActivityExecution(StepGoingThrough stepGoingThrough);
 
 	}
 
