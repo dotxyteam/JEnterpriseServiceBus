@@ -218,11 +218,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepGoingThrough stepGoingThrough) {
+			public void beforeActivityCreation(StepCrossing stepCrossing) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepGoingThrough stepGoingThrough) {
+			public void afterActivityExecution(StepCrossing stepCrossing) {
 			}
 
 			@Override
@@ -286,17 +286,17 @@ public class Plan extends Asset {
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
 		if (executionBranchValid) {
-			StepGoingThrough stepGoingThrough = new StepGoingThrough(currentStep, this);
+			StepCrossing stepCrossing = new StepCrossing(currentStep, this);
 			ExecutionError executionError;
 			try {
-				execute(stepGoingThrough, context, executionInspector);
+				execute(stepCrossing, context, executionInspector);
 				executionError = null;
 			} catch (ExecutionError e) {
 				executionError = e;
-				stepGoingThrough.setActivityError(e.getCause());
+				stepCrossing.setActivityError(e.getCause());
 			} finally {
-				context.getVariables().add(stepGoingThrough);
-				stepGoingThrough.capturePostVariables(context.getVariables());
+				context.getVariables().add(stepCrossing);
+				stepCrossing.capturePostVariables(context.getVariables());
 			}
 			if (currentStepTransitions.size() == 0) {
 				if (executionError != null) {
@@ -307,7 +307,7 @@ public class Plan extends Asset {
 			} else {
 				List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, executionError,
 						context);
-				stepGoingThrough.setValidTransitions(validTransitions);
+				stepCrossing.setValidTransitions(validTransitions);
 				if (validTransitions.size() == 0) {
 					if (executionError != null) {
 						throw executionError;
@@ -344,7 +344,7 @@ public class Plan extends Asset {
 					if ((variable instanceof StepOccurrence)
 							&& (((StepOccurrence) variable).getStep() == convergentTransition.getStartStep())) {
 						startStepOccurrence = (StepOccurrence) variable;
-						if (variable instanceof StepGoingThrough) {
+						if (variable instanceof StepCrossing) {
 							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_VALID_BRANCH;
 						} else if (variable instanceof StepSkipping) {
 							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INVALID_BRANCH;
@@ -381,9 +381,9 @@ public class Plan extends Asset {
 							if (convergentTransitionStatus != TRANSITION_REACHED_THROUGH_VALID_BRANCH) {
 								return false;
 							}
-							StepGoingThrough convergentTransitionStartStepGoingThrough = (StepGoingThrough) startStepOccurrenceByConvergentTransition
+							StepCrossing convergentTransitionStartStepCrossing = (StepCrossing) startStepOccurrenceByConvergentTransition
 									.get(convergentTransition);
-							return convergentTransitionStartStepGoingThrough.getValidTransitions()
+							return convergentTransitionStartStepCrossing.getValidTransitions()
 									.contains(convergentTransition);
 						});
 				continueExecution(transition.getEndStep(), futureExecutionBranchValid, context, executionInspector);
@@ -445,20 +445,20 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private void execute(StepGoingThrough stepGoingThrough, ExecutionContext context,
+	private void execute(StepCrossing stepCrossing, ExecutionContext context,
 			ExecutionInspector executionInspector) throws ExecutionError {
-		Step step = stepGoingThrough.getStep();
+		Step step = stepCrossing.getStep();
 		context.setCutrrentStep(step);
-		executionInspector.beforeActivityCreation(stepGoingThrough);
+		executionInspector.beforeActivityCreation(stepCrossing);
 		ActivityBuilder activityBuilder = step.getActivityBuilder();
 		try {
 			Activity activity = activityBuilder.build(context, executionInspector);
-			stepGoingThrough.setActivity(activity);
-			stepGoingThrough.setActivityResult(activity.execute());
+			stepCrossing.setActivity(activity);
+			stepCrossing.setActivityResult(activity.execute());
 		} catch (Throwable t) {
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		} finally {
-			executionInspector.afterActivityExecution(stepGoingThrough);
+			executionInspector.afterActivityExecution(stepCrossing);
 		}
 		context.setCutrrentStep(null);
 	}
@@ -589,11 +589,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepGoingThrough stepGoingThrough);
+		void beforeActivityCreation(StepCrossing stepCrossing);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepGoingThrough stepGoingThrough);
+		void afterActivityExecution(StepCrossing stepCrossing);
 
 	}
 

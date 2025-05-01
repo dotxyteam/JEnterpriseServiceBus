@@ -61,8 +61,8 @@ public class Debugger {
 	public static class PlanExecutor {
 
 		private Plan plan;
-		private List<StepGoingThrough> stepGoingThroughs = new ArrayList<StepGoingThrough>();
-		private StepGoingThrough currentStepGoingThrough;
+		private List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
+		private StepCrossing currentStepCrossing;
 		private Throwable executionError;
 		private Thread thread;
 
@@ -75,19 +75,19 @@ public class Debugger {
 					try {
 						plan.execute(null, new Plan.ExecutionInspector() {
 							@Override
-							public void beforeActivityCreation(StepGoingThrough stepGoingThrough) {
-								currentStepGoingThrough = stepGoingThrough;
-								stepGoingThroughs.add(stepGoingThrough);
+							public void beforeActivityCreation(StepCrossing stepCrossing) {
+								currentStepCrossing = stepCrossing;
+								stepCrossings.add(stepCrossing);
 							}
 
 							@Override
-							public void afterActivityExecution(StepGoingThrough stepGoingThrough) {
+							public void afterActivityExecution(StepCrossing stepCrossing) {
 								try {
 									Thread.sleep(500);
 								} catch (InterruptedException e) {
 									Thread.currentThread().interrupt();
 								}
-								currentStepGoingThrough = null;
+								currentStepCrossing = null;
 							}
 
 							@Override
@@ -108,12 +108,12 @@ public class Debugger {
 			return plan;
 		}
 
-		public List<StepGoingThrough> getStepGoingThroughs() {
-			return stepGoingThroughs;
+		public List<StepCrossing> getStepCrossings() {
+			return stepCrossings;
 		}
 
-		public StepGoingThrough getCurrentStepGoingThrough() {
-			return currentStepGoingThrough;
+		public StepCrossing getCurrentStepCrossing() {
+			return currentStepCrossing;
 		}
 
 		public Throwable getExecutionError() {

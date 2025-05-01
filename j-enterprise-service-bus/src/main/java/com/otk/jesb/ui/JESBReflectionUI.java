@@ -49,7 +49,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.StepGoingThrough;
+import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
@@ -922,8 +922,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (object instanceof Step) {
 					return MiscUtils.getIconImagePath((Step) object);
 				}
-				if (object instanceof StepGoingThrough) {
-					return MiscUtils.getIconImagePath(((StepGoingThrough) object).getStep());
+				if (object instanceof StepCrossing) {
+					return MiscUtils.getIconImagePath(((StepCrossing) object).getStep());
 				}
 				if (object instanceof PlanActivator) {
 					return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,

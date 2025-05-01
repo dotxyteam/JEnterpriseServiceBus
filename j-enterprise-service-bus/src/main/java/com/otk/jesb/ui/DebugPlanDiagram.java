@@ -24,7 +24,7 @@ import com.otk.jesb.diagram.JDiagramObject;
 import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.StepGoingThrough;
+import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
@@ -44,15 +44,15 @@ public class DebugPlanDiagram extends PlanDiagram {
 		super(swingRenderer, parentForm);
 	}
 
-	protected ListControl getStepGoingThroughsControl() {
+	protected ListControl getStepCrossingsControl() {
 		List<Form> forms = new ArrayList<Form>();
 		forms.add(getPlanExecutorView());
 		forms.addAll(SwingRendererUtils.findDescendantForms(getPlanExecutorView(), swingRenderer));
 		for (Form form : forms) {
-			FieldControlPlaceHolder stepGoingThroughsFieldControlPlaceHolder = form
-					.getFieldControlPlaceHolder("stepGoingThroughs");
-			if (stepGoingThroughsFieldControlPlaceHolder != null) {
-				return (ListControl) stepGoingThroughsFieldControlPlaceHolder.getFieldControl();
+			FieldControlPlaceHolder stepCrossingsFieldControlPlaceHolder = form
+					.getFieldControlPlaceHolder("stepCrossings");
+			if (stepCrossingsFieldControlPlaceHolder != null) {
+				return (ListControl) stepCrossingsFieldControlPlaceHolder.getFieldControl();
 			}
 		}
 		throw new UnexpectedError();
@@ -79,20 +79,20 @@ public class DebugPlanDiagram extends PlanDiagram {
 				if (selectionListeningEnabled) {
 					selectionListeningEnabled = false;
 					try {
-						ListControl stepGoingThroughsControl = getStepGoingThroughsControl();
-						stepGoingThroughsControl.setSelection(DebugPlanDiagram.this.getSelection().stream()
+						ListControl stepCrossingsControl = getStepCrossingsControl();
+						stepCrossingsControl.setSelection(DebugPlanDiagram.this.getSelection().stream()
 								.filter(diagramObject -> diagramObject instanceof JNode).map(diagramObject -> {
 									Step step = (Step) diagramObject.getValue();
-									for (int i = getPlanExecutor().getStepGoingThroughs().size() - 1; i >= 0; i--) {
-										StepGoingThrough stepGoingThrough = getPlanExecutor().getStepGoingThroughs()
+									for (int i = getPlanExecutor().getStepCrossings().size() - 1; i >= 0; i--) {
+										StepCrossing stepCrossing = getPlanExecutor().getStepCrossings()
 												.get(i);
-										if (stepGoingThrough.getStep() == step) {
-											return stepGoingThrough;
+										if (stepCrossing.getStep() == step) {
+											return stepCrossing;
 										}
 									}
 									throw new UnexpectedError();
-								}).map(stepGoingThrough -> stepGoingThroughsControl
-										.findItemPositionByReference(stepGoingThrough))
+								}).map(stepCrossing -> stepCrossingsControl
+										.findItemPositionByReference(stepCrossing))
 								.collect(Collectors.toList()));
 					} finally {
 						selectionListeningEnabled = true;
@@ -112,7 +112,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				getStepGoingThroughsControl()
+				getStepCrossingsControl()
 						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
 							@Override
 							public void handle(List<BufferedItemPosition> event) {
@@ -132,8 +132,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	@Override
 	protected void updateStepSelection() {
-		setSelection(getStepGoingThroughsControl().getSelection().stream()
-				.map(itemPosition -> (JDiagramObject) findNode(((StepGoingThrough) itemPosition.getItem()).getStep()))
+		setSelection(getStepCrossingsControl().getSelection().stream()
+				.map(itemPosition -> (JDiagramObject) findNode(((StepCrossing) itemPosition.getItem()).getStep()))
 				.collect(Collectors.toSet()));
 	}
 
@@ -159,14 +159,14 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
-		StepGoingThrough lastStepGoingThrough = MiscUtils.getReverse(getPlanExecutor().getStepGoingThroughs()).stream()
-				.filter(candidateStepGoingThrough -> (candidateStepGoingThrough.getStep() == node.getValue()))
+		StepCrossing lastStepCrossing = MiscUtils.getReverse(getPlanExecutor().getStepCrossings()).stream()
+				.filter(candidateStepCrossing -> (candidateStepCrossing.getStep() == node.getValue()))
 				.findFirst().orElse(null);
-		if ((lastStepGoingThrough != null) && (lastStepGoingThrough.getActivityError() != null)) {
+		if ((lastStepCrossing != null) && (lastStepCrossing.getActivityError() != null)) {
 			highlightNode(g, node, new Color(255, 173, 173));
 		} else {
-			StepGoingThrough currentStepGoingThrough = getPlanExecutor().getCurrentStepGoingThrough();
-			if ((currentStepGoingThrough != null) && (currentStepGoingThrough.getStep() == node.getValue())) {
+			StepCrossing currentStepCrossing = getPlanExecutor().getCurrentStepCrossing();
+			if ((currentStepCrossing != null) && (currentStepCrossing.getStep() == node.getValue())) {
 				highlightNode(g, node, new Color(175, 255, 200));
 			}
 		}
@@ -179,13 +179,13 @@ public class DebugPlanDiagram extends PlanDiagram {
 		Step startStep = (Step) connection.getStartNode().getValue();
 		Step endStep = (Step) connection.getEndNode().getValue();
 		CompositeStep parent = startStep.getParent();
-		List<StepGoingThrough> stepGoingThroughs = getPlanExecutor().getStepGoingThroughs().stream()
-				.filter(stepGoingThrough -> (stepGoingThrough.getStep().getParent() == parent))
+		List<StepCrossing> stepCrossings = getPlanExecutor().getStepCrossings().stream()
+				.filter(stepCrossing -> (stepCrossing.getStep().getParent() == parent))
 				.collect(Collectors.toList());
-		for (int i = 0; i < stepGoingThroughs.size(); i++) {
+		for (int i = 0; i < stepCrossings.size(); i++) {
 			if (i > 0) {
-				if (stepGoingThroughs.get(i - 1).getStep() == startStep) {
-					if (stepGoingThroughs.get(i).getStep() == endStep) {
+				if (stepCrossings.get(i - 1).getStep() == startStep) {
+					if (stepCrossings.get(i).getStep() == endStep) {
 						transitionOccurrenceCount++;
 					}
 				}

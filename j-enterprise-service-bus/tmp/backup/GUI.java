@@ -847,8 +847,8 @@ public class GUI extends SwingCustomizer {
 					if (object instanceof Step) {
 						return MiscUtils.getIconImagePath((Step) object);
 					}
-					if (object instanceof StepGoingThrough) {
-						return MiscUtils.getIconImagePath(((StepGoingThrough) object).getStep());
+					if (object instanceof StepCrossing) {
+						return MiscUtils.getIconImagePath(((StepCrossing) object).getStep());
 					}
 					if (object instanceof PlanActivator) {
 						return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,
@@ -1119,10 +1119,10 @@ public class GUI extends SwingCustomizer {
 				return;
 			}
 			diagram.refresh();
-			ListControl stepGoingThroughsControl = getStepGoingThroughsControl();
-			BufferedItemPosition selection = stepGoingThroughsControl.getSingleSelection();
+			ListControl stepCrossingsControl = getStepCrossingsControl();
+			BufferedItemPosition selection = stepCrossingsControl.getSingleSelection();
 			if (selection != null) {
-				diagram.select(diagram.getNode(((StepGoingThrough) selection.getItem()).getStep()));
+				diagram.select(diagram.getNode(((StepCrossing) selection.getItem()).getStep()));
 			} else {
 				diagram.select(null);
 			}
@@ -1136,7 +1136,7 @@ public class GUI extends SwingCustomizer {
 		protected void createMembersControls() {
 			super.createMembersControls();
 			diagram = createDiagram();
-			getStepGoingThroughsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+			getStepCrossingsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
 				@Override
 				public void handle(List<BufferedItemPosition> event) {
 					if (selectionListeningEnabled) {
@@ -1151,8 +1151,8 @@ public class GUI extends SwingCustomizer {
 			});
 		}
 
-		private ListControl getStepGoingThroughsControl() {
-			return (ListControl) getFieldControlPlaceHolder("stepGoingThroughs").getFieldControl();
+		private ListControl getStepCrossingsControl() {
+			return (ListControl) getFieldControlPlaceHolder("stepCrossings").getFieldControl();
 		}
 
 		@Override
@@ -1208,11 +1208,11 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected void paintNode(Graphics g, JNode node) {
-					StepGoingThrough currentStepGoingThrough = getPlanExecutor().getCurrentStepGoingThrough();
-					if (currentStepGoingThrough != null) {
-						if (currentStepGoingThrough.getStep() == node.getObject()) {
+					StepCrossing currentStepCrossing = getPlanExecutor().getCurrentStepCrossing();
+					if (currentStepCrossing != null) {
+						if (currentStepCrossing.getStep() == node.getObject()) {
 							highlightNode(g, node,
-									(currentStepGoingThrough.getActivityError() == null) ? new Color(175, 255, 200)
+									(currentStepCrossing.getActivityError() == null) ? new Color(175, 255, 200)
 											: new Color(255, 173, 173));
 						}
 					}
@@ -1223,11 +1223,11 @@ public class GUI extends SwingCustomizer {
 				protected void paintConnection(Graphics g, JConnection conn) {
 					super.paintConnection(g, conn);
 					int transitionOccurrenceCount = 0;
-					List<StepGoingThrough> stepGoingThroughs = getPlanExecutor().getStepGoingThroughs();
-					for (int i = 0; i < stepGoingThroughs.size(); i++) {
+					List<StepCrossing> stepCrossings = getPlanExecutor().getStepCrossings();
+					for (int i = 0; i < stepCrossings.size(); i++) {
 						if (i > 0) {
-							if (stepGoingThroughs.get(i - 1).getStep() == conn.getStartNode().getObject()) {
-								if (stepGoingThroughs.get(i).getStep() == conn.getEndNode().getObject()) {
+							if (stepCrossings.get(i - 1).getStep() == conn.getStartNode().getObject()) {
+								if (stepCrossings.get(i).getStep() == conn.getEndNode().getObject()) {
 									transitionOccurrenceCount++;
 								}
 							}
@@ -1267,21 +1267,21 @@ public class GUI extends SwingCustomizer {
 						selectionListeningEnabled = false;
 						try {
 							if (node == null) {
-								getStepGoingThroughsControl().setSingleSelection(null);
+								getStepCrossingsControl().setSingleSelection(null);
 							} else {
 								Step step = (Step) node.getObject();
-								StepGoingThrough lastStepGoingThrough = null;
-								for (int i = getPlanExecutor().getStepGoingThroughs().size() - 1; i >= 0; i--) {
-									StepGoingThrough stepGoingThrough = getPlanExecutor().getStepGoingThroughs().get(i);
-									if (stepGoingThrough.getStep() == step) {
-										lastStepGoingThrough = stepGoingThrough;
+								StepCrossing lastStepCrossing = null;
+								for (int i = getPlanExecutor().getStepCrossings().size() - 1; i >= 0; i--) {
+									StepCrossing stepCrossing = getPlanExecutor().getStepCrossings().get(i);
+									if (stepCrossing.getStep() == step) {
+										lastStepCrossing = stepCrossing;
 										break;
 									}
 								}
-								ListControl stepGoingThroughsControl = getStepGoingThroughsControl();
-								stepGoingThroughsControl
-										.setSingleSelection(stepGoingThroughsControl.getRootListItemPosition(
-												getPlanExecutor().getStepGoingThroughs().indexOf(lastStepGoingThrough)));
+								ListControl stepCrossingsControl = getStepCrossingsControl();
+								stepCrossingsControl
+										.setSingleSelection(stepCrossingsControl.getRootListItemPosition(
+												getPlanExecutor().getStepCrossings().indexOf(lastStepCrossing)));
 							}
 						} finally {
 							selectionListeningEnabled = true;

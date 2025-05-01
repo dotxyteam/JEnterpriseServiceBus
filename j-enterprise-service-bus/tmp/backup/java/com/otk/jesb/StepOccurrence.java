@@ -2,17 +2,17 @@ package com.otk.jesb;
 
 import com.otk.jesb.activity.Activity;
 
-public class StepGoingThrough implements Variable {
+public class StepCrossing implements Variable {
 
 	private Step step;
 	private Activity activity;
 	private Object activityResult;
 	private Throwable activityError;
 
-	public StepGoingThrough() {
+	public StepCrossing() {
 	}
 
-	public StepGoingThrough(Step step) {
+	public StepCrossing(Step step) {
 		this.step = step;
 	}
 

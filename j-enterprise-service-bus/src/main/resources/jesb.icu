@@ -11699,7 +11699,7 @@
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>active</customFieldsOrder>
         <customFieldsOrder>plan</customFieldsOrder>
-        <customFieldsOrder>stepGoingThroughs</customFieldsOrder>
+        <customFieldsOrder>stepCrossings</customFieldsOrder>
         <customFieldsOrder>executionError</customFieldsOrder>
         <fieldsCustomizations>
             <uniqueIdentifier>6009287d:1941ca54e3e:7733</uniqueIdentifier>
@@ -11733,7 +11733,7 @@
             <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>currentStepGoingThrough</fieldName>
+            <fieldName>currentStepCrossing</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -11786,8 +11786,8 @@
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>diagramAndStepGoingThroughs</encapsulationFieldName>
-            <fieldName>stepGoingThroughs</fieldName>
+            <encapsulationFieldName>diagramAndStepCrossings</encapsulationFieldName>
+            <fieldName>stepCrossings</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -11828,7 +11828,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.solution.StepGoingThrough</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.StepCrossing</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -11844,7 +11844,7 @@
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>diagramAndStepGoingThroughs</encapsulationFieldName>
+            <encapsulationFieldName>diagramAndStepCrossings</encapsulationFieldName>
             <fieldName>diagram</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
@@ -11874,7 +11874,7 @@
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>diagramAndStepGoingThroughs</fieldName>
+            <fieldName>diagramAndStepCrossings</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>true</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -11911,7 +11911,7 @@
                     <menuModel>
                         <uniqueIdentifier>-18464e28:1959c217a77:-5306</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanExecutor], fieldName=diagramAndStepGoingThroughs]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanExecutor], fieldName=diagramAndStepCrossings]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -12347,7 +12347,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.solution.StepGoingThrough</typeName>
+        <typeName>com.otk.jesb.solution.StepCrossing</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -12388,7 +12388,7 @@
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edf0b80:298b</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activityResult, objectType=com.otk.jesb.solution.StepGoingThrough], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.activity.builtin.JDBCQueryActivity$GenericResult]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activityResult, objectType=com.otk.jesb.solution.StepCrossing], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.activity.builtin.JDBCQueryActivity$GenericResult]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -21995,7 +21995,7 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>diagram</customFieldsOrder>
-        <customFieldsOrder>stepGoingThroughs</customFieldsOrder>
+        <customFieldsOrder>stepCrossings</customFieldsOrder>
         <fieldsCustomizations>
             <uniqueIdentifier>-18464e28:1959c217a77:-530e</uniqueIdentifier>
             <specificProperties/>
@@ -22034,7 +22034,7 @@
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>stepGoingThroughs</fieldName>
+            <fieldName>stepCrossings</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -22080,7 +22080,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.solution.StepGoingThrough</itemTypeName>
+                    <itemTypeName>com.otk.jesb.solution.StepCrossing</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -22093,7 +22093,7 @@
         <menuModel>
             <uniqueIdentifier>-18464e28:1959c217a77:-530f</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanExecutor], fieldName=diagramAndStepGoingThroughs]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanExecutor], fieldName=diagramAndStepCrossings]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

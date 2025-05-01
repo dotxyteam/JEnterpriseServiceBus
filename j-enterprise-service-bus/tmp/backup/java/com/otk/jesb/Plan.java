@@ -152,11 +152,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepGoingThrough stepGoingThrough) {
+			public void beforeActivityCreation(StepCrossing stepCrossing) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepGoingThrough stepGoingThrough) {
+			public void afterActivityExecution(StepCrossing stepCrossing) {
 			}
 
 			@Override
@@ -219,21 +219,21 @@ public class Plan extends Asset {
 
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
 		context.setCutrrentStep(step);
-		StepGoingThrough stepGoingThrough = new StepGoingThrough(step);
-		executionInspector.beforeActivityCreation(stepGoingThrough);
+		StepCrossing stepCrossing = new StepCrossing(step);
+		executionInspector.beforeActivityCreation(stepCrossing);
 		try {
 			Activity activity = step.getActivityBuilder().build(context, executionInspector);
-			stepGoingThrough.setActivity(activity);
+			stepCrossing.setActivity(activity);
 			Object activityResult = activity.execute();
-			stepGoingThrough.setActivityResult(activityResult);
+			stepCrossing.setActivityResult(activityResult);
 			if (activityResult != null) {
-				context.getVariables().add(stepGoingThrough);
+				context.getVariables().add(stepCrossing);
 			}
 		} catch (Throwable t) {
-			stepGoingThrough.setActivityError(t);
+			stepCrossing.setActivityError(t);
 			throw t;
 		}
-		executionInspector.afterActivityExecution(stepGoingThrough);
+		executionInspector.afterActivityExecution(stepCrossing);
 		context.setCutrrentStep(null);
 	}
 
@@ -307,11 +307,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepGoingThrough stepGoingThrough);
+		void beforeActivityCreation(StepCrossing stepCrossing);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepGoingThrough stepGoingThrough);
+		void afterActivityExecution(StepCrossing stepCrossing);
 
 	}
 

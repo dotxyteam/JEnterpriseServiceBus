@@ -5,14 +5,14 @@ import java.util.List;
 import com.otk.jesb.Variable;
 import com.otk.jesb.activity.Activity;
 
-public class StepGoingThrough extends StepOccurrence {
+public class StepCrossing extends StepOccurrence {
 
 	private Activity activity;
 	private Object activityResult;
 	private Throwable activityError;
 	private List<Transition> validTransitions;
 
-	public StepGoingThrough(Step step, Plan plan) {
+	public StepCrossing(Step step, Plan plan) {
 		super(step, plan);
 	}
 
