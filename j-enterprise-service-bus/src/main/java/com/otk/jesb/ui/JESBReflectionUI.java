@@ -14,6 +14,7 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.Structure.Element;
@@ -478,6 +479,12 @@ public class JESBReflectionUI extends CustomizedUI {
 						currentTransition = (Transition) object;
 						return true;
 					}
+				} else {
+					if (object instanceof Debugger) {
+						((Debugger) object).getPlanActivators().stream().forEach(planActivator -> planActivator
+								.getPlanExecutors().stream().forEach(planExecutor -> planExecutor.stop()));
+						return true;
+					}
 				}
 				return super.onFormVisibilityChange(type, object, visible);
 			}
@@ -569,7 +576,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 					});
 					return result;
-				} else if (type.getName().equals(PlanExecutor.class.getName())) {
+				} else if (type.getName().equals(PlanExecutor.class.getName())
+						|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
@@ -594,9 +602,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 					});
 					return result;
-				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName()))
-
-				{
+				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override

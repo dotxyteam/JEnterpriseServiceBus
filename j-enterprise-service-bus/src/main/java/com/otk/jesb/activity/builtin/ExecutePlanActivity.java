@@ -26,26 +26,29 @@ public class ExecutePlanActivity implements Activity {
 
 	private Plan plan;
 	private Object planInput;
+	private ExecutionInspector executionInspector;
+
+	public ExecutePlanActivity(Plan plan, Object planInput, ExecutionInspector executionInspector) {
+		this.plan = plan;
+		this.planInput = planInput;
+		this.executionInspector = executionInspector;
+	}
 
 	public Plan getPlan() {
 		return plan;
-	}
-
-	public void setPlan(Plan plan) {
-		this.plan = plan;
 	}
 
 	public Object getPlanInput() {
 		return planInput;
 	}
 
-	public void setPlanInput(Object planInput) {
-		this.planInput = planInput;
+	public ExecutionInspector getExecutionInspector() {
+		return executionInspector;
 	}
 
 	@Override
 	public Object execute() throws Throwable {
-		return plan.execute(planInput);
+		return plan.execute(planInput, executionInspector);
 	}
 
 	public static class Metadata implements ActivityMetadata {
@@ -126,11 +129,9 @@ public class ExecutePlanActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			ExecutePlanActivity result = new ExecutePlanActivity();
-			result.setPlan(getPlan());
-			result.setPlanInput(planInputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
-			return result;
+			Object planInput = planInputBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			return new ExecutePlanActivity(getPlan(), planInput, executionInspector);
 		}
 
 		@Override

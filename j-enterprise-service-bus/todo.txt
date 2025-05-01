@@ -8,7 +8,6 @@
 ExecutePlan.inputBuilder is filled
 - allow to build and reference shared structures
 - allow to start plan execution on event (timer, file poller, etc)
-- create and display a Sub-PlanExecutor for each sub-plan execution
 - add an "Evaluate" activity (like BW "Mapper" activity
 - allow to manage exceptions
 - to ease co-working and version control, plans and resources must be stored in separate files  

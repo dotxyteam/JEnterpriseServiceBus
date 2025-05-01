@@ -218,11 +218,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepCrossing stepCrossing) {
+			public void beforeActivity(StepCrossing stepCrossing) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepCrossing stepCrossing) {
+			public void afterActivity(StepCrossing stepCrossing) {
 			}
 
 			@Override
@@ -449,16 +449,16 @@ public class Plan extends Asset {
 			ExecutionInspector executionInspector) throws ExecutionError {
 		Step step = stepCrossing.getStep();
 		context.setCutrrentStep(step);
-		executionInspector.beforeActivityCreation(stepCrossing);
-		ActivityBuilder activityBuilder = step.getActivityBuilder();
+		executionInspector.beforeActivity(stepCrossing);
 		try {
+			ActivityBuilder activityBuilder = step.getActivityBuilder();
 			Activity activity = activityBuilder.build(context, executionInspector);
 			stepCrossing.setActivity(activity);
 			stepCrossing.setActivityResult(activity.execute());
 		} catch (Throwable t) {
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		} finally {
-			executionInspector.afterActivityExecution(stepCrossing);
+			executionInspector.afterActivity(stepCrossing);
 		}
 		context.setCutrrentStep(null);
 	}
@@ -589,11 +589,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepCrossing stepCrossing);
+		void beforeActivity(StepCrossing stepCrossing);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepCrossing stepCrossing);
+		void afterActivity(StepCrossing stepCrossing);
 
 	}
 

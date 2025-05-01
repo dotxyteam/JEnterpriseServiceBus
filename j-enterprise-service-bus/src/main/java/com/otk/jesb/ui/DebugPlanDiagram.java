@@ -62,7 +62,17 @@ public class DebugPlanDiagram extends PlanDiagram {
 		if (parentForm.getObject() instanceof PlanExecutor) {
 			return parentForm;
 		}
-		return SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.class.getName(), swingRenderer);
+		Form result;
+		result = SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.class.getName(), swingRenderer);
+		if (result != null) {
+			return result;
+		}
+		result = SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.SubPlanExecutor.class.getName(),
+				swingRenderer);
+		if (result != null) {
+			return result;
+		}
+		throw new UnexpectedError();
 	}
 
 	@Override
@@ -84,15 +94,13 @@ public class DebugPlanDiagram extends PlanDiagram {
 								.filter(diagramObject -> diagramObject instanceof JNode).map(diagramObject -> {
 									Step step = (Step) diagramObject.getValue();
 									for (int i = getPlanExecutor().getStepCrossings().size() - 1; i >= 0; i--) {
-										StepCrossing stepCrossing = getPlanExecutor().getStepCrossings()
-												.get(i);
+										StepCrossing stepCrossing = getPlanExecutor().getStepCrossings().get(i);
 										if (stepCrossing.getStep() == step) {
 											return stepCrossing;
 										}
 									}
 									throw new UnexpectedError();
-								}).map(stepCrossing -> stepCrossingsControl
-										.findItemPositionByReference(stepCrossing))
+								}).map(stepCrossing -> stepCrossingsControl.findItemPositionByReference(stepCrossing))
 								.collect(Collectors.toList()));
 					} finally {
 						selectionListeningEnabled = true;
@@ -112,20 +120,19 @@ public class DebugPlanDiagram extends PlanDiagram {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				getStepCrossingsControl()
-						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
-							@Override
-							public void handle(List<BufferedItemPosition> event) {
-								if (selectionListeningEnabled) {
-									selectionListeningEnabled = false;
-									try {
-										updateStepSelection();
-									} finally {
-										selectionListeningEnabled = true;
-									}
-								}
+				getStepCrossingsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+					@Override
+					public void handle(List<BufferedItemPosition> event) {
+						if (selectionListeningEnabled) {
+							selectionListeningEnabled = false;
+							try {
+								updateStepSelection();
+							} finally {
+								selectionListeningEnabled = true;
 							}
-						});
+						}
+					}
+				});
 			}
 		});
 	}
@@ -160,8 +167,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
 		StepCrossing lastStepCrossing = MiscUtils.getReverse(getPlanExecutor().getStepCrossings()).stream()
-				.filter(candidateStepCrossing -> (candidateStepCrossing.getStep() == node.getValue()))
-				.findFirst().orElse(null);
+				.filter(candidateStepCrossing -> (candidateStepCrossing.getStep() == node.getValue())).findFirst()
+				.orElse(null);
 		if ((lastStepCrossing != null) && (lastStepCrossing.getActivityError() != null)) {
 			highlightNode(g, node, new Color(255, 173, 173));
 		} else {
@@ -180,8 +187,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		Step endStep = (Step) connection.getEndNode().getValue();
 		CompositeStep parent = startStep.getParent();
 		List<StepCrossing> stepCrossings = getPlanExecutor().getStepCrossings().stream()
-				.filter(stepCrossing -> (stepCrossing.getStep().getParent() == parent))
-				.collect(Collectors.toList());
+				.filter(stepCrossing -> (stepCrossing.getStep().getParent() == parent)).collect(Collectors.toList());
 		for (int i = 0; i < stepCrossings.size(); i++) {
 			if (i > 0) {
 				if (stepCrossings.get(i - 1).getStep() == startStep) {
