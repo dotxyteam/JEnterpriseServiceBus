@@ -42,10 +42,6 @@ public class ExecutePlanActivity implements Activity {
 		return planInput;
 	}
 
-	public ExecutionInspector getExecutionInspector() {
-		return executionInspector;
-	}
-
 	@Override
 	public Object execute() throws Throwable {
 		return plan.execute(planInput, executionInspector);

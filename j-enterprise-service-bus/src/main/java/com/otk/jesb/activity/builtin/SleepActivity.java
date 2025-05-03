@@ -28,6 +28,10 @@ public class SleepActivity implements Activity {
 		return milliseconds;
 	}
 
+	public void setMilliseconds(long milliseconds) {
+		this.milliseconds = milliseconds;
+	}
+
 	@Override
 	public Object execute() throws IOException {
 		try {
@@ -77,8 +81,8 @@ public class SleepActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return (SleepActivity) instanceBuilder
-					.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			return (SleepActivity) instanceBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 		}
 
 		@Override

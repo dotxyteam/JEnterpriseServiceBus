@@ -34,12 +34,12 @@ public class JDBCUpdateActivity implements Activity {
 	private String statement;
 	private ParameterValues parameterValues;
 
-	public JDBCConnection getConnection() {
-		return connection;
+	public JDBCUpdateActivity(JDBCConnection connection) {
+		this.connection = connection;
 	}
 
-	public void setConnection(JDBCConnection connection) {
-		this.connection = connection;
+	public JDBCConnection getConnection() {
+		return connection;
 	}
 
 	public String getStatement() {
@@ -227,11 +227,10 @@ public class JDBCUpdateActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCUpdateActivity result = new JDBCUpdateActivity();
-			result.setConnection(getConnection());
+			JDBCUpdateActivity result = new JDBCUpdateActivity(getConnection());
 			result.setStatement(statement);
-			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 			result.setParameterValues(parameterValues);
 			return result;
 		}

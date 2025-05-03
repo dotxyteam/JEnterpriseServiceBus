@@ -30,7 +30,7 @@ public class WriteFileActivity implements Activity {
 		this.specificActivity = specificActivity;
 	}
 
-	public SpecificWriteFileActivity getSpecificActivity() {
+	public SpecificWriteFileActivity getAction() {
 		return specificActivity;
 	}
 
@@ -39,11 +39,11 @@ public class WriteFileActivity implements Activity {
 		return specificActivity.execute();
 	}
 
-	private static interface SpecificWriteFileActivity extends Activity {
-
+	private static abstract class SpecificWriteFileActivity {
+		protected abstract Object execute() throws Throwable;
 	}
 
-	public static class WriteTextFileActivity implements SpecificWriteFileActivity {
+	public static class WriteTextFileActivity extends SpecificWriteFileActivity {
 
 		private String filePath;
 		private String text;
@@ -60,6 +60,26 @@ public class WriteFileActivity implements Activity {
 			return filePath;
 		}
 
+		public void setFilePath(String filePath) {
+			this.filePath = filePath;
+		}
+
+		public String getText() {
+			return text;
+		}
+
+		public void setText(String text) {
+			this.text = text;
+		}
+
+		public boolean isAppend() {
+			return append;
+		}
+
+		public void setAppend(boolean append) {
+			this.append = append;
+		}
+
 		public String getCharsetName() {
 			return charsetName;
 		}
@@ -68,16 +88,8 @@ public class WriteFileActivity implements Activity {
 			this.charsetName = charsetName;
 		}
 
-		public String getText() {
-			return text;
-		}
-
-		public boolean isAppend() {
-			return append;
-		}
-
 		@Override
-		public Object execute() throws IOException {
+		protected Object execute() throws IOException {
 			try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
 					(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
 				bw.write(text);
@@ -86,7 +98,7 @@ public class WriteFileActivity implements Activity {
 		}
 	}
 
-	public static class WriteBinaryFileActivity implements SpecificWriteFileActivity {
+	public static class WriteBinaryFileActivity extends SpecificWriteFileActivity {
 
 		private String filePath;
 		private byte[] data;
@@ -102,16 +114,28 @@ public class WriteFileActivity implements Activity {
 			return filePath;
 		}
 
+		public void setFilePath(String filePath) {
+			this.filePath = filePath;
+		}
+
 		public byte[] getData() {
 			return data;
+		}
+
+		public void setData(byte[] data) {
+			this.data = data;
 		}
 
 		public boolean isAppend() {
 			return append;
 		}
 
+		public void setAppend(boolean append) {
+			this.append = append;
+		}
+
 		@Override
-		public Object execute() throws IOException {
+		protected Object execute() throws IOException {
 			try (FileOutputStream fos = new FileOutputStream(filePath, append)) {
 				fos.write(data);
 			}

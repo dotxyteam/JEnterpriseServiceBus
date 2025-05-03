@@ -1,10 +1,16 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Function;
 
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
+import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationFunction;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
@@ -43,10 +49,14 @@ public class Debugger {
 	public static class PlanActivator {
 
 		private Plan plan;
+		private RootInstanceBuilder planInputBuilder;
 		private List<PlanExecutor> planExecutors = new ArrayList<Debugger.PlanExecutor>();
 
 		public PlanActivator(Plan plan) {
 			this.plan = plan;
+			if (plan.getInputClass() != null) {
+				planInputBuilder = new RootInstanceBuilder("Input", plan.getInputClass().getName());
+			}
 		}
 
 		public Plan getPlan() {
@@ -57,12 +67,27 @@ public class Debugger {
 			return Reference.get(plan).getPath();
 		}
 
+		public RootInstanceBuilder getPlanInputBuilder() {
+			return planInputBuilder;
+		}
+
 		public List<PlanExecutor> getPlanExecutors() {
 			return planExecutors;
 		}
 
-		public void executePlan() {
-			planExecutors.add(new PlanExecutor(plan));
+		public void executePlan() throws Exception {
+			Object planInput = (planInputBuilder != null)
+					? planInputBuilder.build(new EvaluationContext(Collections.emptyList(), null,
+							new Function<InstantiationFunction, InstantiationFunctionCompilationContext>() {
+
+								@Override
+								public InstantiationFunctionCompilationContext apply(InstantiationFunction function) {
+									return planInputBuilder.getFacade().findFunctionCompilationContext(function,
+											Collections.emptyList());
+								}
+							}))
+					: null;
+			planExecutors.add(new PlanExecutor(plan, planInput));
 		}
 
 		@Override
@@ -74,6 +99,7 @@ public class Debugger {
 	public static class PlanExecutor {
 
 		private Plan plan;
+		private Object planInput;
 		private List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
 		private StepCrossing currentStepCrossing;
 		private Throwable executionError;
@@ -81,8 +107,9 @@ public class Debugger {
 		private List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
 		private Stack<PlanExecutor> currentPlanExecutionStack = new Stack<Debugger.PlanExecutor>();
 
-		public PlanExecutor(Plan plan) {
+		public PlanExecutor(Plan plan, Object planInput) {
 			this.plan = plan;
+			this.planInput = planInput;
 			start();
 		}
 
@@ -136,17 +163,17 @@ public class Debugger {
 			thread.interrupt();
 		}
 
-		private void execute() {
+		protected void execute() {
 			try {
-				plan.execute(null, new Plan.ExecutionInspector() {
+				plan.execute(planInput, new Plan.ExecutionInspector() {
 					@Override
 					public void beforeActivity(StepCrossing stepCrossing) {
 						getTopPlanExecutor().currentStepCrossing = stepCrossing;
 						getTopPlanExecutor().stepCrossings.add(stepCrossing);
 						if (stepCrossing.getStep().getActivityBuilder() instanceof ExecutePlanActivity.Builder) {
-							PlanExecutor newPlanExecutor = new SubPlanExecutor(
-									((ExecutePlanActivity.Builder) stepCrossing.getStep().getActivityBuilder())
-											.getPlanReference().resolve());
+							Plan subPlan = ((ExecutePlanActivity.Builder) stepCrossing.getStep().getActivityBuilder())
+									.getPlanReference().resolve();
+							PlanExecutor newPlanExecutor = new SubPlanExecutor(subPlan);
 							getTopPlanExecutor().children.add(newPlanExecutor);
 							currentPlanExecutionStack.add(newPlanExecutor);
 						}
@@ -191,12 +218,12 @@ public class Debugger {
 
 		public static class SubPlanExecutor extends PlanExecutor {
 
-			public SubPlanExecutor(Plan subPlan) {
-				super(subPlan);
+			public SubPlanExecutor(Plan plan) {
+				super(plan, null);
 			}
 
 			@Override
-			protected void start() {
+			public void start() {
 			}
 
 			@Override

@@ -95,7 +95,7 @@ public class GUI extends SwingCustomizer {
 		ls.setDiagramY(100);
 		ls.getActivityBuilder().setIterationIndexVariableName("index");
 		ls.getActivityBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
-		
+
 		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
 		s2.setName("w");
@@ -107,8 +107,8 @@ public class GUI extends SwingCustomizer {
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(1,
-						new InstantiationFunction("return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
+				.getParameterInitializers().add(new ParameterInitializer(1, new InstantiationFunction(
+						"return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);
@@ -351,34 +351,45 @@ public class GUI extends SwingCustomizer {
 
 					};
 				}
-				if (object instanceof PlanActivator) {
-					if (method.getName().equals("executePlan")) {
-						method = new MethodInfoProxy(method) {
+				if (method.getName().equals("executePlan")) {
+					method = new MethodInfoProxy(method) {
+						Throwable error;
 
-							@Override
-							public Object invoke(final Object object, InvocationData invocationData) {
-								SwingUtilities.invokeLater(new Runnable() {
-									@Override
-									public void run() {
-										Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
-												Debugger.class.getName(), swingRenderer);
-										ListControl planActivatorsControl = (ListControl) debuggerForm
-												.getFieldControlPlaceHolder("planActivators").getFieldControl();
-										planActivatorsControl.refreshUI(false);
-										PlanActivator currentPlanActivator = (PlanActivator) object;
-										BufferedItemPosition planActivatorPosition = planActivatorsControl
-												.findItemPositionByReference(currentPlanActivator);
-										BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition
-												.getSubItemPositions()
-												.get(planActivatorPosition.getSubItemPositions().size() - 1);
-										planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
-									}
-								});
+						@Override
+						public Object invoke(final Object object, InvocationData invocationData) {
+							try {
 								return super.invoke(object, invocationData);
+							} catch (Throwable t) {
+								error = t;
+								throw new RuntimeException(t);
+							} finally {
+								if (error == null) {
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											postSelectNewPlanExecutor();
+										}
+									});
+								}
 							}
+						}
 
-						};
-					}
+						private void postSelectNewPlanExecutor() {
+							Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+									Debugger.class.getName(), swingRenderer);
+							ListControl planActivatorsControl = (ListControl) debuggerForm
+									.getFieldControlPlaceHolder("planActivators").getFieldControl();
+							planActivatorsControl.refreshUI(false);
+							Form currentPlanActivatorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+									PlanActivator.class.getName(), swingRenderer);
+							PlanActivator currentPlanActivator = (PlanActivator) currentPlanActivatorForm.getObject();
+							BufferedItemPosition planActivatorPosition = planActivatorsControl
+									.findItemPositionByReference(currentPlanActivator);
+							BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition.getSubItemPositions()
+									.get(planActivatorPosition.getSubItemPositions().size() - 1);
+							planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
+						}
+					};
 				}
 				return super.createMethodControlPlaceHolder(method);
 			}
@@ -432,6 +443,5 @@ public class GUI extends SwingCustomizer {
 	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
 		openObjectDialog(activatorComponent, error);
 	}
-	
-	
+
 }

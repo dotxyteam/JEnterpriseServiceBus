@@ -24,22 +24,26 @@ import com.otk.jesb.util.Accessor;
 
 public class ReadFileActivity implements Activity {
 
-	private UnderlyingReadFileActivity underling;
+	private SpecificReadFileActivity specificActivity;
 
-	public ReadFileActivity(UnderlyingReadFileActivity underling) {
-		this.underling = underling;
+	public ReadFileActivity(SpecificReadFileActivity specificActivity) {
+		this.specificActivity = specificActivity;
+	}
+
+	public SpecificReadFileActivity getAction() {
+		return specificActivity;
 	}
 
 	@Override
 	public Object execute() throws Throwable {
-		return underling.execute();
+		return specificActivity.execute();
 	}
 
-	private static interface UnderlyingReadFileActivity extends Activity {
-
+	private static abstract class SpecificReadFileActivity {
+		protected abstract Object execute() throws Throwable;
 	}
 
-	public static class ReadTextFileActivity implements UnderlyingReadFileActivity {
+	public static class ReadTextFileActivity extends SpecificReadFileActivity {
 
 		private String filePath;
 		private String charsetName;
@@ -52,6 +56,10 @@ public class ReadFileActivity implements Activity {
 			return filePath;
 		}
 
+		public void setFilePath(String filePath) {
+			this.filePath = filePath;
+		}
+
 		public String getCharsetName() {
 			return charsetName;
 		}
@@ -61,7 +69,7 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public Object execute() throws IOException {
+		protected Object execute() throws IOException {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			try (FileInputStream in = new FileInputStream(new File(filePath))) {
 				int bytesRead;
@@ -75,7 +83,7 @@ public class ReadFileActivity implements Activity {
 		}
 	}
 
-	public static class ReadBinaryFileActivity implements UnderlyingReadFileActivity {
+	public static class ReadBinaryFileActivity extends SpecificReadFileActivity {
 
 		private String filePath;
 
@@ -87,8 +95,12 @@ public class ReadFileActivity implements Activity {
 			return filePath;
 		}
 
+		public void setFilePath(String filePath) {
+			this.filePath = filePath;
+		}
+
 		@Override
-		public Object execute() throws IOException {
+		protected Object execute() throws IOException {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			try (FileInputStream in = new FileInputStream(new File(filePath))) {
 				int bytesRead;
@@ -164,7 +176,7 @@ public class ReadFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new ReadFileActivity((UnderlyingReadFileActivity) instanceBuilder.build(
+			return new ReadFileActivity((SpecificReadFileActivity) instanceBuilder.build(
 					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
 		}
 

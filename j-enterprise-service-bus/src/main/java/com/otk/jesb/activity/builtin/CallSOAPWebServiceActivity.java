@@ -42,44 +42,33 @@ public class CallSOAPWebServiceActivity implements Activity {
 	private Method operationMethod;
 	private OperationInput operationInput;
 
-	public WSDL getWSDL() {
-		return wsdl;
+	public CallSOAPWebServiceActivity(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
+			OperationInput operationInput) {
+		this.wsdl = wsdl;
+		this.serviceClass = serviceClass;
+		this.portInterface = portInterface;
+		this.operationMethod = operationMethod;
+		this.operationInput = operationInput;
 	}
 
-	public void setWSDL(WSDL wsdl) {
-		this.wsdl = wsdl;
+	public WSDL getWSDL() {
+		return wsdl;
 	}
 
 	public Class<?> getServiceClass() {
 		return serviceClass;
 	}
 
-	public void setServiceClass(Class<?> serviceClass) {
-		this.serviceClass = serviceClass;
-	}
-
 	public Class<?> getPortInterface() {
 		return portInterface;
-	}
-
-	public void setPortInterface(Class<?> portInterface) {
-		this.portInterface = portInterface;
 	}
 
 	public Method getOperationMethod() {
 		return operationMethod;
 	}
 
-	public void setOperationMethod(Method operationMethod) {
-		this.operationMethod = operationMethod;
-	}
-
 	public OperationInput getOperationInput() {
 		return operationInput;
-	}
-
-	public void setOperationInput(OperationInput operationInput) {
-		this.operationInput = operationInput;
 	}
 
 	@Override
@@ -324,14 +313,10 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			CallSOAPWebServiceActivity result = new CallSOAPWebServiceActivity();
-			result.setWSDL(getWSDL());
-			result.setServiceClass(retrieveServiceDescriptor().retrieveClass());
-			result.setPortInterface(retrievePortDescriptor().retrieveInterface());
-			result.setOperationMethod(retrieveOperationDescriptor().retrieveMethod());
-			result.setOperationInput((OperationInput) operationInputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
-			return result;
+			return new CallSOAPWebServiceActivity(getWSDL(), retrieveServiceDescriptor().retrieveClass(),
+					retrievePortDescriptor().retrieveInterface(), retrieveOperationDescriptor().retrieveMethod(),
+					(OperationInput) operationInputBuilder.build(new EvaluationContext(context.getVariables(), null,
+							context.getCompilationContextProvider())));
 		}
 
 		@Override

@@ -40,12 +40,13 @@ public class JDBCQueryActivity implements Activity {
 	private ParameterValues parameterValues;
 	private Class<?> customResultClass;
 
-	public JDBCConnection getConnection() {
-		return connection;
+	public JDBCQueryActivity(JDBCConnection connection, Class<?> customResultClass) {
+		this.connection = connection;
+		this.customResultClass = customResultClass;
 	}
 
-	public void setConnection(JDBCConnection connection) {
-		this.connection = connection;
+	public JDBCConnection getConnection() {
+		return connection;
 	}
 
 	public String getStatement() {
@@ -62,10 +63,6 @@ public class JDBCQueryActivity implements Activity {
 
 	public void setParameterValues(ParameterValues parameterValues) {
 		this.parameterValues = parameterValues;
-	}
-
-	public void setCustomResultClass(Class<?> customResultClass) {
-		this.customResultClass = customResultClass;
 	}
 
 	@Override
@@ -326,13 +323,11 @@ public class JDBCQueryActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQueryActivity result = new JDBCQueryActivity();
-			result.setConnection(getConnection());
+			JDBCQueryActivity result = new JDBCQueryActivity(getConnection(), customResultClass);
 			result.setStatement(statement);
-			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder.build(
+					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
 			result.setParameterValues(parameterValues);
-			result.setCustomResultClass(customResultClass);
 			return result;
 		}
 

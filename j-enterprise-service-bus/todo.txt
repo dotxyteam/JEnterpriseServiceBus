@@ -17,9 +17,9 @@ ExecutePlan.inputBuilder is filled
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code
+- allow to access step error variables
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
-- allow to provide plan input through the debugger
 - diagram improvements:
 	. connections are not straight and nice
 - plain/function mode as a toggle button ???
