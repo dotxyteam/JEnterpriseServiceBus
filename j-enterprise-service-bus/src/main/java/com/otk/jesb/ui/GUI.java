@@ -440,6 +440,7 @@ public class GUI extends SwingCustomizer {
 
 	@Override
 	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
+		error.printStackTrace();
 		openObjectDialog(activatorComponent, error);
 	}
 

@@ -31,8 +31,11 @@ import java.util.regex.Pattern;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryJavaCompiler;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
@@ -56,10 +59,12 @@ public class MiscUtils {
 	static {
 		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
-	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
+	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
 	public static String escapeRegex(String str) {
-		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
+		return SPECIAL_REGEX_CHARS_PATTERN.matcher(str).replaceAll("\\\\$0");
 	}
 
 	public static String escapeJavaString(String s) {
@@ -472,8 +477,6 @@ public class MiscUtils {
 		return new Date();
 	}
 
-	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
-
 	public static char standardizeNewLineSequences(char lastC, char c) {
 		for (String newLineSequence : NEW_LINE_SEQUENCES) {
 			if (newLineSequence.equals("" + lastC + c)) {
@@ -553,6 +556,11 @@ public class MiscUtils {
 	public static void improveRenderingQuality(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+	}
+
+	public static CompiledFunction compileExpression(String expression, List<VariableDeclaration> variableDeclarations,
+			Class<?> returnType) throws CompilationError {
+		return CompiledFunction.get("return " + expression + ";", variableDeclarations, returnType);
 	}
 
 }

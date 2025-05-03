@@ -986,12 +986,10 @@ public class JESBReflectionUI extends CustomizedUI {
 				try {
 					Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
 					if (Throwable.class.isAssignableFrom(objectClass)) {
-						if (!method.getSignature().equals("void printStackTrace()")) {
-							for (IMethodInfo throwableMethod : getTypeInfo(
-									new JavaTypeInfoSource(Throwable.class, null)).getMethods()) {
-								if (method.getSignature().equals(throwableMethod.getSignature())) {
-									return true;
-								}
+						for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
+								.getMethods()) {
+							if (method.getSignature().equals(throwableMethod.getSignature())) {
+								return true;
 							}
 						}
 					}

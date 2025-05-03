@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.util.ClassUtils;
@@ -15,6 +16,8 @@ import xy.reflect.ui.util.ClassUtils;
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className);
+
+	public abstract void validate() throws ValidationError;
 
 	public abstract String toString();
 
@@ -76,6 +79,18 @@ public abstract class Structure {
 		}
 
 		@Override
+		public void validate() throws ValidationError {
+			List<String> elementNames = new ArrayList<String>();
+			for (Element element : elements) {
+				if (elementNames.contains(element.getName())) {
+					throw new ValidationError("Duplicate element name detected: '" + element.getName() + "'");
+				} else {
+					elementNames.add(element.getName());
+				}
+			}
+		}
+
+		@Override
 		public String toString() {
 			return "<ClassicStructure>";
 		}
@@ -105,6 +120,23 @@ public abstract class Structure {
 		}
 
 		@Override
+		public void validate() throws ValidationError {
+			List<String> itemNames = new ArrayList<String>();
+			for (EnumerationItem item : items) {
+				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(item.getName()).matches()) {
+					throw new ValidationError("Invalid element name: '" + item.getName()
+							+ "' (should match the following regular expression: "
+							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+				}
+				if (itemNames.contains(item.getName())) {
+					throw new ValidationError("Duplicate item name detected: '" + item.getName() + "'");
+				} else {
+					itemNames.add(item.getName());
+				}
+			}
+		}
+
+		@Override
 		public String toString() {
 			return "<EnumerationStructure>";
 		}
@@ -112,7 +144,7 @@ public abstract class Structure {
 	}
 
 	public static class EnumerationItem {
-		private String name = "";
+		private String name = "ITEM";
 
 		public String getName() {
 			return name;
@@ -210,6 +242,24 @@ public abstract class Structure {
 			return result.toString();
 		}
 
+		public void validate() throws ValidationError {
+			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
+				throw new ValidationError(
+						"Invalid element name: '" + name + "' (should match the following regular expression: "
+								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+			}
+			if (optionality != null) {
+				if (optionality.getDefaultValueExpression() != null) {
+					try {
+						MiscUtils.compileExpression(optionality.getDefaultValueExpression(), Collections.emptyList(),
+								Object.class);
+					} catch (CompilationError e) {
+						throw new ValidationError("Invalid default value expression detected", e);
+					}
+				}
+			}
+		}
+
 		@Override
 		public String toString() {
 			String result = name;
@@ -258,6 +308,7 @@ public abstract class Structure {
 	}
 
 	public static class StructuredElement extends Element {
+
 		private Structure structure = new ClassicStructure();
 
 		public Structure getStructure() {
