@@ -26,8 +26,9 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
-import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
@@ -40,8 +41,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	private static final long serialVersionUID = 1L;
 
-	public DebugPlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
-		super(swingRenderer, parentForm);
+	public DebugPlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
+		super(swingRenderer, input);
 	}
 
 	protected ListControl getStepCrossingsControl() {
@@ -59,15 +60,12 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	protected Form getPlanExecutorView() {
-		if (parentForm.getObject() instanceof PlanExecutor) {
-			return parentForm;
-		}
 		Form result;
-		result = SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.class.getName(), swingRenderer);
+		result = SwingRendererUtils.findAncestorFormOfType(this, PlanExecutor.class.getName(), swingRenderer);
 		if (result != null) {
 			return result;
 		}
-		result = SwingRendererUtils.findAncestorFormOfType(parentForm, PlanExecutor.SubPlanExecutor.class.getName(),
+		result = SwingRendererUtils.findAncestorFormOfType(this, PlanExecutor.SubPlanExecutor.class.getName(),
 				swingRenderer);
 		if (result != null) {
 			return result;
@@ -159,9 +157,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 		return (PlanExecutor) getPlanExecutorView().getObject();
 	}
 
-	@Override
 	public Plan getPlan() {
-		return getPlanExecutor().getPlan();
+		return (Plan) ((Source) input.getControlData().getValue()).getPlan();
 	}
 
 	@Override
@@ -238,5 +235,15 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	public static class Source {
+		private Plan plan;
+
+		public Source(Plan plan) {
+			this.plan = plan;
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
+
 	}
 }

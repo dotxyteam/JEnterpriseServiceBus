@@ -177,7 +177,6 @@ public class GUI extends SwingCustomizer {
 
 			@Override
 			protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
-				final CustomizingForm thisForm = this;
 				return new CustomizingFieldControlPlaceHolder(this, field) {
 
 					private static final long serialVersionUID = 1L;
@@ -185,13 +184,13 @@ public class GUI extends SwingCustomizer {
 					@Override
 					public Component createFieldControl() {
 						if (field.getType().getName().equals(PlanDiagram.Source.class.getName())) {
-							return new PlanDiagram(swingRenderer, thisForm);
+							return new PlanDiagram(swingRenderer, this);
 						}
-						if (field.getType().getName().equals(PlanDiagram.PaletteSource.class.getName())) {
-							return new PlanDiagramPalette(swingRenderer, thisForm);
+						if (field.getType().getName().equals(PlanDiagramPalette.Source.class.getName())) {
+							return new PlanDiagramPalette(swingRenderer, this);
 						}
 						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
-							return new DebugPlanDiagram(swingRenderer, thisForm);
+							return new DebugPlanDiagram(swingRenderer, this);
 						}
 						if (field.getName().equals("children") && (field.getType() instanceof IListTypeInfo)
 								&& (((IListTypeInfo) field.getType()).getItemType() != null)

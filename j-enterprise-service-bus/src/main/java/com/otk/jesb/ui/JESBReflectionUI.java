@@ -506,7 +506,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
-							return new PlanDiagram.Source();
+							return new PlanDiagram.Source((Plan) object);
 						}
 
 						@Override
@@ -528,12 +528,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
-							return new PlanDiagram.PaletteSource();
+							return new PlanDiagramPalette.Source((Plan) object);
 						}
 
 						@Override
 						public ITypeInfo getType() {
-							return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.PaletteSource.class, null));
+							return getTypeInfo(new JavaTypeInfoSource(PlanDiagramPalette.Source.class, null));
 						}
 
 					});
@@ -592,7 +592,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
-							return new DebugPlanDiagram.Source();
+							return new DebugPlanDiagram.Source(((PlanExecutor) object).getPlan());
 						}
 
 						@Override
