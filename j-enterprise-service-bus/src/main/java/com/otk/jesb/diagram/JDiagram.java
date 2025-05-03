@@ -408,9 +408,11 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		for (JNode node : nodes) {
 			result.width = Math.max(result.width, node.getCenterX() + (node.getWidth() / 2));
 			result.height = Math.max(result.height, node.getCenterY() + (node.getHeight() / 2));
-			Rectangle labelBounds = node.getLabelBounds(g);
-			result.width = Math.max(result.width, labelBounds.x + labelBounds.width);
-			result.height = Math.max(result.height, labelBounds.y + labelBounds.height);
+			if (g != null) {
+				Rectangle labelBounds = node.getLabelBounds(g);
+				result.width = Math.max(result.width, labelBounds.x + labelBounds.width);
+				result.height = Math.max(result.height, labelBounds.y + labelBounds.height);
+			}
 		}
 		return result;
 	}
