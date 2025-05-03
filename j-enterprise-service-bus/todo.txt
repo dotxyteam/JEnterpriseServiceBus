@@ -20,6 +20,7 @@ ExecutePlan.inputBuilder is filled
 - allow to access step error variables
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
+- check that running the debugger does not affect the modification stack
 - diagram improvements:
 	. connections are not straight and nice
 - plain/function mode as a toggle button ???

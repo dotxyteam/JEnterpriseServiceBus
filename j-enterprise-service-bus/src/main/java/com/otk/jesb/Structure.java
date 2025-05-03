@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,9 +10,13 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.util.ClassUtils;
+
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className);
+
+	public abstract String toString();
 
 	public static class ClassicStructure extends Structure {
 
@@ -69,6 +74,12 @@ public abstract class Structure {
 			result.append("}");
 			return result.toString();
 		}
+
+		@Override
+		public String toString() {
+			return "<ClassicStructure>";
+		}
+
 	}
 
 	public static interface Structured {
@@ -92,10 +103,16 @@ public abstract class Structure {
 					+ MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
 					+ ";" + "\n" + "}";
 		}
+
+		@Override
+		public String toString() {
+			return "<EnumerationStructure>";
+		}
+
 	}
 
 	public static class EnumerationItem {
-		private String name;
+		private String name = "";
 
 		public String getName() {
 			return name;
@@ -105,10 +122,14 @@ public abstract class Structure {
 			this.name = name;
 		}
 
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 
 	public static abstract class Element {
-		private String name;
+		private String name = "element";
 		private Optionality optionality;
 		private boolean multiple = false;
 
@@ -155,7 +176,8 @@ public abstract class Structure {
 					defaultValueSettingString = "=" + getOptionality().getDefaultValueExpression();
 				}
 			}
-			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString + ";";
+			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString
+					+ ";";
 		}
 
 		protected String generateJavaConstructorParameterDeclarationSourceCode() {
@@ -174,13 +196,14 @@ public abstract class Structure {
 
 		protected String generateJavaFieldAccessorsSourceCode() {
 			StringBuilder result = new StringBuilder();
-			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get" + getName().substring(0, 1).toUpperCase()
-					+ getName().substring(1) + "(){" + "\n");
+			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get"
+					+ getName().substring(0, 1).toUpperCase() + getName().substring(1) + "(){" + "\n");
 			result.append("return " + getName() + ";" + "\n");
 			result.append("}");
 			if (getOptionality() != null) {
-				result.append("\n" + "public void set" + getName().substring(0, 1).toUpperCase()
-						+ getName().substring(1) + "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
+				result.append(
+						"\n" + "public void set" + getName().substring(0, 1).toUpperCase() + getName().substring(1)
+								+ "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
 				result.append("this." + getName() + "=" + getName() + ";" + "\n");
 				result.append("}");
 			}
@@ -189,17 +212,24 @@ public abstract class Structure {
 
 		@Override
 		public String toString() {
-			if (optionality != null) {
-				return name;
-			} else {
-				return "(" + name + ")";
+			String result = name;
+			if (optionality == null) {
+				result = "(" + result + ")";
 			}
+			if (multiple) {
+				result = result + "*";
+			}
+			if (optionality != null) {
+				result = result + "?";
+			}
+			return result;
 		}
 
 	}
 
 	public static class SimpleElement extends Element {
-		private String typeName;
+
+		private String typeName = getTypeNameOptions().get(0);
 
 		@Override
 		public String getTypeName() {
@@ -210,6 +240,16 @@ public abstract class Structure {
 			this.typeName = typeName;
 		}
 
+		public List<String> getTypeNameOptions() {
+			List<String> result = new ArrayList<String>();
+			result.add(String.class.getName());
+			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_CLASSES).stream().map(cls -> cls.getName())
+					.collect(Collectors.toList()));
+			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_WRAPPER_CLASSES).stream().map(cls -> cls.getName())
+					.collect(Collectors.toList()));
+			return result;
+		}
+
 		@Override
 		protected String generateRequiredInnerJavaTypesSourceCode() {
 			return null;
@@ -218,7 +258,7 @@ public abstract class Structure {
 	}
 
 	public static class StructuredElement extends Element {
-		private Structure structure;
+		private Structure structure = new ClassicStructure();
 
 		public Structure getStructure() {
 			return structure;
@@ -240,6 +280,20 @@ public abstract class Structure {
 
 		private String getStructureClassName() {
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+		}
+
+		public List<Element> getChildren() {
+			if (!(structure instanceof ClassicStructure)) {
+				return null;
+			}
+			return ((ClassicStructure) structure).getElements();
+		}
+
+		public void setChildren(List<Element> elements) {
+			if (!(structure instanceof ClassicStructure)) {
+				return;
+			}
+			((ClassicStructure) structure).setElements(elements);
 		}
 	}
 
