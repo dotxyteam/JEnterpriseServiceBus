@@ -3,7 +3,6 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,20 +30,6 @@ public abstract class Structure {
 
 		public void setElements(List<Element> elements) {
 			this.elements = elements;
-			if (elements != null) {
-				Collections.sort(elements, new Comparator<Element>() {
-					@Override
-					public int compare(Element e1, Element e2) {
-						if ((e1.getOptionality() != null) && (e2.getOptionality() == null)) {
-							return 1;
-						}
-						if ((e1.getOptionality() == null) && (e2.getOptionality() != null)) {
-							return -1;
-						}
-						return 0;
-					}
-				});
-			}
 		}
 
 		@Override
@@ -80,6 +65,9 @@ public abstract class Structure {
 
 		@Override
 		public void validate() throws ValidationError {
+			if (elements.size() == 0) {
+				throw new ValidationError("No element declared");
+			}
 			List<String> elementNames = new ArrayList<String>();
 			for (Element element : elements) {
 				if (elementNames.contains(element.getName())) {
@@ -121,6 +109,9 @@ public abstract class Structure {
 
 		@Override
 		public void validate() throws ValidationError {
+			if (items.size() == 0) {
+				throw new ValidationError("No item declared");
+			}
 			List<String> itemNames = new ArrayList<String>();
 			for (EnumerationItem item : items) {
 				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(item.getName()).matches()) {
