@@ -346,7 +346,7 @@ public class LoopCompositeStep extends CompositeStep {
 				javaSource.append(collectedStepResultsAccessorDeclarationSource.toString());
 				javaSource.append("}" + "\n");
 				try {
-					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
+					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName, javaSource.toString());
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
 				}

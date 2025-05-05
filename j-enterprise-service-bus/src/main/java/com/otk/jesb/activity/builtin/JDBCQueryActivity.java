@@ -186,7 +186,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(resultClassName, javaSource.toString());
+				return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName, javaSource.toString());
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);
 			}
@@ -242,7 +242,7 @@ public class JDBCQueryActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);

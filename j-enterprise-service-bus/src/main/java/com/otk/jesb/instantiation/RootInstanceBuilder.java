@@ -30,7 +30,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
 			Class<?> rootInstanceWrapperClass;
 			try {
-				rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader()
+				rootInstanceWrapperClass = MiscUtils.IN_MEMORY_COMPILER.getClassLoader()
 						.loadClass(rootInstanceWrapperClassName);
 			} catch (ClassNotFoundException e) {
 				StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
@@ -58,7 +58,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					rootInstanceWrapperClassSourceBuilder.append("}\n");
 				}
 				try {
-					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(rootInstanceWrapperClassName,
+					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
 							rootInstanceWrapperClassSourceBuilder.toString());
 				} catch (CompilationError ce) {
 					throw new UnexpectedError(ce);

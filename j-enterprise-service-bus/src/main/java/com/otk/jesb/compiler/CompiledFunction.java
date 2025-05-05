@@ -42,7 +42,7 @@ public class CompiledFunction {
 		String functionClassSource = preBody + functionBody + postBody;
 		Class<?> functionClass;
 		try {
-			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName, functionClassSource);
+			functionClass = MiscUtils.IN_MEMORY_COMPILER.compile(functionClassName, functionClassSource);
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {

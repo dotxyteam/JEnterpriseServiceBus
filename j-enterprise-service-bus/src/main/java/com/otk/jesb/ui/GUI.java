@@ -167,7 +167,7 @@ public class GUI extends SwingCustomizer {
 								return VisitStatus.TREE_VISIT_INTERRUPTED;
 							}
 							if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
-								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+								return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 							}
 							return VisitStatus.VISIT_NOT_INTERRUPTED;
 						}

@@ -33,7 +33,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.util.MiscUtils;
 
-public class InMemoryJavaCompiler {
+public class InMemoryCompiler {
 
 	private final Map<ClassIdentifier, byte[]> classes = new HashMap<>();
 	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
@@ -356,7 +356,7 @@ public class InMemoryJavaCompiler {
 
 		@Override
 		protected Package getPackage(String packageName) {
-			synchronized (InMemoryJavaCompiler.this.memoryPackagesMutex) {
+			synchronized (InMemoryCompiler.this.memoryPackagesMutex) {
 				if (shouldLoadThePackageFromMemory(packageName)) {
 					MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compositeClassLoader
 							.getClassLoaders().stream()

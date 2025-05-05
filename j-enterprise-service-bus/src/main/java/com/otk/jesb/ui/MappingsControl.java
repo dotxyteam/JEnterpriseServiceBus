@@ -304,11 +304,11 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							@Override
 							public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
 								if (!(targetItemPosition.getItem() instanceof Facade)) {
-									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 								}
 								final Facade initializerFacade = (Facade) targetItemPosition.getItem();
 								if (!initializerFacade.isConcrete()) {
-									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 								}
 								List<InstantiationFunction> functions = new ArrayList<InstantiationFunction>();
 								if (initializerFacade instanceof ParameterInitializerFacade) {
@@ -359,7 +359,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							}
 						});
 					}
-					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.BRANCH_VISIT_INTERRUPTED;
+					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 				}
 			});
 			mappingsCache = result.stream()

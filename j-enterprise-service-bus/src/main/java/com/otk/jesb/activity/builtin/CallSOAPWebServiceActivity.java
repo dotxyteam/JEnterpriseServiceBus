@@ -265,7 +265,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			javaSource.append("  }" + "\n");
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);

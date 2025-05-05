@@ -2,9 +2,6 @@ package com.otk.jesb.meta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
@@ -17,30 +14,20 @@ import xy.reflect.ui.info.method.DefaultMethodInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
 
 public class TypeInfoProvider {
 
-	private static final Class<?>[] PRIMITIVE_CLASSES = new Class<?>[] { boolean.class, byte.class, short.class,
-			int.class, long.class, float.class, double.class, char.class };
-	private static final Map<String, Class<?>> PRIMITIVE_CLASS_BY_NAME = new HashMap<String, Class<?>>() {
-		private static final long serialVersionUID = 1L;
-		{
-			for (Class<?> c : PRIMITIVE_CLASSES) {
-				put(c.getName(), c);
-			}
-		}
-	};
-
 	public static Class<?> getClass(String typeName) {
-		Class<?> result = PRIMITIVE_CLASS_BY_NAME.get(typeName);
-		if (result == null) {
+		try {
+			return ClassUtils.getCachedClassForName(typeName);
+		} catch (ClassNotFoundException e) {
 			try {
-				result = MiscUtils.IN_MEMORY_JAVA_COMPILER.getClassLoader().loadClass(typeName);
-			} catch (ClassNotFoundException e) {
-				throw new UnexpectedError(e);
+				return MiscUtils.IN_MEMORY_COMPILER.getClassLoader().loadClass(typeName);
+			} catch (ClassNotFoundException e1) {
+				throw new UnexpectedError(e1);
 			}
 		}
-		return result;
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName) {

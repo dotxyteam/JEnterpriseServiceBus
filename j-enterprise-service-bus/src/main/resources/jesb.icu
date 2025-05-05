@@ -15346,9 +15346,9 @@
                 </applicationCustomization>
                 <listCustomizations>
                     <uniqueIdentifier>-2dbcd012:196964069a3:-17cc</uniqueIdentifier>
-                    <branchValidityDetectionConfiguration>
+                    <itemNodeValidityDetectionConfiguration>
                         <uniqueIdentifier>-3776eb3d:1969d6fa800:-3f6a</uniqueIdentifier>
-                    </branchValidityDetectionConfiguration>
+                    </itemNodeValidityDetectionConfiguration>
                     <embeddedDetailsAccessMode>
                         <defaultDetailsAreaOccupationRatio>0.5</defaultDetailsAreaOccupationRatio>
                         <detailsAreaPosition>BOTTOM</detailsAreaPosition>
@@ -15905,9 +15905,9 @@
                 </applicationCustomization>
                 <listCustomizations>
                     <uniqueIdentifier>44853534:196965c1ada:-42ab</uniqueIdentifier>
-                    <branchValidityDetectionConfiguration>
+                    <itemNodeValidityDetectionConfiguration>
                         <uniqueIdentifier>-3776eb3d:1969d6fa800:-1d7f</uniqueIdentifier>
-                    </branchValidityDetectionConfiguration>
+                    </itemNodeValidityDetectionConfiguration>
                     <editOptions>
                         <uniqueIdentifier>44853534:196965c1ada:-42aa</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>

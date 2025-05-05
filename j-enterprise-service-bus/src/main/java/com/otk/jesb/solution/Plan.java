@@ -71,7 +71,7 @@ public class Plan extends Asset {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
 							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
@@ -93,7 +93,7 @@ public class Plan extends Asset {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
 							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);

@@ -36,7 +36,7 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
-import com.otk.jesb.compiler.InMemoryJavaCompiler;
+import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
@@ -55,9 +55,9 @@ public class MiscUtils {
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
 
-	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
+	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
 	static {
-		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
+		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");

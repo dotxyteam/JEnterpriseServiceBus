@@ -185,7 +185,7 @@ public class WSDL extends Resource {
 										+ ((logsBuffer.size() > 0) ? (":\n" + logsBuffer.toString()) : ""),
 								importException);
 					}
-					generatedClasses = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(sourceDirectory);
+					generatedClasses = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
 				} finally {
 					MiscUtils.delete(sourceDirectory);
 				}
