@@ -47,6 +47,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
@@ -88,8 +89,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
 			new CallSOAPWebServiceActivity.Metadata());
 	public static final List<ActivityMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopActivity.Metadata());
-	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
-			new WSDL.Metadata());
+	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
+			new JDBCConnection.Metadata(), new WSDL.Metadata());
 
 	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 	static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();

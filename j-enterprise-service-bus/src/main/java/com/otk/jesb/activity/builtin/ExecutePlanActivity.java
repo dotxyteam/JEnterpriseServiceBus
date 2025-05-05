@@ -1,9 +1,5 @@
 package com.otk.jesb.activity.builtin;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.activity.Activity;
@@ -13,8 +9,6 @@ import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EvaluationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.solution.Asset;
-import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -99,20 +93,6 @@ public class ExecutePlanActivity implements Activity {
 
 		public void setPlanReference(Reference<Plan> planReference) {
 			this.planReference = planReference;
-		}
-
-		public List<Plan> getPlanOptions() {
-			final List<Plan> result = new ArrayList<Plan>();
-			Solution.INSTANCE.visitAssets(new AssetVisitor() {
-				@Override
-				public boolean visitAsset(Asset asset) {
-					if (asset instanceof Plan) {
-						result.add((Plan) asset);
-					}
-					return true;
-				}
-			});
-			return result;
 		}
 
 		public RootInstanceBuilder getPlanInputBuilder() {

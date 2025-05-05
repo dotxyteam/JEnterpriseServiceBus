@@ -18,6 +18,7 @@ ExecutePlan.inputBuilder is filled
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code
 - allow to access step error variables
+- allow to copy/cut/paste assets
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
 - check that running the debugger does not affect the modification stack

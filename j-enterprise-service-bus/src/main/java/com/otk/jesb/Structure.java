@@ -8,8 +8,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.solution.Reference;
 import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.util.ClassUtils;
 
 public abstract class Structure {
@@ -66,7 +67,7 @@ public abstract class Structure {
 		@Override
 		public void validate() throws ValidationError {
 			if (elements.size() == 0) {
-				throw new ValidationError("No element declared");
+				throw new ValidationError("No declared element");
 			}
 			List<String> elementNames = new ArrayList<String>();
 			for (Element element : elements) {
@@ -110,7 +111,7 @@ public abstract class Structure {
 		@Override
 		public void validate() throws ValidationError {
 			if (items.size() == 0) {
-				throw new ValidationError("No item declared");
+				throw new ValidationError("No declared item");
 			}
 			List<String> itemNames = new ArrayList<String>();
 			for (EnumerationItem item : items) {
@@ -132,6 +133,52 @@ public abstract class Structure {
 			return "<EnumerationStructure>";
 		}
 
+	}
+
+	public static class SharedStructureReference extends Structure {
+
+		private Reference<SharedStructureModel> modelReference = new Reference<SharedStructureModel>(
+				SharedStructureModel.class);
+
+		public Reference<SharedStructureModel> getModelReference() {
+			return modelReference;
+		}
+
+		public void setModelReference(Reference<SharedStructureModel> modelReference) {
+			this.modelReference = modelReference;
+		}
+
+		public Class<? extends Structured> getStructuredClass() {
+			if (modelReference == null) {
+				return null;
+			}
+			SharedStructureModel model = modelReference.resolve();
+			if (model == null) {
+				return null;
+			}
+			return model.getStructuredClass();
+		}
+
+		@Override
+		public String generateJavaTypeSourceCode(String className) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void validate() throws ValidationError {
+			if (modelReference == null) {
+				throw new ValidationError("Shared structure model reference not set");
+			}
+			SharedStructureModel model = modelReference.resolve();
+			if (model == null) {
+				throw new ValidationError("Failed to resolve the shared structure model reference");
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "<SharedStructureReference>";
+		}
 	}
 
 	public static class EnumerationItem {
@@ -312,30 +359,24 @@ public abstract class Structure {
 
 		@Override
 		protected String generateRequiredInnerJavaTypesSourceCode() {
-			return "static " + structure.generateJavaTypeSourceCode(getStructureClassName());
+			if (structure instanceof SharedStructureReference) {
+				return "";
+			}
+			return "static " + structure.generateJavaTypeSourceCode(getStructuredClassName());
 		}
 
 		@Override
 		protected String getTypeName() {
-			return getStructureClassName();
+			return getStructuredClassName();
 		}
 
-		private String getStructureClassName() {
+		private String getStructuredClassName() {
+			if (structure instanceof SharedStructureReference) {
+				Class<? extends Structured> structuredClass = ((SharedStructureReference) structure)
+						.getStructuredClass();
+				return structuredClass.getName();
+			}
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
-		}
-
-		public List<Element> getChildren() {
-			if (!(structure instanceof ClassicStructure)) {
-				return null;
-			}
-			return ((ClassicStructure) structure).getElements();
-		}
-
-		public void setChildren(List<Element> elements) {
-			if (!(structure instanceof ClassicStructure)) {
-				return;
-			}
-			((ClassicStructure) structure).setElements(elements);
 		}
 	}
 
