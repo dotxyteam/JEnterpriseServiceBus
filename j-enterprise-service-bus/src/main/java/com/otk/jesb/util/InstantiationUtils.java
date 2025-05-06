@@ -24,6 +24,7 @@ import com.otk.jesb.instantiation.MapEntryBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
 
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -176,7 +177,8 @@ public class InstantiationUtils {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
-							+ makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade))
+							+ makeTypeNamesRelative(type.getName(),
+									getAncestorStructuredInstanceBuilders(currentFacade))
 							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
@@ -203,8 +205,19 @@ public class InstantiationUtils {
 				if (type instanceof IMapEntryTypeInfo) {
 					return new MapEntryBuilder();
 				} else {
-					return new InstanceBuilder(
-							makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade)));
+					Class<?> javaType = ((DefaultTypeInfo) type).getJavaType();
+					if (SharedStructureModel.isStructuredClass(javaType)) {
+						final SharedStructureModel model = SharedStructureModel.getFromStructuredClass(javaType);
+						return new InstanceBuilder(new Accessor<String>() {
+							@Override
+							public String get() {
+								return model.getStructuredClass().getName();
+							}
+						});
+					} else {
+						return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
+								getAncestorStructuredInstanceBuilders(currentFacade)));
+					}
 				}
 			}
 		} else {
@@ -241,7 +254,7 @@ public class InstantiationUtils {
 		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
-	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(Facade facade) {
+	public static List<InstanceBuilder> getAncestorStructuredInstanceBuilders(Facade facade) {
 		if (facade == null) {
 			return null;
 		}

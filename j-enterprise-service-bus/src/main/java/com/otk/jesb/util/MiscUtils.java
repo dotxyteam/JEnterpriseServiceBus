@@ -77,7 +77,7 @@ public class MiscUtils {
 		return String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16));
 	}
 
-	public static String getDigitalUniqueIdentifier(Object object) {
+	public static String toDigitalUniqueIdentifier(Object object) {
 		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
 			String result = DIGITAL_UNIQUE_IDENTIFIER_CACHE.get(object);
 			if (result == null) {
@@ -85,6 +85,16 @@ public class MiscUtils {
 				DIGITAL_UNIQUE_IDENTIFIER_CACHE.put(object, result);
 			}
 			return result;
+		}
+	}
+
+	public static Object fromFromDigitalUniqueIdentifier(String digitalUniqueIdentifier) {
+		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
+			List<Object> keys = MiscUtils.getKeysFromValue(DIGITAL_UNIQUE_IDENTIFIER_CACHE, digitalUniqueIdentifier);
+			if(keys.size() != 1) {
+				throw new UnexpectedError();
+			}
+			return keys.get(0);
 		}
 	}
 

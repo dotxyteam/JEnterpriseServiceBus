@@ -198,6 +198,9 @@ public class Debugger {
 					}
 				});
 			} catch (Throwable t) {
+				if (JESB.DEBUG) {
+					t.printStackTrace();
+				}
 				executionError = t;
 			}
 		}

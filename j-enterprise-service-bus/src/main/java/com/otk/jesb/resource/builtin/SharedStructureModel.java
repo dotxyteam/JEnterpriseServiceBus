@@ -14,6 +14,25 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class SharedStructureModel extends Resource {
 
+	private static final String STRUCTURED_CLASS_NAME_PREFIX = SharedStructureModel.class.getPackage().getName()
+			+ ".SharedStructure";
+
+	public static boolean isStructuredClass(Class<?> c) {
+		return c.getName().startsWith(STRUCTURED_CLASS_NAME_PREFIX);
+	}
+
+	public static SharedStructureModel getFromStructuredClass(Class<?> c) {
+		if(!isStructuredClass(c)) {
+			throw new UnexpectedError();
+		}
+		String digitalUniqueIdentifier = c.getName().substring(STRUCTURED_CLASS_NAME_PREFIX.length());
+		Object object = MiscUtils.fromFromDigitalUniqueIdentifier(digitalUniqueIdentifier);
+		if(!(object instanceof SharedStructureModel)) {
+			throw new UnexpectedError();
+		}
+		return (SharedStructureModel)object;
+	}
+
 	private Structure structure = new ClassicStructure();
 	private UpToDate<Class<? extends Structured>> upToDateStructuredClass = new UpToDate<Class<? extends Structured>>() {
 		@Override
@@ -28,8 +47,8 @@ public class SharedStructureModel extends Resource {
 				return null;
 			} else {
 				try {
-					String className = SharedStructureModel.class.getPackage().getName() + ".SharedStructure"
-							+ MiscUtils.getDigitalUniqueIdentifier(SharedStructureModel.this);
+					String className = STRUCTURED_CLASS_NAME_PREFIX
+							+ MiscUtils.toDigitalUniqueIdentifier(SharedStructureModel.this);
 					return (Class<? extends Structured>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							structure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {

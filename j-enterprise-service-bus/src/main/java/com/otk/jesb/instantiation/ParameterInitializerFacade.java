@@ -65,7 +65,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	public String getParameterTypeName() {
 		return InstantiationUtils.makeTypeNamesRelative(getParameterInfo().getType().getName(),
-				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
+				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));
 	}
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {

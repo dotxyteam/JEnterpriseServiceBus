@@ -127,7 +127,7 @@ public class JDBCUpdateActivity implements Activity {
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
 			String className = JDBCUpdateActivity.class.getName() + "ParameterValues"
-					+ MiscUtils.getDigitalUniqueIdentifier(this);
+					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "

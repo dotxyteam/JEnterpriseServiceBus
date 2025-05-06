@@ -88,7 +88,7 @@ public class InstanceBuilder extends InitializationCase {
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					InstantiationUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
+					InstantiationUtils.getAncestorStructuredInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
 				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {

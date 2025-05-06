@@ -237,7 +237,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			}
 			Method operationMethod = operation.retrieveMethod();
 			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
-					+ MiscUtils.getDigitalUniqueIdentifier(this);
+					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "

@@ -70,7 +70,7 @@ public class FieldInitializerFacade extends Facade {
 
 	public String getFieldTypeName() {
 		return InstantiationUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
-				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
+				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));
 	}
 
 	public InstantiationFunction getCondition() {

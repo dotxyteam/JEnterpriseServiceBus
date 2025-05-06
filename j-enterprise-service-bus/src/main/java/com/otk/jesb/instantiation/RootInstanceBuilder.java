@@ -166,7 +166,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
 				if (!type.getName().equals(
-						result.computeActualTypeName(InstantiationUtils.getAncestorStructureInstanceBuilders(currentFacade)))) {
+						result.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
 					throw new UnexpectedError();
 				}
 				return result;

@@ -154,7 +154,7 @@ public class ListItemInitializerFacade extends Facade {
 		ITypeInfo itemType = getItemType();
 		String result = (itemType == null) ? Object.class.getName() : itemType.getName();
 		result = InstantiationUtils.makeTypeNamesRelative(result,
-				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
+				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));
 		return result;
 	}
 

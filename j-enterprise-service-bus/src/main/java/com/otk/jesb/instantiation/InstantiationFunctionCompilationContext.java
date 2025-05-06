@@ -37,7 +37,7 @@ public class InstantiationFunctionCompilationContext {
 			@Override
 			public String apply(String functionBody) {
 				return InstantiationUtils.makeTypeNamesAbsolute(functionBody,
-						InstantiationUtils.getAncestorStructureInstanceBuilders(parentFacade));
+						InstantiationUtils.getAncestorStructuredInstanceBuilders(parentFacade));
 			}
 		};
 	}

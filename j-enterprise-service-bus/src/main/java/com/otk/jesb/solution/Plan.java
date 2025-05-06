@@ -70,7 +70,7 @@ public class Plan extends Asset {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -92,7 +92,7 @@ public class Plan extends Asset {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.getDigitalUniqueIdentifier(Plan.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {

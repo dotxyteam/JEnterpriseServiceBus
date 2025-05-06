@@ -138,7 +138,24 @@ public abstract class Structure {
 	public static class SharedStructureReference extends Structure {
 
 		private Reference<SharedStructureModel> modelReference = new Reference<SharedStructureModel>(
-				SharedStructureModel.class);
+				SharedStructureModel.class, model -> {
+					Reference<SharedStructureModel> newModelReference = Reference.get(model);
+					try {
+						checkNoReferenceCycle(newModelReference, false);
+						return true;
+					} catch (IllegalArgumentException e) {
+						return false;
+					}
+				}, newPath -> {
+					if (newPath != null) {
+						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
+								SharedStructureModel.class);
+						newModelReference.setPath(newPath);
+						checkNoReferenceCycle(newModelReference, true);
+					}
+				}
+
+		);
 
 		public Reference<SharedStructureModel> getModelReference() {
 			return modelReference;
@@ -146,6 +163,38 @@ public abstract class Structure {
 
 		public void setModelReference(Reference<SharedStructureModel> modelReference) {
 			this.modelReference = modelReference;
+		}
+
+		private void checkNoReferenceCycle(Reference<SharedStructureModel> modelReference, boolean recursiveCheck) {
+			if (modelReference != null) {
+				SharedStructureModel model = modelReference.resolve();
+				if (model != null) {
+					Structure structure = model.getStructure();
+					if (structure instanceof ClassicStructure) {
+						checkNoReferenceCycle((ClassicStructure) structure, recursiveCheck);
+					}
+				}
+			}
+		}
+
+		private void checkNoReferenceCycle(ClassicStructure classicStructure, boolean recursiveCheck) {
+			for (Element element : classicStructure.getElements()) {
+				if (element instanceof StructuredElement) {
+					Structure subStructure = ((StructuredElement) element).getStructure();
+					if (subStructure instanceof SharedStructureReference) {
+						if (subStructure == SharedStructureReference.this) {
+							throw new IllegalArgumentException("Shared structure reference cycle detected");
+						}
+						if (recursiveCheck) {
+							checkNoReferenceCycle(((SharedStructureReference) subStructure).getModelReference(),
+									recursiveCheck);
+						}
+					}
+					if (subStructure instanceof ClassicStructure) {
+						checkNoReferenceCycle((ClassicStructure) subStructure, recursiveCheck);
+					}
+				}
+			}
 		}
 
 		public Class<? extends Structured> getStructuredClass() {
