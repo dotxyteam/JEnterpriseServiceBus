@@ -67,6 +67,16 @@ public class LoopCompositeStep extends CompositeStep {
 		return result;
 	}
 
+	private List<Step> getDescendantSteps(Plan currentPlan) {
+		List<Step> result = new ArrayList<Step>();
+		for (Step descendantStep : MiscUtils.getDescendants(this, currentPlan)) {
+			if (descendantStep.getActivityBuilder().getActivityResultClass(currentPlan, descendantStep) != null) {
+				result.add(descendantStep);
+			}
+		}
+		return result;
+	}
+
 	public static class LoopActivity implements Activity {
 
 		private ExecutionContext context;
@@ -111,7 +121,8 @@ public class LoopCompositeStep extends CompositeStep {
 			context.getVariables().add(iterationIndexVariable);
 			try {
 				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
-				for (Step descendantStep : getLoopDescendantSteps(context.getPlan(), context.getCurrentStep())) {
+				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())
+						.getDescendantSteps(context.getPlan())) {
 					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
 				}
 				while (true) {
@@ -143,17 +154,6 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 			} finally {
 				context.getVariables().remove(iterationIndexVariable);
-			}
-			return result;
-		}
-
-		private static List<Step> getLoopDescendantSteps(Plan currentPlan, Step currentStep) {
-			List<Step> result = new ArrayList<Step>();
-			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
-			for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
-				if (descendantStep.getActivityBuilder().getActivityResultClass(currentPlan, descendantStep) != null) {
-					result.add(descendantStep);
-				}
 			}
 			return result;
 		}
@@ -253,7 +253,7 @@ public class LoopCompositeStep extends CompositeStep {
 					return null;
 				} else {
 					List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry>();
-					for (Step descendantStep : getLoopDescendantSteps(currentPlan, currentStep)) {
+					for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantSteps(currentPlan)) {
 						result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));
 					}
 					resultsCollectionTargetedStepNames.stream()
@@ -384,19 +384,10 @@ public class LoopCompositeStep extends CompositeStep {
 					throw new UnexpectedError();
 				}
 				ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-				validationContext = new ValidationContext(validationContext, new VariableDeclaration() {
-					@Override
-					public String getVariableName() {
-						return iterationIndexVariableName;
-					}
-
-					@Override
-					public Class<?> getVariableType() {
-						return int.class;
-					}
-
-				});
-				for (Step descendantStep : getLoopDescendantSteps(currentPlan, currentStep)) {
+				validationContext = new ValidationContext(validationContext);
+				validationContext.getVariableDeclarations()
+						.addAll(((LoopCompositeStep) currentStep).getContextualVariableDeclarations());
+				for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantSteps(currentPlan)) {
 					validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep, currentPlan));
 				}
 				return new InstantiationFunctionCompilationContext(validationContext.getVariableDeclarations(), null,

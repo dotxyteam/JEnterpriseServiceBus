@@ -1,6 +1,7 @@
 package com.otk.jesb.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -53,11 +54,11 @@ import xy.reflect.ui.control.DefaultFieldControlData;
 import xy.reflect.ui.control.IAdvancedFieldControl;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
-import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
 import xy.reflect.ui.info.menu.MenuInfo;
 import xy.reflect.ui.info.menu.MenuItemCategory;
@@ -66,6 +67,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
@@ -100,17 +102,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected ListControl getFocusedPlanElementsControl() {
-		List<Form> forms = new ArrayList<Form>();
-		forms.add(getPlanEditor());
-		forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
-		for (Form form : forms) {
-			FieldControlPlaceHolder fieldControlPlaceHolder = form
-					.getFieldControlPlaceHolder("focusedStepOrTransitionSurroundings");
-			if (fieldControlPlaceHolder != null) {
-				return (ListControl) fieldControlPlaceHolder.getFieldControl();
-			}
-		}
-		throw new UnexpectedError();
+		return (ListControl) SwingRendererUtils.findDescendantFieldControlPlaceHolder(getPlanEditor(),
+				"focusedStepOrTransitionSurroundings", swingRenderer).getFieldControl();
 	}
 
 	protected Form getPlanEditor() {
@@ -497,6 +490,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
+		Form tmpPlanEditor = new Form(swingRenderer, getPlan(), IInfoFilter.DEFAULT);
+		Component dragIntentControl = SwingRendererUtils
+				.findDescendantFieldControlPlaceHolder(tmpPlanEditor, "diagramDragIntent", swingRenderer)
+				.getFieldControl();
+		tmpPlanEditor.getModificationStack().addListener(new AbstractSimpleModificationListener() {
+			@Override
+			protected void handleAnyEvent(IModification modification) {
+				((IAdvancedFieldControl) dragIntentControl).refreshUI(false);
+			}
+		});
+		result.insert(dragIntentControl, 0);
 		result.add(new JSeparator());
 		result.add(createCopyAction());
 		result.add(createCutAction());
@@ -614,7 +618,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
-		if(refreshStructure) {
+		if (refreshStructure) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
@@ -706,7 +710,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				addConnection(node1, node2, t);
 			}
 		}
-		SwingRendererUtils.handleComponentSizeChange(this);		
+		SwingRendererUtils.handleComponentSizeChange(this);
 		return true;
 	}
 
@@ -776,7 +780,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		}
 	}
 
-	
 	private static class Clipboard {
 
 		private static Clipboard current;

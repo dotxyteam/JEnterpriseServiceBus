@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.otk.jesb.solution.Transition;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 
@@ -47,6 +48,10 @@ public class JConnection extends JDiagramObject {
 	}
 
 	public void paint(Graphics g, JDiagram diagram) {
+		Transition t = (Transition)getValue();
+		if (t.getStartStep().toString().equals("jDBCUpdate") && t.getEndStep().toString().equals("loop1")) {
+			System.out.println("debug");
+		}
 		MiscUtils.improveRenderingQuality((Graphics2D) g);
 		g.setColor(selected ? diagram.getSelectionColor() : diagram.getConnectionColor());
 		for (Polygon polygon : computePolygons(2, diagram.getConnectionArrowSize())) {

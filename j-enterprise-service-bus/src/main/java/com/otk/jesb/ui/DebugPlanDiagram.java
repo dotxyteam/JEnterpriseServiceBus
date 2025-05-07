@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,14 +92,15 @@ public class DebugPlanDiagram extends PlanDiagram {
 						stepCrossingsControl.setSelection(DebugPlanDiagram.this.getSelection().stream()
 								.filter(diagramObject -> diagramObject instanceof JNode).map(diagramObject -> {
 									Step step = (Step) diagramObject.getValue();
-									for (int i = getPlanExecutor().getStepCrossings().size() - 1; i >= 0; i--) {
-										StepCrossing stepCrossing = getPlanExecutor().getStepCrossings().get(i);
+									for (StepCrossing stepCrossing : MiscUtils
+											.getReverse(getPlanExecutor().getStepCrossings())) {
 										if (stepCrossing.getStep() == step) {
 											return stepCrossing;
 										}
 									}
-									throw new UnexpectedError();
-								}).map(stepCrossing -> stepCrossingsControl.findItemPositionByReference(stepCrossing))
+									return null;
+								}).filter(Objects::nonNull)
+								.map(stepCrossing -> stepCrossingsControl.findItemPositionByReference(stepCrossing))
 								.collect(Collectors.toList()));
 					} finally {
 						selectionListeningEnabled = true;
@@ -197,7 +199,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		if (transitionOccurrenceCount > 0) {
 			Color connectionColorToRestore = getConnectionColor();
 			try {
-				setConnectionColor(new Color(115, 195, 140));
+				setConnectionColor(new Color(165, 245, 190));
 				super.paintConnection(g, connection);
 			} finally {
 				setConnectionColor(connectionColorToRestore);
@@ -209,7 +211,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	private void annotateConnection(Graphics g, JConnection connection, String annotation) {
-		g.setColor(new Color(65, 145, 90));
+		g.setColor(new Color(135, 215, 160));
 		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(annotation, g);
 		Point2D center = connection.getCenter();
 		if (center == null) {

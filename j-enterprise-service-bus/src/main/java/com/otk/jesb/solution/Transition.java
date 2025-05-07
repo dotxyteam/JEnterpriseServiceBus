@@ -110,7 +110,7 @@ public class Transition {
 
 		@Override
 		public String toString() {
-			return "Try/Catch: " + exceptionTypeName;
+			return exceptionTypeName;
 		}
 
 	}

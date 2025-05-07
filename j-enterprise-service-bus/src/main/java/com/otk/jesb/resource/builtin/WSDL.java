@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -145,6 +146,7 @@ public class WSDL extends Resource {
 			File metaSchemaDirectory = MiscUtils.createTemporaryDirectory();
 			File wsdlFile = new File(metaSchemaDirectory, "main.wsdl");
 			File metaSchemaFile = new File(metaSchemaDirectory, "XMLSchema.xsd");
+			File metaXMLFile = new File(metaSchemaDirectory, "xml.xsd");
 			File metaSchemaDTDFile = new File(metaSchemaDirectory, "XMLSchema.dtd");
 			File metaSchemaDatatypesDTDFile = new File(metaSchemaDirectory, "datatypes.dtd");
 			Map<File, String> dependencyTextByFile = new HashMap<File, String>();
@@ -156,6 +158,8 @@ public class WSDL extends Resource {
 				MiscUtils.write(wsdlFile, text, false);
 				MiscUtils.write(metaSchemaFile,
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaFile.getName())), false);
+				MiscUtils.write(metaXMLFile, MiscUtils.read(WSDL.class.getResourceAsStream(metaXMLFile.getName())),
+						false);
 				MiscUtils.write(metaSchemaDTDFile,
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
 				MiscUtils.write(metaSchemaDatatypesDTDFile,
@@ -190,14 +194,21 @@ public class WSDL extends Resource {
 					MiscUtils.delete(sourceDirectory);
 				}
 			} finally {
-				for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
-					MiscUtils.delete(dependencyTextByFileEntry.getKey());
+				try {
+					for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+						MiscUtils.delete(dependencyTextByFileEntry.getKey());
+					}
+					MiscUtils.delete(metaSchemaDatatypesDTDFile);
+					MiscUtils.delete(metaSchemaDTDFile);
+					MiscUtils.delete(metaXMLFile);
+					MiscUtils.delete(metaSchemaFile);
+					MiscUtils.delete(wsdlFile);
+					MiscUtils.delete(metaSchemaDirectory);
+				} catch (Throwable ignore) {
+					if(JESB.DEBUG) {
+						ignore.printStackTrace();
+					}
 				}
-				MiscUtils.delete(metaSchemaDatatypesDTDFile);
-				MiscUtils.delete(metaSchemaDTDFile);
-				MiscUtils.delete(metaSchemaFile);
-				MiscUtils.delete(wsdlFile);
-				MiscUtils.delete(metaSchemaDirectory);
 			}
 		} catch (Exception e) {
 			throw new UnexpectedError(e);
@@ -264,7 +275,7 @@ public class WSDL extends Resource {
 		}
 
 		@Override
-		public InputStream getInputStream() throws IOException{
+		public InputStream getInputStream() throws IOException {
 			try {
 				return new URL(urlSpecification).openStream();
 			} catch (MalformedURLException e) {

@@ -22,6 +22,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
+import com.otk.jesb.activity.builtin.DoNothingActivity;
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
@@ -84,9 +85,9 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class JESBReflectionUI extends CustomizedUI {
 
-	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
-			new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
-			new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
+	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new DoNothingActivity.Metadata(),
+			new SleepActivity.Metadata(), new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(),
+			new WriteFileActivity.Metadata(), new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
 			new CallSOAPWebServiceActivity.Metadata());
 	public static final List<ActivityMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopActivity.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),

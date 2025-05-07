@@ -2,6 +2,8 @@ package com.otk.jesb.solution;
 
 import com.otk.jesb.VariableDeclaration;
 
+import xy.reflect.ui.util.ClassUtils;
+
 public class StepEventuality implements VariableDeclaration {
 
 	private Step step;
@@ -10,11 +12,17 @@ public class StepEventuality implements VariableDeclaration {
 	public StepEventuality(Step step, Plan currentPlan) {
 		this.step = step;
 		this.currentPlan = currentPlan;
-		}
+	}
 
 	@Override
 	public Class<?> getVariableType() {
-		return step.getActivityBuilder().getActivityResultClass(currentPlan, step);
+		Class<?> result = step.getActivityBuilder().getActivityResultClass(currentPlan, step);
+		if (result != null) {
+			if (result.isPrimitive()) {
+				result = ClassUtils.primitiveToWrapperClass(result);
+			}
+		}
+		return result;
 	}
 
 	@Override

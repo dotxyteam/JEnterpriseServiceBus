@@ -445,8 +445,8 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private void execute(StepCrossing stepCrossing, ExecutionContext context,
-			ExecutionInspector executionInspector) throws ExecutionError {
+	private void execute(StepCrossing stepCrossing, ExecutionContext context, ExecutionInspector executionInspector)
+			throws ExecutionError {
 		Step step = stepCrossing.getStep();
 		context.setCutrrentStep(step);
 		executionInspector.beforeActivity(stepCrossing);
@@ -524,11 +524,13 @@ public class Plan extends Asset {
 			this.step = step;
 		}
 
-		public ValidationContext(ValidationContext parentContext, VariableDeclaration newDeclaration) {
+		public ValidationContext(ValidationContext parentContext, VariableDeclaration... newDeclarations) {
 			plan = parentContext.getPlan();
 			step = parentContext.getStep();
 			variableDeclarations.addAll(parentContext.getVariableDeclarations());
-			variableDeclarations.add(newDeclaration);
+			for (VariableDeclaration newDeclaration : newDeclarations) {
+				variableDeclarations.add(newDeclaration);
+			}
 		}
 
 		public Plan getPlan() {
