@@ -19,13 +19,13 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.diagram.JConnection;
-import com.otk.jesb.diagram.JDiagramListener;
-import com.otk.jesb.diagram.JDiagramObject;
-import com.otk.jesb.diagram.JNode;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
+import com.otk.jesb.ui.diagram.JConnection;
+import com.otk.jesb.ui.diagram.JDiagramListener;
+import com.otk.jesb.ui.diagram.JDiagramObject;
+import com.otk.jesb.ui.diagram.JNode;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.control.IFieldControlInput;

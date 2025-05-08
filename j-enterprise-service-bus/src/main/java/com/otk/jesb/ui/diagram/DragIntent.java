@@ -1,4 +1,4 @@
-package com.otk.jesb.diagram;
+package com.otk.jesb.ui.diagram;
 
 public enum DragIntent {
 	CONNECT, MOVE

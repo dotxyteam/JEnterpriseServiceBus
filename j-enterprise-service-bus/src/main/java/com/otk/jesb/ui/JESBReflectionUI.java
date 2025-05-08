@@ -29,7 +29,6 @@ import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
 import com.otk.jesb.activity.builtin.ReadFileActivity;
 import com.otk.jesb.activity.builtin.SleepActivity;
 import com.otk.jesb.activity.builtin.WriteFileActivity;
-import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FieldInitializer;
@@ -57,6 +56,7 @@ import com.otk.jesb.solution.Transition;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.solution.Plan.ValidationContext;
+import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.CustomizedUI;
