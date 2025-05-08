@@ -2,8 +2,10 @@ package com.otk.jesb.solution;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -150,10 +152,6 @@ public class Plan extends Asset {
 		return upToDateOutputClass.get();
 	}
 
-	public List<Step> getPrecedingSteps(Step step) {
-		return getPrecedingSteps(step, steps);
-	}
-
 	public Object getFocusedStepOrTransition() {
 		return focusedStepOrTransition;
 	}
@@ -184,23 +182,32 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private List<Step> getPrecedingSteps(Step step, List<Step> steps) {
+	private List<Step> getPrecedingSteps(Step step, List<Step> candidateSteps) {
 		List<Step> result = new ArrayList<Step>();
-		for (Step candidate : steps) {
-			if (isPrecedingStep(candidate, step)) {
-				result.add(candidate);
+		for (Step candidateStep : candidateSteps) {
+			if (isPreceding(candidateStep, step)) {
+				result.add(candidateStep);
 			}
 		}
 		return result;
 	}
 
-	private boolean isPrecedingStep(Step s1, Step s2) {
+	public boolean isPreceding(Step step1, Step step2) {
+		return isPreceding(step1, step2, new HashSet<Step>());
+	}
+
+	private boolean isPreceding(Step step1, Step step2, Set<Step> alreadyVisitedSteps) {
 		for (Transition t : transitions) {
-			if ((t.getStartStep() == s1) && (t.getEndStep() == s2)) {
-				return true;
-			}
-			if ((t.getStartStep() == s1) && isPrecedingStep(t.getEndStep(), s2)) {
-				return true;
+			if (t.getStartStep() == step1) {
+				if (t.getEndStep() == step2) {
+					return true;
+				}
+				if (!alreadyVisitedSteps.contains(t.getEndStep())) {
+					alreadyVisitedSteps.add(t.getEndStep());
+					if (isPreceding(t.getEndStep(), step2, alreadyVisitedSteps)) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -488,7 +495,7 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep) : steps;
+		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep, steps) : steps;
 		for (Step step : precedingSteps) {
 			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);
 			if (stepVariableDeclaration != null) {

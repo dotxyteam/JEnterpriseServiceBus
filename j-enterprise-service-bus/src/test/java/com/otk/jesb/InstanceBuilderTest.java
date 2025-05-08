@@ -67,7 +67,7 @@ public class InstanceBuilderTest {
 					Object input = plan.getInputClass().getConstructor(Tree.class).newInstance(inputTree);
 					output = plan.execute(input);
 				} catch (Throwable t) {
-					GUI.INSTANCE.handleObjectException(null, t);
+					GUI.INSTANCE.handleException(null, t);
 					return;
 				}
 				GUI.INSTANCE.openObjectDialog(null, output);

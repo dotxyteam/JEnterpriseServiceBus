@@ -194,12 +194,14 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 			if (draggedNode != null) {
 				draggingPoint = new Point(e.getX(), e.getY());
 				repaint();
-				for (JNode otherNode : MiscUtils.getReverse(nodes)) {
-					if (draggedNode != otherNode) {
-						if (otherNode.containsPoint(e.getX(), e.getY(), this)) {
-							newConnectionStartNode = draggedNode;
-							newConnectionEndNode = otherNode;
-							break;
+				if (dragIntent == DragIntent.CONNECT) {
+					for (JNode otherNode : MiscUtils.getReverse(nodes)) {
+						if (draggedNode != otherNode) {
+							if (otherNode.containsPoint(e.getX(), e.getY(), this)) {
+								newConnectionStartNode = draggedNode;
+								newConnectionEndNode = otherNode;
+								break;
+							}
 						}
 					}
 				}
@@ -240,20 +242,18 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			try {
 				if (dragIntent == DragIntent.CONNECT) {
-					if (newConnectionStartNode != null) {
-						if (newConnectionEndNode != null) {
-							JConnection connection = new JConnection();
-							connection.setStartNode(newConnectionStartNode);
-							connection.setEndNode(newConnectionEndNode);
-							connections.add(connection);
-							newConnectionStartNode = null;
-							newConnectionEndNode = null;
-							repaint();
-							for (JDiagramListener l : listeners) {
-								l.connectionAdded(connection);
-							}
-							return;
+					if ((newConnectionStartNode != null) && (newConnectionEndNode != null)) {
+						JConnection connection = new JConnection();
+						connection.setStartNode(newConnectionStartNode);
+						connection.setEndNode(newConnectionEndNode);
+						connections.add(connection);
+						newConnectionStartNode = null;
+						newConnectionEndNode = null;
+						repaint();
+						for (JDiagramListener l : listeners) {
+							l.connectionAdded(connection);
 						}
+						return;
 					}
 				}
 				if (dragIntent == DragIntent.MOVE) {

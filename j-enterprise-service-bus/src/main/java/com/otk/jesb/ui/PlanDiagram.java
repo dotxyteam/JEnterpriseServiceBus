@@ -165,12 +165,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 
 			@Override
-			public void connectionAdded(JConnection conn) {
-				Transition newTransition = new Transition();
-				newTransition.setStartStep((Step) conn.getStartNode().getValue());
-				newTransition.setEndStep((Step) conn.getEndNode().getValue());
-				onTransitionInsertionRequest(newTransition);
-				JESBReflectionUI.diagramDragIntentByPlan.put(getPlan(), DragIntent.MOVE);
+			public void connectionAdded(JConnection connection) {
+				Step startStep = (Step) connection.getStartNode().getValue();
+				Step endStep = (Step) connection.getEndNode().getValue();
+				if (startStep.getParent() == endStep.getParent()) {
+					Transition newTransition = new Transition();
+					newTransition.setStartStep((Step) connection.getStartNode().getValue());
+					newTransition.setEndStep((Step) connection.getEndNode().getValue());
+					onTransitionInsertionRequest(newTransition);
+				} else {
+					PlanDiagram.this.getConnections().remove(connection);
+				}
 			}
 		});
 	}
@@ -227,6 +232,16 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected void onTransitionInsertionRequest(Transition newTransition) {
+		Plan plan = getPlan();
+		plan.getTransitions().add(newTransition);
+		if (plan.isPreceding(newTransition.getEndStep(), newTransition.getStartStep())) {
+			plan.getTransitions().remove(newTransition);
+			refreshUI(false);
+			swingRenderer.handleException(this, new Plan.PlanificationError("Cycle detected"));
+			return;
+		} else {
+			plan.getTransitions().remove(newTransition);
+		}
 		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
 		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),

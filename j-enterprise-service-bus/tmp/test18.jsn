@@ -3,98 +3,11 @@
     <com.otk.jesb.solution.Folder>
       <contents>
         <com.otk.jesb.solution.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.solution.Transition">
-            <condition class="null"/>
-            <endStep>
-              <name>doNothing1</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
-              <diagramX>644</diagramX>
-              <diagramY>497</diagramY>
-              <parent class="com.otk.jesb.solution.LoopCompositeStep">
-                <activityBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder">
-                  <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
-                  <loopEndCondition>
-                    <functionBody>return jDBCUpdate != null;</functionBody>
-                  </loopEndCondition>
-                  <resultsCollectionTargetedStepNames/>
-                </activityBuilder>
-                <diagramX>643</diagramX>
-                <diagramY>458</diagramY>
-                <name>loop1</name>
-                <parent class="null"/>
-              </parent>
-            </endStep>
-            <label class="null"/>
-            <startStep>
-              <name>jDBCUpdate</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                <connectionReference>
-                  <path>resources &gt; db</path>
-                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
-                </connectionReference>
-                <parameterDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
-                    <parameterName>adress</parameterName>
-                    <parameterTypeName>java.lang.String</parameterTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
-                </parameterDefinitions>
-                <parameterValuesBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
-                    <outer-class reference="../.."/>
-                  </dynamicTypeNameAccessor>
-                  <fieldInitializers/>
-                  <initializationSwitches/>
-                  <listItemInitializers/>
-                  <parameterInitializers>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
-                          <outer-class reference="../../../../../.."/>
-                        </dynamicTypeNameAccessor>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>0</parameterPosition>
-                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                              <functionBody>return ((executePlan!=null)?executePlan.getOutput().getReadFileResult(): null) 
-+ loop.getJDBCQuery().get(0).getRows().get(0).getTODAY().toString()
-+ &quot; &quot; + jDBCQuery.getRows().get(0).getNOW().toString();</functionBody>
-                            </parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                        </parameterInitializers>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                  </parameterInitializers>
-                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                  <rootInstanceName>Parameters</rootInstanceName>
-                  <rootInstanceTypeName class="null"/>
-                  <selectedConstructorSignature class="null"/>
-                  <typeName>&lt;Dynamic&gt;</typeName>
-                </parameterValuesBuilder>
-                <statement>INSERT INTO Persons (
-    PersonID,
-    LastName,
-    FirstName,
-    Address,
-    City
-) VALUES (
-    0,
-    &apos;TANKOANO&amp;apos&apos;,
-    &apos;OLIVIER&apos;,
-    ?,
-    &apos;Clichy&apos;
-);</statement>
-              </activityBuilder>
-              <diagramX>521</diagramX>
-              <diagramY>427</diagramY>
-              <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../endStep/parent"/>
-            </startStep>
+          <focusedStepOrTransition class="com.otk.jesb.solution.Step">
+            <name>doNothing</name>
+            <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
+            <diagramX>642</diagramX>
+            <diagramY>40</diagramY>
           </focusedStepOrTransition>
           <inputStructure class="null"/>
           <name>Test</name>
@@ -368,7 +281,88 @@
                 <parent class="null"/>
               </parent>
             </com.otk.jesb.solution.Step>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition/startStep"/>
+            <com.otk.jesb.solution.Step>
+              <name>jDBCUpdate</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
+                <connectionReference>
+                  <path>resources &gt; db</path>
+                  <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+                </connectionReference>
+                <parameterDefinitions>
+                  <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                    <parameterName>adress</parameterName>
+                    <parameterTypeName>java.lang.String</parameterTypeName>
+                  </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                </parameterDefinitions>
+                <parameterValuesBuilder>
+                  <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
+                    <outer-class reference="../.."/>
+                  </dynamicTypeNameAccessor>
+                  <fieldInitializers/>
+                  <initializationSwitches/>
+                  <listItemInitializers/>
+                  <parameterInitializers>
+                    <com.otk.jesb.instantiation.ParameterInitializer>
+                      <parameterPosition>0</parameterPosition>
+                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                          <outer-class reference="../../../../../.."/>
+                        </dynamicTypeNameAccessor>
+                        <fieldInitializers/>
+                        <initializationSwitches/>
+                        <listItemInitializers/>
+                        <parameterInitializers>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>0</parameterPosition>
+                            <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                              <functionBody>return ((executePlan!=null)?executePlan.getOutput().getReadFileResult(): null) 
++ loop.getJDBCQuery().get(0).getRows().get(0).getTODAY().toString()
++ &quot; &quot; + jDBCQuery.getRows().get(0).getNOW().toString();</functionBody>
+                            </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                        </parameterInitializers>
+                        <selectedConstructorSignature class="null"/>
+                        <typeName>&lt;Dynamic&gt;</typeName>
+                      </parameterValue>
+                    </com.otk.jesb.instantiation.ParameterInitializer>
+                  </parameterInitializers>
+                  <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceName>Parameters</rootInstanceName>
+                  <rootInstanceTypeName class="null"/>
+                  <selectedConstructorSignature class="null"/>
+                  <typeName>&lt;Dynamic&gt;</typeName>
+                </parameterValuesBuilder>
+                <statement>INSERT INTO Persons (
+    PersonID,
+    LastName,
+    FirstName,
+    Address,
+    City
+) VALUES (
+    0,
+    &apos;TANKOANO&amp;apos&apos;,
+    &apos;OLIVIER&apos;,
+    ?,
+    &apos;Clichy&apos;
+);</statement>
+              </activityBuilder>
+              <diagramX>521</diagramX>
+              <diagramY>427</diagramY>
+              <parent class="com.otk.jesb.solution.LoopCompositeStep">
+                <activityBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder">
+                  <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
+                  <loopEndCondition>
+                    <functionBody>return jDBCUpdate != null;</functionBody>
+                  </loopEndCondition>
+                  <resultsCollectionTargetedStepNames/>
+                </activityBuilder>
+                <diagramX>643</diagramX>
+                <diagramY>458</diagramY>
+                <name>loop1</name>
+                <parent class="null"/>
+              </parent>
+            </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[4]/parent"/>
             <com.otk.jesb.solution.Step>
               <name>sleep</name>
@@ -537,12 +531,7 @@
               <diagramX>412</diagramX>
               <diagramY>479</diagramY>
             </com.otk.jesb.solution.Step>
-            <com.otk.jesb.solution.Step>
-              <name>doNothing</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
-              <diagramX>642</diagramX>
-              <diagramY>40</diagramY>
-            </com.otk.jesb.solution.Step>
+            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
             <com.otk.jesb.solution.Step>
               <name>jDBCCreate</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
@@ -600,24 +589,23 @@
               </activityBuilder>
               <diagramX>759</diagramX>
               <diagramY>427</diagramY>
-              <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../focusedStepOrTransition/endStep/parent"/>
+              <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[5]/parent"/>
             </com.otk.jesb.solution.Step>
-            <com.otk.jesb.solution.LoopCompositeStep reference="../../focusedStepOrTransition/endStep/parent"/>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition/endStep"/>
+            <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[5]/parent"/>
+            <com.otk.jesb.solution.Step>
+              <name>doNothing1</name>
+              <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
+              <diagramX>644</diagramX>
+              <diagramY>497</diagramY>
+              <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[5]/parent"/>
+            </com.otk.jesb.solution.Step>
           </steps>
           <transitions>
-            <com.otk.jesb.solution.Transition reference="../../focusedStepOrTransition"/>
             <com.otk.jesb.solution.Transition>
               <condition class="null"/>
-              <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../focusedStepOrTransition/endStep/parent"/>
+              <endStep reference="../../../steps/com.otk.jesb.solution.Step[12]"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition/startStep"/>
-            </com.otk.jesb.solution.Transition>
-            <com.otk.jesb.solution.Transition>
-              <condition class="null"/>
-              <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../focusedStepOrTransition/endStep/parent"/>
-              <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition/endStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
@@ -625,19 +613,19 @@
               </condition>
               <endStep reference="../../../steps/com.otk.jesb.solution.Step[11]"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition/startStep"/>
+              <startStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="null"/>
               <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../steps/com.otk.jesb.solution.Step[4]/parent"/>
               <label class="null"/>
-              <startStep reference="../../../steps/com.otk.jesb.solution.Step[10]"/>
+              <startStep reference="../../../focusedStepOrTransition"/>
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
                 <exceptionTypeName>java.lang.Exception</exceptionTypeName>
               </condition>
-              <endStep reference="../../../steps/com.otk.jesb.solution.Step[10]"/>
+              <endStep reference="../../../focusedStepOrTransition"/>
               <label class="null"/>
               <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
             </com.otk.jesb.solution.Transition>
@@ -689,7 +677,7 @@
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="null"/>
-              <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../focusedStepOrTransition/endStep/parent"/>
+              <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../steps/com.otk.jesb.solution.Step[5]/parent"/>
               <label class="null"/>
               <startStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../steps/com.otk.jesb.solution.Step[4]/parent"/>
             </com.otk.jesb.solution.Transition>
@@ -871,10 +859,12 @@
                               <m class="java.util.Collections$UnmodifiableMap">
                                 <m class="java.util.Collections$UnmodifiableMap">
                                   <m class="java.util.Collections$UnmodifiableMap">
-                                    <m>
-                                      <entry>
-                                        <string>0_SOAP.ByNameDataSet.cls</string>
-                                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                    <m class="java.util.Collections$UnmodifiableMap">
+                                      <m class="java.util.Collections$UnmodifiableMap">
+                                        <m>
+                                          <entry>
+                                            <string>0_SOAP.ByNameDataSet.cls</string>
+                                            <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -901,10 +891,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                      </entry>
-                                      <entry>
-                                        <string>1_SOAP.Demo.QueryByName.DS.cls</string>
-                                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                          </entry>
+                                          <entry>
+                                            <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+                                            <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -928,7 +918,9 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                      </entry>
+                                          </entry>
+                                        </m>
+                                      </m>
                                     </m>
                                   </m>
                                 </m>
