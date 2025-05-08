@@ -779,7 +779,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean displayError(String msg) {
+	public boolean displayError(Throwable error) {
 		return false;
 	}
 

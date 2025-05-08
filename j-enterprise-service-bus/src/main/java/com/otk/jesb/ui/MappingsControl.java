@@ -123,7 +123,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean displayError(String msg) {
+	public boolean displayError(Throwable error) {
 		return false;
 	}
 

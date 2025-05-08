@@ -120,7 +120,7 @@ public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldCo
 	}
 
 	@Override
-	public boolean displayError(String msg) {
+	public boolean displayError(Throwable error) {
 		return false;
 	}
 
