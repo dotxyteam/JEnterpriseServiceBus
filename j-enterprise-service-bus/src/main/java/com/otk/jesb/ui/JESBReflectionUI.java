@@ -723,79 +723,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
-				} else if (type.getName().equals(Transition.IfCondition.class.getName())) {
-					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
-					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
-
-						@Override
-						public String getSignature() {
-							return ReflectionUIUtils.buildMethodSignature(this);
-						}
-
-						@Override
-						public String getName() {
-							return "edit";
-						}
-
-						@Override
-						public String getCaption() {
-							return "Edit...";
-						}
-
-						@Override
-						public String getOnlineHelp() {
-							return "Open the Expression Editor";
-						}
-
-						@Override
-						public ITypeInfo getReturnValueType() {
-							return getTypeInfo(new JavaTypeInfoSource(FunctionEditor.class, null));
-						}
-
-						@Override
-						public Object invoke(Object object, InvocationData invocationData) {
-							return new FunctionEditor((Transition.IfCondition) object, null,
-									currentPlan.getTransitionContextVariableDeclarations(currentTransition),
-									boolean.class);
-						}
-
-						@Override
-						public boolean isReadOnly() {
-							return true;
-						}
-					});
-					return result;
-				} else if (Asset.class.isAssignableFrom(objectClass)) {
-					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
-					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
-
-						@Override
-						public String getSignature() {
-							return ReflectionUIUtils.buildMethodSignature(this);
-						}
-
-						@Override
-						public String getName() {
-							return "validate";
-						}
-
-						@Override
-						public String getCaption() {
-							return ReflectionUIUtils.identifierToCaption(getName());
-						}
-
-						@Override
-						public Object invoke(Object object, InvocationData invocationData) {
-							try {
-								((Asset) object).validate(false);
-							} catch (ValidationError e) {
-								throw new ReflectionUIError(e);
-							}
-							return null;
-						}
-					});
-					return result;
-				} else if (Step.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -825,7 +753,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
-				} else if (Transition.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -855,7 +783,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
-				} else if (ActivityBuilder.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -877,14 +805,15 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
 							try {
-								((ActivityBuilder) object).validate(false, currentPlan, currentStep);
+								((Transition.Condition) object).validate(
+										currentPlan.getTransitionContextVariableDeclarations(currentTransition));
 							} catch (ValidationError e) {
 								throw new ReflectionUIError(e);
 							}
 							return null;
 						}
 					});
-					if (type.getName().equals(LoopActivity.Builder.class.getName())) {
+					if (type.getName().equals(Transition.IfCondition.class.getName())) {
 						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
 							@Override
@@ -894,77 +823,119 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public String getName() {
-								return "retrieveResultsCollectionConfigurationEntries";
+								return "edit";
 							}
 
 							@Override
 							public String getCaption() {
-								return ReflectionUIUtils.identifierToCaption(getName());
+								return "Edit...";
+							}
+
+							@Override
+							public String getOnlineHelp() {
+								return "Open the Expression Editor";
 							}
 
 							@Override
 							public ITypeInfo getReturnValueType() {
-								return getTypeInfo(new JavaTypeInfoSource(List.class,
-										new Class<?>[] { ResultsCollectionConfigurationEntry.class }, null));
+								return getTypeInfo(new JavaTypeInfoSource(FunctionEditor.class, null));
 							}
 
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
-								return ((LoopActivity.Builder) object)
-										.retrieveResultsCollectionConfigurationEntries(currentPlan, currentStep);
-							}
-						});
-						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
-
-							@Override
-							public String getSignature() {
-								return ReflectionUIUtils.buildMethodSignature(this);
+								return new FunctionEditor((Transition.IfCondition) object, null,
+										currentPlan.getTransitionContextVariableDeclarations(currentTransition),
+										boolean.class);
 							}
 
 							@Override
-							public String getName() {
-								return "updateResultsCollectionConfigurationEntries";
-							}
-
-							@Override
-							public String getCaption() {
-								return ReflectionUIUtils.identifierToCaption(getName()) + "...";
-							}
-
-							@Override
-							public List<IParameterInfo> getParameters() {
-								return Collections
-										.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
-
-											@Override
-											public String getName() {
-												return "entries";
-											}
-
-											@Override
-											public String getCaption() {
-												return ReflectionUIUtils.identifierToCaption(getName());
-											}
-
-											@Override
-											public ITypeInfo getType() {
-												return getTypeInfo(new JavaTypeInfoSource(List.class,
-														new Class<?>[] { ResultsCollectionConfigurationEntry.class },
-														null));
-											}
-										});
-							}
-
-							@SuppressWarnings("unchecked")
-							@Override
-							public Object invoke(Object object, InvocationData invocationData) {
-								((LoopActivity.Builder) object).updateResultsCollectionConfigurationEntries(
-										(List<ResultsCollectionConfigurationEntry>) invocationData.getParameterValue(0),
-										currentPlan, currentStep);
-								return null;
+							public boolean isReadOnly() {
+								return true;
 							}
 						});
 					}
+					return result;
+				} else if (type.getName().equals(LoopActivity.Builder.class.getName())) {
+					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "retrieveResultsCollectionConfigurationEntries";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName());
+						}
+
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return getTypeInfo(new JavaTypeInfoSource(List.class,
+									new Class<?>[] { ResultsCollectionConfigurationEntry.class }, null));
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							return ((LoopActivity.Builder) object)
+									.retrieveResultsCollectionConfigurationEntries(currentPlan, currentStep);
+						}
+					});
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "updateResultsCollectionConfigurationEntries";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName()) + "...";
+						}
+
+						@Override
+						public List<IParameterInfo> getParameters() {
+							return Collections
+									.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+										@Override
+										public String getName() {
+											return "entries";
+										}
+
+										@Override
+										public String getCaption() {
+											return ReflectionUIUtils.identifierToCaption(getName());
+										}
+
+										@Override
+										public ITypeInfo getType() {
+											return getTypeInfo(new JavaTypeInfoSource(List.class,
+													new Class<?>[] { ResultsCollectionConfigurationEntry.class },
+													null));
+										}
+									});
+						}
+
+						@SuppressWarnings("unchecked")
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							((LoopActivity.Builder) object).updateResultsCollectionConfigurationEntries(
+									(List<ResultsCollectionConfigurationEntry>) invocationData.getParameterValue(0),
+									currentPlan, currentStep);
+							return null;
+						}
+					});
 					return result;
 				} else {
 					return super.getMethods(type);
@@ -1079,31 +1050,68 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
+				Class<?> objectClass;
 				try {
-					Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
-					if (Throwable.class.isAssignableFrom(objectClass)) {
-						for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
-								.getMethods()) {
-							if (method.getSignature().equals(throwableMethod.getSignature())) {
-								return true;
-							}
-						}
-					}
-					if (ActivityBuilder.class.isAssignableFrom(objectClass)) {
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(
-								InstantiationFunctionCompilationContext.class.getName(),
-								"findFunctionCompilationContext", Arrays.asList(InstantiationFunction.class.getName(),
-										Step.class.getName(), Plan.class.getName())))) {
-							return true;
-						}
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
-								"getActivityResultClass", Arrays.asList(Plan.class.getName(), Step.class.getName())))) {
-							return true;
-						}
-					}
+					objectClass = ClassUtils.getCachedClassForName(objectType.getName());
 				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+					for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
+							.getMethods()) {
+						if (method.getSignature().equals(throwableMethod.getSignature())) {
+							return true;
+						}
+					}
+				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && ActivityBuilder.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature()
+							.equals(ReflectionUIUtils.buildMethodSignature(Facade.class.getName(),
+									"findInstantiationFunctionParentFacade",
+									Arrays.asList(InstantiationFunction.class.getName())))) {
+						return true;
+					}
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
+							"getActivityResultClass", Arrays.asList(Plan.class.getName(), Step.class.getName())))) {
+						return true;
+					}
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName(), Plan.class.getName(), Step.class.getName())))) {
+						return true;
+					}
 				}
 				return super.isHidden(method, objectType);
+			}
+
+			@Override
+			protected void validate(ITypeInfo type, Object object) throws Exception {
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					try {
+						((Asset) object).validate(false);
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && ActivityBuilder.class.isAssignableFrom(objectClass)) {
+					try {
+						((ActivityBuilder) object).validate(false, currentPlan, currentStep);
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else {
+					super.validate(type, object);
+				}
 			}
 
 			@Override

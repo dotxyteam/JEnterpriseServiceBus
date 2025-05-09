@@ -9,6 +9,7 @@ import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.ClassUtils;
 
 public class JDBCConnection extends Resource {
 
@@ -62,7 +63,7 @@ public class JDBCConnection extends Resource {
 	}
 
 	public String test() throws Exception {
-		Class.forName(driverClassName);
+		ClassUtils.getCachedClassForName(driverClassName);
 		DriverManager.getConnection(url, userName, password);
 		return "Connection successful !";
 	}
@@ -71,9 +72,14 @@ public class JDBCConnection extends Resource {
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
 		try {
-			test();
+			ClassUtils.getCachedClassForName(driverClassName);
 		} catch (Throwable t) {
-			throw new ValidationError(t.getMessage(), t);
+			throw new ValidationError("Failed to load the driver class '" + driverClassName + "'", t);
+		}
+		try {
+			DriverManager.getConnection(url, userName, password);
+		} catch (Throwable t) {
+			throw new ValidationError("Failed to create the connection", t);
 		}
 	}
 

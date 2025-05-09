@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -51,6 +50,7 @@ import com.otk.jesb.ui.diagram.JDiagramListener;
 import com.otk.jesb.ui.diagram.JDiagramObject;
 import com.otk.jesb.ui.diagram.JNode;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.control.DefaultFieldControlData;
@@ -737,10 +737,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected void paintConnection(Graphics g, JConnection connection) {
 		super.paintConnection(g, connection);
 		if (validitionErrorMap.get(connection.getValue()) != null) {
-			g.setColor(Color.RED);
-			for (Polygon polygon : connection.computePolygons(getConnectionLineThickness() + 1,
-					getConnectionArrowSize() + 1)) {
-				g.drawPolygon(polygon);
+			Pair<Point, Point> segment = connection.getLineSegment();
+			if (segment != null) {
+				g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(),
+						(segment.getFirst().x + segment.getSecond().x) / 2,
+						(segment.getFirst().y + segment.getSecond().y) / 2, null);
 			}
 		}
 	}
@@ -749,9 +750,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected void paintNode(Graphics g, JNode node) {
 		super.paintNode(g, node);
 		if (validitionErrorMap.get(node.getValue()) != null) {
-			g.setColor(Color.RED);
-			Rectangle imageBounds = node.getImageBounds();
-			g.drawRect(imageBounds.x, imageBounds.y, imageBounds.width, imageBounds.height);
+			Rectangle nodeBounds = node.getImageBounds();
+			g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(), nodeBounds.x, nodeBounds.y, null);
 		}
 	}
 
@@ -769,6 +769,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			objectsToValidate.add(plan.getOutputStructure());
 		}
 		objectsToValidate.add(plan.getOutputBuilder());
+		validitionErrorMap.clear();
 		for (Object objectToValidate : objectsToValidate) {
 			Form[] form = new Form[1];
 			try {

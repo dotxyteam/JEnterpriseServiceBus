@@ -60,7 +60,7 @@ public class MiscUtils {
 		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
-	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
+	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
 	public static String escapeRegex(String str) {

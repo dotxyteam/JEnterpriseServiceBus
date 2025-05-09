@@ -1353,6 +1353,43 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1d894919:196b6c3632a:2844</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validate</methodName>
+            <methodSignature>void validate(boolean, com.otk.jesb.solution.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1d894919:196b6c3632a:2845</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1d894919:196b6c3632a:2846</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>recursively</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1d894919:196b6c3632a:2847</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1d894919:196b6c3632a:2848</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.solution.Step</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -3287,7 +3324,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37ef</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a5</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3347,7 +3384,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f0</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a4</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3402,7 +3439,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f1</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a3</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3436,7 +3473,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f2</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a2</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -3548,7 +3585,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f3</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a1</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -3662,7 +3699,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f4</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-74a0</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -3738,7 +3775,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f5</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749f</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -5102,7 +5139,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f6</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -5188,7 +5225,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f7</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -10038,6 +10075,9 @@
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
+                    <itemNodeValidityDetectionConfiguration>
+                        <uniqueIdentifier>-3fc69853:196b68bddc2:42c3</uniqueIdentifier>
+                    </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.solution.Asset</itemTypeName>
@@ -12138,7 +12178,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f8</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749c</uniqueIdentifier>
                 <caption>Activity</caption>
                 <name>Activity</name>
             </category>
@@ -12198,7 +12238,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37f9</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749b</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -12232,7 +12272,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37fa</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-749a</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -12898,7 +12938,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37fb</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7499</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -12932,7 +12972,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37fc</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7498</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -13260,7 +13300,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37fd</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7497</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13675,7 +13715,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37fe</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7496</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -13813,7 +13853,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:37ff</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7495</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -14479,7 +14519,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3800</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7494</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14518,7 +14558,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3801</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7493</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14578,7 +14618,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3802</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7492</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -17518,7 +17558,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3803</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7491</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17992,7 +18032,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3804</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7490</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -18052,7 +18092,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3805</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748f</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -18141,7 +18181,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3806</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748e</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -24782,21 +24822,6 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:67</uniqueIdentifier>
         </menuModel>
         <methodsCustomizations>
-            <uniqueIdentifier>-38ab5d3b:1963e0701fb:133</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <methodName>validate</methodName>
-            <methodSignature>void validate()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>true</validating>
-        </methodsCustomizations>
-        <methodsCustomizations>
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:134</uniqueIdentifier>
             <specificProperties/>
             <hidden>true</hidden>
@@ -24815,80 +24840,6 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>plan</parameterName>
-            </parametersCustomizations>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomizations>
-        <methodsCustomizations>
-            <uniqueIdentifier>-38ab5d3b:1963e0701fb:137</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <methodName>getChildrenDiagramBounds</methodName>
-            <methodSignature>java.awt.Rectangle getChildrenDiagramBounds(com.otk.jesb.solution.Plan, int, int)</methodSignature>
-            <parametersCustomizations>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13b</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:13c</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>plan</parameterName>
-            </parametersCustomizations>
-            <parametersCustomizations>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13d</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:13e</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>stepIconWidth</parameterName>
-            </parametersCustomizations>
-            <parametersCustomizations>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13f</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:140</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>stepIconHeight</parameterName>
-            </parametersCustomizations>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomizations>
-        <methodsCustomizations>
-            <uniqueIdentifier>-38ab5d3b:1963e0701fb:138</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <methodName>setActivityBuilder</methodName>
-            <methodSignature>void setActivityBuilder(com.otk.jesb.activity.ActivityBuilder)</methodSignature>
-            <parametersCustomizations>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:141</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:142</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>activityBuilder</parameterName>
             </parametersCustomizations>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -25014,6 +24965,132 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-38ab5d3b:1963e0701fb:137</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>getChildrenDiagramBounds</methodName>
+            <methodSignature>java.awt.Rectangle getChildrenDiagramBounds(com.otk.jesb.solution.Plan, int, int)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:13c</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:13e</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>stepIconWidth</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:13f</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:140</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>stepIconHeight</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-38ab5d3b:1963e0701fb:138</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>setActivityBuilder</methodName>
+            <methodSignature>void setActivityBuilder(com.otk.jesb.activity.ActivityBuilder)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:141</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:142</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>activityBuilder</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-38ab5d3b:1963e0701fb:133</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>-3fc69853:196b68bddc2:7690</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validate</methodName>
+            <methodSignature>void validate(boolean, com.otk.jesb.solution.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>-3fc69853:196b68bddc2:7693</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-3fc69853:196b68bddc2:7694</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>recursively</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>-3fc69853:196b68bddc2:7695</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-3fc69853:196b68bddc2:7696</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.solution.LoopCompositeStep</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -25041,7 +25118,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3807</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25100,7 +25177,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3808</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25160,7 +25237,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:3809</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25313,7 +25390,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:380a</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-748a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25372,7 +25449,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:380b</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7489</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25432,7 +25509,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:380c</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7488</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25487,7 +25564,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:380d</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7487</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -25536,7 +25613,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>3e54c94b:196b18e358e:380e</uniqueIdentifier>
+                <uniqueIdentifier>1d894919:196b6d42e13:-7486</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -26995,6 +27072,58 @@
         <menuModel>
             <uniqueIdentifier>-2bd82204:19673cc67e7:-4813</uniqueIdentifier>
         </menuModel>
+        <methodsCustomizations>
+            <uniqueIdentifier>1d894919:196b6c3632a:2a07</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validate</methodName>
+            <methodSignature>void validate(boolean, com.otk.jesb.solution.Plan)</methodSignature>
+            <parametersCustomizations>
+                <uniqueIdentifier>1d894919:196b6c3632a:2a0d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1d894919:196b6c3632a:2a0e</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>recursively</parameterName>
+            </parametersCustomizations>
+            <parametersCustomizations>
+                <uniqueIdentifier>1d894919:196b6c3632a:2a0f</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>1d894919:196b6c3632a:2a10</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>plan</parameterName>
+            </parametersCustomizations>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomizations>
+        <methodsCustomizations>
+            <uniqueIdentifier>1d894919:196b6c3632a:2a08</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomizations>
         <typeName>com.otk.jesb.solution.Transition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

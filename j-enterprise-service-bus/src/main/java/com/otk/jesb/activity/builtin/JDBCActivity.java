@@ -25,6 +25,8 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.util.ClassUtils;
+
 public abstract class JDBCActivity implements Activity {
 
 	private JDBCConnection connection;
@@ -56,7 +58,7 @@ public abstract class JDBCActivity implements Activity {
 	}
 
 	protected PreparedStatement prepare() throws Exception {
-		Class.forName(connection.getDriverClassName());
+		ClassUtils.getCachedClassForName(connection.getDriverClassName());
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
