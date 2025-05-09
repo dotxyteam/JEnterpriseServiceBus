@@ -10,26 +10,26 @@ import com.otk.jesb.util.InstantiationUtils;
 public class InstantiationFunctionCompilationContext {
 
 	private Facade parentFacade;
-	private List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
-	private Class<?> functionReturnType;
+	private List<VariableDeclaration> baseVariableDeclarations = new ArrayList<VariableDeclaration>();
 
-	public InstantiationFunctionCompilationContext(List<VariableDeclaration> variableDeclarations, Facade parentFacade,
-			Class<?> functionReturnType) {
+	public InstantiationFunctionCompilationContext(List<VariableDeclaration> baseVariableDeclarations,
+			Facade parentFacade) {
 		this.parentFacade = parentFacade;
-		this.variableDeclarations = variableDeclarations;
-		this.functionReturnType = functionReturnType;
+		this.baseVariableDeclarations = baseVariableDeclarations;
 	}
 
 	public List<VariableDeclaration> getVariableDeclarations() {
-		return variableDeclarations;
+		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(baseVariableDeclarations);
+		result.addAll(parentFacade.getAdditionalVariableDeclarations());
+		return result;
 	}
 
 	public Facade getParentFacade() {
 		return parentFacade;
 	}
 
-	public Class<?> getFunctionReturnType() {
-		return functionReturnType;
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		return parentFacade.getFunctionReturnType(function);
 	}
 
 	public Function<String, String> getPrecompiler() {

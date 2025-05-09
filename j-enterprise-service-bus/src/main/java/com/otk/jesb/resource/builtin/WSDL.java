@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Listener;
@@ -205,7 +206,7 @@ public class WSDL extends Resource {
 					MiscUtils.delete(wsdlFile);
 					MiscUtils.delete(metaSchemaDirectory);
 				} catch (Throwable ignore) {
-					if(JESB.DEBUG) {
+					if (JESB.DEBUG) {
 						ignore.printStackTrace();
 					}
 				}
@@ -221,6 +222,18 @@ public class WSDL extends Resource {
 		}
 		return generatedClasses.stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
 				.map(c -> new ServiceDescriptor(c)).collect(Collectors.toList());
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		if (generatedClasses == null) {
+			try {
+				generateClasses();
+			} catch (Throwable t) {
+				throw new ValidationError("Failed to validate the WSDL", t);
+			}
+		}
 	}
 
 	public interface Source {

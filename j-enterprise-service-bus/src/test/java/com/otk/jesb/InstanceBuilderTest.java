@@ -11,9 +11,9 @@ import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
@@ -184,8 +184,8 @@ public class InstanceBuilderTest {
 
 			@Override
 			public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-				return (Tree) instanceBuilder.build(
-						new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+				return (Tree) instanceBuilder.build(new InstantiationContext(context.getVariables(),
+						context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			}
 
 			@Override
@@ -194,11 +194,14 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public InstantiationFunctionCompilationContext findFunctionCompilationContext(
-					InstantiationFunction function, Step currentStep, Plan currentPlan) {
-				return instanceBuilder.getFacade().findFunctionCompilationContext(function,
-						currentPlan.getValidationContext(currentStep).getVariableDeclarations());
+			public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+				return instanceBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 			}
+
+			@Override
+			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			}
+
 
 		}
 

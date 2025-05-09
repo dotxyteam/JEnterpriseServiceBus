@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -24,6 +29,39 @@ public class FieldInitializerFacade extends Facade {
 		} else {
 			this.fieldValue = fieldInitializer.getFieldValue();
 		}
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+		return parent.getAdditionalVariableDeclarations();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		if (getCondition() == function) {
+			return boolean.class;
+		}
+		if (getFieldValue() == function) {
+			return ((DefaultTypeInfo) getFieldInfo().getType()).getJavaType();
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (getCondition() != null) {
+			try {
+				CompiledFunction.get(getCondition().getFunctionBody(), variableDeclarations,
+						getFunctionReturnType(getCondition()));
+			} catch (CompilationError e) {
+				throw new ValidationError("Failed to validate the condition", e);
+			}
+		}
+		InstantiationUtils.validateValue(getFieldValue(), getFieldInfo().getType(), this, "Field value", recursively,
+				variableDeclarations);
 	}
 
 	@Override

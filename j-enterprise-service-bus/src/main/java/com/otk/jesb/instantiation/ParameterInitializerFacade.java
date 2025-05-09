@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 
 public class ParameterInitializerFacade extends Facade {
@@ -17,6 +20,28 @@ public class ParameterInitializerFacade extends Facade {
 	public ParameterInitializerFacade(Facade parent, int parameterPosition) {
 		this.parent = parent;
 		this.parameterPosition = parameterPosition;
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+		return parent.getAdditionalVariableDeclarations();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		if (getParameterValue() == function) {
+			return ((DefaultTypeInfo) getParameterInfo().getType()).getJavaType();
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		InstantiationUtils.validateValue(getParameterValue(), getParameterInfo().getType(), this, "Parameter value",
+				recursively, variableDeclarations);
 	}
 
 	@Override

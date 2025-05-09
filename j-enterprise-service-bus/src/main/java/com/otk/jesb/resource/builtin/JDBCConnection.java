@@ -2,6 +2,7 @@ package com.otk.jesb.resource.builtin;
 
 import java.sql.DriverManager;
 
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
@@ -64,6 +65,16 @@ public class JDBCConnection extends Resource {
 		Class.forName(driverClassName);
 		DriverManager.getConnection(url, userName, password);
 		return "Connection successful !";
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		try {
+			test();
+		} catch (Throwable t) {
+			throw new ValidationError(t.getMessage(), t);
+		}
 	}
 
 	public static class Metadata implements ResourceMetadata {

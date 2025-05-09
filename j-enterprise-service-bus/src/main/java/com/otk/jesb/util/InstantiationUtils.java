@@ -1,6 +1,7 @@
 package com.otk.jesb.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,13 +10,15 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
@@ -40,14 +43,14 @@ public class InstantiationUtils {
 
 	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
-	public static Object executeFunction(InstantiationFunction function, EvaluationContext evaluationContext)
+	public static Object executeFunction(InstantiationFunction function, InstantiationContext instantiationContext)
 			throws FunctionCallError {
-		InstantiationFunctionCompilationContext compilationContext = evaluationContext
-				.getInstantiationFunctionCompilationContextMapper().apply(function);
-		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
+		InstantiationFunctionCompilationContext compilationContext = instantiationContext
+				.getFunctionCompilationContex(function);
+		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), instantiationContext.getParentFacade())) {
 			throw new UnexpectedError();
 		}
-		Set<String> actualVariableNames = evaluationContext.getVariables().stream()
+		Set<String> actualVariableNames = instantiationContext.getVariables().stream()
 				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
 				.collect(Collectors.toSet());
 		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
@@ -59,11 +62,11 @@ public class InstantiationUtils {
 		try {
 			compiledFunction = CompiledFunction.get(
 					compilationContext.getPrecompiler().apply(function.getFunctionBody()),
-					compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
+					compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType(function));
 		} catch (CompilationError e) {
 			throw new UnexpectedError(e);
 		}
-		return compiledFunction.call(evaluationContext.getVariables());
+		return compiledFunction.call(instantiationContext.getVariables());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -99,7 +102,7 @@ public class InstantiationUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(InstantiationFunction condition, EvaluationContext context)
+	public static boolean isConditionFullfilled(InstantiationFunction condition, InstantiationContext context)
 			throws Exception {
 		if (condition == null) {
 			return true;
@@ -130,7 +133,64 @@ public class InstantiationUtils {
 		}
 	}
 
-	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {
+	public static void validateValue(Object value, ITypeInfo type, Facade parentFacade, String valueName,
+			boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (value instanceof InstantiationFunction) {
+			InstantiationFunction function = (InstantiationFunction) value;
+			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
+					variableDeclarations, parentFacade);
+			Class<?> functionReturnType = compilationContext.getFunctionReturnType(function);
+			if (((JavaTypeInfoSource) type.getSource()).getJavaType() != functionReturnType) {
+				throw new UnexpectedError();
+			}
+			try {
+				CompiledFunction.get(compilationContext.getPrecompiler().apply(function.getFunctionBody()),
+						compilationContext.getVariableDeclarations(), functionReturnType);
+			} catch (CompilationError e) {
+				throw new ValidationError("Failed to compile " + valueName + " function", e);
+			}
+		} else if (value instanceof InstanceBuilder) {
+			try {
+				Class<?> instanceBuilderJavaType;
+				try {
+					instanceBuilderJavaType = TypeInfoProvider.getClass(((InstanceBuilder) value)
+							.computeActualTypeName(getAncestorStructuredInstanceBuilders(parentFacade)));
+				} catch (Throwable t) {
+					instanceBuilderJavaType = null;
+				}
+				if (instanceBuilderJavaType != null) {
+					Class<?> declaredJavaType = ((JavaTypeInfoSource) type.getSource()).getJavaType();
+					if (!declaredJavaType.isAssignableFrom(instanceBuilderJavaType)) {
+						throw new ValidationError("The instance type <" + instanceBuilderJavaType.getName()
+								+ "> is not compatible with the declared type <" + declaredJavaType.getName() + ">");
+					}
+				}
+				if (recursively) {
+					new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value).validate(recursively,
+							variableDeclarations);
+				}
+			} catch (ValidationError e) {
+				throw new ValidationError("Failed to validate " + valueName + " instance builder", e);
+			}
+		} else if (value instanceof EnumerationItemSelector) {
+			EnumerationItemSelector enumItemSelector = (EnumerationItemSelector) value;
+			IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) type;
+			List<String> validItemNames = Arrays.asList(enumType.getValues()).stream()
+					.map(item -> enumType.getValueInfo(item).getName()).collect(Collectors.toList());
+			if (!validItemNames.contains(enumItemSelector.getSelectedItemName())) {
+				throw new ValidationError("Failed to validate " + valueName + " enumeration item: Unexpected name '"
+						+ enumItemSelector.getSelectedItemName() + "', expected "
+						+ MiscUtils.stringJoin(validItemNames.stream().map(name -> "'" + name + "'").toArray(), "|"));
+			}
+		} else {
+			if (!type.supports(value)) {
+				throw new ValidationError("Failed to validate " + valueName + ": Invalid value '" + value
+						+ "': Expected value of type <" + type.getName() + ">");
+			}
+		}
+	}
+
+	public static Object interpretValue(Object value, ITypeInfo type, InstantiationContext context) throws Exception {
 		if (value instanceof InstantiationFunction) {
 			Object result = executeFunction(((InstantiationFunction) value), context);
 			if (!type.supports(result)) {
@@ -154,6 +214,10 @@ public class InstantiationUtils {
 			}
 			throw new UnexpectedError();
 		} else {
+			if (!type.supports(value)) {
+				throw new InstantiationError(
+						"Invalid value '" + value + "': Expected value of type <" + type.getName() + ">");
+			}
 			return value;
 		}
 	}

@@ -4,6 +4,7 @@ import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -22,15 +23,15 @@ public class SharedStructureModel extends Resource {
 	}
 
 	public static SharedStructureModel getFromStructuredClass(Class<?> c) {
-		if(!isStructuredClass(c)) {
+		if (!isStructuredClass(c)) {
 			throw new UnexpectedError();
 		}
 		String digitalUniqueIdentifier = c.getName().substring(STRUCTURED_CLASS_NAME_PREFIX.length());
 		Object object = MiscUtils.fromFromDigitalUniqueIdentifier(digitalUniqueIdentifier);
-		if(!(object instanceof SharedStructureModel)) {
+		if (!(object instanceof SharedStructureModel)) {
 			throw new UnexpectedError();
 		}
-		return (SharedStructureModel)object;
+		return (SharedStructureModel) object;
 	}
 
 	private Structure structure = new ClassicStructure();
@@ -76,6 +77,20 @@ public class SharedStructureModel extends Resource {
 
 	public Class<? extends Structured> getStructuredClass() {
 		return upToDateStructuredClass.get();
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		if (recursively) {
+			if (structure != null) {
+				try {
+					structure.validate();
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate the structure", e);
+				}
+			}
+		}
 	}
 
 	public static class Metadata implements ResourceMetadata {

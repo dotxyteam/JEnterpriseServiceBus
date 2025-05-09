@@ -7,38 +7,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
-import com.otk.jesb.solution.Solution;
-import com.otk.jesb.solution.Step;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Reference;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
-import xy.reflect.ui.info.ResourcePath;
-import com.otk.jesb.util.Accessor;
-
-public class JDBCUpdateActivity implements Activity {
+public abstract class JDBCActivity implements Activity {
 
 	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
 
-	public JDBCConnection getConnection() {
-		return connection;
+	public JDBCActivity(JDBCConnection connection) {
+		this.connection = connection;
 	}
 
-	public void setConnection(JDBCConnection connection) {
-		this.connection = connection;
+	public JDBCConnection getConnection() {
+		return connection;
 	}
 
 	public String getStatement() {
@@ -57,50 +55,23 @@ public class JDBCUpdateActivity implements Activity {
 		this.parameterValues = parameterValues;
 	}
 
-	@Override
-	public Object execute() throws Exception {
+	protected PreparedStatement prepare() throws Exception {
 		Class.forName(connection.getDriverClassName());
 		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
 				connection.getPassword());
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
 		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 		if (expectedParameterCount != parameterValues.countParameters()) {
-			throw new Exception("Unexpected defined parameter count: " + parameterValues.countParameters()
+			throw new IllegalStateException("Unexpected defined parameter count: " + parameterValues.countParameters()
 					+ ". Expected " + expectedParameterCount + " parameter(s).");
 		}
 		for (int i = 0; i < expectedParameterCount; i++) {
 			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
 		}
-		int affectedRows = preparedStatement.executeUpdate();
-		return new Result(affectedRows);
+		return preparedStatement;
 	}
 
-	public static class Metadata implements ActivityMetadata {
-
-		@Override
-		public String getActivityTypeName() {
-			return "JDBC Update";
-		}
-
-		@Override
-		public String getCategoryName() {
-			return "JDBC";
-		}
-
-		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
-			return Builder.class;
-		}
-
-		@Override
-		public ResourcePath getActivityIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(JDBCUpdateActivity.class.getName().replace(".", "/") + ".png"));
-		}
-
-	}
-
-	public static class Builder implements ActivityBuilder {
+	protected static abstract class Builder implements ActivityBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
@@ -112,21 +83,20 @@ public class JDBCUpdateActivity implements Activity {
 						return parameterValuesClass.getName();
 					}
 				});
-
 		private Class<? extends ParameterValues> parameterValuesClass;
 
 		public Builder() {
 			updateDynamicClasses();
 		}
 
-		private void updateDynamicClasses() {
+		protected void updateDynamicClasses() {
 			parameterValuesClass = createParameterValuesClass();
 		}
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCUpdateActivity.class.getName() + "ParameterValues"
-					+ MiscUtils.getDigitalUniqueIdentifier();
+			String className = JDBCQueryActivity.class.getName() + "ParameterValues"
+					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
@@ -157,7 +127,7 @@ public class JDBCUpdateActivity implements Activity {
 				javaSource
 						.append("    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
 			}
-			javaSource.append("    throw new " + AssertionError.class.getName() + "();" + "\n");
+			javaSource.append("    throw new " + UnexpectedError.class.getName() + "();" + "\n");
 			javaSource.append("  }" + "\n");
 			javaSource.append("  @Override" + "\n");
 			javaSource.append("  public int countParameters() {" + "\n");
@@ -173,14 +143,14 @@ public class JDBCUpdateActivity implements Activity {
 			}
 			javaSource.append("}" + "\n");
 			try {
-				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(className,
+				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						javaSource.toString());
 			} catch (CompilationError e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
-		private JDBCConnection getConnection() {
+		protected JDBCConnection getConnection() {
 			return connectionReference.resolve();
 		}
 
@@ -219,34 +189,52 @@ public class JDBCUpdateActivity implements Activity {
 
 		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
 			if (parameterValuesBuilder == null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			this.parameterValuesBuilder = parameterValuesBuilder;
 		}
 
-		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCUpdateActivity result = new JDBCUpdateActivity();
-			result.setConnection(getConnection());
-			result.setStatement(statement);
-			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
-					.build(new EvaluationContext(context, null));
-			result.setParameterValues(parameterValues);
-			return result;
+		protected ParameterValues buildParameterValues(ExecutionContext context) throws Exception {
+			return (ParameterValues) getParameterValuesBuilder().build(new InstantiationContext(context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 		}
 
 		@Override
-		public CompilationContext findFunctionCompilationContext(InstantiationFunction currentFunction, Step currentStep,
-				Plan currentPlan) {
-			return parameterValuesBuilder.getFacade().findFunctionCompilationContext(currentFunction,
-					currentPlan.getValidationContext(currentStep));
+		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+			return parameterValuesBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
-			return Result.class;
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			if (getConnection() == null) {
+				throw new ValidationError("Failed to resolve the connection reference");
+			}
+			if (recursively) {
+				List<String> parameterNames = new ArrayList<String>();
+				for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+					if (parameterNames.contains(parameterDefinition.getParameterName())) {
+						throw new ValidationError(
+								"Duplicate parameter name detected: '" + parameterDefinition.getParameterName() + "'");
+					} else {
+						parameterNames.add(parameterDefinition.getParameterName());
+					}
+					try {
+						parameterDefinition.validate();
+					} catch (ValidationError e) {
+						throw new ValidationError(
+								"Failed to validate the parameter '" + parameterDefinition.getParameterName() + "'", e);
+					}
+				}
+				if (parameterValuesBuilder != null) {
+					try {
+						parameterValuesBuilder.validate(recursively,
+								plan.getValidationContext(step).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ValidationError("Failed to validate the parameter values builder", e);
+					}
+				}
+			}
 		}
-
 	}
 
 	public static class ParameterDefinition {
@@ -279,6 +267,18 @@ public class JDBCUpdateActivity implements Activity {
 			return result;
 		}
 
+		public void validate() throws ValidationError {
+			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(parameterName).matches()) {
+				throw new ValidationError("Invalid parameter name: '" + parameterName
+						+ "' (should match the following regular expression: "
+						+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+			}
+			if (!getParameterTypeNameOptions().contains(parameterTypeName)) {
+				throw new ValidationError("Illegal parameter type name: '" + parameterTypeName + "': Expected one of "
+						+ getParameterTypeNameOptions());
+			}
+		}
+
 	}
 
 	public static interface ParameterValues {
@@ -287,45 +287,4 @@ public class JDBCUpdateActivity implements Activity {
 		public int countParameters();
 	}
 
-	public static class ColumnDefinition {
-
-		private String columnName;
-		private String columnTypeName;
-
-		public ColumnDefinition(String columnName, String columnTypeName) {
-			this.columnName = columnName;
-			this.columnTypeName = columnTypeName;
-		}
-
-		public String getColumnName() {
-			return columnName;
-		}
-
-		public void setColumnName(String columnName) {
-			this.columnName = columnName;
-		}
-
-		public String getColumnTypeName() {
-			return columnTypeName;
-		}
-
-		public void setColumnTypeName(String columnTypeName) {
-			this.columnTypeName = columnTypeName;
-		}
-
-	}
-
-	public static class Result {
-
-		private int affectedRowCount;
-
-		public Result(int affectedRowCount) {
-			this.affectedRowCount = affectedRowCount;
-		}
-
-		public int getAffectedRowCount() {
-			return affectedRowCount;
-		}
-
-	}
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
@@ -83,11 +84,25 @@ public class InstanceBuilderFacade extends Facade {
 			}
 
 			@Override
-			protected EvaluationContext createEvaluationContextForChildren(EvaluationContext context) {
-				return new EvaluationContext(context, InstanceBuilderFacade.this);
+			protected InstantiationContext createInstantiationContextForChildren(InstantiationContext context) {
+				return new InstantiationContext(context, InstanceBuilderFacade.this);
 			}
 
 		};
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+		return parent.getAdditionalVariableDeclarations();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		throw new UnsupportedOperationException();
+	}
+
+	public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+		return util.findInstantiationFunctionParentFacade(function);
 	}
 
 	@Override
@@ -181,13 +196,8 @@ public class InstanceBuilderFacade extends Facade {
 		return util.getChildren();
 	}
 
-	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
+	public List<Facade> collectLiveInitializerFacades(InstantiationContext context) {
 		return util.collectLiveInitializerFacades(context);
-	}
-
-	public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
-			List<VariableDeclaration> variableDeclarations) {
-		return util.findFunctionCompilationContext(function, variableDeclarations);
 	}
 
 	public void copyUnderlying() {
@@ -239,6 +249,32 @@ public class InstanceBuilderFacade extends Facade {
 		underlying.setFieldInitializers(source.getFieldInitializers());
 		underlying.setListItemInitializers(source.getListItemInitializers());
 		underlying.setInitializationSwitches(source.getInitializationSwitches());
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		ITypeInfo typeInfo;
+		try {
+			typeInfo = getTypeInfo();
+		} catch (Throwable t) {
+			throw new ValidationError("Failed to load '" + getTypeName() + "' type", t);
+		}
+		String selectedConstructorSignature = getSelectedConstructorSignature();
+		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
+		if (constructor == null) {
+			String actualTypeName = underlying
+					.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(getParent()));
+			if (selectedConstructorSignature == null) {
+				throw new ValidationError("Cannot create '" + actualTypeName + "' instance: No constructor available");
+			} else {
+				throw new ValidationError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
+						+ selectedConstructorSignature + "'");
+			}
+		}
+		util.validate(recursively, variableDeclarations);
 	}
 
 	@Override

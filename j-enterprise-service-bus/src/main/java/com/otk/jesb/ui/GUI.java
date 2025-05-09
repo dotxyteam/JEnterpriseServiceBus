@@ -161,7 +161,7 @@ public class GUI extends SwingCustomizer {
 							return new InstanceBuilderOutlineTreeControl(GUI.this, this);
 						}
 						if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
-							return new MappingsControl();
+							return new MappingsControl(swingRenderer, this);
 						}
 						if (object instanceof PrecomputedTypeInstanceWrapper) {
 							Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();

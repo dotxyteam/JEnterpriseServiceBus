@@ -53,11 +53,9 @@ import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplication;
@@ -65,6 +63,8 @@ import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.Listener;
@@ -88,10 +88,22 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	private static final long serialVersionUID = 1L;
 
+	private SwingRenderer swingRenderer;
+	private IFieldControlInput input;
+
 	private InstanceBuilderVariableTreeControl foundSourceControl;
 	private InstanceBuilderInitializerTreeControl foundTargetControl;
 
 	private Set<Pair<BufferedItemPosition, BufferedItemPosition>> mappingsCache;
+
+	public MappingsControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+		this.swingRenderer = swingRenderer;
+		this.input = input;
+	}
+
+	private Source getSource() {
+		return (Source) input.getControlData().getValue();
+	}
 
 	@Override
 	public boolean showsCaption() {
@@ -376,7 +388,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	public InstanceBuilderInitializerTreeControl findTargetControl() {
-		return findControl(this, InstanceBuilderInitializerTreeControl.class,
+		return findControl(swingRenderer, this, InstanceBuilderInitializerTreeControl.class,
 				new Accessor<InstanceBuilderInitializerTreeControl>() {
 
 					@Override
@@ -393,7 +405,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	public InstanceBuilderVariableTreeControl findSourceControl() {
-		return findControl(this, InstanceBuilderVariableTreeControl.class,
+		return findControl(swingRenderer, this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
 
 					@Override
@@ -420,13 +432,13 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Component> T findControl(Component fromComponent, Class<T> controlClass,
-			Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
+	private static <T extends Component> T findControl(SwingRenderer swingRenderer, Component fromComponent,
+			Class<T> controlClass, Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
 		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent, FacadeOutline.class.getName(),
-				GUI.INSTANCE);
+				swingRenderer);
 		if (facadeOutlineForm == null) {
 			return null;
 		}
@@ -451,6 +463,28 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	public static class Source {
+
+		private RootInstanceBuilderFacade rootInstanceBuilderFacade;
+		private Plan currentPlan;
+		private Step currentStep;
+
+		public Source(RootInstanceBuilderFacade rootInstanceBuilderFacade, Plan currentPlan, Step currentStep) {
+			this.rootInstanceBuilderFacade = rootInstanceBuilderFacade;
+			this.currentPlan = currentPlan;
+			this.currentStep = currentStep;
+		}
+
+		public RootInstanceBuilderFacade getRootInstanceBuilderFacade() {
+			return rootInstanceBuilderFacade;
+		}
+
+		public Plan getCurrentPlan() {
+			return currentPlan;
+		}
+
+		public Step getCurrentStep() {
+			return currentStep;
+		}
 
 	}
 
@@ -616,7 +650,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 
 		public MappingsControl findMappingsControl() {
-			return findControl(this, MappingsControl.class, new Accessor<MappingsControl>() {
+			return findControl(swingRenderer, this, MappingsControl.class, new Accessor<MappingsControl>() {
 
 				@Override
 				public MappingsControl get() {
@@ -940,12 +974,13 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 								.setIterationVariableName("current" + parentFieldName.substring(0, 1).toUpperCase()
 										+ parentFieldName.substring(1) + "Item");
 					}
-					InstantiationFunctionCompilationContext compilationContext = ((InstanceBuilderFacade) Facade
-							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
-									(InstantiationFunction) itemReplication.getIterationListValue(),
-									new ArrayList<VariableDeclaration>());
+					Source mappingsSource = initializerTreeControl.findMappingsControl().getSource();
+					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(
+							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())
+									.getVariableDeclarations());
+					variableDeclarations.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations());
 					while (true) {
-						boolean nameConflictDetected = compilationContext.getVariableDeclarations().stream()
+						boolean nameConflictDetected = variableDeclarations.stream()
 								.anyMatch(variableDeclaration -> variableDeclaration.getVariableName()
 										.equals(itemReplication.getIterationVariableName()));
 						if (!nameConflictDetected) {

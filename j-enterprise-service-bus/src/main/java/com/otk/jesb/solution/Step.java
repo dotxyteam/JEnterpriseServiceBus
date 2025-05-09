@@ -5,10 +5,9 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.util.MiscUtils;
 
 public class Step {
-
-	private static final String NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
 
 	private String name = "";
 	private ActivityBuilder activityBuilder;
@@ -70,15 +69,16 @@ public class Step {
 	}
 
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		if (!name.matches(NAME_PATTERN)) {
-			throw new ValidationError("The step name must match the following regular expression: " + NAME_PATTERN);
+		if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
+			throw new ValidationError("The step name must match the following regular expression: "
+					+ MiscUtils.VARIABLE_NAME_PATTERN.pattern());
 		}
 		if (plan.isPreceding(this, this)) {
 			throw new ValidationError("Cycle detected");
 		}
-		if(recursively) {
-			if(activityBuilder != null) {
-				activityBuilder.validate(plan, this);
+		if (recursively) {
+			if (activityBuilder != null) {
+				activityBuilder.validate(recursively, plan, this);
 			}
 		}
 	}

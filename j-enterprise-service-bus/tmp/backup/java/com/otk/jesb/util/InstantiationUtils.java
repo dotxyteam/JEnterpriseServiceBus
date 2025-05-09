@@ -15,7 +15,7 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;

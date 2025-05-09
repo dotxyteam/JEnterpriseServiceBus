@@ -1953,7 +1953,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectInitializerFacades</methodName>
-            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-303af25:194e76f9581:6388</uniqueIdentifier>
                 <specificProperties/>
@@ -1979,7 +1979,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectLiveInitializerFacades</methodName>
-            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>1f199928:194fbefc0b6:64ee</uniqueIdentifier>
                 <specificProperties/>
@@ -3248,7 +3248,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCQueryActivity$ParameterDefinition</itemTypeName>
+                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCActivity$ParameterDefinition</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -4010,7 +4010,7 @@
         <menuModel>
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a67</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.activity.builtin.JDBCQueryActivity$ParameterDefinition</typeName>
+        <typeName>com.otk.jesb.activity.builtin.JDBCActivity$ParameterDefinition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -4588,7 +4588,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>build</methodName>
-            <methodSignature>java.lang.Object build(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.lang.Object build(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>3ea5b5fb:194930a3fe0:-7713</uniqueIdentifier>
                 <specificProperties/>
@@ -7580,7 +7580,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCQueryActivity$ParameterDefinition</itemTypeName>
+                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCActivity$ParameterDefinition</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -14218,7 +14218,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCUpdateActivity$ParameterDefinition</itemTypeName>
+                    <itemTypeName>com.otk.jesb.activity.builtin.JDBCActivity$ParameterDefinition</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -14433,7 +14433,7 @@
         <menuModel>
             <uniqueIdentifier>2adc4d59:1942d746a24:-7f45</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.activity.builtin.JDBCUpdateActivity$ParameterDefinition</typeName>
+        <typeName>com.otk.jesb.activity.builtin.JDBCActivity$ParameterDefinition</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -20080,7 +20080,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectLiveInitializerFacades</methodName>
-            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>2013879e:1954822ddb1:66d5</uniqueIdentifier>
                 <specificProperties/>
@@ -20632,7 +20632,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectInitializerFacades</methodName>
-            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-303af25:194e76fa801:187a</uniqueIdentifier>
                 <specificProperties/>
@@ -20793,7 +20793,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectLiveInitializerFacades</methodName>
-            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>1f199928:194fbefdca8:554</uniqueIdentifier>
                 <specificProperties/>
@@ -21359,7 +21359,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectInitializerFacades</methodName>
-            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>-303af25:194e76fa801:18a4</uniqueIdentifier>
                 <specificProperties/>
@@ -21385,7 +21385,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>collectLiveInitializerFacades</methodName>
-            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.EvaluationContext)</methodSignature>
+            <methodSignature>java.util.List collectLiveInitializerFacades(com.otk.jesb.instantiation.InstantiationContext)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>1f199928:194fbefdca8:565</uniqueIdentifier>
                 <specificProperties/>

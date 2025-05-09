@@ -14,12 +14,13 @@ import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.WSDL;
@@ -315,8 +316,9 @@ public class CallSOAPWebServiceActivity implements Activity {
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new CallSOAPWebServiceActivity(getWSDL(), retrieveServiceDescriptor().retrieveClass(),
 					retrievePortDescriptor().retrieveInterface(), retrieveOperationDescriptor().retrieveMethod(),
-					(OperationInput) operationInputBuilder.build(new EvaluationContext(context.getVariables(), null,
-							context.getCompilationContextProvider())));
+					(OperationInput) operationInputBuilder
+							.build(new InstantiationContext(context.getVariables(), context.getPlan()
+									.getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}
 
 		@Override
@@ -356,10 +358,24 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
-				Step currentStep, Plan currentPlan) {
-			return operationInputBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
+		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+			return operationInputBuilder.getFacade().findInstantiationFunctionParentFacade(function);
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			if (getWSDL() == null) {
+				throw new ValidationError("Failed to resolve the WSDL reference");
+			}
+			if (retrieveServiceDescriptor() == null) {
+				throw new ValidationError("Invalid service name '" + serviceName + "'");
+			}
+			if (retrievePortDescriptor() == null) {
+				throw new ValidationError("Invalid port name '" + portName + "'");
+			}
+			if (retrieveOperationDescriptor() == null) {
+				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
+			}
 		}
 
 	}

@@ -4,12 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.function.Function;
-
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
-import com.otk.jesb.instantiation.EvaluationContext;
-import com.otk.jesb.instantiation.InstantiationFunction;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
@@ -77,15 +73,7 @@ public class Debugger {
 
 		public void executePlan() throws Exception {
 			Object planInput = (planInputBuilder != null)
-					? planInputBuilder.build(new EvaluationContext(Collections.emptyList(), null,
-							new Function<InstantiationFunction, InstantiationFunctionCompilationContext>() {
-
-								@Override
-								public InstantiationFunctionCompilationContext apply(InstantiationFunction function) {
-									return planInputBuilder.getFacade().findFunctionCompilationContext(function,
-											Collections.emptyList());
-								}
-							}))
+					? planInputBuilder.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()))
 					: null;
 			planExecutors.add(new PlanExecutor(plan, planInput));
 		}

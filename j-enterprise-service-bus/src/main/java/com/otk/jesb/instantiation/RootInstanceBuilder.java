@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
@@ -147,12 +149,16 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	}
 
 	@Override
-	public Object build(EvaluationContext context) throws Exception {
+	public Object build(InstantiationContext context) throws Exception {
 		RootInstanceWrapper wrapper = ((RootInstanceWrapper) super.build(context));
 		if (wrapper == null) {
 			return null;
 		}
 		return wrapper.getRootInstance();
+	}
+
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		getFacade().validate(recursively, variableDeclarations);
 	}
 
 	public static Object getRootInitializerSpecialDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode,
@@ -165,8 +171,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				InstanceBuilder result = new InstanceBuilder();
 				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-				if (!type.getName().equals(
-						result.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
+				if (!type.getName().equals(result.computeActualTypeName(
+						InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
 					throw new UnexpectedError();
 				}
 				return result;

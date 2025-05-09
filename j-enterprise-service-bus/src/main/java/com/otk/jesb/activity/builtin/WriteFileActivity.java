@@ -5,13 +5,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Plan;
@@ -206,8 +208,9 @@ public class WriteFileActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new WriteFileActivity((SpecificWriteFileActivity) instanceBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider())));
+			return new WriteFileActivity((SpecificWriteFileActivity) instanceBuilder.build(new InstantiationContext(
+					context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}
 
 		@Override
@@ -216,10 +219,25 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
-				Step currentStep, Plan currentPlan) {
-			return instanceBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
+		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+			return instanceBuilder.getFacade().findInstantiationFunctionParentFacade(function);
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			if (mode == null) {
+				throw new ValidationError("Mode not specified: Expected one of " + Arrays.toString(Mode.values()));
+			}
+			if (recursively) {
+				if (instanceBuilder != null) {
+					try {
+						instanceBuilder.validate(recursively,
+								plan.getValidationContext(step).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ValidationError("Failed to validate the input builder", e);
+					}
+				}
+			}
 		}
 	}
 

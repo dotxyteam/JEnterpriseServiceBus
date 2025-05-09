@@ -2,11 +2,12 @@ package com.otk.jesb.activity.builtin;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Step;
@@ -105,8 +106,8 @@ public class ExecutePlanActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			Object planInput = planInputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			return new ExecutePlanActivity(getPlan(), planInput, executionInspector);
 		}
 
@@ -120,10 +121,25 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
-				Step currentStep, Plan currentPlan) {
-			return planInputBuilder.getFacade().findFunctionCompilationContext(function,
-					currentPlan.getValidationContext(currentStep).getVariableDeclarations());
+		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+			return planInputBuilder.getFacade().findInstantiationFunctionParentFacade(function);
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			if (getPlan() == null) {
+				throw new ValidationError("Failed to resolve the plan reference");
+			}
+			if (recursively) {
+				if (planInputBuilder != null) {
+					try {
+						planInputBuilder.validate(recursively,
+								plan.getValidationContext(step).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ValidationError("Failed to validate the plan input builder", e);
+					}
+				}
+			}
 		}
 
 	}

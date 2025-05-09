@@ -2,10 +2,11 @@ package com.otk.jesb.activity.builtin;
 
 import java.io.IOException;
 
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
@@ -15,8 +16,6 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import xy.reflect.ui.info.ResourcePath;
 
 public class DoNothingActivity implements Activity {
-
-	
 
 	@Override
 	public Object execute() throws IOException {
@@ -49,7 +48,6 @@ public class DoNothingActivity implements Activity {
 
 	public static class Builder implements ActivityBuilder {
 
-		
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new DoNothingActivity();
@@ -61,9 +59,12 @@ public class DoNothingActivity implements Activity {
 		}
 
 		@Override
-		public InstantiationFunctionCompilationContext findFunctionCompilationContext(InstantiationFunction function,
-				Step currentStep, Plan currentPlan) {
+		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 		}
 	}
 

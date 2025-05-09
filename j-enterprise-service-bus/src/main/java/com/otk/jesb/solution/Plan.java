@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
@@ -20,9 +19,7 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
-import com.otk.jesb.instantiation.EvaluationContext;
-import com.otk.jesb.instantiation.InstantiationFunction;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Transition.ElseCondition;
 import com.otk.jesb.solution.Transition.ExceptionCondition;
@@ -265,8 +262,8 @@ public class Plan extends Asset {
 			}
 			execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 					executionInspector);
-			return outputBuilder.build(
-					new EvaluationContext(context.getVariables(), null, context.getCompilationContextProvider()));
+			return outputBuilder.build(new InstantiationContext(context.getVariables(),
+					getValidationContext(null).getVariableDeclarations()));
 		} catch (Throwable t) {
 			throw new ExecutionError("Failed to execute plan (" + Reference.get(this).getPath() + ")", t);
 		}
@@ -556,7 +553,7 @@ public class Plan extends Asset {
 					throw new ValidationError("Failed to validate the output structure", e);
 				}
 			}
-			outputBuilder.validate();
+			outputBuilder.validate(recursively, getValidationContext(null).getVariableDeclarations());
 		}
 	}
 
@@ -618,20 +615,6 @@ public class Plan extends Asset {
 
 		public List<Variable> getVariables() {
 			return variables;
-		}
-
-		public Function<InstantiationFunction, InstantiationFunctionCompilationContext> getCompilationContextProvider() {
-			return new Function<InstantiationFunction, InstantiationFunctionCompilationContext>() {
-
-				@Override
-				public InstantiationFunctionCompilationContext apply(InstantiationFunction function) {
-					return (currentStep != null)
-							? currentStep.getActivityBuilder().findFunctionCompilationContext(function, currentStep,
-									plan)
-							: plan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
-									plan.getValidationContext(currentStep).getVariableDeclarations());
-				}
-			};
 		}
 
 	}

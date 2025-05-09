@@ -13,7 +13,9 @@ ExecutePlan.inputBuilder is filled
 - allow to manage exceptions
 - to ease co-working and version control, plans and resources must be stored in separate files  
 - add validation
-- optimize functions (do not recompile systematically)
+- optimize functions
+	. do not recompile systematically
+	. VariableDeclarations should not necessary to build instances
 - allow to deploy and execute a project outside of the designer in a production environment
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities

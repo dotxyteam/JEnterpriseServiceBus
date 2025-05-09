@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -18,6 +20,32 @@ public class InitializationSwitchFacade extends Facade {
 	public InitializationSwitchFacade(Facade parent, InitializationSwitch underlying) {
 		this.parent = parent;
 		this.underlying = underlying;
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+		return parent.getAdditionalVariableDeclarations();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (recursively) {
+			for (Facade facade : getChildren()) {
+				try {
+					facade.validate(recursively, variableDeclarations);
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate '" + facade.toString() + "'", e);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -95,8 +123,8 @@ public class InitializationSwitchFacade extends Facade {
 	@Override
 	public List<InitializationCaseFacade> getChildren() {
 		List<InitializationCaseFacade> result = new ArrayList<InitializationCaseFacade>();
-		for (Map.Entry<InstantiationFunction, InitializationCase> caseEntry : underlying.getInitializationCaseByCondition()
-				.entrySet()) {
+		for (Map.Entry<InstantiationFunction, InitializationCase> caseEntry : underlying
+				.getInitializationCaseByCondition().entrySet()) {
 			result.add(new InitializationCaseFacade(this, caseEntry.getKey(), caseEntry.getValue()));
 		}
 		result.add(new InitializationCaseFacade(this, null, underlying.getDefaultInitializationCase()));
@@ -191,14 +219,15 @@ public class InitializationSwitchFacade extends Facade {
 		}
 	}
 
-	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
+	public List<Facade> collectLiveInitializerFacades(InstantiationContext context) {
 		List<InitializationCaseFacade> children = getChildren();
-		EvaluationContext childContext = new EvaluationContext(context, this);
+		InstantiationContext childContext = new InstantiationContext(context, this);
 		for (InitializationCaseFacade caseFacade : children) {
 			boolean caseConditionFullfilled;
 			if (caseFacade.getCondition() != null) {
 				try {
-					caseConditionFullfilled = InstantiationUtils.isConditionFullfilled(caseFacade.getCondition(), childContext);
+					caseConditionFullfilled = InstantiationUtils.isConditionFullfilled(caseFacade.getCondition(),
+							childContext);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}

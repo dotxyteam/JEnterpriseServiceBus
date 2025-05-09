@@ -5,9 +5,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
@@ -26,6 +31,60 @@ public class ListItemInitializerFacade extends Facade {
 		} else {
 			this.itemValue = listItemInitializer.getItemValue();
 		}
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(
+				parent.getAdditionalVariableDeclarations());
+		if (getItemReplicationFacade() != null) {
+			result.add(new VariableDeclaration() {
+
+				@Override
+				public String getVariableName() {
+					return getItemReplicationFacade().getIterationVariableName();
+				}
+
+				@Override
+				public Class<?> getVariableType() {
+					return getItemReplicationFacade().getIterationVariableClass();
+				}
+			});
+		}
+		return result;
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+		if (getCondition() == function) {
+			return boolean.class;
+		}
+		if (getItemReplicationFacade() != null) {
+			if (getItemReplicationFacade().getIterationListValue() == function) {
+				return getItemReplicationFacade().getIterationListValueClass();
+			}
+		}
+		if (getItemValue() == function) {
+			return ((DefaultTypeInfo) getItemType()).getJavaType();
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (getCondition() != null) {
+			try {
+				CompiledFunction.get(getCondition().getFunctionBody(), variableDeclarations,
+						getFunctionReturnType(getCondition()));
+			} catch (CompilationError e) {
+				throw new ValidationError("Failed to validate the condition", e);
+			}
+		}
+		InstantiationUtils.validateValue(getItemValue(), getItemType(), this, "Item value", recursively,
+				variableDeclarations);
 	}
 
 	@Override

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
 
 public abstract class Facade {
@@ -19,6 +21,13 @@ public abstract class Facade {
 	public abstract void setConcrete(boolean b);
 
 	public abstract Object getUnderlying();
+
+	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations();
+
+	public abstract Class<?> getFunctionReturnType(InstantiationFunction function);
+
+	public abstract void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
+			throws ValidationError;
 
 	public static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();

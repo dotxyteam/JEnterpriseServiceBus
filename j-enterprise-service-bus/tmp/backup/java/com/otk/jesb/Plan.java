@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.NullInstance;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.util.Accessor;

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.Function;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
@@ -16,13 +17,11 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.solution.Plan.ValidationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationFunction;
-import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
@@ -67,6 +66,16 @@ public class LoopCompositeStep extends CompositeStep {
 		return result;
 	}
 
+	private List<VariableDeclaration> getLoopEndConditionVariableDeclarations(Plan plan) {
+		List<VariableDeclaration> loopEndConditionVariableDeclarations = new ArrayList<VariableDeclaration>(
+				plan.getValidationContext(this).getVariableDeclarations());
+		loopEndConditionVariableDeclarations.addAll(((LoopCompositeStep) this).getContextualVariableDeclarations());
+		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantSteps(plan)) {
+			loopEndConditionVariableDeclarations.add(new StepEventuality(descendantStep, plan));
+		}
+		return loopEndConditionVariableDeclarations;
+	}
+
 	private List<Step> getDescendantSteps(Plan currentPlan) {
 		List<Step> result = new ArrayList<Step>();
 		for (Step descendantStep : MiscUtils.getDescendants(this, currentPlan)) {
@@ -81,11 +90,11 @@ public class LoopCompositeStep extends CompositeStep {
 
 		private ExecutionContext context;
 		private ExecutionInspector executionInspector;
-		private InstantiationFunction loopEndCondition;
+		private Function loopEndCondition;
 		private String iterationIndexVariableName;
 
-		public LoopActivity(ExecutionContext context, ExecutionInspector executionInspector,
-				InstantiationFunction loopEndCondition, String iterationIndexVariableName) {
+		public LoopActivity(ExecutionContext context, ExecutionInspector executionInspector, Function loopEndCondition,
+				String iterationIndexVariableName) {
 			this.context = context;
 			this.executionInspector = executionInspector;
 			this.loopEndCondition = loopEndCondition;
@@ -125,10 +134,11 @@ public class LoopCompositeStep extends CompositeStep {
 						.getDescendantSteps(context.getPlan())) {
 					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
 				}
+				List<VariableDeclaration> loopEndConditionVariableDeclarations = ((LoopCompositeStep) context
+						.getCurrentStep()).getLoopEndConditionVariableDeclarations(context.getPlan());
 				while (true) {
-					EvaluationContext evaluationContext = new EvaluationContext(context.getVariables(), null,
-							context.getCompilationContextProvider());
-					if ((Boolean) InstantiationUtils.executeFunction(loopEndCondition, evaluationContext)) {
+					if ((Boolean) CompiledFunction.get(loopEndCondition.getFunctionBody(),
+							loopEndConditionVariableDeclarations, boolean.class).call(context.getVariables())) {
 						break;
 					}
 					context.getVariables().clear();
@@ -193,7 +203,7 @@ public class LoopCompositeStep extends CompositeStep {
 		public static class Builder implements ActivityBuilder {
 
 			private String iterationIndexVariableName = "iterationIndex";
-			private InstantiationFunction loopEndCondition = new InstantiationFunction(
+			private Function loopEndCondition = new InstantiationFunction(
 					"return " + iterationIndexVariableName + "==3;");
 			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
 			private UpToDate<Class<?>> upToDateResultClass = new UpToDate<Class<?>>() {
@@ -231,11 +241,11 @@ public class LoopCompositeStep extends CompositeStep {
 				this.iterationIndexVariableName = iterationIndexVariableName;
 			}
 
-			public InstantiationFunction getLoopEndCondition() {
+			public Function getLoopEndCondition() {
 				return loopEndCondition;
 			}
 
-			public void setLoopEndCondition(InstantiationFunction loopEndCondition) {
+			public void setLoopEndCondition(Function loopEndCondition) {
 				this.loopEndCondition = loopEndCondition;
 			}
 
@@ -352,9 +362,22 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 			}
 
-			public void validate(Plan currentPlan, Step currentStep) throws ValidationError {
+			@Override
+			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(iterationIndexVariableName).matches()) {
+					throw new ValidationError("Invalid iteration index variable name: '" + iterationIndexVariableName
+							+ "' (should match the following regular expression: "
+							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+				}
+				for (VariableDeclaration variableDeclaration : plan.getValidationContext(step)
+						.getVariableDeclarations()) {
+					if (variableDeclaration.getVariableName().equals(iterationIndexVariableName)) {
+						throw new ValidationError(
+								"Iteration index variable name already used: " + iterationIndexVariableName + "'");
+					}
+				}
 				List<ResultsCollectionConfigurationEntry> resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(
-						currentPlan, currentStep);
+						plan, step);
 				if (resultsCollectionEntries != null) {
 					List<ResultsCollectionConfigurationEntry> invalidEntries = resultsCollectionEntries.stream()
 							.filter(entry -> !entry.isValid()).collect(Collectors.toList());
@@ -364,6 +387,13 @@ public class LoopCompositeStep extends CompositeStep {
 								", "));
 					}
 				}
+				try {
+					CompiledFunction.get(loopEndCondition.getFunctionBody(),
+							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(plan), boolean.class);
+				} catch (CompilationError e) {
+					throw new ValidationError("Failed to validate the loop end condition", e);
+				}
+
 			}
 
 			@Override
@@ -378,20 +408,8 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public InstantiationFunctionCompilationContext findFunctionCompilationContext(
-					InstantiationFunction function, Step currentStep, Plan currentPlan) {
-				if (function != loopEndCondition) {
-					throw new UnexpectedError();
-				}
-				ValidationContext validationContext = currentPlan.getValidationContext(currentStep);
-				validationContext = new ValidationContext(validationContext);
-				validationContext.getVariableDeclarations()
-						.addAll(((LoopCompositeStep) currentStep).getContextualVariableDeclarations());
-				for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantSteps(currentPlan)) {
-					validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep, currentPlan));
-				}
-				return new InstantiationFunctionCompilationContext(validationContext.getVariableDeclarations(), null,
-						boolean.class);
+			public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+				throw new UnsupportedOperationException();
 			}
 
 			public class ResultsCollectionConfigurationEntry {

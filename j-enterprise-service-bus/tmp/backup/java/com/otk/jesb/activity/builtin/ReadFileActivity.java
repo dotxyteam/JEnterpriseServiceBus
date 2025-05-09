@@ -14,7 +14,7 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
-import com.otk.jesb.instantiation.EvaluationContext;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
