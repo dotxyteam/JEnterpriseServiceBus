@@ -49,7 +49,8 @@ public class JConnection extends JDiagramObject {
 	public void paint(Graphics g, JDiagram diagram) {
 		MiscUtils.improveRenderingQuality((Graphics2D) g);
 		g.setColor(selected ? diagram.getSelectionColor() : diagram.getConnectionColor());
-		for (Polygon polygon : computePolygons(2, diagram.getConnectionArrowSize())) {
+		for (Polygon polygon : computePolygons(diagram.getConnectionLineThickness(),
+				diagram.getConnectionArrowSize())) {
 			g.fillPolygon(polygon);
 		}
 		if (value != null) {
@@ -121,7 +122,8 @@ public class JConnection extends JDiagramObject {
 				return true;
 			}
 		}
-		for (Polygon polygon : computePolygons(4, diagram.getConnectionArrowSize() + 2)) {
+		for (Polygon polygon : computePolygons(diagram.getConnectionLineThickness() + 2,
+				diagram.getConnectionArrowSize() + 2)) {
 			if (polygon.contains(x, y)) {
 				return true;
 			}
@@ -129,7 +131,7 @@ public class JConnection extends JDiagramObject {
 		return false;
 	}
 
-	private List<Polygon> computePolygons(int lineThickness, int arrowSize) {
+	public List<Polygon> computePolygons(int lineThickness, int arrowSize) {
 		List<Polygon> result = new ArrayList<Polygon>();
 		Pair<Point, Point> lineSegment = getLineSegment();
 		if (lineSegment == null) {

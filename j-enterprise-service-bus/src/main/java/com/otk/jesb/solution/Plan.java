@@ -15,6 +15,7 @@ import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
@@ -517,6 +518,45 @@ public class Plan extends Asset {
 			return new StepEventuality(step, this);
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		if (recursively) {
+			for (Step step : steps) {
+				try {
+					step.validate(recursively, this);
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate step '" + step.getName() + "'", e);
+				}
+			}
+			for (Transition transition : transitions) {
+				try {
+					transition.validate(recursively, this);
+				} catch (ValidationError e) {
+					throw new ValidationError(
+							"Failed to validate transition from step '" + transition.getStartStep().getName()
+									+ "' to  step '" + transition.getEndStep().getName() + "'",
+							e);
+				}
+			}
+			if (inputStructure != null) {
+				try {
+					inputStructure.validate();
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate the input structure", e);
+				}
+			}
+			if (outputStructure != null) {
+				try {
+					outputStructure.validate();
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate the output structure", e);
+				}
+			}
+			outputBuilder.validate();
 		}
 	}
 

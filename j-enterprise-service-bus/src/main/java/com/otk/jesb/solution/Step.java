@@ -8,6 +8,8 @@ import com.otk.jesb.activity.ActivityMetadata;
 
 public class Step {
 
+	private static final String NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
+
 	private String name = "";
 	private ActivityBuilder activityBuilder;
 	private int diagramX = 0;
@@ -67,10 +69,17 @@ public class Step {
 		this.parent = parent;
 	}
 
-	public void validate() throws Exception {
-		String NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
 		if (!name.matches(NAME_PATTERN)) {
 			throw new ValidationError("The step name must match the following regular expression: " + NAME_PATTERN);
+		}
+		if (plan.isPreceding(this, this)) {
+			throw new ValidationError("Cycle detected");
+		}
+		if(recursively) {
+			if(activityBuilder != null) {
+				activityBuilder.validate(plan, this);
+			}
 		}
 	}
 

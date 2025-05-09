@@ -49,16 +49,16 @@ public class JNode extends JDiagramObject {
 
 	public void paint(Graphics g, JDiagram diagram) {
 		MiscUtils.improveRenderingQuality((Graphics2D) g);
+		Rectangle imageBounds = getImageBounds();
 		if (image != null) {
-			g.drawImage(image, centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
-					selected ? diagram.getSelectionColor() : null, null);
+			g.drawImage(image, imageBounds.x, imageBounds.y, selected ? diagram.getSelectionColor() : null, null);
 		} else {
 			if (selected) {
 				g.setColor(diagram.getSelectionColor());
 			} else {
 				g.setColor(diagram.getNodeColor());
 			}
-			g.fillOval(-10 + centerX, -10 + centerY, 20, 20);
+			g.fillOval(imageBounds.x, imageBounds.y, imageBounds.width, imageBounds.height);
 		}
 		if (value != null) {
 			g.setColor(diagram.getTextColor());
@@ -69,17 +69,26 @@ public class JNode extends JDiagramObject {
 		}
 	}
 
+	public Rectangle getImageBounds() {
+		if (image != null) {
+			return new Rectangle(centerX - (image.getWidth(null) / 2), centerY - (image.getHeight(null) / 2),
+					getImageWidth(), getImageHeight());
+		} else {
+			return new Rectangle(-10 + centerX, -10 + centerY, 20, 20);
+		}
+	}
+
 	public Rectangle getLabelBounds(Graphics g) {
 		if ((value == null) || (value.toString().length() == 0)) {
 			return null;
 		}
 		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(value.toString(), g);
 		return new Rectangle((int) Math.round(centerX - (stringBounds.getWidth() / 2)),
-				(int) Math.round(centerY + (getHeight() / 2)), (int) Math.round(stringBounds.getWidth()),
+				(int) Math.round(centerY + (getImageHeight() / 2)), (int) Math.round(stringBounds.getWidth()),
 				(int) Math.round(stringBounds.getHeight()));
 	}
 
-	public int getWidth() {
+	public int getImageWidth() {
 		if (image != null) {
 			return image.getWidth(null);
 		} else {
@@ -87,7 +96,7 @@ public class JNode extends JDiagramObject {
 		}
 	}
 
-	public int getHeight() {
+	public int getImageHeight() {
 		if (image != null) {
 			return image.getHeight(null);
 		} else {
@@ -102,8 +111,8 @@ public class JNode extends JDiagramObject {
 				return true;
 			}
 		}
-		int width = getWidth();
-		int height = getHeight();
+		int width = getImageWidth();
+		int height = getImageHeight();
 		if (x < (-(width / 2) + centerX)) {
 			return false;
 		}

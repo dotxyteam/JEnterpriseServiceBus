@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.otk.jesb.Function;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.meta.TypeInfoProvider;
 
 public class Transition {
 
@@ -49,12 +51,26 @@ public class Transition {
 		this.condition = condition;
 	}
 
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		if (recursively) {
+			if (condition != null) {
+				try {
+					condition.validate(plan.getTransitionContextVariableDeclarations(this));
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to valide condition", e);
+				}
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
 		return ((label != null) && (label.length() > 0)) ? label : ((condition != null) ? condition.toString() : "");
 	}
 
 	public static interface Condition {
+
+		void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError;
 
 	}
 
@@ -78,12 +94,26 @@ public class Transition {
 			}
 			return (boolean) compiledFunction.call(variables);
 		}
+
+		@Override
+		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
+			try {
+				CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
+			} catch (CompilationError e) {
+				throw new ValidationError(e.toString(), e);
+			}
+		}
+
 	}
 
 	public static class ElseCondition implements Condition {
 		@Override
 		public String toString() {
 			return "Else";
+		}
+
+		@Override
+		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
 		}
 	}
 
@@ -101,11 +131,16 @@ public class Transition {
 		public boolean isFullfilled(Throwable thrown) {
 			Class<?> exceptionClass;
 			try {
-				exceptionClass = Class.forName(exceptionTypeName);
-			} catch (ClassNotFoundException e) {
-				throw new UnexpectedError(e);
+				exceptionClass = TypeInfoProvider.getClass(exceptionTypeName);
+			} catch (Throwable t) {
+				throw new UnexpectedError(t);
 			}
 			return exceptionClass.isInstance(thrown);
+		}
+
+		@Override
+		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
+			TypeInfoProvider.getClass(exceptionTypeName);
 		}
 
 		@Override
@@ -114,4 +149,5 @@ public class Transition {
 		}
 
 	}
+
 }

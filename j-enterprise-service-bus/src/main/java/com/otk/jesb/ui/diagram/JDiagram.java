@@ -67,6 +67,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 	private List<JDiagramActionScheme> actionSchemes;
 	private DragIntent dragIntent = DragIntent.MOVE;
 	private int connectionArrowSize = 25;
+	private int connectionLineThickness = 2;
 
 	private Color nodeColor = Color.BLACK;
 	private Color connectionColor = Color.BLACK;
@@ -109,6 +110,14 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 
 	public void setConnectionArrowSize(int connectionArrowSize) {
 		this.connectionArrowSize = connectionArrowSize;
+	}
+
+	public int getConnectionLineThickness() {
+		return connectionLineThickness;
+	}
+
+	public void setConnectionLineThickness(int connectionLineThickness) {
+		this.connectionLineThickness = connectionLineThickness;
 	}
 
 	public Color getNodeColor() {
@@ -396,8 +405,8 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		Dimension result = new Dimension(0, 0);
 		Graphics g = getGraphics();
 		for (JNode node : nodes) {
-			result.width = Math.max(result.width, node.getCenterX() + (node.getWidth() / 2));
-			result.height = Math.max(result.height, node.getCenterY() + (node.getHeight() / 2));
+			result.width = Math.max(result.width, node.getCenterX() + (node.getImageWidth() / 2));
+			result.height = Math.max(result.height, node.getCenterY() + (node.getImageHeight() / 2));
 			if (g != null) {
 				Rectangle labelBounds = node.getLabelBounds(g);
 				result.width = Math.max(result.width, labelBounds.x + labelBounds.width);

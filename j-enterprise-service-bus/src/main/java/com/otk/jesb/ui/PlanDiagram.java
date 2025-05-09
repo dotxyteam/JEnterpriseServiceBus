@@ -2,9 +2,11 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -12,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +61,6 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
 import xy.reflect.ui.info.menu.MenuInfo;
 import xy.reflect.ui.info.menu.MenuItemCategory;
@@ -73,6 +75,7 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -86,6 +89,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
+	private Map<Object, Exception> validitionErrorMap = new HashMap<Object, Exception>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
@@ -505,7 +509,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
-		Form tmpPlanEditor = new Form(swingRenderer, getPlan(), IInfoFilter.DEFAULT);
+		Form tmpPlanEditor = swingRenderer.createForm(getPlan());
 		Component dragIntentControl = SwingRendererUtils
 				.findDescendantFieldControlPlaceHolder(tmpPlanEditor, "diagramDragIntent", swingRenderer)
 				.getFieldControl();
@@ -730,7 +734,65 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
+	protected void paintConnection(Graphics g, JConnection connection) {
+		super.paintConnection(g, connection);
+		if (validitionErrorMap.get(connection.getValue()) != null) {
+			g.setColor(Color.RED);
+			for (Polygon polygon : connection.computePolygons(getConnectionLineThickness() + 1,
+					getConnectionArrowSize() + 1)) {
+				g.drawPolygon(polygon);
+			}
+		}
+	}
+
+	@Override
+	protected void paintNode(Graphics g, JNode node) {
+		super.paintNode(g, node);
+		if (validitionErrorMap.get(node.getValue()) != null) {
+			g.setColor(Color.RED);
+			Rectangle imageBounds = node.getImageBounds();
+			g.drawRect(imageBounds.x, imageBounds.y, imageBounds.width, imageBounds.height);
+		}
+	}
+
+	@Override
 	public void validateSubForms() throws Exception {
+		Plan plan = getPlan();
+		plan.validate(false);
+		List<Object> objectsToValidate = new ArrayList<Object>();
+		objectsToValidate.addAll(plan.getSteps());
+		objectsToValidate.addAll(plan.getTransitions());
+		if (plan.getInputStructure() != null) {
+			objectsToValidate.add(plan.getInputStructure());
+		}
+		if (plan.getOutputStructure() != null) {
+			objectsToValidate.add(plan.getOutputStructure());
+		}
+		objectsToValidate.add(plan.getOutputBuilder());
+		for (Object objectToValidate : objectsToValidate) {
+			Form[] form = new Form[1];
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						form[0] = swingRenderer.createForm(objectToValidate);
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				throw new ReflectionUIError(e);
+			}
+			try {
+				form[0].validateForm();
+			} catch (Exception e) {
+				validitionErrorMap.put(objectToValidate, e);
+			}
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				repaint();
+			}
+		});
 	}
 
 	@Override
