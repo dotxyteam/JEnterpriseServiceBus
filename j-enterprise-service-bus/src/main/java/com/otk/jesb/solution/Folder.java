@@ -47,11 +47,13 @@ public class Folder extends Asset {
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		for (Asset asset : contents) {
-			try {
-				asset.validate(true);
-			} catch (ValidationError e) {
-				throw new ValidationError("Failed to validate '" + asset.getName() + "'", e);
+		if (recursively) {
+			for (Asset asset : contents) {
+				try {
+					asset.validate(true);
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate '" + asset.getName() + "'", e);
+				}
 			}
 		}
 	}

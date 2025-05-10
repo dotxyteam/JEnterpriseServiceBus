@@ -63,6 +63,10 @@ public class Transition {
 		}
 	}
 
+	public String getSummary() {
+		return getStartStep().getName() + " -> " + getEndStep().getName();
+	}
+
 	@Override
 	public String toString() {
 		return ((label != null) && (label.length() > 0)) ? label : ((condition != null) ? condition.toString() : "");

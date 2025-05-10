@@ -232,7 +232,7 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                           <outer-class reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
@@ -245,7 +245,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -289,10 +289,10 @@
                   <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
                 </connectionReference>
                 <parameterDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                  <com.otk.jesb.activity.builtin.JDBCActivity_-ParameterDefinition>
                     <parameterName>adress</parameterName>
                     <parameterTypeName>java.lang.String</parameterTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                  </com.otk.jesb.activity.builtin.JDBCActivity_-ParameterDefinition>
                 </parameterDefinitions>
                 <parameterValuesBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
@@ -305,7 +305,7 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                           <outer-class reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
@@ -327,7 +327,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -551,7 +551,7 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                           <outer-class reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
@@ -573,7 +573,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>

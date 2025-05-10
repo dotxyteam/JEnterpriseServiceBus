@@ -31,7 +31,7 @@
                 </connection>
                 <parameterDefinitions/>
                 <parameterValuesSpecification>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>

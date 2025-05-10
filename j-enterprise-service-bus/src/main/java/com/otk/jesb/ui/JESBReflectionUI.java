@@ -1039,7 +1039,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
 				if (object instanceof Plan) {
 					session.put(CURRENT_VALIDATION_PLAN_KEY, object);
-				} else if (object instanceof Step) {
+				}
+				if (object instanceof Step) {
 					session.put(CURRENT_VALIDATION_STEP_KEY, object);
 				}
 				Class<?> objectClass;

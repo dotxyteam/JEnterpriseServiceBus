@@ -534,8 +534,7 @@ public class Plan extends Asset {
 					transition.validate(recursively, this);
 				} catch (ValidationError e) {
 					throw new ValidationError(
-							"Failed to validate transition from step '" + transition.getStartStep().getName()
-									+ "' to  step '" + transition.getEndStep().getName() + "'",
+							"Failed to validate transition '" + transition.getSummary() + "'",
 							e);
 				}
 			}

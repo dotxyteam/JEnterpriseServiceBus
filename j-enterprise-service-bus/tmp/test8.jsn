@@ -44,7 +44,7 @@
                 </connection>
                 <parameterDefinitions/>
                 <parameterValuesBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
@@ -1322,7 +1322,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
                   <parameterDefinitions/>
                   <parameterValuesBuilder>
-                    <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder$1">
+                    <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
                       <outer-class reference="../../.."/>
                     </dynamicTypeNameAccessor>
                     <fieldInitializers/>

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
@@ -76,7 +78,6 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
-import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -90,7 +91,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
-	private Map<Object, Exception> validitionErrorMap = new HashMap<Object, Exception>();
+	private Map<Pair<String, Object>, Exception> validitionErrorMap = new HashMap<Pair<String, Object>, Exception>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
@@ -760,28 +761,32 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public void validateSubForms(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
-		List<Object> objectsToValidate = new ArrayList<Object>();
-		objectsToValidate.addAll(plan.getSteps());
-		objectsToValidate.addAll(plan.getTransitions());
+		List<Pair<String, Object>> titleAndObjectPairs = new ArrayList<Pair<String, Object>>();
+		titleAndObjectPairs.addAll(
+				plan.getSteps().stream().map(step -> new Pair<String, Object>("step '" + step.getName() + "'", step))
+						.collect(Collectors.toList()));
+		titleAndObjectPairs.addAll(plan.getTransitions().stream()
+				.map(transition -> new Pair<String, Object>("transition '" + transition.getSummary() + "'", transition))
+				.collect(Collectors.toList()));
 		if (plan.getInputStructure() != null) {
-			objectsToValidate.add(plan.getInputStructure());
+			titleAndObjectPairs.add(new Pair<String, Object>("input structure", plan.getInputStructure()));
 		}
 		if (plan.getOutputStructure() != null) {
-			objectsToValidate.add(plan.getOutputStructure());
+			titleAndObjectPairs.add(new Pair<String, Object>("output structure", plan.getOutputStructure()));
 		}
-		objectsToValidate.add(plan.getOutputBuilder());
+		titleAndObjectPairs.add(new Pair<String, Object>("output builder", plan.getOutputBuilder()));
 		validitionErrorMap.clear();
-		for (Object objectToValidate : objectsToValidate) {
+		for (Pair<String, Object> objectToValidate : titleAndObjectPairs) {
 			Form[] form = new Form[1];
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						form[0] = swingRenderer.createForm(objectToValidate);
+						form[0] = swingRenderer.createForm(objectToValidate.getSecond());
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
-				throw new ReflectionUIError(e);
+				throw new UnexpectedError(e);
 			}
 			try {
 				form[0].validateForm(session);
@@ -795,6 +800,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				repaint();
 			}
 		});
+		if (validitionErrorMap.size() > 0) {
+			Entry<Pair<String, Object>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator().next();
+			Pair<String, Object> titleAndObjectPair = firstErrorEntry.getKey();
+			Exception validationError = firstErrorEntry.getValue();
+			throw new ValidationError(
+					"Failed to validate the " + titleAndObjectPair.getFirst() + " '" + titleAndObjectPair.getSecond() + "'",
+					validationError);
+		}
 	}
 
 	@Override
