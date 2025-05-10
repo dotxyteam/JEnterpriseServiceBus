@@ -61,6 +61,7 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
 import xy.reflect.ui.info.menu.MenuInfo;
 import xy.reflect.ui.info.menu.MenuItemCategory;
@@ -756,7 +757,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public void validateSubForms() throws Exception {
+	public void validateSubForms(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
 		List<Object> objectsToValidate = new ArrayList<Object>();
@@ -783,7 +784,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				throw new ReflectionUIError(e);
 			}
 			try {
-				form[0].validateForm();
+				form[0].validateForm(session);
 			} catch (Exception e) {
 				validitionErrorMap.put(objectToValidate, e);
 			}

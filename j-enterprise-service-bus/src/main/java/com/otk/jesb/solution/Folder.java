@@ -3,6 +3,7 @@ package com.otk.jesb.solution;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.MiscUtils;
 
 public class Folder extends Asset {
@@ -25,4 +26,33 @@ public class Folder extends Asset {
 		this.contents = contents;
 	}
 
+	public void visitContents(AssetVisitor assetVisitor) {
+		for (Asset asset : contents) {
+			if (!visitAsset(assetVisitor, asset)) {
+				return;
+			}
+		}
+	}
+
+	private boolean visitAsset(AssetVisitor assetVisitor, Asset asset) {
+		if (!assetVisitor.visitAsset(asset)) {
+			return false;
+		}
+		if (asset instanceof Folder) {
+			((Folder) asset).visitContents(assetVisitor);
+		}
+		return true;
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		for (Asset asset : contents) {
+			try {
+				asset.validate(true);
+			} catch (ValidationError e) {
+				throw new ValidationError("Failed to validate '" + asset.getName() + "'", e);
+			}
+		}
+	}
 }

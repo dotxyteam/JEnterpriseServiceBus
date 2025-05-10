@@ -13,7 +13,6 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
-import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
@@ -191,11 +190,6 @@ public class InstanceBuilderTest {
 			@Override
 			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 				return Tree.class;
-			}
-
-			@Override
-			public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-				return instanceBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 			}
 
 			@Override

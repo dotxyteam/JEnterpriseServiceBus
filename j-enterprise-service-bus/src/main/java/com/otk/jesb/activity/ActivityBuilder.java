@@ -5,16 +5,12 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.instantiation.Facade;
-import com.otk.jesb.instantiation.InstantiationFunction;
 
 public interface ActivityBuilder {
 
 	Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
 
 	Class<?> getActivityResultClass(Plan currentPlan, Step currentStep);
-
-	Facade findInstantiationFunctionParentFacade(InstantiationFunction function);
 
 	void validate(boolean recursively, Plan plan, Step step) throws ValidationError;
 

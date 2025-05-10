@@ -20,7 +20,6 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
@@ -405,11 +404,6 @@ public class LoopCompositeStep extends CompositeStep {
 			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 				upToDateResultClass.setCustomValue(new Pair<Plan, Step>(currentPlan, currentStep));
 				return upToDateResultClass.get();
-			}
-
-			@Override
-			public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-				throw new UnsupportedOperationException();
 			}
 
 			public class ResultsCollectionConfigurationEntry {

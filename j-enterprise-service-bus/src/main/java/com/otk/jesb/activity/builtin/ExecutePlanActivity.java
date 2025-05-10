@@ -6,9 +6,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -118,11 +116,6 @@ public class ExecutePlanActivity implements Activity {
 				return null;
 			}
 			return plan.getOutputClass();
-		}
-
-		@Override
-		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-			return planInputBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 		}
 
 		@Override

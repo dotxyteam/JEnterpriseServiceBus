@@ -19,9 +19,7 @@ import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.solution.Asset;
@@ -275,7 +273,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 		public List<WSDL> getWSDLOptions() {
 			final List<WSDL> result = new ArrayList<WSDL>();
-			Solution.INSTANCE.visitAssets(new AssetVisitor() {
+			Solution.INSTANCE.visitContents(new AssetVisitor() {
 				@Override
 				public boolean visitAsset(Asset asset) {
 					if (asset instanceof WSDL) {
@@ -355,11 +353,6 @@ public class CallSOAPWebServiceActivity implements Activity {
 			}
 			return port.getOperationDescriptors().stream()
 					.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);
-		}
-
-		@Override
-		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-			return operationInputBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 		}
 
 		@Override

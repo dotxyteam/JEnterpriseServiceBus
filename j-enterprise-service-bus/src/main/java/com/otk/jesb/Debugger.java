@@ -30,7 +30,7 @@ public class Debugger {
 
 	private List<PlanActivator> collectPlanActivators() {
 		final List<PlanActivator> result = new ArrayList<Debugger.PlanActivator>();
-		solution.visitAssets(new AssetVisitor() {
+		solution.visitContents(new AssetVisitor() {
 			@Override
 			public boolean visitAsset(Asset asset) {
 				if (asset instanceof Plan) {

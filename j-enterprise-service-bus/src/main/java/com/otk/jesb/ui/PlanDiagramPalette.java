@@ -17,6 +17,7 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.ControlPanel;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.menu.MenuModel;
 
 public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldControl {
@@ -102,7 +103,7 @@ public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldCo
 	}
 
 	@Override
-	public void validateSubForms() throws Exception {
+	public void validateSubForms(ValidationSession session) throws Exception {
 	}
 
 	@Override

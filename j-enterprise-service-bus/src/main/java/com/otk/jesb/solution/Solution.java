@@ -6,47 +6,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.MiscUtils;
 
 public class Solution {
 
 	public static Solution INSTANCE = new Solution();
 
-	private List<Asset> contents = new ArrayList<Asset>();
+	private Folder rootFolder = new Folder(Solution.class.getName() + ".rootFolder");
 
 	public List<Asset> getContents() {
-		return contents;
+		return rootFolder.getContents();
 	}
 
 	public void setContents(List<Asset> contents) {
-		this.contents = contents;
+		rootFolder.setContents(contents);
 	}
 
-	public void visitAssets(AssetVisitor assetVisitor) {
-		for (Asset asset : contents) {
-			if (!visitAssets(assetVisitor, asset)) {
-				return;
-			}
-		}
+	public void visitContents(AssetVisitor assetVisitor) {
+		rootFolder.visitContents(assetVisitor);
 	}
 
-	private boolean visitAssets(AssetVisitor assetVisitor, Asset asset) {
-		if (!assetVisitor.visitAsset(asset)) {
-			return false;
-		}
-		if (asset instanceof Folder) {
-			for (Asset folderContent : ((Folder) asset).getContents()) {
-				if (!visitAssets(assetVisitor, folderContent)) {
-					return false;
-				}
-			}
-		}
-		return true;
+	public void validate() throws ValidationError {
+		rootFolder.validate(true);
 	}
 
 	public Debugger createDebugger() {
@@ -67,12 +53,12 @@ public class Solution {
 
 	public void loadFromStream(InputStream input) throws IOException {
 		Solution loaded = (Solution) MiscUtils.deserialize(input);
-		contents = loaded.contents;
+		setContents(loaded.getContents());
 	}
 
 	public void saveToStream(OutputStream output) throws IOException {
 		Solution toSave = new Solution();
-		toSave.contents = contents;
+		toSave.setContents(getContents());
 		MiscUtils.serialize(toSave, output);
 	}
 

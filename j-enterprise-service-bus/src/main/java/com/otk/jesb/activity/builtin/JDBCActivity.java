@@ -12,9 +12,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
@@ -199,11 +197,6 @@ public abstract class JDBCActivity implements Activity {
 		protected ParameterValues buildParameterValues(ExecutionContext context) throws Exception {
 			return (ParameterValues) getParameterValuesBuilder().build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-		}
-
-		@Override
-		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-			return parameterValuesBuilder.getFacade().findInstantiationFunctionParentFacade(function);
 		}
 
 		@Override

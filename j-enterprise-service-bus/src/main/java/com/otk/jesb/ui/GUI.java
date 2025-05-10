@@ -37,6 +37,7 @@ import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolde
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.field.CapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
@@ -329,7 +330,7 @@ public class GUI extends SwingCustomizer {
 			}
 
 			@Override
-			public void validateForm() throws Exception {
+			public void validateForm(ValidationSession session) throws Exception {
 				if (object instanceof FunctionEditor) {
 					TextControl textControl = (TextControl) SwingRendererUtils
 							.findDescendantFieldControlPlaceHolder(this, "functionBody", GUI.INSTANCE)
@@ -348,7 +349,7 @@ public class GUI extends SwingCustomizer {
 						throw e;
 					}
 				} else {
-					super.validateForm();
+					super.validateForm(session);
 				}
 			}
 

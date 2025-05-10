@@ -6,8 +6,6 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.Activity;
 import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.instantiation.Facade;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -56,11 +54,6 @@ public class DoNothingActivity implements Activity {
 		@Override
 		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 			return null;
-		}
-
-		@Override
-		public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
-			throw new UnsupportedOperationException();
 		}
 
 		@Override
