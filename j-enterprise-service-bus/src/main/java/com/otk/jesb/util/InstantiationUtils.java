@@ -147,7 +147,7 @@ public class InstantiationUtils {
 				CompiledFunction.get(compilationContext.getPrecompiler().apply(function.getFunctionBody()),
 						compilationContext.getVariableDeclarations(), functionReturnType);
 			} catch (CompilationError e) {
-				throw new ValidationError("Failed to compile " + valueName + " function", e);
+				throw new ValidationError("Failed to compile the " + valueName + " function", e);
 			}
 		} else if (value instanceof InstanceBuilder) {
 			try {
@@ -170,7 +170,7 @@ public class InstantiationUtils {
 							variableDeclarations);
 				}
 			} catch (ValidationError e) {
-				throw new ValidationError("Failed to validate " + valueName + " instance builder", e);
+				throw new ValidationError("Failed to validate the " + valueName + " instance builder", e);
 			}
 		} else if (value instanceof EnumerationItemSelector) {
 			EnumerationItemSelector enumItemSelector = (EnumerationItemSelector) value;
@@ -178,13 +178,13 @@ public class InstantiationUtils {
 			List<String> validItemNames = Arrays.asList(enumType.getValues()).stream()
 					.map(item -> enumType.getValueInfo(item).getName()).collect(Collectors.toList());
 			if (!validItemNames.contains(enumItemSelector.getSelectedItemName())) {
-				throw new ValidationError("Failed to validate " + valueName + " enumeration item: Unexpected name '"
+				throw new ValidationError("Failed to validate the " + valueName + " enumeration item: Unexpected name '"
 						+ enumItemSelector.getSelectedItemName() + "', expected "
 						+ MiscUtils.stringJoin(validItemNames.stream().map(name -> "'" + name + "'").toArray(), "|"));
 			}
 		} else {
 			if (!type.supports(value)) {
-				throw new ValidationError("Failed to validate " + valueName + ": Invalid value '" + value
+				throw new ValidationError("Failed to validate the " + valueName + ": Invalid value '" + value
 						+ "': Expected value of type <" + type.getName() + ">");
 			}
 		}

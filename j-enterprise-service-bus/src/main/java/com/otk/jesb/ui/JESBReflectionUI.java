@@ -1020,6 +1020,18 @@ public class JESBReflectionUI extends CustomizedUI {
 						return true;
 					}
 				}
+				if ((objectClass != null) && RootInstanceBuilder.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName(), List.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName(), List.class.getName())))) {
+						return true;
+					}
+				}
 				return super.isHidden(method, objectType);
 			}
 
@@ -1065,6 +1077,20 @@ public class JESBReflectionUI extends CustomizedUI {
 					try {
 						((ActivityBuilder) object).validate(false, getCurrentValidationPlan(session),
 								getCurrentValidationStep(session));
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if (objectClass == RootInstanceBuilder.class) {
+					try {
+						((RootInstanceBuilder) object).validate(true, getCurrentValidationPlan(session)
+								.getValidationContext(getCurrentValidationStep(session)).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
+					try {
+						((Facade) object).validate(false, getCurrentValidationPlan(session)
+								.getValidationContext(getCurrentValidationStep(session)).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ReflectionUIError(e);
 					}

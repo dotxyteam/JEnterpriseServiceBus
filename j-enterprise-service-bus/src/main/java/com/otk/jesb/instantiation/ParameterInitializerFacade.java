@@ -40,8 +40,8 @@ public class ParameterInitializerFacade extends Facade {
 		if (!isConcrete()) {
 			return;
 		}
-		InstantiationUtils.validateValue(getParameterValue(), getParameterInfo().getType(), this, "Parameter value",
-				recursively, variableDeclarations);
+		InstantiationUtils.validateValue(getUnderlying().getParameterValue(), getParameterInfo().getType(), this,
+				"parameter value", recursively, variableDeclarations);
 	}
 
 	@Override

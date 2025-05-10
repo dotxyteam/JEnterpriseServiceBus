@@ -71,7 +71,7 @@ public abstract class JDBCActivity implements Activity {
 		return preparedStatement;
 	}
 
-	protected static abstract class Builder implements ActivityBuilder {
+	public static abstract class Builder implements ActivityBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;

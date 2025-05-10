@@ -60,8 +60,8 @@ public class FieldInitializerFacade extends Facade {
 				throw new ValidationError("Failed to validate the condition", e);
 			}
 		}
-		InstantiationUtils.validateValue(getFieldValue(), getFieldInfo().getType(), this, "Field value", recursively,
-				variableDeclarations);
+		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, "field value",
+				recursively, variableDeclarations);
 	}
 
 	@Override

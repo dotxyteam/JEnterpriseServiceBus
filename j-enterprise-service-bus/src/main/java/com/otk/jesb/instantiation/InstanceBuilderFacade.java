@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
@@ -35,6 +36,11 @@ public class InstanceBuilderFacade extends Facade {
 		this.parent = parent;
 		this.underlying = underlying;
 		util = new InitializationCaseFacade(null, null, underlying) {
+
+			@Override
+			public boolean isConcrete() {
+				return true;
+			}
 
 			@Override
 			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
@@ -93,7 +99,10 @@ public class InstanceBuilderFacade extends Facade {
 
 	@Override
 	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
-		return parent.getAdditionalVariableDeclarations();
+		if (parent != null) {
+			return parent.getAdditionalVariableDeclarations();
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
