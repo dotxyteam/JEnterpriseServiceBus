@@ -17,6 +17,7 @@ ExecutePlan.inputBuilder is filled
 	. do not recompile systematically
 	. VariableDeclarations should not necessary to build instances
 - allow to deploy and execute a project outside of the designer in a production environment
+- name all anonymous classes that are serialized
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code

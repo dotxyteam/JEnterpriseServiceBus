@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.ValidationError;
-import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
-
-import xy.reflect.ui.info.type.ITypeInfo;
 
 public class RootInstanceBuilder extends InstanceBuilder {
 
@@ -28,6 +25,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			if (actualRootInstanceTypeName == null) {
 				return NullInstance.class.getName();
 			}
+			if(!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
+				throw new UnexpectedError();
+			}			
 			String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
 					+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
 			Class<?> rootInstanceWrapperClass;
@@ -157,28 +157,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return wrapper.getRootInstance();
 	}
 
-	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
-		getFacade().validate(recursively, variableDeclarations);
-	}
-
-	public static Object getRootInitializerSpecialDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode,
-			Facade currentFacade) {
-		if (valueMode == ValueMode.PLAIN) {
-			if ((currentFacade instanceof ParameterInitializerFacade) && (((ParameterInitializerFacade) currentFacade)
-					.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade)) {
-				RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
-						.getCurrentInstanceBuilderFacade()).getUnderlying();
-				InstanceBuilder result = new InstanceBuilder();
-				result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
-				result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-				if (!type.getName().equals(result.computeActualTypeName(
-						InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
-					throw new UnexpectedError();
-				}
-				return result;
-			}
-		}
-		return null;
-	}
+	
 
 }

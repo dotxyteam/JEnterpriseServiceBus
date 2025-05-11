@@ -200,7 +200,7 @@ public class ReadFileActivity implements Activity {
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.validate(recursively,
+						instanceBuilder.getFacade().validate(recursively,
 								plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);

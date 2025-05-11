@@ -11,4 +11,9 @@ public class RootInstanceBuilderFacade extends InstanceBuilderFacade {
 		return (RootInstanceBuilder) super.getUnderlying();
 	}
 
+	public static boolean isRootInitializerFacade(Facade facade) {
+		return (facade instanceof ParameterInitializerFacade) && (((ParameterInitializerFacade) facade)
+				.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade);
+	}
+
 }

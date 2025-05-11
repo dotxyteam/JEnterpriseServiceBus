@@ -768,13 +768,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		titleAndObjectPairs.addAll(plan.getTransitions().stream()
 				.map(transition -> new Pair<String, Object>("transition '" + transition.getSummary() + "'", transition))
 				.collect(Collectors.toList()));
-		if (plan.getInputStructure() != null) {
-			titleAndObjectPairs.add(new Pair<String, Object>("input structure", plan.getInputStructure()));
-		}
-		if (plan.getOutputStructure() != null) {
-			titleAndObjectPairs.add(new Pair<String, Object>("output structure", plan.getOutputStructure()));
-		}
-		titleAndObjectPairs.add(new Pair<String, Object>("output builder", plan.getOutputBuilder()));
 		validitionErrorMap.clear();
 		for (Pair<String, Object> objectToValidate : titleAndObjectPairs) {
 			Form[] form = new Form[1];
@@ -804,9 +797,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Entry<Pair<String, Object>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator().next();
 			Pair<String, Object> titleAndObjectPair = firstErrorEntry.getKey();
 			Exception validationError = firstErrorEntry.getValue();
-			throw new ValidationError(
-					"Failed to validate the " + titleAndObjectPair.getFirst() + " '" + titleAndObjectPair.getSecond() + "'",
-					validationError);
+			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst() + " '"
+					+ titleAndObjectPair.getSecond() + "'", validationError);
 		}
 	}
 

@@ -11,6 +11,10 @@ public class FacadeOutline {
 		this.facade = facade;
 	}
 
+	public boolean isFacadeConcrete() {
+		return facade.isConcrete();
+	}
+
 	public Facade getFacade() {
 		return facade;
 	}
@@ -39,6 +43,8 @@ public class FacadeOutline {
 		}
 		return (RootInstanceBuilderFacade) rootFacade;
 	}
+	
+
 
 	@Override
 	public int hashCode() {

@@ -222,7 +222,7 @@ public abstract class JDBCActivity implements Activity {
 				}
 				if (parameterValuesBuilder != null) {
 					try {
-						parameterValuesBuilder.validate(recursively,
+						parameterValuesBuilder.getFacade().validate(recursively,
 								plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the parameter values builder", e);

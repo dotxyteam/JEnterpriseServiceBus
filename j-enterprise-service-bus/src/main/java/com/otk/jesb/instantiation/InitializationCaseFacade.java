@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
@@ -211,7 +212,15 @@ public class InitializationCaseFacade extends Facade {
 			result.add(createInitializationSwitchFacade(initializationSwitch));
 		}
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
-		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
+		ITypeInfo typeInfo;
+		try {
+			typeInfo = instanceBuilderFacade.getTypeInfo();
+		} catch (Throwable t) {
+			if (JESB.DEBUG) {
+				t.printStackTrace();
+			}
+			return Collections.emptyList();
+		}
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo,
 				instanceBuilderFacade.getSelectedConstructorSignature());
 		if (constructor != null) {

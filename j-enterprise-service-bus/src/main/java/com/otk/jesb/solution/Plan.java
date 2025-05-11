@@ -552,7 +552,7 @@ public class Plan extends Asset {
 					throw new ValidationError("Failed to validate the output structure", e);
 				}
 			}
-			outputBuilder.validate(recursively, getValidationContext(null).getVariableDeclarations());
+			outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
 		}
 	}
 

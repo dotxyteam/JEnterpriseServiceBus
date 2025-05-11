@@ -24,7 +24,9 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.MapEntryBuilder;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
@@ -227,11 +229,6 @@ public class InstantiationUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
-		Object specialDefaultValue = RootInstanceBuilder.getRootInitializerSpecialDefaultInterpretableValue(type,
-				valueMode, currentFacade);
-		if (specialDefaultValue != null) {
-			return specialDefaultValue;
-		}
 		if (type == null) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -266,8 +263,17 @@ public class InstantiationUtils {
 					return ReflectionUIUtils.createDefaultInstance(type);
 				}
 			} else {
-				if (type instanceof IMapEntryTypeInfo) {
-					return new MapEntryBuilder();
+				if (RootInstanceBuilderFacade.isRootInitializerFacade(currentFacade)) {
+					RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
+							.getCurrentInstanceBuilderFacade()).getUnderlying();
+					InstanceBuilder result = new InstanceBuilder();
+					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
+					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
+					if (!type.getName().equals(result.computeActualTypeName(
+							InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
+						throw new UnexpectedError();
+					}
+					return result;
 				} else {
 					Class<?> javaType = ((DefaultTypeInfo) type).getJavaType();
 					if (SharedStructureModel.isStructuredClass(javaType)) {
@@ -279,8 +285,12 @@ public class InstantiationUtils {
 							}
 						});
 					} else {
-						return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
-								getAncestorStructuredInstanceBuilders(currentFacade)));
+						if (type instanceof IMapEntryTypeInfo) {
+							return new MapEntryBuilder();
+						} else {
+							return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
+									getAncestorStructuredInstanceBuilders(currentFacade)));
+						}
 					}
 				}
 			}

@@ -126,7 +126,7 @@ public class ExecutePlanActivity implements Activity {
 			if (recursively) {
 				if (planInputBuilder != null) {
 					try {
-						planInputBuilder.validate(recursively,
+						planInputBuilder.getFacade().validate(recursively,
 								plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the plan input builder", e);

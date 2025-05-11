@@ -784,7 +784,21 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="null"/>
+                        <dynamicTypeNameAccessor class="com.otk.jesb.util.InstantiationUtils$1">
+                          <val_-model>
+                            <name>SubPlanOutput</name>
+                            <structure class="com.otk.jesb.Structure$ClassicStructure">
+                              <elements>
+                                <com.otk.jesb.Structure_-SimpleElement>
+                                  <multiple>false</multiple>
+                                  <name>readFileResult</name>
+                                  <optionality class="null"/>
+                                  <typeName>java.lang.String</typeName>
+                                </com.otk.jesb.Structure_-SimpleElement>
+                              </elements>
+                            </structure>
+                          </val_-model>
+                        </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
                         <listItemInitializers/>
@@ -797,7 +811,7 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.resource.builtin.SharedStructure0108637523728093270711522797226279904448</typeName>
+                        <typeName>&lt;Dynamic&gt;</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
@@ -862,10 +876,11 @@
                                     <m class="java.util.Collections$UnmodifiableMap">
                                       <m class="java.util.Collections$UnmodifiableMap">
                                         <m class="java.util.Collections$UnmodifiableMap">
-                                          <m>
-                                            <entry>
-                                              <string>0_SOAP.ByNameDataSet.cls</string>
-                                              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                          <m class="java.util.Collections$UnmodifiableMap">
+                                            <m>
+                                              <entry>
+                                                <string>0_SOAP.ByNameDataSet.cls</string>
+                                                <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -892,10 +907,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                            </entry>
-                                            <entry>
-                                              <string>1_SOAP.Demo.QueryByName.DS.cls</string>
-                                              <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                              </entry>
+                                              <entry>
+                                                <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+                                                <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -919,7 +934,8 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                            </entry>
+                                              </entry>
+                                            </m>
                                           </m>
                                         </m>
                                       </m>
@@ -1359,19 +1375,7 @@
 &lt;/definitions&gt;</text>
         </com.otk.jesb.resource.builtin.WSDL>
         <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step/activityBuilder/planInputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
-        <com.otk.jesb.resource.builtin.SharedStructureModel>
-          <name>SubPlanOutput</name>
-          <structure class="com.otk.jesb.Structure$ClassicStructure">
-            <elements>
-              <com.otk.jesb.Structure_-SimpleElement>
-                <multiple>false</multiple>
-                <name>readFileResult</name>
-                <optionality class="null"/>
-                <typeName>java.lang.String</typeName>
-              </com.otk.jesb.Structure_-SimpleElement>
-            </elements>
-          </structure>
-        </com.otk.jesb.resource.builtin.SharedStructureModel>
+        <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan[2]/outputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
       </contents>
       <name>resources</name>
     </com.otk.jesb.solution.Folder>
