@@ -83,6 +83,9 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		visitItems(new IItemsVisitor() {
 			@Override
 			public VisitStatus visitItem(BufferedItemPosition itemPosition) {
+				if(Thread.currentThread().isInterrupted()) {
+					return VisitStatus.TREE_VISIT_INTERRUPTED;
+				}
 				if (!itemPosition.getContainingListType().isItemNodeValidityDetectionEnabled(itemPosition)) {
 					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 				}
@@ -96,8 +99,11 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 									.createEditorForm(false, false);
 						}
 					});
-				} catch (InvocationTargetException | InterruptedException e) {
+				} catch (InvocationTargetException e) {
 					throw new ReflectionUIError(e);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return VisitStatus.TREE_VISIT_INTERRUPTED;
 				}
 				try {
 					itemForm[0].validateForm(session);
@@ -115,6 +121,9 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 				return parentResult.getSubItemPosition(outlineItemPosition.getIndex());
 			}
 		});
+		if(Thread.currentThread().isInterrupted()) {
+			return;
+		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

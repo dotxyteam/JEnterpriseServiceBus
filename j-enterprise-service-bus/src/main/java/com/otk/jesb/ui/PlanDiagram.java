@@ -78,6 +78,7 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -770,6 +771,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				.collect(Collectors.toList()));
 		validitionErrorMap.clear();
 		for (Pair<String, Object> objectToValidate : titleAndObjectPairs) {
+			if(Thread.currentThread().isInterrupted()) {
+				return;
+			}
 			Form[] form = new Form[1];
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
@@ -778,14 +782,20 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						form[0] = swingRenderer.createForm(objectToValidate.getSecond());
 					}
 				});
-			} catch (InvocationTargetException | InterruptedException e) {
-				throw new UnexpectedError(e);
+			} catch (InvocationTargetException e) {
+				throw new ReflectionUIError(e);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
 			}
 			try {
 				form[0].validateForm(session);
 			} catch (Exception e) {
 				validitionErrorMap.put(objectToValidate, e);
 			}
+		}
+		if(Thread.currentThread().isInterrupted()) {
+			return;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

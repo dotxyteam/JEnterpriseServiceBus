@@ -19,6 +19,7 @@ public class FieldInitializerFacade extends Facade {
 	private Facade parent;
 	private String fieldName;
 	private Object fieldValue;
+	private IFieldInfo fieldInfo;
 
 	public FieldInitializerFacade(Facade parent, String fieldName) {
 		this.parent = parent;
@@ -93,8 +94,11 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	public IFieldInfo getFieldInfo() {
-		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		return ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
+		if (fieldInfo == null) {
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			fieldInfo = ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
+		}
+		return fieldInfo;
 	}
 
 	@Override

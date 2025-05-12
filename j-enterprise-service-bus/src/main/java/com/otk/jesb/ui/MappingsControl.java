@@ -877,7 +877,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						: pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 							@Override
 							public ITypeInfo get() {
-								return ((ListItemInitializerFacade) initializerFacade).getItemType();
+								return ((ListItemInitializerFacade) initializerFacade).getItemTypeInfo();
 							}
 						}, new Accessor<Object>() {
 							@Override

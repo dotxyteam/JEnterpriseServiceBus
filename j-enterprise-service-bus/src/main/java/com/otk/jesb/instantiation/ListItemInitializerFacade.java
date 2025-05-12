@@ -9,6 +9,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -21,6 +22,7 @@ public class ListItemInitializerFacade extends Facade {
 	private Facade parent;
 	private int index;
 	private Object itemValue;
+	private ITypeInfo itemTypeInfo;
 
 	public ListItemInitializerFacade(Facade parent, int index) {
 		this.parent = parent;
@@ -65,7 +67,7 @@ public class ListItemInitializerFacade extends Facade {
 			}
 		}
 		if (getItemValue() == function) {
-			return ((DefaultTypeInfo) getItemType()).getJavaType();
+			return ((DefaultTypeInfo) getItemTypeInfo()).getJavaType();
 		}
 		throw new UnexpectedError();
 	}
@@ -83,8 +85,8 @@ public class ListItemInitializerFacade extends Facade {
 				throw new ValidationError("Failed to validate the condition", e);
 			}
 		}
-		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemType(), this, "item value", recursively,
-				variableDeclarations);
+		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
+				recursively, variableDeclarations);
 	}
 
 	@Override
@@ -158,7 +160,7 @@ public class ListItemInitializerFacade extends Facade {
 			return null;
 		}
 		Object result = InstantiationUtils.maintainInterpretableValue(listItemInitializer.getItemValue(),
-				getItemType());
+				getItemTypeInfo());
 		if (result instanceof InstanceBuilder) {
 			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
 		}
@@ -171,7 +173,7 @@ public class ListItemInitializerFacade extends Facade {
 		}
 		setConcrete(true);
 		ListItemInitializer listItemInitializer = getUnderlying();
-		ITypeInfo itemType = getItemType();
+		ITypeInfo itemType = getItemTypeInfo();
 		if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
 			throw new UnexpectedError("Cannot add null item to primitive item list");
 		}
@@ -191,7 +193,7 @@ public class ListItemInitializerFacade extends Facade {
 		if (valueMode == getItemValueMode()) {
 			return;
 		}
-		ITypeInfo itemType = getItemType();
+		ITypeInfo itemType = getItemTypeInfo();
 		Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
 		if (newItemValue instanceof InstanceBuilder) {
 			newItemValue = new InstanceBuilderFacade(this, (InstanceBuilder) newItemValue);
@@ -200,17 +202,24 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	public Object createDefaultItemValue() {
-		ITypeInfo itemType = getItemType();
+		ITypeInfo itemType = getItemTypeInfo();
 		return InstantiationUtils.getDefaultInterpretableValue(itemType, this);
 	}
 
-	public ITypeInfo getItemType() {
-		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		return ((IListTypeInfo) parentTypeInfo).getItemType();
+	public ITypeInfo getItemTypeInfo() {
+		if (itemTypeInfo == null) {
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			ITypeInfo result = ((IListTypeInfo) parentTypeInfo).getItemType();
+			if (result == null) {
+				result = TypeInfoProvider.getTypeInfo(Object.class.getName());
+			}
+			itemTypeInfo = result;
+		}
+		return itemTypeInfo;
 	}
 
 	public String getItemTypeName() {
-		ITypeInfo itemType = getItemType();
+		ITypeInfo itemType = getItemTypeInfo();
 		String result = (itemType == null) ? Object.class.getName() : itemType.getName();
 		result = InstantiationUtils.makeTypeNamesRelative(result,
 				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));

@@ -229,7 +229,7 @@ public class InstantiationUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
-		if (type == null) {
+		if ((type == null) || type.getName().equals(Object.class.getName())) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
 			String functionBody;

@@ -16,6 +16,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	private Facade parent;
 	private int parameterPosition;
+	private IParameterInfo parameterInfo;
 
 	public ParameterInitializerFacade(Facade parent, int parameterPosition) {
 		this.parent = parent;
@@ -60,13 +61,16 @@ public class ParameterInitializerFacade extends Facade {
 	}
 
 	public IParameterInfo getParameterInfo() {
-		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
-				getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
-		if (constructor == null) {
-			throw new UnexpectedError();
+		if (parameterInfo == null) {
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
+					getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
+			if (constructor == null) {
+				throw new UnexpectedError();
+			}
+			parameterInfo = constructor.getParameters().get(parameterPosition);
 		}
-		return constructor.getParameters().get(parameterPosition);
+		return parameterInfo;
 	}
 
 	@Override
