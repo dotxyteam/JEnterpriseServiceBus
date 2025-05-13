@@ -3,6 +3,7 @@ package com.otk.jesb.activity.builtin;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -203,6 +204,16 @@ public abstract class JDBCActivity implements Activity {
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 			if (getConnection() == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
+			}
+			try {
+				Connection sqlConnection = getConnection().build();
+				PreparedStatement preparedStatement = sqlConnection.prepareStatement(statement);
+				int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
+				if (expectedParameterCount != parameterDefinitions.size()) {
+					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
+							+ ". Expected " + expectedParameterCount + " parameter(s).");
+				}
+			} catch (ClassNotFoundException | SQLException ignore) {
 			}
 			if (recursively) {
 				List<String> parameterNames = new ArrayList<String>();

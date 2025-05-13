@@ -1,6 +1,8 @@
 package com.otk.jesb.resource.builtin;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
@@ -62,10 +64,15 @@ public class JDBCConnection extends Resource {
 		this.password = password;
 	}
 
-	public String test() throws Exception {
+	public String test() throws ClassNotFoundException, SQLException {
 		ClassUtils.getCachedClassForName(driverClassName);
 		DriverManager.getConnection(url, userName, password);
 		return "Connection successful !";
+	}
+	
+	public Connection build() throws ClassNotFoundException, SQLException {
+		ClassUtils.getCachedClassForName(driverClassName);
+		return DriverManager.getConnection(url, userName, password);
 	}
 
 	@Override
@@ -73,12 +80,12 @@ public class JDBCConnection extends Resource {
 		super.validate(recursively);
 		try {
 			ClassUtils.getCachedClassForName(driverClassName);
-		} catch (Throwable t) {
+		} catch (ClassNotFoundException t) {
 			throw new ValidationError("Failed to load the driver class '" + driverClassName + "'", t);
 		}
 		try {
 			DriverManager.getConnection(url, userName, password);
-		} catch (Throwable t) {
+		} catch (SQLException t) {
 			throw new ValidationError("Failed to create the connection", t);
 		}
 	}

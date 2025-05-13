@@ -38,7 +38,7 @@ import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ValidationSession;
-import xy.reflect.ui.info.field.CapsuleFieldInfo;
+import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -166,8 +166,8 @@ public class GUI extends SwingCustomizer {
 						}
 						if (object instanceof PrecomputedTypeInstanceWrapper) {
 							Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
-							if (instance instanceof CapsuleFieldInfo.Value) {
-								Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
+							if (instance instanceof MembersCapsuleFieldInfo.Value) {
+								Object encapsulated = ((MembersCapsuleFieldInfo.Value) instance).getObject();
 								if (encapsulated instanceof FieldInitializerFacade) {
 									if (field.getName().equals("fieldValue")) {
 										return new NullableControl(this.swingRenderer, this) {
@@ -176,7 +176,7 @@ public class GUI extends SwingCustomizer {
 
 											@Override
 											protected Object getNewValue() {
-												FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												FieldInitializerFacade facade = (FieldInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 														.getInstance()).getObject();
 												if ((facade.getFieldValueMode() == null)
 														|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
@@ -197,7 +197,7 @@ public class GUI extends SwingCustomizer {
 
 											@Override
 											protected Object getNewValue() {
-												ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												ParameterInitializerFacade facade = (ParameterInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 														.getInstance()).getObject();
 												if (facade.getParameterValueMode() == ValueMode.PLAIN) {
 													return facade.createDefaultParameterValue();
@@ -217,7 +217,7 @@ public class GUI extends SwingCustomizer {
 
 											@Override
 											protected Object getNewValue() {
-												ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												ListItemInitializerFacade facade = (ListItemInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 														.getInstance()).getObject();
 												if ((facade.getItemValueMode() == null)
 														|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
