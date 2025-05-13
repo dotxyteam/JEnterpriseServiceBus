@@ -73,8 +73,11 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 							.createForm(((RootInstanceBuilder) rootInstanceBuilderForm.getObject()).getFacade());
 				}
 			});
-		} catch (InvocationTargetException | InterruptedException e) {
+		} catch (InvocationTargetException e) {
 			throw new ReflectionUIError(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
 		ListControl facadeTreeControl = (ListControl) SwingRendererUtils
 				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm[0], "children", swingRenderer)
@@ -83,7 +86,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		visitItems(new IItemsVisitor() {
 			@Override
 			public VisitStatus visitItem(BufferedItemPosition itemPosition) {
-				if(Thread.currentThread().isInterrupted()) {
+				if (Thread.currentThread().isInterrupted()) {
 					return VisitStatus.TREE_VISIT_INTERRUPTED;
 				}
 				if (!itemPosition.getContainingListType().isItemNodeValidityDetectionEnabled(itemPosition)) {
@@ -121,7 +124,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 				return parentResult.getSubItemPosition(outlineItemPosition.getIndex());
 			}
 		});
-		if(Thread.currentThread().isInterrupted()) {
+		if (Thread.currentThread().isInterrupted()) {
 			return;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
