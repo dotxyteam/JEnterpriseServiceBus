@@ -61,7 +61,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 	}
 
 	@Override
-	public void validateSubForms(ValidationSession session) throws Exception {
+	public void validateControl(ValidationSession session) throws Exception {
 		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(this,
 				RootInstanceBuilder.class.getName(), swingRenderer);
 		Form[] rootInstanceBuilderFacadeForm = new Form[1];

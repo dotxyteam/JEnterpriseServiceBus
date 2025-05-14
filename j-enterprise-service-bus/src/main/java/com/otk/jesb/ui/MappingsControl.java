@@ -118,7 +118,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public void validateSubForms(ValidationSession session) throws Exception {
+	public void validateControl(ValidationSession session) throws Exception {
 	}
 
 	@Override

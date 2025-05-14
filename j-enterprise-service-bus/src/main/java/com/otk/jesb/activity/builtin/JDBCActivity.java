@@ -246,7 +246,7 @@ public abstract class JDBCActivity implements Activity {
 	public static class ParameterDefinition {
 
 		private String parameterName;
-		private String parameterTypeName;
+		private String parameterTypeName = getParameterTypeNameOptions().get(0);
 
 		public String getParameterName() {
 			return parameterName;
@@ -274,6 +274,9 @@ public abstract class JDBCActivity implements Activity {
 		}
 
 		public void validate() throws ValidationError {
+			if (parameterName == null) {
+				throw new ValidationError("The parameter name is not provided");
+			}
 			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(parameterName).matches()) {
 				throw new ValidationError("Invalid parameter name: '" + parameterName
 						+ "' (should match the following regular expression: "

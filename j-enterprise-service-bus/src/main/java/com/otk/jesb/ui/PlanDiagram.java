@@ -739,7 +739,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
 		super.paintConnection(g, connection);
-		if (validitionErrorMap.get(connection.getValue()) != null) {
+		if (validitionErrorMap.entrySet().stream()
+				.anyMatch(entry -> entry.getKey().getSecond() == connection.getValue())) {
 			Pair<Point, Point> segment = connection.getLineSegment();
 			if (segment != null) {
 				g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(),
@@ -752,14 +753,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
 		super.paintNode(g, node);
-		if (validitionErrorMap.get(node.getValue()) != null) {
+		if (validitionErrorMap.entrySet().stream().anyMatch(entry -> entry.getKey().getSecond() == node.getValue())) {
 			Rectangle nodeBounds = node.getImageBounds();
 			g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(), nodeBounds.x, nodeBounds.y, null);
 		}
 	}
 
 	@Override
-	public void validateSubForms(ValidationSession session) throws Exception {
+	public void validateControl(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
 		List<Pair<String, Object>> titleAndObjectPairs = new ArrayList<Pair<String, Object>>();
@@ -771,7 +772,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				.collect(Collectors.toList()));
 		validitionErrorMap.clear();
 		for (Pair<String, Object> objectToValidate : titleAndObjectPairs) {
-			if(Thread.currentThread().isInterrupted()) {
+			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
 			Form[] form = new Form[1];
@@ -794,7 +795,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				validitionErrorMap.put(objectToValidate, e);
 			}
 		}
-		if(Thread.currentThread().isInterrupted()) {
+		if (Thread.currentThread().isInterrupted()) {
 			return;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
