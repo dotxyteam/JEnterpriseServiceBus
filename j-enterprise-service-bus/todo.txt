@@ -4,15 +4,11 @@
 	. release a first version
 	. advertise
 	. improve the features
-- invisible and invalid transitions added silently
 - error marker do not disappear when deselecting and selecting a plan while
 ExecutePlan.inputBuilder is filled
-- allow to build and reference shared structures
 - allow to start plan execution on event (timer, file poller, etc)
 - add an "Evaluate" activity (like BW "Mapper" activity
-- allow to manage exceptions
 - to ease co-working and version control, plans and resources must be stored in separate files  
-- add validation
 - optimize functions
 	. do not recompile systematically
 	. VariableDeclarations should not necessary to build instances
@@ -27,14 +23,14 @@ ExecutePlan.inputBuilder is filled
 - InstanceBuilder: new var names not chosen according preceding steps
 - check that running the debugger does not affect the modification stack
 - diagram improvements:
-	. connections are not straight and nice
+	. connections are not straight and nice ???
 - plain/function mode as a toggle button ???
 - prevent or warn about multiply defined transitions
 - manage renamings
 - Plan.isPreviousStep() too CPU greedy
 - what if 2 variables have the same name ?
 - add other built-in activities (file, jdbc, jms, data format, ...)
-- replace "Assist..." by an icon ???
+- replace "Edit..." by an icon ???
 - rename activity classes (remove 'Activity' suffix) ???
 - rename Activities to Operations
 - add support to Iterable for ListItemReplication.iterationListValue
@@ -47,8 +43,6 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 	. zoom
 - Switch/Cases feature issues:
 	. should not allow to remove all switch/cases managed elements ???
-- control InstanceBuilder.typeName updates ??? (the new type should inherit from the
-normal type)
 - wrap function editor lines ???
 - generate expressions that do not crash because of a null pointer ???
 - allow to trace errors origin
@@ -64,7 +58,6 @@ normal type)
 - JDBCConnection:
 	. driver jars location ???
 - comment the code
-- allow to view resources full path
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
 - improve JDBCQueryActivity:
