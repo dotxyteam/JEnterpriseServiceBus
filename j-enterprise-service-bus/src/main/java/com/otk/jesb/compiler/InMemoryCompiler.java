@@ -54,7 +54,9 @@ public class InMemoryCompiler {
 				throws IOException {
 			List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 			Iterable<JavaFileObject> files;
-			files = packages.get(pkg);
+			synchronized (classResourcesMutex) {
+				files = packages.get(pkg);
+			}
 			if (files != null)
 				for (JavaFileObject file : files)
 					result.add(file);
@@ -76,6 +78,7 @@ public class InMemoryCompiler {
 	private Iterable<String> options;
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 	private final Object compilationMutex = new Object();
+	private final Object classResourcesMutex = new Object();
 
 	public ClassLoader getClassLoader() {
 		return compositeClassLoader;
@@ -248,26 +251,31 @@ public class InMemoryCompiler {
 	}
 
 	private void storeClass(ClassIdentifier classIdentifier, byte[] bytes) {
-		if (classes.containsKey(classIdentifier)) {
-			throw new UnexpectedError();
+		synchronized (classResourcesMutex) {
+			if (classes.containsKey(classIdentifier)) {
+				throw new UnexpectedError();
+			}
+			classes.put(classIdentifier, bytes);
+			NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes);
+			int dot = classIdentifier.getClassName().lastIndexOf('.');
+			String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
+			packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
 		}
-		classes.put(classIdentifier, bytes);
-		NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes);
-		int dot = classIdentifier.getClassName().lastIndexOf('.');
-		String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
-		packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
 	}
 
 	private void unstoreClass(ClassIdentifier classIdentifier) {
-		if (!classes.containsKey(classIdentifier)) {
-			throw new UnexpectedError();
-		}
-		classes.remove(classIdentifier);
-		int dot = classIdentifier.getClassName().lastIndexOf('.');
-		String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
-		packages.get(pkg).removeIf(file -> ((NamedJavaFileObject) file).getClassIdentifier().equals(classIdentifier));
-		if (packages.get(pkg).size() == 0) {
-			packages.remove(pkg);
+		synchronized (classResourcesMutex) {
+			if (!classes.containsKey(classIdentifier)) {
+				throw new UnexpectedError();
+			}
+			classes.remove(classIdentifier);
+			int dot = classIdentifier.getClassName().lastIndexOf('.');
+			String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
+			packages.get(pkg)
+					.removeIf(file -> ((NamedJavaFileObject) file).getClassIdentifier().equals(classIdentifier));
+			if (packages.get(pkg).size() == 0) {
+				packages.remove(pkg);
+			}
 		}
 	}
 
@@ -349,20 +357,18 @@ public class InMemoryCompiler {
 
 		@Override
 		protected Package getPackage(String packageName) {
-			synchronized (InMemoryCompiler.this.compilationMutex) {
-				if (shouldLoadThePackageFromMemory(packageName)) {
-					MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compositeClassLoader
-							.getClassLoaders().stream()
-							.filter(l -> (l instanceof MemoryPackageLoader)
-									&& ((MemoryPackageLoader) l).getThePackageName().equals(packageName))
-							.findFirst().orElse(null);
-					if (responsiblePackageLoader == null) {
-						responsiblePackageLoader = new MemoryPackageLoader(packageName);
-					}
-					return responsiblePackageLoader.getPackage(packageName);
+			if (shouldLoadThePackageFromMemory(packageName)) {
+				MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compositeClassLoader
+						.getClassLoaders().stream()
+						.filter(l -> (l instanceof MemoryPackageLoader)
+								&& ((MemoryPackageLoader) l).getThePackageName().equals(packageName))
+						.findFirst().orElse(null);
+				if (responsiblePackageLoader == null) {
+					responsiblePackageLoader = new MemoryPackageLoader(packageName);
 				}
-				return super.getPackage(packageName);
+				return responsiblePackageLoader.getPackage(packageName);
 			}
+			return super.getPackage(packageName);
 		}
 
 		private boolean shouldLoadThePackageFromMemory(String packageName) {
@@ -413,31 +419,28 @@ public class InMemoryCompiler {
 
 		@Override
 		protected Class<?> findClass(String className) throws ClassNotFoundException {
-			synchronized (compilationMutex) {
-				byte[] bytes = classes
-						.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
-				if (bytes == null)
-					throw new ClassNotFoundException(className);
-				try {
-					if (getParent().loadClass(className) != null) {
-						throw new UnexpectedError(
-								"Cannot define a class that is already defined by the parent class loader: "
-										+ className);
-					}
-				} catch (ClassNotFoundException e) {
-				}
-				Class<?> result = super.defineClass(className, bytes, 0, bytes.length);
-				definedClassNames.add(className);
-				return result;
+			byte[] bytes;
+			synchronized (classResourcesMutex) {
+				bytes = classes.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
 			}
+			if (bytes == null)
+				throw new ClassNotFoundException(className);
+			try {
+				if (getParent().loadClass(className) != null) {
+					throw new UnexpectedError(
+							"Cannot define a class that is already defined by the parent class loader: " + className);
+				}
+			} catch (ClassNotFoundException e) {
+			}
+			Class<?> result = super.defineClass(className, bytes, 0, bytes.length);
+			definedClassNames.add(className);
+			return result;
 		}
 
 		@Override
 		protected void finalize() throws Throwable {
-			synchronized (compilationMutex) {
-				for (String className : definedClassNames) {
-					unstoreClass(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
-				}
+			for (String className : definedClassNames) {
+				unstoreClass(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
 			}
 			super.finalize();
 		}

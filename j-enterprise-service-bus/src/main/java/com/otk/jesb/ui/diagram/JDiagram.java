@@ -156,6 +156,10 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		nodes.clear();
 		connections.clear();
 	}
+	
+	public void scrollTo(JDiagramObject diagramObject) {
+		scrollRectToVisible(diagramObject.getBounds(this));
+	}
 
 	public JNode addNode(Object object, int centerX, int centerY) {
 		JNode newNode = new JNode();

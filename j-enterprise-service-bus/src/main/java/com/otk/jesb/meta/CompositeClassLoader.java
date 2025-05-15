@@ -16,8 +16,10 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +68,7 @@ import java.util.stream.Collectors;
 public class CompositeClassLoader extends ClassLoader {
 
 	private final ReferenceQueue queue = new ReferenceQueue();
-	private final List<WeakReference> classLoaders = new ArrayList<WeakReference>();
+	private final List<WeakReference> classLoaders = new CopyOnWriteArrayList<WeakReference>();
 
 	public CompositeClassLoader() {
 		addInternal(Object.class.getClassLoader()); // bootstrap loader.
@@ -74,7 +76,7 @@ public class CompositeClassLoader extends ClassLoader {
 	}
 
 	public List<ClassLoader> getClassLoaders() {
-		return classLoaders.stream().map(ref -> (ClassLoader)((WeakReference)ref).get()).collect(Collectors.toList());
+		return classLoaders.stream().map(ref -> (ClassLoader) ((WeakReference) ref).get()).collect(Collectors.toList());
 	}
 
 	/**
@@ -95,9 +97,9 @@ public class CompositeClassLoader extends ClassLoader {
 			WeakReference ref = (WeakReference) iterator.next();
 			ClassLoader cl = (ClassLoader) ref.get();
 			if (cl == null) {
-				iterator.remove();
+				classLoaders.remove(ref);
 			} else if (cl == classLoader) {
-				iterator.remove();
+				classLoaders.remove(ref);
 				refClassLoader = ref;
 			}
 		}

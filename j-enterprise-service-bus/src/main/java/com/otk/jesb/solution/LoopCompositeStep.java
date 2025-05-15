@@ -136,6 +136,9 @@ public class LoopCompositeStep extends CompositeStep {
 				List<VariableDeclaration> loopEndConditionVariableDeclarations = ((LoopCompositeStep) context
 						.getCurrentStep()).getLoopEndConditionVariableDeclarations(context.getPlan());
 				while (true) {
+					if (executionInspector.isExecutionInterrupted()) {
+						break;
+					}
 					if ((Boolean) CompiledFunction.get(loopEndCondition.getFunctionBody(),
 							loopEndConditionVariableDeclarations, boolean.class).call(context.getVariables())) {
 						break;

@@ -23,6 +23,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 import xy.reflect.ui.util.ClassUtils;
 
@@ -81,18 +82,22 @@ public abstract class JDBCActivity implements Activity {
 				new Accessor<String>() {
 					@Override
 					public String get() {
-						return parameterValuesClass.getName();
+						return upToDateParameterValuesClass.get().getName();
 					}
 				});
-		private Class<? extends ParameterValues> parameterValuesClass;
+		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDate<Class<? extends ParameterValues>>() {
+			@Override
+			protected Object retrieveLastModificationIdentifier() {
+				return MiscUtils.serialize(parameterDefinitions);
+			}
 
-		public Builder() {
-			updateDynamicClasses();
-		}
-
-		protected void updateDynamicClasses() {
-			parameterValuesClass = createParameterValuesClass();
-		}
+			@Override
+			protected Class<? extends ParameterValues> obtainLatest() {
+				return createParameterValuesClass();
+			}
+		};
+		
+		
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
@@ -181,7 +186,6 @@ public abstract class JDBCActivity implements Activity {
 
 		public void setParameterDefinitions(List<ParameterDefinition> parameterDefinitions) {
 			this.parameterDefinitions = parameterDefinitions;
-			updateDynamicClasses();
 		}
 
 		public RootInstanceBuilder getParameterValuesBuilder() {

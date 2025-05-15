@@ -47,6 +47,7 @@ public class JNode extends JDiagramObject {
 		this.image = image;
 	}
 
+	@Override
 	public void paint(Graphics g, JDiagram diagram) {
 		MiscUtils.improveRenderingQuality((Graphics2D) g);
 		Rectangle imageBounds = getImageBounds();
@@ -104,11 +105,15 @@ public class JNode extends JDiagramObject {
 		}
 	}
 
+	@Override
 	public boolean containsPoint(int x, int y, JDiagram diagram) {
-		Rectangle labelBounds = getLabelBounds(diagram.getGraphics());
-		if (labelBounds != null) {
-			if (labelBounds.contains(x, y)) {
-				return true;
+		Graphics g = diagram.getGraphics();
+		if (g != null) {
+			Rectangle labelBounds = getLabelBounds(g);
+			if (labelBounds != null) {
+				if (labelBounds.contains(x, y)) {
+					return true;
+				}
 			}
 		}
 		int width = getImageWidth();
@@ -126,6 +131,16 @@ public class JNode extends JDiagramObject {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Rectangle getBounds(JDiagram diagram) {
+		Rectangle result = getImageBounds();
+		Graphics g = diagram.getGraphics();
+		if (g != null) {
+			result.add(getLabelBounds(g));
+		}
+		return result;
 	}
 
 }

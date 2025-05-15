@@ -175,7 +175,7 @@ public class ListItemInitializerFacade extends Facade {
 		ListItemInitializer listItemInitializer = getUnderlying();
 		ITypeInfo itemType = getItemTypeInfo();
 		if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
-			throw new UnexpectedError("Cannot add null item to primitive item list");
+			throw new UnexpectedError("Cannot add null to a primitive item list");
 		}
 		listItemInitializer.setItemValue(value);
 	}

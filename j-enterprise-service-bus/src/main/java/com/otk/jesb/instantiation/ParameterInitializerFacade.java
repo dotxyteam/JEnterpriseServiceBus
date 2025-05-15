@@ -165,7 +165,7 @@ public class ParameterInitializerFacade extends Facade {
 		setConcrete(true);
 		IParameterInfo parameter = getParameterInfo();
 		if ((value == null) && (parameter.getType().isPrimitive())) {
-			throw new UnexpectedError("Cannot set null to primitive field");
+			throw new UnexpectedError("Cannot set null to a primitive field");
 		}
 		ParameterInitializer parameterInitializer = getUnderlying();
 		parameterInitializer.setParameterValue(value);

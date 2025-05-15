@@ -26,10 +26,6 @@ public class SleepActivity implements Activity {
 		return milliseconds;
 	}
 
-	public void setMilliseconds(long milliseconds) {
-		this.milliseconds = milliseconds;
-	}
-
 	@Override
 	public Object execute() throws IOException {
 		try {

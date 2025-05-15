@@ -24,6 +24,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -75,12 +76,17 @@ public class JDBCQueryActivity extends JDBCActivity {
 	public static class Builder extends JDBCActivity.Builder {
 
 		private List<ColumnDefinition> resultColumnDefinitions;
-		private Class<?> customResultClass;
+		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDate<Class<?>>() {
+			@Override
+			protected Object retrieveLastModificationIdentifier() {
+				return (resultColumnDefinitions == null) ? null : MiscUtils.serialize(resultColumnDefinitions);
+			}
 
-		protected void updateDynamicClasses() {
-			super.updateDynamicClasses();
-			customResultClass = createCustomResultClass();
-		}
+			@Override
+			protected Class<?> obtainLatest() {
+				return createCustomResultClass();
+			}
+		};
 
 		private Class<?> createCustomResultClass() {
 			if (resultColumnDefinitions == null) {
@@ -142,7 +148,6 @@ public class JDBCQueryActivity extends JDBCActivity {
 
 		public void setResultColumnDefinitions(List<ColumnDefinition> resultColumnDefinitions) {
 			this.resultColumnDefinitions = resultColumnDefinitions;
-			updateDynamicClasses();
 		}
 
 		public void retrieveResultColumnDefinitions() throws SQLException {
@@ -156,17 +161,15 @@ public class JDBCQueryActivity extends JDBCActivity {
 				this.resultColumnDefinitions
 						.add(new ColumnDefinition(metaData.getColumnLabel(i + 1), metaData.getColumnClassName(i + 1)));
 			}
-			updateDynamicClasses();
 		}
 
 		public void clearResultColumnDefinitions() throws SQLException {
 			this.resultColumnDefinitions = null;
-			updateDynamicClasses();
 		}
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQueryActivity result = new JDBCQueryActivity(getConnection(), customResultClass);
+			JDBCQueryActivity result = new JDBCQueryActivity(getConnection(), upToDateCustomResultClass.get());
 			result.setStatement(getStatement());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
@@ -174,6 +177,7 @@ public class JDBCQueryActivity extends JDBCActivity {
 
 		@Override
 		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+			Class<?> customResultClass = upToDateCustomResultClass.get();
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {

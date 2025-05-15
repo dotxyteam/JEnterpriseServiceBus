@@ -203,7 +203,7 @@ public class FieldInitializerFacade extends Facade {
 		FieldInitializer fieldInitializer = getUnderlying();
 		IFieldInfo field = getFieldInfo();
 		if ((value == null) && (field.getType().isPrimitive())) {
-			throw new UnexpectedError("Cannot set null to primitive field");
+			throw new UnexpectedError("Cannot set null to a primitive field");
 		}
 		fieldInitializer.setFieldValue(fieldValue = value);
 	}

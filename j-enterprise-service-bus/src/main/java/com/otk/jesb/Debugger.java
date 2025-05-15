@@ -13,6 +13,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
+import com.otk.jesb.solution.Transition;
 
 public class Debugger {
 
@@ -94,6 +95,8 @@ public class Debugger {
 		private Thread thread;
 		private List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
 		private Stack<PlanExecutor> currentPlanExecutionStack = new Stack<Debugger.PlanExecutor>();
+		private static boolean scrollLocked = false;
+		private boolean interrupted = false;
 
 		public PlanExecutor(Plan plan, Object planInput) {
 			this.plan = plan;
@@ -107,6 +110,14 @@ public class Debugger {
 
 		public String getPlanReferencePath() {
 			return Reference.get(plan).getPath();
+		}
+
+		public boolean isScrollLocked() {
+			return scrollLocked;
+		}
+
+		public void setScrollLocked(boolean scrollLocked) {
+			PlanExecutor.scrollLocked = scrollLocked;
 		}
 
 		public List<StepCrossing> getStepCrossings() {
@@ -132,12 +143,26 @@ public class Debugger {
 			return children;
 		}
 
+		public int getTransitionOccurrenceCount(Transition transition) {
+			int result = 0;
+			for (StepCrossing stepCrossing : stepCrossings) {
+				List<Transition> validaTransitions = stepCrossing.getValidTransitions();
+				if (validaTransitions != null) {
+					if (validaTransitions.contains(transition)) {
+						result++;
+					}
+				}
+			}
+			return result;
+		}
+
 		protected void start() {
 			thread = new Thread("PlanExecutor [plan=" + plan.getName() + "]") {
 
 				@Override
 				public void run() {
 					execute();
+					interrupted = isInterrupted();
 				}
 
 			};
@@ -204,7 +229,8 @@ public class Debugger {
 
 		@Override
 		public String toString() {
-			return (isActive() ? "RUNNING" : (executionError == null) ? "DONE" : "FAILED");
+			return (isActive() ? "RUNNING"
+					: (interrupted ? "INTERRUPTED" : ((executionError == null) ? "DONE" : "FAILED")));
 		}
 
 		public static class SubPlanExecutor extends PlanExecutor {

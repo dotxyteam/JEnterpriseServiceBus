@@ -46,6 +46,7 @@ public class JConnection extends JDiagramObject {
 		this.selected = selected;
 	}
 
+	@Override
 	public void paint(Graphics g, JDiagram diagram) {
 		MiscUtils.improveRenderingQuality((Graphics2D) g);
 		g.setColor(selected ? diagram.getSelectionColor() : diagram.getConnectionColor());
@@ -100,26 +101,30 @@ public class JConnection extends JDiagramObject {
 		return result;
 	}
 
-	public Point2D getCenter() {
+	public Point getCenter() {
 		Pair<Point, Point> lineSegment = getLineSegment();
 		if (lineSegment == null) {
 			return null;
 		}
-		double centerX = (lineSegment.getFirst().x + lineSegment.getSecond().x) / 2.0;
-		double centerY = (lineSegment.getFirst().y + lineSegment.getSecond().y) / 2.0;
-		return new Point2D.Double(centerX, centerY);
+		int centerX = Math.round((lineSegment.getFirst().x + lineSegment.getSecond().x) / 2f);
+		int centerY = Math.round((lineSegment.getFirst().y + lineSegment.getSecond().y) / 2f);
+		return new Point(centerX, centerY);
 	}
 
+	@Override
 	public boolean containsPoint(int x, int y, JDiagram diagram) {
-		Rectangle labelBounds = getLabelBounds(diagram.getGraphics());
-		if (labelBounds != null) {
-			double rotationAngle = getLabelRotationAngleRadians();
-			Point2D rotationCenter = getLabelRotationCenter();
-			AffineTransform rotation = AffineTransform.getRotateInstance(rotationAngle, rotationCenter.getX(),
-					rotationCenter.getY());
-			Shape rotatedLabelBounds = rotation.createTransformedShape(labelBounds);
-			if (rotatedLabelBounds.contains(x, y)) {
-				return true;
+		Graphics g = diagram.getGraphics();
+		if (g != null) {
+			Rectangle labelBounds = getLabelBounds(g);
+			if (labelBounds != null) {
+				double rotationAngle = getLabelRotationAngleRadians();
+				Point2D rotationCenter = getLabelRotationCenter();
+				AffineTransform rotation = AffineTransform.getRotateInstance(rotationAngle, rotationCenter.getX(),
+						rotationCenter.getY());
+				Shape rotatedLabelBounds = rotation.createTransformedShape(labelBounds);
+				if (rotatedLabelBounds.contains(x, y)) {
+					return true;
+				}
 			}
 		}
 		for (Polygon polygon : computePolygons(diagram.getConnectionLineThickness() + 2,
@@ -129,6 +134,21 @@ public class JConnection extends JDiagramObject {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public Rectangle getBounds(JDiagram diagram) {
+		Point center = getCenter();
+		if (center == null) {
+			center = new Point((startNode.getCenterX() + endNode.getCenterX()) / 2,
+					(startNode.getCenterY() + endNode.getCenterY()) / 2);
+		}
+		Rectangle result = new Rectangle(center.x - 1, center.y - 1, 2, 2);
+		for (Polygon polygon : computePolygons(diagram.getConnectionLineThickness(),
+				diagram.getConnectionArrowSize())) {
+			result.add(polygon.getBounds());
+		}
+		return result;
 	}
 
 	public List<Polygon> computePolygons(int lineThickness, int arrowSize) {

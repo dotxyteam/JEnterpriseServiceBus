@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -16,12 +17,12 @@ import java.util.stream.Collectors;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
+import com.otk.jesb.solution.Transition;
 import com.otk.jesb.ui.diagram.JConnection;
 import com.otk.jesb.ui.diagram.JDiagramListener;
 import com.otk.jesb.ui.diagram.JDiagramObject;
@@ -44,6 +45,30 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	public DebugPlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		super(swingRenderer, input);
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+		boolean result = super.refreshUI(refreshStructure);
+		if(result) {
+			if(isShowing()) {
+				PlanExecutor planExecutor = getPlanExecutor();
+				if(!planExecutor.isScrollLocked()) {
+					StepCrossing currentStepCrossing = planExecutor.getCurrentStepCrossing();
+					if(currentStepCrossing != null) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								JNode node = findNode(currentStepCrossing.getStep());
+								setSelection(Collections.singleton(node));
+								scrollTo(node);
+							}
+						});
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	protected ListControl getStepCrossingsControl() {
@@ -181,21 +206,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
-		int transitionOccurrenceCount = 0;
-		Step startStep = (Step) connection.getStartNode().getValue();
-		Step endStep = (Step) connection.getEndNode().getValue();
-		CompositeStep parent = startStep.getParent();
-		List<StepCrossing> stepCrossings = getPlanExecutor().getStepCrossings().stream()
-				.filter(stepCrossing -> (stepCrossing.getStep().getParent() == parent)).collect(Collectors.toList());
-		for (int i = 0; i < stepCrossings.size(); i++) {
-			if (i > 0) {
-				if (stepCrossings.get(i - 1).getStep() == startStep) {
-					if (stepCrossings.get(i).getStep() == endStep) {
-						transitionOccurrenceCount++;
-					}
-				}
-			}
-		}
+		int transitionOccurrenceCount = getPlanExecutor().getTransitionOccurrenceCount((Transition)connection.getValue());
 		if (transitionOccurrenceCount > 0) {
 			Color connectionColorToRestore = getConnectionColor();
 			try {

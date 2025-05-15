@@ -271,9 +271,6 @@ public class Plan extends Asset {
 
 	public void execute(List<Step> steps, ExecutionContext context, ExecutionInspector executionInspector)
 			throws ExecutionError {
-		if (executionInspector.isExecutionInterrupted()) {
-			return;
-		}
 		if (steps.size() == 0) {
 			return;
 		}
@@ -288,6 +285,9 @@ public class Plan extends Asset {
 
 	private void continueExecution(Step currentStep, boolean executionBranchValid, ExecutionContext context,
 			ExecutionInspector executionInspector) throws ExecutionError {
+		if (executionInspector.isExecutionInterrupted()) {
+			return;
+		}
 		List<Transition> currentStepTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == currentStep)).collect(Collectors.toList());
 		if (executionBranchValid) {
@@ -533,9 +533,7 @@ public class Plan extends Asset {
 				try {
 					transition.validate(recursively, this);
 				} catch (ValidationError e) {
-					throw new ValidationError(
-							"Failed to validate transition '" + transition.getSummary() + "'",
-							e);
+					throw new ValidationError("Failed to validate transition '" + transition.getSummary() + "'", e);
 				}
 			}
 			if (inputStructure != null) {

@@ -9,6 +9,7 @@ import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 public class RootInstanceBuilder extends InstanceBuilder {
 
@@ -17,56 +18,66 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	private String rootInstanceTypeName;
 
 	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new Accessor<String>() {
+
+		private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDate<Class<?>>() {
+			@Override
+			protected Object retrieveLastModificationIdentifier() {
+				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
+						? rootInstanceDynamicTypeNameAccessor.get()
+						: rootInstanceTypeName;
+				return (actualRootInstanceTypeName == null) ? null
+						: TypeInfoProvider.getClass(actualRootInstanceTypeName);
+			}
+
+			@Override
+			protected Class<?> obtainLatest() {
+				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
+						? rootInstanceDynamicTypeNameAccessor.get()
+						: rootInstanceTypeName;
+				if (actualRootInstanceTypeName == null) {
+					return NullInstance.class;
+				}
+				if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
+					throw new UnexpectedError();
+				}
+				String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
+						+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
+					StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
+					{
+						rootInstanceWrapperClassSourceBuilder.append("package "
+								+ MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
+						rootInstanceWrapperClassSourceBuilder.append("public class "
+								+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
+								+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
+						rootInstanceWrapperClassSourceBuilder.append("	private "
+								+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
+						rootInstanceWrapperClassSourceBuilder.append(
+								"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + "("
+										+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
+										+ rootInstanceName + ") {\n");
+						rootInstanceWrapperClassSourceBuilder
+								.append("		this.rootInstance = " + rootInstanceName + ";\n");
+						rootInstanceWrapperClassSourceBuilder.append("	}\n");
+						rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
+						rootInstanceWrapperClassSourceBuilder
+								.append("	public " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
+										+ " getRootInstance() {\n");
+						rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
+						rootInstanceWrapperClassSourceBuilder.append("	}\n");
+						rootInstanceWrapperClassSourceBuilder.append("}\n");
+					}
+					try {
+					return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
+							rootInstanceWrapperClassSourceBuilder.toString());
+					} catch (CompilationError ce) {
+						throw new UnexpectedError(ce);
+					}
+			}
+		};
+
 		@Override
 		public String get() {
-			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
-					? rootInstanceDynamicTypeNameAccessor.get()
-					: rootInstanceTypeName;
-			if (actualRootInstanceTypeName == null) {
-				return NullInstance.class.getName();
-			}
-			if(!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
-				throw new UnexpectedError();
-			}			
-			String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
-					+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
-			Class<?> rootInstanceWrapperClass;
-			try {
-				rootInstanceWrapperClass = MiscUtils.IN_MEMORY_COMPILER.getClassLoader()
-						.loadClass(rootInstanceWrapperClassName);
-			} catch (ClassNotFoundException e) {
-				StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
-				{
-					rootInstanceWrapperClassSourceBuilder.append("package "
-							+ MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
-					rootInstanceWrapperClassSourceBuilder.append("public class "
-							+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
-							+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
-					rootInstanceWrapperClassSourceBuilder.append("	private "
-							+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
-					rootInstanceWrapperClassSourceBuilder.append(
-							"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + "("
-									+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
-									+ rootInstanceName + ") {\n");
-					rootInstanceWrapperClassSourceBuilder
-							.append("		this.rootInstance = " + rootInstanceName + ";\n");
-					rootInstanceWrapperClassSourceBuilder.append("	}\n");
-					rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
-					rootInstanceWrapperClassSourceBuilder
-							.append("	public " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-									+ " getRootInstance() {\n");
-					rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
-					rootInstanceWrapperClassSourceBuilder.append("	}\n");
-					rootInstanceWrapperClassSourceBuilder.append("}\n");
-				}
-				try {
-					rootInstanceWrapperClass = MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
-							rootInstanceWrapperClassSourceBuilder.toString());
-				} catch (CompilationError ce) {
-					throw new UnexpectedError(ce);
-				}
-			}
-			return rootInstanceWrapperClass.getName();
+			return upToDateRootInstanceClass.get().getName();
 		}
 	};
 
@@ -156,7 +167,5 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		}
 		return wrapper.getRootInstance();
 	}
-
-	
 
 }
