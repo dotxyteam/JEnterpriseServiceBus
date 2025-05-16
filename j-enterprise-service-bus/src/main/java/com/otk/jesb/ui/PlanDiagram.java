@@ -641,6 +641,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
 		if (refreshStructure) {
+			if (input.getControlData().getEditorBackgroundColor() != null) {
+				setBackground(SwingRendererUtils.getColor(input.getControlData().getEditorBackgroundColor()));
+			} else {
+				setBackground(Color.WHITE);
+			}
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {

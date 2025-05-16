@@ -26,5 +26,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/hsqldb-2.6.1-jdk8.jar"/>
+	<classpathentry kind="lib" path="misc/flatlaf-theme-editor-3.6.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
