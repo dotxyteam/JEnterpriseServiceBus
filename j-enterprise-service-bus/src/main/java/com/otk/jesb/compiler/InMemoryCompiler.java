@@ -93,26 +93,30 @@ public class InMemoryCompiler {
 	}
 
 	public List<Class<?>> compile(File sourceDirectory) throws CompilationError {
-		UID compilationIdentifier = new UID();
-		List<JavaFileObject> files = collectSourceFiles(compilationIdentifier, sourceDirectory, null);
-		compile(compilationIdentifier, files.toArray(new JavaFileObject[files.size()]));
-		return files.stream().map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).getClassIdentifier()))
-				.collect(Collectors.toList()).stream().map(l -> {
-					try {
-						return l.loadClass(l.getMainClassIdentifier().className);
-					} catch (ClassNotFoundException e) {
-						throw new UnexpectedError(e);
-					}
-				}).collect(Collectors.toList());
+		synchronized (compilationMutex) {
+			UID compilationIdentifier = new UID();
+			List<JavaFileObject> files = collectSourceFiles(compilationIdentifier, sourceDirectory, null);
+			compile(compilationIdentifier, files.toArray(new JavaFileObject[files.size()]));
+			return files.stream().map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).getClassIdentifier()))
+					.collect(Collectors.toList()).stream().map(l -> {
+						try {
+							return l.loadClass(l.getMainClassIdentifier().className);
+						} catch (ClassNotFoundException e) {
+							throw new UnexpectedError(e);
+						}
+					}).collect(Collectors.toList());
+		}
 	}
 
 	public Class<?> compile(String className, String source) throws CompilationError {
-		ClassIdentifier classIdentifier = new ClassIdentifier(new UID(), className);
-		compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source));
-		try {
-			return new MemoryClassLoader(classIdentifier).loadClass(className);
-		} catch (ClassNotFoundException e) {
-			throw new UnexpectedError(e);
+		synchronized (compilationMutex) {
+			ClassIdentifier classIdentifier = new ClassIdentifier(new UID(), className);
+			compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source));
+			try {
+				return new MemoryClassLoader(classIdentifier).loadClass(className);
+			} catch (ClassNotFoundException e) {
+				throw new UnexpectedError(e);
+			}
 		}
 	}
 
@@ -125,14 +129,12 @@ public class InMemoryCompiler {
 			throw new CompilationError(-1, -1, "No input files", null, null);
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 		boolean success;
-		synchronized (compilationMutex) {
-			CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
-			currentCompilationIdentifier = compilationIdentifier;
-			try {
-				success = task.call();
-			} finally {
-				currentCompilationIdentifier = null;
-			}
+		CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
+		currentCompilationIdentifier = compilationIdentifier;
+		try {
+			success = task.call();
+		} finally {
+			currentCompilationIdentifier = null;
 		}
 		check(success, collector);
 	}

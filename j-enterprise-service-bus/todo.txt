@@ -4,20 +4,29 @@
 	. release a first version
 	. advertise
 	. improve the features
-- error marker do not disappear when deselecting and selecting a plan while
-ExecutePlan.inputBuilder is filled
+- add general activities:
+	. Evaluate (like BW "Mapper" activity)
+	. Log
+	. ...
 - allow to start plan execution on event (timer, file poller, etc)
-- add an "Evaluate" activity (like BW "Mapper" activity
+- add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
 - optimize functions
 	. do not recompile systematically
 	. VariableDeclarations should not necessary to build instances
 - allow to deploy and execute a project outside of the designer in a production environment
 - name all anonymous classes that are serialized
+- improve the UI design:
+	. change the font look and feel (maybe the windows look and feel would be good)
+	. change the fonts ???
+	. add a banner ???
+- allow to add debug breakpoints
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code
 - allow to access step error variables
+- error marker do not disappear when deselecting and selecting a plan while
+ExecutePlan.inputBuilder is filled
 - allow to copy/cut/paste assets
 - InstanceBuilder misses 'with var'
 - InstanceBuilder: new var names not chosen according preceding steps
@@ -29,7 +38,6 @@ ExecutePlan.inputBuilder is filled
 - manage renamings
 - Plan.isPreviousStep() too CPU greedy
 - what if 2 variables have the same name ?
-- add other built-in activities (file, jdbc, jms, data format, ...)
 - replace "Edit..." by an icon ???
 - rename activity classes (remove 'Activity' suffix) ???
 - rename Activities to Operations
@@ -67,4 +75,3 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - some modifications can disappear from the UI when 
 InstanceBuilder.(className|selectedConstructorSignature) are modified. It may be better
 to display incoherent nodes with an error marker
-- change the look and feel (maybe the windows look and feel would be good)

@@ -15,6 +15,15 @@ public abstract class UpToDate<T> {
 	private T latest;
 	private Object customValue;
 
+	private Object mutex = new Object() {
+
+		@Override
+		public String toString() {
+			return UpToDate.this + ".mutex";
+		}
+
+	};
+
 	protected abstract Object retrieveLastModificationIdentifier();
 
 	protected abstract T obtainLatest();
@@ -28,12 +37,14 @@ public abstract class UpToDate<T> {
 	}
 
 	public T get() {
-		Object identifier = retrieveLastModificationIdentifier();
-		if (!MiscUtils.equalsOrBothNull(identifier, lastModificationIdentifier)) {
-			latest = obtainLatest();
-			lastModificationIdentifier = identifier;
+		synchronized (mutex) {
+			Object identifier = retrieveLastModificationIdentifier();
+			if (!MiscUtils.equalsOrBothNull(identifier, lastModificationIdentifier)) {
+				latest = obtainLatest();
+				lastModificationIdentifier = identifier;
+			}
+			return latest;
 		}
-		return latest;
 	}
 
 }
