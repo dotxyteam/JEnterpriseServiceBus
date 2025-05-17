@@ -57,24 +57,6 @@ public class GUI extends SwingCustomizer {
 		if (JESB.DEBUG) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
-		try {
-			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (javax.swing.UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
