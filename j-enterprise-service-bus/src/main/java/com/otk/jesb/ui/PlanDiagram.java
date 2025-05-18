@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -38,10 +39,10 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.solution.LoopCompositeStep;
+import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
-import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
 import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.ui.diagram.JConnection;
 import com.otk.jesb.ui.diagram.JDiagram;
@@ -87,6 +88,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	private static final int STEP_ICON_WIDTH = 64;
 	private static final int STEP_ICON_HEIGHT = 64;
+	private static final Image BACKGROUND_IMAGE;
+	static {
+		try {
+			BACKGROUND_IMAGE = ImageIO.read(PlanDiagram.class.getResourceAsStream("diagram-background.png"));
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+	}
 
 	protected SwingRenderer swingRenderer;
 	protected IFieldControlInput input;
@@ -100,7 +109,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		setActionSchemes(createActionSchemes());
 		updateExternalComponentsOnInternalEvents();
 		updateInternalComponentsOnExternalEvents();
-		setBackground(Color.WHITE);
+		setImage(BACKGROUND_IMAGE);
+		setPreservingRatio(true);
+		setFillingAreaWhenPreservingRatio(true);
+		setScalingQualitHigh(false);
 		refreshUI(true);
 	}
 
@@ -234,7 +246,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
 		IModification modification = new ListModificationFactory(
-				new ItemPositionFactory(stepsData).getRootItemPosition(-1)).add(getPlan().getSteps().size(), newStep);
+				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1)).add(getPlan().getSteps().size(),
+						newStep);
 		input.getModificationStack().apply(modification);
 	}
 
@@ -254,7 +267,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 		IModification modification = new ListModificationFactory(
-				new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
+				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1)).add(0, newTransition);
 		input.getModificationStack().apply(modification);
 	}
 
@@ -286,9 +299,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, plan,
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 		ListModificationFactory stepsModificationFactory = new ListModificationFactory(
-				new ItemPositionFactory(stepsData).getRootItemPosition(-1));
+				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1));
 		ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-				new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
+				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1));
 		input.getModificationStack().insideComposite("Delete", UndoOrder.getNormal(), new Accessor<Boolean>() {
 			@Override
 			public Boolean get() {
@@ -476,7 +489,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 													reflectionUI, plan, ReflectionUIUtils
 															.findInfoByName(planType.getFields(), "transitions"));
 											ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-													new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
+													new ItemPositionFactory(transitionsData, this)
+															.getRootItemPosition(-1));
 											IModification modification = transitionsModificationFactory
 													.remove(plan.getTransitions().indexOf(transition));
 											input.getModificationStack().apply(modification);
@@ -740,6 +754,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		SwingRendererUtils.handleComponentSizeChange(this);
 		return true;
 	}
+
 
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {

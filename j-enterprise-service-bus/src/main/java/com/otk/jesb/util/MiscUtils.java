@@ -91,7 +91,7 @@ public class MiscUtils {
 	public static Object fromFromDigitalUniqueIdentifier(String digitalUniqueIdentifier) {
 		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
 			List<Object> keys = MiscUtils.getKeysFromValue(DIGITAL_UNIQUE_IDENTIFIER_CACHE, digitalUniqueIdentifier);
-			if(keys.size() != 1) {
+			if (keys.size() != 1) {
 				throw new UnexpectedError();
 			}
 			return keys.get(0);

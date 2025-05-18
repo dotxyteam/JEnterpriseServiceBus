@@ -41,9 +41,10 @@ import javax.swing.TransferHandler;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.control.swing.util.ImagePanel;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
-public class JDiagram extends JPanel implements MouseListener, MouseMotionListener {
+public class JDiagram extends ImagePanel implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -78,6 +79,7 @@ public class JDiagram extends JPanel implements MouseListener, MouseMotionListen
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setTransferHandler(new ActionImportTransferHandler());
+		setConnectionColor(new Color(95, 99, 104));
 	}
 
 	public List<JNode> getNodes() {
