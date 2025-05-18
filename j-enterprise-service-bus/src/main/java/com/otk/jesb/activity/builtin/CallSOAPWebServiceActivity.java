@@ -30,6 +30,7 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -121,7 +122,12 @@ public class CallSOAPWebServiceActivity implements Activity {
 				OperationInput.class.getSimpleName(), new Accessor<String>() {
 					@Override
 					public String get() {
-						Class<?> operationInputClass = upToDateOperationInputClass.get();
+						Class<?> operationInputClass;
+						try {
+							operationInputClass = upToDateOperationInputClass.get();
+						} catch (VersionAccessException e) {
+							throw new UnexpectedError(e);
+						}
 						if (operationInputClass == null) {
 							return null;
 						}
@@ -130,7 +136,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 				});
 		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDate<Class<?>>() {
 			@Override
-			protected Object retrieveLastModificationIdentifier() {
+			protected Object retrieveLastVersionIdentifier() {
 				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 				if (operation == null) {
 					return null;
@@ -139,7 +145,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 			}
 
 			@Override
-			protected Class<?> obtainLatest() {
+			protected Class<?> obtainLatest(Object versionIdentifier) {
 				return obtainOperationInputClass();
 			}
 		};

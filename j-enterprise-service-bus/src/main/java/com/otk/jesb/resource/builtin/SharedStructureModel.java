@@ -10,6 +10,7 @@ import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -37,13 +38,13 @@ public class SharedStructureModel extends Resource {
 	private Structure structure = new ClassicStructure();
 	private UpToDate<Class<? extends Structured>> upToDateStructuredClass = new UpToDate<Class<? extends Structured>>() {
 		@Override
-		protected Object retrieveLastModificationIdentifier() {
+		protected Object retrieveLastVersionIdentifier() {
 			return (structure != null) ? MiscUtils.serialize(structure) : null;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		protected Class<? extends Structured> obtainLatest() {
+		protected Class<? extends Structured> obtainLatest(Object versionIdentifier) {
 			if (structure == null) {
 				return null;
 			} else {
@@ -76,7 +77,11 @@ public class SharedStructureModel extends Resource {
 	}
 
 	public Class<? extends Structured> getStructuredClass() {
-		return upToDateStructuredClass.get();
+		try {
+			return upToDateStructuredClass.get();
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
 	@Override

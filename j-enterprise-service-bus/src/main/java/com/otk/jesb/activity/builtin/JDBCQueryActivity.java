@@ -25,6 +25,7 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -78,12 +79,12 @@ public class JDBCQueryActivity extends JDBCActivity {
 		private List<ColumnDefinition> resultColumnDefinitions;
 		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDate<Class<?>>() {
 			@Override
-			protected Object retrieveLastModificationIdentifier() {
+			protected Object retrieveLastVersionIdentifier() {
 				return (resultColumnDefinitions == null) ? null : MiscUtils.serialize(resultColumnDefinitions);
 			}
 
 			@Override
-			protected Class<?> obtainLatest() {
+			protected Class<?> obtainLatest(Object versionIdentifier) {
 				return createCustomResultClass();
 			}
 		};
@@ -177,7 +178,12 @@ public class JDBCQueryActivity extends JDBCActivity {
 
 		@Override
 		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
-			Class<?> customResultClass = upToDateCustomResultClass.get();
+			Class<?> customResultClass;
+			try {
+				customResultClass = upToDateCustomResultClass.get();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {

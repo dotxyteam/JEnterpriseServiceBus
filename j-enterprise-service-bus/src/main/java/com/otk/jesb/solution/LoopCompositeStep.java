@@ -24,6 +24,7 @@ import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -211,7 +212,7 @@ public class LoopCompositeStep extends CompositeStep {
 			private UpToDate<Class<?>> upToDateResultClass = new UpToDate<Class<?>>() {
 
 				@Override
-				protected Object retrieveLastModificationIdentifier() {
+				protected Object retrieveLastVersionIdentifier() {
 					@SuppressWarnings("unchecked")
 					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
 					Plan currentPlan = pair.getFirst();
@@ -225,7 +226,7 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 
 				@Override
-				protected Class<?> obtainLatest() {
+				protected Class<?> obtainLatest(Object versionIdentifier) {
 					@SuppressWarnings("unchecked")
 					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
 					Plan currentPlan = pair.getFirst();
@@ -406,7 +407,11 @@ public class LoopCompositeStep extends CompositeStep {
 			@Override
 			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
 				upToDateResultClass.setCustomValue(new Pair<Plan, Step>(currentPlan, currentStep));
-				return upToDateResultClass.get();
+				try {
+					return upToDateResultClass.get();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
 			}
 
 			public class ResultsCollectionConfigurationEntry {

@@ -11,9 +11,6 @@
 - allow to start plan execution on event (timer, file poller, etc)
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
-- optimize functions
-	. do not recompile systematically
-	. VariableDeclarations should not necessary to build instances
 - allow to deploy and execute a project outside of the designer in a production environment
 - name all anonymous classes that are serialized
 - improve the UI design:

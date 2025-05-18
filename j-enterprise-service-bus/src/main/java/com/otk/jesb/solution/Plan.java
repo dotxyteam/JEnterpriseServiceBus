@@ -27,6 +27,7 @@ import com.otk.jesb.solution.Transition.IfCondition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public class Plan extends Asset {
 
@@ -42,14 +43,19 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-	private Object focusedStepOrTransition;
+	private transient Object focusedStepOrTransition;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new Accessor<String>() {
 				@Override
 				public String get() {
-					Class<?> outputClass = upToDateOutputClass.get();
+					Class<?> outputClass;
+					try {
+						outputClass = upToDateOutputClass.get();
+					} catch (VersionAccessException e) {
+						throw new UnexpectedError(e);
+					}
 					if (outputClass == null) {
 						return null;
 					}
@@ -59,12 +65,12 @@ public class Plan extends Asset {
 
 	private UpToDate<Class<?>> upToDateInputClass = new UpToDate<Class<?>>() {
 		@Override
-		protected Object retrieveLastModificationIdentifier() {
+		protected Object retrieveLastVersionIdentifier() {
 			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
 		}
 
 		@Override
-		protected Class<?> obtainLatest() {
+		protected Class<?> obtainLatest(Object versionIdentifier) {
 			if (inputStructure == null) {
 				return null;
 			} else {
@@ -81,12 +87,12 @@ public class Plan extends Asset {
 	};
 	private UpToDate<Class<?>> upToDateOutputClass = new UpToDate<Class<?>>() {
 		@Override
-		protected Object retrieveLastModificationIdentifier() {
+		protected Object retrieveLastVersionIdentifier() {
 			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
 		}
 
 		@Override
-		protected Class<?> obtainLatest() {
+		protected Class<?> obtainLatest(Object versionIdentifier) {
 			if (outputStructure == null) {
 				return null;
 			} else {
@@ -143,11 +149,19 @@ public class Plan extends Asset {
 	}
 
 	public Class<?> getInputClass() {
-		return upToDateInputClass.get();
+		try {
+			return upToDateInputClass.get();
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
 	public Class<?> getOutputClass() {
-		return upToDateOutputClass.get();
+		try {
+			return upToDateOutputClass.get();
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
 	public Object getFocusedStepOrTransition() {
@@ -477,7 +491,12 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			Class<?> inputClass = upToDateInputClass.get();
+			Class<?> inputClass;
+			try {
+				inputClass = upToDateInputClass.get();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 

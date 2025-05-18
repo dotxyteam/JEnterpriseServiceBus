@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.compiler.CompiledFunction;
 
 public class FunctionEditor extends PathOptionsProvider {
 
@@ -39,8 +38,7 @@ public class FunctionEditor extends PathOptionsProvider {
 	}
 
 	public void validate() throws CompilationError {
-		CompiledFunction.get((precompiler != null) ? precompiler.apply(getFunctionBody()) : getFunctionBody(),
-				getVariableDeclarations(), returnType);
+		function.getCompiledVersion(precompiler, getVariableDeclarations(), returnType);
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {

@@ -10,6 +10,7 @@ import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public class RootInstanceBuilder extends InstanceBuilder {
 
@@ -21,7 +22,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 		private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDate<Class<?>>() {
 			@Override
-			protected Object retrieveLastModificationIdentifier() {
+			protected Object retrieveLastVersionIdentifier() {
 				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
 						? rootInstanceDynamicTypeNameAccessor.get()
 						: rootInstanceTypeName;
@@ -30,7 +31,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			}
 
 			@Override
-			protected Class<?> obtainLatest() {
+			protected Class<?> obtainLatest(Object versionIdentifier) {
 				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
 						? rootInstanceDynamicTypeNameAccessor.get()
 						: rootInstanceTypeName;
@@ -77,7 +78,11 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 		@Override
 		public String get() {
-			return upToDateRootInstanceClass.get().getName();
+			try {
+				return upToDateRootInstanceClass.get().getName();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
 		}
 	};
 

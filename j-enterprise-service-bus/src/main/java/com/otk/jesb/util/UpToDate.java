@@ -11,22 +11,13 @@ public abstract class UpToDate<T> {
 
 	};
 
-	private Object lastModificationIdentifier = UNDEFINED;
-	private T latest;
-	private Object customValue;
+	private transient Object lastVersionIdentifier = UNDEFINED;
+	private transient T latest;
+	private transient Object customValue;
 
-	private Object mutex = new Object() {
+	protected abstract Object retrieveLastVersionIdentifier();
 
-		@Override
-		public String toString() {
-			return UpToDate.this + ".mutex";
-		}
-
-	};
-
-	protected abstract Object retrieveLastModificationIdentifier();
-
-	protected abstract T obtainLatest();
+	protected abstract T obtainLatest(Object versionIdentifier) throws VersionAccessException;
 
 	public Object getCustomValue() {
 		return customValue;
@@ -36,15 +27,23 @@ public abstract class UpToDate<T> {
 		this.customValue = customValue;
 	}
 
-	public T get() {
-		synchronized (mutex) {
-			Object identifier = retrieveLastModificationIdentifier();
-			if (!MiscUtils.equalsOrBothNull(identifier, lastModificationIdentifier)) {
-				latest = obtainLatest();
-				lastModificationIdentifier = identifier;
-			}
-			return latest;
+	public synchronized T get() throws VersionAccessException {
+		Object versionIdentifier = retrieveLastVersionIdentifier();
+		if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
+			latest = obtainLatest(versionIdentifier);
+			lastVersionIdentifier = versionIdentifier;
 		}
+		return latest;
+	}
+
+	public static class VersionAccessException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public VersionAccessException(Throwable cause) {
+			super(cause);
+		}
+
 	}
 
 }

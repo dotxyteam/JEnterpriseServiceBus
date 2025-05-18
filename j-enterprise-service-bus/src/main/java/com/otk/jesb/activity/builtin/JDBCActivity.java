@@ -24,6 +24,7 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.util.ClassUtils;
 
@@ -82,22 +83,24 @@ public abstract class JDBCActivity implements Activity {
 				new Accessor<String>() {
 					@Override
 					public String get() {
-						return upToDateParameterValuesClass.get().getName();
+						try {
+							return upToDateParameterValuesClass.get().getName();
+						} catch (VersionAccessException e) {
+							throw new UnexpectedError(e);
+						}
 					}
 				});
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDate<Class<? extends ParameterValues>>() {
 			@Override
-			protected Object retrieveLastModificationIdentifier() {
+			protected Object retrieveLastVersionIdentifier() {
 				return MiscUtils.serialize(parameterDefinitions);
 			}
 
 			@Override
-			protected Class<? extends ParameterValues> obtainLatest() {
+			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
 				return createParameterValuesClass();
 			}
 		};
-		
-		
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
@@ -217,7 +220,8 @@ public abstract class JDBCActivity implements Activity {
 					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
 							+ ". Expected " + expectedParameterCount + " parameter(s).");
 				}
-			} catch (ClassNotFoundException | SQLException ignore) {
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new ValidationError("Failed to validate the JDBC opertation settings", e);
 			}
 			if (recursively) {
 				List<String> parameterNames = new ArrayList<String>();

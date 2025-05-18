@@ -11,4 +11,5 @@ public class InstantiationFunction extends Function {
 		super(functionBody);
 	}
 
+
 }

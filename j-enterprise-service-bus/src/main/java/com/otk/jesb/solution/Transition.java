@@ -92,7 +92,7 @@ public class Transition {
 				throws FunctionCallError {
 			CompiledFunction compiledFunction;
 			try {
-				compiledFunction = CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
+				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);
 			}
@@ -102,9 +102,9 @@ public class Transition {
 		@Override
 		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
 			try {
-				CompiledFunction.get(getFunctionBody(), variableDeclarations, boolean.class);
+				getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
-				throw new ValidationError(e.toString(), e);
+				throw new ValidationError("Failed to validate the condition", e);
 			}
 		}
 
