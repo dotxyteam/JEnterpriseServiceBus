@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +37,7 @@ import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.solution.Element;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
 import com.otk.jesb.solution.Plan;
@@ -79,7 +79,6 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
-import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -101,7 +100,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
-	private Map<Pair<String, Object>, Exception> validitionErrorMap = new HashMap<Pair<String, Object>, Exception>();
+	private Map<Pair<String, Element>, Exception> validitionErrorMap = new HashMap<Pair<String, Element>, Exception>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
@@ -169,13 +168,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					try {
 						Set<JDiagramObject> selection = PlanDiagram.this.getSelection();
 						getPlan().setFocusedStepOrTransition(
-								(selection.size() == 1) ? selection.iterator().next().getValue() : null);
-						ListControl currentPlanElementsControl = getFocusedPlanElementsControl();
-						currentPlanElementsControl.refreshUI(false);
-						currentPlanElementsControl.setSelection((selection.size() == 1) ? selection.stream()
-								.map(diagramObject -> currentPlanElementsControl
-										.findItemPositionByReference(diagramObject.getValue()))
-								.collect(Collectors.toList()) : Collections.emptyList());
+								(selection.size() == 1) ? (Element) selection.iterator().next().getValue() : null);
+						updateFocusedPlanElementsControl();
 						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
 						selectionListeningEnabled = true;
@@ -210,7 +204,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								if (selectionListeningEnabled) {
 									selectionListeningEnabled = false;
 									try {
-										updateStepSelection();
+										updateSelection();
 									} finally {
 										selectionListeningEnabled = true;
 									}
@@ -221,16 +215,36 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		});
 	}
 
-	protected void updateStepSelection() {
-		setSelection(getFocusedPlanElementsControl().getSelection().stream().map(itemPosition -> {
-			if (itemPosition.getItem() instanceof Step) {
-				return (JDiagramObject) findNode(itemPosition.getItem());
-			} else if (itemPosition.getItem() instanceof Transition) {
-				return (JDiagramObject) findConnection(itemPosition.getItem());
-			} else {
-				throw new UnexpectedError();
-			}
-		}).collect(Collectors.toSet()));
+	protected void updateFocusedPlanElementsControl() {
+		ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+		Set<JDiagramObject> selection = getSelection();
+		focusedPlanElementsControl.refreshUI(false);
+		focusedPlanElementsControl.setSelection((selection.size() == 1)
+				? selection.stream()
+						.map(diagramObject -> focusedPlanElementsControl
+								.findItemPositionByReference(diagramObject.getValue()))
+						.collect(Collectors.toList())
+				: Collections.emptyList());
+	}
+
+	protected void updateSelection() {
+		ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+		if (focusedPlanElementsControl.getSelection().size() > 0) {
+			setSelection(focusedPlanElementsControl.getSelection().stream().map(itemPosition -> {
+				if (itemPosition.getItem() instanceof Step) {
+					return (JDiagramObject) findNode(itemPosition.getItem());
+				} else if (itemPosition.getItem() instanceof Transition) {
+					return (JDiagramObject) findConnection(itemPosition.getItem());
+				} else {
+					throw new UnexpectedError();
+				}
+			}).collect(Collectors.toSet()));
+		} else {
+			Plan plan = getPlan();
+			setSelection((plan.getFocusedStepOrTransition() != null)
+					? Collections.singleton(findDiagramObject(plan.getFocusedStepOrTransition()))
+					: Collections.emptySet());
+		}
 	}
 
 	protected void onStepInsertionRequest(Step newStep) {
@@ -660,17 +674,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			} else {
 				setBackground(Color.WHITE);
 			}
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					selectionListeningEnabled = false;
-					try {
-						updateStepSelection();
-					} finally {
-						selectionListeningEnabled = true;
-					}
-				}
-			});
 		}
 		Plan plan = getPlan();
 		setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
@@ -752,9 +755,20 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 		}
 		SwingRendererUtils.handleComponentSizeChange(this);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				selectionListeningEnabled = false;
+				try {
+					updateSelection();
+					updateFocusedPlanElementsControl();
+				} finally {
+					selectionListeningEnabled = true;
+				}
+			}
+		});
 		return true;
 	}
-
 
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
@@ -783,36 +797,22 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public void validateControl(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
-		List<Pair<String, Object>> titleAndObjectPairs = new ArrayList<Pair<String, Object>>();
-		titleAndObjectPairs.addAll(
-				plan.getSteps().stream().map(step -> new Pair<String, Object>("step '" + step.getName() + "'", step))
+		List<Pair<String, Element>> titleAndElementPairs = new ArrayList<Pair<String, Element>>();
+		titleAndElementPairs.addAll(
+				plan.getSteps().stream().map(step -> new Pair<String, Element>("step '" + step.getName() + "'", step))
 						.collect(Collectors.toList()));
-		titleAndObjectPairs.addAll(plan.getTransitions().stream()
-				.map(transition -> new Pair<String, Object>("transition '" + transition.getSummary() + "'", transition))
+		titleAndElementPairs.addAll(plan.getTransitions().stream().map(
+				transition -> new Pair<String, Element>("transition '" + transition.getSummary() + "'", transition))
 				.collect(Collectors.toList()));
 		validitionErrorMap.clear();
-		for (Pair<String, Object> objectToValidate : titleAndObjectPairs) {
+		for (Pair<String, Element> toValidate : titleAndElementPairs) {
 			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
-			Form[] form = new Form[1];
 			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						form[0] = swingRenderer.createForm(objectToValidate.getSecond());
-					}
-				});
-			} catch (InvocationTargetException e) {
-				throw new ReflectionUIError(e);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return;
-			}
-			try {
-				form[0].validateForm(session);
+				toValidate.getSecond().validate(true, plan);
 			} catch (Exception e) {
-				validitionErrorMap.put(objectToValidate, e);
+				validitionErrorMap.put(toValidate, e);
 			}
 		}
 		if (Thread.currentThread().isInterrupted()) {
@@ -825,8 +825,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 		});
 		if (validitionErrorMap.size() > 0) {
-			Entry<Pair<String, Object>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator().next();
-			Pair<String, Object> titleAndObjectPair = firstErrorEntry.getKey();
+			Entry<Pair<String, Element>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator().next();
+			Pair<String, Element> titleAndObjectPair = firstErrorEntry.getKey();
 			Exception validationError = firstErrorEntry.getValue();
 			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst() + " '"
 					+ titleAndObjectPair.getSecond() + "'", validationError);

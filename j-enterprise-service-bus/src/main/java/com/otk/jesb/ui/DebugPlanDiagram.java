@@ -151,7 +151,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 						if (selectionListeningEnabled) {
 							selectionListeningEnabled = false;
 							try {
-								updateStepSelection();
+								updateSelection();
 							} finally {
 								selectionListeningEnabled = true;
 							}
@@ -163,7 +163,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	@Override
-	protected void updateStepSelection() {
+	protected void updateSelection() {
 		setSelection(getStepCrossingsControl().getSelection().stream()
 				.map(itemPosition -> (JDiagramObject) findNode(((StepCrossing) itemPosition.getItem()).getStep()))
 				.collect(Collectors.toSet()));

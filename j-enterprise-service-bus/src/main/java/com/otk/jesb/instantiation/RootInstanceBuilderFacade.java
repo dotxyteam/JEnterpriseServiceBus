@@ -1,5 +1,7 @@
 package com.otk.jesb.instantiation;
 
+import java.util.List;
+
 public class RootInstanceBuilderFacade extends InstanceBuilderFacade {
 
 	public RootInstanceBuilderFacade(RootInstanceBuilder underlying) {
@@ -16,4 +18,17 @@ public class RootInstanceBuilderFacade extends InstanceBuilderFacade {
 				.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade);
 	}
 
+	@Override
+	public String getSelectedConstructorSignature() {
+		List<String> options = getConstructorSignatureOptions();
+		if (options.size() > 0) {
+			return options.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public void setSelectedConstructorSignature(String selectedConstructorSignature) {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -278,12 +278,10 @@ public class InstanceBuilderFacade extends Facade {
 		String selectedConstructorSignature = getSelectedConstructorSignature();
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
-			String actualTypeName = underlying
-					.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(getParent()));
 			if (selectedConstructorSignature == null) {
-				throw new ValidationError("Cannot create '" + actualTypeName + "' instance: No constructor available");
+				throw new ValidationError("Cannot create '" + typeInfo.getName() + "' instance: No constructor available");
 			} else {
-				throw new ValidationError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
+				throw new ValidationError("Cannot create '" + typeInfo.getName() + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}

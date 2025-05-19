@@ -7,7 +7,7 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.util.MiscUtils;
 
-public class Step {
+public class Step extends Element{
 
 	private String name = "";
 	private ActivityBuilder activityBuilder;
@@ -68,6 +68,12 @@ public class Step {
 		this.parent = parent;
 	}
 
+	@Override
+	public String getSummary() {
+		return name;
+	}
+
+	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
 		if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
 			throw new ValidationError("The step name must match the following regular expression: "

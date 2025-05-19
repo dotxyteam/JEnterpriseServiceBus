@@ -43,7 +43,7 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-	private transient Object focusedStepOrTransition;
+	private transient Element focusedStepOrTransition;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
@@ -164,16 +164,16 @@ public class Plan extends Asset {
 		}
 	}
 
-	public Object getFocusedStepOrTransition() {
+	public Element getFocusedStepOrTransition() {
 		return focusedStepOrTransition;
 	}
 
-	public void setFocusedStepOrTransition(Object focusedStepOrTransition) {
+	public void setFocusedStepOrTransition(Element focusedStepOrTransition) {
 		this.focusedStepOrTransition = focusedStepOrTransition;
 	}
 
-	public List<Object> getFocusedStepOrTransitionSurroundings() {
-		List<Object> result = new ArrayList<Object>();
+	public List<Element> getFocusedStepOrTransitionSurroundings() {
+		List<Element> result = new ArrayList<Element>();
 		if (focusedStepOrTransition != null) {
 			if (focusedStepOrTransition instanceof Step) {
 				Step step = (Step) focusedStepOrTransition;

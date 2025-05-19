@@ -158,7 +158,7 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		nodes.clear();
 		connections.clear();
 	}
-	
+
 	public void scrollTo(JDiagramObject diagramObject) {
 		scrollRectToVisible(diagramObject.getBounds(this));
 	}
@@ -186,6 +186,19 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 			if (value.equals(connection.getValue())) {
 				return connection;
 			}
+		}
+		return null;
+	}
+
+	public JDiagramObject findDiagramObject(Object value) {
+		JDiagramObject result;
+		result = findNode(value);
+		if (result != null) {
+			return result;
+		}
+		result = findConnection(value);
+		if (result != null) {
+			return result;
 		}
 		return null;
 	}

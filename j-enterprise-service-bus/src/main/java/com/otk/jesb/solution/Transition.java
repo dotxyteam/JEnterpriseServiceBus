@@ -12,7 +12,7 @@ import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.meta.TypeInfoProvider;
 
-public class Transition {
+public class Transition extends Element{
 
 	private Step startStep;
 	private Step endStep;
@@ -51,6 +51,7 @@ public class Transition {
 		this.condition = condition;
 	}
 
+	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
 		if (recursively) {
 			if (condition != null) {
@@ -63,8 +64,9 @@ public class Transition {
 		}
 	}
 
+	@Override
 	public String getSummary() {
-		return getStartStep().getName() + " -> " + getEndStep().getName();
+		return getStartStep().getName() + " => " + getEndStep().getName();
 	}
 
 	@Override
