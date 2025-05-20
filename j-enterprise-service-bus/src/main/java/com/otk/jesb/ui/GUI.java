@@ -26,7 +26,6 @@ import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
-import com.otk.jesb.solution.Element;
 import com.otk.jesb.util.SquigglePainter;
 
 import xy.reflect.ui.control.swing.ListControl;
@@ -140,21 +139,6 @@ public class GUI extends SwingCustomizer {
 								&& ((IListTypeInfo) field.getType()).getItemType().getName()
 										.equals(PathNode.class.getName())) {
 							return new InstanceBuilderVariableTreeControl(GUI.this, this);
-						}
-						if (field.getName().equals("focusedStepOrTransitionSurroundings")
-								&& (field.getType() instanceof IListTypeInfo)
-								&& (((IListTypeInfo) field.getType()).getItemType() != null)
-								&& ((IListTypeInfo) field.getType()).getItemType().getName()
-										.equals(Element.class.getName())) {
-							return new ListControl(GUI.this, this) {
-
-								private static final long serialVersionUID = 1L;
-
-								@Override
-								protected void setDefaultSelection() {
-								}
-
-							};
 						}
 						if (field.getName().equals("rootPathNodes") && (field.getType() instanceof IListTypeInfo)
 								&& (((IListTypeInfo) field.getType()).getItemType() != null)

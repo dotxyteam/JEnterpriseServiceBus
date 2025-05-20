@@ -1,6 +1,7 @@
 package com.otk.jesb.solution;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +44,8 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-	private transient Element focusedStepOrTransition;
+	private transient Set<Element> selectedElements = new HashSet<Element>();
+	private transient Element focusedElementSelectedSurrounding;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
@@ -164,16 +166,34 @@ public class Plan extends Asset {
 		}
 	}
 
+	public Set<Element> getSelectedElements() {
+		return selectedElements;
+	}
+
+	public void setSelectedElements(Set<Element> selectedElements) {
+		this.selectedElements = selectedElements;
+	}
+
+	public Element getFocusedElementSelectedSurrounding() {
+		return focusedElementSelectedSurrounding;
+	}
+
+	public void setFocusedElementSelectedSurrounding(Element focusedElementSelectedSurrounding) {
+		this.focusedElementSelectedSurrounding = focusedElementSelectedSurrounding;
+	}
+
 	public Element getFocusedStepOrTransition() {
-		return focusedStepOrTransition;
+		return (selectedElements.size() > 0) ? selectedElements.iterator().next() : null;
 	}
 
 	public void setFocusedStepOrTransition(Element focusedStepOrTransition) {
-		this.focusedStepOrTransition = focusedStepOrTransition;
+		selectedElements = (focusedStepOrTransition != null) ? Collections.singleton(focusedStepOrTransition)
+				: Collections.emptySet();
 	}
 
 	public List<Element> getFocusedStepOrTransitionSurroundings() {
 		List<Element> result = new ArrayList<Element>();
+		Element focusedStepOrTransition = getFocusedStepOrTransition();
 		if (focusedStepOrTransition != null) {
 			if (focusedStepOrTransition instanceof Step) {
 				Step step = (Step) focusedStepOrTransition;

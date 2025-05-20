@@ -201,6 +201,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
 							@Override
 							public void handle(List<BufferedItemPosition> event) {
+								ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+								BufferedItemPosition singleSelection = focusedPlanElementsControl.getSingleSelection();
+								getPlan().setFocusedElementSelectedSurrounding(
+										(singleSelection != null) ? (Element) singleSelection.getItem() : null);
 								if (selectionListeningEnabled) {
 									selectionListeningEnabled = false;
 									try {
@@ -228,22 +232,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected void updateSelection() {
-		ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
-		if (focusedPlanElementsControl.getSelection().size() > 0) {
-			setSelection(focusedPlanElementsControl.getSelection().stream().map(itemPosition -> {
-				if (itemPosition.getItem() instanceof Step) {
-					return (JDiagramObject) findNode(itemPosition.getItem());
-				} else if (itemPosition.getItem() instanceof Transition) {
-					return (JDiagramObject) findConnection(itemPosition.getItem());
-				} else {
-					throw new UnexpectedError();
-				}
-			}).collect(Collectors.toSet()));
+		Plan plan = getPlan();
+		if (plan.getFocusedElementSelectedSurrounding() != null) {
+			setSelection(Collections.singleton(findDiagramObject(plan.getFocusedElementSelectedSurrounding())));
 		} else {
-			Plan plan = getPlan();
-			setSelection((plan.getFocusedStepOrTransition() != null)
-					? Collections.singleton(findDiagramObject(plan.getFocusedStepOrTransition()))
-					: Collections.emptySet());
+			setSelection(plan.getSelectedElements().stream().map(element -> findDiagramObject(element))
+					.collect(Collectors.toSet()));
 		}
 	}
 
@@ -755,18 +749,33 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 		}
 		SwingRendererUtils.handleComponentSizeChange(this);
-		SwingUtilities.invokeLater(new Runnable() {
+		Runnable selectionUpdate = new Runnable() {
 			@Override
 			public void run() {
 				selectionListeningEnabled = false;
 				try {
 					updateSelection();
-					updateFocusedPlanElementsControl();
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							selectionListeningEnabled = false;
+							try {
+								updateFocusedPlanElementsControl();
+							} finally {
+								selectionListeningEnabled = true;
+							}
+						}
+					});
 				} finally {
 					selectionListeningEnabled = true;
 				}
 			}
-		});
+		};
+		if (isShowing()) {
+			selectionUpdate.run();
+		} else {
+			SwingUtilities.invokeLater(selectionUpdate);
+		}
 		return true;
 	}
 
