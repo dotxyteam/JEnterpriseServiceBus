@@ -170,6 +170,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	@Override
+	protected void updateFocusedPlanElementsControl() {
+	}
+
+	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
 		result.removeAll();
