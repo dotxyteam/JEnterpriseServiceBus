@@ -14,6 +14,7 @@ public abstract class UpToDate<T> {
 	private transient Object lastVersionIdentifier = UNDEFINED;
 	private transient T latest;
 	private transient Object customValue;
+	private transient final Object mutex = new Object();
 
 	protected abstract Object retrieveLastVersionIdentifier();
 
@@ -27,13 +28,15 @@ public abstract class UpToDate<T> {
 		this.customValue = customValue;
 	}
 
-	public synchronized T get() throws VersionAccessException {
-		Object versionIdentifier = retrieveLastVersionIdentifier();
-		if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
-			latest = obtainLatest(versionIdentifier);
-			lastVersionIdentifier = versionIdentifier;
+	public T get() throws VersionAccessException {
+		synchronized (mutex) {
+			Object versionIdentifier = retrieveLastVersionIdentifier();
+			if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
+				latest = obtainLatest(versionIdentifier);
+				lastVersionIdentifier = versionIdentifier;
+			}
+			return latest;
 		}
-		return latest;
 	}
 
 	public static class VersionAccessException extends Exception {
