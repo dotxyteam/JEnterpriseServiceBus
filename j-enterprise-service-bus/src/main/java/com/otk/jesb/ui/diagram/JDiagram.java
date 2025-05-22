@@ -431,6 +431,10 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				result.height = Math.max(result.height, labelBounds.y + labelBounds.height);
 			}
 		}
+		if (g != null) {
+			result.width += g.getFontMetrics().getHeight();
+			result.height += g.getFontMetrics().getHeight();
+		}
 		return result;
 	}
 

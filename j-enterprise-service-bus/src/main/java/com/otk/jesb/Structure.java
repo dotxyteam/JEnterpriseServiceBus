@@ -433,6 +433,20 @@ public abstract class Structure {
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
 		}
 
+		public List<Element> getSubElements() {
+			if (!(structure instanceof ClassicStructure)) {
+				return null;
+			}
+			return ((ClassicStructure) structure).getElements();
+		}
+
+		public void setSubElements(List<Element> elements) {
+			if (!(structure instanceof ClassicStructure)) {
+				return;
+			}
+			((ClassicStructure) structure).setElements(elements);
+		}
+
 		@Override
 		public void validate(boolean recursively) throws ValidationError {
 			super.validate(recursively);

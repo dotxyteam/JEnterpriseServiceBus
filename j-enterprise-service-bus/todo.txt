@@ -18,6 +18,10 @@
 	. change the fonts ???
 	. add a banner ???
 - allow to add debug breakpoints
+- allow to optimize a debug session by:
+	. disabling animations
+	. disabling the step occurrences collection
+	. disabling all breakpoints
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code

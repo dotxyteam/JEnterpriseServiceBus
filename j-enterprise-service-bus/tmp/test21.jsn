@@ -627,8 +627,8 @@
             <com.otk.jesb.solution.Step>
               <name>doNothing1</name>
               <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
-              <diagramX>644</diagramX>
-              <diagramY>497</diagramY>
+              <diagramX>637</diagramX>
+              <diagramY>500</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[5]/parent"/>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
@@ -658,7 +658,7 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>0</parameterPosition>
                             <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                              <functionBody>return executePlan.getOutput();</functionBody>
+                              <functionBody>return (executePlan==null) ? null : executePlan.getOutput();</functionBody>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                           <com.otk.jesb.instantiation.ParameterInitializer>
@@ -666,23 +666,6 @@
                             <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
                               <functionBody>return callSOAPWebService;</functionBody>
                             </parameterValue>
-                          </com.otk.jesb.instantiation.ParameterInitializer>
-                        </parameterInitializers>
-                        <selectedConstructorSignature class="null"/>
-                        <typeName>&lt;Dynamic&gt;</typeName>
-                      </parameterValue>
-                    </com.otk.jesb.instantiation.ParameterInitializer>
-                    <com.otk.jesb.instantiation.ParameterInitializer>
-                      <parameterPosition>0</parameterPosition>
-                      <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.EvaluateActivity$Builder$2" reference="../../../com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                        <fieldInitializers/>
-                        <initializationSwitches/>
-                        <listItemInitializers/>
-                        <parameterInitializers>
-                          <com.otk.jesb.instantiation.ParameterInitializer>
-                            <parameterPosition>0</parameterPosition>
-                            <parameterValue class="string"></parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
@@ -707,10 +690,9 @@
                         <modelReference>
                           <path>resources &gt; SubPlanOutput</path>
                           <assetClass>com.otk.jesb.resource.builtin.SharedStructureModel</assetClass>
-                          <assetFilter class="null"/>
-                          <newPathValidator class="null"/>
                         </modelReference>
                       </structure>
+                      <subElements class="null"/>
                     </com.otk.jesb.Structure_-StructuredElement>
                     <com.otk.jesb.Structure_-SimpleElement>
                       <multiple>false</multiple>
@@ -845,6 +827,7 @@
                     <assetClass>com.otk.jesb.resource.builtin.SharedStructureModel</assetClass>
                   </modelReference>
                 </structure>
+                <subElements class="null"/>
               </com.otk.jesb.Structure_-StructuredElement>
             </elements>
           </inputStructure>
@@ -928,6 +911,7 @@
                     <assetClass>com.otk.jesb.resource.builtin.SharedStructureModel</assetClass>
                   </modelReference>
                 </structure>
+                <subElements class="null"/>
               </com.otk.jesb.Structure_-StructuredElement>
             </elements>
           </outputStructure>
@@ -1016,10 +1000,11 @@
                                             <m class="java.util.Collections$UnmodifiableMap">
                                               <m class="java.util.Collections$UnmodifiableMap">
                                                 <m class="java.util.Collections$UnmodifiableMap">
-                                                  <m>
-                                                    <entry>
-                                                      <string>0_SOAP.ByNameDataSet.cls</string>
-                                                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                                  <m class="java.util.Collections$UnmodifiableMap">
+                                                    <m>
+                                                      <entry>
+                                                        <string>0_SOAP.ByNameDataSet.cls</string>
+                                                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;ByNameDataSet&quot; targetNamespace=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns=&quot;http://tempuri.org/ByNameDataSet&quot; xmlns:mstns=&quot;http://tempuri.org/ByNameDataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;ByNameDataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -1046,10 +1031,10 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                                    </entry>
-                                                    <entry>
-                                                      <string>1_SOAP.Demo.QueryByName.DS.cls</string>
-                                                      <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
+                                                      </entry>
+                                                      <entry>
+                                                        <string>1_SOAP.Demo.QueryByName.DS.cls</string>
+                                                        <string>&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos; ?&gt;&#xd;
 &lt;s:schema id=&quot;QueryByName_DataSet&quot; targetNamespace=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns=&quot;http://tempuri.org/QueryByName_DataSet&quot; xmlns:mstns=&quot;http://tempuri.org/QueryByName_DataSet&quot; attributeFormDefault=&quot;qualified&quot; elementFormDefault=&quot;qualified&quot; xmlns:s=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xd;
   &lt;s:element name=&quot;QueryByName_DataSet&quot; msdata:IsDataSet=&quot;true&quot;&gt;&#xd;
     &lt;s:complexType&gt;&#xd;
@@ -1073,7 +1058,8 @@
   &lt;/s:element&gt;&#xd;
 &lt;/s:schema&gt;&#xd;
 </string>
-                                                    </entry>
+                                                      </entry>
+                                                    </m>
                                                   </m>
                                                 </m>
                                               </m>
