@@ -37,7 +37,7 @@ import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.solution.Element;
+import com.otk.jesb.solution.PlanElement;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
 import com.otk.jesb.solution.Plan;
@@ -87,6 +87,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	private static final int STEP_ICON_WIDTH = 64;
 	private static final int STEP_ICON_HEIGHT = 64;
+	private static final Color OBJECTS_COLOR = new Color(95, 99, 104);
 	private static final Image BACKGROUND_IMAGE;
 	static {
 		try {
@@ -100,11 +101,13 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
-	private Map<Pair<String, Element>, Exception> validitionErrorMap = new HashMap<Pair<String, Element>, Exception>();
+	private Map<Pair<String, PlanElement>, Exception> validitionErrorMap = new HashMap<Pair<String, PlanElement>, Exception>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
 		this.input = input;
+		setConnectionColor(OBJECTS_COLOR);
+		setNodeColor(OBJECTS_COLOR);
 		setActionSchemes(createActionSchemes());
 		updateExternalComponentsOnInternalEvents();
 		updateInternalComponentsOnExternalEvents();
@@ -167,8 +170,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					selectionListeningEnabled = false;
 					try {
 						Set<JDiagramObject> selection = PlanDiagram.this.getSelection();
-						getPlan().setFocusedStepOrTransition(
-								(selection.size() == 1) ? (Element) selection.iterator().next().getValue() : null);
+						getPlan().setSelectedElements(
+								selection.stream().map(diagramObject -> (PlanElement) diagramObject.getValue())
+										.collect(Collectors.toSet()));
+						getPlan().setFocusedElementSelectedSurrounding(null);
 						updateFocusedPlanElementsControl();
 						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
@@ -197,6 +202,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				if (!isShowing()) {
+					return;
+				}
 				getFocusedPlanElementsControl()
 						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
 							@Override
@@ -204,7 +212,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
 								BufferedItemPosition singleSelection = focusedPlanElementsControl.getSingleSelection();
 								getPlan().setFocusedElementSelectedSurrounding(
-										(singleSelection != null) ? (Element) singleSelection.getItem() : null);
+										(singleSelection != null) ? (PlanElement) singleSelection.getItem() : null);
 								if (selectionListeningEnabled) {
 									selectionListeningEnabled = false;
 									try {
@@ -238,6 +246,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		} else {
 			setSelection(plan.getSelectedElements().stream().map(element -> findDiagramObject(element))
 					.collect(Collectors.toSet()));
+		}
+		if(getSelection().size() == 1) {
+			scrollTo(getSelection().iterator().next());
 		}
 	}
 
@@ -714,12 +725,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
 						BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = compositeImage.createGraphics();
-				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
+				g.setColor(getNodeColor());
 				MiscUtils.improveRenderingQuality(g);
+				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
 				g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
 						node.getImage().getHeight(null), null);
-				g.setColor(Color.BLACK);
 				g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
 				g.dispose();
 				node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
@@ -758,6 +768,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
+							if (!isShowing()) {
+								return;
+							}
 							selectionListeningEnabled = false;
 							try {
 								updateFocusedPlanElementsControl();
@@ -806,15 +819,15 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public void validateControl(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
-		List<Pair<String, Element>> titleAndElementPairs = new ArrayList<Pair<String, Element>>();
-		titleAndElementPairs.addAll(
-				plan.getSteps().stream().map(step -> new Pair<String, Element>("step '" + step.getName() + "'", step))
-						.collect(Collectors.toList()));
+		List<Pair<String, PlanElement>> titleAndElementPairs = new ArrayList<Pair<String, PlanElement>>();
+		titleAndElementPairs.addAll(plan.getSteps().stream()
+				.map(step -> new Pair<String, PlanElement>("step '" + step.getName() + "'", step))
+				.collect(Collectors.toList()));
 		titleAndElementPairs.addAll(plan.getTransitions().stream().map(
-				transition -> new Pair<String, Element>("transition '" + transition.getSummary() + "'", transition))
+				transition -> new Pair<String, PlanElement>("transition '" + transition.getSummary() + "'", transition))
 				.collect(Collectors.toList()));
 		validitionErrorMap.clear();
-		for (Pair<String, Element> toValidate : titleAndElementPairs) {
+		for (Pair<String, PlanElement> toValidate : titleAndElementPairs) {
 			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
@@ -834,11 +847,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 		});
 		if (validitionErrorMap.size() > 0) {
-			Entry<Pair<String, Element>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator().next();
-			Pair<String, Element> titleAndObjectPair = firstErrorEntry.getKey();
+			Entry<Pair<String, PlanElement>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator()
+					.next();
+			Pair<String, PlanElement> titleAndObjectPair = firstErrorEntry.getKey();
 			Exception validationError = firstErrorEntry.getValue();
-			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst() + " '"
-					+ titleAndObjectPair.getSecond() + "'", validationError);
+			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst(), validationError);
 		}
 	}
 

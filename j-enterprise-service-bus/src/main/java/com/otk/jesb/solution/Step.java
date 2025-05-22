@@ -7,7 +7,7 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.util.MiscUtils;
 
-public class Step extends Element{
+public class Step extends PlanElement{
 
 	private String name = "";
 	private ActivityBuilder activityBuilder;

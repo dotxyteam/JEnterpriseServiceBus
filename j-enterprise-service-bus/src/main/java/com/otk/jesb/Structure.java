@@ -17,7 +17,7 @@ public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className);
 
-	public abstract void validate() throws ValidationError;
+	public abstract void validate(boolean recursively) throws ValidationError;
 
 	public abstract String toString();
 
@@ -65,7 +65,7 @@ public abstract class Structure {
 		}
 
 		@Override
-		public void validate() throws ValidationError {
+		public void validate(boolean recursively) throws ValidationError {
 			if (elements.size() == 0) {
 				throw new ValidationError("No declared element");
 			}
@@ -75,6 +75,11 @@ public abstract class Structure {
 					throw new ValidationError("Duplicate element name detected: '" + element.getName() + "'");
 				} else {
 					elementNames.add(element.getName());
+				}
+			}
+			if (recursively) {
+				for (Element element : elements) {
+					element.validate(recursively);
 				}
 			}
 		}
@@ -109,7 +114,7 @@ public abstract class Structure {
 		}
 
 		@Override
-		public void validate() throws ValidationError {
+		public void validate(boolean recursively) throws ValidationError {
 			if (items.size() == 0) {
 				throw new ValidationError("No declared item");
 			}
@@ -214,7 +219,7 @@ public abstract class Structure {
 		}
 
 		@Override
-		public void validate() throws ValidationError {
+		public void validate(boolean recursively) throws ValidationError {
 			if (modelReference == null) {
 				throw new ValidationError("Shared structure model reference not set");
 			}
@@ -329,7 +334,7 @@ public abstract class Structure {
 			return result.toString();
 		}
 
-		public void validate() throws ValidationError {
+		public void validate(boolean recursively) throws ValidationError {
 			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
 				throw new ValidationError(
 						"Invalid element name: '" + name + "' (should match the following regular expression: "
@@ -426,6 +431,16 @@ public abstract class Structure {
 				return structuredClass.getName();
 			}
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			super.validate(recursively);
+			if (recursively) {
+				if (structure != null) {
+					structure.validate(recursively);
+				}
+			}
 		}
 	}
 

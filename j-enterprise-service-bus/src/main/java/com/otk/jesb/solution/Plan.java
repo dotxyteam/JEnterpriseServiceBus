@@ -1,5 +1,6 @@
 package com.otk.jesb.solution;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,8 +45,8 @@ public class Plan extends Asset {
 
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
-	private transient Set<Element> selectedElements = new HashSet<Element>();
-	private transient Element focusedElementSelectedSurrounding;
+	private transient Set<PlanElement> selectedElements = new HashSet<PlanElement>();
+	private transient PlanElement focusedElementSelectedSurrounding;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
@@ -166,34 +167,37 @@ public class Plan extends Asset {
 		}
 	}
 
-	public Set<Element> getSelectedElements() {
+	@Transient
+	public Set<PlanElement> getSelectedElements() {
 		return selectedElements;
 	}
 
-	public void setSelectedElements(Set<Element> selectedElements) {
+	public void setSelectedElements(Set<PlanElement> selectedElements) {
 		this.selectedElements = selectedElements;
 	}
 
-	public Element getFocusedElementSelectedSurrounding() {
+	@Transient
+	public PlanElement getFocusedElementSelectedSurrounding() {
 		return focusedElementSelectedSurrounding;
 	}
 
-	public void setFocusedElementSelectedSurrounding(Element focusedElementSelectedSurrounding) {
+	public void setFocusedElementSelectedSurrounding(PlanElement focusedElementSelectedSurrounding) {
 		this.focusedElementSelectedSurrounding = focusedElementSelectedSurrounding;
 	}
 
-	public Element getFocusedStepOrTransition() {
+	@Transient
+	public PlanElement getFocusedStepOrTransition() {
 		return (selectedElements.size() > 0) ? selectedElements.iterator().next() : null;
 	}
 
-	public void setFocusedStepOrTransition(Element focusedStepOrTransition) {
+	public void setFocusedStepOrTransition(PlanElement focusedStepOrTransition) {
 		selectedElements = (focusedStepOrTransition != null) ? Collections.singleton(focusedStepOrTransition)
 				: Collections.emptySet();
 	}
 
-	public List<Element> getFocusedStepOrTransitionSurroundings() {
-		List<Element> result = new ArrayList<Element>();
-		Element focusedStepOrTransition = getFocusedStepOrTransition();
+	public List<PlanElement> getFocusedStepOrTransitionSurroundings() {
+		List<PlanElement> result = new ArrayList<PlanElement>();
+		PlanElement focusedStepOrTransition = getFocusedStepOrTransition();
 		if (focusedStepOrTransition != null) {
 			if (focusedStepOrTransition instanceof Step) {
 				Step step = (Step) focusedStepOrTransition;
@@ -577,14 +581,14 @@ public class Plan extends Asset {
 			}
 			if (inputStructure != null) {
 				try {
-					inputStructure.validate();
+					inputStructure.validate(recursively);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the input structure", e);
 				}
 			}
 			if (outputStructure != null) {
 				try {
-					outputStructure.validate();
+					outputStructure.validate(recursively);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the output structure", e);
 				}

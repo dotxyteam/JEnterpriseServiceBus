@@ -12,7 +12,7 @@ import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.meta.TypeInfoProvider;
 
-public class Transition extends Element{
+public class Transition extends PlanElement{
 
 	private Step startStep;
 	private Step endStep;

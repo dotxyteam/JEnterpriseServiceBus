@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
+import com.otk.jesb.Structure;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Debugger;
@@ -25,6 +26,7 @@ import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
 import com.otk.jesb.activity.builtin.DoNothingActivity;
+import com.otk.jesb.activity.builtin.EvaluateActivity;
 import com.otk.jesb.activity.builtin.ExecutePlanActivity;
 import com.otk.jesb.activity.builtin.JDBCQueryActivity;
 import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
@@ -89,9 +91,9 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class JESBReflectionUI extends CustomizedUI {
 
 	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new DoNothingActivity.Metadata(),
-			new SleepActivity.Metadata(), new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(),
-			new WriteFileActivity.Metadata(), new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
-			new CallSOAPWebServiceActivity.Metadata());
+			new EvaluateActivity.Metadata(), new SleepActivity.Metadata(), new ExecutePlanActivity.Metadata(),
+			new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(), new JDBCQueryActivity.Metadata(),
+			new JDBCUpdateActivity.Metadata(), new CallSOAPWebServiceActivity.Metadata());
 	public static final List<ActivityMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopActivity.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new WSDL.Metadata());
@@ -101,7 +103,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			+ ".CURRENT_VALIDATION_STEP_KEY";
 	private static final String CURRENT_VALIDATION_TRANSITION_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_TRANSITION_KEY";
-	
+
 	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 	static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 
@@ -1030,6 +1032,18 @@ public class JESBReflectionUI extends CustomizedUI {
 						return true;
 					}
 				}
+				if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName())))) {
+						return true;
+					}
+				}
 				return super.isHidden(method, objectType);
 			}
 
@@ -1070,9 +1084,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
 					try {
-						((Transition.Condition) object).validate(
-								getCurrentValidationPlan(session).getTransitionContextVariableDeclarations(
-										getCurrentValidationTransition(session)));
+						((Transition.Condition) object).validate(getCurrentValidationPlan(session)
+								.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
 					} catch (ValidationError e) {
 						throw new ReflectionUIError(e);
 					}
@@ -1091,6 +1104,18 @@ public class JESBReflectionUI extends CustomizedUI {
 					step = (rootInstanceBuilderFacade.getUnderlying() == plan.getOutputBuilder()) ? null : step;
 					try {
 						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
+					try {
+						((Structure) object).validate(false);
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
+					try {
+						((Structure.Element) object).validate(false);
 					} catch (ValidationError e) {
 						throw new ReflectionUIError(e);
 					}

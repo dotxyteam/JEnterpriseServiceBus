@@ -3,6 +3,8 @@ package com.otk.jesb.util;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.beans.PropertyDescriptor;
+import java.beans.Transient;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,6 +46,7 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
@@ -467,7 +470,22 @@ public class MiscUtils {
 
 	private static XStream getXStream() {
 		XStream result = new XStream();
-		result.registerConverter(new JavaBeanConverter(result.getMapper()), -20);
+		result.registerConverter(new JavaBeanConverter(result.getMapper(), new BeanProvider() {
+			@Override
+			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
+				final boolean canStream = super.canStreamProperty(descriptor);
+				if (!canStream) {
+					return false;
+				}
+				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
+						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
+				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
+						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
+				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
+
+				return !isTransient;
+			}
+		}), -20);
 		result.addPermission(AnyTypePermission.ANY);
 		result.ignoreUnknownElements();
 		return result;

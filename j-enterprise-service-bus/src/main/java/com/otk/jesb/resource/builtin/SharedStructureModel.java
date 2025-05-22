@@ -90,7 +90,7 @@ public class SharedStructureModel extends Resource {
 		if (recursively) {
 			if (structure != null) {
 				try {
-					structure.validate();
+					structure.validate(recursively);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the structure", e);
 				}

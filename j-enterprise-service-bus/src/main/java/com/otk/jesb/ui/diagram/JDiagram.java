@@ -79,7 +79,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setTransferHandler(new ActionImportTransferHandler());
-		setConnectionColor(new Color(95, 99, 104));
 	}
 
 	public List<JNode> getNodes() {
