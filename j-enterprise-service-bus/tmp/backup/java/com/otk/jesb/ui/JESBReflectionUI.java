@@ -18,18 +18,18 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
-import com.otk.jesb.solution.LoopCompositeStep.LoopActivity;
-import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
+import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
+import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.Structure.Element;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
-import com.otk.jesb.activity.builtin.ExecutePlanActivity;
-import com.otk.jesb.activity.builtin.JDBCQueryActivity;
-import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
-import com.otk.jesb.activity.builtin.ReadFileActivity;
-import com.otk.jesb.activity.builtin.SleepActivity;
-import com.otk.jesb.activity.builtin.WriteFileActivity;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.builtin.CallSOAPWebService;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.JDBCUpdate;
+import com.otk.jesb.operation.builtin.ReadFile;
+import com.otk.jesb.operation.builtin.Sleep;
+import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.diagram.DragIntent;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.Facade;
@@ -78,11 +78,11 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class JESBReflectionUI extends CustomizedUI {
 
-	public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
-			new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
-			new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
-			new CallSOAPWebServiceActivity.Metadata());
-	public static final List<ActivityMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopActivity.Metadata());
+	public static final List<OperationMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepOperation.Metadata(),
+			new ExecutePlanOperation.Metadata(), new ReadFileOperation.Metadata(), new WriteFileOperation.Metadata(),
+			new JDBCQueryOperation.Metadata(), new JDBCUpdateOperation.Metadata(),
+			new CallSOAPWebServiceOperation.Metadata());
+	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 			new WSDL.Metadata());
 
@@ -451,8 +451,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected String toString(ITypeInfo type, Object object) {
-				if (object instanceof ActivityMetadata) {
-					return ((ActivityMetadata) object).getActivityTypeName();
+				if (object instanceof OperationMetadata) {
+					return ((OperationMetadata) object).getOperationTypeName();
 				}
 				return super.toString(type, object);
 			}
@@ -685,7 +685,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
-				} else if (type.getName().equals(LoopActivity.Builder.class.getName())) {
+				} else if (type.getName().equals(LoopOperation.Builder.class.getName())) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -712,7 +712,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							return ((LoopActivity.Builder) object)
+							return ((LoopOperation.Builder) object)
 									.retrieveResultsCollectionConfigurationEntries(currentPlan, currentStep);
 						}
 
@@ -729,11 +729,11 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
-				if (type.getName().equals(ActivityBuilder.class.getName())) {
+				if (type.getName().equals(OperationBuilder.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+					for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
 						result.add(
-								getTypeInfo(new JavaTypeInfoSource(activityMetadata.getActivityBuilderClass(), null)));
+								getTypeInfo(new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 					}
 					return result;
 				} else if (type.getName().equals(Resource.class.getName())) {
@@ -752,9 +752,9 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (type.getName().equals(ReflectionUIError.class.getName())) {
 					return "Error";
 				}
-				for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-					if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
-						return activityMetadata.getActivityTypeName();
+				for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
+					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
+						return operationMetadata.getOperationTypeName();
 					}
 				}
 				for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
@@ -767,9 +767,9 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-				for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-					if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
-						return activityMetadata.getActivityIconImagePath();
+				for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
+					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
+						return operationMetadata.getOperationIconImagePath();
 					}
 				}
 				for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
@@ -847,7 +847,7 @@ public class JESBReflectionUI extends CustomizedUI {
 							}
 						}
 					}
-					if (ActivityBuilder.class.isAssignableFrom(objectClass)) {
+					if (OperationBuilder.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(
 								CompilationContext.class.getName(), "findFunctionCompilationContext",
 								Arrays.asList(InstantiationFunction.class.getName(), Step.class.getName(), Plan.class.getName())))) {

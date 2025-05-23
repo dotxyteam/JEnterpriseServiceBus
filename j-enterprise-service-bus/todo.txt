@@ -5,7 +5,6 @@
 	. advertise
 	. improve the features
 - add general activities:
-	. Evaluate (like BW "Mapper" activity)
 	. Log
 	. ...
 - allow to start plan execution on event (timer, file poller, etc)
@@ -41,7 +40,6 @@ ExecutePlan.inputBuilder is filled
 - what if 2 variables have the same name ?
 - replace "Edit..." by an icon ???
 - rename activity classes (remove 'Activity' suffix) ???
-- rename Activities to Operations
 - add support to Iterable for ListItemReplication.iterationListValue
 - alternatives: 
 https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/

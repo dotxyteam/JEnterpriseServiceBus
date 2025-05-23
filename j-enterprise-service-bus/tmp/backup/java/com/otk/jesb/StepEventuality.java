@@ -10,7 +10,7 @@ public class StepEventuality implements VariableDeclaration {
 
 	@Override
 	public Class<?> getVariableType() {
-		return step.getActivityBuilder().getActivityResultClass();
+		return step.getOperationBuilder().getOperationResultClass();
 	}
 
 	@Override

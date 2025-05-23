@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,9 +13,9 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.InstantiationContext;
@@ -27,7 +27,7 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
-public class JDBCUpdateActivity implements Activity {
+public class JDBCUpdateOperation implements Operation {
 
 	private JDBCConnection connection;
 	private String statement;
@@ -75,10 +75,10 @@ public class JDBCUpdateActivity implements Activity {
 		return new Result(affectedRows);
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "JDBC Update";
 		}
 
@@ -88,19 +88,19 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(JDBCUpdateActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(JDBCUpdateOperation.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
@@ -125,7 +125,7 @@ public class JDBCUpdateActivity implements Activity {
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCUpdateActivity.class.getName() + "ParameterValues"
+			String className = JDBCUpdateOperation.class.getName() + "ParameterValues"
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -225,8 +225,8 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCUpdateActivity result = new JDBCUpdateActivity();
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			JDBCUpdateOperation result = new JDBCUpdateOperation();
 			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
@@ -243,7 +243,7 @@ public class JDBCUpdateActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getOperationResultClass() {
 			return Result.class;
 		}
 

@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,11 +10,11 @@ import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
@@ -28,13 +28,13 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.util.ClassUtils;
 
-public abstract class JDBCActivity implements Activity {
+public abstract class JDBCOperation implements Operation {
 
 	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
 
-	public JDBCActivity(JDBCConnection connection) {
+	public JDBCOperation(JDBCConnection connection) {
 		this.connection = connection;
 	}
 
@@ -74,7 +74,7 @@ public abstract class JDBCActivity implements Activity {
 		return preparedStatement;
 	}
 
-	public static abstract class Builder implements ActivityBuilder {
+	public static abstract class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
@@ -104,7 +104,7 @@ public abstract class JDBCActivity implements Activity {
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCQueryActivity.class.getName() + "ParameterValues"
+			String className = JDBCQuery.class.getName() + "ParameterValues"
 					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");

@@ -16,7 +16,7 @@ public class StepEventuality implements VariableDeclaration {
 
 	@Override
 	public Class<?> getVariableType() {
-		Class<?> result = step.getActivityBuilder().getActivityResultClass(currentPlan, step);
+		Class<?> result = step.getOperationBuilder().getOperationResultClass(currentPlan, step);
 		if (result != null) {
 			if (result.isPrimitive()) {
 				result = ClassUtils.primitiveToWrapperClass(result);

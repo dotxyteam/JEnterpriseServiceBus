@@ -75,13 +75,13 @@ public class Debugger {
 					try {
 						plan.execute(null, new Plan.ExecutionInspector() {
 							@Override
-							public void beforeActivityCreation(StepCrossing stepCrossing) {
+							public void beforeOperationCreation(StepCrossing stepCrossing) {
 								currentStepCrossing = stepCrossing;
 								stepCrossings.add(stepCrossing);
 							}
 
 							@Override
-							public void afterActivityExecution(StepCrossing stepCrossing) {
+							public void afterOperationExecution(StepCrossing stepCrossing) {
 								try {
 									Thread.sleep(500);
 								} catch (InterruptedException e) {

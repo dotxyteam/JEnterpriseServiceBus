@@ -45,7 +45,7 @@ public class InstantiationUtils {
 		Plan currentPlan = executionContext.getPlan();
 		Step currentStep = executionContext.getCurrentStep();
 		CompilationContext compilationContext = (currentStep != null)
-				? currentStep.getActivityBuilder().findFunctionCompilationContext(function, currentStep, currentPlan)
+				? currentStep.getOperationBuilder().findFunctionCompilationContext(function, currentStep, currentPlan)
 				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
 						currentPlan.getValidationContext(currentStep));
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {

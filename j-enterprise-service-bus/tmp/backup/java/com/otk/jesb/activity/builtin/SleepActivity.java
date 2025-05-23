@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.io.IOException;
 
@@ -6,9 +6,9 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
@@ -16,11 +16,11 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class SleepActivity implements Activity {
+public class SleepOperation implements Operation {
 
 	private long milliseconds;
 
-	public SleepActivity(long milliseconds) {
+	public SleepOperation(long milliseconds) {
 		this.milliseconds = milliseconds;
 	}
 
@@ -38,10 +38,10 @@ public class SleepActivity implements Activity {
 		return null;
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Sleep";
 		}
 
@@ -51,21 +51,21 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(SleepActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(SleepOperation.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				SleepActivity.class.getSimpleName() + "Input", SleepActivity.class.getName());
+				SleepOperation.class.getSimpleName() + "Input", SleepOperation.class.getName());
 
 		public RootInstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
@@ -76,12 +76,12 @@ public class SleepActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return (SleepActivity) instanceBuilder.build(new EvaluationContext(context, null));
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return (SleepOperation) instanceBuilder.build(new EvaluationContext(context, null));
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getOperationResultClass() {
 			return null;
 		}
 

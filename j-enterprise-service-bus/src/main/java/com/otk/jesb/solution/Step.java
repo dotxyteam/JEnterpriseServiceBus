@@ -3,25 +3,25 @@ package com.otk.jesb.solution;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.util.MiscUtils;
 
 public class Step extends PlanElement{
 
 	private String name = "";
-	private ActivityBuilder activityBuilder;
+	private OperationBuilder operationBuilder;
 	private int diagramX = 0;
 	private int diagramY = 0;
 	private CompositeStep parent;
 
-	public Step(ActivityMetadata activityMetadata) {
-		if (activityMetadata != null) {
-			name = activityMetadata.getActivityTypeName();
+	public Step(OperationMetadata operationMetadata) {
+		if (operationMetadata != null) {
+			name = operationMetadata.getOperationTypeName();
 			name = name.replace(" ", "");
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 			try {
-				activityBuilder = activityMetadata.getActivityBuilderClass().newInstance();
+				operationBuilder = operationMetadata.getOperationBuilderClass().newInstance();
 			} catch (Exception e) {
 				throw new UnexpectedError(e);
 			}
@@ -36,12 +36,12 @@ public class Step extends PlanElement{
 		this.name = name;
 	}
 
-	public ActivityBuilder getActivityBuilder() {
-		return activityBuilder;
+	public OperationBuilder getOperationBuilder() {
+		return operationBuilder;
 	}
 
-	public void setActivityBuilder(ActivityBuilder activityBuilder) {
-		this.activityBuilder = activityBuilder;
+	public void setOperationBuilder(OperationBuilder operationBuilder) {
+		this.operationBuilder = operationBuilder;
 	}
 
 	public int getDiagramX() {
@@ -83,8 +83,8 @@ public class Step extends PlanElement{
 			throw new ValidationError("Cycle detected");
 		}
 		if (recursively) {
-			if (activityBuilder != null) {
-				activityBuilder.validate(recursively, plan, this);
+			if (operationBuilder != null) {
+				operationBuilder.validate(recursively, plan, this);
 			}
 		}
 	}

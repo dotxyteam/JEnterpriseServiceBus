@@ -197,7 +197,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		StepCrossing lastStepCrossing = MiscUtils.getReverse(getPlanExecutor().getStepCrossings()).stream()
 				.filter(candidateStepCrossing -> (candidateStepCrossing.getStep() == node.getValue())).findFirst()
 				.orElse(null);
-		if ((lastStepCrossing != null) && (lastStepCrossing.getActivityError() != null)) {
+		if ((lastStepCrossing != null) && (lastStepCrossing.getOperationError() != null)) {
 			highlightNode(g, node, new Color(255, 173, 173));
 		} else {
 			StepCrossing currentStepCrossing = getPlanExecutor().getCurrentStepCrossing();

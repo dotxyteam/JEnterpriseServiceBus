@@ -3,41 +3,41 @@ package com.otk.jesb.solution;
 import java.util.List;
 
 import com.otk.jesb.Variable;
-import com.otk.jesb.activity.Activity;
+import com.otk.jesb.operation.Operation;
 
 public class StepCrossing extends StepOccurrence {
 
-	private Activity activity;
-	private Object activityResult;
-	private Throwable activityError;
+	private Operation operation;
+	private Object operationResult;
+	private Throwable operationError;
 	private List<Transition> validTransitions;
 
 	public StepCrossing(Step step, Plan plan) {
 		super(step, plan);
 	}
 
-	public Object getActivityResult() {
-		return activityResult;
+	public Object getOperationResult() {
+		return operationResult;
 	}
 
-	public void setActivityResult(Object activityResult) {
-		this.activityResult = activityResult;
+	public void setOperationResult(Object operationResult) {
+		this.operationResult = operationResult;
 	}
 
-	public Activity getActivity() {
-		return activity;
+	public Operation getOperation() {
+		return operation;
 	}
 
-	public void setActivity(Activity activity) {
-		this.activity = activity;
+	public void setOperation(Operation operation) {
+		this.operation = operation;
 	}
 
-	public Throwable getActivityError() {
-		return activityError;
+	public Throwable getOperationError() {
+		return operationError;
 	}
 
-	public void setActivityError(Throwable activityError) {
-		this.activityError = activityError;
+	public void setOperationError(Throwable operationError) {
+		this.operationError = operationError;
 	}
 
 	public List<Transition> getValidTransitions() {
@@ -50,12 +50,12 @@ public class StepCrossing extends StepOccurrence {
 
 	@Override
 	public Object getValue() {
-		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? activityResult : Variable.UNDEFINED_VALUE;
+		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? operationResult : Variable.UNDEFINED_VALUE;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + ((activityError == null) ? "OK" : "KO") + "] " + getStep().getName();
+		return "[" + ((operationError == null) ? "OK" : "KO") + "] " + getStep().getName();
 	}
 
 }

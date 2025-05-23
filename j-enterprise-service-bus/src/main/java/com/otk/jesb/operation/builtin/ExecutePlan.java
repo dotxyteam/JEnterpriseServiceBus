@@ -1,13 +1,13 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -15,13 +15,13 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
-public class ExecutePlanActivity implements Activity {
+public class ExecutePlan implements Operation {
 
 	private Plan plan;
 	private Object planInput;
 	private ExecutionInspector executionInspector;
 
-	public ExecutePlanActivity(Plan plan, Object planInput, ExecutionInspector executionInspector) {
+	public ExecutePlan(Plan plan, Object planInput, ExecutionInspector executionInspector) {
 		this.plan = plan;
 		this.planInput = planInput;
 		this.executionInspector = executionInspector;
@@ -40,10 +40,10 @@ public class ExecutePlanActivity implements Activity {
 		return plan.execute(planInput, executionInspector);
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Execute Plan";
 		}
 
@@ -53,18 +53,18 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(ExecutePlanActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(ExecutePlan.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private Reference<Plan> planReference = new Reference<Plan>(Plan.class);
 		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
@@ -103,14 +103,14 @@ public class ExecutePlanActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new ExecutePlanActivity(getPlan(), planInput, executionInspector);
+			return new ExecutePlan(getPlan(), planInput, executionInspector);
 		}
 
 		@Override
-		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 			Plan plan = getPlan();
 			if (plan == null) {
 				return null;

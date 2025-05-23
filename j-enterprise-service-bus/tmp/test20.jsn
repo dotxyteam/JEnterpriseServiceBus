@@ -5,7 +5,7 @@
         <com.otk.jesb.solution.Plan>
           <focusedStepOrTransition class="com.otk.jesb.solution.Step">
             <name>writeFile</name>
-            <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
+            <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
               <instanceBuilder>
                 <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                   <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -20,7 +20,7 @@
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
                     <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                      <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1">
+                      <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$1">
                         <outer-class reference="../../../../../.."/>
                       </dynamicTypeNameAccessor>
                       <fieldInitializers/>
@@ -50,14 +50,14 @@
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
                 <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                <rootInstanceName>WriteFileActivityInput</rootInstanceName>
+                <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                <rootInstanceName>WriteFileOperationInput</rootInstanceName>
                 <rootInstanceTypeName class="null"/>
                 <selectedConstructorSignature class="null"/>
                 <typeName>&lt;Dynamic&gt;</typeName>
               </instanceBuilder>
               <mode>TEXT</mode>
-            </activityBuilder>
+            </operationBuilder>
             <diagramX>206</diagramX>
             <diagramY>193</diagramY>
           </focusedStepOrTransition>
@@ -87,7 +87,7 @@
           <steps>
             <com.otk.jesb.solution.Step>
               <name>executePlan</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.ExecutePlan$Builder">
                 <planInputBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -102,7 +102,7 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ExecutePlan$Builder$1">
                           <outer-class reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
@@ -147,7 +147,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ExecutePlan$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>PlanInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -157,14 +157,14 @@
                   <path>plans &gt; SubPlan</path>
                   <assetClass>com.otk.jesb.solution.Plan</assetClass>
                 </planReference>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>87</diagramX>
               <diagramY>190</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
             <com.otk.jesb.solution.Step>
               <name>callSOAPWebService</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
                 <operationInputBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -179,7 +179,7 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1">
+                        <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder$1">
                           <outer-class reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
@@ -203,7 +203,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>OperationInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -216,13 +216,13 @@
                   <path>resources &gt; WSDL0067386445108691356079784258983392995390</path>
                   <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
                 </wsdlReference>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>317</diagramX>
               <diagramY>189</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>jDBCQuery</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
                 <connectionReference>
                   <path>resources &gt; db</path>
                   <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
@@ -242,8 +242,8 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
-                          <outer-class class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder" reference="../../../../../.."/>
+                        <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1">
+                          <outer-class class="com.otk.jesb.operation.builtin.JDBCQuery$Builder" reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
@@ -255,28 +255,28 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </parameterValuesBuilder>
                 <resultColumnDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TODAY</columnName>
                     <columnTypeName>java.sql.Date</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>NOW</columnName>
                     <columnTypeName>java.time.OffsetTime</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                 </resultColumnDefinitions>
                 <statement> SELECT CURRENT_DATE AS today, CURRENT_TIME AS now FROM (VALUES(0))</statement>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>691</diagramX>
               <diagramY>187</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep">
-                <activityBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder">
+                <operationBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopOperation$Builder">
                   <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
                   <loopEndCondition>
                     <functionBody>return iterationIndex==3;</functionBody>
@@ -284,7 +284,7 @@
                   <resultsCollectionTargetedStepNames>
                     <string>jDBCQuery</string>
                   </resultsCollectionTargetedStepNames>
-                </activityBuilder>
+                </operationBuilder>
                 <diagramX>643</diagramX>
                 <diagramY>191</diagramY>
                 <name>loop</name>
@@ -293,16 +293,16 @@
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>jDBCUpdate</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
                 <connectionReference>
                   <path>resources &gt; db</path>
                   <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
                 </connectionReference>
                 <parameterDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCActivity_-ParameterDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCOperation_-ParameterDefinition>
                     <parameterName>adress</parameterName>
                     <parameterTypeName>java.lang.String</parameterTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCActivity_-ParameterDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCOperation_-ParameterDefinition>
                 </parameterDefinitions>
                 <parameterValuesBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
@@ -318,8 +318,8 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
-                          <outer-class class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder" reference="../../../../../.."/>
+                        <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1">
+                          <outer-class class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder" reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
@@ -340,7 +340,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -359,17 +359,17 @@
     ?,
     &apos;Clichy&apos;
 );</statement>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>521</diagramX>
               <diagramY>427</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep">
-                <activityBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopActivity$Builder">
+                <operationBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopOperation$Builder">
                   <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
                   <loopEndCondition>
                     <functionBody>return jDBCUpdate != null;</functionBody>
                   </loopEndCondition>
                   <resultsCollectionTargetedStepNames/>
-                </activityBuilder>
+                </operationBuilder>
                 <diagramX>643</diagramX>
                 <diagramY>458</diagramY>
                 <name>loop1</name>
@@ -379,7 +379,7 @@
             <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[4]/parent"/>
             <com.otk.jesb.solution.Step>
               <name>sleep</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -407,25 +407,25 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                        <typeName>com.otk.jesb.operation.builtin.Sleep</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
-                  <rootInstanceName>SleepActivityInput</rootInstanceName>
-                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <rootInstanceName>SleepOperationInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.operation.builtin.Sleep</rootInstanceTypeName>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>595</diagramX>
               <diagramY>194</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[4]/parent"/>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>sleep1</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -453,24 +453,24 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                        <typeName>com.otk.jesb.operation.builtin.Sleep</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
-                  <rootInstanceName>SleepActivityInput</rootInstanceName>
-                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <rootInstanceName>SleepOperationInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.operation.builtin.Sleep</rootInstanceTypeName>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>199</diagramX>
               <diagramY>481</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>sleep2</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -496,24 +496,24 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                        <typeName>com.otk.jesb.operation.builtin.Sleep</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
-                  <rootInstanceName>SleepActivityInput</rootInstanceName>
-                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <rootInstanceName>SleepOperationInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.operation.builtin.Sleep</rootInstanceTypeName>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>307</diagramX>
               <diagramY>479</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>sleep3</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                     <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -541,30 +541,30 @@
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
-                        <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                        <typeName>com.otk.jesb.operation.builtin.Sleep</typeName>
                       </parameterValue>
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
                   <rootInstanceDynamicTypeNameAccessor class="null"/>
-                  <rootInstanceName>SleepActivityInput</rootInstanceName>
-                  <rootInstanceTypeName>com.otk.jesb.activity.builtin.SleepActivity</rootInstanceTypeName>
+                  <rootInstanceName>SleepOperationInput</rootInstanceName>
+                  <rootInstanceTypeName>com.otk.jesb.operation.builtin.Sleep</rootInstanceTypeName>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>412</diagramX>
               <diagramY>479</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>doNothing</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
+              <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
               <diagramX>642</diagramX>
               <diagramY>40</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>jDBCCreate</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
                 <connectionReference>
                   <path>resources &gt; db</path>
                   <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
@@ -584,8 +584,8 @@
                     <com.otk.jesb.instantiation.ParameterInitializer>
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                        <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
-                          <outer-class class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder" reference="../../../../../.."/>
+                        <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1">
+                          <outer-class class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder" reference="../../../../../.."/>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
@@ -606,7 +606,7 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
                   <rootInstanceName>Parameters</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -619,7 +619,7 @@
     Address varchar(255),
     City varchar(255)
 );</statement>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>759</diagramX>
               <diagramY>427</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[5]/parent"/>
@@ -627,7 +627,7 @@
             <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[5]/parent"/>
             <com.otk.jesb.solution.Step>
               <name>doNothing1</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.DoNothingActivity$Builder"/>
+              <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
               <diagramX>644</diagramX>
               <diagramY>497</diagramY>
               <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.Step[5]/parent"/>
@@ -737,7 +737,7 @@
         <com.otk.jesb.solution.Plan>
           <focusedStepOrTransition class="com.otk.jesb.solution.Step">
             <name>readFile</name>
-            <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
+            <operationBuilder class="com.otk.jesb.operation.builtin.ReadFile$Builder">
               <instanceBuilder>
                 <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$1">
                   <upToDateRootInstanceClass class="com.otk.jesb.instantiation.RootInstanceBuilder$1$1">
@@ -752,7 +752,7 @@
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
                     <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                      <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1">
+                      <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ReadFile$Builder$1">
                         <outer-class reference="../../../../../.."/>
                       </dynamicTypeNameAccessor>
                       <fieldInitializers/>
@@ -772,14 +772,14 @@
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
                 <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
-                <rootInstanceName>ReadFileActivityInput</rootInstanceName>
+                <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ReadFile$Builder$1" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                <rootInstanceName>ReadFileOperationInput</rootInstanceName>
                 <rootInstanceTypeName class="null"/>
                 <selectedConstructorSignature class="null"/>
                 <typeName>&lt;Dynamic&gt;</typeName>
               </instanceBuilder>
               <mode>TEXT</mode>
-            </activityBuilder>
+            </operationBuilder>
             <diagramX>126</diagramX>
             <diagramY>90</diagramY>
           </focusedStepOrTransition>
@@ -1415,7 +1415,7 @@
     &lt;/service&gt;&#xd;
 &lt;/definitions&gt;</text>
         </com.otk.jesb.resource.builtin.WSDL>
-        <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step/activityBuilder/planInputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
+        <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step/operationBuilder/planInputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
         <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan[2]/outputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
       </contents>
       <name>resources</name>

@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -9,11 +9,11 @@ import java.util.Arrays;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -22,35 +22,35 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
-public class WriteFileActivity implements Activity {
+public class WriteFile implements Operation {
 
-	private SpecificWriteFileActivity specificActivity;
+	private SpecificWriteFileOperation specificOperation;
 
-	public WriteFileActivity(SpecificWriteFileActivity specificActivity) {
-		this.specificActivity = specificActivity;
+	public WriteFile(SpecificWriteFileOperation specificOperation) {
+		this.specificOperation = specificOperation;
 	}
 
-	public SpecificWriteFileActivity getAction() {
-		return specificActivity;
+	public SpecificWriteFileOperation getAction() {
+		return specificOperation;
 	}
 
 	@Override
 	public Object execute() throws Throwable {
-		return specificActivity.execute();
+		return specificOperation.execute();
 	}
 
-	private static abstract class SpecificWriteFileActivity {
+	private static abstract class SpecificWriteFileOperation {
 		protected abstract Object execute() throws Throwable;
 	}
 
-	public static class WriteTextFileActivity extends SpecificWriteFileActivity {
+	public static class WriteTextFileOperation extends SpecificWriteFileOperation {
 
 		private String filePath;
 		private String text;
 		private boolean append = false;
 		private String charsetName;
 
-		public WriteTextFileActivity(String filePath, String text, boolean append) {
+		public WriteTextFileOperation(String filePath, String text, boolean append) {
 			this.filePath = filePath;
 			this.text = text;
 			this.append = append;
@@ -98,13 +98,13 @@ public class WriteFileActivity implements Activity {
 		}
 	}
 
-	public static class WriteBinaryFileActivity extends SpecificWriteFileActivity {
+	public static class WriteBinaryFileOperation extends SpecificWriteFileOperation {
 
 		private String filePath;
 		private byte[] data;
 		private boolean append = false;
 
-		public WriteBinaryFileActivity(String filePath, byte[] data, boolean append) {
+		public WriteBinaryFileOperation(String filePath, byte[] data, boolean append) {
 			this.filePath = filePath;
 			this.data = data;
 			this.append = append;
@@ -143,10 +143,10 @@ public class WriteFileActivity implements Activity {
 		}
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Write File";
 		}
 
@@ -156,18 +156,18 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(WriteFileActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(WriteFile.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		public enum Mode {
 			TEXT, BINARY
@@ -175,13 +175,13 @@ public class WriteFileActivity implements Activity {
 
 		private Mode mode = Mode.TEXT;
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				WriteFileActivity.class.getSimpleName() + "Input", new Accessor<String>() {
+				WriteFile.class.getSimpleName() + "Input", new Accessor<String>() {
 					@Override
 					public String get() {
 						if (mode == Mode.TEXT) {
-							return WriteTextFileActivity.class.getName();
+							return WriteTextFileOperation.class.getName();
 						} else if (mode == Mode.BINARY) {
-							return WriteBinaryFileActivity.class.getName();
+							return WriteBinaryFileOperation.class.getName();
 						} else {
 							throw new UnexpectedError();
 						}
@@ -205,14 +205,14 @@ public class WriteFileActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new WriteFileActivity((SpecificWriteFileActivity) instanceBuilder.build(new InstantiationContext(
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return new WriteFile((SpecificWriteFileOperation) instanceBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}
 
 		@Override
-		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 			return null;
 		}
 

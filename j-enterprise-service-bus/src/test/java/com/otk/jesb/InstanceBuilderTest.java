@@ -8,15 +8,15 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -59,7 +59,7 @@ public class InstanceBuilderTest {
 			public void run() {
 				Tree inputTree = new Tree();
 				GUI.INSTANCE.openObjectDialog(null, inputTree);
-				Tree.Builder builder = (Builder) step.getActivityBuilder();
+				Tree.Builder builder = (Builder) step.getOperationBuilder();
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
 				try {
@@ -74,7 +74,7 @@ public class InstanceBuilderTest {
 		});
 	}
 
-	public static class Tree implements Activity {
+	public static class Tree implements Operation {
 
 		public Tree() {
 		}
@@ -178,17 +178,17 @@ public class InstanceBuilderTest {
 			return this;
 		}
 
-		public static class Builder implements ActivityBuilder {
+		public static class Builder implements OperationBuilder {
 			RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("testInput", Tree.class.getName());
 
 			@Override
-			public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 				return (Tree) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 						context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			}
 
 			@Override
-			public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+			public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 				return Tree.class;
 			}
 
@@ -199,7 +199,7 @@ public class InstanceBuilderTest {
 
 		}
 
-		public static class Metadata implements ActivityMetadata {
+		public static class Metadata implements OperationMetadata {
 
 			@Override
 			public String getCategoryName() {
@@ -207,17 +207,17 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public String getActivityTypeName() {
+			public String getOperationTypeName() {
 				return "Tree Test";
 			}
 
 			@Override
-			public ResourcePath getActivityIconImagePath() {
+			public ResourcePath getOperationIconImagePath() {
 				return null;
 			}
 
 			@Override
-			public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+			public Class<? extends OperationBuilder> getOperationBuilderClass() {
 				return Builder.class;
 			}
 		}

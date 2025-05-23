@@ -10,7 +10,7 @@
           <steps>
             <com.otk.jesb.solution.Step>
               <name>readFile</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.ReadFileActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.ReadFile$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
@@ -23,15 +23,15 @@
                   <listItemInitializers/>
                   <parameterInitializers/>
                   <selectedConstructorSignature class="null"/>
-                  <typeName>com.otk.jesb.activity.builtin.ReadFileActivity</typeName>
+                  <typeName>com.otk.jesb.operation.builtin.ReadFile</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>69</diagramX>
               <diagramY>321</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>jDBCQuery</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
                 <connection>
                   <driverClassName>org.hsqldb.jdbcDriver</driverClassName>
                   <name>db</name>
@@ -41,7 +41,7 @@
                 </connection>
                 <parameterDefinitions/>
                 <parameterValuesSpecification>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCActivity$Builder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
@@ -51,68 +51,68 @@
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </parameterValuesSpecification>
                 <resultColumnDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TABLE_CAT</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TABLE_SCHEM</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TABLE_NAME</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TABLE_TYPE</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>REMARKS</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TYPE_CAT</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TYPE_SCHEM</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>TYPE_NAME</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>SELF_REFERENCING_COL_NAME</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>REF_GENERATION</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>HSQLDB_TYPE</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>READ_ONLY</columnName>
                     <columnTypeName>java.lang.Boolean</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                  <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                     <columnName>COMMIT_ACTION</columnName>
                     <columnTypeName>java.lang.String</columnTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                 </resultColumnDefinitions>
                 <statement>SELECT * 
 FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>67</diagramX>
               <diagramY>96</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>sleep</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.SleepActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
@@ -127,24 +127,24 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <listItemInitializers/>
                   <parameterInitializers/>
                   <selectedConstructorSignature class="null"/>
-                  <typeName>com.otk.jesb.activity.builtin.SleepActivity</typeName>
+                  <typeName>com.otk.jesb.operation.builtin.Sleep</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>249</diagramX>
               <diagramY>86</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>jDBCUpdate</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                <connection reference="../../../com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
+              <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
+                <connection reference="../../../com.otk.jesb.solution.Step[2]/operationBuilder/connection"/>
                 <parameterDefinitions>
-                  <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                  <com.otk.jesb.operation.builtin.JDBCUpdate_-ParameterDefinition>
                     <parameterName>address</parameterName>
                     <parameterTypeName>java.lang.String</parameterTypeName>
-                  </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                  </com.otk.jesb.operation.builtin.JDBCUpdate_-ParameterDefinition>
                 </parameterDefinitions>
                 <parameterValuesSpecification>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
@@ -184,13 +184,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
     ?,
     &apos;Clichy&apos;
 );</statement>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>247</diagramX>
               <diagramY>318</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>writeFile</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.WriteFileActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
                 <instanceBuilder>
                   <dynamicTypeNameAccessor class="null"/>
                   <fieldInitializers>
@@ -212,15 +212,15 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <listItemInitializers/>
                   <parameterInitializers/>
                   <selectedConstructorSignature class="null"/>
-                  <typeName>com.otk.jesb.activity.builtin.WriteFileActivity</typeName>
+                  <typeName>com.otk.jesb.operation.builtin.WriteFile</typeName>
                 </instanceBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>421</diagramX>
               <diagramY>321</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
               <name>executePlan</name>
-              <activityBuilder class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder">
+              <operationBuilder class="com.otk.jesb.operation.builtin.ExecutePlan$Builder">
                 <plan>
                   <inputStructure>
                     <elements>
@@ -295,7 +295,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <transitions/>
                 </plan>
                 <planInputBuilder>
-                  <dynamicTypeNameAccessor class="com.otk.jesb.activity.builtin.ExecutePlanActivity$Builder$1">
+                  <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ExecutePlan$Builder$1">
                     <outer-class reference="../../.."/>
                   </dynamicTypeNameAccessor>
                   <fieldInitializers/>
@@ -564,7 +564,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                   <selectedConstructorSignature class="null"/>
                   <typeName>&lt;Dynamic&gt;</typeName>
                 </planInputBuilder>
-              </activityBuilder>
+              </operationBuilder>
               <diagramX>419</diagramX>
               <diagramY>90</diagramY>
             </com.otk.jesb.solution.Step>
@@ -594,13 +594,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               <endStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
               <startStep>
                 <name>jDBCUpdate</name>
-                <activityBuilder class="com.otk.jesb.activity.builtin.JDBCUpdateActivity$Builder">
-                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
+                <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
+                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/operationBuilder/connection"/>
                   <parameterDefinitions>
-                    <com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCUpdate_-ParameterDefinition>
                       <parameterName>s</parameterName>
                       <parameterTypeName>java.lang.String</parameterTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCUpdateActivity_-ParameterDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCUpdate_-ParameterDefinition>
                   </parameterDefinitions>
                   <parameterValuesSpecification>
                     <dynamicTypeNameAccessor class="null"/>
@@ -641,7 +641,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       </com.otk.jesb.instantiation.ParameterInitializer>
                     </parameterInitializers>
                     <selectedConstructorSignature class="null"/>
-                    <typeName>JDBCUpdateActivityParameterValues0024216827772457147329627206167257917932</typeName>
+                    <typeName>JDBCUpdateOperationParameterValues0024216827772457147329627206167257917932</typeName>
                   </parameterValuesSpecification>
                   <statement>INSERT INTO Persons (
     PersonID,
@@ -656,7 +656,7 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
     ?,
     &apos;Clichy&apos;
 );</statement>
-                </activityBuilder>
+                </operationBuilder>
                 <diagramX>241</diagramX>
                 <diagramY>348</diagramY>
               </startStep>
@@ -669,8 +669,8 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
               <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
               <startStep>
                 <name>jDBCQuery</name>
-                <activityBuilder class="com.otk.jesb.activity.builtin.JDBCQueryActivity$Builder">
-                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
+                <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
+                  <connection reference="../../../../../steps/com.otk.jesb.solution.Step[2]/operationBuilder/connection"/>
                   <parameterDefinitions/>
                   <parameterValuesSpecification>
                     <dynamicTypeNameAccessor class="null"/>
@@ -691,65 +691,65 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
                       </com.otk.jesb.instantiation.ParameterInitializer>
                     </parameterInitializers>
                     <selectedConstructorSignature class="null"/>
-                    <typeName>JDBCQueryActivityParameterValues0311737010834317121813818505341321042741</typeName>
+                    <typeName>JDBCQueryOperationParameterValues0311737010834317121813818505341321042741</typeName>
                   </parameterValuesSpecification>
                   <resultColumnDefinitions>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TABLE_CAT</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TABLE_SCHEM</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TABLE_NAME</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TABLE_TYPE</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>REMARKS</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TYPE_CAT</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TYPE_SCHEM</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>TYPE_NAME</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>SELF_REFERENCING_COL_NAME</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>REF_GENERATION</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>HSQLDB_TYPE</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>READ_ONLY</columnName>
                       <columnTypeName>java.lang.Boolean</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
-                    <com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+                    <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                       <columnName>COMMIT_ACTION</columnName>
                       <columnTypeName>java.lang.String</columnTypeName>
-                    </com.otk.jesb.activity.builtin.JDBCQueryActivity_-ColumnDefinition>
+                    </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
                   </resultColumnDefinitions>
                   <statement>SELECT * 
 FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
-                </activityBuilder>
+                </operationBuilder>
                 <diagramX>73</diagramX>
                 <diagramY>125</diagramY>
               </startStep>
@@ -760,13 +760,13 @@ FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
             </com.otk.jesb.solution.Transition>
           </transitions>
         </com.otk.jesb.solution.Plan>
-        <com.otk.jesb.solution.Plan reference="../com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[6]/activityBuilder/plan"/>
+        <com.otk.jesb.solution.Plan reference="../com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[6]/operationBuilder/plan"/>
       </contents>
     </com.otk.jesb.solution.Folder>
     <com.otk.jesb.solution.Folder>
       <name>resources</name>
       <contents>
-        <com.otk.jesb.resource.builtin.JDBCConnection reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[2]/activityBuilder/connection"/>
+        <com.otk.jesb.resource.builtin.JDBCConnection reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/steps/com.otk.jesb.solution.Step[2]/operationBuilder/connection"/>
       </contents>
     </com.otk.jesb.solution.Folder>
   </contents>

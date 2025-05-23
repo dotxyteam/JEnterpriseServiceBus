@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -15,12 +15,12 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Solution;
@@ -34,7 +34,7 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class CallSOAPWebServiceActivity implements Activity {
+public class CallSOAPWebService implements Operation {
 
 	private WSDL wsdl;
 	private Class<?> serviceClass;
@@ -42,7 +42,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 	private Method operationMethod;
 	private OperationInput operationInput;
 
-	public CallSOAPWebServiceActivity(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
+	public CallSOAPWebService(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
 			OperationInput operationInput) {
 		this.wsdl = wsdl;
 		this.serviceClass = serviceClass;
@@ -91,10 +91,10 @@ public class CallSOAPWebServiceActivity implements Activity {
 
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Call SOAP Web Service";
 		}
 
@@ -104,18 +104,18 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-					CallSOAPWebServiceActivity.class.getName().replace(".", "/") + ".png"));
+					CallSOAPWebService.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
@@ -317,8 +317,8 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new CallSOAPWebServiceActivity(getWSDL(), retrieveServiceDescriptor().retrieveClass(),
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return new CallSOAPWebService(getWSDL(), retrieveServiceDescriptor().retrieveClass(),
 					retrievePortDescriptor().retrieveInterface(), retrieveOperationDescriptor().retrieveMethod(),
 					(OperationInput) operationInputBuilder
 							.build(new InstantiationContext(context.getVariables(), context.getPlan()
@@ -326,7 +326,7 @@ public class CallSOAPWebServiceActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;

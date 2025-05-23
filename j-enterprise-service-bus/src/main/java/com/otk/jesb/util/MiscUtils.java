@@ -34,11 +34,11 @@ import java.util.regex.Pattern;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
@@ -114,18 +114,18 @@ public class MiscUtils {
 	}
 
 	public static ResourcePath getIconImagePath(Step step) {
-		ActivityBuilder activityBuilder = step.getActivityBuilder();
-		if (activityBuilder == null) {
+		OperationBuilder operationBuilder = step.getOperationBuilder();
+		if (operationBuilder == null) {
 			return null;
 		}
-		for (ActivityMetadata activityMetadata : JESBReflectionUI.ACTIVITY_METADATAS) {
-			if (activityMetadata.getActivityBuilderClass().equals(activityBuilder.getClass())) {
-				return activityMetadata.getActivityIconImagePath();
+		for (OperationMetadata operationMetadata : JESBReflectionUI.OPERATION_METADATAS) {
+			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
+				return operationMetadata.getOperationIconImagePath();
 			}
 		}
-		for (ActivityMetadata activityMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
-			if (activityMetadata.getActivityBuilderClass().equals(activityBuilder.getClass())) {
-				return activityMetadata.getActivityIconImagePath();
+		for (OperationMetadata operationMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
+			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
+				return operationMetadata.getOperationIconImagePath();
 			}
 		}
 		return null;

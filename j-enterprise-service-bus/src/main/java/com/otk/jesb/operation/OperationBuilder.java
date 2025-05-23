@@ -1,4 +1,4 @@
-package com.otk.jesb.activity;
+package com.otk.jesb.operation;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
@@ -6,11 +6,11 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.ValidationError;
 
-public interface ActivityBuilder {
+public interface OperationBuilder {
 
-	Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
+	Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
 
-	Class<?> getActivityResultClass(Plan currentPlan, Step currentStep);
+	Class<?> getOperationResultClass(Plan currentPlan, Step currentStep);
 
 	void validate(boolean recursively, Plan plan, Step step) throws ValidationError;
 

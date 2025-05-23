@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
@@ -20,20 +20,20 @@ import xy.reflect.ui.info.ResourcePath;
 public class LoopCompositeStep extends CompositeStep {
 
 	public LoopCompositeStep() {
-		super(new LoopActivity.Metadata());
+		super(new LoopOperation.Metadata());
 	}
 
 	@Override
-	public LoopActivity.Builder getActivityBuilder() {
-		return (LoopActivity.Builder) super.getActivityBuilder();
+	public LoopOperation.Builder getOperationBuilder() {
+		return (LoopOperation.Builder) super.getOperationBuilder();
 	}
 
 	@Override
-	public void setActivityBuilder(ActivityBuilder activityBuilder) {
-		if (!(activityBuilder instanceof LoopActivity.Builder)) {
+	public void setOperationBuilder(OperationBuilder operationBuilder) {
+		if (!(operationBuilder instanceof LoopOperation.Builder)) {
 			throw new AssertionError();
 		}
-		super.setActivityBuilder(activityBuilder);
+		super.setOperationBuilder(operationBuilder);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 			@Override
 			public String getVariableName() {
-				return getActivityBuilder().getIterationIndexVariableName();
+				return getOperationBuilder().getIterationIndexVariableName();
 			}
 
 			@Override
@@ -55,14 +55,14 @@ public class LoopCompositeStep extends CompositeStep {
 		return result;
 	}
 
-	public static class LoopActivity implements Activity {
+	public static class LoopOperation implements Operation {
 
 		private ExecutionContext context;
 		private ExecutionInspector executionInspector;
 		private InstantiationFunction loopEndCondition;
 		private String iterationIndexVariableName;
 
-		public LoopActivity(ExecutionContext context, ExecutionInspector executionInspector, InstantiationFunction loopEndCondition,
+		public LoopOperation(ExecutionContext context, ExecutionInspector executionInspector, InstantiationFunction loopEndCondition,
 				String iterationIndexVariableName) {
 			this.context = context;
 			this.executionInspector = executionInspector;
@@ -92,7 +92,7 @@ public class LoopCompositeStep extends CompositeStep {
 				List<Variable> initialVariables = new ArrayList<Variable>(
 						context.getVariables());
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, context.getPlan())) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+					if (descendantStep.getOperationBuilder().getOperationResultClass() != null) {
 						context.getVariables().add(new Variable() {
 
 							@Override
@@ -131,10 +131,10 @@ public class LoopCompositeStep extends CompositeStep {
 			return null;
 		}
 
-		public static class Metadata implements ActivityMetadata {
+		public static class Metadata implements OperationMetadata {
 
 			@Override
-			public String getActivityTypeName() {
+			public String getOperationTypeName() {
 				return "Loop";
 			}
 
@@ -144,18 +144,18 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+			public Class<? extends OperationBuilder> getOperationBuilderClass() {
 				return Builder.class;
 			}
 
 			@Override
-			public ResourcePath getActivityIconImagePath() {
+			public ResourcePath getOperationIconImagePath() {
 				return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
 						LoopCompositeStep.class.getPackage().getName().replace(".", "/") + "/Loop.png"));
 			}
 		}
 
-		public static class Builder implements ActivityBuilder {
+		public static class Builder implements OperationBuilder {
 
 			private String iterationIndexVariableName = "iterationIndex";
 			private InstantiationFunction loopEndCondition = new InstantiationFunction("return " + iterationIndexVariableName + "==3;");
@@ -187,10 +187,10 @@ public class LoopCompositeStep extends CompositeStep {
 
 			public List<ResultsCollectionConfigurationEntry> retrieveResultsCollectionConfigurationEntries(
 					Plan currentPlan, Step currentStep) {
-				List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry>();
+				List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry>();
 				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+					if (descendantStep.getOperationBuilder().getOperationResultClass() != null) {
 						result.add(new ResultsCollectionConfigurationEntry(descendantStep.getName()));
 					}
 				}
@@ -198,12 +198,12 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-				return new LoopActivity(context, executionInspector, loopEndCondition, iterationIndexVariableName);
+			public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+				return new LoopOperation(context, executionInspector, loopEndCondition, iterationIndexVariableName);
 			}
 
 			@Override
-			public Class<?> getActivityResultClass() {
+			public Class<?> getOperationResultClass() {
 				return null;
 			}
 
@@ -229,7 +229,7 @@ public class LoopCompositeStep extends CompositeStep {
 						});
 				LoopCompositeStep loopCompositeStep = (LoopCompositeStep) currentStep;
 				for (Step descendantStep : MiscUtils.getDescendants(loopCompositeStep, currentPlan)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+					if (descendantStep.getOperationBuilder().getOperationResultClass() != null) {
 						validationContext.getVariableDeclarations().add(new StepEventuality(descendantStep));
 					}
 				}

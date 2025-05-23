@@ -36,10 +36,10 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.PlanElement;
 import com.otk.jesb.solution.LoopCompositeStep;
-import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Metadata;
+import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Metadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
@@ -343,19 +343,19 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 			@Override
 			public String getTitle() {
-				return "Add Activity";
+				return "Add Operation";
 			}
 
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
-				List<String> activityCategoryNames = new ArrayList<String>();
-				for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
-					if (!activityCategoryNames.contains(metadata.getCategoryName())) {
-						activityCategoryNames.add(metadata.getCategoryName());
+				List<String> operationCategoryNames = new ArrayList<String>();
+				for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
+					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
+						operationCategoryNames.add(metadata.getCategoryName());
 					}
 				}
 				List<JDiagramActionCategory> result = new ArrayList<JDiagramActionCategory>();
-				for (String name : activityCategoryNames) {
+				for (String name : operationCategoryNames) {
 					result.add(new JDiagramActionCategory() {
 
 						@Override
@@ -366,14 +366,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+							for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
 										public Step get() {
 											return new Step(metadata);
 										}
-									}, metadata.getActivityTypeName(), metadata.getActivityIconImagePath()));
+									}, metadata.getOperationTypeName(), metadata.getOperationIconImagePath()));
 								}
 							}
 							return result;
@@ -410,7 +410,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							public Step get() {
 								return new LoopCompositeStep();
 							}
-						}, metadata.getActivityTypeName(), metadata.getActivityIconImagePath()));
+						}, metadata.getOperationTypeName(), metadata.getOperationIconImagePath()));
 						return result;
 					}
 				});

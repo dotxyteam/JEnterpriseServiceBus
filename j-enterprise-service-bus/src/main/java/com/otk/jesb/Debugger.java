@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import com.otk.jesb.activity.builtin.ExecutePlanActivity;
+
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
@@ -180,11 +181,11 @@ public class Debugger {
 			try {
 				plan.execute(planInput, new Plan.ExecutionInspector() {
 					@Override
-					public void beforeActivity(StepCrossing stepCrossing) {
+					public void beforeOperation(StepCrossing stepCrossing) {
 						getTopPlanExecutor().currentStepCrossing = stepCrossing;
 						getTopPlanExecutor().stepCrossings.add(stepCrossing);
-						if (stepCrossing.getStep().getActivityBuilder() instanceof ExecutePlanActivity.Builder) {
-							Plan subPlan = ((ExecutePlanActivity.Builder) stepCrossing.getStep().getActivityBuilder())
+						if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
+							Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
 									.getPlanReference().resolve();
 							PlanExecutor newPlanExecutor = new SubPlanExecutor(subPlan);
 							getTopPlanExecutor().children.add(newPlanExecutor);
@@ -193,8 +194,8 @@ public class Debugger {
 					}
 
 					@Override
-					public void afterActivity(StepCrossing stepCrossing) {
-						if (stepCrossing.getStep().getActivityBuilder() instanceof ExecutePlanActivity.Builder) {
+					public void afterOperation(StepCrossing stepCrossing) {
+						if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
 							currentPlanExecutionStack.pop();
 						}
 						try {

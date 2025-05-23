@@ -1,23 +1,23 @@
 package com.otk.jesb;
 
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 
 public class Step {
 
 	private String name = "";
-	private ActivityBuilder activityBuilder;
+	private OperationBuilder operationBuilder;
 	private int diagramX = 0;
 	private int diagramY = 0;
 	private CompositeStep parent;
 
-	public Step(ActivityMetadata activityMetadata) {
-		if (activityMetadata != null) {
-			name = activityMetadata.getActivityTypeName();
+	public Step(OperationMetadata operationMetadata) {
+		if (operationMetadata != null) {
+			name = operationMetadata.getOperationTypeName();
 			name = name.replace(" ", "");
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 			try {
-				activityBuilder = activityMetadata.getActivityBuilderClass().newInstance();
+				operationBuilder = operationMetadata.getOperationBuilderClass().newInstance();
 			} catch (Exception e) {
 				throw new AssertionError(e);
 			}
@@ -32,12 +32,12 @@ public class Step {
 		this.name = name;
 	}
 
-	public ActivityBuilder getActivityBuilder() {
-		return activityBuilder;
+	public OperationBuilder getOperationBuilder() {
+		return operationBuilder;
 	}
 
-	public void setActivityBuilder(ActivityBuilder activityBuilder) {
-		this.activityBuilder = activityBuilder;
+	public void setOperationBuilder(OperationBuilder operationBuilder) {
+		this.operationBuilder = operationBuilder;
 	}
 
 	public int getDiagramX() {

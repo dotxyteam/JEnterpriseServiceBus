@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,11 +13,11 @@ import java.util.Map;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
@@ -29,11 +29,11 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class JDBCQueryActivity extends JDBCActivity {
+public class JDBCQuery extends JDBCOperation {
 
 	private Class<?> customResultClass;
 
-	public JDBCQueryActivity(JDBCConnection connection, Class<?> customResultClass) {
+	public JDBCQuery(JDBCConnection connection, Class<?> customResultClass) {
 		super(connection);
 		this.customResultClass = customResultClass;
 	}
@@ -49,10 +49,10 @@ public class JDBCQueryActivity extends JDBCActivity {
 		}
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "JDBC Query";
 		}
 
@@ -62,19 +62,19 @@ public class JDBCQueryActivity extends JDBCActivity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(JDBCQueryActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(JDBCQuery.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}
 
-	public static class Builder extends JDBCActivity.Builder {
+	public static class Builder extends JDBCOperation.Builder {
 
 		private List<ColumnDefinition> resultColumnDefinitions;
 		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDate<Class<?>>() {
@@ -93,7 +93,7 @@ public class JDBCQueryActivity extends JDBCActivity {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQueryActivity.class.getName() + "Result"
+			String resultClassName = JDBCQuery.class.getName() + "Result"
 					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
@@ -169,15 +169,15 @@ public class JDBCQueryActivity extends JDBCActivity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQueryActivity result = new JDBCQueryActivity(getConnection(), upToDateCustomResultClass.get());
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			JDBCQuery result = new JDBCQuery(getConnection(), upToDateCustomResultClass.get());
 			result.setStatement(getStatement());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
 		}
 
 		@Override
-		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 			Class<?> customResultClass;
 			try {
 				customResultClass = upToDateCustomResultClass.get();

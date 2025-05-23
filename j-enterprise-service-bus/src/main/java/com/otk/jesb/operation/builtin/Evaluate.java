@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.io.IOException;
 
@@ -6,12 +6,12 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -23,11 +23,11 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class EvaluateActivity implements Activity {
+public class Evaluate implements Operation {
 
 	private Object value;
 
-	public EvaluateActivity(Object value) {
+	public Evaluate(Object value) {
 		this.value = value;
 	}
 
@@ -36,10 +36,10 @@ public class EvaluateActivity implements Activity {
 		return value;
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Evaluate";
 		}
 
@@ -49,18 +49,18 @@ public class EvaluateActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(EvaluateActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(Evaluate.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private ClassicStructure valueStructure = new ClassicStructure();
 		{
@@ -78,7 +78,7 @@ public class EvaluateActivity implements Activity {
 					return null;
 				} else {
 					try {
-						String className = EvaluateActivity.class.getPackage().getName() + "." + "Value"
+						String className = Evaluate.class.getPackage().getName() + "." + "Value"
 								+ MiscUtils.toDigitalUniqueIdentifier(Builder.this);
 						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 								valueStructure.generateJavaTypeSourceCode(className));
@@ -121,13 +121,13 @@ public class EvaluateActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new EvaluateActivity(valueBuilder.build(new InstantiationContext(context.getVariables(),
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return new Evaluate(valueBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}
 
 		@Override
-		public Class<?> getActivityResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
 			try {
 				return upToDateValueClass.get();
 			} catch (VersionAccessException e) {

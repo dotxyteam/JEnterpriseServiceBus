@@ -4,14 +4,14 @@ import java.awt.Rectangle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.OperationMetadata;
 
 public abstract class CompositeStep extends Step {
 
 	protected abstract List<VariableDeclaration> getContextualVariableDeclarations();
 
-	public CompositeStep(ActivityMetadata activityMetadata) {
-		super(activityMetadata);
+	public CompositeStep(OperationMetadata operationMetadata) {
+		super(operationMetadata);
 	}
 
 	public List<Step> getChildren(Plan plan) {

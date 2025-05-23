@@ -22,8 +22,8 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.Debugger.PlanActivator;
-import com.otk.jesb.activity.builtin.JDBCQueryActivity;
-import com.otk.jesb.activity.builtin.WriteFileActivity;
+import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
@@ -82,8 +82,8 @@ public class GUI extends SwingCustomizer {
 		s1.setName("a");
 		s1.setDiagramX(100);
 		s1.setDiagramY(100);
-		JDBCQueryActivity.Builder ab1 = new JDBCQueryActivity.Builder();
-		s1.setActivityBuilder(ab1);
+		JDBCQueryOperation.Builder ab1 = new JDBCQueryOperation.Builder();
+		s1.setOperationBuilder(ab1);
 		ab1.setConnectionReference(Reference.get(c));
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
@@ -92,8 +92,8 @@ public class GUI extends SwingCustomizer {
 		ls.setName("loop");
 		ls.setDiagramX(200);
 		ls.setDiagramY(100);
-		ls.getActivityBuilder().setIterationIndexVariableName("index");
-		ls.getActivityBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
+		ls.getOperationBuilder().setIterationIndexVariableName("index");
+		ls.getOperationBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
 		
 		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
@@ -101,8 +101,8 @@ public class GUI extends SwingCustomizer {
 		s2.setDiagramX(300);
 		s2.setDiagramY(100);
 		s2.setParent(ls);
-		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
-		s2.setActivityBuilder(ab2);
+		WriteFileOperation.Builder ab2 = new WriteFileOperation.Builder();
+		s2.setOperationBuilder(ab2);
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())

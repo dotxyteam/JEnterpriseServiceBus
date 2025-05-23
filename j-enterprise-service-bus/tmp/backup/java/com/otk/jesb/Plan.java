@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Structure.ClassicStructure;
-import com.otk.jesb.activity.Activity;
+import com.otk.jesb.operation.Operation;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.NullInstance;
@@ -152,11 +152,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivityCreation(StepCrossing stepCrossing) {
+			public void beforeOperationCreation(StepCrossing stepCrossing) {
 			}
 
 			@Override
-			public void afterActivityExecution(StepCrossing stepCrossing) {
+			public void afterOperationExecution(StepCrossing stepCrossing) {
 			}
 
 			@Override
@@ -220,20 +220,20 @@ public class Plan extends Asset {
 	private void execute(Step step, ExecutionContext context, ExecutionInspector executionInspector) throws Throwable {
 		context.setCutrrentStep(step);
 		StepCrossing stepCrossing = new StepCrossing(step);
-		executionInspector.beforeActivityCreation(stepCrossing);
+		executionInspector.beforeOperationCreation(stepCrossing);
 		try {
-			Activity activity = step.getActivityBuilder().build(context, executionInspector);
-			stepCrossing.setActivity(activity);
-			Object activityResult = activity.execute();
-			stepCrossing.setActivityResult(activityResult);
-			if (activityResult != null) {
+			Operation operation = step.getOperationBuilder().build(context, executionInspector);
+			stepCrossing.setOperation(operation);
+			Object operationResult = operation.execute();
+			stepCrossing.setOperationResult(operationResult);
+			if (operationResult != null) {
 				context.getVariables().add(stepCrossing);
 			}
 		} catch (Throwable t) {
-			stepCrossing.setActivityError(t);
+			stepCrossing.setOperationError(t);
 			throw t;
 		}
-		executionInspector.afterActivityExecution(stepCrossing);
+		executionInspector.afterOperationExecution(stepCrossing);
 		context.setCutrrentStep(null);
 	}
 
@@ -263,12 +263,12 @@ public class Plan extends Asset {
 		}
 		List<Step> previousSteps = (currentStep != null) ? getPreviousSteps(currentStep) : steps;
 		for (Step step : previousSteps) {
-			if (step.getActivityBuilder().getActivityResultClass() != null) {
+			if (step.getOperationBuilder().getOperationResultClass() != null) {
 				result.getVariableDeclarations().add(new StepEventuality(step));
 			}
 			if (step instanceof CompositeStep) {
 				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass() != null) {
+					if (descendantStep.getOperationBuilder().getOperationResultClass() != null) {
 						result.getVariableDeclarations().add(new StepEventuality(descendantStep));
 					}
 				}
@@ -307,11 +307,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivityCreation(StepCrossing stepCrossing);
+		void beforeOperationCreation(StepCrossing stepCrossing);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivityExecution(StepCrossing stepCrossing);
+		void afterOperationExecution(StepCrossing stepCrossing);
 
 	}
 

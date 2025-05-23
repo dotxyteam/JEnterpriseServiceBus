@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,9 +18,9 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Reference;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.InstantiationContext;
@@ -32,7 +32,7 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
-public class JDBCQueryActivity implements Activity {
+public class JDBCQueryOperation implements Operation {
 
 	private JDBCConnection connection;
 	private String statement;
@@ -89,10 +89,10 @@ public class JDBCQueryActivity implements Activity {
 		}
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "JDBC Query";
 		}
 
@@ -102,19 +102,19 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(JDBCQueryActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(JDBCQueryOperation.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
@@ -144,7 +144,7 @@ public class JDBCQueryActivity implements Activity {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQueryActivity.class.getName() + "Result"
+			String resultClassName = JDBCQueryOperation.class.getName() + "Result"
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
@@ -196,7 +196,7 @@ public class JDBCQueryActivity implements Activity {
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCQueryActivity.class.getName() + "ParameterValues"
+			String className = JDBCQueryOperation.class.getName() + "ParameterValues"
 					+ MiscUtils.getDigitalUniqueIdentifier();
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -324,8 +324,8 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQueryActivity result = new JDBCQueryActivity();
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			JDBCQueryOperation result = new JDBCQueryOperation();
 			result.setConnection(getConnection());
 			result.setStatement(statement);
 			ParameterValues parameterValues = (ParameterValues) parameterValuesBuilder
@@ -336,7 +336,7 @@ public class JDBCQueryActivity implements Activity {
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getOperationResultClass() {
 			if (customResultClass != null) {
 				return customResultClass;
 			} else {

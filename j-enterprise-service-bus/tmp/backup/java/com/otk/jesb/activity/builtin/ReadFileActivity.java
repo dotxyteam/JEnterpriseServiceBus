@@ -1,4 +1,4 @@
-package com.otk.jesb.activity.builtin;
+package com.otk.jesb.operation.builtin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,9 +10,9 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.instantiation.CompilationContext;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.InstantiationFunction;
@@ -21,11 +21,11 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
 
-public class ReadFileActivity implements Activity {
+public class ReadFileOperation implements Operation {
 
-	private UnderlyingReadFileActivity underling;
+	private UnderlyingReadFileOperation underling;
 
-	public ReadFileActivity(UnderlyingReadFileActivity underling) {
+	public ReadFileOperation(UnderlyingReadFileOperation underling) {
 		this.underling = underling;
 	}
 
@@ -34,16 +34,16 @@ public class ReadFileActivity implements Activity {
 		return underling.execute();
 	}
 
-	private static interface UnderlyingReadFileActivity extends Activity {
+	private static interface UnderlyingReadFileOperation extends Operation {
 
 	}
 
-	public static class ReadTextFileActivity implements UnderlyingReadFileActivity {
+	public static class ReadTextFileOperation implements UnderlyingReadFileOperation {
 
 		private String filePath;
 		private String charsetName;
 
-		public ReadTextFileActivity(String filePath) {
+		public ReadTextFileOperation(String filePath) {
 			this.filePath = filePath;
 		}
 
@@ -74,11 +74,11 @@ public class ReadFileActivity implements Activity {
 		}
 	}
 
-	public static class ReadBinaryFileActivity implements UnderlyingReadFileActivity {
+	public static class ReadBinaryFileOperation implements UnderlyingReadFileOperation {
 
 		private String filePath;
 
-		public ReadBinaryFileActivity(String filePath) {
+		public ReadBinaryFileOperation(String filePath) {
 			this.filePath = filePath;
 		}
 
@@ -100,10 +100,10 @@ public class ReadFileActivity implements Activity {
 		}
 	}
 
-	public static class Metadata implements ActivityMetadata {
+	public static class Metadata implements OperationMetadata {
 
 		@Override
-		public String getActivityTypeName() {
+		public String getOperationTypeName() {
 			return "Read File";
 		}
 
@@ -113,18 +113,18 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public Class<? extends ActivityBuilder> getActivityBuilderClass() {
+		public Class<? extends OperationBuilder> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
-		public ResourcePath getActivityIconImagePath() {
+		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(ReadFileActivity.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(ReadFileOperation.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
-	public static class Builder implements ActivityBuilder {
+	public static class Builder implements OperationBuilder {
 
 		public enum Mode {
 			TEXT, BINARY
@@ -132,13 +132,13 @@ public class ReadFileActivity implements Activity {
 
 		private Mode mode = Mode.TEXT;
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				ReadFileActivity.class.getSimpleName() + "Input", new Accessor<String>() {
+				ReadFileOperation.class.getSimpleName() + "Input", new Accessor<String>() {
 					@Override
 					public String get() {
 						if (mode == Mode.TEXT) {
-							return ReadTextFileActivity.class.getName();
+							return ReadTextFileOperation.class.getName();
 						} else if (mode == Mode.BINARY) {
-							return ReadBinaryFileActivity.class.getName();
+							return ReadBinaryFileOperation.class.getName();
 						} else {
 							throw new AssertionError();
 						}
@@ -162,13 +162,13 @@ public class ReadFileActivity implements Activity {
 		}
 
 		@Override
-		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new ReadFileActivity(
-					(UnderlyingReadFileActivity) instanceBuilder.build(new EvaluationContext(context, null)));
+		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return new ReadFileOperation(
+					(UnderlyingReadFileOperation) instanceBuilder.build(new EvaluationContext(context, null)));
 		}
 
 		@Override
-		public Class<?> getActivityResultClass() {
+		public Class<?> getOperationResultClass() {
 			if (mode == Mode.TEXT) {
 				return TextResult.class;
 			} else if (mode == Mode.BINARY) {

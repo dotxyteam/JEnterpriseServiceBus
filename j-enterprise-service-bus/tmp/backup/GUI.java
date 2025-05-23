@@ -26,15 +26,15 @@ import javax.swing.tree.TreeCellRenderer;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.Structure.Element;
-import com.otk.jesb.activity.ActivityBuilder;
-import com.otk.jesb.activity.ActivityMetadata;
-import com.otk.jesb.activity.builtin.CallSOAPWebServiceActivity;
-import com.otk.jesb.activity.builtin.ExecutePlanActivity;
-import com.otk.jesb.activity.builtin.JDBCQueryActivity;
-import com.otk.jesb.activity.builtin.JDBCUpdateActivity;
-import com.otk.jesb.activity.builtin.ReadFileActivity;
-import com.otk.jesb.activity.builtin.SleepActivity;
-import com.otk.jesb.activity.builtin.WriteFileActivity;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.builtin.CallSOAPWebService;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.JDBCUpdate;
+import com.otk.jesb.operation.builtin.ReadFile;
+import com.otk.jesb.operation.builtin.Sleep;
+import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.diagram.JConnection;
 import com.otk.jesb.diagram.JDiagram;
@@ -131,8 +131,8 @@ public class GUI extends SwingCustomizer {
 		s1.setName("a");
 		s1.setDiagramX(100);
 		s1.setDiagramY(100);
-		JDBCQueryActivity.Builder ab1 = new JDBCQueryActivity.Builder();
-		s1.setActivityBuilder(ab1);
+		JDBCQueryOperation.Builder ab1 = new JDBCQueryOperation.Builder();
+		s1.setOperationBuilder(ab1);
 		ab1.setConnection(c);
 		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
@@ -141,8 +141,8 @@ public class GUI extends SwingCustomizer {
 		s2.setName("w");
 		s2.setDiagramX(200);
 		s2.setDiagramY(100);
-		WriteFileActivity.Builder ab2 = new WriteFileActivity.Builder();
-		s2.setActivityBuilder(ab2);
+		WriteFileOperation.Builder ab2 = new WriteFileOperation.Builder();
+		s2.setOperationBuilder(ab2);
 		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
 				.add(new FieldInitializer("filePath", "tmp/test.txt"));
 		((InstanceBuilder) ab2.getInstanceBuilder().getRootInitializer().getParameterValue()).getFieldInitializers()
@@ -458,10 +458,10 @@ public class GUI extends SwingCustomizer {
 
 	public static class JESBReflectionUI extends CustomizedUI {
 
-		public static final List<ActivityMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepActivity.Metadata(),
-				new ExecutePlanActivity.Metadata(), new ReadFileActivity.Metadata(), new WriteFileActivity.Metadata(),
-				new JDBCQueryActivity.Metadata(), new JDBCUpdateActivity.Metadata(),
-				new CallSOAPWebServiceActivity.Metadata());
+		public static final List<OperationMetadata> ACTIVITY_METADATAS = Arrays.asList(new SleepOperation.Metadata(),
+				new ExecutePlanOperation.Metadata(), new ReadFileOperation.Metadata(), new WriteFileOperation.Metadata(),
+				new JDBCQueryOperation.Metadata(), new JDBCUpdateOperation.Metadata(),
+				new CallSOAPWebServiceOperation.Metadata());
 		public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new JDBCConnection.Metadata(),
 				new WSDL.Metadata());
 		private Plan currentPlan;
@@ -745,8 +745,8 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected String toString(ITypeInfo type, Object object) {
-					if (object instanceof ActivityMetadata) {
-						return ((ActivityMetadata) object).getActivityTypeName();
+					if (object instanceof OperationMetadata) {
+						return ((OperationMetadata) object).getOperationTypeName();
 					}
 					return super.toString(type, object);
 				}
@@ -798,11 +798,11 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
-					if (type.getName().equals(ActivityBuilder.class.getName())) {
+					if (type.getName().equals(OperationBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
+						for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
 							result.add(getTypeInfo(new JavaTypeInfoSource(JESBReflectionUI.this,
-									activityMetadata.getActivityBuilderClass(), null)));
+									operationMetadata.getOperationBuilderClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Resource.class.getName())) {
@@ -819,9 +819,9 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected String getCaption(ITypeInfo type) {
-					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-						if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
-							return activityMetadata.getActivityTypeName();
+					for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
+						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
+							return operationMetadata.getOperationTypeName();
 						}
 					}
 					for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
@@ -834,9 +834,9 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-					for (ActivityMetadata activityMetadata : ACTIVITY_METADATAS) {
-						if (activityMetadata.getActivityBuilderClass().getName().equals(type.getName())) {
-							return activityMetadata.getActivityIconImagePath();
+					for (OperationMetadata operationMetadata : ACTIVITY_METADATAS) {
+						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
+							return operationMetadata.getOperationIconImagePath();
 						}
 					}
 					for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
@@ -1212,7 +1212,7 @@ public class GUI extends SwingCustomizer {
 					if (currentStepCrossing != null) {
 						if (currentStepCrossing.getStep() == node.getObject()) {
 							highlightNode(g, node,
-									(currentStepCrossing.getActivityError() == null) ? new Color(175, 255, 200)
+									(currentStepCrossing.getOperationError() == null) ? new Color(175, 255, 200)
 											: new Color(255, 173, 173));
 						}
 					}
@@ -1325,14 +1325,14 @@ public class GUI extends SwingCustomizer {
 
 				@Override
 				public List<JDiagramActionCategory> getActionCategories() {
-					List<String> activityCategoryNames = new ArrayList<String>();
-					for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
-						if (!activityCategoryNames.contains(metadata.getCategoryName())) {
-							activityCategoryNames.add(metadata.getCategoryName());
+					List<String> operationCategoryNames = new ArrayList<String>();
+					for (OperationMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+						if (!operationCategoryNames.contains(metadata.getCategoryName())) {
+							operationCategoryNames.add(metadata.getCategoryName());
 						}
 					}
 					List<JDiagramActionCategory> result = new ArrayList<JDiagramActionCategory>();
-					for (String name : activityCategoryNames) {
+					for (String name : operationCategoryNames) {
 						result.add(new JDiagramActionCategory() {
 
 							@Override
@@ -1343,7 +1343,7 @@ public class GUI extends SwingCustomizer {
 							@Override
 							public List<JDiagramAction> getActions() {
 								List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-								for (ActivityMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+								for (OperationMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
 									if (name.equals(metadata.getCategoryName())) {
 										result.add(new JDiagramAction() {
 
@@ -1368,7 +1368,7 @@ public class GUI extends SwingCustomizer {
 
 											@Override
 											public String getLabel() {
-												return metadata.getActivityTypeName();
+												return metadata.getOperationTypeName();
 											}
 
 											@Override
@@ -1376,7 +1376,7 @@ public class GUI extends SwingCustomizer {
 												return SwingRendererUtils
 														.getIcon(SwingRendererUtils.scalePreservingRatio(
 																SwingRendererUtils.loadImageThroughCache(
-																		metadata.getActivityIconImagePath(),
+																		metadata.getOperationIconImagePath(),
 																		ReflectionUIUtils.getDebugLogListener(
 																				swingRenderer.getReflectionUI())),
 																32, 32, Image.SCALE_SMOOTH));

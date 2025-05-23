@@ -17,12 +17,12 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activity.Activity;
-import com.otk.jesb.activity.ActivityBuilder;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.solution.Transition.ElseCondition;
 import com.otk.jesb.solution.Transition.ExceptionCondition;
 import com.otk.jesb.solution.Transition.IfCondition;
@@ -261,11 +261,11 @@ public class Plan extends Asset {
 		return execute(input, new ExecutionInspector() {
 
 			@Override
-			public void beforeActivity(StepCrossing stepCrossing) {
+			public void beforeOperation(StepCrossing stepCrossing) {
 			}
 
 			@Override
-			public void afterActivity(StepCrossing stepCrossing) {
+			public void afterOperation(StepCrossing stepCrossing) {
 			}
 
 			@Override
@@ -336,7 +336,7 @@ public class Plan extends Asset {
 				executionError = null;
 			} catch (ExecutionError e) {
 				executionError = e;
-				stepCrossing.setActivityError(e.getCause());
+				stepCrossing.setOperationError(e.getCause());
 			} finally {
 				context.getVariables().add(stepCrossing);
 				stepCrossing.capturePostVariables(context.getVariables());
@@ -492,16 +492,16 @@ public class Plan extends Asset {
 			throws ExecutionError {
 		Step step = stepCrossing.getStep();
 		context.setCutrrentStep(step);
-		executionInspector.beforeActivity(stepCrossing);
+		executionInspector.beforeOperation(stepCrossing);
 		try {
-			ActivityBuilder activityBuilder = step.getActivityBuilder();
-			Activity activity = activityBuilder.build(context, executionInspector);
-			stepCrossing.setActivity(activity);
-			stepCrossing.setActivityResult(activity.execute());
+			OperationBuilder operationBuilder = step.getOperationBuilder();
+			Operation operation = operationBuilder.build(context, executionInspector);
+			stepCrossing.setOperation(operation);
+			stepCrossing.setOperationResult(operation.execute());
 		} catch (Throwable t) {
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		} finally {
-			executionInspector.afterActivity(stepCrossing);
+			executionInspector.afterOperation(stepCrossing);
 		}
 		context.setCutrrentStep(null);
 	}
@@ -544,7 +544,7 @@ public class Plan extends Asset {
 			}
 			if (step instanceof CompositeStep) {
 				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
-					if (descendantStep.getActivityBuilder().getActivityResultClass(this, descendantStep) != null) {
+					if (descendantStep.getOperationBuilder().getOperationResultClass(this, descendantStep) != null) {
 						result.getVariableDeclarations().add(new StepEventuality(descendantStep, this));
 					}
 				}
@@ -554,7 +554,7 @@ public class Plan extends Asset {
 	}
 
 	public VariableDeclaration getResultVariableDeclaration(Step step) {
-		if (step.getActivityBuilder().getActivityResultClass(this, step) != null) {
+		if (step.getOperationBuilder().getOperationResultClass(this, step) != null) {
 			return new StepEventuality(step, this);
 		} else {
 			return null;
@@ -661,11 +661,11 @@ public class Plan extends Asset {
 
 	public interface ExecutionInspector {
 
-		void beforeActivity(StepCrossing stepCrossing);
+		void beforeOperation(StepCrossing stepCrossing);
 
 		boolean isExecutionInterrupted();
 
-		void afterActivity(StepCrossing stepCrossing);
+		void afterOperation(StepCrossing stepCrossing);
 
 	}
 

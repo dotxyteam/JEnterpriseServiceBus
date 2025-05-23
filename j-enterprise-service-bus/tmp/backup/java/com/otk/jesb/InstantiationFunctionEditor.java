@@ -42,7 +42,7 @@ public class InstantiationFunctionEditor extends PathOptionsProvider {
 	private CompilationContext getCompilationContext() {
 		ValidationContext validationContext;
 		CompilationContext result;
-		result = currentStep.getActivityBuilder().findFunctionCompilationContext(currentFunction, currentStep,
+		result = currentStep.getOperationBuilder().findFunctionCompilationContext(currentFunction, currentStep,
 				currentPlan);
 		if (result != null) {
 			return result;

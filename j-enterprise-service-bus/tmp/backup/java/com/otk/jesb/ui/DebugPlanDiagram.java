@@ -158,7 +158,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		StepCrossing currentStepCrossing = getPlanExecutor().getCurrentStepCrossing();
 		if (currentStepCrossing != null) {
 			if (currentStepCrossing.getStep() == node.getValue()) {
-				highlightNode(g, node, (currentStepCrossing.getActivityError() == null) ? new Color(175, 255, 200)
+				highlightNode(g, node, (currentStepCrossing.getOperationError() == null) ? new Color(175, 255, 200)
 						: new Color(255, 173, 173));
 			}
 		}

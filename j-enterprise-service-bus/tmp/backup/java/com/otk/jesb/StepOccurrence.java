@@ -1,13 +1,13 @@
 package com.otk.jesb;
 
-import com.otk.jesb.activity.Activity;
+import com.otk.jesb.operation.Operation;
 
 public class StepCrossing implements Variable {
 
 	private Step step;
-	private Activity activity;
-	private Object activityResult;
-	private Throwable activityError;
+	private Operation operation;
+	private Object operationResult;
+	private Throwable operationError;
 
 	public StepCrossing() {
 	}
@@ -20,33 +20,33 @@ public class StepCrossing implements Variable {
 		return step;
 	}
 
-	public Object getActivityResult() {
-		return activityResult;
+	public Object getOperationResult() {
+		return operationResult;
 	}
 
-	public void setActivityResult(Object activityResult) {
-		this.activityResult = activityResult;
+	public void setOperationResult(Object operationResult) {
+		this.operationResult = operationResult;
 	}
 
-	public Activity getActivity() {
-		return activity;
+	public Operation getOperation() {
+		return operation;
 	}
 
-	public void setActivity(Activity activity) {
-		this.activity = activity;
+	public void setOperation(Operation operation) {
+		this.operation = operation;
 	}
 
-	public Throwable getActivityError() {
-		return activityError;
+	public Throwable getOperationError() {
+		return operationError;
 	}
 
-	public void setActivityError(Throwable activityError) {
-		this.activityError = activityError;
+	public void setOperationError(Throwable operationError) {
+		this.operationError = operationError;
 	}
 
 	@Override
 	public Object getValue() {
-		return activityResult;
+		return operationResult;
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class StepCrossing implements Variable {
 
 	@Override
 	public String toString() {
-		return "[" + ((activityError == null) ? "OK" : "KO") + "] " + step.getName();
+		return "[" + ((operationError == null) ? "OK" : "KO") + "] " + step.getName();
 	}
 
 }
