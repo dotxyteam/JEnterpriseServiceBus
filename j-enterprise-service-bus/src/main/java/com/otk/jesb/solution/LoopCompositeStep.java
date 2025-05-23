@@ -66,7 +66,7 @@ public class LoopCompositeStep extends CompositeStep {
 		return result;
 	}
 
-	private List<VariableDeclaration> getLoopEndConditionVariableDeclarations(Plan plan) {
+	public List<VariableDeclaration> getLoopEndConditionVariableDeclarations(Plan plan) {
 		List<VariableDeclaration> loopEndConditionVariableDeclarations = new ArrayList<VariableDeclaration>(
 				plan.getValidationContext(this).getVariableDeclarations());
 		loopEndConditionVariableDeclarations.addAll(((LoopCompositeStep) this).getContextualVariableDeclarations());

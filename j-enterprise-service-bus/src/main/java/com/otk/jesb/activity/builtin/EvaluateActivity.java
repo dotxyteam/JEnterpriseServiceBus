@@ -122,8 +122,8 @@ public class EvaluateActivity implements Activity {
 
 		@Override
 		public Activity build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return (EvaluateActivity) valueBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			return new EvaluateActivity(valueBuilder.build(new InstantiationContext(context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}
 
 		@Override

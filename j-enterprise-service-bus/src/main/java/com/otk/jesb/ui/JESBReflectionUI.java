@@ -19,6 +19,7 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.Function;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activity.Activity;
@@ -58,6 +59,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity;
 import com.otk.jesb.solution.LoopCompositeStep.LoopActivity.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.ui.diagram.DragIntent;
@@ -683,7 +685,13 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected List<IMethodInfo> getMethods(ITypeInfo type) {
-				if (type.getName().equals(InstantiationFunction.class.getName())) {
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Function.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -714,61 +722,32 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							InstantiationFunction function = (InstantiationFunction) object;
-							Facade parentFacade = displayedRootInstanceBuilderFacade
-									.findInstantiationFunctionParentFacade(function);
-							List<VariableDeclaration> baseVariableDeclarations = displayedPlan
-									.getValidationContext(
-											(displayedRootInstanceBuilderFacade.getUnderlying() == displayedPlan
-													.getOutputBuilder()) ? null : displayedStep)
-									.getVariableDeclarations();
-							InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
-									baseVariableDeclarations, parentFacade);
-							return new FunctionEditor(function, compilationContext.getPrecompiler(),
-									compilationContext.getVariableDeclarations(),
-									compilationContext.getFunctionReturnType(function));
-						}
-
-						@Override
-						public boolean isReadOnly() {
-							return true;
-						}
-					});
-					return result;
-				} else if (type.getName().equals(Transition.IfCondition.class.getName())) {
-					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
-					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
-
-						@Override
-						public String getSignature() {
-							return ReflectionUIUtils.buildMethodSignature(this);
-						}
-
-						@Override
-						public String getName() {
-							return "edit";
-						}
-
-						@Override
-						public String getCaption() {
-							return "Edit...";
-						}
-
-						@Override
-						public String getOnlineHelp() {
-							return "Open the Expression Editor";
-						}
-
-						@Override
-						public ITypeInfo getReturnValueType() {
-							return getTypeInfo(new JavaTypeInfoSource(FunctionEditor.class, null));
-						}
-
-						@Override
-						public Object invoke(Object object, InvocationData invocationData) {
-							return new FunctionEditor((Transition.IfCondition) object, null,
-									displayedPlan.getTransitionContextVariableDeclarations(displayedTransition),
-									boolean.class);
+							if (object instanceof InstantiationFunction) {
+								InstantiationFunction function = (InstantiationFunction) object;
+								Facade parentFacade = displayedRootInstanceBuilderFacade
+										.findInstantiationFunctionParentFacade(function);
+								List<VariableDeclaration> baseVariableDeclarations = displayedPlan
+										.getValidationContext(
+												(displayedRootInstanceBuilderFacade.getUnderlying() == displayedPlan
+														.getOutputBuilder()) ? null : displayedStep)
+										.getVariableDeclarations();
+								InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
+										baseVariableDeclarations, parentFacade);
+								return new FunctionEditor(function, compilationContext.getPrecompiler(),
+										compilationContext.getVariableDeclarations(),
+										compilationContext.getFunctionReturnType(function));
+							} else if (object instanceof Transition.IfCondition) {
+								return new FunctionEditor((Transition.IfCondition) object, null,
+										displayedPlan.getTransitionContextVariableDeclarations(displayedTransition),
+										boolean.class);
+							} else if ((displayedStep instanceof LoopCompositeStep)
+									&& (((LoopCompositeStep) displayedStep).getActivityBuilder()
+											.getLoopEndCondition() == object)) {
+								return new FunctionEditor((Function) object, null, ((LoopCompositeStep) displayedStep)
+										.getLoopEndConditionVariableDeclarations(displayedPlan), boolean.class);
+							} else {
+								throw new UnexpectedError();
+							}
 						}
 
 						@Override

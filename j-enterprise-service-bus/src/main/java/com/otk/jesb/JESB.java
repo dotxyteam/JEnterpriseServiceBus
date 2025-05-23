@@ -53,7 +53,7 @@ public class JESB {
 		ls.setDiagramX(200);
 		ls.setDiagramY(100);
 		ls.getActivityBuilder().setIterationIndexVariableName("index");
-		ls.getActivityBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
+		ls.getActivityBuilder().setLoopEndCondition(new Function("return index==3;"));
 
 		Step s2 = new Step(null);
 		plan.getSteps().add(s2);
