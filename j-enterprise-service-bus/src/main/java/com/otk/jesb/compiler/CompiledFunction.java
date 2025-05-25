@@ -21,6 +21,14 @@ public class CompiledFunction {
 		this.functionClassSource = functionClassSource;
 	}
 
+	public Class<?> getFunctionClass() {
+		return functionClass;
+	}
+
+	public String getFunctionClassSource() {
+		return functionClassSource;
+	}
+
 	public static CompiledFunction get(String functionBody, List<VariableDeclaration> variableDeclarations,
 			Class<?> returnType) throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."

@@ -99,15 +99,17 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+			List<VariableDeclaration> baseVariableDeclarations) {
 		if (parent != null) {
-			return parent.getAdditionalVariableDeclarations();
+			return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
 		}
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -279,10 +281,11 @@ public class InstanceBuilderFacade extends Facade {
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			if (selectedConstructorSignature == null) {
-				throw new ValidationError("Cannot create '" + typeInfo.getName() + "' instance: No constructor available");
+				throw new ValidationError(
+						"Cannot create '" + typeInfo.getName() + "' instance: No constructor available");
 			} else {
-				throw new ValidationError("Cannot create '" + typeInfo.getName() + "' instance: Constructor not found: '"
-						+ selectedConstructorSignature + "'");
+				throw new ValidationError("Cannot create '" + typeInfo.getName()
+						+ "' instance: Constructor not found: '" + selectedConstructorSignature + "'");
 			}
 		}
 		util.validate(recursively, variableDeclarations);

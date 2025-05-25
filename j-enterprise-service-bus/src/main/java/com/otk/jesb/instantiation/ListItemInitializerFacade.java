@@ -36,9 +36,10 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+			List<VariableDeclaration> baseVariableDeclarations) {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(
-				parent.getAdditionalVariableDeclarations());
+				parent.getAdditionalVariableDeclarations(baseVariableDeclarations));
 		if (getItemReplicationFacade() != null) {
 			result.add(new VariableDeclaration() {
 
@@ -49,7 +50,12 @@ public class ListItemInitializerFacade extends Facade {
 
 				@Override
 				public Class<?> getVariableType() {
-					return getItemReplicationFacade().getIterationVariableClass();
+					ITypeInfo iterationVariableType = getItemReplicationFacade()
+							.getIterationVariableType(ListItemInitializerFacade.this, baseVariableDeclarations);
+					if (iterationVariableType != null) {
+						return ((DefaultTypeInfo) iterationVariableType).getJavaType();
+					}
+					return Object.class;
 				}
 			});
 		}
@@ -57,13 +63,19 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	@Override
-	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
 		if (getCondition() == function) {
 			return boolean.class;
 		}
 		if (getItemReplicationFacade() != null) {
 			if (getItemReplicationFacade().getIterationListValue() == function) {
-				return getItemReplicationFacade().getIterationListValueClass();
+				IListTypeInfo iterationListValueType = getItemReplicationFacade()
+						.getIterationListValueType(ListItemInitializerFacade.this, baseVariableDeclarations);
+				if (iterationListValueType != null) {
+					return ((DefaultTypeInfo) iterationListValueType).getJavaType();
+				}
+				return Object.class;
 			}
 		}
 		if (getItemValue() == function) {
@@ -80,14 +92,14 @@ public class ListItemInitializerFacade extends Facade {
 		if (getCondition() != null) {
 			try {
 				CompiledFunction.get(getCondition().getFunctionBody(), variableDeclarations,
-						getFunctionReturnType(getCondition()));
+						getFunctionReturnType(getCondition(), variableDeclarations));
 			} catch (CompilationError e) {
 				throw new ValidationError("Failed to validate the condition", e);
 			}
 		}
 		if (recursively) {
 			if (getItemReplicationFacade() != null) {
-				getItemReplicationFacade().validate();
+				getItemReplicationFacade().validate(recursively, variableDeclarations, this);
 			}
 		}
 		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",

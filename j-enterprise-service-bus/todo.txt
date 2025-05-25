@@ -7,6 +7,7 @@
 - add general activities:
 	. Log
 	. ...
+- check javaparser compatibility with different java versions 
 - allow to start plan execution on event (timer, file poller, etc)
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
@@ -21,7 +22,7 @@
 	. disabling the step occurrences collection
 	. disabling all breakpoints
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
-- allow to map list.size()/array.length/...
+- allow to map list.size()/array.length/stream/...
 - use the same structure (list or array) for structure multiple elements 
 and loop results
 - allow to monitor the execution of deployed projects

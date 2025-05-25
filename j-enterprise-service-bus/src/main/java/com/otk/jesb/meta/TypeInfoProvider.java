@@ -21,9 +21,8 @@ public class TypeInfoProvider {
 
 	public static Class<?> getClass(String typeName) {
 		String arrayComponentTypeName = MiscUtils.getArrayComponentTypeName(typeName);
-		if(arrayComponentTypeName != null) {
-			return Array.newInstance(getClass(arrayComponentTypeName), 0)
-					.getClass();
+		if (arrayComponentTypeName != null) {
+			return Array.newInstance(getClass(arrayComponentTypeName), 0).getClass();
 		}
 		try {
 			return ClassUtils.getCachedClassForName(typeName);
@@ -36,14 +35,19 @@ public class TypeInfoProvider {
 		}
 	}
 
-	
-
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
 
+	public static ITypeInfo getTypeInfo(Class<?> objectClass) {
+		return getTypeInfo(objectClass, (IInfo)null);
+	}
+
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-		Class<?> objectClass = getClass(typeName);
+		return getTypeInfo(getClass(typeName), typeOwner);
+	}
+
+	public static ITypeInfo getTypeInfo(Class<?> objectClass, IInfo typeOwner) {
 		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (typeOwner != null) {
@@ -78,6 +82,12 @@ public class TypeInfoProvider {
 		} else {
 			throw new UnexpectedError();
 		}
+		return reflectionUI.getTypeInfo(javaTypeInfoSource);
+	}
+
+	public static ITypeInfo getTypeInfo(Class<?> objectClass, Class<?>[] genericTypeParameters) {
+		ReflectionUI reflectionUI = ReflectionUI.getDefault();
+		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, genericTypeParameters, null);
 		return reflectionUI.getTypeInfo(javaTypeInfoSource);
 	}
 

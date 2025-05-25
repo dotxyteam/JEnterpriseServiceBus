@@ -1,8 +1,32 @@
 package com.otk.jesb.instantiation;
 
+import static com.github.javaparser.Providers.provider;
+
+import java.util.List;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParseStart;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.resolution.TypeSolver;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.otk.jesb.Function;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.type.ITypeInfo;
 
 public class InstantiationFunction extends Function {
+
+	private Function returnTypeUtil = new Function();
 
 	public InstantiationFunction() {
 	}
@@ -11,5 +35,33 @@ public class InstantiationFunction extends Function {
 		super(functionBody);
 	}
 
+	@Override
+	public void setFunctionBody(String functionBody) {
+		super.setFunctionBody(functionBody);
+		returnTypeUtil.setFunctionBody(functionBody);
+	}
+
+	public ITypeInfo guessReturnType(java.util.function.Function<String, String> precompiler,
+			List<VariableDeclaration> variableDeclarations) throws CompilationError {
+		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
+				Object.class);
+		TypeSolver typeSolver = new CombinedTypeSolver(new ClassLoaderTypeSolver(ClassLoader.getSystemClassLoader()),
+				new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getClassLoader()));
+		ParserConfiguration configuration = new ParserConfiguration()
+				.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+		JavaParser javaParser = new JavaParser(configuration);
+		ParseResult<CompilationUnit> result = javaParser.parse(ParseStart.COMPILATION_UNIT,
+				provider(compiledFunction.getFunctionClassSource()));
+		if (!result.isSuccessful()) {
+			throw new UnexpectedError();
+		}
+		if (!result.getResult().isPresent()) {
+			throw new UnexpectedError();
+		}
+		CompilationUnit compilationUnit = result.getResult().get();
+		ReturnStmt returnStatement = compilationUnit.findAll(ReturnStmt.class).get(0);
+		ResolvedType resolvedType = returnStatement.getExpression().get().calculateResolvedType();
+		return MiscUtils.getInfoFromResolvedType(resolvedType);
+	}
 
 }

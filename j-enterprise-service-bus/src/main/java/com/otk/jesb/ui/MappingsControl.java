@@ -979,7 +979,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(
 							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())
 									.getVariableDeclarations());
-					variableDeclarations.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations());
+					variableDeclarations
+							.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations(variableDeclarations));
 					while (true) {
 						boolean nameConflictDetected = variableDeclarations.stream()
 								.anyMatch(variableDeclaration -> variableDeclaration.getVariableName()

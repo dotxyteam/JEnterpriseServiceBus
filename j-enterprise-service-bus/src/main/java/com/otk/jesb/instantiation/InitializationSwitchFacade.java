@@ -23,12 +23,14 @@ public class InitializationSwitchFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
-		return parent.getAdditionalVariableDeclarations();
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+			List<VariableDeclaration> baseVariableDeclarations) {
+		return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
 	}
 
 	@Override
-	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -31,12 +32,15 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Asset;
@@ -52,6 +56,9 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
 
@@ -277,11 +284,11 @@ public class MiscUtils {
 		className = className.replace("$", ".");
 		int arrayDimension = 0;
 		String arrayComponentTypeName = className;
-		while((arrayComponentTypeName = getArrayComponentTypeName(arrayComponentTypeName)) != null) {
+		while ((arrayComponentTypeName = getArrayComponentTypeName(arrayComponentTypeName)) != null) {
 			arrayDimension++;
 			className = arrayComponentTypeName;
 		}
-		for(int i=0; i<arrayDimension; i++) {
+		for (int i = 0; i < arrayDimension; i++) {
 			className += "[]";
 		}
 		return className;
@@ -645,6 +652,37 @@ public class MiscUtils {
 	public static CompiledFunction compileExpression(String expression, List<VariableDeclaration> variableDeclarations,
 			Class<?> returnType) throws CompilationError {
 		return CompiledFunction.get("return " + expression + ";", variableDeclarations, returnType);
+	}
+
+	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
+		if (resolvedType.isPrimitive()) {
+			return TypeInfoProvider.getTypeInfo(ClassUtils
+					.wrapperToPrimitiveClass(TypeInfoProvider.getClass(resolvedType.asPrimitive().getBoxTypeQName())));
+		} else if (resolvedType.isReferenceType()) {
+			ResolvedReferenceType referenceType = resolvedType.asReferenceType();
+			String qualifiedName = referenceType.getQualifiedName();
+			Class<?> javaType = TypeInfoProvider.getClass(qualifiedName);
+			List<ResolvedType> typeParameters = referenceType.typeParametersValues();
+			if (typeParameters.size() > 0) {
+				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
+				for (ResolvedType resolvedTypeParameter : typeParameters) {
+					typeParameterClasses
+							.add(((DefaultTypeInfo) getInfoFromResolvedType(resolvedTypeParameter)).getJavaType());
+				}
+				return TypeInfoProvider.getTypeInfo(javaType,
+						typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]));
+			} else {
+				return TypeInfoProvider.getTypeInfo(javaType);
+			}
+		} else if (resolvedType.isArray()) {
+			Class<?> componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(
+					resolvedType.asArrayType().getComponentType())).getJavaType();
+			return TypeInfoProvider.getTypeInfo(Array.newInstance(componentClass, 0).getClass());
+		} else if (resolvedType.isTypeVariable()) {
+			return TypeInfoProvider.getTypeInfo(resolvedType.asTypeVariable().qualifiedName());
+		} else {
+			throw new UnexpectedError("Unsupported ResolvedType: " + resolvedType.describe());
+		}
 	}
 
 }

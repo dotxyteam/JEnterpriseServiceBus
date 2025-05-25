@@ -140,10 +140,11 @@ public class InstanceBuilder extends InitializationCase {
 					if (iterationListValue == null) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
-					if (!itemReplicationFacade.getIterationListValueClass().isInstance(iterationListValue)) {
+					IListTypeInfo iterationListValueType = itemReplicationFacade
+							.getIterationListValueType(listItemInitializerFacade, context.getVariableDeclarations());
+					if (!iterationListValueType.supports(iterationListValue)) {
 						throw new UnexpectedError("The iteration list value is not an instance of '"
-								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: "
-								+ iterationListValue);
+								+ iterationListValueType.getName() + "' as expected: " + iterationListValue);
 					}
 					ITypeInfo iterationListTypeInfo = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
@@ -153,10 +154,11 @@ public class InstanceBuilder extends InitializationCase {
 					}
 					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
 					for (Object iterationVariableValue : iterationListArray) {
-						if (!itemReplicationFacade.getIterationVariableClass().isInstance(iterationVariableValue)) {
+						ITypeInfo iterationVariableType = itemReplicationFacade
+								.getIterationVariableType(listItemInitializerFacade, context.getVariableDeclarations());
+						if (!iterationVariableType.supports(iterationVariableValue)) {
 							throw new UnexpectedError("The iteration variable value is not an instance of '"
-									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: "
-									+ iterationVariableValue);
+									+ iterationVariableType.getName() + "' as expected: " + iterationVariableValue);
 						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);

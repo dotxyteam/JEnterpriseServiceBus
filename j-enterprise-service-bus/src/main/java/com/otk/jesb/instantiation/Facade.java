@@ -22,9 +22,11 @@ public abstract class Facade {
 
 	public abstract Object getUnderlying();
 
-	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations();
+	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations(
+			List<VariableDeclaration> baseVariableDeclarations);
 
-	public abstract Class<?> getFunctionReturnType(InstantiationFunction function);
+	public abstract Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations);
 
 	public abstract void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
 			throws ValidationError;

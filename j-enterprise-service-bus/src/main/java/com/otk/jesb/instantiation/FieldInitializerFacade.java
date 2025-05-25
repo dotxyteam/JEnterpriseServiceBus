@@ -33,12 +33,14 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations() {
-		return parent.getAdditionalVariableDeclarations();
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+			List<VariableDeclaration> baseVariableDeclarations) {
+		return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
 	}
 
 	@Override
-	public Class<?> getFunctionReturnType(InstantiationFunction function) {
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
 		if (getCondition() == function) {
 			return boolean.class;
 		}
@@ -56,7 +58,7 @@ public class FieldInitializerFacade extends Facade {
 		if (getCondition() != null) {
 			try {
 				CompiledFunction.get(getCondition().getFunctionBody(), variableDeclarations,
-						getFunctionReturnType(getCondition()));
+						getFunctionReturnType(getCondition(), variableDeclarations));
 			} catch (CompilationError e) {
 				throw new ValidationError("Failed to validate the condition", e);
 			}

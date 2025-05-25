@@ -20,7 +20,7 @@ public class InstantiationFunctionCompilationContext {
 
 	public List<VariableDeclaration> getVariableDeclarations() {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(baseVariableDeclarations);
-		result.addAll(parentFacade.getAdditionalVariableDeclarations());
+		result.addAll(parentFacade.getAdditionalVariableDeclarations(baseVariableDeclarations));
 		return result;
 	}
 
@@ -29,7 +29,7 @@ public class InstantiationFunctionCompilationContext {
 	}
 
 	public Class<?> getFunctionReturnType(InstantiationFunction function) {
-		return parentFacade.getFunctionReturnType(function);
+		return parentFacade.getFunctionReturnType(function, baseVariableDeclarations);
 	}
 
 	public Function<String, String> getPrecompiler() {
