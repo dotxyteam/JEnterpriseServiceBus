@@ -17,7 +17,6 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
@@ -109,8 +108,8 @@ public class LoopCompositeStep extends CompositeStep {
 			final int[] index = new int[] { 0 };
 			LoopOperationResult result = null;
 			{
-				Class<?> resultClass = loopCompositeStep.getOperationBuilder().getOperationResultClass(context.getPlan(),
-						loopCompositeStep);
+				Class<?> resultClass = loopCompositeStep.getOperationBuilder()
+						.getOperationResultClass(context.getPlan(), loopCompositeStep);
 				if (resultClass != null) {
 					result = (LoopOperationResult) resultClass.getConstructor().newInstance();
 				}
@@ -206,35 +205,9 @@ public class LoopCompositeStep extends CompositeStep {
 		public static class Builder implements OperationBuilder {
 
 			private String iterationIndexVariableName = "iterationIndex";
-			private Function loopEndCondition = new InstantiationFunction(
-					"return " + iterationIndexVariableName + "==3;");
+			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
 			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
-			private UpToDate<Class<?>> upToDateResultClass = new UpToDate<Class<?>>() {
-
-				@Override
-				protected Object retrieveLastVersionIdentifier() {
-					@SuppressWarnings("unchecked")
-					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
-					Plan currentPlan = pair.getFirst();
-					Step currentStep = pair.getSecond();
-					List<ResultsCollectionConfigurationEntry> resultsCollectionConfigurationEntries = retrieveResultsCollectionConfigurationEntries(
-							currentPlan, currentStep);
-					return resultsCollectionConfigurationEntries.stream()
-							.filter(entry -> entry.isValid() && entry.isResultsCollectionEnabled())
-							.map(targetedStep -> targetedStep.getOperationResultClass(currentPlan))
-							.collect(Collectors.toList());
-				}
-
-				@Override
-				protected Class<?> obtainLatest(Object versionIdentifier) {
-					@SuppressWarnings("unchecked")
-					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
-					Plan currentPlan = pair.getFirst();
-					Step currentStep = pair.getSecond();
-					return obtainResultClass(currentPlan, currentStep);
-				}
-
-			};
+			private UpToDate<Class<?>> upToDateResultClass = new UpToDateResultClass();
 
 			public String getIterationIndexVariableName() {
 				return iterationIndexVariableName;
@@ -455,6 +428,33 @@ public class LoopCompositeStep extends CompositeStep {
 					} else {
 						resultsCollectionTargetedStepNames.remove(getStepName());
 					}
+				}
+
+			}
+
+			private class UpToDateResultClass extends UpToDate<Class<?>> {
+
+				@Override
+				protected Object retrieveLastVersionIdentifier() {
+					@SuppressWarnings("unchecked")
+					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
+					Plan currentPlan = pair.getFirst();
+					Step currentStep = pair.getSecond();
+					List<ResultsCollectionConfigurationEntry> resultsCollectionConfigurationEntries = retrieveResultsCollectionConfigurationEntries(
+							currentPlan, currentStep);
+					return resultsCollectionConfigurationEntries.stream()
+							.filter(entry -> entry.isValid() && entry.isResultsCollectionEnabled())
+							.map(targetedStep -> targetedStep.getOperationResultClass(currentPlan))
+							.collect(Collectors.toList());
+				}
+
+				@Override
+				protected Class<?> obtainLatest(Object versionIdentifier) {
+					@SuppressWarnings("unchecked")
+					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
+					Plan currentPlan = pair.getFirst();
+					Step currentStep = pair.getSecond();
+					return obtainResultClass(currentPlan, currentStep);
 				}
 
 			}

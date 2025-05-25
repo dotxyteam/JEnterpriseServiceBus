@@ -1,5 +1,6 @@
 package com.otk.jesb.meta;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import com.otk.jesb.UnexpectedError;
@@ -19,6 +20,11 @@ import xy.reflect.ui.util.ClassUtils;
 public class TypeInfoProvider {
 
 	public static Class<?> getClass(String typeName) {
+		String arrayComponentTypeName = MiscUtils.getArrayComponentTypeName(typeName);
+		if(arrayComponentTypeName != null) {
+			return Array.newInstance(getClass(arrayComponentTypeName), 0)
+					.getClass();
+		}
 		try {
 			return ClassUtils.getCachedClassForName(typeName);
 		} catch (ClassNotFoundException e) {
@@ -29,6 +35,8 @@ public class TypeInfoProvider {
 			}
 		}
 	}
+
+	
 
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);

@@ -49,67 +49,11 @@ public class Plan extends Asset {
 	private transient PlanElement focusedElementSelectedSurrounding;
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
+
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
-			new Accessor<String>() {
-				@Override
-				public String get() {
-					Class<?> outputClass;
-					try {
-						outputClass = upToDateOutputClass.get();
-					} catch (VersionAccessException e) {
-						throw new UnexpectedError(e);
-					}
-					if (outputClass == null) {
-						return null;
-					}
-					return outputClass.getName();
-				}
-			});
-
-	private UpToDate<Class<?>> upToDateInputClass = new UpToDate<Class<?>>() {
-		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
-		}
-
-		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
-			if (inputStructure == null) {
-				return null;
-			} else {
-				try {
-					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							inputStructure.generateJavaTypeSourceCode(className));
-				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
-				}
-			}
-		}
-	};
-	private UpToDate<Class<?>> upToDateOutputClass = new UpToDate<Class<?>>() {
-		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
-		}
-
-		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
-			if (outputStructure == null) {
-				return null;
-			} else {
-				try {
-					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							outputStructure.generateJavaTypeSourceCode(className));
-				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
-				}
-			}
-		}
-	};
+			new OutputClassNameAccessor());
+	private UpToDate<Class<?>> upToDateInputClass = new UpToDateInputClass();
+	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
 
 	public List<Step> getSteps() {
 		return steps;
@@ -169,7 +113,8 @@ public class Plan extends Asset {
 
 	@Transient
 	public Set<PlanElement> getSelectedElements() {
-		return selectedElements;
+		return selectedElements.stream().filter(element -> steps.contains(element) || transitions.contains(element))
+				.collect(Collectors.toSet());
 	}
 
 	public void setSelectedElements(Set<PlanElement> selectedElements) {
@@ -178,7 +123,9 @@ public class Plan extends Asset {
 
 	@Transient
 	public PlanElement getFocusedElementSelectedSurrounding() {
-		return focusedElementSelectedSurrounding;
+		return getFocusedElementSurroundings().contains(focusedElementSelectedSurrounding)
+				? focusedElementSelectedSurrounding
+				: null;
 	}
 
 	public void setFocusedElementSelectedSurrounding(PlanElement focusedElementSelectedSurrounding) {
@@ -186,28 +133,28 @@ public class Plan extends Asset {
 	}
 
 	@Transient
-	public PlanElement getFocusedStepOrTransition() {
-		return (selectedElements.size() > 0) ? selectedElements.iterator().next() : null;
+	public PlanElement getFocusedElement() {
+		Set<PlanElement> selectedElements = getSelectedElements();
+		return (selectedElements.size() == 1) ? selectedElements.iterator().next() : null;
 	}
 
-	public void setFocusedStepOrTransition(PlanElement focusedStepOrTransition) {
-		selectedElements = (focusedStepOrTransition != null) ? Collections.singleton(focusedStepOrTransition)
-				: Collections.emptySet();
+	public void setFocusedElement(PlanElement focusedElement) {
+		setSelectedElements((focusedElement != null) ? Collections.singleton(focusedElement) : Collections.emptySet());
 	}
 
-	public List<PlanElement> getFocusedStepOrTransitionSurroundings() {
+	public List<PlanElement> getFocusedElementSurroundings() {
 		List<PlanElement> result = new ArrayList<PlanElement>();
-		PlanElement focusedStepOrTransition = getFocusedStepOrTransition();
-		if (focusedStepOrTransition != null) {
-			if (focusedStepOrTransition instanceof Step) {
-				Step step = (Step) focusedStepOrTransition;
+		PlanElement focusedElement = getFocusedElement();
+		if (focusedElement != null) {
+			if (focusedElement instanceof Step) {
+				Step step = (Step) focusedElement;
 				result.addAll(transitions.stream().filter(transition -> transition.getEndStep() == step)
 						.collect(Collectors.toList()));
 				result.add(step);
 				result.addAll(transitions.stream().filter(transition -> transition.getStartStep() == step)
 						.collect(Collectors.toList()));
-			} else if (focusedStepOrTransition instanceof Transition) {
-				Transition transition = (Transition) focusedStepOrTransition;
+			} else if (focusedElement instanceof Transition) {
+				Transition transition = (Transition) focusedElement;
 				result.add(transition.getStartStep());
 				result.add(transition);
 				result.add(transition.getEndStep());
@@ -536,7 +483,8 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep, steps) : steps;
+		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep, steps)
+				: steps.stream().filter(step -> step.getParent() == null).collect(Collectors.toList());
 		for (Step step : precedingSteps) {
 			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);
 			if (stepVariableDeclaration != null) {
@@ -710,6 +658,68 @@ public class Plan extends Asset {
 			return result;
 		}
 
+	}
+
+	private class OutputClassNameAccessor extends Accessor<String> {
+		@Override
+		public String get() {
+			Class<?> outputClass;
+			try {
+				outputClass = upToDateOutputClass.get();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
+			if (outputClass == null) {
+				return null;
+			}
+			return outputClass.getName();
+		}
+	}
+
+	private class UpToDateInputClass extends UpToDate<Class<?>> {
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
+		}
+
+		@Override
+		protected Class<?> obtainLatest(Object versionIdentifier) {
+			if (inputStructure == null) {
+				return null;
+			} else {
+				try {
+					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
+							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							inputStructure.generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		}
+	}
+
+	private class UpToDateOutputClass extends UpToDate<Class<?>> {
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
+		}
+
+		@Override
+		protected Class<?> obtainLatest(Object versionIdentifier) {
+			if (outputStructure == null) {
+				return null;
+			} else {
+				try {
+					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
+							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							outputStructure.generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		}
 	}
 
 }

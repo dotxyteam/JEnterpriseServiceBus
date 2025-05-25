@@ -79,28 +79,10 @@ public abstract class JDBCOperation implements Operation {
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
-				new Accessor<String>() {
-					@Override
-					public String get() {
-						try {
-							return upToDateParameterValuesClass.get().getName();
-						} catch (VersionAccessException e) {
-							throw new UnexpectedError(e);
-						}
-					}
-				});
-		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDate<Class<? extends ParameterValues>>() {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				return MiscUtils.serialize(parameterDefinitions);
-			}
 
-			@Override
-			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
-				return createParameterValuesClass();
-			}
-		};
+		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
+				new ParameterValuesClassNameAccessor());
+		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
 
 		@SuppressWarnings("unchecked")
 		private Class<? extends ParameterValues> createParameterValuesClass() {
@@ -247,6 +229,29 @@ public abstract class JDBCOperation implements Operation {
 						throw new ValidationError("Failed to validate the parameter values builder", e);
 					}
 				}
+			}
+		}
+
+		private class ParameterValuesClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				try {
+					return upToDateParameterValuesClass.get().getName();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		}
+
+		private class UpToDateParameterValuesClass extends UpToDate<Class<? extends ParameterValues>> {
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				return MiscUtils.serialize(parameterDefinitions);
+			}
+
+			@Override
+			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
+				return createParameterValuesClass();
 			}
 		}
 	}

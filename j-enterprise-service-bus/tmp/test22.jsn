@@ -1,0 +1,9 @@
+<com.otk.jesb.solution.Solution>
+  <contents>
+    <com.otk.jesb.solution.Folder>
+      <contents>
+        <com.otk.jesb.solution.Plan>
+          <inputStructure class="null"/>
+          <name>Test</name>
+          <outputBuilder>
+            <dynamicTypeNameAccessor

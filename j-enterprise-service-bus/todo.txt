@@ -11,7 +11,6 @@
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
 - allow to deploy and execute a project outside of the designer in a production environment
-- name all anonymous classes that are serialized
 - improve the UI design:
 	. change the font look and feel (maybe the windows look and feel would be good)
 	. change the fonts ???
@@ -21,6 +20,10 @@
 	. disabling animations
 	. disabling the step occurrences collection
 	. disabling all breakpoints
+- add buttons/tools to delete/copy/cut/paste/selectAll plan elements
+- allow to map list.size()/array.length/...
+- use the same structure (list or array) for structure multiple elements 
+and loop results
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code

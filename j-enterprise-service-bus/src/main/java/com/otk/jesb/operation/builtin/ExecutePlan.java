@@ -67,20 +67,9 @@ public class ExecutePlan implements Operation {
 	public static class Builder implements OperationBuilder {
 
 		private Reference<Plan> planReference = new Reference<Plan>(Plan.class);
+
 		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
-				new Accessor<String>() {
-					@Override
-					public String get() {
-						Plan plan = getPlan();
-						if (plan == null) {
-							return null;
-						}
-						if (plan.getInputClass() == null) {
-							return null;
-						}
-						return plan.getInputClass().getName();
-					}
-				});
+				new PlanInputClassNameAccessor());
 
 		private Plan getPlan() {
 			return planReference.resolve();
@@ -132,6 +121,20 @@ public class ExecutePlan implements Operation {
 						throw new ValidationError("Failed to validate the plan input builder", e);
 					}
 				}
+			}
+		}
+
+		private class PlanInputClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				Plan plan = getPlan();
+				if (plan == null) {
+					return null;
+				}
+				if (plan.getInputClass() == null) {
+					return null;
+				}
+				return plan.getInputClass().getName();
 			}
 		}
 

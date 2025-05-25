@@ -3,7 +3,7 @@
     <com.otk.jesb.solution.Folder>
       <contents>
         <com.otk.jesb.solution.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.solution.Step">
+          <focusedElement class="com.otk.jesb.solution.Step">
             <name>executePlan</name>
             <operationBuilder class="com.otk.jesb.operation.builtin.ExecutePlan$Builder">
               <planInputBuilder>
@@ -75,7 +75,7 @@
             </operationBuilder>
             <diagramX>110</diagramX>
             <diagramY>78</diagramY>
-          </focusedStepOrTransition>
+          </focusedElement>
           <inputStructure class="null"/>
           <name>Test</name>
           <outputBuilder>
@@ -97,7 +97,7 @@
           </outputBuilder>
           <outputStructure class="null"/>
           <steps>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
+            <com.otk.jesb.solution.Step reference="../../focusedElement"/>
             <com.otk.jesb.solution.Step>
               <name>writeFile</name>
               <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
@@ -553,7 +553,7 @@
               </condition>
               <endStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>
               <label>FileNotFoundException</label>
-              <startStep reference="../../../focusedStepOrTransition"/>
+              <startStep reference="../../../focusedElement"/>
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="null"/>
@@ -583,12 +583,12 @@
               <condition class="null"/>
               <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition"/>
+              <startStep reference="../../../focusedElement"/>
             </com.otk.jesb.solution.Transition>
           </transitions>
         </com.otk.jesb.solution.Plan>
         <com.otk.jesb.solution.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.solution.Step">
+          <focusedElement class="com.otk.jesb.solution.Step">
             <name>readFile</name>
             <operationBuilder class="com.otk.jesb.operation.builtin.ReadFile$Builder">
               <instanceBuilder>
@@ -632,7 +632,7 @@
             </operationBuilder>
             <diagramX>126</diagramX>
             <diagramY>90</diagramY>
-          </focusedStepOrTransition>
+          </focusedElement>
           <inputStructure>
             <elements>
               <com.otk.jesb.Structure_-StructuredElement>
@@ -715,7 +715,7 @@
             </elements>
           </outputStructure>
           <steps>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
+            <com.otk.jesb.solution.Step reference="../../focusedElement"/>
           </steps>
           <transitions/>
         </com.otk.jesb.solution.Plan>
@@ -1234,7 +1234,7 @@
     &lt;/service&gt;&#xd;
 &lt;/definitions&gt;</text>
         </com.otk.jesb.resource.builtin.WSDL>
-        <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/focusedStepOrTransition/operationBuilder/planInputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
+        <com.otk.jesb.resource.builtin.SharedStructureModel reference="../../../com.otk.jesb.solution.Folder/contents/com.otk.jesb.solution.Plan/focusedElement/operationBuilder/planInputBuilder/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor/val_-model"/>
         <com.otk.jesb.resource.builtin.SharedStructureModel>
           <name>SubPlanOutput</name>
           <structure class="com.otk.jesb.Structure$ClassicStructure">

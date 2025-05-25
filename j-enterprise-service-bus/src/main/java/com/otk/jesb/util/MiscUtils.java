@@ -48,6 +48,7 @@ import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -274,8 +275,50 @@ public class MiscUtils {
 
 	public static String adaptClassNameToSourceCode(String className) {
 		className = className.replace("$", ".");
-		className = className.replaceAll("^\\[L(.+);$", "$1[]");
+		int arrayDimension = 0;
+		String arrayComponentTypeName = className;
+		while((arrayComponentTypeName = getArrayComponentTypeName(arrayComponentTypeName)) != null) {
+			arrayDimension++;
+			className = arrayComponentTypeName;
+		}
+		for(int i=0; i<arrayDimension; i++) {
+			className += "[]";
+		}
 		return className;
+	}
+
+	public static String getArrayComponentTypeName(String className) {
+		if (className.startsWith("[[")) {
+			return className.substring(1);
+		}
+		if (className.startsWith("[L") && className.endsWith(";")) {
+			return className.substring(2, className.length() - 1);
+		}
+		if (className.equals("[Z")) {
+			return "boolean";
+		}
+		if (className.equals("[B")) {
+			return "byte";
+		}
+		if (className.equals("[S")) {
+			return "short";
+		}
+		if (className.equals("[I")) {
+			return "int";
+		}
+		if (className.equals("[J")) {
+			return "long";
+		}
+		if (className.equals("[F")) {
+			return "float";
+		}
+		if (className.equals("[D")) {
+			return "double";
+		}
+		if (className.equals("[C")) {
+			return "char";
+		}
+		return null;
 	}
 
 	public static String read(InputStream in) throws IOException {
@@ -469,7 +512,20 @@ public class MiscUtils {
 	}
 
 	private static XStream getXStream() {
-		XStream result = new XStream();
+		XStream result = new XStream() {
+			@Override
+			protected MapperWrapper wrapMapper(MapperWrapper next) {
+				return new MapperWrapper(next) {
+					@Override
+					public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
+						if (type.isAnonymousClass()) {
+							throw new UnexpectedError("Cannot serialize instance of forbidden anonymous class " + type);
+						}
+						return super.serializedClass(type);
+					}
+				};
+			}
+		};
 		result.registerConverter(new JavaBeanConverter(result.getMapper(), new BeanProvider() {
 			@Override
 			protected boolean canStreamProperty(PropertyDescriptor descriptor) {

@@ -85,6 +85,11 @@ public class ListItemInitializerFacade extends Facade {
 				throw new ValidationError("Failed to validate the condition", e);
 			}
 		}
+		if (recursively) {
+			if (getItemReplicationFacade() != null) {
+				getItemReplicationFacade().validate();
+			}
+		}
 		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
 				recursively, variableDeclarations);
 	}

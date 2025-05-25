@@ -55,8 +55,8 @@ public class Evaluate implements Operation {
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(Evaluate.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(
+					ResourcePath.specifyClassPathResourceLocation(Evaluate.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
@@ -66,43 +66,9 @@ public class Evaluate implements Operation {
 		{
 			valueStructure.getElements().add(new SimpleElement());
 		}
-		private final UpToDate<Class<?>> upToDateValueClass = new UpToDate<Class<?>>() {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				return (valueStructure != null) ? MiscUtils.serialize(valueStructure) : null;
-			}
 
-			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				if (valueStructure == null) {
-					return null;
-				} else {
-					try {
-						String className = Evaluate.class.getPackage().getName() + "." + "Value"
-								+ MiscUtils.toDigitalUniqueIdentifier(Builder.this);
-						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-								valueStructure.generateJavaTypeSourceCode(className));
-					} catch (CompilationError e) {
-						throw new UnexpectedError(e);
-					}
-				}
-			}
-		};
-		private RootInstanceBuilder valueBuilder = new RootInstanceBuilder("Value", new Accessor<String>() {
-			@Override
-			public String get() {
-				Class<?> valueClass;
-				try {
-					valueClass = upToDateValueClass.get();
-				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
-				}
-				if (valueClass == null) {
-					return null;
-				}
-				return valueClass.getName();
-			}
-		});
+		private final UpToDate<Class<?>> upToDateValueClass = new UpToDateValueClass();
+		private RootInstanceBuilder valueBuilder = new RootInstanceBuilder("Value", new ValueClassNameAccessor());
 
 		public ClassicStructure getValueStructure() {
 			return valueStructure;
@@ -149,6 +115,45 @@ public class Evaluate implements Operation {
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the value builder", e);
 				}
+			}
+		}
+
+		private class UpToDateValueClass extends UpToDate<Class<?>> {
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				return (valueStructure != null) ? MiscUtils.serialize(valueStructure) : null;
+			}
+
+			@Override
+			protected Class<?> obtainLatest(Object versionIdentifier) {
+				if (valueStructure == null) {
+					return null;
+				} else {
+					try {
+						String className = Evaluate.class.getPackage().getName() + "." + "Value"
+								+ MiscUtils.toDigitalUniqueIdentifier(Builder.this);
+						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+								valueStructure.generateJavaTypeSourceCode(className));
+					} catch (CompilationError e) {
+						throw new UnexpectedError(e);
+					}
+				}
+			}
+		}
+
+		private class ValueClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				Class<?> valueClass;
+				try {
+					valueClass = upToDateValueClass.get();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
+				if (valueClass == null) {
+					return null;
+				}
+				return valueClass.getName();
 			}
 		}
 	}

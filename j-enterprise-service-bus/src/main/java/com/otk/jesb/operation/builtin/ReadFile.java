@@ -132,8 +132,8 @@ public class ReadFile implements Operation {
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(ReadFile.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(
+					ResourcePath.specifyClassPathResourceLocation(ReadFile.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
@@ -144,19 +144,8 @@ public class ReadFile implements Operation {
 		};
 
 		private Mode mode = Mode.TEXT;
-		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				ReadFile.class.getSimpleName() + "Input", new Accessor<String>() {
-					@Override
-					public String get() {
-						if (mode == Mode.TEXT) {
-							return ReadTextFileOperation.class.getName();
-						} else if (mode == Mode.BINARY) {
-							return ReadBinaryFileOperation.class.getName();
-						} else {
-							throw new UnexpectedError();
-						}
-					}
-				});
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(ReadFile.class.getSimpleName() + "Input",
+				new SpecificOperationClassNameAccessor());
 
 		public Mode getMode() {
 			return mode;
@@ -205,6 +194,19 @@ public class ReadFile implements Operation {
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}
+				}
+			}
+		}
+
+		private class SpecificOperationClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				if (mode == Mode.TEXT) {
+					return ReadTextFileOperation.class.getName();
+				} else if (mode == Mode.BINARY) {
+					return ReadBinaryFileOperation.class.getName();
+				} else {
+					throw new UnexpectedError();
 				}
 			}
 		}

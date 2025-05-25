@@ -3,12 +3,12 @@
     <com.otk.jesb.solution.Folder>
       <contents>
         <com.otk.jesb.solution.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.solution.Step">
+          <focusedElement class="com.otk.jesb.solution.Step">
             <name>doNothing</name>
             <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
             <diagramX>642</diagramX>
             <diagramY>40</diagramY>
-          </focusedStepOrTransition>
+          </focusedElement>
           <inputStructure class="null"/>
           <name>Test</name>
           <outputBuilder>
@@ -531,7 +531,7 @@
               <diagramX>412</diagramX>
               <diagramY>479</diagramY>
             </com.otk.jesb.solution.Step>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
+            <com.otk.jesb.solution.Step reference="../../focusedElement"/>
             <com.otk.jesb.solution.Step>
               <name>jDBCCreate</name>
               <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
@@ -619,13 +619,13 @@
               <condition class="null"/>
               <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../steps/com.otk.jesb.solution.Step[4]/parent"/>
               <label class="null"/>
-              <startStep reference="../../../focusedStepOrTransition"/>
+              <startStep reference="../../../focusedElement"/>
             </com.otk.jesb.solution.Transition>
             <com.otk.jesb.solution.Transition>
               <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
                 <exceptionTypeName>java.lang.Exception</exceptionTypeName>
               </condition>
-              <endStep reference="../../../focusedStepOrTransition"/>
+              <endStep reference="../../../focusedElement"/>
               <label class="null"/>
               <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
             </com.otk.jesb.solution.Transition>
@@ -702,7 +702,7 @@
           </transitions>
         </com.otk.jesb.solution.Plan>
         <com.otk.jesb.solution.Plan>
-          <focusedStepOrTransition class="com.otk.jesb.solution.Step">
+          <focusedElement class="com.otk.jesb.solution.Step">
             <name>readFile</name>
             <operationBuilder class="com.otk.jesb.operation.builtin.ReadFile$Builder">
               <instanceBuilder>
@@ -746,7 +746,7 @@
             </operationBuilder>
             <diagramX>126</diagramX>
             <diagramY>90</diagramY>
-          </focusedStepOrTransition>
+          </focusedElement>
           <inputStructure>
             <elements>
               <com.otk.jesb.Structure_-StructuredElement>
@@ -829,7 +829,7 @@
             </elements>
           </outputStructure>
           <steps>
-            <com.otk.jesb.solution.Step reference="../../focusedStepOrTransition"/>
+            <com.otk.jesb.solution.Step reference="../../focusedElement"/>
           </steps>
           <transitions/>
         </com.otk.jesb.solution.Plan>

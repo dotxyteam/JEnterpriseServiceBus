@@ -18,73 +18,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	private Accessor<String> rootInstanceDynamicTypeNameAccessor;
 	private String rootInstanceTypeName;
 
-	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new Accessor<String>() {
+	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();
 
-		private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDate<Class<?>>() {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
-						? rootInstanceDynamicTypeNameAccessor.get()
-						: rootInstanceTypeName;
-				return (actualRootInstanceTypeName == null) ? null
-						: TypeInfoProvider.getClass(actualRootInstanceTypeName);
-			}
-
-			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
-						? rootInstanceDynamicTypeNameAccessor.get()
-						: rootInstanceTypeName;
-				if (actualRootInstanceTypeName == null) {
-					return NullInstance.class;
-				}
-				if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
-					throw new UnexpectedError();
-				}
-				String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
-						+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
-					StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
-					{
-						rootInstanceWrapperClassSourceBuilder.append("package "
-								+ MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
-						rootInstanceWrapperClassSourceBuilder.append("public class "
-								+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
-								+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
-						rootInstanceWrapperClassSourceBuilder.append("	private "
-								+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
-						rootInstanceWrapperClassSourceBuilder.append(
-								"	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + "("
-										+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
-										+ rootInstanceName + ") {\n");
-						rootInstanceWrapperClassSourceBuilder
-								.append("		this.rootInstance = " + rootInstanceName + ";\n");
-						rootInstanceWrapperClassSourceBuilder.append("	}\n");
-						rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
-						rootInstanceWrapperClassSourceBuilder
-								.append("	public " + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName)
-										+ " getRootInstance() {\n");
-						rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
-						rootInstanceWrapperClassSourceBuilder.append("	}\n");
-						rootInstanceWrapperClassSourceBuilder.append("}\n");
-					}
-					try {
-					return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
-							rootInstanceWrapperClassSourceBuilder.toString());
-					} catch (CompilationError ce) {
-						throw new UnexpectedError(ce);
-					}
-			}
-		};
-
-		@Override
-		public String get() {
-			try {
-				return upToDateRootInstanceClass.get().getName();
-			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
-			}
-		}
-	};
+	private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDateRootInstanceClass();
 
 	public RootInstanceBuilder() {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
@@ -171,6 +107,70 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			return null;
 		}
 		return wrapper.getRootInstance();
+	}
+
+	private class UpToDateRootInstanceClass extends UpToDate<Class<?>> {
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
+					? rootInstanceDynamicTypeNameAccessor.get()
+					: rootInstanceTypeName;
+			return (actualRootInstanceTypeName == null) ? null : TypeInfoProvider.getClass(actualRootInstanceTypeName);
+		}
+
+		@Override
+		protected Class<?> obtainLatest(Object versionIdentifier) {
+			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
+					? rootInstanceDynamicTypeNameAccessor.get()
+					: rootInstanceTypeName;
+			if (actualRootInstanceTypeName == null) {
+				return NullInstance.class;
+			}
+			if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
+				throw new UnexpectedError();
+			}
+			String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
+					+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
+			StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
+			{
+				rootInstanceWrapperClassSourceBuilder.append(
+						"package " + MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
+				rootInstanceWrapperClassSourceBuilder.append("public class "
+						+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
+						+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
+				rootInstanceWrapperClassSourceBuilder.append("	private "
+						+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
+				rootInstanceWrapperClassSourceBuilder
+						.append("	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
+								+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
+								+ rootInstanceName + ") {\n");
+				rootInstanceWrapperClassSourceBuilder.append("		this.rootInstance = " + rootInstanceName + ";\n");
+				rootInstanceWrapperClassSourceBuilder.append("	}\n");
+				rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
+				rootInstanceWrapperClassSourceBuilder.append("	public "
+						+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " getRootInstance() {\n");
+				rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
+				rootInstanceWrapperClassSourceBuilder.append("	}\n");
+				rootInstanceWrapperClassSourceBuilder.append("}\n");
+			}
+			try {
+				return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
+						rootInstanceWrapperClassSourceBuilder.toString());
+			} catch (CompilationError ce) {
+				throw new UnexpectedError(ce);
+			}
+		}
+	};
+
+	private class RootInstanceWrapperDynamicTypeNameAccessor extends Accessor<String> {
+		@Override
+		public String get() {
+			try {
+				return upToDateRootInstanceClass.get().getName();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
+		}
 	}
 
 }

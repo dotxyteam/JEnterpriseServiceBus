@@ -62,6 +62,7 @@ import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.HyperlinkTooltip;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
@@ -123,8 +124,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected ListControl getFocusedPlanElementsControl() {
-		return (ListControl) SwingRendererUtils.findDescendantFieldControlPlaceHolder(getPlanEditor(),
-				"focusedStepOrTransitionSurroundings", swingRenderer).getFieldControl();
+		return (ListControl) SwingRendererUtils
+				.findDescendantFieldControlPlaceHolder(getPlanEditor(), "focusedElementSurroundings", swingRenderer)
+				.getFieldControl();
 	}
 
 	protected Form getPlanEditor() {
@@ -247,7 +249,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			setSelection(plan.getSelectedElements().stream().map(element -> findDiagramObject(element))
 					.collect(Collectors.toSet()));
 		}
-		if(getSelection().size() == 1) {
+		if (getSelection().size() == 1) {
 			scrollTo(getSelection().iterator().next());
 		}
 	}
@@ -852,6 +854,38 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Pair<String, PlanElement> titleAndObjectPair = firstErrorEntry.getKey();
 			Exception validationError = firstErrorEntry.getValue();
 			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst(), validationError);
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent mouseEvent) {
+		super.mouseMoved(mouseEvent);
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+		Exception currentError = (pointedDiagramObject != null)
+				? validitionErrorMap.entrySet().stream()
+						.filter(entry -> entry.getKey().getSecond() == pointedDiagramObject.getValue())
+						.map(entry -> entry.getValue()).findFirst().orElse(null)
+				: null;
+		if (currentError != null) {
+			Pair<PlanElement, Exception> newTooltipId = new Pair<PlanElement, Exception>(
+					(PlanElement) pointedDiagramObject.getValue(), currentError);
+			@SuppressWarnings("unchecked")
+			Pair<PlanElement, Exception> oldTooltipId = (HyperlinkTooltip.get(this) != null)
+					? (Pair<PlanElement, Exception>) HyperlinkTooltip.get(this).getCustomValue()
+					: null;
+			if (!newTooltipId.equals(oldTooltipId)) {
+				HyperlinkTooltip.set(this, xy.reflect.ui.util.MiscUtils.getPrettyErrorMessage(currentError),
+						new Runnable() {
+							@Override
+							public void run() {
+								swingRenderer.openErrorDetailsDialog(PlanDiagram.this, currentError);
+							}
+						});
+				HyperlinkTooltip.get(this).setCustomComponentResponsiveBoundsMapper(
+						component -> pointedDiagramObject.getBounds((JDiagram) component));
+				HyperlinkTooltip.get(this).setCustomValue(newTooltipId);
+				HyperlinkTooltip.get(this).getMouseMotionListener().mouseMoved(mouseEvent);
+			}
 		}
 	}
 

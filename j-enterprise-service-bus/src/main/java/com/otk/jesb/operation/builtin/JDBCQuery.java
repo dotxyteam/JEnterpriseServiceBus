@@ -77,24 +77,14 @@ public class JDBCQuery extends JDBCOperation {
 	public static class Builder extends JDBCOperation.Builder {
 
 		private List<ColumnDefinition> resultColumnDefinitions;
-		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDate<Class<?>>() {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				return (resultColumnDefinitions == null) ? null : MiscUtils.serialize(resultColumnDefinitions);
-			}
 
-			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				return createCustomResultClass();
-			}
-		};
+		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDateCustomResultClass();
 
 		private Class<?> createCustomResultClass() {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQuery.class.getName() + "Result"
-					+ MiscUtils.toDigitalUniqueIdentifier(this);
+			String resultClassName = JDBCQuery.class.getName() + "Result" + MiscUtils.toDigitalUniqueIdentifier(this);
 			String resultRowClassName = "ResultRow";
 			StringBuilder javaSource = new StringBuilder();
 			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
@@ -212,6 +202,18 @@ public class JDBCQuery extends JDBCOperation {
 						}
 					}
 				}
+			}
+		}
+
+		private class UpToDateCustomResultClass extends UpToDate<Class<?>> {
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				return (resultColumnDefinitions == null) ? null : MiscUtils.serialize(resultColumnDefinitions);
+			}
+
+			@Override
+			protected Class<?> obtainLatest(Object versionIdentifier) {
+				return createCustomResultClass();
 			}
 		}
 

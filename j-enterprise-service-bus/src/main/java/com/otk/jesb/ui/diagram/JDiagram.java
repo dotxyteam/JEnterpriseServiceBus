@@ -216,18 +216,18 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e)) {
+	public void mouseDragged(MouseEvent mouseEvent) {
+		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			if (draggedNode != null) {
-				draggingPoint = new Point(e.getX(), e.getY());
+				draggingPoint = new Point(mouseEvent.getX(), mouseEvent.getY());
 				repaint();
 				if (dragIntent == DragIntent.CONNECT) {
-					for (JNode otherNode : MiscUtils.getReverse(nodes)) {
-						if (draggedNode != otherNode) {
-							if (otherNode.containsPoint(e.getX(), e.getY(), this)) {
+					JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+					if (pointedDiagramObject instanceof JNode) {
+						if (draggedNode != pointedDiagramObject) {
+							if (pointedDiagramObject.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
 								newConnectionStartNode = draggedNode;
-								newConnectionEndNode = otherNode;
-								break;
+								newConnectionEndNode = (JNode) pointedDiagramObject;
 							}
 						}
 					}
@@ -237,23 +237,23 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {
+	public void mouseMoved(MouseEvent mouseEvent) {
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+		setToolTipText((pointedDiagramObject != null) ? pointedDiagramObject.getTooltipText() : null);
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
+	public void mouseClicked(MouseEvent mouseEvent) {
 	}
 
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
-			for (JNode node : MiscUtils.getReverse(nodes)) {
-				if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-					draggedNode = node;
-					draggedNodeCenterOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
-							draggedNode.getCenterY() - mouseEvent.getY());
-					break;
-				}
+			JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+			if (pointedDiagramObject instanceof JNode) {
+				draggedNode = (JNode) pointedDiagramObject;
+				draggedNodeCenterOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),
+						draggedNode.getCenterY() - mouseEvent.getY());
 			}
 		}
 		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
@@ -289,20 +289,20 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 								mouseEvent.getX() + draggedNodeCenterOffset.x - draggedNode.getCenterX(),
 								mouseEvent.getY() + draggedNodeCenterOffset.y - draggedNode.getCenterY());
 						if ((draggedNodeMove.x != 0) || (draggedNodeMove.y != 0)) {
-							Set<JNode> modesToMove = new HashSet<JNode>();
-							modesToMove.add(draggedNode);
+							Set<JNode> nodesToMove = new HashSet<JNode>();
+							nodesToMove.add(draggedNode);
 							if (draggedNode.isSelected()) {
-								modesToMove.addAll(getSelection().stream()
+								nodesToMove.addAll(getSelection().stream()
 										.filter(diagramObject -> diagramObject instanceof JNode)
 										.map(diagramObject -> (JNode) diagramObject).collect(Collectors.toSet()));
 							}
-							for (JNode node : modesToMove) {
+							for (JNode node : nodesToMove) {
 								node.setCenterX(node.getCenterX() + draggedNodeMove.x);
 								node.setCenterY(node.getCenterY() + draggedNodeMove.y);
 							}
 							repaint();
 							for (JDiagramListener l : listeners) {
-								l.nodesMoved(modesToMove);
+								l.nodesMoved(nodesToMove);
 							}
 							return;
 						}
@@ -312,42 +312,35 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				draggedNode = null;
 				draggedNodeCenterOffset = null;
 			}
-			List<Object> diagramObjects = new ArrayList<Object>();
-			diagramObjects.addAll(MiscUtils.getReverse(connections));
-			diagramObjects.addAll(MiscUtils.getReverse(nodes));
-			JDiagramObject pointedDiagramObject = null;
-			for (Object object : diagramObjects) {
-				if (object instanceof JNode) {
-					JNode node = (JNode) object;
-					if (node.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-						pointedDiagramObject = node;
-					}
+		}
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+		if (pointedDiagramObject != null) {
+			if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+				Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+				if (newSelection.contains(pointedDiagramObject)) {
+					newSelection.remove(pointedDiagramObject);
+				} else {
+					newSelection.add(pointedDiagramObject);
 				}
-				if (object instanceof JConnection) {
-					JConnection connection = (JConnection) object;
-					if (connection.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {
-						pointedDiagramObject = connection;
-					}
-				}
-				if (pointedDiagramObject != null) {
-					if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
-						Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-						if (newSelection.contains(pointedDiagramObject)) {
-							newSelection.remove(pointedDiagramObject);
-						} else {
-							newSelection.add(pointedDiagramObject);
-						}
-						setSelection(newSelection);
-					} else {
-						setSelection(Collections.singleton(pointedDiagramObject));
-					}
-					break;
-				}
+				setSelection(newSelection);
+			} else {
+				setSelection(Collections.singleton(pointedDiagramObject));
 			}
-			if (pointedDiagramObject == null) {
-				setSelection(Collections.emptySet());
+		} else {
+			setSelection(Collections.emptySet());
+		}
+	}
+
+	public JDiagramObject getPointedDiagramObject(int x, int y) {
+		List<JDiagramObject> diagramObjects = new ArrayList<JDiagramObject>();
+		diagramObjects.addAll(MiscUtils.getReverse(connections));
+		diagramObjects.addAll(MiscUtils.getReverse(nodes));
+		for (JDiagramObject diagramObject : diagramObjects) {
+			if (diagramObject.containsPoint(x, y, this)) {
+				return diagramObject;
 			}
 		}
+		return null;
 	}
 
 	@Override

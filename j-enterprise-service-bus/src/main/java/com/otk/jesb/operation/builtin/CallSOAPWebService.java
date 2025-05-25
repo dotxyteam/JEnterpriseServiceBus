@@ -110,8 +110,8 @@ public class CallSOAPWebService implements Operation {
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-					CallSOAPWebService.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(CallSOAPWebService.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
@@ -119,36 +119,8 @@ public class CallSOAPWebService implements Operation {
 
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
-				OperationInput.class.getSimpleName(), new Accessor<String>() {
-					@Override
-					public String get() {
-						Class<?> operationInputClass;
-						try {
-							operationInputClass = upToDateOperationInputClass.get();
-						} catch (VersionAccessException e) {
-							throw new UnexpectedError(e);
-						}
-						if (operationInputClass == null) {
-							return null;
-						}
-						return operationInputClass.getName();
-					}
-				});
-		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDate<Class<?>>() {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-				if (operation == null) {
-					return null;
-				}
-				return operation.retrieveMethod();
-			}
-
-			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				return obtainOperationInputClass();
-			}
-		};
+				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());
+		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDateOperationInputClass();
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
@@ -374,6 +346,38 @@ public class CallSOAPWebService implements Operation {
 			}
 			if (retrieveOperationDescriptor() == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
+			}
+		}
+
+		private class OperationInputClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				Class<?> operationInputClass;
+				try {
+					operationInputClass = upToDateOperationInputClass.get();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
+				if (operationInputClass == null) {
+					return null;
+				}
+				return operationInputClass.getName();
+			}
+		}
+
+		private class UpToDateOperationInputClass extends UpToDate<Class<?>> {
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+				if (operation == null) {
+					return null;
+				}
+				return operation.retrieveMethod();
+			}
+
+			@Override
+			protected Class<?> obtainLatest(Object versionIdentifier) {
+				return obtainOperationInputClass();
 			}
 		}
 

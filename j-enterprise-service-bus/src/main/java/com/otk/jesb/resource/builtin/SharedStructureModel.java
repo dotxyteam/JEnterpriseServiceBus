@@ -8,6 +8,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -84,6 +85,10 @@ public class SharedStructureModel extends Resource {
 		}
 	}
 
+	public Accessor<String> getStructuredClassNameAccessor() {
+		return new StructuredClassNameAccessor();
+	}
+
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
@@ -116,6 +121,13 @@ public class SharedStructureModel extends Resource {
 			return "Shared Structure";
 		}
 
+	}
+
+	private class StructuredClassNameAccessor extends Accessor<String> {
+		@Override
+		public String get() {
+			return getStructuredClass().getName();
+		}
 	}
 
 }

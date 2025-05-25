@@ -174,19 +174,8 @@ public class WriteFile implements Operation {
 		};
 
 		private Mode mode = Mode.TEXT;
-		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				WriteFile.class.getSimpleName() + "Input", new Accessor<String>() {
-					@Override
-					public String get() {
-						if (mode == Mode.TEXT) {
-							return WriteTextFileOperation.class.getName();
-						} else if (mode == Mode.BINARY) {
-							return WriteBinaryFileOperation.class.getName();
-						} else {
-							throw new UnexpectedError();
-						}
-					}
-				});
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(WriteFile.class.getSimpleName() + "Input",
+				new SpecificOperationClassNameAccessor());
 
 		public Mode getMode() {
 			return mode;
@@ -232,6 +221,20 @@ public class WriteFile implements Operation {
 				}
 			}
 		}
+
+		private class SpecificOperationClassNameAccessor extends Accessor<String> {
+			@Override
+			public String get() {
+				if (mode == Mode.TEXT) {
+					return WriteTextFileOperation.class.getName();
+				} else if (mode == Mode.BINARY) {
+					return WriteBinaryFileOperation.class.getName();
+				} else {
+					throw new UnexpectedError();
+				}
+			}
+		}
+
 	}
 
 }

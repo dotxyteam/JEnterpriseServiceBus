@@ -276,13 +276,8 @@ public class InstantiationUtils {
 				} else {
 					Class<?> javaType = ((DefaultTypeInfo) type).getJavaType();
 					if (SharedStructureModel.isStructuredClass(javaType)) {
-						final SharedStructureModel model = SharedStructureModel.getFromStructuredClass(javaType);
-						return new InstanceBuilder(new Accessor<String>() {
-							@Override
-							public String get() {
-								return model.getStructuredClass().getName();
-							}
-						});
+						SharedStructureModel model = SharedStructureModel.getFromStructuredClass(javaType);
+						return new InstanceBuilder(model.getStructuredClassNameAccessor());
 					} else {
 						if (type instanceof IMapEntryTypeInfo) {
 							return new MapEntryBuilder();

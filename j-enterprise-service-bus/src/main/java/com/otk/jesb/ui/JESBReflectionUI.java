@@ -66,10 +66,14 @@ import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.ValueAsListFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.filter.InfoFilterProxy;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
@@ -78,7 +82,11 @@ import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.EmbeddedItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
 import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.DefaultListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
 import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
@@ -93,9 +101,9 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class JESBReflectionUI extends CustomizedUI {
 
 	public static final List<OperationMetadata> OPERATION_METADATAS = Arrays.asList(new DoNothing.Metadata(),
-			new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(),
-			new ReadFile.Metadata(), new WriteFile.Metadata(), new JDBCQuery.Metadata(),
-			new JDBCUpdate.Metadata(), new CallSOAPWebService.Metadata());
+			new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(), new ReadFile.Metadata(),
+			new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
+			new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new WSDL.Metadata());
@@ -510,7 +518,70 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected List<IFieldInfo> getFields(ITypeInfo type) {
-				if (type.getName().equals(Plan.class.getName())) {
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
+					for (IFieldInfo field : super.getFields(type)) {
+						if (field.getName().equals("cause")) {
+							field = new ValueAsListFieldInfo(JESBReflectionUI.this, field, type) {
+
+								@Override
+								public String getCaption() {
+									return "Cause(s)";
+								}
+
+								@Override
+								protected IListTypeInfo createListType() {
+									return new ListTypeInfo() {
+										@Override
+										public IListItemDetailsAccessMode getDetailsAccessMode() {
+											return new EmbeddedItemDetailsAccessMode();
+										}
+
+										@Override
+										public IListStructuralInfo getStructuralInfo() {
+											return new DefaultListStructuralInfo(reflectionUI) {
+
+												@Override
+												public IFieldInfo getItemSubListField(ItemPosition itemPosition) {
+													return ReflectionUIUtils.findInfoByName(reflectionUI
+															.getTypeInfo(reflectionUI
+																	.getTypeInfoSource(itemPosition.getItem()))
+															.getFields(), "cause");
+												}
+
+												@Override
+												public IInfoFilter getItemDetailsInfoFilter(ItemPosition itemPosition) {
+													return new InfoFilterProxy(
+															super.getItemDetailsInfoFilter(itemPosition)) {
+
+														@Override
+														public IFieldInfo apply(IFieldInfo field) {
+															if (field.getName().equals("cause")) {
+																field = null;
+															}
+															return field;
+														}
+
+													};
+												}
+
+											};
+										}
+									};
+								}
+
+							};
+						}
+						result.add(field);
+					}
+					return result;
+				} else if (type.getName().equals(Plan.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
@@ -848,8 +919,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (type.getName().equals(OperationBuilder.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
 					for (OperationMetadata operationMetadata : OPERATION_METADATAS) {
-						result.add(
-								getTypeInfo(new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
+						result.add(getTypeInfo(
+								new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 					}
 					return result;
 				} else if (type.getName().equals(Resource.class.getName())) {
@@ -932,18 +1003,20 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
-				if (!field.getName().equals("message") && !field.getName().equals("cause")) {
-					try {
-						Class<?> objectClass = ClassUtils.getCachedClassForName(objectType.getName());
-						if (Throwable.class.isAssignableFrom(objectClass)) {
-							for (IFieldInfo throwableField : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
-									.getFields()) {
-								if (field.getName().equals(throwableField.getName())) {
-									return true;
-								}
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+					if (!field.getName().equals("message") && !field.getName().equals("cause")) {
+						for (IFieldInfo throwableField : ReflectionUI.getDefault()
+								.getTypeInfo(new JavaTypeInfoSource(Throwable.class, null)).getFields()) {
+							if (field.getName().equals(throwableField.getName())) {
+								return true;
 							}
 						}
-					} catch (ClassNotFoundException e) {
 					}
 				}
 				return super.isHidden(field, objectType);

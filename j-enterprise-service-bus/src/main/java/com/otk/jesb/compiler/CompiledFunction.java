@@ -34,7 +34,9 @@ public class CompiledFunction {
 			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
 					+ declaration.getVariableName());
 		}
-		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");
+		if (declrartionStrings.size() > 0) {
+			preBody += "\n    " + MiscUtils.stringJoin(declrartionStrings, ",\n    ") + "\n";
+		}
 		preBody += ") throws " + Throwable.class.getName() + "{" + "\n";
 		String postBody = "\n";
 		postBody += "}" + "\n";
@@ -112,8 +114,8 @@ public class CompiledFunction {
 				result = "/* The instruction that crashed */\n"
 						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
-				result = "/* The source code of the function that crashed (" + functionClass.getSimpleName() + ".java) */\n"
-						+ functionClassSource;
+				result = "/* The source code of the function that crashed (" + functionClass.getSimpleName()
+						+ ".java) */\n" + functionClassSource;
 			}
 			return result;
 		}
