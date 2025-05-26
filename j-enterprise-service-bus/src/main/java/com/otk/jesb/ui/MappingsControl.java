@@ -961,8 +961,9 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						pathNode, listItemInitializerFacade, initializerTreeControl);
 				if (choice == 0) {
 					ListItemReplication itemReplication = new ListItemReplication();
-					itemReplication.setIterationListValue(
-							new InstantiationFunction("return " + pathNode.getParent().getTypicalExpression() + ";"));
+					InstantiationFunction function = new InstantiationFunction(
+							"return " + pathNode.getParent().getTypicalExpression() + ";");
+					itemReplication.setIterationListValue(function);
 					itemReplication.setIterationListValueTypeName(pathNode.getParent().getExpressionType().getName());
 					itemReplication.setIterationVariableTypeName(pathNode.getExpressionType().getName());
 					listItemInitializerFacade.setConcrete(true);
@@ -979,8 +980,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(
 							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())
 									.getVariableDeclarations());
-					variableDeclarations
-							.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations(variableDeclarations));
+					variableDeclarations.addAll(listItemInitializerFacade
+							.getAdditionalVariableDeclarations(function, variableDeclarations));
 					while (true) {
 						boolean nameConflictDetected = variableDeclarations.stream()
 								.anyMatch(variableDeclaration -> variableDeclaration.getVariableName()

@@ -33,6 +33,7 @@ public class InstantiationFunction extends Function {
 
 	public InstantiationFunction(String functionBody) {
 		super(functionBody);
+		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
 	@Override

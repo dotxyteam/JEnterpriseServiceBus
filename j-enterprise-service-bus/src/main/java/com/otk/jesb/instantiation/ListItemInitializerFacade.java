@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -36,11 +34,14 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
-		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(
-				parent.getAdditionalVariableDeclarations(baseVariableDeclarations));
-		if (getItemReplicationFacade() != null) {
+		List<VariableDeclaration> baseResult = parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
+		List<VariableDeclaration> result;
+		if (getItemReplicationFacade() == null) {
+			result = baseResult;
+		} else {
+			result = new ArrayList<VariableDeclaration>(baseResult);
 			result.add(new VariableDeclaration() {
 
 				@Override
@@ -51,7 +52,7 @@ public class ListItemInitializerFacade extends Facade {
 				@Override
 				public Class<?> getVariableType() {
 					ITypeInfo iterationVariableType = getItemReplicationFacade()
-							.getIterationVariableType(ListItemInitializerFacade.this, baseVariableDeclarations);
+							.getIterationVariableTypeInfo(baseVariableDeclarations);
 					if (iterationVariableType != null) {
 						return ((DefaultTypeInfo) iterationVariableType).getJavaType();
 					}
@@ -59,7 +60,21 @@ public class ListItemInitializerFacade extends Facade {
 				}
 			});
 		}
-		return result;
+		if (function == null) {
+			return result;
+		}
+		if (getCondition() == function) {
+			return baseResult;
+		}
+		if (getItemReplicationFacade() != null) {
+			if (getItemReplicationFacade().getIterationListValue() == function) {
+				return baseResult;
+			}
+		}
+		if (getItemValue() == function) {
+			return result;
+		}
+		throw new UnexpectedError();
 	}
 
 	@Override
@@ -70,12 +85,7 @@ public class ListItemInitializerFacade extends Facade {
 		}
 		if (getItemReplicationFacade() != null) {
 			if (getItemReplicationFacade().getIterationListValue() == function) {
-				IListTypeInfo iterationListValueType = getItemReplicationFacade()
-						.getIterationListValueType(ListItemInitializerFacade.this, baseVariableDeclarations);
-				if (iterationListValueType != null) {
-					return ((DefaultTypeInfo) iterationListValueType).getJavaType();
-				}
-				return Object.class;
+				return getItemReplicationFacade().getIterationListBaseType();
 			}
 		}
 		if (getItemValue() == function) {
@@ -90,16 +100,13 @@ public class ListItemInitializerFacade extends Facade {
 			return;
 		}
 		if (getCondition() != null) {
-			try {
-				CompiledFunction.get(getCondition().getFunctionBody(), variableDeclarations,
-						getFunctionReturnType(getCondition(), variableDeclarations));
-			} catch (CompilationError e) {
-				throw new ValidationError("Failed to validate the condition", e);
-			}
+			InstantiationUtils.validateValue(getCondition(),
+					TypeInfoProvider.getTypeInfo(boolean.class), this,
+					"condition", recursively, variableDeclarations);
 		}
 		if (recursively) {
 			if (getItemReplicationFacade() != null) {
-				getItemReplicationFacade().validate(recursively, variableDeclarations, this);
+				getItemReplicationFacade().validate(recursively, variableDeclarations);
 			}
 		}
 		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
@@ -144,7 +151,7 @@ public class ListItemInitializerFacade extends Facade {
 			return null;
 		}
 		return (listItemInitializer.getItemReplication() == null) ? null
-				: new ListItemReplicationFacade(listItemInitializer.getItemReplication());
+				: new ListItemReplicationFacade(this, listItemInitializer.getItemReplication());
 	}
 
 	public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {

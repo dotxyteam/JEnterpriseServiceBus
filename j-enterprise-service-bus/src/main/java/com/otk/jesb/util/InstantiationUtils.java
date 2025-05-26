@@ -52,10 +52,11 @@ public class InstantiationUtils {
 		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), instantiationContext.getParentFacade())) {
 			throw new UnexpectedError();
 		}
+		List<VariableDeclaration> expectedVariableDeclarations = compilationContext.getVariableDeclarations(function);
 		Set<String> actualVariableNames = instantiationContext.getVariables().stream()
 				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
 				.collect(Collectors.toSet());
-		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
+		Set<String> expectedVariableNames = expectedVariableDeclarations.stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
 		if (!actualVariableNames.equals(expectedVariableNames)) {
 			throw new UnexpectedError();
@@ -63,7 +64,7 @@ public class InstantiationUtils {
 		CompiledFunction compiledFunction;
 		try {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
-					compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType(function));
+					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function));
 		} catch (CompilationError e) {
 			throw new UnexpectedError(e);
 		}
@@ -146,7 +147,7 @@ public class InstantiationUtils {
 			}
 			try {
 				function.getCompiledVersion(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations(), functionReturnType);
+						compilationContext.getVariableDeclarations(function), functionReturnType);
 			} catch (CompilationError e) {
 				throw new ValidationError("Failed to compile the " + valueName + " function", e);
 			}

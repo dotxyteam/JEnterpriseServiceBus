@@ -22,7 +22,7 @@ public abstract class Facade {
 
 	public abstract Object getUnderlying();
 
-	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations(
+	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations);
 
 	public abstract Class<?> getFunctionReturnType(InstantiationFunction function,

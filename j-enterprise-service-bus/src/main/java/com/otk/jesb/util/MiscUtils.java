@@ -661,7 +661,7 @@ public class MiscUtils {
 		} else if (resolvedType.isReferenceType()) {
 			ResolvedReferenceType referenceType = resolvedType.asReferenceType();
 			String qualifiedName = referenceType.getQualifiedName();
-			Class<?> javaType = TypeInfoProvider.getClass(qualifiedName);
+			Class<?> javaType = TypeInfoProvider.getClassFromCanonicalName(qualifiedName);
 			List<ResolvedType> typeParameters = referenceType.typeParametersValues();
 			if (typeParameters.size() > 0) {
 				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
@@ -679,9 +679,10 @@ public class MiscUtils {
 					resolvedType.asArrayType().getComponentType())).getJavaType();
 			return TypeInfoProvider.getTypeInfo(Array.newInstance(componentClass, 0).getClass());
 		} else if (resolvedType.isTypeVariable()) {
-			return TypeInfoProvider.getTypeInfo(resolvedType.asTypeVariable().qualifiedName());
+			return TypeInfoProvider.getTypeInfo(
+					TypeInfoProvider.getClassFromCanonicalName(resolvedType.asTypeVariable().qualifiedName()));
 		} else {
-			throw new UnexpectedError("Unsupported ResolvedType: " + resolvedType.describe());
+			return null;
 		}
 	}
 

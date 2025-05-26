@@ -140,25 +140,30 @@ public class InstanceBuilder extends InitializationCase {
 					if (iterationListValue == null) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
-					IListTypeInfo iterationListValueType = itemReplicationFacade
-							.getIterationListValueType(listItemInitializerFacade, context.getVariableDeclarations());
-					if (!iterationListValueType.supports(iterationListValue)) {
-						throw new UnexpectedError("The iteration list value is not an instance of '"
-								+ iterationListValueType.getName() + "' as expected: " + iterationListValue);
+					IListTypeInfo expectedIterationListType = itemReplicationFacade
+							.getIterationListValueTypeInfo(context.getVariableDeclarations());
+					if (expectedIterationListType != null) {
+						if (!expectedIterationListType.supports(iterationListValue)) {
+							throw new UnexpectedError("The iteration list value is not an instance of '"
+									+ expectedIterationListType.getName() + "' as expected: " + iterationListValue);
+						}
 					}
-					ITypeInfo iterationListTypeInfo = TypeInfoProvider
+					ITypeInfo actualIterationListType = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
-					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
+					if (!(actualIterationListType instanceof IListTypeInfo)) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is not iterable: '"
 								+ iterationListValue + "'");
 					}
-					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
+					Object[] iterationListArray = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);
 					for (Object iterationVariableValue : iterationListArray) {
-						ITypeInfo iterationVariableType = itemReplicationFacade
-								.getIterationVariableType(listItemInitializerFacade, context.getVariableDeclarations());
-						if (!iterationVariableType.supports(iterationVariableValue)) {
-							throw new UnexpectedError("The iteration variable value is not an instance of '"
-									+ iterationVariableType.getName() + "' as expected: " + iterationVariableValue);
+						ITypeInfo expectedIterationVariableType = itemReplicationFacade
+								.getIterationVariableTypeInfo(context.getVariableDeclarations());
+						if (expectedIterationVariableType != null) {
+							if (!expectedIterationVariableType.supports(iterationVariableValue)) {
+								throw new UnexpectedError("The iteration variable value is not an instance of '"
+										+ expectedIterationVariableType.getName() + "' as expected: "
+										+ iterationVariableValue);
+							}
 						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
