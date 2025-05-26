@@ -16,18 +16,26 @@ import xy.reflect.ui.util.ClassUtils;
 
 public class ListItemReplicationFacade {
 
+	private ListItemInitializerFacade listItemInitializerFacade;
 	private ListItemReplication listItemReplication;
 
-	public ListItemReplicationFacade() {
+	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade) {
+		this.listItemInitializerFacade = listItemInitializerFacade;
 		this.listItemReplication = new ListItemReplication();
 	}
 
-	public ListItemReplicationFacade(ListItemReplication listItemReplication) {
+	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade,
+			ListItemReplication listItemReplication) {
+		this.listItemInitializerFacade = listItemInitializerFacade;
 		this.listItemReplication = listItemReplication;
 	}
 
 	public ListItemReplication getUnderlying() {
 		return listItemReplication;
+	}
+
+	public ListItemInitializerFacade getListItemInitializerFacade() {
+		return listItemInitializerFacade;
 	}
 
 	public String getIterationVariableName() {
@@ -88,8 +96,7 @@ public class ListItemReplicationFacade {
 		setIterationListValue(iterationListValue);
 	}
 
-	public IListTypeInfo getIterationListValueType(Facade parentFacade,
-			List<VariableDeclaration> variableDeclarations) {
+	public IListTypeInfo calculateIterationListValueTypeInfo(List<VariableDeclaration> variableDeclarations) {
 		Object iterationListValue = getIterationListValue();
 		if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
 			if (iterationListValue != null) {
@@ -123,62 +130,80 @@ public class ListItemReplicationFacade {
 		if (iterationListValue instanceof InstantiationFunction) {
 			InstantiationFunction function = (InstantiationFunction) iterationListValue;
 			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
-					variableDeclarations, parentFacade);
+					variableDeclarations, listItemInitializerFacade);
 			try {
-				return (IListTypeInfo) function.guessReturnType(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations());
+				return (IListTypeInfo) function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
+						compilationContext.getVariableDeclarations(function));
 			} catch (CompilationError e) {
 			}
 		}
 		return null;
 	}
 
-	public ITypeInfo getIterationVariableType(Facade parentFacade, List<VariableDeclaration> variableDeclarations) {
+	public ITypeInfo calculateIterationVariableTypeInfo(List<VariableDeclaration> variableDeclarations) {
 		if (getIterationVariableTypeName() != null) {
 			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName());
 		}
-		IListTypeInfo listType = getIterationListValueType(parentFacade, variableDeclarations);
+		IListTypeInfo listType = calculateIterationListValueTypeInfo(variableDeclarations);
 		if (listType != null) {
 			return listType.getItemType();
 		}
 		return null;
 	}
 
-	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations, Facade parentFacade)
-			throws ValidationError {
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
 		Object iterationListValue = getIterationListValue();
 		if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
 			if (iterationListValue != null) {
-				if (!(TypeInfoProvider.getTypeInfo(iterationListValue.getClass().getName()) instanceof IListTypeInfo)) {
+				ITypeInfo actualIterationListType = TypeInfoProvider.getTypeInfo(iterationListValue.getClass().getName());
+				if (!(actualIterationListType instanceof IListTypeInfo)) {
 					throw new IllegalStateException(
 							"Unexpected iteration list value type '" + iterationListValue.getClass().getName()
 									+ "': Expected array or standard collection type");
 				}
 			}
 		}
+		if (iterationListValue instanceof InstantiationFunction) {
+			InstantiationFunction function = (InstantiationFunction) iterationListValue;
+			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
+					variableDeclarations, listItemInitializerFacade);
+			try {
+				ITypeInfo guessedIterationListType = function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
+						compilationContext.getVariableDeclarations(function));
+				if(guessedIterationListType != null) {
+					if(!(guessedIterationListType instanceof IListTypeInfo)) {
+						throw new IllegalStateException(
+								"Unexpected iteration list function return type '" + guessedIterationListType.getName()
+										+ "': Expected array or standard collection type");
+					}
+				}
+			} catch (CompilationError e) {
+			}
+		}
 		String iterationListValueTypeName = getIterationListValueTypeName();
 		if (iterationListValueTypeName != null) {
-			ITypeInfo declaredIterationListTypeInfo = TypeInfoProvider.getTypeInfo(iterationListValueTypeName);
-			if (!(declaredIterationListTypeInfo instanceof IListTypeInfo)) {
-				throw new IllegalStateException("Unexpected iteration list value type '"
-						+ declaredIterationListTypeInfo.getName() + "': Expected array or standard collection type");
+			ITypeInfo declaredIterationListType = TypeInfoProvider.getTypeInfo(iterationListValueTypeName);
+			if (!(declaredIterationListType instanceof IListTypeInfo)) {
+				throw new IllegalStateException("Unexpected iteration list declared type '"
+						+ declaredIterationListType.getName() + "': Expected array or standard collection type");
 			}
 			if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
 				if (iterationListValue != null) {
-					if (!declaredIterationListTypeInfo.supports(iterationListValue)) {
+					if (!declaredIterationListType.supports(iterationListValue)) {
 						throw new IllegalStateException(
 								"Iteration list value not compatible with declared type: '" + iterationListValue
-										+ "' is not an instance of '" + declaredIterationListTypeInfo.getName() + "'");
+										+ "' is not an instance of '" + declaredIterationListType.getName() + "'");
 
 					}
 				}
 			}
 		}
-		if (getIterationVariableTypeName() != null) {
-			Class<?> declaredItemClass = TypeInfoProvider.getClass(getIterationVariableTypeName());
+		String iterationVariableTypeName = getIterationVariableTypeName();
+		if (iterationVariableTypeName != null) {
+			Class<?> declaredItemClass = TypeInfoProvider.getClass(iterationVariableTypeName);
 			Class<?> inferredItemClass = null;
 			{
-				IListTypeInfo iterationListValueType = getIterationListValueType(parentFacade, variableDeclarations);
+				IListTypeInfo iterationListValueType = calculateIterationListValueTypeInfo(variableDeclarations);
 				if (iterationListValueType != null) {
 					ITypeInfo itemType = iterationListValueType.getItemType();
 					if (itemType != null) {
@@ -194,7 +219,6 @@ public class ListItemReplicationFacade {
 					throw new IllegalStateException("Declared iteration variable type: '" + declaredItemClass.getName()
 							+ "' does not inherit from item type of iteration list value type '"
 							+ inferredItemClass.getName() + "'");
-
 				}
 			}
 			if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
@@ -213,8 +237,12 @@ public class ListItemReplicationFacade {
 				}
 			}
 		}
-		InstantiationUtils.validateValue(iterationListValue, getIterationListValueType(parentFacade, variableDeclarations), parentFacade,
-				"iteration list value", recursively, variableDeclarations);
+		InstantiationUtils.validateValue(iterationListValue, TypeInfoProvider.getTypeInfo(getIterationListBaseType()),
+				listItemInitializerFacade, "iteration list value", recursively, variableDeclarations);
+	}
+
+	public Class<?> getIterationListBaseType() {
+		return Object.class;
 	}
 
 }

@@ -33,6 +33,7 @@ public class InstantiationFunction extends Function {
 
 	public InstantiationFunction(String functionBody) {
 		super(functionBody);
+		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class InstantiationFunction extends Function {
 		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
-	public ITypeInfo guessReturnType(java.util.function.Function<String, String> precompiler,
+	public ITypeInfo guessReturnTypeInfo(java.util.function.Function<String, String> precompiler,
 			List<VariableDeclaration> variableDeclarations) throws CompilationError {
 		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);

@@ -18,9 +18,9 @@ public class InstantiationFunctionCompilationContext {
 		this.baseVariableDeclarations = baseVariableDeclarations;
 	}
 
-	public List<VariableDeclaration> getVariableDeclarations() {
+	public List<VariableDeclaration> getVariableDeclarations(InstantiationFunction function) {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>(baseVariableDeclarations);
-		result.addAll(parentFacade.getAdditionalVariableDeclarations(baseVariableDeclarations));
+		result.addAll(parentFacade.getAdditionalVariableDeclarations(function, baseVariableDeclarations));
 		return result;
 	}
 

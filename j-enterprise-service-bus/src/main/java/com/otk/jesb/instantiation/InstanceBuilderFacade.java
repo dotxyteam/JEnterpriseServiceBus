@@ -99,10 +99,13 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
+		if (function != null) {
+			throw new UnexpectedError();
+		}
 		if (parent != null) {
-			return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
+			return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
 		}
 		return Collections.emptyList();
 	}

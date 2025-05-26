@@ -35,12 +35,25 @@ public class TypeInfoProvider {
 		}
 	}
 
+	public static Class<?> getClassFromCanonicalName(String canonicalName) {
+		try {
+			return getClass(canonicalName);
+		} catch (UnexpectedError e) {
+			int lastDotIndex = canonicalName.lastIndexOf('.');
+			if (lastDotIndex == -1) {
+				throw new UnexpectedError(new ClassNotFoundException());
+			}
+			return getClassFromCanonicalName(
+					canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
+		}
+	}
+
 	public static ITypeInfo getTypeInfo(String typeName) {
 		return getTypeInfo(typeName, null);
 	}
 
 	public static ITypeInfo getTypeInfo(Class<?> objectClass) {
-		return getTypeInfo(objectClass, (IInfo)null);
+		return getTypeInfo(objectClass, (IInfo) null);
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {

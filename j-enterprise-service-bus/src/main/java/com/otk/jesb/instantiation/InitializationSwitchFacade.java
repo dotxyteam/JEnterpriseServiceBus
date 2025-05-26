@@ -23,9 +23,12 @@ public class InitializationSwitchFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
-		return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
+		if (function != null) {
+			throw new UnexpectedError();
+		}
+		return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
 	}
 
 	@Override

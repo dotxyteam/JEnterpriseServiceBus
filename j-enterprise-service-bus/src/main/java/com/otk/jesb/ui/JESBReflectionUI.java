@@ -33,6 +33,7 @@ import com.otk.jesb.instantiation.InitializationSwitchFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializer;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
@@ -195,6 +196,34 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 				}
 				return super.getNextInvocationUndoJob(method, objectType, object, invocationData);
+			}
+
+			@Override
+			protected List<IMethodInfo> getAlternativeConstructors(IFieldInfo field, Object object,
+					ITypeInfo objectType) {
+				if (object instanceof ListItemInitializerFacade) {
+					if (field.getName().equals("itemReplicationFacade")) {
+						return Collections.singletonList(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+							@Override
+							public String getSignature() {
+								return ReflectionUIUtils.buildMethodSignature(this);
+							}
+
+							@Override
+							public String getName() {
+								return "";
+							}
+
+							@Override
+							public Object invoke(Object object, InvocationData invocationData) {
+								return new ListItemReplicationFacade((ListItemInitializerFacade) object);
+							}
+
+						});
+					}
+				}
+				return super.getAlternativeConstructors(field, object, objectType);
 			}
 
 			@Override
@@ -805,7 +834,7 @@ public class JESBReflectionUI extends CustomizedUI {
 								InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
 										baseVariableDeclarations, parentFacade);
 								return new FunctionEditor(function, compilationContext.getPrecompiler(),
-										compilationContext.getVariableDeclarations(),
+										compilationContext.getVariableDeclarations(function),
 										compilationContext.getFunctionReturnType(function));
 							} else if (object instanceof Transition.IfCondition) {
 								return new FunctionEditor((Transition.IfCondition) object, null,
@@ -1156,6 +1185,18 @@ public class JESBReflectionUI extends CustomizedUI {
 					step = (rootInstanceBuilderFacade.getUnderlying() == plan.getOutputBuilder()) ? null : step;
 					try {
 						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
+					Step step = getCurrentValidationStep(session);
+					Plan plan = getCurrentValidationPlan(session);
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+					step = (rootInstanceBuilderFacade.getUnderlying() == plan.getOutputBuilder()) ? null : step;
+					try {
+						((ListItemReplicationFacade) object).validate(false,
+								plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ReflectionUIError(e);
 					}

@@ -24,9 +24,17 @@ public class ParameterInitializerFacade extends Facade {
 	}
 
 	@Override
-	public List<VariableDeclaration> getAdditionalVariableDeclarations(
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
-		return parent.getAdditionalVariableDeclarations(baseVariableDeclarations);
+		List<VariableDeclaration> baseResult = parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
+		List<VariableDeclaration> result = baseResult;
+		if (function == null) {
+			return result;
+		}
+		if (getParameterValue() == function) {
+			return result;
+		}
+		throw new UnexpectedError();
 	}
 
 	@Override
