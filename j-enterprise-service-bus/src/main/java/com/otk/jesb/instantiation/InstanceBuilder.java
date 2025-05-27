@@ -140,14 +140,6 @@ public class InstanceBuilder extends InitializationCase {
 					if (iterationListValue == null) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
-					IListTypeInfo expectedIterationListType = itemReplicationFacade
-							.calculateIterationListValueTypeInfo(context.getVariableDeclarations());
-					if (expectedIterationListType != null) {
-						if (!expectedIterationListType.supports(iterationListValue)) {
-							throw new UnexpectedError("The iteration list value is not an instance of '"
-									+ expectedIterationListType.getName() + "' as expected: " + iterationListValue);
-						}
-					}
 					ITypeInfo actualIterationListType = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
 					if (!(actualIterationListType instanceof IListTypeInfo)) {
@@ -156,22 +148,14 @@ public class InstanceBuilder extends InitializationCase {
 					}
 					Object[] iterationListArray = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);
 					for (Object iterationVariableValue : iterationListArray) {
-						ITypeInfo expectedIterationVariableType = itemReplicationFacade
-								.calculateIterationVariableTypeInfo(context.getVariableDeclarations());
-						if (expectedIterationVariableType != null) {
-							if (!expectedIterationVariableType.supports(iterationVariableValue)) {
-								throw new UnexpectedError("The iteration variable value is not an instance of '"
-										+ expectedIterationVariableType.getName() + "' as expected: "
-										+ iterationVariableValue);
-							}
-						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
 						Object itemValue = InstantiationUtils.interpretValue(
 								listItemInitializerFacade.getUnderlying().getItemValue(),
 								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-								new InstantiationContext(context, iterationVariable));
+								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),
+										iterationVariable));
 						itemList.add(itemValue);
 					}
 				} else {

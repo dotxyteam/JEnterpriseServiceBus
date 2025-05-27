@@ -686,4 +686,20 @@ public class MiscUtils {
 		}
 	}
 
+	public static boolean areIncompatible(Class<?> class1, Class<?> class2) {
+		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2)
+				: class2).isAssignableFrom(
+						(class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1)
+								: class1))) {
+			return false;
+		}
+		if ((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1)
+				: class1).isAssignableFrom(
+						(class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2)
+								: class2))) {
+			return false;
+		}
+		return true;
+	}
+
 }

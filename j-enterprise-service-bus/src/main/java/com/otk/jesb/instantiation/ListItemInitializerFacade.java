@@ -51,10 +51,16 @@ public class ListItemInitializerFacade extends Facade {
 
 				@Override
 				public Class<?> getVariableType() {
-					ITypeInfo iterationVariableType = getItemReplicationFacade()
-							.calculateIterationVariableTypeInfo(baseVariableDeclarations);
-					if (iterationVariableType != null) {
-						return ((DefaultTypeInfo) iterationVariableType).getJavaType();
+					ListItemReplicationFacade itemReplicationFacade = getItemReplicationFacade();
+					ITypeInfo guessedIterationVariableType = itemReplicationFacade
+							.guessIterationVariableTypeInfo(baseVariableDeclarations);
+					if (guessedIterationVariableType != null) {
+						return ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();
+					}
+					ITypeInfo declaredIterationVariableType = itemReplicationFacade
+							.getDeclaredIterationVariableTypeInfo();
+					if (declaredIterationVariableType != null) {
+						return ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
 					}
 					return Object.class;
 				}
@@ -85,7 +91,7 @@ public class ListItemInitializerFacade extends Facade {
 		}
 		if (getItemReplicationFacade() != null) {
 			if (getItemReplicationFacade().getIterationListValue() == function) {
-				return getItemReplicationFacade().getIterationListBaseType();
+				return Object.class;
 			}
 		}
 		if (getItemValue() == function) {
@@ -100,8 +106,7 @@ public class ListItemInitializerFacade extends Facade {
 			return;
 		}
 		if (getCondition() != null) {
-			InstantiationUtils.validateValue(getCondition(),
-					TypeInfoProvider.getTypeInfo(boolean.class), this,
+			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), this,
 					"condition", recursively, variableDeclarations);
 		}
 		if (recursively) {
@@ -121,9 +126,7 @@ public class ListItemInitializerFacade extends Facade {
 		}
 		String result = InstantiationUtils.express(value);
 		if (getItemReplicationFacade() != null) {
-			result = "FOR " + getItemReplicationFacade().getIterationVariableName() + " IN "
-					+ InstantiationUtils.express(getItemReplicationFacade().getIterationListValue())
-					+ ((result != null) ? (" LOOP " + result) : "");
+			result = getItemReplicationFacade().preprendExpression(result);
 		}
 		if (getCondition() != null) {
 			result = "IF " + InstantiationUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");

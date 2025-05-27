@@ -25,6 +25,7 @@
 - allow to map list.size()/array.length/stream/...
 - use the same structure (list or array) for structure multiple elements 
 and loop results
+- create and use ITypeInfoProvider.getClass(ITypeInfo)
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code

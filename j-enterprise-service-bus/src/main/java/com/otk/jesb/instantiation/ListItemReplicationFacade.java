@@ -8,11 +8,11 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
-import xy.reflect.ui.util.ClassUtils;
 
 public class ListItemReplicationFacade {
 
@@ -55,14 +55,6 @@ public class ListItemReplicationFacade {
 		listItemReplication.setIterationListValue(iterationListValue);
 	}
 
-	public String getIterationListValueTypeName() {
-		return listItemReplication.getIterationListValueTypeName();
-	}
-
-	public void setIterationListValueTypeName(String iterationListValueTypeName) {
-		listItemReplication.setIterationListValueTypeName(iterationListValueTypeName);
-	}
-
 	public String getIterationVariableTypeName() {
 		return listItemReplication.getIterationVariableTypeName();
 	}
@@ -78,17 +70,7 @@ public class ListItemReplicationFacade {
 	public void setIterationListValueMode(ValueMode valueMode) {
 		Object iterationListValue;
 		if (valueMode == ValueMode.FUNCTION) {
-			String functionBody;
-			if (getIterationListValueTypeName() != null) {
-				Class<?> listClass = TypeInfoProvider.getClass(getIterationListValueTypeName());
-				if (listClass.isArray()) {
-					functionBody = "return new " + listClass.getComponentType().getName() + "[]{};";
-				} else {
-					functionBody = "return new " + listClass.getName() + "();";
-				}
-			} else {
-				functionBody = "return new " + ArrayList.class.getName() + "<Object>();";
-			}
+			String functionBody = "return new " + ArrayList.class.getName() + "<Object>();";
 			iterationListValue = new InstantiationFunction(functionBody);
 		} else {
 			iterationListValue = new ArrayList<Object>();
@@ -96,13 +78,40 @@ public class ListItemReplicationFacade {
 		setIterationListValue(iterationListValue);
 	}
 
-	public IListTypeInfo calculateIterationListValueTypeInfo(List<VariableDeclaration> variableDeclarations) {
+	public ITypeInfo getDeclaredIterationVariableTypeInfo() {
+		String iterationVariableTypeName = getIterationVariableTypeName();
+		if (iterationVariableTypeName != null) {
+			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName());
+		}
+		return null;
+	}
+
+	public ITypeInfo guessIterationVariableTypeInfo(List<VariableDeclaration> variableDeclarations) {
 		Object iterationListValue = getIterationListValue();
-		if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
+		if (iterationListValue instanceof InstantiationFunction) {
+			InstantiationFunction function = (InstantiationFunction) iterationListValue;
+			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
+					variableDeclarations, listItemInitializerFacade);
+			try {
+				ITypeInfo type = function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
+						compilationContext.getVariableDeclarations(function));
+				if (!(type instanceof IListTypeInfo)) {
+					throw new IllegalStateException("Invalid iteration list function return type '" + type.getName()
+							+ "': Expected array or standard collection type");
+				}
+				return ((IListTypeInfo) type).getItemType();
+			} catch (CompilationError e) {
+				return null;
+			}
+		} else {
 			if (iterationListValue != null) {
-				Class<? extends Object> iterableClass = iterationListValue.getClass();
-				Object[] iterationListItems = ((IListTypeInfo) TypeInfoProvider.getTypeInfo(iterableClass))
-						.toArray(iterationListValue);
+				ITypeInfo actualIterationListType = TypeInfoProvider.getTypeInfo(iterationListValue.getClass());
+				if (!(actualIterationListType instanceof IListTypeInfo)) {
+					throw new IllegalStateException(
+							"Invalid iteration list value type '" + iterationListValue.getClass().getName()
+									+ "': Expected array or standard collection type");
+				}
+				Object[] iterationListItems = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);
 				Class<?> baseItemClass = null;
 				for (Object item : iterationListItems) {
 					if (item == null) {
@@ -119,130 +128,44 @@ public class ListItemReplicationFacade {
 					}
 				}
 				if (baseItemClass == null) {
-					baseItemClass = Object.class;
+					return null;
+				} else {
+					return TypeInfoProvider.getTypeInfo(baseItemClass, new Class<?>[] { baseItemClass });
 				}
-				return (IListTypeInfo) TypeInfoProvider.getTypeInfo(iterableClass, new Class<?>[] { baseItemClass });
+			} else {
+				return null;
 			}
 		}
-		if (getIterationListValueTypeName() != null) {
-			return (IListTypeInfo) TypeInfoProvider.getTypeInfo(getIterationListValueTypeName());
-		}
-		if (iterationListValue instanceof InstantiationFunction) {
-			InstantiationFunction function = (InstantiationFunction) iterationListValue;
-			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
-					variableDeclarations, listItemInitializerFacade);
-			try {
-				return (IListTypeInfo) function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations(function));
-			} catch (CompilationError e) {
-			}
-		}
-		return null;
 	}
 
-	public ITypeInfo calculateIterationVariableTypeInfo(List<VariableDeclaration> variableDeclarations) {
-		if (getIterationVariableTypeName() != null) {
-			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName());
-		}
-		IListTypeInfo listType = calculateIterationListValueTypeInfo(variableDeclarations);
-		if (listType != null) {
-			return listType.getItemType();
-		}
-		return null;
+	public String preprendExpression(String baseExpression) {
+		return "FOR " + getIterationVariableName() + " IN " + InstantiationUtils.express(getIterationListValue())
+				+ ((baseExpression != null) ? (" LOOP " + baseExpression) : "");
 	}
 
 	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
-		Object iterationListValue = getIterationListValue();
-		if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
-			if (iterationListValue != null) {
-				ITypeInfo actualIterationListType = TypeInfoProvider.getTypeInfo(iterationListValue.getClass().getName());
-				if (!(actualIterationListType instanceof IListTypeInfo)) {
-					throw new IllegalStateException(
-							"Unexpected iteration list value type '" + iterationListValue.getClass().getName()
-									+ "': Expected array or standard collection type");
-				}
-			}
-		}
-		if (iterationListValue instanceof InstantiationFunction) {
-			InstantiationFunction function = (InstantiationFunction) iterationListValue;
-			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
-					variableDeclarations, listItemInitializerFacade);
-			try {
-				ITypeInfo guessedIterationListType = function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations(function));
-				if(guessedIterationListType != null) {
-					if(!(guessedIterationListType instanceof IListTypeInfo)) {
-						throw new IllegalStateException(
-								"Unexpected iteration list function return type '" + guessedIterationListType.getName()
-										+ "': Expected array or standard collection type");
-					}
-				}
-			} catch (CompilationError e) {
-			}
-		}
-		String iterationListValueTypeName = getIterationListValueTypeName();
-		if (iterationListValueTypeName != null) {
-			ITypeInfo declaredIterationListType = TypeInfoProvider.getTypeInfo(iterationListValueTypeName);
-			if (!(declaredIterationListType instanceof IListTypeInfo)) {
-				throw new IllegalStateException("Unexpected iteration list declared type '"
-						+ declaredIterationListType.getName() + "': Expected array or standard collection type");
-			}
-			if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
-				if (iterationListValue != null) {
-					if (!declaredIterationListType.supports(iterationListValue)) {
-						throw new IllegalStateException(
-								"Iteration list value not compatible with declared type: '" + iterationListValue
-										+ "' is not an instance of '" + declaredIterationListType.getName() + "'");
-
-					}
-				}
-			}
-		}
-		String iterationVariableTypeName = getIterationVariableTypeName();
-		if (iterationVariableTypeName != null) {
-			Class<?> declaredItemClass = TypeInfoProvider.getClass(iterationVariableTypeName);
-			Class<?> inferredItemClass = null;
-			{
-				IListTypeInfo iterationListValueType = calculateIterationListValueTypeInfo(variableDeclarations);
-				if (iterationListValueType != null) {
-					ITypeInfo itemType = iterationListValueType.getItemType();
-					if (itemType != null) {
-						inferredItemClass = ((DefaultTypeInfo) itemType).getJavaType();
-					}
-				}
-			}
-			if (inferredItemClass != null) {
-				if (!(inferredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(inferredItemClass)
-						: inferredItemClass).isAssignableFrom(
-								(declaredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(declaredItemClass)
-										: declaredItemClass))) {
-					throw new IllegalStateException("Declared iteration variable type: '" + declaredItemClass.getName()
-							+ "' does not inherit from item type of iteration list value type '"
+		try {
+			ITypeInfo guessedIterationVariableType = guessIterationVariableTypeInfo(variableDeclarations);
+			ITypeInfo declaredIterationVariableType = getDeclaredIterationVariableTypeInfo();
+			if ((guessedIterationVariableType != null) && (declaredIterationVariableType != null)) {
+				Class<?> declaredItemClass = ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
+				Class<?> inferredItemClass = ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
+				if (MiscUtils.areIncompatible(declaredItemClass, inferredItemClass)) {
+					throw new IllegalStateException("The declared iteration variable type '"
+							+ declaredItemClass.getName() + "' is not compatible with the detected item type '"
 							+ inferredItemClass.getName() + "'");
 				}
 			}
-			if (InstantiationUtils.getValueMode(iterationListValue) == ValueMode.PLAIN) {
-				if (iterationListValue != null) {
-					IListTypeInfo iterationListTypeInfo = (IListTypeInfo) TypeInfoProvider
-							.getTypeInfo(iterationListValue.getClass().getName());
-					Object[] iterationListItems = iterationListTypeInfo.toArray(iterationListValue);
-					for (Object iterationListItem : iterationListItems) {
-						if (!(declaredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(declaredItemClass)
-								: declaredItemClass).isInstance(iterationListItem)) {
-							throw new IllegalStateException("Iteration list item '" + iterationListItem
-									+ "' not compatible with declared iteration variable type '"
-									+ declaredItemClass.getName() + "'");
-						}
-					}
-				}
-			}
+		} catch (Exception e) {
+			throw new ValidationError("Iteration variable type evaluation error", e);
 		}
-		InstantiationUtils.validateValue(iterationListValue, TypeInfoProvider.getTypeInfo(getIterationListBaseType()),
+		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),
 				listItemInitializerFacade, "iteration list value", recursively, variableDeclarations);
 	}
 
-	public Class<?> getIterationListBaseType() {
-		return Object.class;
+	@Override
+	public String toString() {
+		return preprendExpression(null);
 	}
 
 }

@@ -7,7 +7,6 @@ import com.otk.jesb.Variable;
 public class ListItemReplication {
 
 	private Object iterationListValue = new ArrayList<Object>();
-	private String iterationListValueTypeName;
 	private String iterationVariableName = "current";
 	private String iterationVariableTypeName;
 
@@ -21,14 +20,6 @@ public class ListItemReplication {
 
 	public String getIterationVariableName() {
 		return iterationVariableName;
-	}
-
-	public String getIterationListValueTypeName() {
-		return iterationListValueTypeName;
-	}
-
-	public void setIterationListValueTypeName(String iterationListValueTypeName) {
-		this.iterationListValueTypeName = iterationListValueTypeName;
 	}
 
 	public void setIterationVariableName(String iterationVariableName) {
