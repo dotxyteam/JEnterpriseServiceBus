@@ -216,16 +216,15 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	public void setItemValueMode(ValueMode valueMode) {
-		setConcrete(true);
-		if (valueMode == getItemValueMode()) {
-			return;
+		if (valueMode == null) {
+			setConcrete(false);
+		} else {
+			setConcrete(true);
+			ITypeInfo itemType = getItemTypeInfo();
+			Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
+			ListItemInitializer listItemInitializer = getUnderlying();
+			listItemInitializer.setItemValue(newItemValue);
 		}
-		ITypeInfo itemType = getItemTypeInfo();
-		Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
-		if (newItemValue instanceof InstanceBuilder) {
-			newItemValue = new InstanceBuilderFacade(this, (InstanceBuilder) newItemValue);
-		}
-		setItemValue(newItemValue);
 	}
 
 	public Object createDefaultItemValue() {

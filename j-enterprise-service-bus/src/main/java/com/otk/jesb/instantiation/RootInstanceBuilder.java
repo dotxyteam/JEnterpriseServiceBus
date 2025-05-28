@@ -19,7 +19,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	private String rootInstanceTypeName;
 
 	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();
-
 	private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDateRootInstanceClass();
 
 	public RootInstanceBuilder() {
@@ -29,13 +28,23 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	public RootInstanceBuilder(String rootInstanceName, Accessor<String> rootInstanceDynamicTypeNameAccessor) {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
-		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
+		this.rootInstanceDynamicTypeNameAccessor = (rootInstanceDynamicTypeNameAccessor == null)
+				? Accessor.returning(NullInstance.class.getName())
+				: new NeverNullTypeNameAccessorProxy(rootInstanceDynamicTypeNameAccessor);
+		initialize();
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
-		this.rootInstanceTypeName = rootInstanceTypeName;
+		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()
+				: rootInstanceTypeName;
+		;
+		initialize();
+	}
+
+	private void initialize() {
+		getFacade().getChildren().get(0).setConcrete(true);
 	}
 
 	@Override
@@ -124,7 +133,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					? rootInstanceDynamicTypeNameAccessor.get()
 					: rootInstanceTypeName;
 			if (actualRootInstanceTypeName == null) {
-				return NullInstance.class;
+				actualRootInstanceTypeName = NullInstance.class.getName();
 			}
 			if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
 				throw new UnexpectedError();
@@ -171,6 +180,25 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				throw new UnexpectedError(e);
 			}
 		}
+	}
+
+	private static class NeverNullTypeNameAccessorProxy extends Accessor<String> {
+
+		private Accessor<String> base;
+
+		public NeverNullTypeNameAccessorProxy(Accessor<String> base) {
+			this.base = base;
+		}
+
+		@Override
+		public String get() {
+			String result = base.get();
+			if (result == null) {
+				result = NullInstance.class.getName();
+			}
+			return result;
+		}
+
 	}
 
 }

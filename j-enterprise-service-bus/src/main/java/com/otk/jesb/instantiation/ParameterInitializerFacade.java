@@ -7,6 +7,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
+
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
@@ -16,11 +17,18 @@ public class ParameterInitializerFacade extends Facade {
 
 	private Facade parent;
 	private int parameterPosition;
+	private Object parameterValue;
 	private IParameterInfo parameterInfo;
 
 	public ParameterInitializerFacade(Facade parent, int parameterPosition) {
 		this.parent = parent;
 		this.parameterPosition = parameterPosition;
+		ParameterInitializer parameterInitializer = getUnderlying();
+		if (parameterInitializer == null) {
+			this.parameterValue = createDefaultParameterValue();
+		} else {
+			this.parameterValue = parameterInitializer.getParameterValue();
+		}
 	}
 
 	@Override
@@ -49,7 +57,7 @@ public class ParameterInitializerFacade extends Facade {
 	@Override
 	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
 		if (!isConcrete()) {
-			return;
+			throw new ValidationError("Plain value or function required");
 		}
 		InstantiationUtils.validateValue(getUnderlying().getParameterValue(), getParameterInfo().getType(), this,
 				"parameter value", recursively, variableDeclarations);
@@ -85,13 +93,7 @@ public class ParameterInitializerFacade extends Facade {
 
 	@Override
 	public ParameterInitializer getUnderlying() {
-		ParameterInitializer result = ((InitializationCase) parent.getUnderlying())
-				.getParameterInitializer(parameterPosition);
-		if (result == null) {
-			((InitializationCase) parent.getUnderlying()).getParameterInitializers()
-					.add(result = new ParameterInitializer(parameterPosition, createDefaultParameterValue()));
-		}
-		return result;
+		return ((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition);
 	}
 
 	public int getParameterPosition() {
@@ -122,7 +124,7 @@ public class ParameterInitializerFacade extends Facade {
 		if (!parent.isConcrete()) {
 			return false;
 		}
-		return true;
+		return getUnderlying() != null;
 	}
 
 	@Override
@@ -134,32 +136,44 @@ public class ParameterInitializerFacade extends Facade {
 			if (!parent.isConcrete()) {
 				parent.setConcrete(true);
 			}
+			if (getUnderlying() == null) {
+				((InitializationCase) parent.getUnderlying()).getParameterInitializers()
+						.add(new ParameterInitializer(parameterPosition, parameterValue));
+			}
 		} else {
-			if (((InitializationCase) parent.getUnderlying()).getParameterInitializer(parameterPosition) != null) {
-				((InitializationCase) parent.getUnderlying()).removeParameterInitializer(parameterPosition,
-						getParameterInfo().getType().getName());
+			if (getUnderlying() != null) {
+				((InitializationCase) parent.getUnderlying()).removeParameterInitializer(parameterPosition);
+				parameterValue = createDefaultParameterValue();
 			}
 		}
 	}
 
 	public ValueMode getParameterValueMode() {
 		ParameterInitializer parameterInitializer = getUnderlying();
+		if (parameterInitializer == null) {
+			return null;
+		}
 		return InstantiationUtils.getValueMode(parameterInitializer.getParameterValue());
 	}
 
 	public void setParameterValueMode(ValueMode valueMode) {
-		setConcrete(true);
-		IParameterInfo parameter = getParameterInfo();
-		Object newParameterValue = InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), valueMode,
-				this);
-		if (newParameterValue instanceof InstanceBuilder) {
-			newParameterValue = new InstanceBuilderFacade(this, (InstanceBuilder) newParameterValue);
+		if (valueMode == null) {
+			setConcrete(false);
+		} else {
+			setConcrete(true);
+			IParameterInfo parameter = getParameterInfo();
+			Object newParameterValue = InstantiationUtils.getDefaultInterpretableValue(parameter.getType(), valueMode,
+					this);
+			ParameterInitializer parameterInitializer = getUnderlying();
+			parameterInitializer.setParameterValue(newParameterValue);
 		}
-		setParameterValue(newParameterValue);
 	}
 
 	public Object getParameterValue() {
 		ParameterInitializer parameterInitializer = getUnderlying();
+		if (parameterInitializer == null) {
+			return null;
+		}
 		Object result = InstantiationUtils.maintainInterpretableValue(parameterInitializer.getParameterValue(),
 				getParameterInfo().getType());
 		if (result instanceof InstanceBuilder) {
@@ -173,18 +187,17 @@ public class ParameterInitializerFacade extends Facade {
 			value = ((InstanceBuilderFacade) value).getUnderlying();
 		}
 		setConcrete(true);
+		ParameterInitializer parameterInitializer = getUnderlying();
 		IParameterInfo parameter = getParameterInfo();
 		if ((value == null) && (parameter.getType().isPrimitive())) {
 			throw new UnexpectedError("Cannot set null to a primitive field");
 		}
-		ParameterInitializer parameterInitializer = getUnderlying();
-		parameterInitializer.setParameterValue(value);
+		parameterInitializer.setParameterValue(parameterValue = value);
 	}
 
 	@Override
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
-		Object parameterValue = getUnderlying().getParameterValue();
 		if (parameterValue instanceof InstanceBuilder) {
 			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) parameterValue).getChildren());
 		}

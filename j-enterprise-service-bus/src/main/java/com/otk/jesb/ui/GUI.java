@@ -164,72 +164,75 @@ public class GUI extends SwingCustomizer {
 						if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
 							return new MappingsControl(swingRenderer, this);
 						}
-						if (object instanceof PrecomputedTypeInstanceWrapper) {
-							Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
-							if (instance instanceof MembersCapsuleFieldInfo.Value) {
-								Object encapsulated = ((MembersCapsuleFieldInfo.Value) instance).getObject();
-								if (encapsulated instanceof FieldInitializerFacade) {
-									if (field.getName().equals("fieldValue")) {
-										return new NullableControl(this.swingRenderer, this) {
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ FieldInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("fieldValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+									private static final long serialVersionUID = 1L;
 
-											@Override
-											protected Object getNewValue() {
-												FieldInitializerFacade facade = (FieldInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if ((facade.getFieldValueMode() == null)
-														|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
-													return facade.createDefaultFieldValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
-
-										};
+									@Override
+									protected Object getNewValue() {
+										FieldInitializerFacade facade = (FieldInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if ((facade.getFieldValueMode() == null)
+												|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
+											return facade.createDefaultFieldValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
-								if (encapsulated instanceof ParameterInitializerFacade) {
-									if (field.getName().equals("parameterValue")) {
-										return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+								};
+							}
+						}
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ ParameterInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("parameterValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											@Override
-											protected Object getNewValue() {
-												ParameterInitializerFacade facade = (ParameterInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if (facade.getParameterValueMode() == ValueMode.PLAIN) {
-													return facade.createDefaultParameterValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
+									private static final long serialVersionUID = 1L;
 
-										};
+									@Override
+									protected Object getNewValue() {
+										ParameterInitializerFacade facade = (ParameterInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if (facade.getParameterValueMode() == ValueMode.PLAIN) {
+											return facade.createDefaultParameterValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
-								if (encapsulated instanceof ListItemInitializerFacade) {
-									if (field.getName().equals("itemValue")) {
-										return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+								};
+							}
+						}
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ ListItemInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("itemValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											@Override
-											protected Object getNewValue() {
-												ListItemInitializerFacade facade = (ListItemInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if ((facade.getItemValueMode() == null)
-														|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
-													return facade.createDefaultItemValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
+									private static final long serialVersionUID = 1L;
 
-										};
+									@Override
+									protected Object getNewValue() {
+										ListItemInitializerFacade facade = (ListItemInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if ((facade.getItemValueMode() == null)
+												|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
+											return facade.createDefaultItemValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
+
+								};
 							}
 						}
 						return super.createFieldControl();

@@ -66,9 +66,8 @@ public class FieldInitializerFacade extends Facade {
 			return;
 		}
 		if (getCondition() != null) {
-			InstantiationUtils.validateValue(getCondition(),
-					TypeInfoProvider.getTypeInfo(boolean.class),
-					getParent(), "condition", recursively, variableDeclarations);
+			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), getParent(),
+					"condition", recursively, variableDeclarations);
 		}
 		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, "field value",
 				recursively, variableDeclarations);
@@ -179,16 +178,15 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	public void setFieldValueMode(ValueMode valueMode) {
-		setConcrete(true);
-		if (valueMode == getFieldValueMode()) {
-			return;
+		if (valueMode == null) {
+			setConcrete(false);
+		} else {
+			setConcrete(true);
+			IFieldInfo field = getFieldInfo();
+			Object newFieldValue = InstantiationUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
+			FieldInitializer fieldInitializer = getUnderlying();
+			fieldInitializer.setFieldValue(newFieldValue);
 		}
-		IFieldInfo field = getFieldInfo();
-		Object newFieldValue = InstantiationUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
-		if (newFieldValue instanceof InstanceBuilder) {
-			newFieldValue = new InstanceBuilderFacade(this, (InstanceBuilder) newFieldValue);
-		}
-		setFieldValue(newFieldValue);
 	}
 
 	public Object getFieldValue() {

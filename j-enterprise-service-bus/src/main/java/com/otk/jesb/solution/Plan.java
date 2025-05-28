@@ -50,11 +50,11 @@ public class Plan extends Asset {
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 
-	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
-			new OutputClassNameAccessor());
 	private UpToDate<Class<?>> upToDateInputClass = new UpToDateInputClass();
 	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
-
+	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
+			new OutputClassNameAccessor());
+	
 	public List<Step> getSteps() {
 		return steps;
 	}
