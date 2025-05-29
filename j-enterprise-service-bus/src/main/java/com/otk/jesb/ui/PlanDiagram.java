@@ -795,26 +795,46 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	protected void paintConnection(Graphics g, JConnection connection) {
-		super.paintConnection(g, connection);
-		if (validitionErrorMap.entrySet().stream()
-				.anyMatch(entry -> entry.getKey().getSecond() == connection.getValue())) {
-			Pair<Point, Point> segment = connection.getLineSegment();
-			if (segment != null) {
-				g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(),
-						(segment.getFirst().x + segment.getSecond().x) / 2,
-						(segment.getFirst().y + segment.getSecond().y) / 2, null);
+	protected void paintNode(Graphics g, JNode node) {
+		super.paintNode(g, node);
+		if (validitionErrorMap.entrySet().stream().anyMatch(entry -> entry.getKey().getSecond() == node.getValue())) {
+			Point errorMarkerLocation = getErrorMarkerLocation(node);
+			if (errorMarkerLocation != null) {
+				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
 			}
 		}
 	}
 
 	@Override
-	protected void paintNode(Graphics g, JNode node) {
-		super.paintNode(g, node);
-		if (validitionErrorMap.entrySet().stream().anyMatch(entry -> entry.getKey().getSecond() == node.getValue())) {
-			Rectangle nodeBounds = node.getImageBounds();
-			g.drawImage(SwingRendererUtils.ERROR_OVERLAY_ICON.getImage(), nodeBounds.x, nodeBounds.y, null);
+	protected void paintConnection(Graphics g, JConnection connection) {
+		super.paintConnection(g, connection);
+		if (validitionErrorMap.entrySet().stream()
+				.anyMatch(entry -> entry.getKey().getSecond() == connection.getValue())) {
+			Point errorMarkerLocation = getErrorMarkerLocation(connection);
+			if (errorMarkerLocation != null) {
+				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
+			}
 		}
+	}
+
+	private Image getErrorMarker() {
+		return SwingRendererUtils.ERROR_OVERLAY_ICON.getImage();
+	}
+
+	private Point getErrorMarkerLocation(JDiagramObject diagramObject) {
+		if (diagramObject instanceof JNode) {
+			Rectangle nodeBounds = ((JNode) diagramObject).getImageBounds();
+			return new Point(nodeBounds.x, nodeBounds.y);
+		}
+		if (diagramObject instanceof JConnection) {
+			Pair<Point, Point> segment = ((JConnection) diagramObject).getLineSegment();
+			if (segment == null) {
+				return null;
+			}
+			return new Point((segment.getFirst().x + segment.getSecond().x) / 2,
+					(segment.getFirst().y + segment.getSecond().y) / 2);
+		}
+		throw new UnexpectedError();
 	}
 
 	@Override
@@ -881,8 +901,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								swingRenderer.openErrorDetailsDialog(PlanDiagram.this, currentError);
 							}
 						});
-				HyperlinkTooltip.get(this).setCustomComponentResponsiveBoundsMapper(
-						component -> pointedDiagramObject.getBounds((JDiagram) component));
+				HyperlinkTooltip.get(this).setCustomComponentResponsiveBoundsMapper(component -> {
+					Image errorMarker = getErrorMarker();
+					Point location = getErrorMarkerLocation(pointedDiagramObject);
+					return new Rectangle(location.x, location.y, errorMarker.getWidth(null),
+							errorMarker.getHeight(null));
+				});
 				HyperlinkTooltip.get(this).setCustomValue(newTooltipId);
 				HyperlinkTooltip.get(this).getMouseMotionListener().mouseMoved(mouseEvent);
 			}

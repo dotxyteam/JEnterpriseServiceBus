@@ -23,14 +23,13 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public RootInstanceBuilder() {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
+		initialize();
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, Accessor<String> rootInstanceDynamicTypeNameAccessor) {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
-		this.rootInstanceDynamicTypeNameAccessor = (rootInstanceDynamicTypeNameAccessor == null)
-				? Accessor.returning(NullInstance.class.getName())
-				: new NeverNullTypeNameAccessorProxy(rootInstanceDynamicTypeNameAccessor);
+		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
 		initialize();
 	}
 
@@ -39,7 +38,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()
 				: rootInstanceTypeName;
-		;
 		initialize();
 	}
 
@@ -138,8 +136,14 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
 				throw new UnexpectedError();
 			}
+			Object finalRootInstanceName;
+			if (rootInstanceName != null) {
+				finalRootInstanceName = rootInstanceName;
+			} else {
+				finalRootInstanceName = "none";
+			}
 			String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
-					+ rootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
+					+ finalRootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
 			StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
 			{
 				rootInstanceWrapperClassSourceBuilder.append(
@@ -152,8 +156,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				rootInstanceWrapperClassSourceBuilder
 						.append("	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
 								+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
-								+ rootInstanceName + ") {\n");
-				rootInstanceWrapperClassSourceBuilder.append("		this.rootInstance = " + rootInstanceName + ";\n");
+								+ finalRootInstanceName + ") {\n");
+				rootInstanceWrapperClassSourceBuilder
+						.append("		this.rootInstance = " + finalRootInstanceName + ";\n");
 				rootInstanceWrapperClassSourceBuilder.append("	}\n");
 				rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
 				rootInstanceWrapperClassSourceBuilder.append("	public "
@@ -180,25 +185,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				throw new UnexpectedError(e);
 			}
 		}
-	}
-
-	private static class NeverNullTypeNameAccessorProxy extends Accessor<String> {
-
-		private Accessor<String> base;
-
-		public NeverNullTypeNameAccessorProxy(Accessor<String> base) {
-			this.base = base;
-		}
-
-		@Override
-		public String get() {
-			String result = base.get();
-			if (result == null) {
-				result = NullInstance.class.getName();
-			}
-			return result;
-		}
-
 	}
 
 }

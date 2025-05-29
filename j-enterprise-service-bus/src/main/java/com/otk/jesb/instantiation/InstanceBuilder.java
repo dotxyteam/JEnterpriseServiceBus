@@ -69,6 +69,9 @@ public class InstanceBuilder extends InitializationCase {
 		} else {
 			result = typeName;
 		}
+		if(result == null) {
+			result = NullInstance.class.getName();
+		}
 		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
 		return result;
 	}
@@ -150,6 +153,13 @@ public class InstanceBuilder extends InitializationCase {
 					ITypeInfo declaredIterationVariableType = itemReplicationFacade
 							.getDeclaredIterationVariableTypeInfo();
 					for (Object iterationVariableValue : iterationListArray) {
+						if (declaredIterationVariableType != null) {
+							if (!declaredIterationVariableType.supports(iterationVariableValue)) {
+								throw new UnexpectedError("Cannot replicate item: Iteration variable value '"
+										+ iterationVariableValue + "' is not compatible with the declared type '"
+										+ declaredIterationVariableType.getName() + "'");
+							}
+						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
 						Object itemValue = InstantiationUtils.interpretValue(
@@ -158,13 +168,6 @@ public class InstanceBuilder extends InitializationCase {
 										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
 								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),
 										iterationVariable));
-						if (declaredIterationVariableType != null) {
-							if (!declaredIterationVariableType.supports(itemValue)) {
-								throw new UnexpectedError("Cannot replicate item: Iteration variable value '"
-										+ itemValue + "' is not compatible with the declared type '"
-										+ declaredIterationVariableType.getName() + "'");
-							}
-						}
 						itemList.add(itemValue);
 					}
 				} else {

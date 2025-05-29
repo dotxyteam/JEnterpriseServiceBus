@@ -8,6 +8,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Reference;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -86,7 +87,7 @@ public class SharedStructureModel extends Resource {
 	}
 
 	public Accessor<String> getStructuredClassNameAccessor() {
-		return new StructuredClassNameAccessor();
+		return new StructuredClassNameAccessor(Reference.get(this));
 	}
 
 	@Override
@@ -123,10 +124,21 @@ public class SharedStructureModel extends Resource {
 
 	}
 
-	private class StructuredClassNameAccessor extends Accessor<String> {
+	private static class StructuredClassNameAccessor extends Accessor<String> {
+
+		private Reference<SharedStructureModel> modelReference;
+
+		public StructuredClassNameAccessor(Reference<SharedStructureModel> modelReference) {
+			this.modelReference = modelReference;
+		}
+
 		@Override
 		public String get() {
-			return getStructuredClass().getName();
+			SharedStructureModel model = modelReference.resolve();
+			if (model == null) {
+				return null;
+			}
+			return model.getStructuredClass().getName();
 		}
 	}
 

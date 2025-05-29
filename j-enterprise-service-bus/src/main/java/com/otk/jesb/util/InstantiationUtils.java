@@ -167,10 +167,8 @@ public class InstantiationUtils {
 								+ "> is not compatible with the declared type <" + declaredJavaType.getName() + ">");
 					}
 				}
-				if (recursively) {
-					new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value).validate(recursively,
-							variableDeclarations);
-				}
+				new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value).validate(recursively,
+						variableDeclarations);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate the " + valueName + " instance builder", e);
 			}

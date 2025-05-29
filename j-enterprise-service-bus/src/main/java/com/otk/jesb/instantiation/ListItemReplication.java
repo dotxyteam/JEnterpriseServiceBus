@@ -1,12 +1,11 @@
 package com.otk.jesb.instantiation;
 
-import java.util.ArrayList;
-
 import com.otk.jesb.Variable;
 
 public class ListItemReplication {
 
-	private Object iterationListValue = new ArrayList<Object>();
+	private Object iterationListValue = new InstantiationFunction(
+			"return ?;");
 	private String iterationVariableName = "current";
 	private String iterationVariableTypeName;
 

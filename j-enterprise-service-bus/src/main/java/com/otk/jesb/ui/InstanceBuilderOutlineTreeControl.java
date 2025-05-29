@@ -130,6 +130,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				refreshRendrers();
 				treeTableComponent.repaint();
 			}
 		});

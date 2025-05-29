@@ -54,7 +54,7 @@ public class Plan extends Asset {
 	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new OutputClassNameAccessor());
-	
+
 	public List<Step> getSteps() {
 		return steps;
 	}
@@ -166,34 +166,33 @@ public class Plan extends Asset {
 	}
 
 	private List<Step> getPrecedingSteps(Step step, List<Step> candidateSteps) {
-		List<Step> result = new ArrayList<Step>();
-		for (Step candidateStep : candidateSteps) {
-			if (isPreceding(candidateStep, step)) {
-				result.add(candidateStep);
+		Map<Step, List<Step>> reversedGraph = new HashMap<>();
+		for (Transition t : transitions) {
+			if (!candidateSteps.contains(t.getStartStep())) {
+				continue;
+			}
+			if (!candidateSteps.contains(t.getEndStep())) {
+				continue;
+			}
+			reversedGraph.computeIfAbsent(t.getEndStep(), k -> new ArrayList<>()).add(t.getStartStep());
+		}
+		Set<Step> visited = new HashSet<>();
+		List<Step> ordered = new ArrayList<>();
+		dfsTopological(step, reversedGraph, visited, ordered);
+		return ordered;
+	}
+
+	private void dfsTopological(Step current, Map<Step, List<Step>> graph, Set<Step> visited, List<Step> result) {
+		for (Step pred : graph.getOrDefault(current, Collections.emptyList())) {
+			if (visited.add(pred)) {
+				dfsTopological(pred, graph, visited, result);
+				result.add(pred);
 			}
 		}
-		return result;
 	}
 
 	public boolean isPreceding(Step step1, Step step2) {
-		return isPreceding(step1, step2, new HashSet<Step>());
-	}
-
-	private boolean isPreceding(Step step1, Step step2, Set<Step> alreadyVisitedSteps) {
-		for (Transition t : transitions) {
-			if (t.getStartStep() == step1) {
-				if (t.getEndStep() == step2) {
-					return true;
-				}
-				if (!alreadyVisitedSteps.contains(t.getEndStep())) {
-					alreadyVisitedSteps.add(t.getEndStep());
-					if (isPreceding(t.getEndStep(), step2, alreadyVisitedSteps)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
+		return getPrecedingSteps(step2, steps).contains(step1);
 	}
 
 	private List<Step> findFirstSteps(List<Step> steps) {
@@ -483,7 +482,10 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep, steps)
+		List<Step> precedingSteps = (currentStep != null)
+				? getPrecedingSteps(currentStep,
+						steps.stream().filter(step -> step.getParent() == currentStep.getParent())
+								.collect(Collectors.toList()))
 				: steps.stream().filter(step -> step.getParent() == null).collect(Collectors.toList());
 		for (Step step : precedingSteps) {
 			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);

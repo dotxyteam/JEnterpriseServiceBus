@@ -3,7 +3,6 @@ package com.otk.jesb.instantiation;
 import static com.github.javaparser.Providers.provider;
 
 import java.util.List;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
@@ -21,12 +20,46 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.type.ITypeInfo;
 
 public class InstantiationFunction extends Function {
 
 	private Function returnTypeUtil = new Function();
+	private UpToDate<ITypeInfo> upToDateGuessedReturnTypeInfo = new UpToDate<ITypeInfo>() {
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			CompiledFunction compiledFunction = (CompiledFunction) getCustomValue();
+			return compiledFunction.getFunctionClass();
+		}
+
+		@Override
+		protected ITypeInfo obtainLatest(Object versionIdentifier) throws VersionAccessException {
+			CompiledFunction compiledFunction = (CompiledFunction) getCustomValue();
+			TypeSolver typeSolver = new CombinedTypeSolver(
+					new ClassLoaderTypeSolver(ClassLoader.getSystemClassLoader()),
+					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getClassLoader()));
+			ParserConfiguration configuration = new ParserConfiguration()
+					.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+			JavaParser javaParser = new JavaParser(configuration);
+			ParseResult<CompilationUnit> result = javaParser.parse(ParseStart.COMPILATION_UNIT,
+					provider(compiledFunction.getFunctionClassSource()));
+			if (!result.isSuccessful()) {
+				throw new UnexpectedError();
+			}
+			if (!result.getResult().isPresent()) {
+				throw new UnexpectedError();
+			}
+			CompilationUnit compilationUnit = result.getResult().get();
+			ReturnStmt returnStatement = compilationUnit.findAll(ReturnStmt.class).get(0);
+			ResolvedType resolvedType = returnStatement.getExpression().get().calculateResolvedType();
+			return MiscUtils.getInfoFromResolvedType(resolvedType);
+		}
+
+	};
 
 	public InstantiationFunction() {
 	}
@@ -46,23 +79,12 @@ public class InstantiationFunction extends Function {
 			List<VariableDeclaration> variableDeclarations) throws CompilationError {
 		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);
-		TypeSolver typeSolver = new CombinedTypeSolver(new ClassLoaderTypeSolver(ClassLoader.getSystemClassLoader()),
-				new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getClassLoader()));
-		ParserConfiguration configuration = new ParserConfiguration()
-				.setSymbolResolver(new JavaSymbolSolver(typeSolver));
-		JavaParser javaParser = new JavaParser(configuration);
-		ParseResult<CompilationUnit> result = javaParser.parse(ParseStart.COMPILATION_UNIT,
-				provider(compiledFunction.getFunctionClassSource()));
-		if (!result.isSuccessful()) {
-			throw new UnexpectedError();
+		upToDateGuessedReturnTypeInfo.setCustomValue(compiledFunction);
+		try {
+			return upToDateGuessedReturnTypeInfo.get();
+		} catch (VersionAccessException e) {
+			return null;
 		}
-		if (!result.getResult().isPresent()) {
-			throw new UnexpectedError();
-		}
-		CompilationUnit compilationUnit = result.getResult().get();
-		ReturnStmt returnStatement = compilationUnit.findAll(ReturnStmt.class).get(0);
-		ResolvedType resolvedType = returnStatement.getExpression().get().calculateResolvedType();
-		return MiscUtils.getInfoFromResolvedType(resolvedType);
 	}
 
 }

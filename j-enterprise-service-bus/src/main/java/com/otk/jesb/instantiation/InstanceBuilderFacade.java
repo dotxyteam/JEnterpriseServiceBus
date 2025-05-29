@@ -219,26 +219,52 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	public void copyUnderlying() {
+		if (!canCopyUnderlying()) {
+			throw new UnexpectedError();
+		}
 		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying);
 	}
 
 	public void pasteUnderlying() {
+		if (!canPasteUnderlying()) {
+			throw new UnexpectedError();
+		}
 		parent.setConcrete(true);
 		transferValuesToUnderlying(InstanceBuilderFacade.underlyingClipboard);
 		InstanceBuilderFacade.underlyingClipboard = null;
+	}
+
+	public boolean canCopyUnderlying() {
+		if (getUnderlying().getDynamicTypeNameAccessor() != null) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean canPasteUnderlying() {
 		if (InstanceBuilderFacade.underlyingClipboard == null) {
 			return false;
 		}
-		if (parent == null) {
+		if (getUnderlying().getDynamicTypeNameAccessor() != null) {
 			return false;
 		}
 		return true;
 	}
 
+	public boolean canAccessSource() {
+		if (canCopyUnderlying()) {
+			return true;
+		}
+		if (canPasteUnderlying()) {
+			return true;
+		}
+		return false;
+	}
+
 	public String getSource() {
+		if (!canAccessSource()) {
+			throw new UnexpectedError();
+		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			MiscUtils.serialize(underlying, output);
@@ -249,6 +275,9 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	public void setSource(String source) {
+		if (!canAccessSource()) {
+			throw new UnexpectedError();
+		}
 		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());
 		InstanceBuilder deserialized;
 		try {
