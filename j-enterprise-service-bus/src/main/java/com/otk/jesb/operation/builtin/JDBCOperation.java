@@ -80,66 +80,9 @@ public abstract class JDBCOperation implements Operation {
 		private String statement;
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 
+		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
 		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
 				new ParameterValuesClassNameAccessor());
-		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
-
-		@SuppressWarnings("unchecked")
-		private Class<? extends ParameterValues> createParameterValuesClass() {
-			String className = JDBCQuery.class.getName() + "ParameterValues"
-					+ MiscUtils.toDigitalUniqueIdentifier(this);
-			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
-			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
-					+ MiscUtils.adaptClassNameToSourceCode(ParameterValues.class.getName()) + "{" + "\n");
-			for (int i = 0; i < parameterDefinitions.size(); i++) {
-				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-				javaSource.append("  private " + parameterDefinition.getParameterTypeName() + " "
-						+ parameterDefinition.getParameterName() + ";\n");
-			}
-			List<String> constructorParameterDeclarations = new ArrayList<String>();
-			for (int i = 0; i < parameterDefinitions.size(); i++) {
-				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-				constructorParameterDeclarations
-						.add(parameterDefinition.getParameterTypeName() + " " + parameterDefinition.getParameterName());
-			}
-			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
-					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
-			for (int i = 0; i < parameterDefinitions.size(); i++) {
-				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-				javaSource.append("    this." + parameterDefinition.getParameterName() + " = "
-						+ parameterDefinition.getParameterName() + ";\n");
-			}
-			javaSource.append("  }" + "\n");
-			javaSource.append("  @Override" + "\n");
-			javaSource.append("  public Object getParameterValueByIndex(int i) {" + "\n");
-			for (int i = 0; i < parameterDefinitions.size(); i++) {
-				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-				javaSource
-						.append("    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
-			}
-			javaSource.append("    throw new " + UnexpectedError.class.getName() + "();" + "\n");
-			javaSource.append("  }" + "\n");
-			javaSource.append("  @Override" + "\n");
-			javaSource.append("  public int countParameters() {" + "\n");
-			javaSource.append("    return " + parameterDefinitions.size() + ";" + "\n");
-			javaSource.append("  }" + "\n");
-			for (int i = 0; i < parameterDefinitions.size(); i++) {
-				ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
-				javaSource.append("  public " + parameterDefinition.getParameterTypeName() + " get"
-						+ parameterDefinition.getParameterName().substring(0, 1).toUpperCase()
-						+ parameterDefinition.getParameterName().substring(1) + "() {" + "\n");
-				javaSource.append("    return " + parameterDefinition.getParameterName() + ";" + "\n");
-				javaSource.append("  }" + "\n");
-			}
-			javaSource.append("}" + "\n");
-			try {
-				return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-						javaSource.toString());
-			} catch (CompilationError e) {
-				throw new UnexpectedError(e);
-			}
-		}
 
 		protected JDBCConnection getConnection() {
 			return connectionReference.resolve();
@@ -249,9 +192,62 @@ public abstract class JDBCOperation implements Operation {
 				return MiscUtils.serialize(parameterDefinitions);
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
 			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
-				return createParameterValuesClass();
+				String className = JDBCQuery.class.getName() + "ParameterValues"
+						+ MiscUtils.toDigitalUniqueIdentifier(this);
+				StringBuilder javaSource = new StringBuilder();
+				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
+						+ MiscUtils.adaptClassNameToSourceCode(ParameterValues.class.getName()) + "{" + "\n");
+				for (int i = 0; i < parameterDefinitions.size(); i++) {
+					ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+					javaSource.append("  private " + parameterDefinition.getParameterTypeName() + " "
+							+ parameterDefinition.getParameterName() + ";\n");
+				}
+				List<String> constructorParameterDeclarations = new ArrayList<String>();
+				for (int i = 0; i < parameterDefinitions.size(); i++) {
+					ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+					constructorParameterDeclarations.add(
+							parameterDefinition.getParameterTypeName() + " " + parameterDefinition.getParameterName());
+				}
+				javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
+						+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
+				for (int i = 0; i < parameterDefinitions.size(); i++) {
+					ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+					javaSource.append("    this." + parameterDefinition.getParameterName() + " = "
+							+ parameterDefinition.getParameterName() + ";\n");
+				}
+				javaSource.append("  }" + "\n");
+				javaSource.append("  @Override" + "\n");
+				javaSource.append("  public Object getParameterValueByIndex(int i) {" + "\n");
+				for (int i = 0; i < parameterDefinitions.size(); i++) {
+					ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+					javaSource.append(
+							"    if(i == " + i + ") return " + parameterDefinition.getParameterName() + ";" + "\n");
+				}
+				javaSource.append("    throw new " + UnexpectedError.class.getName() + "();" + "\n");
+				javaSource.append("  }" + "\n");
+				javaSource.append("  @Override" + "\n");
+				javaSource.append("  public int countParameters() {" + "\n");
+				javaSource.append("    return " + parameterDefinitions.size() + ";" + "\n");
+				javaSource.append("  }" + "\n");
+				for (int i = 0; i < parameterDefinitions.size(); i++) {
+					ParameterDefinition parameterDefinition = parameterDefinitions.get(i);
+					javaSource.append("  public " + parameterDefinition.getParameterTypeName() + " get"
+							+ parameterDefinition.getParameterName().substring(0, 1).toUpperCase()
+							+ parameterDefinition.getParameterName().substring(1) + "() {" + "\n");
+					javaSource.append("    return " + parameterDefinition.getParameterName() + ";" + "\n");
+					javaSource.append("  }" + "\n");
+				}
+				javaSource.append("}" + "\n");
+				try {
+					return (Class<? extends ParameterValues>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							javaSource.toString());
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
 			}
 		}
 	}

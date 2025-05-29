@@ -15,28 +15,21 @@ import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
-public class ListItemInitializerFacade extends Facade {
+public class ListItemInitializerFacade extends InitializerFacade {
 
-	private Facade parent;
 	private int index;
-	private Object itemValue;
 	private ITypeInfo itemTypeInfo;
 
 	public ListItemInitializerFacade(Facade parent, int index) {
-		this.parent = parent;
+		super(parent);
 		this.index = index;
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			this.itemValue = createDefaultItemValue();
-		} else {
-			this.itemValue = listItemInitializer.getItemValue();
-		}
 	}
 
 	@Override
 	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
-		List<VariableDeclaration> baseResult = parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
+		List<VariableDeclaration> baseResult = getParent().getAdditionalVariableDeclarations(null,
+				baseVariableDeclarations);
 		List<VariableDeclaration> result;
 		if (getItemReplicationFacade() == null) {
 			result = baseResult;
@@ -134,18 +127,8 @@ public class ListItemInitializerFacade extends Facade {
 		return result;
 	}
 
-	@Override
-	public Facade getParent() {
-		return parent;
-	}
-
 	public int getIndex() {
 		return index;
-	}
-
-	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
-		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);
 	}
 
 	public ListItemReplicationFacade getItemReplicationFacade() {
@@ -182,54 +165,23 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	public Object getItemValue() {
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			return null;
-		}
-		Object result = InstantiationUtils.maintainInterpretableValue(listItemInitializer.getItemValue(),
-				getItemTypeInfo());
-		if (result instanceof InstanceBuilder) {
-			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
-		}
-		return result;
+		return super.getValue();
 	}
 
 	public void setItemValue(Object value) {
-		if (value instanceof InstanceBuilderFacade) {
-			value = ((InstanceBuilderFacade) value).getUnderlying();
-		}
-		setConcrete(true);
-		ListItemInitializer listItemInitializer = getUnderlying();
-		ITypeInfo itemType = getItemTypeInfo();
-		if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
-			throw new UnexpectedError("Cannot add null to a primitive item list");
-		}
-		listItemInitializer.setItemValue(value);
+		super.setValue(value);
 	}
 
 	public ValueMode getItemValueMode() {
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			return null;
-		}
-		return InstantiationUtils.getValueMode(listItemInitializer.getItemValue());
+		return super.getValueMode();
 	}
 
 	public void setItemValueMode(ValueMode valueMode) {
-		if (valueMode == null) {
-			setConcrete(false);
-		} else {
-			setConcrete(true);
-			ITypeInfo itemType = getItemTypeInfo();
-			Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
-			ListItemInitializer listItemInitializer = getUnderlying();
-			listItemInitializer.setItemValue(newItemValue);
-		}
+		super.setValueMode(valueMode);
 	}
 
 	public Object createDefaultItemValue() {
-		ITypeInfo itemType = getItemTypeInfo();
-		return InstantiationUtils.getDefaultInterpretableValue(itemType, this);
+		return super.createDefaultValue();
 	}
 
 	public ITypeInfo getItemTypeInfo() {
@@ -245,47 +197,52 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	public String getItemTypeName() {
-		ITypeInfo itemType = getItemTypeInfo();
-		String result = (itemType == null) ? Object.class.getName() : itemType.getName();
-		result = InstantiationUtils.makeTypeNamesRelative(result,
-				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));
-		return result;
+		return super.getValueTypeName();
 	}
 
 	@Override
 	public ListItemInitializer getUnderlying() {
-		return ((InitializationCase) parent.getUnderlying()).getListItemInitializer(index);
+		return ((InitializationCase) getParent().getUnderlying()).getListItemInitializer(index);
 	}
 
 	@Override
-	public boolean isConcrete() {
-		if (!parent.isConcrete()) {
-			return false;
-		}
-		return getUnderlying() != null;
+	protected Object retrieveInitializerValue(Object initializer) {
+		return ((ListItemInitializer) initializer).getItemValue();
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+		((ListItemInitializer) initializer).setItemValue(newValue);
+	}
+
+	@Override
+	protected ITypeInfo getValueType() {
+		return getItemTypeInfo();
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+		((InitializationCase) getParent().getUnderlying()).getListItemInitializers()
+				.add(new ListItemInitializer(index, value));
+	}
+
+	@Override
+	protected void deleteUnderlying() {
+		((InitializationCase) getParent().getUnderlying()).removeListItemInitializer(index);
 	}
 
 	@Override
 	public void setConcrete(boolean b) {
-		if (b == isConcrete()) {
-			return;
-		}
 		if (b) {
-			if (!parent.isConcrete()) {
-				parent.setConcrete(true);
-			}
 			if (getUnderlying() == null) {
 				makeIndexAvailable(index);
-				((InitializationCase) parent.getUnderlying()).getListItemInitializers()
-						.add(new ListItemInitializer(index, itemValue));
 			}
 		} else {
 			if (getUnderlying() != null) {
-				((InitializationCase) parent.getUnderlying()).removeListItemInitializer(index);
-				itemValue = createDefaultItemValue();
 				makeIndexUnavailable(index);
 			}
 		}
+		super.setConcrete(b);
 	}
 
 	protected void makeIndexAvailable(int index) {
@@ -342,24 +299,13 @@ public class ListItemInitializerFacade extends Facade {
 		return result;
 	}
 
-	@Override
-	public List<Facade> getChildren() {
-		List<Facade> result = new ArrayList<Facade>();
-		if (itemValue instanceof MapEntryBuilder) {
-			result.addAll(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue).getChildren());
-		} else if (itemValue instanceof InstanceBuilder) {
-			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) itemValue).getChildren());
-		}
-		return result;
-	}
-
 	public void duplicate() {
 		setConcrete(true);
 		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying());
 		int underlyingCopyIndex = getUnderlying().getIndex() + 1;
 		makeIndexAvailable(underlyingCopyIndex);
 		underlyingCopy.setIndex(underlyingCopyIndex);
-		((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(underlyingCopy);
+		((InitializationCase) getParent().getUnderlying()).getListItemInitializers().add(underlyingCopy);
 	}
 
 	@Override

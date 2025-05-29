@@ -248,6 +248,11 @@ public class InitializationCaseFacade extends Facade {
 				if (fieldInfo.isGetOnly()) {
 					continue;
 				}
+				if (result.stream().anyMatch(facade -> (facade instanceof ParameterInitializerFacade)
+						&& ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {
+					throw new IllegalStateException("Name conflict detected between parameter '" + fieldInfo.getName()
+							+ "' and editable field '" + fieldInfo.getName() + "'");
+				}
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
 					continue;
 				}

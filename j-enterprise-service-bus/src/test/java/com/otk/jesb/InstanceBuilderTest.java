@@ -79,11 +79,14 @@ public class InstanceBuilderTest {
 		public Tree() {
 		}
 
-		public Tree(int intValue, String stringValue, EnumValue enumValue, ArrayList<String> stringList) {
+		public Tree(int intValue, boolean booleanValue, String stringValue, EnumValue enumValue, boolean[] booleanArray,
+				ArrayList<String> stringList) {
 			super();
 			this.intValue = intValue;
+			this.booleanValue = booleanValue;
 			this.stringValue = stringValue;
 			this.enumValue = enumValue;
+			this.booleanArray = booleanArray;
 			this.stringList = stringList;
 		}
 
@@ -101,8 +104,10 @@ public class InstanceBuilderTest {
 		};
 
 		private int intValue;
+		private boolean booleanValue;
 		private String stringValue;
 		private EnumValue enumValue;
+		private boolean[] booleanArray;
 		private ArrayList<String> stringList;
 		private Tree firstChild;
 		private Tree[] otherChildrenArray;
@@ -115,6 +120,14 @@ public class InstanceBuilderTest {
 
 		public void setIntValue(int intValue) {
 			this.intValue = intValue;
+		}
+
+		public boolean isBooleanValue() {
+			return booleanValue;
+		}
+
+		public void setBooleanValue(boolean booleanValue) {
+			this.booleanValue = booleanValue;
 		}
 
 		public String getStringValue() {
@@ -131,6 +144,14 @@ public class InstanceBuilderTest {
 
 		public void setEnumValue(EnumValue enumValue) {
 			this.enumValue = enumValue;
+		}
+
+		public boolean[] getBooleanArray() {
+			return booleanArray;
+		}
+
+		public void setBooleanArray(boolean[] booleanArray) {
+			this.booleanArray = booleanArray;
 		}
 
 		public ArrayList<String> getStringList() {
@@ -195,7 +216,6 @@ public class InstanceBuilderTest {
 			@Override
 			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 			}
-
 
 		}
 

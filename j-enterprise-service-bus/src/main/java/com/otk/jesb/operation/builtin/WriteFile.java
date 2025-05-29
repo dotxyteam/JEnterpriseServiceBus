@@ -60,24 +60,12 @@ public class WriteFile implements Operation {
 			return filePath;
 		}
 
-		public void setFilePath(String filePath) {
-			this.filePath = filePath;
-		}
-
 		public String getText() {
 			return text;
 		}
 
-		public void setText(String text) {
-			this.text = text;
-		}
-
 		public boolean isAppend() {
 			return append;
-		}
-
-		public void setAppend(boolean append) {
-			this.append = append;
 		}
 
 		public String getCharsetName() {
@@ -114,24 +102,12 @@ public class WriteFile implements Operation {
 			return filePath;
 		}
 
-		public void setFilePath(String filePath) {
-			this.filePath = filePath;
-		}
-
 		public byte[] getData() {
 			return data;
 		}
 
-		public void setData(byte[] data) {
-			this.data = data;
-		}
-
 		public boolean isAppend() {
 			return append;
-		}
-
-		public void setAppend(boolean append) {
-			this.append = append;
 		}
 
 		@Override

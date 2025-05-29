@@ -31,6 +31,10 @@ public abstract class Facade {
 	public abstract void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
 			throws ValidationError;
 
+	public boolean isValidable() {
+		return isConcrete();
+	}
+
 	public static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();
 		Facade parentFacade;

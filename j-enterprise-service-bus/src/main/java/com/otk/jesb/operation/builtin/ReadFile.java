@@ -56,10 +56,6 @@ public class ReadFile implements Operation {
 			return filePath;
 		}
 
-		public void setFilePath(String filePath) {
-			this.filePath = filePath;
-		}
-
 		public String getCharsetName() {
 			return charsetName;
 		}
@@ -93,10 +89,6 @@ public class ReadFile implements Operation {
 
 		public String getFilePath() {
 			return filePath;
-		}
-
-		public void setFilePath(String filePath) {
-			this.filePath = filePath;
 		}
 
 		@Override

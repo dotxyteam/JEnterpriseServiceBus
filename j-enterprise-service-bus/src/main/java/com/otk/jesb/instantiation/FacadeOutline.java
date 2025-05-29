@@ -11,8 +11,8 @@ public class FacadeOutline {
 		this.facade = facade;
 	}
 
-	public boolean isFacadeConcrete() {
-		return facade.isConcrete();
+	public boolean isFacadeValidable() {
+		return facade.isValidable();
 	}
 
 	public Facade getFacade() {

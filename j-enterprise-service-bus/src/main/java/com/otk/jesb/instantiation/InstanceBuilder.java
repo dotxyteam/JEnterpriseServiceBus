@@ -147,6 +147,8 @@ public class InstanceBuilder extends InitializationCase {
 								+ iterationListValue + "'");
 					}
 					Object[] iterationListArray = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);
+					ITypeInfo declaredIterationVariableType = itemReplicationFacade
+							.getDeclaredIterationVariableTypeInfo();
 					for (Object iterationVariableValue : iterationListArray) {
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
@@ -156,6 +158,13 @@ public class InstanceBuilder extends InitializationCase {
 										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
 								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),
 										iterationVariable));
+						if (declaredIterationVariableType != null) {
+							if (!declaredIterationVariableType.supports(itemValue)) {
+								throw new UnexpectedError("Cannot replicate item: Iteration variable value '"
+										+ itemValue + "' is not compatible with the declared type '"
+										+ declaredIterationVariableType.getName() + "'");
+							}
+						}
 						itemList.add(itemValue);
 					}
 				} else {

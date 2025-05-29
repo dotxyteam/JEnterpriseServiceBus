@@ -3,16 +3,16 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.util.ClassUtils;
 
 public class ListItemReplicationFacade {
 
@@ -149,14 +149,17 @@ public class ListItemReplicationFacade {
 			ITypeInfo declaredIterationVariableType = getDeclaredIterationVariableTypeInfo();
 			if ((guessedIterationVariableType != null) && (declaredIterationVariableType != null)) {
 				Class<?> declaredItemClass = ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
-				Class<?> inferredItemClass = ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
-				if (MiscUtils.areIncompatible(declaredItemClass, inferredItemClass)) {
+				Class<?> inferredItemClass = ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();
+				if (!(inferredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(inferredItemClass)
+						: inferredItemClass).isAssignableFrom(
+								(declaredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(declaredItemClass)
+										: declaredItemClass))) {
 					throw new IllegalStateException("The declared iteration variable type '"
-							+ declaredItemClass.getName() + "' is not compatible with the detected item type '"
+							+ declaredItemClass.getName() + "' is not derived from the detected item type '"
 							+ inferredItemClass.getName() + "'");
 				}
 			}
-		} catch (Exception e) {
+		} catch (Exception | UnexpectedError e) {
 			throw new ValidationError("Iteration variable type evaluation error", e);
 		}
 		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),

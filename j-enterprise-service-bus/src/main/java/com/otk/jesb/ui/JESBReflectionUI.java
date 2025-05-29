@@ -778,6 +778,48 @@ public class JESBReflectionUI extends CustomizedUI {
 
 					});
 					return result;
+				} else if (type.getName().equals(ListItemReplicationFacade.class.getName())) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+						@Override
+						public String getName() {
+							return "inferredIterationVariableTypeName";
+						}
+
+						@Override
+						public String getCaption() {
+							return "Inferred Iteration Variable Type";
+						}
+
+						@Override
+						public Object getValue(Object object) {
+							if (displayedPlan == null) {
+								return null;
+							}
+							if (displayedRootInstanceBuilderFacade == null) {
+								return null;
+							}
+							ITypeInfo variableType = ((ListItemReplicationFacade) object)
+									.guessIterationVariableTypeInfo(displayedPlan
+											.getValidationContext(
+													(displayedRootInstanceBuilderFacade.getUnderlying() == displayedPlan
+															.getOutputBuilder()) ? null : displayedStep)
+											.getVariableDeclarations());
+							if (variableType != null) {
+								return variableType.getName();
+							} else {
+								return Object.class.getName();
+							}
+						}
+
+						@Override
+						public ITypeInfo getType() {
+							return getTypeInfo(new JavaTypeInfoSource(String.class,
+									new SpecificitiesIdentifier(ListItemReplicationFacade.class.getName(), getName())));
+						}
+
+					});
+					return result;
 				} else {
 					return super.getFields(type);
 				}
