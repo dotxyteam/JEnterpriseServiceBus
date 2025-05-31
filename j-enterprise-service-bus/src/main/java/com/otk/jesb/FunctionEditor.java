@@ -37,6 +37,10 @@ public class FunctionEditor extends PathOptionsProvider {
 		this.selectedPathNode = selectedPathNode;
 	}
 
+	public String getReturnTypeName() {
+		return returnType.getName();
+	}
+
 	public void validate() throws CompilationError {
 		function.getCompiledVersion(precompiler, getVariableDeclarations(), returnType);
 	}

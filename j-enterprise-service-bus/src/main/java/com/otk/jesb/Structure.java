@@ -287,12 +287,7 @@ public abstract class Structure {
 
 		private String getFinalTypeNameAdaptedToSourceCode() {
 			if (multiple) {
-				String typeName = getTypeName();
-				if (ClassUtils.PRIMITIVE_CLASS_BY_NAME.containsKey(typeName)) {
-					typeName = ClassUtils.primitiveToWrapperClass(ClassUtils.PRIMITIVE_CLASS_BY_NAME.get(typeName))
-							.getName();
-				}
-				return ArrayList.class.getName() + "<" + MiscUtils.adaptClassNameToSourceCode(typeName) + ">";
+				return MiscUtils.adaptClassNameToSourceCode(getTypeName()) + "[]";
 			} else {
 				return MiscUtils.adaptClassNameToSourceCode(getTypeName());
 			}

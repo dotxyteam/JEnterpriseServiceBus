@@ -38,13 +38,17 @@ public class TypeInfoProvider {
 	public static Class<?> getClassFromCanonicalName(String canonicalName) {
 		try {
 			return getClass(canonicalName);
-		} catch (UnexpectedError e) {
-			int lastDotIndex = canonicalName.lastIndexOf('.');
-			if (lastDotIndex == -1) {
-				throw new UnexpectedError(new ClassNotFoundException());
+		} catch (UnexpectedError e1) {
+			try {
+				int lastDotIndex = canonicalName.lastIndexOf('.');
+				if (lastDotIndex == -1) {
+					throw new UnexpectedError();
+				}
+				return getClassFromCanonicalName(
+						canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
+			} catch (UnexpectedError e2) {
+				throw new UnexpectedError(new ClassNotFoundException("Canonical name: " + canonicalName));
 			}
-			return getClassFromCanonicalName(
-					canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
 		}
 	}
 

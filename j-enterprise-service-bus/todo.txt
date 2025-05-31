@@ -21,6 +21,7 @@
 	. disabling animations
 	. disabling the step occurrences collection
 	. disabling all breakpoints
+- add a binary type (maybe an alias of byte[]) for structure elements
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
 - allow to map list.size()/array.length/stream/...
 - use the same structure (list or array) for structure multiple elements 

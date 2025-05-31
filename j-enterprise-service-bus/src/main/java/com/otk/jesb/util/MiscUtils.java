@@ -666,8 +666,11 @@ public class MiscUtils {
 			if (typeParameters.size() > 0) {
 				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
 				for (ResolvedType resolvedTypeParameter : typeParameters) {
-					typeParameterClasses
-							.add(((DefaultTypeInfo) getInfoFromResolvedType(resolvedTypeParameter)).getJavaType());
+					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter);
+					if (typeParameterInfo == null) {
+						return TypeInfoProvider.getTypeInfo(javaType);
+					}
+					typeParameterClasses.add(((DefaultTypeInfo) typeParameterInfo).getJavaType());
 				}
 				return TypeInfoProvider.getTypeInfo(javaType,
 						typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]));
@@ -678,25 +681,20 @@ public class MiscUtils {
 			Class<?> componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(
 					resolvedType.asArrayType().getComponentType())).getJavaType();
 			return TypeInfoProvider.getTypeInfo(Array.newInstance(componentClass, 0).getClass());
-		} else if (resolvedType.isTypeVariable()) {
-			return TypeInfoProvider.getTypeInfo(
-					TypeInfoProvider.getClassFromCanonicalName(resolvedType.asTypeVariable().qualifiedName()));
+		} else if (resolvedType.isWildcard() && resolvedType.asWildcard().isBounded()) {
+			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType());
 		} else {
 			return null;
 		}
 	}
 
 	public static boolean areIncompatible(Class<?> class1, Class<?> class2) {
-		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2)
-				: class2).isAssignableFrom(
-						(class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1)
-								: class1))) {
+		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2)
+				.isAssignableFrom((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1))) {
 			return false;
 		}
-		if ((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1)
-				: class1).isAssignableFrom(
-						(class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2)
-								: class2))) {
+		if ((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1)
+				.isAssignableFrom((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2))) {
 			return false;
 		}
 		return true;

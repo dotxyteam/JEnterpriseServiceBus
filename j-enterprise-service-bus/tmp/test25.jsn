@@ -195,14 +195,14 @@
                   <elements>
                     <com.otk.jesb.Structure_-SimpleElement>
                       <multiple>true</multiple>
-                      <name>subPlanFileText</name>
+                      <name>subPlanFileTexts</name>
                       <optionality class="null"/>
                       <typeName>java.lang.String</typeName>
                     </com.otk.jesb.Structure_-SimpleElement>
                   </elements>
                 </valueStructure>
               </operationBuilder>
-              <diagramX>338</diagramX>
+              <diagramX>340</diagramX>
               <diagramY>111</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>

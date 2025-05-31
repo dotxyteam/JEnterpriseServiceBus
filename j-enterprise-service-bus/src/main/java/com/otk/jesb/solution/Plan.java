@@ -165,34 +165,35 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private List<Step> getPrecedingSteps(Step step, List<Step> candidateSteps) {
+	private List<Step> getPrecedingSteps(Step step) {
 		Map<Step, List<Step>> reversedGraph = new HashMap<>();
 		for (Transition t : transitions) {
-			if (!candidateSteps.contains(t.getStartStep())) {
+			if (t.getStartStep().getParent() != step.getParent()) {
 				continue;
 			}
-			if (!candidateSteps.contains(t.getEndStep())) {
+			if (t.getEndStep().getParent() != step.getParent()) {
 				continue;
 			}
 			reversedGraph.computeIfAbsent(t.getEndStep(), k -> new ArrayList<>()).add(t.getStartStep());
 		}
 		Set<Step> visited = new HashSet<>();
 		List<Step> ordered = new ArrayList<>();
-		dfsTopological(step, reversedGraph, visited, ordered);
+		collectPrecedingStepsTopologically(step, reversedGraph, visited, ordered);
 		return ordered;
 	}
 
-	private void dfsTopological(Step current, Map<Step, List<Step>> graph, Set<Step> visited, List<Step> result) {
+	private void collectPrecedingStepsTopologically(Step current, Map<Step, List<Step>> graph, Set<Step> visited,
+			List<Step> result) {
 		for (Step pred : graph.getOrDefault(current, Collections.emptyList())) {
 			if (visited.add(pred)) {
-				dfsTopological(pred, graph, visited, result);
+				collectPrecedingStepsTopologically(pred, graph, visited, result);
 				result.add(pred);
 			}
 		}
 	}
 
 	public boolean isPreceding(Step step1, Step step2) {
-		return getPrecedingSteps(step2, steps).contains(step1);
+		return getPrecedingSteps(step2).contains(step1);
 	}
 
 	private List<Step> findFirstSteps(List<Step> steps) {
@@ -482,10 +483,7 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		List<Step> precedingSteps = (currentStep != null)
-				? getPrecedingSteps(currentStep,
-						steps.stream().filter(step -> step.getParent() == currentStep.getParent())
-								.collect(Collectors.toList()))
+		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep)
 				: steps.stream().filter(step -> step.getParent() == null).collect(Collectors.toList());
 		for (Step step : precedingSteps) {
 			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);
