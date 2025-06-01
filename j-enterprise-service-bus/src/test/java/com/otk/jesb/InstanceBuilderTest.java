@@ -2,7 +2,6 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Structure.ClassicStructure;

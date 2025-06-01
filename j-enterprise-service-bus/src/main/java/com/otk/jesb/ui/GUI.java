@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DropMode;
+import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
@@ -28,6 +29,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.util.SquigglePainter;
 
+import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
@@ -35,6 +37,7 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.plugin.EditorPlugin;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ValidationSession;
@@ -148,11 +151,24 @@ public class GUI extends SwingCustomizer {
 						}
 						if (field.getName().equals("functionBody")
 								&& (field.getType().getName().equals(String.class.getName()))) {
-							TextControl result = (TextControl) super.createFieldControl();
-							result.getTextComponent().setTransferHandler(
-									new FunctionEditorVariableTreeControl.PathImportTransferHandler());
-							result.getTextComponent().setDropMode(DropMode.INSERT);
-							return result;
+							return new EditorPlugin().new EditorControl(swingRenderer, this) {
+
+								private static final long serialVersionUID = 1L;
+
+								@Override
+								protected JTextComponent createTextComponent() {
+									JEditorPane result = (JEditorPane) super.createTextComponent();
+									JavaSyntaxKit editorKit = new JavaSyntaxKit();
+									editorKit.getConfig().put(JavaSyntaxKit.CONFIG_ENABLE_WORD_WRAP,
+											Boolean.TRUE.toString());
+									result.setEditorKit(editorKit);
+									result.setTransferHandler(
+											new FunctionEditorVariableTreeControl.PathImportTransferHandler());
+									result.setDropMode(DropMode.INSERT);
+									return result;
+								}
+
+							};
 						}
 						if (field.getName().equals("facadeOutlineChildren")
 								&& (field.getType() instanceof IListTypeInfo)

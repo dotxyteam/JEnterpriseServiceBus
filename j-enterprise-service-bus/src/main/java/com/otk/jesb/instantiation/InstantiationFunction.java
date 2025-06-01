@@ -54,8 +54,9 @@ public class InstantiationFunction extends Function {
 				throw new UnexpectedError();
 			}
 			CompilationUnit compilationUnit = result.getResult().get();
-			ReturnStmt returnStatement = compilationUnit.findAll(ReturnStmt.class).get(0);
-			ResolvedType resolvedType = returnStatement.getExpression().get().calculateResolvedType();
+			List<ReturnStmt> returnStatements = compilationUnit.findAll(ReturnStmt.class);
+			ResolvedType resolvedType = returnStatements.get(returnStatements.size() - 1).getExpression().get()
+					.calculateResolvedType();
 			return MiscUtils.getInfoFromResolvedType(resolvedType);
 		}
 

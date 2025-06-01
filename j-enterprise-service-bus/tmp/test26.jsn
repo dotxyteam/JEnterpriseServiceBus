@@ -104,7 +104,7 @@
                               </listItemInitializers>
                               <parameterInitializers/>
                               <selectedConstructorSignature class="null"/>
-                              <typeName>java.util.ArrayList</typeName>
+                              <typeName>[Ljava.lang.String;</typeName>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
@@ -169,16 +169,13 @@
                                     <iterationVariableTypeName class="null"/>
                                   </itemReplication>
                                   <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                                    <functionBody>return new String(
-    currentFileContentListItem.getBytes().toArray(
-    new byte[currentFileContentListItem.getBytes().size()])
-);</functionBody>
+                                    <functionBody>return new String(currentFileContentListItem.getBytes());</functionBody>
                                   </itemValue>
                                 </com.otk.jesb.instantiation.ListItemInitializer>
                               </listItemInitializers>
                               <parameterInitializers/>
                               <selectedConstructorSignature class="null"/>
-                              <typeName>java.util.ArrayList</typeName>
+                              <typeName>[Ljava.lang.String;</typeName>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
@@ -198,14 +195,14 @@
                   <elements>
                     <com.otk.jesb.Structure_-SimpleElement>
                       <multiple>true</multiple>
-                      <name>subPlanFileText</name>
+                      <name>subPlanFileTexts</name>
                       <optionality class="null"/>
                       <typeName>java.lang.String</typeName>
                     </com.otk.jesb.Structure_-SimpleElement>
                   </elements>
                 </valueStructure>
               </operationBuilder>
-              <diagramX>338</diagramX>
+              <diagramX>340</diagramX>
               <diagramY>111</diagramY>
             </com.otk.jesb.solution.Step>
             <com.otk.jesb.solution.Step>
@@ -223,7 +220,26 @@
                       <parameterPosition>0</parameterPosition>
                       <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
                         <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor">
-                          <outer-class reference="../../../../../.."/>
+                          <outer-class>
+                            <instanceBuilder>
+                              <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+                                <outer-class reference="../.."/>
+                              </dynamicTypeNameAccessor>
+                              <fieldInitializers/>
+                              <initializationSwitches/>
+                              <listItemInitializers/>
+                              <parameterInitializers>
+                                <com.otk.jesb.instantiation.ParameterInitializer reference="../../../../../.."/>
+                              </parameterInitializers>
+                              <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../../../../.."/>
+                              <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor" reference="../../.."/>
+                              <rootInstanceName>WriteFileInput</rootInstanceName>
+                              <rootInstanceTypeName class="null"/>
+                              <selectedConstructorSignature class="null"/>
+                              <typeName>&lt;Dynamic&gt;</typeName>
+                            </instanceBuilder>
+                            <mode>TEXT</mode>
+                          </outer-class>
                         </dynamicTypeNameAccessor>
                         <fieldInitializers/>
                         <initializationSwitches/>
@@ -236,8 +252,12 @@
                           <com.otk.jesb.instantiation.ParameterInitializer>
                             <parameterPosition>1</parameterPosition>
                             <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                              <functionBody>return &quot;&quot;;</functionBody>
+                              <functionBody>return com.otk.jesb.util.ArrayStream.get(extractFilesTextContent.getSubPlanFileTexts()).map(Object::toString).reduce((element1, element2) -&gt; element1 + &quot;\n&quot; + element2).orElse(&quot;&quot;);</functionBody>
                             </parameterValue>
+                          </com.otk.jesb.instantiation.ParameterInitializer>
+                          <com.otk.jesb.instantiation.ParameterInitializer>
+                            <parameterPosition>2</parameterPosition>
+                            <parameterValue class="boolean">false</parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>
                         <selectedConstructorSignature class="null"/>
@@ -246,7 +266,9 @@
                     </com.otk.jesb.instantiation.ParameterInitializer>
                   </parameterInitializers>
                   <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+                  <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor">
+                    <outer-class reference="../../.."/>
+                  </rootInstanceDynamicTypeNameAccessor>
                   <rootInstanceName>WriteFileInput</rootInstanceName>
                   <rootInstanceTypeName class="null"/>
                   <selectedConstructorSignature class="null"/>
@@ -303,7 +325,7 @@
                               </listItemInitializers>
                               <parameterInitializers/>
                               <selectedConstructorSignature class="null"/>
-                              <typeName>java.util.ArrayList</typeName>
+                              <typeName>[Ljava.lang.String;</typeName>
                             </parameterValue>
                           </com.otk.jesb.instantiation.ParameterInitializer>
                         </parameterInitializers>

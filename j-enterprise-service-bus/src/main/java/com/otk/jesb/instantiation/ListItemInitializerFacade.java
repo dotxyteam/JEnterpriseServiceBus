@@ -45,15 +45,15 @@ public class ListItemInitializerFacade extends InitializerFacade {
 				@Override
 				public Class<?> getVariableType() {
 					ListItemReplicationFacade itemReplicationFacade = getItemReplicationFacade();
-					ITypeInfo guessedIterationVariableType = itemReplicationFacade
-							.guessIterationVariableTypeInfo(baseVariableDeclarations);
-					if (guessedIterationVariableType != null) {
-						return ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();
-					}
 					ITypeInfo declaredIterationVariableType = itemReplicationFacade
 							.getDeclaredIterationVariableTypeInfo();
 					if (declaredIterationVariableType != null) {
 						return ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
+					}
+					ITypeInfo guessedIterationVariableType = itemReplicationFacade
+							.guessIterationVariableTypeInfo(baseVariableDeclarations);
+					if (guessedIterationVariableType != null) {
+						return ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();
 					}
 					return Object.class;
 				}
