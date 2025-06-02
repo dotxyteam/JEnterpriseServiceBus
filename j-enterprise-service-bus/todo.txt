@@ -7,7 +7,6 @@
 - add general activities:
 	. Log
 	. ...
-- check javaparser compatibility with different java versions 
 - allow to start plan execution on event (timer, file poller, etc)
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
@@ -23,10 +22,9 @@
 	. disabling all breakpoints
 - add a binary type (maybe an alias of byte[]) for structure elements
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
-- allow to map list.size()/array.length/stream/...
 - use the same structure (list or array) for structure multiple elements 
 and loop results
-- create and use ITypeInfoProvider.getClass(ITypeInfo)
+- create and use TypeInfoProvider.getClass(ITypeInfo)
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code
@@ -42,10 +40,8 @@ ExecutePlan.inputBuilder is filled
 - plain/function mode as a toggle button ???
 - prevent or warn about multiply defined transitions
 - manage renamings
-- Plan.isPreviousStep() too CPU greedy
 - what if 2 variables have the same name ?
 - replace "Edit..." by an icon ???
-- rename activity classes (remove 'Activity' suffix) ???
 - add support to Iterable for ListItemReplication.iterationListValue
 - alternatives: 
 https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/
@@ -56,15 +52,11 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 	. zoom
 - Switch/Cases feature issues:
 	. should not allow to remove all switch/cases managed elements ???
-- wrap function editor lines ???
 - generate expressions that do not crash because of a null pointer ???
 - allow to trace errors origin
 - add XML/JSON support
 	. generate automatically classes from schemas to parse and render ???
 - allow to serve/call rest/soap web services
-- Structure.Element.multiple= true should generate a list instead of an array ???
-- UI improvements:
-	. banner ???
 - add connectors for:
 	. JMS
 	. Kafka

@@ -10,6 +10,8 @@ import java.util.List;
 import javax.swing.DropMode;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.JTextComponent;
 
 import com.otk.jesb.Debugger;
@@ -60,6 +62,13 @@ public class GUI extends SwingCustomizer {
 		if (JESB.DEBUG) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
+		try {
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
