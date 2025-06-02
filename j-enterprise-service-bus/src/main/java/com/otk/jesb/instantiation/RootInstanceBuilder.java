@@ -23,14 +23,12 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public RootInstanceBuilder() {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
-		initialize();
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, Accessor<String> rootInstanceDynamicTypeNameAccessor) {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
-		initialize();
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {
@@ -38,12 +36,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()
 				: rootInstanceTypeName;
-		initialize();
 	}
 
-	private void initialize() {
-		getFacade().getChildren().get(0).setConcrete(true);
-	}
+	
 
 	@Override
 	public void setTypeName(String typeName) {
@@ -78,7 +73,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	}
 
 	public RootInstanceBuilderFacade getFacade() {
-		return (RootInstanceBuilderFacade) Facade.get(this, null);
+		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) Facade.get(this, null);
+		result.getChildren().get(0).setConcrete(true);
+		return result;
 	}
 
 	public List<FacadeOutline> getFacadeOutlineChildren() {

@@ -405,7 +405,7 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		for (JConnection eachConnection : connections) {
 			eachConnection.setSelected(selection.contains(eachConnection));
 		}
-		repaint();
+		paintImmediately(getBounds());
 		for (JDiagramListener l : listeners) {
 			l.selectionChanged();
 		}

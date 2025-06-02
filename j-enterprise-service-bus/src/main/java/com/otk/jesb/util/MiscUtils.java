@@ -62,6 +62,40 @@ import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
 
+	private static final XStream XSTREAM = new XStream() {
+		@Override
+		protected MapperWrapper wrapMapper(MapperWrapper next) {
+			return new MapperWrapper(next) {
+				@Override
+				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
+					if (type.isAnonymousClass()) {
+						throw new UnexpectedError("Cannot serialize instance of forbidden anonymous class " + type);
+					}
+					return super.serializedClass(type);
+				}
+			};
+		}
+	};
+	static {
+		XSTREAM.registerConverter(new JavaBeanConverter(XSTREAM.getMapper(), new BeanProvider() {
+			@Override
+			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
+				final boolean canStream = super.canStreamProperty(descriptor);
+				if (!canStream) {
+					return false;
+				}
+				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
+						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
+				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
+						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
+				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
+
+				return !isTransient;
+			}
+		}), -20);
+		XSTREAM.addPermission(AnyTypePermission.ANY);
+		XSTREAM.ignoreUnknownElements();
+	}
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
@@ -483,11 +517,11 @@ public class MiscUtils {
 	}
 
 	public static void serialize(Object object, OutputStream output) throws IOException {
-		getXStream().toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
+		XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
 	}
 
 	public static Object deserialize(InputStream input) throws IOException {
-		return getXStream().fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+		return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
 	}
 
 	public static String serialize(Object object) {
@@ -516,42 +550,6 @@ public class MiscUtils {
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
-	}
-
-	private static XStream getXStream() {
-		XStream result = new XStream() {
-			@Override
-			protected MapperWrapper wrapMapper(MapperWrapper next) {
-				return new MapperWrapper(next) {
-					@Override
-					public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
-						if (type.isAnonymousClass()) {
-							throw new UnexpectedError("Cannot serialize instance of forbidden anonymous class " + type);
-						}
-						return super.serializedClass(type);
-					}
-				};
-			}
-		};
-		result.registerConverter(new JavaBeanConverter(result.getMapper(), new BeanProvider() {
-			@Override
-			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
-				final boolean canStream = super.canStreamProperty(descriptor);
-				if (!canStream) {
-					return false;
-				}
-				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
-						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
-				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
-						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
-				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
-
-				return !isTransient;
-			}
-		}), -20);
-		result.addPermission(AnyTypePermission.ANY);
-		result.ignoreUnknownElements();
-		return result;
 	}
 
 	public static String getPrintedStackTrace(Throwable t) {

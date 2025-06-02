@@ -687,60 +687,67 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		Set<JDiagramObject> selection = getSelection();
 		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
 				.collect(Collectors.toList());
-		clear();
-		List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
-		Collections.sort(sortedSteps, new Comparator<Step>() {
-			@Override
-			public int compare(Step o1, Step o2) {
-				if ((o1.getParent() == null) && (o2.getParent() != null)) {
-					return -1;
-				}
-				if ((o1.getParent() != null) && (o2.getParent() == null)) {
-					return 1;
-				}
-				if ((o1.getParent() != null) && (o2.getParent() != null)) {
-					return compare(o1.getParent(), o2.getParent());
-				}
-				return 0;
-			}
-		});
-		for (Step step : sortedSteps) {
-			JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
-			ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
-			if (iconImagePath != null) {
-				Image iconImage = adaptedIconImageByPath.get(iconImagePath);
-				if (iconImage == null) {
-					iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
-							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
-					iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH, STEP_ICON_HEIGHT,
-							Image.SCALE_SMOOTH);
-					adaptedIconImageByPath.put(iconImagePath, iconImage);
-				}
-				node.setImage(iconImage);
-			}
-			if (step instanceof CompositeStep) {
-				int headerHeight = 16;
-				int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
-				int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
-				Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
-						STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
-				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
-						BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g = compositeImage.createGraphics();
-				g.setColor(getNodeColor());
-				MiscUtils.improveRenderingQuality(g);
-				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
-				g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
-						node.getImage().getHeight(null), null);
-				g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
-				g.dispose();
-				node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
-				node.setCenterY((int) Math.round(compositeBounds.getCenterY()));
-				node.setImage(compositeImage);
-			}
-		}
 		selectionListeningEnabled = false;
 		try {
+			clear();
+			List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
+			Collections.sort(sortedSteps, new Comparator<Step>() {
+				@Override
+				public int compare(Step o1, Step o2) {
+					if ((o1.getParent() == null) && (o2.getParent() != null)) {
+						return -1;
+					}
+					if ((o1.getParent() != null) && (o2.getParent() == null)) {
+						return 1;
+					}
+					if ((o1.getParent() != null) && (o2.getParent() != null)) {
+						return compare(o1.getParent(), o2.getParent());
+					}
+					return 0;
+				}
+			});
+			for (Step step : sortedSteps) {
+				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
+				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
+				if (iconImagePath != null) {
+					Image iconImage = adaptedIconImageByPath.get(iconImagePath);
+					if (iconImage == null) {
+						iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
+								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
+						iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH,
+								STEP_ICON_HEIGHT, Image.SCALE_SMOOTH);
+						adaptedIconImageByPath.put(iconImagePath, iconImage);
+					}
+					node.setImage(iconImage);
+				}
+				if (step instanceof CompositeStep) {
+					int headerHeight = 16;
+					int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
+					int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
+					Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
+							STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
+					BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
+							BufferedImage.TYPE_INT_ARGB);
+					Graphics2D g = compositeImage.createGraphics();
+					g.setColor(getNodeColor());
+					MiscUtils.improveRenderingQuality(g);
+					g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
+					g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
+							node.getImage().getHeight(null), null);
+					g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
+					g.dispose();
+					node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
+					node.setCenterY((int) Math.round(compositeBounds.getCenterY()));
+					node.setImage(compositeImage);
+				}
+			}
+			for (Transition t : plan.getTransitions()) {
+				JNode node1 = findNode(t.getStartStep());
+				JNode node2 = findNode(t.getEndStep());
+				if ((node1 != null) && (node2 != null)) {
+					addConnection(node1, node2, t);
+				}
+			}
 			setSelection(selectedStepAndTransitions.stream().map(selectedStepOrTransition -> {
 				if (selectedStepOrTransition instanceof Step) {
 					return findNode(selectedStepOrTransition);
@@ -752,13 +759,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}).collect(Collectors.toSet()));
 		} finally {
 			selectionListeningEnabled = true;
-		}
-		for (Transition t : plan.getTransitions()) {
-			JNode node1 = findNode(t.getStartStep());
-			JNode node2 = findNode(t.getEndStep());
-			if ((node1 != null) && (node2 != null)) {
-				addConnection(node1, node2, t);
-			}
 		}
 		SwingRendererUtils.handleComponentSizeChange(this);
 		Runnable selectionUpdate = new Runnable() {

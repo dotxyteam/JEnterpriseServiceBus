@@ -503,10 +503,10 @@ public class PathExplorer {
 		@Override
 		public ITypeInfo getExpressionType() {
 			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
-			Class<?>[] parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
-					.getGenericTypeParameters();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
 			return TypeInfoProvider.getTypeInfo(Stream.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters[0] } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
 		}
 
 		@Override
@@ -554,10 +554,10 @@ public class PathExplorer {
 		@Override
 		public ITypeInfo getExpressionType() {
 			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
-			Class<?>[] parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
-					.getGenericTypeParameters();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
 			return TypeInfoProvider.getTypeInfo(Stream.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters[0] } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
 		}
 
 		@Override
@@ -606,10 +606,10 @@ public class PathExplorer {
 		@Override
 		public ITypeInfo getExpressionType() {
 			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
-			Class<?>[] parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
-					.getGenericTypeParameters();
-			return TypeInfoProvider
-					.getTypeInfo((parentStreamTypeParameters != null) ? parentStreamTypeParameters[0] : Object.class);
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
+			return TypeInfoProvider.getTypeInfo(
+					(parentStreamTypeParameters != null) ? parentStreamTypeParameters.get(0) : Object.class);
 		}
 
 		@Override
@@ -658,10 +658,10 @@ public class PathExplorer {
 		@Override
 		public ITypeInfo getExpressionType() {
 			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
-			Class<?>[] parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
-					.getGenericTypeParameters();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
 			return TypeInfoProvider.getTypeInfo(List.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters[0] } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
 		}
 
 		@Override
