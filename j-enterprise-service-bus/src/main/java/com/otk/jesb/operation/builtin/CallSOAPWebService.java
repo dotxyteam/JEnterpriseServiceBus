@@ -347,6 +347,10 @@ public class CallSOAPWebService implements Operation {
 			if (retrieveOperationDescriptor() == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
 			}
+			if (recursively) {
+				operationInputBuilder.getFacade().validate(recursively,
+						plan.getValidationContext(step).getVariableDeclarations());
+			}
 		}
 
 		private class OperationInputClassNameAccessor extends Accessor<String> {
