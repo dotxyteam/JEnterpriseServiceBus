@@ -63,7 +63,7 @@ public class GUI extends SwingCustomizer {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
 		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			e.printStackTrace();

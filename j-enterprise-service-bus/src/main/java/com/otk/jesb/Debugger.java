@@ -88,16 +88,16 @@ public class Debugger {
 
 	public static class PlanExecutor {
 
-		private Plan plan;
-		private Object planInput;
-		private List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
-		private StepCrossing currentStepCrossing;
-		private Throwable executionError;
-		private Thread thread;
-		private List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
-		private Stack<PlanExecutor> currentPlanExecutionStack = new Stack<Debugger.PlanExecutor>();
-		private static boolean scrollLocked = false;
-		private boolean interrupted = false;
+		protected Plan plan;
+		protected Object planInput;
+		protected List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
+		protected StepCrossing currentStepCrossing;
+		protected Throwable executionError;
+		protected Thread thread;
+		protected List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
+		protected Stack<PlanExecutor> currentPlanExecutionStack = new Stack<Debugger.PlanExecutor>();
+		protected static boolean scrollLocked = false;
+		protected boolean interrupted = false;
 
 		public PlanExecutor(Plan plan, Object planInput) {
 			this.plan = plan;
@@ -187,7 +187,7 @@ public class Debugger {
 						if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
 							Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
 									.getPlanReference().resolve();
-							PlanExecutor newPlanExecutor = new SubPlanExecutor(subPlan);
+							PlanExecutor newPlanExecutor = new SubPlanExecutor(subPlan, stepCrossing);
 							getTopPlanExecutor().children.add(newPlanExecutor);
 							currentPlanExecutionStack.add(newPlanExecutor);
 						}
@@ -236,8 +236,17 @@ public class Debugger {
 
 		public static class SubPlanExecutor extends PlanExecutor {
 
-			public SubPlanExecutor(Plan plan) {
+			private StepCrossing executePlanStepCrossing;
+
+			public SubPlanExecutor(Plan plan, StepCrossing executePlanStepCrossing) {
 				super(plan, null);
+				this.executePlanStepCrossing = executePlanStepCrossing;
+			}
+
+			@Override
+			public Throwable getExecutionError() {
+				executionError = executePlanStepCrossing.getOperationError();
+				return super.getExecutionError();
 			}
 
 			@Override
