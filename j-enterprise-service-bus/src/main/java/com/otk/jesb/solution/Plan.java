@@ -14,12 +14,11 @@ import com.otk.jesb.CompositeStep;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.activation.Activation;
+import com.otk.jesb.activation.StartupExecution;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
-import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
@@ -28,8 +27,6 @@ import com.otk.jesb.solution.Transition.ExceptionCondition;
 import com.otk.jesb.solution.Transition.IfCondition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
-import com.otk.jesb.util.UpToDate;
-import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public class Plan extends Asset {
 
@@ -43,17 +40,33 @@ public class Plan extends Asset {
 		super(name);
 	}
 
+	private Activation activation = new StartupExecution();
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
 	private transient Set<PlanElement> selectedElements = new HashSet<PlanElement>();
 	private transient PlanElement focusedElementSelectedSurrounding;
-	private ClassicStructure inputStructure;
-	private ClassicStructure outputStructure;
-
-	private UpToDate<Class<?>> upToDateInputClass = new UpToDateInputClass();
-	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new OutputClassNameAccessor());
+
+	public RootInstanceBuilder getOutputBuilder() {
+		return outputBuilder;
+	}
+
+	public void setOutputBuilder(RootInstanceBuilder outputBuilder) {
+		this.outputBuilder = outputBuilder;
+	}
+
+	public Activation getActivation() {
+		return activation;
+	}
+
+	public boolean isOutputEnabled() {
+		return activation.getOutputClass() != null;
+	}
+
+	public void setActivation(Activation activation) {
+		this.activation = activation;
+	}
 
 	public List<Step> getSteps() {
 		return steps;
@@ -69,46 +82,6 @@ public class Plan extends Asset {
 
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
-	}
-
-	public ClassicStructure getInputStructure() {
-		return inputStructure;
-	}
-
-	public void setInputStructure(ClassicStructure inputStructure) {
-		this.inputStructure = inputStructure;
-	}
-
-	public ClassicStructure getOutputStructure() {
-		return outputStructure;
-	}
-
-	public void setOutputStructure(ClassicStructure outputStructure) {
-		this.outputStructure = outputStructure;
-	}
-
-	public RootInstanceBuilder getOutputBuilder() {
-		return outputBuilder;
-	}
-
-	public void setOutputBuilder(RootInstanceBuilder outputBuilder) {
-		this.outputBuilder = outputBuilder;
-	}
-
-	public Class<?> getInputClass() {
-		try {
-			return upToDateInputClass.get();
-		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
-		}
-	}
-
-	public Class<?> getOutputClass() {
-		try {
-			return upToDateOutputClass.get();
-		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
-		}
 	}
 
 	@Transient
@@ -222,10 +195,10 @@ public class Plan extends Asset {
 		});
 	}
 
-	public Object execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
+	public ExecutionContext execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
 		try {
 			ExecutionContext context = new ExecutionContext(this);
-			Class<?> inputClass = upToDateInputClass.get();
+			Class<?> inputClass = activation.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
 					if (!inputClass.isInstance(input)) {
@@ -247,8 +220,7 @@ public class Plan extends Asset {
 			}
 			execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 					executionInspector);
-			return outputBuilder.build(new InstantiationContext(context.getVariables(),
-					getValidationContext(null).getVariableDeclarations()));
+			return context;
 		} catch (Throwable t) {
 			throw new ExecutionError("Failed to execute plan (" + Reference.get(this).getPath() + ")", t);
 		}
@@ -462,12 +434,7 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			Class<?> inputClass;
-			try {
-				inputClass = upToDateInputClass.get();
-			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
-			}
+			Class<?> inputClass = activation.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 
@@ -527,20 +494,7 @@ public class Plan extends Asset {
 					throw new ValidationError("Failed to validate transition '" + transition.getSummary() + "'", e);
 				}
 			}
-			if (inputStructure != null) {
-				try {
-					inputStructure.validate(recursively);
-				} catch (ValidationError e) {
-					throw new ValidationError("Failed to validate the input structure", e);
-				}
-			}
-			if (outputStructure != null) {
-				try {
-					outputStructure.validate(recursively);
-				} catch (ValidationError e) {
-					throw new ValidationError("Failed to validate the output structure", e);
-				}
-			}
+			activation.validate(recursively, this);
 			outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
 		}
 	}
@@ -663,62 +617,11 @@ public class Plan extends Asset {
 	private class OutputClassNameAccessor extends Accessor<String> {
 		@Override
 		public String get() {
-			Class<?> outputClass;
-			try {
-				outputClass = upToDateOutputClass.get();
-			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
-			}
+			Class<?> outputClass = activation.getOutputClass();
 			if (outputClass == null) {
 				return null;
 			}
 			return outputClass.getName();
-		}
-	}
-
-	private class UpToDateInputClass extends UpToDate<Class<?>> {
-		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
-		}
-
-		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
-			if (inputStructure == null) {
-				return null;
-			} else {
-				try {
-					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							inputStructure.generateJavaTypeSourceCode(className));
-				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
-				}
-			}
-		}
-	}
-
-	private class UpToDateOutputClass extends UpToDate<Class<?>> {
-		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
-		}
-
-		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
-			if (outputStructure == null) {
-				return null;
-			} else {
-				try {
-					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.toDigitalUniqueIdentifier(Plan.this);
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							outputStructure.generateJavaTypeSourceCode(className));
-				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
-				}
-			}
 		}
 	}
 

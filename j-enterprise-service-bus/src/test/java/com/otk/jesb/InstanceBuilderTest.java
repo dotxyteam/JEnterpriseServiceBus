@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.activation.DirectExecution;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
@@ -28,13 +29,15 @@ public class InstanceBuilderTest {
 
 	public static void main(String[] args) throws Exception {
 		Plan plan = new Plan();
+		DirectExecution activation = new DirectExecution();
+		plan.setActivation(activation);
 		ClassicStructure planInputStructure = new ClassicStructure();
 		{
 			SimpleElement element = new Structure.SimpleElement();
 			element.setName("tree");
 			element.setTypeName(Tree.class.getName());
 			planInputStructure.getElements().add(element);
-			plan.setInputStructure(planInputStructure);
+			activation.setInputStructure(planInputStructure);
 		}
 		Step step = new Step(new Tree.Metadata());
 		plan.getSteps().add(step);
@@ -44,11 +47,11 @@ public class InstanceBuilderTest {
 			element.setName("tree");
 			element.setTypeName(Tree.class.getName());
 			planOutputStructure.getElements().add(element);
-			plan.setOutputStructure(planOutputStructure);
+			activation.setOutputStructure(planOutputStructure);
 		}
-		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers()
-				.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer())
+				.getParameterValue()).getParameterInitializers()
+						.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
@@ -62,7 +65,8 @@ public class InstanceBuilderTest {
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
 				try {
-					Object input = plan.getInputClass().getConstructor(Tree.class).newInstance(inputTree);
+					Object input = plan.getActivation().getInputClass().getConstructor(Tree.class)
+							.newInstance(inputTree);
 					output = plan.execute(input);
 				} catch (Throwable t) {
 					GUI.INSTANCE.handleException(null, t);

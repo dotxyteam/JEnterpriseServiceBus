@@ -739,11 +739,16 @@ public class JESBReflectionUI extends CustomizedUI {
 							if (displayedPlan == null) {
 								return null;
 							}
-							return new PathOptionsProvider(displayedPlan
-									.getValidationContext(
-											(((RootInstanceBuilderFacade) object).getUnderlying() == displayedPlan
-													.getOutputBuilder()) ? null : displayedStep)
-									.getVariableDeclarations()).getRootPathNodes();
+							Step currentStep;
+							if (displayedPlan.getOutputBuilder() == ((RootInstanceBuilderFacade) object)
+									.getUnderlying()) {
+								currentStep = null;
+							} else {
+								currentStep = displayedStep;
+							}
+							return new PathOptionsProvider(
+									displayedPlan.getValidationContext(currentStep).getVariableDeclarations())
+											.getRootPathNodes();
 						}
 
 						@Override
@@ -799,12 +804,16 @@ public class JESBReflectionUI extends CustomizedUI {
 							if (displayedRootInstanceBuilderFacade == null) {
 								return null;
 							}
+							Step currentStep;
+							if (displayedPlan.getOutputBuilder() == displayedRootInstanceBuilderFacade
+									.getUnderlying()) {
+								currentStep = null;
+							} else {
+								currentStep = displayedStep;
+							}
 							ITypeInfo variableType = ((ListItemReplicationFacade) object)
-									.guessIterationVariableTypeInfo(displayedPlan
-											.getValidationContext(
-													(displayedRootInstanceBuilderFacade.getUnderlying() == displayedPlan
-															.getOutputBuilder()) ? null : displayedStep)
-											.getVariableDeclarations());
+									.guessIterationVariableTypeInfo(
+											displayedPlan.getValidationContext(currentStep).getVariableDeclarations());
 							if (variableType != null) {
 								return variableType.getName();
 							} else {
@@ -868,11 +877,15 @@ public class JESBReflectionUI extends CustomizedUI {
 								InstantiationFunction function = (InstantiationFunction) object;
 								Facade parentFacade = displayedRootInstanceBuilderFacade
 										.findInstantiationFunctionParentFacade(function);
+								Step currentStep;
+								if (displayedPlan.getOutputBuilder() == displayedRootInstanceBuilderFacade
+										.getUnderlying()) {
+									currentStep = null;
+								} else {
+									currentStep = displayedStep;
+								}
 								List<VariableDeclaration> baseVariableDeclarations = displayedPlan
-										.getValidationContext(
-												(displayedRootInstanceBuilderFacade.getUnderlying() == displayedPlan
-														.getOutputBuilder()) ? null : displayedStep)
-										.getVariableDeclarations();
+										.getValidationContext(currentStep).getVariableDeclarations();
 								InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
 										baseVariableDeclarations, parentFacade);
 								return new FunctionEditor(function, compilationContext.getPrecompiler(),
@@ -1224,7 +1237,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					Plan plan = getCurrentValidationPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot((Facade) object);
-					step = (rootInstanceBuilderFacade.getUnderlying() == plan.getOutputBuilder()) ? null : step;
+					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 					try {
 						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
@@ -1235,7 +1248,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					Plan plan = getCurrentValidationPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
-					step = (rootInstanceBuilderFacade.getUnderlying() == plan.getOutputBuilder()) ? null : step;
+					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 					try {
 						((ListItemReplicationFacade) object).validate(false,
 								plan.getValidationContext(step).getVariableDeclarations());

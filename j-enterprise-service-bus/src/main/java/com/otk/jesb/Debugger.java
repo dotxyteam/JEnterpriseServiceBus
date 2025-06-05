@@ -52,8 +52,8 @@ public class Debugger {
 
 		public PlanActivator(Plan plan) {
 			this.plan = plan;
-			if (plan.getInputClass() != null) {
-				planInputBuilder = new RootInstanceBuilder("Input", plan.getInputClass().getName());
+			if (plan.getActivation().getInputClass() != null) {
+				planInputBuilder = new RootInstanceBuilder("Input", plan.getActivation().getInputClass().getName());
 			}
 		}
 

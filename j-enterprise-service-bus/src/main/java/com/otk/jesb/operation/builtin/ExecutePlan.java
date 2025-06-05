@@ -3,6 +3,7 @@ package com.otk.jesb.operation.builtin;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Reference;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.DirectExecution;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -37,7 +38,11 @@ public class ExecutePlan implements Operation {
 
 	@Override
 	public Object execute() throws Throwable {
-		return plan.execute(planInput, executionInspector);
+		ExecutionContext context = plan.execute(planInput, executionInspector);
+		RootInstanceBuilder outputBuilder = plan.getOutputBuilder();
+		return outputBuilder.build(new InstantiationContext(context.getVariables(),
+				plan.getValidationContext(null).getVariableDeclarations()));
+
 	}
 
 	public static class Metadata implements OperationMetadata {
@@ -104,7 +109,8 @@ public class ExecutePlan implements Operation {
 			if (plan == null) {
 				return null;
 			}
-			return plan.getOutputClass();
+			DirectExecution activation = (DirectExecution) plan.getActivation();
+			return activation.getOutputClass();
 		}
 
 		@Override
@@ -131,10 +137,10 @@ public class ExecutePlan implements Operation {
 				if (plan == null) {
 					return null;
 				}
-				if (plan.getInputClass() == null) {
+				if (plan.getActivation().getInputClass() == null) {
 					return null;
 				}
-				return plan.getInputClass().getName();
+				return plan.getActivation().getInputClass().getName();
 			}
 		}
 
