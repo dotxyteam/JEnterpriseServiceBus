@@ -16468,7 +16468,7 @@
                         <excludedSubListFields>
                             <uniqueIdentifier>433dc9d0:19696c42873:b99</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
-                            <value>typeNameOptions</value>
+                            <value>typeNameOrAliasOptions</value>
                         </excludedSubListFields>
                         <heterogeneousTree>true</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -16769,7 +16769,7 @@
                 </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
-            <valueOptionsFieldName>typeNameOptions</valueOptionsFieldName>
+            <valueOptionsFieldName>typeNameOrAliasOptions</valueOptionsFieldName>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
         <fieldsCustomizations>
@@ -16778,7 +16778,7 @@
             <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>typeNameOptions</fieldName>
+            <fieldName>typeNameOrAliasOptions</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>

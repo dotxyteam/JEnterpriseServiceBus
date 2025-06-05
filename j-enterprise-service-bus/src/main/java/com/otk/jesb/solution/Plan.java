@@ -283,7 +283,6 @@ public class Plan extends Asset {
 				executionError = null;
 			} catch (ExecutionError e) {
 				executionError = e;
-				stepCrossing.setOperationError(e.getCause());
 			} finally {
 				context.getVariables().add(stepCrossing);
 				stepCrossing.capturePostVariables(context.getVariables());
@@ -446,6 +445,7 @@ public class Plan extends Asset {
 			stepCrossing.setOperation(operation);
 			stepCrossing.setOperationResult(operation.execute());
 		} catch (Throwable t) {
+			stepCrossing.setOperationError(t);
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
 		} finally {
 			executionInspector.afterOperation(stepCrossing);

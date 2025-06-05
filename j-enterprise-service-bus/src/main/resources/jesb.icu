@@ -4158,7 +4158,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:578b</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f0</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -4220,7 +4220,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:578c</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f1</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4276,7 +4276,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:578d</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f2</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4311,7 +4311,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:578e</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f3</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4426,7 +4426,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:578f</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f4</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -4543,7 +4543,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5790</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f5</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -4622,7 +4622,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5791</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f6</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -6169,7 +6169,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5792</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f7</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -6258,7 +6258,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5793</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f8</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -11752,13 +11752,20 @@
                 </applicationCustomization>
                 <listCustomizations>
                     <uniqueIdentifier>-e239d82:193f3d2e88e:6a3b</uniqueIdentifier>
+                    <columnCustomizations>
+                        <uniqueIdentifier>7e7727b5:1973be5f183:-1c11</uniqueIdentifier>
+                        <columnName>toStringValue</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomizations>
+                    <columnsCustomOrder>name</columnsCustomOrder>
+                    <columnsCustomOrder>typeName</columnsCustomOrder>
                     <editOptions>
                         <uniqueIdentifier>44fe688f:196e9a34250:35e3</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
                         <itemDeletionEnabled>true</itemDeletionEnabled>
                         <itemMoveEnabled>true</itemMoveEnabled>
                     </editOptions>
-                    <fieldColumnsAdded>false</fieldColumnsAdded>
+                    <fieldColumnsAdded>true</fieldColumnsAdded>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
@@ -11766,7 +11773,7 @@
                         <uniqueIdentifier>-3fc69853:196b68bddc2:42c3</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
-                    <itemTypeColumnAdded>false</itemTypeColumnAdded>
+                    <itemTypeColumnAdded>true</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.solution.Asset</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
@@ -14104,7 +14111,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5794</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54f9</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -14166,7 +14173,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5795</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54fa</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -14201,7 +14208,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5796</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54fb</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -14889,7 +14896,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5797</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54fc</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14924,7 +14931,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5798</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54fd</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -15261,7 +15268,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:5799</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54fe</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -15688,7 +15695,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579a</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:54ff</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -15830,7 +15837,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579b</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5500</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -16513,7 +16520,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579c</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5501</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -16553,7 +16560,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579d</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5502</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -16615,7 +16622,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579e</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5503</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -17518,7 +17525,7 @@
                         <excludedSubListFields>
                             <uniqueIdentifier>433dc9d0:19696c42873:b99</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
-                            <value>typeNameOptions</value>
+                            <value>typeNameOrAliasOptions</value>
                         </excludedSubListFields>
                         <heterogeneousTree>true</heterogeneousTree>
                         <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
@@ -17769,6 +17776,8 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>name</customFieldsOrder>
+        <customFieldsOrder>typeNameOrAlias</customFieldsOrder>
+        <customFieldsOrder>typeNameOrAliasOptions</customFieldsOrder>
         <customFieldsOrder>typeName</customFieldsOrder>
         <customFieldsOrder>optionality</customFieldsOrder>
         <customFieldsOrder>multiple</customFieldsOrder>
@@ -17803,7 +17812,7 @@
         <fieldsCustomizations>
             <uniqueIdentifier>-419bc95a:1947609bd70:-7986</uniqueIdentifier>
             <specificProperties/>
-            <hidden>false</hidden>
+            <hidden>true</hidden>
             <customFieldCaption>Type</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
@@ -17826,7 +17835,7 @@
                 </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
-            <valueOptionsFieldName>typeNameOptions</valueOptionsFieldName>
+            <valueOptionsFieldName>typeNameOrAliasOptions</valueOptionsFieldName>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
         <fieldsCustomizations>
@@ -17835,7 +17844,7 @@
             <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>typeNameOptions</fieldName>
+            <fieldName>typeNameOrAliasOptions</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -17854,6 +17863,35 @@
                 </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>7db282e:1973ffd512e:33a4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Type</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>typeNameOrAlias</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>7db282e:1973ffd512e:33a6</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>7db282e:1973ffd512e:33a5</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueOptionsFieldName>typeNameOrAliasOptions</valueOptionsFieldName>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
         <immutableForced>false</immutableForced>
@@ -18051,6 +18089,22 @@
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
                     <stringValueColumnAdded>false</stringValueColumnAdded>
+                    <treeStructureDiscoverySettings>
+                        <uniqueIdentifier>1afd779e:1973fd94c88:36d5</uniqueIdentifier>
+                        <excludedSubListFields>
+                            <uniqueIdentifier>56e34e81:1969674910b:-13ee</uniqueIdentifier>
+                            <regularExpression>false</regularExpression>
+                            <value>children</value>
+                        </excludedSubListFields>
+                        <excludedSubListFields>
+                            <uniqueIdentifier>433dc9d0:19696c42873:b99</uniqueIdentifier>
+                            <regularExpression>false</regularExpression>
+                            <value>typeNameOrAliasOptions</value>
+                        </excludedSubListFields>
+                        <heterogeneousTree>true</heterogeneousTree>
+                        <singleSubListFieldNameNeverDisplayedAsTreeNode>true</singleSubListFieldNameNeverDisplayedAsTreeNode>
+                        <subListFieldControlSlave>true</subListFieldControlSlave>
+                    </treeStructureDiscoverySettings>
                 </listCustomizations>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
@@ -19603,7 +19657,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:579f</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5504</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -20091,7 +20145,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a0</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5505</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -20152,7 +20206,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a1</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5506</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -20243,7 +20297,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a2</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5507</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -28263,7 +28317,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a3</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5508</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28324,7 +28378,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a4</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5509</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28386,7 +28440,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a5</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28543,7 +28597,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a6</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28604,7 +28658,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a7</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28666,7 +28720,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a8</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28722,7 +28776,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57a9</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28773,7 +28827,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57aa</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:550f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -32541,7 +32595,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3955</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57ab</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5510</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -32576,7 +32630,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1ea3f636:197372cadba:57ac</uniqueIdentifier>
+                <uniqueIdentifier>7db282e:1973ffd512e:5511</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -34411,7 +34465,7 @@
                 </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+            <valueValidityDetectionForced>true</valueValidityDetectionForced>
         </fieldsCustomizations>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>

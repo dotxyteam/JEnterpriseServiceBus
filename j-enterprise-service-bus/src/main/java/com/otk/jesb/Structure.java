@@ -3,7 +3,9 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -371,24 +373,41 @@ public abstract class Structure {
 
 	public static class SimpleElement extends Element {
 
-		private String typeName = getTypeNameOptions().get(0);
+		private static final Map<String, String> TYPE_NAME_BY_ALIAS = new HashMap<String, String>();
+		static {
+			TYPE_NAME_BY_ALIAS.put("<binary>", byte[].class.getName());
+		}
+
+		private String typeNameOrAlias = getTypeNameOrAliasOptions().get(0);
+
+		public String getTypeNameOrAlias() {
+			return typeNameOrAlias;
+		}
+
+		public void setTypeNameOrAlias(String typeNameOrAlias) {
+			this.typeNameOrAlias = typeNameOrAlias;
+		}
 
 		@Override
 		public String getTypeName() {
-			return typeName;
+			return TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias);
 		}
 
 		public void setTypeName(String typeName) {
-			this.typeName = typeName;
+			if (TYPE_NAME_BY_ALIAS.containsValue(typeName)) {
+				typeName = MiscUtils.getFirstKeyFromValue(TYPE_NAME_BY_ALIAS, typeName);
+			}
+			this.typeNameOrAlias = typeName;
 		}
 
-		public List<String> getTypeNameOptions() {
+		public List<String> getTypeNameOrAliasOptions() {
 			List<String> result = new ArrayList<String>();
 			result.add(String.class.getName());
 			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_CLASSES).stream().map(cls -> cls.getName())
 					.collect(Collectors.toList()));
 			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_WRAPPER_CLASSES).stream().map(cls -> cls.getName())
 					.collect(Collectors.toList()));
+			result.addAll(TYPE_NAME_BY_ALIAS.keySet());
 			return result;
 		}
 
