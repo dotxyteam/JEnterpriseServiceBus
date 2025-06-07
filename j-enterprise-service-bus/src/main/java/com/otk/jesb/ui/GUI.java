@@ -3,7 +3,10 @@ package com.otk.jesb.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.Window;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,6 +17,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.JTextComponent;
 
+import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
+import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
@@ -58,17 +63,68 @@ import xy.reflect.ui.util.SystemProperties;
 
 public class GUI extends SwingCustomizer {
 
+	public enum Theme {
+		SYSTEM, CROSSPLATFORM, FLATLAF, FLATLAF_CHOOSER
+	}
+
+	private static Theme theme = Theme.FLATLAF;
+
 	static {
 		if (JESB.DEBUG) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+		if (theme == Theme.SYSTEM) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+					| UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
+		} else if (theme == Theme.SYSTEM) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+					| UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
+		} else if (theme == Theme.FLATLAF) {
+			FlatLightFlatIJTheme.setup();
+		} else if (theme == Theme.FLATLAF_CHOOSER) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					INSTANCE.openObjectFrame(Arrays.stream(FlatAllIJThemes.INFOS).map(info -> {
+						return new Runnable() {
+
+							@Override
+							public void run() {
+								try {
+									Class.forName(info.getClassName()).getMethod("setup").invoke(null);
+								} catch (IllegalAccessException | ClassNotFoundException | IllegalArgumentException
+										| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+									throw new UnexpectedError(e);
+								}
+								SwingUtilities.invokeLater(new Runnable() {
+									@Override
+									public void run() {
+										for (Window window : Window.getWindows()) {
+											SwingUtilities.updateComponentTreeUI(window);
+										}
+									}
+								});
+							}
+
+							@Override
+							public String toString() {
+								return info.getClassName();
+							}
+
+						};
+					}).toArray());
+				}
+			});
 		}
-		
+
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System

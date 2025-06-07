@@ -975,6 +975,7 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
+        <formSpacing>0</formSpacing>
         <iconImagePath>
             <specification>&lt;class-path-resource&gt; com/otk/jesb/Plan.png</specification>
         </iconImagePath>
@@ -4041,13 +4042,116 @@
         <abstractForced>false</abstractForced>
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <categoriesStyle>CLASSIC</categoriesStyle>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>name</customFieldsOrder>
         <customFieldsOrder>driverClassName</customFieldsOrder>
         <customFieldsOrder>url</customFieldsOrder>
         <customFieldsOrder>userName</customFieldsOrder>
         <customFieldsOrder>password</customFieldsOrder>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18de</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c23</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>note</name>
+            </category>
+            <categoryCaption>note</categoryCaption>
+            <categoryName>note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>noteBox</encapsulationFieldName>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18dc</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18dd</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18c1</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cABzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18c0</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-6664e96a:1974b8a7ddb:5188</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c22</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>note</name>
+            </category>
+            <categoryCaption>note</categoryCaption>
+            <categoryName>note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>noteBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-6664e96a:1974b8a7ddb:518a</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-6664e96a:1974b8a7ddb:5189</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
+        <memberCategories>
+            <uniqueIdentifier>-6664e96a:1974b8a7ddb:4ca0</uniqueIdentifier>
+            <caption>Note</caption>
+            <name>note</name>
+        </memberCategories>
         <menuModel>
             <uniqueIdentifier>27bee7ae:1937ebdba86:4a68</uniqueIdentifier>
         </menuModel>
@@ -4320,7 +4424,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-701e</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c21</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -4382,7 +4486,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-701d</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c20</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4438,7 +4542,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-701c</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1f</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4473,7 +4577,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-701b</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1e</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4588,7 +4692,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-701a</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1d</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -4705,7 +4809,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7019</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1c</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -4784,7 +4888,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7018</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1b</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -6331,7 +6435,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7017</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c1a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -6420,7 +6524,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7016</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c19</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -14484,7 +14588,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7015</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c18</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -14546,7 +14650,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7014</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c17</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -14581,7 +14685,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7013</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c16</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -15485,7 +15589,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7012</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c15</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -15520,7 +15624,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7011</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c14</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -15857,7 +15961,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7010</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c13</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -16284,7 +16388,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700f</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c12</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -16426,7 +16530,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700e</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c11</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17109,7 +17213,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700d</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c10</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -17149,7 +17253,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700c</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -17211,7 +17315,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700b</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -19434,6 +19538,7 @@
         <abstractForced>false</abstractForced>
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <categoriesStyle>CLASSIC</categoriesStyle>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>name</customFieldsOrder>
         <customFieldsOrder>topMethods</customFieldsOrder>
@@ -19604,7 +19709,77 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:363f</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>noteBox</encapsulationFieldName>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3641</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3640</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0d</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>note</name>
+            </category>
+            <categoryCaption>note</categoryCaption>
+            <categoryName>note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>noteBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:570f</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:570e</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
+        <memberCategories>
+            <uniqueIdentifier>61347bf6:1974b9376d1:572f</uniqueIdentifier>
+            <caption>Note</caption>
+            <name>note</name>
+        </memberCategories>
         <menuModel>
             <uniqueIdentifier>-6a09c6e4:194b44869ec:-6fc0</uniqueIdentifier>
         </menuModel>
@@ -20364,7 +20539,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-700a</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0c</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -20852,7 +21027,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7009</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0b</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -20913,7 +21088,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7008</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c0a</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -21004,7 +21179,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7007</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c09</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -29024,7 +29199,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7006</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c08</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29085,7 +29260,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7005</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c07</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29147,7 +29322,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7004</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c06</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29304,7 +29479,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7003</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c05</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29365,7 +29540,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7002</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c04</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29427,7 +29602,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7001</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c03</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29483,7 +29658,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-7000</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c02</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29534,7 +29709,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-6fff</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c01</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -32232,6 +32407,7 @@
         <abstractForced>false</abstractForced>
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <categoriesStyle>CLASSIC</categoriesStyle>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>name</customFieldsOrder>
         <customFieldsOrder>structure</customFieldsOrder>
@@ -32291,7 +32467,104 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3550</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>structuredClassNameAccessor</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3552</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3551</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3556</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>noteBox</encapsulationFieldName>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3558</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3557</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3a7e</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7c00</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>note</name>
+            </category>
+            <categoryCaption>note</categoryCaption>
+            <categoryName>note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>noteBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3a80</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3a7f</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
         <immutableForced>false</immutableForced>
+        <memberCategories>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3c72</uniqueIdentifier>
+            <caption>Note</caption>
+            <name>note</name>
+        </memberCategories>
         <menuModel>
             <uniqueIdentifier>-4272bbb8:196a21863d8:-466c</uniqueIdentifier>
         </menuModel>
@@ -33371,7 +33644,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3955</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-6ffe</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bff</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -33406,7 +33679,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-6ffd</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bfe</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -35887,7 +36160,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-6ffc</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bfd</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -35899,6 +36172,7 @@
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>noteBox</encapsulationFieldName>
             <fieldName>note</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
@@ -35948,7 +36222,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>32c27d6d:19749e66151:-6ffb</uniqueIdentifier>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bfc</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -36001,6 +36275,43 @@
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <fieldsCustomizations>
+            <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bfb</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>note</name>
+            </category>
+            <categoryCaption>note</categoryCaption>
+            <categoryName>note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>noteBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>32c27d6d:19749e66151:-6fce</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>32c27d6d:19749e66151:-6fcf</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
@@ -36643,6 +36954,412 @@
             <uniqueIdentifier>3c5a7523:19749b43388:557d</uniqueIdentifier>
         </menuModel>
         <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>32c27d6d:19749e66151:-6fcd</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bfa</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>Note</name>
+            </category>
+            <categoryCaption>Note</categoryCaption>
+            <categoryName>Note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7ea92b19:197453a3f88:-1b75</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7ea92b19:197453a3f88:-1b76</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>32c27d6d:19749d89b1d:349b</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cAFzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>32c27d6d:19749d89b1d:349c</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>32c27d6d:19749e66151:-6fcc</uniqueIdentifier>
+        </menuModel>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=centerAndBottomGroup]], fieldName=noteBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>-6664e96a:1974b8a7ddb:518b</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>-6664e96a:1974b8a7ddb:518d</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>53761ee2:1974c2db17b:-7bf9</uniqueIdentifier>
+                <caption>Note</caption>
+                <name>Note</name>
+            </category>
+            <categoryCaption>Note</categoryCaption>
+            <categoryName>Note</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18dc</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18dd</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18c1</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cABzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18c0</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-6664e96a:1974b8a7ddb:518c</uniqueIdentifier>
+        </menuModel>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.JDBCConnection], fieldName=noteBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>61347bf6:1974b9376d1:35f8</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>61347bf6:1974b9376d1:35f9</uniqueIdentifier>
+        </menuModel>
+        <typeName>Encapsulation [context=FieldContext [fieldName=structure, objectType=com.otk.jesb.resource.builtin.SharedStructureModel], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.Structure]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>61347bf6:1974b9376d1:3671</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3672</uniqueIdentifier>
+        </menuModel>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>61347bf6:1974b9376d1:3a83</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3a85</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3558</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3557</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3582</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cABzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>61347bf6:1974b9376d1:3583</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>61347bf6:1974b9376d1:3a84</uniqueIdentifier>
+        </menuModel>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.SharedStructureModel], fieldName=noteBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>61347bf6:1974b9376d1:5710</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>61347bf6:1974b9376d1:5712</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>61347bf6:1974b9376d1:3641</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3640</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomizations>
+                    <uniqueIdentifier>61347bf6:1974b9376d1:3663</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cABzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>61347bf6:1974b9376d1:3664</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomizations>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>61347bf6:1974b9376d1:5711</uniqueIdentifier>
+        </menuModel>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=noteBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>53761ee2:1974c180dcd:606c</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>53761ee2:1974c180dcd:6077</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName></fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>53761ee2:1974c180dcd:6079</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>53761ee2:1974c180dcd:6078</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>53761ee2:1974c180dcd:606d</uniqueIdentifier>
+        </menuModel>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WSDL$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$URLSource]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomizations>
+    <typeCustomizations>
+        <uniqueIdentifier>53761ee2:1974c180dcd:625a</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomizations>
+            <uniqueIdentifier>53761ee2:1974c180dcd:6265</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName></fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>53761ee2:1974c180dcd:6267</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>53761ee2:1974c180dcd:6266</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomizations>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>53761ee2:1974c180dcd:625b</uniqueIdentifier>
+        </menuModel>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WSDL$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$FileSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
