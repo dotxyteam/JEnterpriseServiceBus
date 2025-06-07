@@ -16,6 +16,8 @@ import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Structure;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
@@ -537,8 +539,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 				} else {
 					if (object instanceof Debugger) {
-						((Debugger) object).getPlanActivators().stream().forEach(planActivator -> planActivator
-								.getPlanExecutors().stream().forEach(planExecutor -> planExecutor.stop()));
+						((Debugger) object).deactivatePlans();
+						((Debugger) object).stopExecutions();
 						return true;
 					}
 				}
@@ -1103,6 +1105,20 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					}
 				}
+				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+					if (field.getName().equals("inputClass")) {
+						return true;
+					}
+					if (field.getName().equals("outputClass")) {
+						return true;
+					}
+					if (field.getName().equals("automaticTriggerReady")) {
+						return true;
+					}
+					if (field.getName().equals("automaticallyTriggerable")) {
+						return true;
+					}
+				}
 				return super.isHidden(field, objectType);
 			}
 
@@ -1177,6 +1193,24 @@ public class JESBReflectionUI extends CustomizedUI {
 				if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(boolean.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
+							"initializeAutomaticTrigger", Arrays.asList(ActivationHandler.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
+							"finalizeAutomaticTrigger", Arrays.asList()))) {
 						return true;
 					}
 				}
@@ -1264,6 +1298,13 @@ public class JESBReflectionUI extends CustomizedUI {
 				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
 					try {
 						((Structure.Element) object).validate(false);
+					} catch (ValidationError e) {
+						throw new ReflectionUIError(e);
+					}
+				} else if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+					Plan plan = getCurrentValidationPlan(session);
+					try {
+						((ActivationStrategy) object).validate(false, plan);
 					} catch (ValidationError e) {
 						throw new ReflectionUIError(e);
 					}

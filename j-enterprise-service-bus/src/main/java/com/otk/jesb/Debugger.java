@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.ActivationStrategy;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.builtin.ExecutePlan;
@@ -20,6 +24,7 @@ public class Debugger {
 
 	private Solution solution;
 	private List<PlanActivator> planActivators;
+	private PlanActivatorsFilter currentPlanActivatorsFilter = PlanActivatorsFilter.ACTIVABLE_PLANS;
 
 	public Debugger(Solution solution) {
 		this.solution = solution;
@@ -27,7 +32,7 @@ public class Debugger {
 	}
 
 	public List<PlanActivator> getPlanActivators() {
-		return planActivators;
+		return planActivators.stream().filter(currentPlanActivatorsFilter).collect(Collectors.toList());
 	}
 
 	private List<PlanActivator> collectPlanActivators() {
@@ -44,6 +49,41 @@ public class Debugger {
 		return result;
 	}
 
+	public PlanActivatorsFilter getCurrentPlanActivatorsFilter() {
+		return currentPlanActivatorsFilter;
+	}
+
+	public void setCurrentPlanActivatorsFilter(PlanActivatorsFilter currentPlanActivatorsFilter) {
+		this.currentPlanActivatorsFilter = currentPlanActivatorsFilter;
+	}
+
+	public void activatePlans() {
+		for (PlanActivator planActivator : planActivators) {
+			if (planActivator.isAutomaticallyTriggerable()) {
+				if (planActivator.isAutomaticTriggerReady()) {
+					planActivator.setAutomaticTriggerReady(false);
+				}
+				planActivator.setAutomaticTriggerReady(true);
+			}
+		}
+	}
+
+	public void deactivatePlans() {
+		for (PlanActivator planActivator : planActivators) {
+			if (planActivator.isAutomaticallyTriggerable()) {
+				if (planActivator.isAutomaticTriggerReady()) {
+					planActivator.setAutomaticTriggerReady(false);
+				}
+			}
+		}
+	}
+
+	public void stopExecutions() {
+		for (PlanActivator planActivator : planActivators) {
+			planActivator.stopExecutions();
+		}
+	}
+
 	public static class PlanActivator {
 
 		private Plan plan;
@@ -52,8 +92,9 @@ public class Debugger {
 
 		public PlanActivator(Plan plan) {
 			this.plan = plan;
-			if (plan.getActivation().getInputClass() != null) {
-				planInputBuilder = new RootInstanceBuilder("Input", plan.getActivation().getInputClass().getName());
+			if (plan.getActivationStrategy().getInputClass() != null) {
+				planInputBuilder = new RootInstanceBuilder("Input",
+						plan.getActivationStrategy().getInputClass().getName());
 			}
 		}
 
@@ -73,6 +114,46 @@ public class Debugger {
 			return planExecutors;
 		}
 
+		public void setAutomaticTriggerReady(boolean ready) {
+			if (ready) {
+				ActivationHandler activationHandler = new ActivationHandler() {
+					@Override
+					public void trigger(Object planInput) {
+						planExecutors.add(new PlanExecutor(plan, planInput));
+					}
+				};
+				try {
+					plan.getActivationStrategy().initializeAutomaticTrigger(activationHandler);
+				} catch (Exception e) {
+					planExecutors.add(new PlanActivationFailure(plan, e));
+				}
+			} else {
+				try {
+					plan.getActivationStrategy().finalizeAutomaticTrigger();
+				} catch (Exception e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		}
+
+		public boolean isAutomaticTriggerReady() {
+			return plan.getActivationStrategy().isAutomaticTriggerReady();
+		}
+
+		public boolean isAutomaticallyTriggerable() {
+			return plan.getActivationStrategy().isAutomaticallyTriggerable();
+		}
+
+		public void stopExecutions() {
+			for (PlanExecutor planExecutor : planExecutors) {
+				planExecutor.stop();
+			}
+		}
+
+		public ActivationStrategy getActivationStrategy() {
+			return plan.getActivationStrategy();
+		}
+
 		public void executePlan() throws Exception {
 			Object planInput = (planInputBuilder != null)
 					? planInputBuilder.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()))
@@ -82,7 +163,14 @@ public class Debugger {
 
 		@Override
 		public String toString() {
-			return "(" + planExecutors.size() + ") " + plan.getName();
+			String result = "(" + planExecutors.size() + ") ";
+			if (isAutomaticallyTriggerable()) {
+				if (isAutomaticTriggerReady()) {
+					result += "*";
+				}
+			}
+			result += plan.getName();
+			return result;
 		}
 	}
 
@@ -250,6 +338,46 @@ public class Debugger {
 			}
 		}
 
+	}
+
+	public static class PlanActivationFailure extends PlanExecutor {
+
+		public PlanActivationFailure(Plan plan, Exception error) {
+			super(plan, null);
+			this.executionError = error;
+		}
+
+		@Override
+		protected void execute() {
+		}
+
+	}
+
+	public enum PlanActivatorsFilter implements Predicate<PlanActivator> {
+		ALL {
+			@Override
+			public boolean test(PlanActivator planActivator) {
+				return true;
+			}
+		},
+		ACTIVABLE_PLANS {
+			@Override
+			public boolean test(PlanActivator planActivator) {
+				return planActivator.isAutomaticallyTriggerable();
+			}
+		},
+		ACTIVATED_PLANS {
+			@Override
+			public boolean test(PlanActivator planActivator) {
+				return planActivator.isAutomaticallyTriggerable() && planActivator.isAutomaticTriggerReady();
+			}
+		},
+		DEACTIVATED_PLANS {
+			@Override
+			public boolean test(PlanActivator planActivator) {
+				return planActivator.isAutomaticallyTriggerable() && !planActivator.isAutomaticTriggerReady();
+			}
+		}
 	}
 
 }

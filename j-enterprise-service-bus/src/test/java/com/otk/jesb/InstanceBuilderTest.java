@@ -6,7 +6,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.activation.DirectExecution;
+import com.otk.jesb.activation.Execution;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
@@ -29,8 +29,8 @@ public class InstanceBuilderTest {
 
 	public static void main(String[] args) throws Exception {
 		Plan plan = new Plan();
-		DirectExecution activation = new DirectExecution();
-		plan.setActivation(activation);
+		Execution activation = new Execution();
+		plan.setActivationStrategy(activation);
 		ClassicStructure planInputStructure = new ClassicStructure();
 		{
 			SimpleElement element = new Structure.SimpleElement();
@@ -65,7 +65,7 @@ public class InstanceBuilderTest {
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
 				try {
-					Object input = plan.getActivation().getInputClass().getConstructor(Tree.class)
+					Object input = plan.getActivationStrategy().getInputClass().getConstructor(Tree.class)
 							.newInstance(inputTree);
 					output = plan.execute(input);
 				} catch (Throwable t) {

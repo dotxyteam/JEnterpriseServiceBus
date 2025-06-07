@@ -13,6 +13,7 @@ public abstract class Asset {
 			'>', '|', '\"', ':' };
 
 	private String name;
+	private String note;
 
 	public Asset(String name) {
 		this.name = name;
@@ -24,6 +25,14 @@ public abstract class Asset {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public void validate(boolean recursively) throws ValidationError {

@@ -14,11 +14,12 @@ import com.otk.jesb.CompositeStep;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.activation.Activation;
-import com.otk.jesb.activation.StartupExecution;
+import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.LaunchAtStartup;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
@@ -40,13 +41,21 @@ public class Plan extends Asset {
 		super(name);
 	}
 
-	private Activation activation = new StartupExecution();
+	private ActivationStrategy activationStrategy = new LaunchAtStartup();
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
 	private transient Set<PlanElement> selectedElements = new HashSet<PlanElement>();
 	private transient PlanElement focusedElementSelectedSurrounding;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new OutputClassNameAccessor());
+
+	public ActivationStrategy getActivationStrategy() {
+		return activationStrategy;
+	}
+
+	public void setActivationStrategy(ActivationStrategy activationStrategy) {
+		this.activationStrategy = activationStrategy;
+	}
 
 	public RootInstanceBuilder getOutputBuilder() {
 		return outputBuilder;
@@ -56,16 +65,8 @@ public class Plan extends Asset {
 		this.outputBuilder = outputBuilder;
 	}
 
-	public Activation getActivation() {
-		return activation;
-	}
-
 	public boolean isOutputEnabled() {
-		return activation.getOutputClass() != null;
-	}
-
-	public void setActivation(Activation activation) {
-		this.activation = activation;
+		return activationStrategy.getOutputClass() != null;
 	}
 
 	public List<Step> getSteps() {
@@ -195,10 +196,10 @@ public class Plan extends Asset {
 		});
 	}
 
-	public ExecutionContext execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
+	public Object execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
 		try {
 			ExecutionContext context = new ExecutionContext(this);
-			Class<?> inputClass = activation.getInputClass();
+			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
 					if (!inputClass.isInstance(input)) {
@@ -220,7 +221,8 @@ public class Plan extends Asset {
 			}
 			execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 					executionInspector);
-			return context;
+			return outputBuilder.build(new InstantiationContext(context.getVariables(),
+					getValidationContext(null).getVariableDeclarations()));
 		} catch (Throwable t) {
 			throw new ExecutionError("Failed to execute plan (" + Reference.get(this).getPath() + ")", t);
 		}
@@ -434,7 +436,7 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			Class<?> inputClass = activation.getInputClass();
+			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 
@@ -494,7 +496,7 @@ public class Plan extends Asset {
 					throw new ValidationError("Failed to validate transition '" + transition.getSummary() + "'", e);
 				}
 			}
-			activation.validate(recursively, this);
+			activationStrategy.validate(recursively, this);
 			outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
 		}
 	}
@@ -617,7 +619,7 @@ public class Plan extends Asset {
 	private class OutputClassNameAccessor extends Accessor<String> {
 		@Override
 		public String get() {
-			Class<?> outputClass = activation.getOutputClass();
+			Class<?> outputClass = activationStrategy.getOutputClass();
 			if (outputClass == null) {
 				return null;
 			}

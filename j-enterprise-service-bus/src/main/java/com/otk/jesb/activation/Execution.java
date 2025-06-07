@@ -9,11 +9,11 @@ import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
-public class DirectExecution implements Activation {
+public class Execution extends ActivationStrategy {
 
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
-	
+
 	private UpToDate<Class<?>> upToDateInputClass = new UpToDateInputClass();
 	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
 
@@ -32,7 +32,6 @@ public class DirectExecution implements Activation {
 	public void setOutputStructure(ClassicStructure outputStructure) {
 		this.outputStructure = outputStructure;
 	}
-	
 
 	@Override
 	public Class<?> getInputClass() {
@@ -53,6 +52,26 @@ public class DirectExecution implements Activation {
 	}
 
 	@Override
+	public boolean isAutomaticallyTriggerable() {
+		return false;
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
 		if (inputStructure != null) {
 			try {
@@ -70,8 +89,6 @@ public class DirectExecution implements Activation {
 		}
 	}
 
-	
-
 	private class UpToDateInputClass extends UpToDate<Class<?>> {
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
@@ -85,7 +102,7 @@ public class DirectExecution implements Activation {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.toDigitalUniqueIdentifier(DirectExecution.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Execution.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -108,7 +125,7 @@ public class DirectExecution implements Activation {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.toDigitalUniqueIdentifier(DirectExecution.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Execution.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
