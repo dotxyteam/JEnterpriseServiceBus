@@ -108,6 +108,14 @@ public class MiscUtils {
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
+	public static void sleepSafely(long durationMilliseconds) {
+		try {
+			Thread.sleep(durationMilliseconds);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
 	public static String escapeRegex(String str) {
 		return SPECIAL_REGEX_CHARS_PATTERN.matcher(str).replaceAll("\\\\$0");
 	}

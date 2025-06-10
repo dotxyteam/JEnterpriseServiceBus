@@ -602,6 +602,11 @@ public class JESBReflectionUI extends CustomizedUI {
 													};
 												}
 
+												@Override
+												public int getHeight() {
+													return 200;
+												}
+
 											};
 										}
 									};

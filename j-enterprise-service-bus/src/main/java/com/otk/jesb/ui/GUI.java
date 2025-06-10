@@ -1,8 +1,11 @@
 package com.otk.jesb.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Window;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -11,14 +14,21 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DropMode;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicTableHeaderUI;
+import javax.swing.table.JTableHeader;
 import javax.swing.text.JTextComponent;
 
 import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
+import com.formdev.flatlaf.ui.FlatTableHeaderUI;
+import com.formdev.flatlaf.util.UIScale;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
@@ -34,12 +44,14 @@ import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
+import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.SquigglePainter;
-
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
+import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
@@ -55,7 +67,9 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
@@ -64,67 +78,71 @@ import xy.reflect.ui.util.SystemProperties;
 public class GUI extends SwingCustomizer {
 
 	public enum Theme {
-		SYSTEM, CROSSPLATFORM, FLATLAF, FLATLAF_CHOOSER
+		SYSTEM, CROSS_PLATFORM, FLAT, FLATLAF_TESTER
 	}
 
-	private static Theme theme = Theme.FLATLAF;
+	private static Theme theme = Theme.FLAT;
 
 	static {
 		if (JESB.DEBUG) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
-		if (theme == Theme.SYSTEM) {
-			try {
+		try {
+			if (theme == Theme.SYSTEM) {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e) {
-				e.printStackTrace();
-			}
-		} else if (theme == Theme.SYSTEM) {
-			try {
+			} else if (theme == Theme.SYSTEM) {
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e) {
-				e.printStackTrace();
-			}
-		} else if (theme == Theme.FLATLAF) {
-			FlatLightFlatIJTheme.setup();
-		} else if (theme == Theme.FLATLAF_CHOOSER) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					INSTANCE.openObjectFrame(Arrays.stream(FlatAllIJThemes.INFOS).map(info -> {
-						return new Runnable() {
+			} else if (theme == Theme.FLAT) {
+				UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
 
-							@Override
-							public void run() {
-								try {
-									Class.forName(info.getClassName()).getMethod("setup").invoke(null);
-								} catch (IllegalAccessException | ClassNotFoundException | IllegalArgumentException
-										| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-									throw new UnexpectedError(e);
-								}
-								SwingUtilities.invokeLater(new Runnable() {
-									@Override
-									public void run() {
-										for (Window window : Window.getWindows()) {
-											SwingUtilities.updateComponentTreeUI(window);
-										}
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public UIDefaults getDefaults() {
+						UIDefaults result = super.getDefaults();
+						result.put("TableHeaderUI", BetterFlatTableHeaderUI.class.getName());
+						return result;
+					}
+				});
+			} else if (theme == Theme.FLATLAF_TESTER) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						INSTANCE.openObjectFrame(Arrays.stream(FlatAllIJThemes.INFOS).map(info -> {
+							return new Runnable() {
+
+								@Override
+								public void run() {
+									try {
+										Class.forName(info.getClassName()).getMethod("setup").invoke(null);
+									} catch (IllegalAccessException | ClassNotFoundException | IllegalArgumentException
+											| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+										throw new UnexpectedError(e);
 									}
-								});
-							}
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											for (Window window : Window.getWindows()) {
+												SwingUtilities.updateComponentTreeUI(window);
+											}
+										}
+									});
+								}
 
-							@Override
-							public String toString() {
-								return info.getClassName();
-							}
+								@Override
+								public String toString() {
+									return info.getClassName();
+								}
 
-						};
-					}).toArray());
-				}
-			});
+							};
+						}).toArray());
+					}
+				});
+			}
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
 		}
-
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
@@ -184,6 +202,95 @@ public class GUI extends SwingCustomizer {
 				return new CustomizingFieldControlPlaceHolder(this, field) {
 
 					private static final long serialVersionUID = 1L;
+
+					FadingPanel transparentPanel = new FadingPanel();
+					Object lastValue;
+
+					boolean mayFade() {
+						if (getObject() instanceof PrecomputedTypeInstanceWrapper) {
+							ITypeInfo precomputedType = ((PrecomputedTypeInstanceWrapper) getObject())
+									.getPrecomputedType();
+							if (precomputedType instanceof EncapsulatedObjectFactory.TypeInfo) {
+								EncapsulatedObjectFactory factory = ((EncapsulatedObjectFactory.TypeInfo) precomputedType)
+										.getFactory();
+								if (factory instanceof AbstractEditorBuilder.EditorEncapsulation) {
+									AbstractEditorFormBuilder builder = ((AbstractEditorFormBuilder.EditorEncapsulation) factory)
+											.getBuilder();
+									if (builder.getClass().getEnclosingClass() == ListControl.class) {
+										return true;
+									}
+								}
+							}
+						}
+						return false;
+					}
+
+					boolean prepareToFade() {
+						if (!mayFade()) {
+							return false;
+						}
+						Object newValue = field.getValue(getObject());
+						if (lastValue == newValue) {
+							return false;
+						}
+						lastValue = newValue;
+						if (!isDisplayable()) {
+							return false;
+						}
+						return true;
+					}
+
+					@Override
+					protected void layoutFieldControl() {
+						super.layoutFieldControl();
+						if (mayFade()) {
+							remove(fieldControl);
+							add(transparentPanel, BorderLayout.CENTER);
+							transparentPanel.add(fieldControl, BorderLayout.CENTER);
+						}
+					}
+
+					@Override
+					protected void destroyFieldControl() {
+						if (mayFade()) {
+							transparentPanel.remove(fieldControl);
+							remove(transparentPanel);
+							add(fieldControl, BorderLayout.CENTER);
+						}
+						super.destroyFieldControl();
+					}
+
+					@Override
+					public void refreshUI(boolean refreshStructure) {
+						setVisible(true);
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("constructorGroup")) {
+								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
+									setVisible(false);
+								}
+							}
+							if (field.getName().equals("typeGroup")) {
+								if (((InstanceBuilderFacade) object).getUnderlying()
+										.getDynamicTypeNameAccessor() != null) {
+									setVisible(false);
+								}
+							}
+						}
+						boolean mustFade = isVisible() && prepareToFade();
+						if (mustFade) {
+							transparentPanel.fade(+1, 0.0);
+						}
+						super.refreshUI(refreshStructure);
+						if (mustFade) {
+							SwingRendererUtils.handleComponentSizeChange(this);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									transparentPanel.fade(-1, 1.0);
+								}
+							});
+						}
+					}
 
 					@Override
 					public Component createFieldControl() {
@@ -320,25 +427,6 @@ public class GUI extends SwingCustomizer {
 
 					}
 
-					@Override
-					public void refreshUI(boolean refreshStructure) {
-						setVisible(true);
-						if (object instanceof InstanceBuilderFacade) {
-							if (field.getName().equals("constructorGroup")) {
-								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
-									setVisible(false);
-								}
-							}
-							if (field.getName().equals("typeGroup")) {
-								if (((InstanceBuilderFacade) object).getUnderlying()
-										.getDynamicTypeNameAccessor() != null) {
-									setVisible(false);
-								}
-							}
-						}
-						super.refreshUI(refreshStructure);
-					}
-
 				};
 			}
 
@@ -466,4 +554,29 @@ public class GUI extends SwingCustomizer {
 		openObjectDialog(activatorComponent, error);
 	}
 
+	public static class BetterFlatTableHeaderUI extends FlatTableHeaderUI {
+
+		@Override
+		public Dimension getPreferredSize(JComponent c) {
+			// replace Dimension size = super.getPreferredSize( c );
+			BasicTableHeaderUI superObject = new BasicTableHeaderUI() {
+				{
+					header = (JTableHeader) c;
+				}
+			};
+			Dimension size = superObject.getPreferredSize(c);
+			if (size.height > 0) {
+				Insets insets = c.getInsets();
+				if ((insets == null) || (size.height > (insets.top + insets.bottom))) {
+					// replace UIScale.scale(height) by UIScale.scale(size.height)
+					size.height = Math.max(size.height, UIScale.scale(size.height));
+				}
+			}
+			return size;
+		}
+
+		public static ComponentUI createUI(JComponent c) {
+			return new BetterFlatTableHeaderUI();
+		}
+	}
 }
