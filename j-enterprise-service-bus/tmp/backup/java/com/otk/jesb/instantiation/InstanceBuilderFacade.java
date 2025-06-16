@@ -4,10 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -29,11 +31,17 @@ public class InstanceBuilderFacade extends Facade {
 	private InstanceBuilder underlying;
 
 	private InitializationCaseFacade util;
+	private ITypeInfo typeInfo;
 
 	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {
 		this.parent = parent;
 		this.underlying = underlying;
 		util = new InitializationCaseFacade(null, null, underlying) {
+
+			@Override
+			public boolean isConcrete() {
+				return true;
+			}
 
 			@Override
 			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
@@ -83,11 +91,33 @@ public class InstanceBuilderFacade extends Facade {
 			}
 
 			@Override
-			protected EvaluationContext createEvaluationContextForChildren(ExecutionContext executionContext) {
-				return new EvaluationContext(executionContext, InstanceBuilderFacade.this);
+			protected InstantiationContext createInstantiationContextForChildren(InstantiationContext context) {
+				return new InstantiationContext(context, InstanceBuilderFacade.this);
 			}
 
 		};
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		if (function != null) {
+			throw new UnexpectedError();
+		}
+		if (parent != null) {
+			return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
+		}
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		throw new UnsupportedOperationException();
+	}
+
+	public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+		return util.findInstantiationFunctionParentFacade(function);
 	}
 
 	@Override
@@ -147,33 +177,36 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	public ITypeInfo getTypeInfo() {
-		String actualTypeName = underlying
-				.computeActualTypeName(InstantiationUtils.getAncestorStructureInstanceBuilders(parent));
-		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
-		if (result instanceof IListTypeInfo) {
-			if (parent instanceof FieldInitializerFacade) {
-				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
-				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
-				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
+		if (typeInfo == null) {
+			String actualTypeName = underlying
+					.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(parent));
+			ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
+			if (result instanceof IListTypeInfo) {
+				if (parent instanceof FieldInitializerFacade) {
+					FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
+					IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
+					result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
+				}
+				if (parent instanceof ParameterInitializerFacade) {
+					ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
+					InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
+							.getCurrentInstanceBuilderFacade();
+					AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
+							parentInstanceBuilderFacade.getTypeInfo(),
+							parentInstanceBuilderFacade.getSelectedConstructorSignature());
+					result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
+							listParameterInitializerFacade.getParameterPosition());
+				}
 			}
-			if (parent instanceof ParameterInitializerFacade) {
-				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
-				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
-						.getCurrentInstanceBuilderFacade();
-				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
-						parentInstanceBuilderFacade.getTypeInfo(),
-						parentInstanceBuilderFacade.getSelectedConstructorSignature());
-				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
-						listParameterInitializerFacade.getParameterPosition());
+			if (result instanceof IMapEntryTypeInfo) {
+				if (parent instanceof ListItemInitializerFacade) {
+					ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;
+					result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemTypeInfo();
+				}
 			}
+			typeInfo = result;
 		}
-		if (result instanceof IMapEntryTypeInfo) {
-			if (parent instanceof ListItemInitializerFacade) {
-				ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;
-				result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemType();
-			}
-		}
-		return result;
+		return typeInfo;
 	}
 
 	@Override
@@ -181,51 +214,76 @@ public class InstanceBuilderFacade extends Facade {
 		return util.getChildren();
 	}
 
-	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
+	public List<Facade> collectLiveInitializerFacades(InstantiationContext context) {
 		return util.collectLiveInitializerFacades(context);
 	}
 
-	public CompilationContext findFunctionCompilationContext(InstantiationFunction function, ValidationContext validationContext) {
-		return util.findFunctionCompilationContext(function, validationContext);
-	}
-
 	public void copyUnderlying() {
+		if (!canCopyUnderlying()) {
+			throw new UnexpectedError();
+		}
 		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying);
 	}
 
 	public void pasteUnderlying() {
+		if (!canPasteUnderlying()) {
+			throw new UnexpectedError();
+		}
 		parent.setConcrete(true);
 		transferValuesToUnderlying(InstanceBuilderFacade.underlyingClipboard);
 		InstanceBuilderFacade.underlyingClipboard = null;
+	}
+
+	public boolean canCopyUnderlying() {
+		if (getUnderlying().getDynamicTypeNameAccessor() != null) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean canPasteUnderlying() {
 		if (InstanceBuilderFacade.underlyingClipboard == null) {
 			return false;
 		}
-		if (parent == null) {
+		if (getUnderlying().getDynamicTypeNameAccessor() != null) {
 			return false;
 		}
 		return true;
 	}
 
+	public boolean canAccessSource() {
+		if (canCopyUnderlying()) {
+			return true;
+		}
+		if (canPasteUnderlying()) {
+			return true;
+		}
+		return false;
+	}
+
 	public String getSource() {
+		if (!canAccessSource()) {
+			throw new UnexpectedError();
+		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			MiscUtils.serialize(underlying, output);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		return output.toString();
 	}
 
 	public void setSource(String source) {
+		if (!canAccessSource()) {
+			throw new UnexpectedError();
+		}
 		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());
 		InstanceBuilder deserialized;
 		try {
 			deserialized = (InstanceBuilder) MiscUtils.deserialize(input);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 		transferValuesToUnderlying(deserialized);
 	}
@@ -238,6 +296,31 @@ public class InstanceBuilderFacade extends Facade {
 		underlying.setFieldInitializers(source.getFieldInitializers());
 		underlying.setListItemInitializers(source.getListItemInitializers());
 		underlying.setInitializationSwitches(source.getInitializationSwitches());
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		ITypeInfo typeInfo;
+		try {
+			typeInfo = getTypeInfo();
+		} catch (Throwable t) {
+			throw new ValidationError("Failed to load '" + getTypeName() + "' type", t);
+		}
+		String selectedConstructorSignature = getSelectedConstructorSignature();
+		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
+		if (constructor == null) {
+			if (selectedConstructorSignature == null) {
+				throw new ValidationError(
+						"Cannot create '" + typeInfo.getName() + "' instance: No constructor available");
+			} else {
+				throw new ValidationError("Cannot create '" + typeInfo.getName()
+						+ "' instance: Constructor not found: '" + selectedConstructorSignature + "'");
+			}
+		}
+		util.validate(recursively, variableDeclarations);
 	}
 
 	@Override

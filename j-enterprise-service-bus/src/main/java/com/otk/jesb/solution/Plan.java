@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.Reference;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;

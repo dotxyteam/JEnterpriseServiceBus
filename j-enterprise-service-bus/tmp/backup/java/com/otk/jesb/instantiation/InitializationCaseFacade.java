@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.ValidationContext;
+import com.otk.jesb.JESB;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -17,7 +18,6 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
-import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
@@ -32,6 +32,117 @@ public class InitializationCaseFacade extends Facade {
 		this.parent = parent;
 		this.condition = condition;
 		this.underlying = underlying;
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		if (function != null) {
+			throw new UnexpectedError();
+		}
+		return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		if (getCondition() == function) {
+			return boolean.class;
+		}
+		throw new UnexpectedError();
+	}
+
+	public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+		for (Facade facade : getChildren()) {
+			if (!facade.isConcrete()) {
+				continue;
+			}
+			if (facade instanceof ParameterInitializerFacade) {
+				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;
+				if (currentFacade.getParameterValue() == function) {
+					return currentFacade;
+				}
+				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {
+					Facade result = ((InstanceBuilderFacade) currentFacade.getParameterValue())
+							.findInstantiationFunctionParentFacade(function);
+					if (result != null) {
+						return result;
+					}
+				}
+			} else if (facade instanceof FieldInitializerFacade) {
+				FieldInitializerFacade currentFacade = (FieldInitializerFacade) facade;
+				if (currentFacade.getCondition() == function) {
+					return currentFacade;
+				}
+				if (currentFacade.getFieldValue() == function) {
+					return currentFacade;
+				}
+				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {
+					Facade result = ((InstanceBuilderFacade) currentFacade.getFieldValue())
+							.findInstantiationFunctionParentFacade(function);
+					if (result != null) {
+						return result;
+					}
+				}
+			} else if (facade instanceof ListItemInitializerFacade) {
+				ListItemInitializerFacade currentFacade = (ListItemInitializerFacade) facade;
+				if (currentFacade.getCondition() == function) {
+					return currentFacade;
+				}
+				if (currentFacade.getItemReplicationFacade() != null) {
+					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {
+						return currentFacade;
+					}
+					if (currentFacade.getItemReplicationFacade()
+							.getIterationListValue() instanceof InstanceBuilderFacade) {
+						Facade result = ((InstanceBuilderFacade) currentFacade.getItemReplicationFacade()
+								.getIterationListValue()).findInstantiationFunctionParentFacade(function);
+						if (result != null) {
+							return result;
+						}
+					}
+				}
+				if (currentFacade.getItemValue() == function) {
+					return currentFacade;
+				}
+				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
+					Facade result = ((InstanceBuilderFacade) currentFacade.getItemValue())
+							.findInstantiationFunctionParentFacade(function);
+					if (result != null) {
+						return result;
+					}
+				}
+			} else if (facade instanceof InitializationSwitchFacade) {
+				InitializationSwitchFacade currentFacade = (InitializationSwitchFacade) facade;
+				for (Facade childFacade : currentFacade.getChildren()) {
+					InitializationCaseFacade caseFacade = (InitializationCaseFacade) childFacade;
+					if (caseFacade.getCondition() == function) {
+						return childFacade;
+					}
+					Facade result = caseFacade.findInstantiationFunctionParentFacade(function);
+					if (result != null) {
+						return result;
+					}
+				}
+			}
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (recursively) {
+			for (Facade facade : getChildren()) {
+				try {
+					facade.validate(recursively, variableDeclarations);
+				} catch (ValidationError e) {
+					throw new ValidationError("Failed to validate '" + facade.toString() + "'", e);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -106,7 +217,15 @@ public class InitializationCaseFacade extends Facade {
 			result.add(createInitializationSwitchFacade(initializationSwitch));
 		}
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
-		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
+		ITypeInfo typeInfo;
+		try {
+			typeInfo = instanceBuilderFacade.getTypeInfo();
+		} catch (Throwable t) {
+			if (JESB.DEBUG) {
+				t.printStackTrace();
+			}
+			return Collections.emptyList();
+		}
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo,
 				instanceBuilderFacade.getSelectedConstructorSignature());
 		if (constructor != null) {
@@ -128,6 +247,13 @@ public class InitializationCaseFacade extends Facade {
 			for (IFieldInfo fieldInfo : typeInfo.getFields()) {
 				if (fieldInfo.isGetOnly()) {
 					continue;
+				}
+				if (JESB.DEBUG) {
+					if (result.stream().anyMatch(facade -> (facade instanceof ParameterInitializerFacade)
+							&& ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {
+						System.out.println("Name conflict detected between parameter '" + fieldInfo.getName()
+								+ "' and editable field '" + fieldInfo.getName() + "'");
+					}
 				}
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
 					continue;
@@ -173,7 +299,7 @@ public class InitializationCaseFacade extends Facade {
 				} else if ((o1 instanceof InitializationSwitchFacade) && (o2 instanceof InitializationSwitchFacade)) {
 					return 0;
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 
 			}
@@ -318,7 +444,7 @@ public class InitializationCaseFacade extends Facade {
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
 		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
+				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);
 	}
 
 	public boolean isDefault() {
@@ -385,7 +511,7 @@ public class InitializationCaseFacade extends Facade {
 		return parent;
 	}
 
-	public List<Facade> collectLiveInitializerFacades(EvaluationContext context) {
+	public List<Facade> collectLiveInitializerFacades(InstantiationContext context) {
 		List<Facade> result = new ArrayList<Facade>();
 		for (Facade facade : getChildren()) {
 			if (!facade.isConcrete()) {
@@ -398,136 +524,15 @@ public class InitializationCaseFacade extends Facade {
 			} else if (facade instanceof ListItemInitializerFacade) {
 				result.add(facade);
 			} else if (facade instanceof InitializationSwitchFacade) {
-				result.addAll(((InitializationSwitchFacade) facade).collectLiveInitializerFacades(
-						createEvaluationContextForChildren(context.getExecutionContext())));
+				result.addAll(((InitializationSwitchFacade) facade)
+						.collectLiveInitializerFacades(createInstantiationContextForChildren(context)));
 			}
 		}
 		return result;
 	}
 
-	protected EvaluationContext createEvaluationContextForChildren(ExecutionContext executionContext) {
-		return new EvaluationContext(executionContext, this);
-	}
-
-	public CompilationContext findFunctionCompilationContext(InstantiationFunction function,
-			ValidationContext validationContext) {
-		for (Facade facade : getChildren()) {
-			if (!facade.isConcrete()) {
-				continue;
-			}
-			if (facade instanceof ParameterInitializerFacade) {
-				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;
-				if (currentFacade.getParameterValue() == function) {
-					return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade,
-							((DefaultTypeInfo) currentFacade.getParameterInfo().getType()).getJavaType());
-				}
-				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getParameterValue())
-							.findFunctionCompilationContext(function, validationContext);
-					if (compilationContext != null) {
-						return compilationContext;
-					}
-				}
-			} else if (facade instanceof FieldInitializerFacade) {
-				FieldInitializerFacade currentFacade = (FieldInitializerFacade) facade;
-				if (!currentFacade.isConcrete()) {
-					continue;
-				}
-				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade,
-							boolean.class);
-				}
-				if (currentFacade.getFieldValue() == function) {
-					return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade,
-							((DefaultTypeInfo) currentFacade.getFieldInfo().getType()).getJavaType());
-				}
-				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getFieldValue())
-							.findFunctionCompilationContext(function, validationContext);
-					if (compilationContext != null) {
-						return compilationContext;
-					}
-				}
-			} else if (facade instanceof ListItemInitializerFacade) {
-				ListItemInitializerFacade currentFacade = (ListItemInitializerFacade) facade;
-				if (!currentFacade.isConcrete()) {
-					continue;
-				}
-				if (currentFacade.getCondition() == function) {
-					return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade,
-							boolean.class);
-				}
-				VariableDeclaration iterationVariableDeclaration = null;
-				int iterationVariableDeclarationPosition = -1;
-				if (currentFacade.getItemReplicationFacade() != null) {
-					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {
-						return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade,
-								currentFacade.getItemReplicationFacade().getIterationListValueClass());
-					}
-					if (currentFacade.getItemReplicationFacade()
-							.getIterationListValue() instanceof InstanceBuilderFacade) {
-						CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade
-								.getItemReplicationFacade().getIterationListValue())
-										.findFunctionCompilationContext(function, validationContext);
-						if (compilationContext != null) {
-							return compilationContext;
-						}
-					}
-					iterationVariableDeclaration = new VariableDeclaration() {
-
-						@Override
-						public String getVariableName() {
-							return currentFacade.getItemReplicationFacade().getIterationVariableName();
-						}
-
-						@Override
-						public Class<?> getVariableType() {
-							return currentFacade.getItemReplicationFacade().getIterationVariableClass();
-						}
-					};
-					iterationVariableDeclarationPosition = validationContext.getVariableDeclarations().size();
-				}
-				if (currentFacade.getItemValue() == function) {
-					ValidationContext iterationValidationContext = validationContext;
-					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<VariableDeclaration>(
-								validationContext.getVariableDeclarations());
-						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(newVariableDeclarations);
-					}
-					return new CompilationContext(iterationValidationContext.getVariableDeclarations(), currentFacade,
-							((DefaultTypeInfo) currentFacade.getItemType()).getJavaType());
-				}
-				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {
-					ValidationContext iterationValidationContext = validationContext;
-					if (iterationVariableDeclaration != null) {
-						List<VariableDeclaration> newVariableDeclarations = new ArrayList<VariableDeclaration>(
-								validationContext.getVariableDeclarations());
-						newVariableDeclarations.add(iterationVariableDeclarationPosition, iterationVariableDeclaration);
-						iterationValidationContext = new ValidationContext(newVariableDeclarations);
-					}
-					CompilationContext compilationContext = ((InstanceBuilderFacade) currentFacade.getItemValue())
-							.findFunctionCompilationContext(function, iterationValidationContext);
-					if (compilationContext != null) {
-						return compilationContext;
-					}
-				}
-			} else if (facade instanceof InitializationSwitchFacade) {
-				InitializationSwitchFacade currentFacade = (InitializationSwitchFacade) facade;
-				for (Facade childFacade : currentFacade.getChildren()) {
-					InitializationCaseFacade caseFacade = (InitializationCaseFacade) childFacade;
-					if (caseFacade.getCondition() == function) {
-						return new CompilationContext(validationContext.getVariableDeclarations(), currentFacade, boolean.class);
-					}
-					CompilationContext compilationContext = caseFacade.findFunctionCompilationContext(function,
-							validationContext);
-					if (compilationContext != null) {
-						return compilationContext;
-					}
-				}
-			}
-		}
-		return null;
+	protected InstantiationContext createInstantiationContextForChildren(InstantiationContext context) {
+		return new InstantiationContext(context, this);
 	}
 
 	@Override

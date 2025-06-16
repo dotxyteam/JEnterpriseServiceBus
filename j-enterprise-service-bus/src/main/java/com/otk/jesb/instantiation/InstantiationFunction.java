@@ -76,7 +76,7 @@ public class InstantiationFunction extends Function {
 		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
-	public ITypeInfo guessReturnTypeInfo(java.util.function.Function<String, String> precompiler,
+	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler,
 			List<VariableDeclaration> variableDeclarations) throws CompilationError {
 		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);

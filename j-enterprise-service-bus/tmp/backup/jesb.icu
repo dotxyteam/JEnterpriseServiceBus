@@ -29874,7 +29874,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>get</methodName>
-            <methodSignature>com.otk.jesb.solution.Reference get(com.otk.jesb.solution.Asset)</methodSignature>
+            <methodSignature>com.otk.jesb.Reference get(com.otk.jesb.solution.Asset)</methodSignature>
             <parametersCustomizations>
                 <uniqueIdentifier>15abc306:1964dacde0c:7f6</uniqueIdentifier>
                 <specificProperties/>
@@ -29893,7 +29893,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.solution.Reference</typeName>
+        <typeName>com.otk.jesb.Reference</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

@@ -15,7 +15,7 @@ import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
+import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;

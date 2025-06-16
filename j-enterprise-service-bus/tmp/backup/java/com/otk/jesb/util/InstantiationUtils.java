@@ -1,19 +1,22 @@
 package com.otk.jesb.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.solution.Step;
 import com.otk.jesb.Structure.Structured;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.Facade;
@@ -21,9 +24,12 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.MapEntryBuilder;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
 
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -39,36 +45,30 @@ public class InstantiationUtils {
 
 	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
 
-	public static Object executeFunction(InstantiationFunction function, EvaluationContext evaluationContext)
-			throws Exception {
-		ExecutionContext executionContext = evaluationContext.getExecutionContext();
-		Plan currentPlan = executionContext.getPlan();
-		Step currentStep = executionContext.getCurrentStep();
-		CompilationContext compilationContext = (currentStep != null)
-				? currentStep.getOperationBuilder().findFunctionCompilationContext(function, currentStep, currentPlan)
-				: currentPlan.getOutputBuilder().getFacade().findFunctionCompilationContext(function,
-						currentPlan.getValidationContext(currentStep));
-		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), evaluationContext.getParentFacade())) {
-			throw new AssertionError();
+	public static Object executeFunction(InstantiationFunction function, InstantiationContext instantiationContext)
+			throws FunctionCallError {
+		InstantiationFunctionCompilationContext compilationContext = instantiationContext
+				.getFunctionCompilationContex(function);
+		if (!MiscUtils.equalsOrBothNull(compilationContext.getParentFacade(), instantiationContext.getParentFacade())) {
+			throw new UnexpectedError();
 		}
-		Set<String> actualVariableNames = evaluationContext.getExecutionContext().getVariables().stream()
-				.map(variable -> variable.getName()).collect(Collectors.toSet());
-		Set<String> expectedVariableNames = compilationContext.getVariableDeclarations().stream()
+		List<VariableDeclaration> expectedVariableDeclarations = compilationContext.getVariableDeclarations(function);
+		Set<String> actualVariableNames = instantiationContext.getVariables().stream()
+				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
+				.collect(Collectors.toSet());
+		Set<String> expectedVariableNames = expectedVariableDeclarations.stream()
 				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
 		if (!actualVariableNames.equals(expectedVariableNames)) {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
-		CompiledFunction compiledFunction = CompiledFunction.get(
-				makeTypeNamesAbsolute(function.getFunctionBody(),
-						getAncestorStructureInstanceBuilders(compilationContext.getParentFacade())),
-				compilationContext.getVariableDeclarations(), compilationContext.getFunctionReturnType());
-		return compiledFunction.execute(executionContext);
-	}
-
-	public static void validateFunction(String functionBody, CompilationContext context) throws CompilationError {
-		CompiledFunction.get(
-				makeTypeNamesAbsolute(functionBody, getAncestorStructureInstanceBuilders(context.getParentFacade())),
-				context.getVariableDeclarations(), context.getFunctionReturnType());
+		CompiledFunction compiledFunction;
+		try {
+			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
+					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function));
+		} catch (CompilationError e) {
+			throw new UnexpectedError(e);
+		}
+		return compiledFunction.call(instantiationContext.getVariables());
 	}
 
 	public static boolean isComplexType(ITypeInfo type) {
@@ -104,7 +104,7 @@ public class InstantiationUtils {
 
 	}
 
-	public static boolean isConditionFullfilled(InstantiationFunction condition, EvaluationContext context)
+	public static boolean isConditionFullfilled(InstantiationFunction condition, InstantiationContext context)
 			throws Exception {
 		if (condition == null) {
 			return true;
@@ -112,7 +112,7 @@ public class InstantiationUtils {
 		Object conditionResult = interpretValue(condition, TypeInfoProvider.getTypeInfo(Boolean.class.getName()),
 				context);
 		if (!(conditionResult instanceof Boolean)) {
-			throw new AssertionError("Condition evaluation result is not boolean: '" + conditionResult + "'");
+			throw new UnexpectedError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
 		return (Boolean) conditionResult;
 	}
@@ -135,19 +135,74 @@ public class InstantiationUtils {
 		}
 	}
 
-	public static Object interpretValue(Object value, ITypeInfo type, EvaluationContext context) throws Exception {
+	public static void validateValue(Object value, ITypeInfo type, Facade parentFacade, String valueName,
+			boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (value instanceof InstantiationFunction) {
+			InstantiationFunction function = (InstantiationFunction) value;
+			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
+					variableDeclarations, parentFacade);
+			Class<?> functionReturnType = compilationContext.getFunctionReturnType(function);
+			if (((JavaTypeInfoSource) type.getSource()).getJavaType() != functionReturnType) {
+				throw new UnexpectedError();
+			}
+			try {
+				function.getCompiledVersion(compilationContext.getPrecompiler(),
+						compilationContext.getVariableDeclarations(function), functionReturnType);
+			} catch (CompilationError e) {
+				throw new ValidationError("Failed to compile the " + valueName + " function", e);
+			}
+		} else if (value instanceof InstanceBuilder) {
+			try {
+				Class<?> instanceBuilderJavaType;
+				try {
+					instanceBuilderJavaType = TypeInfoProvider.getClass(((InstanceBuilder) value)
+							.computeActualTypeName(getAncestorStructuredInstanceBuilders(parentFacade)));
+				} catch (Throwable t) {
+					instanceBuilderJavaType = null;
+				}
+				if (instanceBuilderJavaType != null) {
+					Class<?> declaredJavaType = ((JavaTypeInfoSource) type.getSource()).getJavaType();
+					if (!declaredJavaType.isAssignableFrom(instanceBuilderJavaType)) {
+						throw new ValidationError("The instance type <" + instanceBuilderJavaType.getName()
+								+ "> is not compatible with the declared type <" + declaredJavaType.getName() + ">");
+					}
+				}
+				new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value).validate(recursively,
+						variableDeclarations);
+			} catch (ValidationError e) {
+				throw new ValidationError("Failed to validate the " + valueName + " instance builder", e);
+			}
+		} else if (value instanceof EnumerationItemSelector) {
+			EnumerationItemSelector enumItemSelector = (EnumerationItemSelector) value;
+			IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) type;
+			List<String> validItemNames = Arrays.asList(enumType.getValues()).stream()
+					.map(item -> enumType.getValueInfo(item).getName()).collect(Collectors.toList());
+			if (!validItemNames.contains(enumItemSelector.getSelectedItemName())) {
+				throw new ValidationError("Failed to validate the " + valueName + " enumeration item: Unexpected name '"
+						+ enumItemSelector.getSelectedItemName() + "', expected "
+						+ MiscUtils.stringJoin(validItemNames.stream().map(name -> "'" + name + "'").toArray(), "|"));
+			}
+		} else {
+			if (!type.supports(value)) {
+				throw new ValidationError("Failed to validate the " + valueName + ": Invalid value '" + value
+						+ "': Expected value of type <" + type.getName() + ">");
+			}
+		}
+	}
+
+	public static Object interpretValue(Object value, ITypeInfo type, InstantiationContext context) throws Exception {
 		if (value instanceof InstantiationFunction) {
 			Object result = executeFunction(((InstantiationFunction) value), context);
 			if (!type.supports(result)) {
-				throw new Exception(
+				throw new InstantiationError(
 						"Invalid function result '" + result + "': Expected value of type <" + type.getName() + ">");
 			}
 			return result;
 		} else if (value instanceof InstanceBuilder) {
 			Object result = ((InstanceBuilder) value).build(context);
 			if (!type.supports(result)) {
-				throw new Exception("Invalid instance builder result '" + result + "': Expected value of type <"
-						+ type.getName() + ">");
+				throw new InstantiationError("Invalid instance builder result '" + result
+						+ "': Expected value of type <" + type.getName() + ">");
 			}
 			return result;
 		} else if (value instanceof EnumerationItemSelector) {
@@ -157,8 +212,12 @@ public class InstantiationUtils {
 					return item;
 				}
 			}
-			throw new AssertionError();
+			throw new UnexpectedError();
 		} else {
+			if (!type.supports(value)) {
+				throw new InstantiationError(
+						"Invalid value '" + value + "': Expected value of type <" + type.getName() + ">");
+			}
 			return value;
 		}
 	}
@@ -168,12 +227,7 @@ public class InstantiationUtils {
 	}
 
 	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
-		Object specialDefaultValue = RootInstanceBuilder.getRootInitializerSpecialDefaultInterpretableValue(type,
-				valueMode, currentFacade);
-		if (specialDefaultValue != null) {
-			return specialDefaultValue;
-		}
-		if (type == null) {
+		if ((type == null) || type.getName().equals(Object.class.getName())) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
 			String functionBody;
@@ -182,7 +236,8 @@ public class InstantiationUtils {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
-							+ makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade))
+							+ makeTypeNamesRelative(type.getName(),
+									getAncestorStructuredInstanceBuilders(currentFacade))
 							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
@@ -206,11 +261,30 @@ public class InstantiationUtils {
 					return ReflectionUIUtils.createDefaultInstance(type);
 				}
 			} else {
-				if (type instanceof IMapEntryTypeInfo) {
-					return new MapEntryBuilder();
+				if (RootInstanceBuilderFacade.isRootInitializerFacade(currentFacade)) {
+					RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
+							.getCurrentInstanceBuilderFacade()).getUnderlying();
+					InstanceBuilder result = new InstanceBuilder();
+					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
+					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
+					if (!type.getName().equals(result.computeActualTypeName(
+							InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
+						throw new UnexpectedError();
+					}
+					return result;
 				} else {
-					return new InstanceBuilder(
-							makeTypeNamesRelative(type.getName(), getAncestorStructureInstanceBuilders(currentFacade)));
+					Class<?> javaType = ((DefaultTypeInfo) type).getJavaType();
+					if (SharedStructureModel.isStructuredClass(javaType)) {
+						SharedStructureModel model = SharedStructureModel.getFromStructuredClass(javaType);
+						return new InstanceBuilder(model.getStructuredClassNameAccessor());
+					} else {
+						if (type instanceof IMapEntryTypeInfo) {
+							return new MapEntryBuilder();
+						} else {
+							return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
+									getAncestorStructuredInstanceBuilders(currentFacade)));
+						}
+					}
 				}
 			}
 		} else {
@@ -247,7 +321,7 @@ public class InstantiationUtils {
 		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
-	public static List<InstanceBuilder> getAncestorStructureInstanceBuilders(Facade facade) {
+	public static List<InstanceBuilder> getAncestorStructuredInstanceBuilders(Facade facade) {
 		if (facade == null) {
 			return null;
 		}

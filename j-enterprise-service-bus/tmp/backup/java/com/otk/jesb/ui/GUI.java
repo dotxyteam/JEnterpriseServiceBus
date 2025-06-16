@@ -1,125 +1,148 @@
 package com.otk.jesb.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Window;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DropMode;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicTableHeaderUI;
+import javax.swing.table.JTableHeader;
 import javax.swing.text.JTextComponent;
 
+import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
+import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
+import com.formdev.flatlaf.ui.FlatTableHeaderUI;
+import com.formdev.flatlaf.util.UIScale;
 import com.otk.jesb.Debugger;
-import com.otk.jesb.solution.Folder;
 import com.otk.jesb.FunctionEditor;
-import com.otk.jesb.solution.LoopCompositeStep;
+import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
-import com.otk.jesb.solution.Solution;
-import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.Transition;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Debugger.PlanActivator;
-import com.otk.jesb.operation.builtin.JDBCQuery;
-import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
-import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
-import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
-import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.SquigglePainter;
-
+import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
+import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.plugin.EditorPlugin;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
-import xy.reflect.ui.info.field.CapsuleFieldInfo;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.SystemProperties;
 
 public class GUI extends SwingCustomizer {
 
-	public static void main(String[] args) throws Exception {
-		Folder plansFolder = new Folder("plans");
-		Solution.INSTANCE.getContents().add(plansFolder);
+	public enum Theme {
+		SYSTEM, CROSS_PLATFORM, FLAT, FLATLAF_TESTER
+	}
 
-		Folder otheResourcesFolder = new Folder("resources");
-		Solution.INSTANCE.getContents().add(otheResourcesFolder);
+	private static Theme theme = Theme.CROSS_PLATFORM;
 
-		Plan plan = new Plan("test");
-		plansFolder.getContents().add(plan);
+	static {
+		if (JESB.DEBUG) {
+			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
+		}
+		try {
+			if (theme == Theme.SYSTEM) {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} else if (theme == Theme.SYSTEM) {
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			} else if (theme == Theme.FLAT) {
+				UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
 
-		JDBCConnection c = new JDBCConnection("db");
-		c.setDriverClassName("org.hsqldb.jdbcDriver");
-		c.setUrl("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
-		otheResourcesFolder.getContents().add(c);
+					private static final long serialVersionUID = 1L;
 
-		Step s1 = new Step(null);
-		plan.getSteps().add(s1);
-		s1.setName("a");
-		s1.setDiagramX(100);
-		s1.setDiagramY(100);
-		JDBCQueryOperation.Builder ab1 = new JDBCQueryOperation.Builder();
-		s1.setOperationBuilder(ab1);
-		ab1.setConnectionReference(Reference.get(c));
-		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
+					@Override
+					public UIDefaults getDefaults() {
+						UIDefaults result = super.getDefaults();
+						result.put("TableHeaderUI", BetterFlatTableHeaderUI.class.getName());
+						return result;
+					}
+				});
+			} else if (theme == Theme.FLATLAF_TESTER) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						INSTANCE.openObjectFrame(Arrays.stream(FlatAllIJThemes.INFOS).map(info -> {
+							return new Runnable() {
 
-		LoopCompositeStep ls = new LoopCompositeStep();
-		plan.getSteps().add(ls);
-		ls.setName("loop");
-		ls.setDiagramX(200);
-		ls.setDiagramY(100);
-		ls.getOperationBuilder().setIterationIndexVariableName("index");
-		ls.getOperationBuilder().setLoopEndCondition(new InstantiationFunction("return index==3;"));
-		
-		Step s2 = new Step(null);
-		plan.getSteps().add(s2);
-		s2.setName("w");
-		s2.setDiagramX(300);
-		s2.setDiagramY(100);
-		s2.setParent(ls);
-		WriteFileOperation.Builder ab2 = new WriteFileOperation.Builder();
-		s2.setOperationBuilder(ab2);
-		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
-		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(1,
-						new InstantiationFunction("return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
+								@Override
+								public void run() {
+									try {
+										Class.forName(info.getClassName()).getMethod("setup").invoke(null);
+									} catch (IllegalAccessException | ClassNotFoundException | IllegalArgumentException
+											| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+										throw new UnexpectedError(e);
+									}
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											for (Window window : Window.getWindows()) {
+												SwingUtilities.updateComponentTreeUI(window);
+											}
+										}
+									});
+								}
 
-		Transition t1 = new Transition();
-		t1.setStartStep(s1);
-		t1.setEndStep(ls);
-		plan.getTransitions().add(t1);
+								@Override
+								public String toString() {
+									return info.getClassName();
+								}
 
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
+							};
+						}).toArray());
+					}
+				});
 			}
-		});
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
@@ -138,7 +161,7 @@ public class GUI extends SwingCustomizer {
 				getInfoCustomizations()
 						.loadFromStream(getClass().getResourceAsStream("/" + GUI_CUSTOMIZATIONS_RESOURCE_NAME), null);
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 	}
@@ -166,7 +189,7 @@ public class GUI extends SwingCustomizer {
 								return VisitStatus.TREE_VISIT_INTERRUPTED;
 							}
 							if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
-								return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+								return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 							}
 							return VisitStatus.VISIT_NOT_INTERRUPTED;
 						}
@@ -176,21 +199,109 @@ public class GUI extends SwingCustomizer {
 
 			@Override
 			protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
-				final CustomizingForm thisForm = this;
 				return new CustomizingFieldControlPlaceHolder(this, field) {
 
 					private static final long serialVersionUID = 1L;
 
+					FadingPanel transparentPanel = new FadingPanel();
+					Object lastValue;
+
+					boolean mayFade() {
+						if (getObject() instanceof PrecomputedTypeInstanceWrapper) {
+							ITypeInfo precomputedType = ((PrecomputedTypeInstanceWrapper) getObject())
+									.getPrecomputedType();
+							if (precomputedType instanceof EncapsulatedObjectFactory.TypeInfo) {
+								EncapsulatedObjectFactory factory = ((EncapsulatedObjectFactory.TypeInfo) precomputedType)
+										.getFactory();
+								if (factory instanceof AbstractEditorBuilder.EditorEncapsulation) {
+									AbstractEditorFormBuilder builder = ((AbstractEditorFormBuilder.EditorEncapsulation) factory)
+											.getBuilder();
+									if (builder.getClass().getEnclosingClass() == ListControl.class) {
+										return true;
+									}
+								}
+							}
+						}
+						return false;
+					}
+
+					boolean prepareToFade() {
+						if (!mayFade()) {
+							return false;
+						}
+						Object newValue = field.getValue(getObject());
+						if (lastValue == newValue) {
+							return false;
+						}
+						lastValue = newValue;
+						if (!isDisplayable()) {
+							return false;
+						}
+						return true;
+					}
+
+					@Override
+					protected void layoutFieldControl() {
+						super.layoutFieldControl();
+						if (mayFade()) {
+							remove(fieldControl);
+							add(transparentPanel, BorderLayout.CENTER);
+							transparentPanel.add(fieldControl, BorderLayout.CENTER);
+						}
+					}
+
+					@Override
+					protected void destroyFieldControl() {
+						if (mayFade()) {
+							transparentPanel.remove(fieldControl);
+							remove(transparentPanel);
+							add(fieldControl, BorderLayout.CENTER);
+						}
+						super.destroyFieldControl();
+					}
+
+					@Override
+					public void refreshUI(boolean refreshStructure) {
+						setVisible(true);
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("constructorGroup")) {
+								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
+									setVisible(false);
+								}
+							}
+							if (field.getName().equals("typeGroup")) {
+								if (((InstanceBuilderFacade) object).getUnderlying()
+										.getDynamicTypeNameAccessor() != null) {
+									setVisible(false);
+								}
+							}
+						}
+						boolean mustFade = isVisible() && prepareToFade();
+						if (mustFade) {
+							transparentPanel.fade(+1, 0.0);
+						}
+						super.refreshUI(refreshStructure);
+						if (mustFade) {
+							SwingRendererUtils.handleComponentSizeChange(this);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									transparentPanel.fade(-1, 1.0);
+								}
+							});
+						}
+					}
+
 					@Override
 					public Component createFieldControl() {
 						if (field.getType().getName().equals(PlanDiagram.Source.class.getName())) {
-							return new PlanDiagram(swingRenderer, thisForm);
+							return new PlanDiagram(swingRenderer, this);
 						}
-						if (field.getType().getName().equals(PlanDiagram.PaletteSource.class.getName())) {
-							return new PlanDiagramPalette(swingRenderer, thisForm);
+						if (field.getType().getName().equals(PlanDiagramPalette.Source.class.getName())) {
+							return new PlanDiagramPalette(swingRenderer, this);
 						}
 						if (field.getType().getName().equals(DebugPlanDiagram.Source.class.getName())) {
-							return new DebugPlanDiagram(swingRenderer, thisForm);
+							return new DebugPlanDiagram(swingRenderer, this);
 						}
 						if (field.getName().equals("children") && (field.getType() instanceof IListTypeInfo)
 								&& (((IListTypeInfo) field.getType()).getItemType() != null)
@@ -212,11 +323,24 @@ public class GUI extends SwingCustomizer {
 						}
 						if (field.getName().equals("functionBody")
 								&& (field.getType().getName().equals(String.class.getName()))) {
-							TextControl result = (TextControl) super.createFieldControl();
-							result.getTextComponent().setTransferHandler(
-									new FunctionEditorVariableTreeControl.PathImportTransferHandler());
-							result.getTextComponent().setDropMode(DropMode.INSERT);
-							return result;
+							return new EditorPlugin().new EditorControl(swingRenderer, this) {
+
+								private static final long serialVersionUID = 1L;
+
+								@Override
+								protected JTextComponent createTextComponent() {
+									JEditorPane result = (JEditorPane) super.createTextComponent();
+									JavaSyntaxKit editorKit = new JavaSyntaxKit();
+									editorKit.getConfig().put(JavaSyntaxKit.CONFIG_ENABLE_WORD_WRAP,
+											Boolean.TRUE.toString());
+									result.setEditorKit(editorKit);
+									result.setTransferHandler(
+											new FunctionEditorVariableTreeControl.PathImportTransferHandler());
+									result.setDropMode(DropMode.INSERT);
+									return result;
+								}
+
+							};
 						}
 						if (field.getName().equals("facadeOutlineChildren")
 								&& (field.getType() instanceof IListTypeInfo)
@@ -226,97 +350,81 @@ public class GUI extends SwingCustomizer {
 							return new InstanceBuilderOutlineTreeControl(GUI.this, this);
 						}
 						if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
-							return new MappingsControl();
+							return new MappingsControl(swingRenderer, this);
 						}
-						if (object instanceof PrecomputedTypeInstanceWrapper) {
-							Object instance = ((PrecomputedTypeInstanceWrapper) object).getInstance();
-							if (instance instanceof CapsuleFieldInfo.Value) {
-								Object encapsulated = ((CapsuleFieldInfo.Value) instance).getObject();
-								if (encapsulated instanceof FieldInitializerFacade) {
-									if (field.getName().equals("fieldValue")) {
-										return new NullableControl(this.swingRenderer, this) {
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ FieldInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("fieldValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+									private static final long serialVersionUID = 1L;
 
-											@Override
-											protected Object getNewValue() {
-												FieldInitializerFacade facade = (FieldInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if ((facade.getFieldValueMode() == null)
-														|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
-													return facade.createDefaultFieldValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
-
-										};
+									@Override
+									protected Object getNewValue() {
+										FieldInitializerFacade facade = (FieldInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if ((facade.getFieldValueMode() == null)
+												|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
+											return facade.createDefaultFieldValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
-								if (encapsulated instanceof ParameterInitializerFacade) {
-									if (field.getName().equals("parameterValue")) {
-										return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+								};
+							}
+						}
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ ParameterInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("parameterValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											@Override
-											protected Object getNewValue() {
-												ParameterInitializerFacade facade = (ParameterInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if (facade.getParameterValueMode() == ValueMode.PLAIN) {
-													return facade.createDefaultParameterValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
+									private static final long serialVersionUID = 1L;
 
-										};
+									@Override
+									protected Object getNewValue() {
+										ParameterInitializerFacade facade = (ParameterInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if (facade.getParameterValueMode() == ValueMode.PLAIN) {
+											return facade.createDefaultParameterValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
-								if (encapsulated instanceof ListItemInitializerFacade) {
-									if (field.getName().equals("itemValue")) {
-										return new NullableControl(this.swingRenderer, this) {
 
-											private static final long serialVersionUID = 1L;
+								};
+							}
+						}
+						if (objectType.getName().equals(
+								"CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType="
+										+ ListItemInitializerFacade.class.getName()
+										+ "], fieldName=valueGroup]], fieldName=valueBox]")) {
+							if (field.getName().equals("itemValue")) {
+								return new NullableControl(this.swingRenderer, this) {
 
-											@Override
-											protected Object getNewValue() {
-												ListItemInitializerFacade facade = (ListItemInitializerFacade) ((CapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
-														.getInstance()).getObject();
-												if ((facade.getItemValueMode() == null)
-														|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
-													return facade.createDefaultItemValue();
-												} else {
-													return super.getNewValue();
-												}
-											}
+									private static final long serialVersionUID = 1L;
 
-										};
+									@Override
+									protected Object getNewValue() {
+										ListItemInitializerFacade facade = (ListItemInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
+												.getInstance()).getObject()).getInstance()).getObject();
+										if ((facade.getItemValueMode() == null)
+												|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
+											return facade.createDefaultItemValue();
+										} else {
+											return super.getNewValue();
+										}
 									}
-								}
+
+								};
 							}
 						}
 						return super.createFieldControl();
 
-					}
-
-					@Override
-					public void refreshUI(boolean refreshStructure) {
-						setVisible(true);
-						if (object instanceof InstanceBuilderFacade) {
-							if (field.getName().equals("constructorGroup")) {
-								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
-									setVisible(false);
-								}
-							}
-							if (field.getName().equals("typeGroup")) {
-								if (((InstanceBuilderFacade) object).getUnderlying()
-										.getDynamicTypeNameAccessor() != null) {
-									setVisible(false);
-								}
-							}
-						}
-						super.refreshUI(refreshStructure);
 					}
 
 				};
@@ -336,7 +444,7 @@ public class GUI extends SwingCustomizer {
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
 							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
-									InstantiationFunctionEditor.class.getName(), GUI.INSTANCE);
+									FunctionEditor.class.getName(), GUI.INSTANCE);
 							TextControl textControl = (TextControl) SwingRendererUtils
 									.findDescendantFieldControlPlaceHolder(functionEditorForm, "functionBody",
 											GUI.INSTANCE)
@@ -350,48 +458,59 @@ public class GUI extends SwingCustomizer {
 
 					};
 				}
-				if (object instanceof PlanActivator) {
-					if (method.getName().equals("executePlan")) {
-						method = new MethodInfoProxy(method) {
+				if (method.getName().equals("executePlan")) {
+					method = new MethodInfoProxy(method) {
+						Throwable error;
 
-							@Override
-							public Object invoke(final Object object, InvocationData invocationData) {
-								SwingUtilities.invokeLater(new Runnable() {
-									@Override
-									public void run() {
-										Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
-												Debugger.class.getName(), swingRenderer);
-										ListControl planActivatorsControl = (ListControl) debuggerForm
-												.getFieldControlPlaceHolder("planActivators").getFieldControl();
-										planActivatorsControl.refreshUI(false);
-										PlanActivator currentPlanActivator = (PlanActivator) object;
-										BufferedItemPosition planActivatorPosition = planActivatorsControl
-												.findItemPositionByReference(currentPlanActivator);
-										BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition
-												.getSubItemPositions()
-												.get(planActivatorPosition.getSubItemPositions().size() - 1);
-										planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
-									}
-								});
+						@Override
+						public Object invoke(final Object object, InvocationData invocationData) {
+							try {
 								return super.invoke(object, invocationData);
+							} catch (Throwable t) {
+								error = t;
+								throw new RuntimeException(t);
+							} finally {
+								if (error == null) {
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											postSelectNewPlanExecutor();
+										}
+									});
+								}
 							}
+						}
 
-						};
-					}
+						private void postSelectNewPlanExecutor() {
+							Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+									Debugger.class.getName(), swingRenderer);
+							ListControl planActivatorsControl = (ListControl) debuggerForm
+									.getFieldControlPlaceHolder("planActivators").getFieldControl();
+							planActivatorsControl.refreshUI(false);
+							Form currentPlanActivatorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
+									PlanActivator.class.getName(), swingRenderer);
+							PlanActivator currentPlanActivator = (PlanActivator) currentPlanActivatorForm.getObject();
+							BufferedItemPosition planActivatorPosition = planActivatorsControl
+									.findItemPositionByReference(currentPlanActivator);
+							BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition.getSubItemPositions()
+									.get(planActivatorPosition.getSubItemPositions().size() - 1);
+							planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
+						}
+					};
 				}
 				return super.createMethodControlPlaceHolder(method);
 			}
 
 			@Override
-			public void validateForm() throws Exception {
-				if (object instanceof InstantiationFunctionEditor) {
+			public void validateForm(ValidationSession session) throws Exception {
+				if (object instanceof FunctionEditor) {
 					TextControl textControl = (TextControl) SwingRendererUtils
 							.findDescendantFieldControlPlaceHolder(this, "functionBody", GUI.INSTANCE)
 							.getFieldControl();
 					JTextComponent textComponent = textControl.getTextComponent();
 					textComponent.getHighlighter().removeAllHighlights();
 					try {
-						((InstantiationFunctionEditor) object).validate();
+						((FunctionEditor) object).validate();
 					} catch (CompilationError e) {
 						if (textComponent.getText() != null) {
 							textComponent.getHighlighter().addHighlight(
@@ -402,7 +521,7 @@ public class GUI extends SwingCustomizer {
 						throw e;
 					}
 				} else {
-					super.validateForm();
+					super.validateForm(session);
 				}
 			}
 
@@ -429,8 +548,35 @@ public class GUI extends SwingCustomizer {
 
 	@Override
 	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
+		if (JESB.DEBUG) {
+			error.printStackTrace();
+		}
 		openObjectDialog(activatorComponent, error);
 	}
-	
-	
+
+	public static class BetterFlatTableHeaderUI extends FlatTableHeaderUI {
+
+		@Override
+		public Dimension getPreferredSize(JComponent c) {
+			// replace Dimension size = super.getPreferredSize( c );
+			BasicTableHeaderUI superObject = new BasicTableHeaderUI() {
+				{
+					header = (JTableHeader) c;
+				}
+			};
+			Dimension size = superObject.getPreferredSize(c);
+			if (size.height > 0) {
+				Insets insets = c.getInsets();
+				if ((insets == null) || (size.height > (insets.top + insets.bottom))) {
+					// replace UIScale.scale(height) by UIScale.scale(size.height)
+					size.height = Math.max(size.height, UIScale.scale(size.height));
+				}
+			}
+			return size;
+		}
+
+		public static ComponentUI createUI(JComponent c) {
+			return new BetterFlatTableHeaderUI();
+		}
+	}
 }

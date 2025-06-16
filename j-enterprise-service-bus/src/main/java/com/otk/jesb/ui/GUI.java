@@ -59,6 +59,7 @@ import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.plugin.EditorPlugin;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -68,7 +69,6 @@ import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
-import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
@@ -81,7 +81,7 @@ public class GUI extends SwingCustomizer {
 		SYSTEM, CROSS_PLATFORM, FLAT, FLATLAF_TESTER
 	}
 
-	private static Theme theme = Theme.FLAT;
+	private static Theme theme = Theme.CROSS_PLATFORM;
 
 	static {
 		if (JESB.DEBUG) {
@@ -529,19 +529,10 @@ public class GUI extends SwingCustomizer {
 	}
 
 	@Override
-	public Image getObjectIconImage(Object object) {
-		Image result = super.getObjectIconImage(object);
+	public Image getIconImage(ResourcePath path) {
+		Image result = super.getIconImage(path);
 		if (result == null) {
-			return result;
-		}
-		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
-	}
-
-	@Override
-	public Image getEnumerationItemIconImage(IEnumerationItemInfo itemInfo) {
-		Image result = super.getEnumerationItemIconImage(itemInfo);
-		if (result == null) {
-			return result;
+			return null;
 		}
 		return SwingRendererUtils.scalePreservingRatio(result, 16, 16, Image.SCALE_SMOOTH);
 	}

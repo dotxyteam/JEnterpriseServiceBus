@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.otk.jesb.Expression;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -19,10 +20,10 @@ public class JDBCConnection extends Resource {
 		SwingCustomizer.getDefault().openObjectFrame(new JDBCConnection("test"));
 	}
 
-	private String driverClassName;
-	private String url;
-	private String userName;
-	private String password;
+	private Expression<String> driverClassNameExpression = new Expression<String>(String.class);
+	private Expression<String> urlExpression = new Expression<String>(String.class);
+	private Expression<String> userNameExpression = new Expression<String>(String.class);
+	private Expression<String> passwordExpression = new Expression<String>(String.class);
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -32,59 +33,123 @@ public class JDBCConnection extends Resource {
 		super(name);
 	}
 
+	public Expression<String> getDriverClassNameExpression() {
+		return driverClassNameExpression;
+	}
+
+	public void setDriverClassNameExpression(Expression<String> driverClassNameExpression) {
+		this.driverClassNameExpression = driverClassNameExpression;
+	}
+
+	public Expression<String> getUrlExpression() {
+		return urlExpression;
+	}
+
+	public void setUrlExpression(Expression<String> urlExpression) {
+		this.urlExpression = urlExpression;
+	}
+
+	public Expression<String> getUserNameExpression() {
+		return userNameExpression;
+	}
+
+	public void setUserNameExpression(Expression<String> userNameExpression) {
+		this.userNameExpression = userNameExpression;
+	}
+
+	public Expression<String> getPasswordExpression() {
+		return passwordExpression;
+	}
+
+	public void setPasswordExpression(Expression<String> passwordExpression) {
+		this.passwordExpression = passwordExpression;
+	}
+
+	public boolean isDriverClassNameDynamic() {
+		return driverClassNameExpression.isDynamic();
+	}
+
+	public void setDriverClassNameDynamic(boolean b) {
+		driverClassNameExpression.setDynamic(b);
+	}
+
+	public boolean isUrlExpression() {
+		return urlExpression.isDynamic();
+	}
+
+	public void setUrlExpression(boolean b) {
+		urlExpression.setDynamic(b);
+	}
+
+	public boolean isUserNameExpression() {
+		return userNameExpression.isDynamic();
+	}
+
+	public void setUserNameExpression(boolean b) {
+		userNameExpression.setDynamic(b);
+	}
+
+	public boolean isPasswordExpression() {
+		return passwordExpression.isDynamic();
+	}
+
+	public void setPasswordExpression(boolean b) {
+		passwordExpression.setDynamic(b);
+	}
+
 	public String getDriverClassName() {
-		return driverClassName;
+		return driverClassNameExpression.evaluate();
 	}
 
 	public void setDriverClassName(String driverClassName) {
-		this.driverClassName = driverClassName;
+		driverClassNameExpression.represent(driverClassName);
 	}
 
 	public String getUrl() {
-		return url;
+		return urlExpression.evaluate();
 	}
 
 	public void setUrl(String url) {
-		this.url = url;
+		urlExpression.represent(url);
 	}
 
 	public String getUserName() {
-		return userName;
+		return userNameExpression.evaluate();
 	}
 
 	public void setUserName(String userName) {
-		this.userName = userName;
+		userNameExpression.represent(userName);
 	}
 
 	public String getPassword() {
-		return password;
+		return passwordExpression.evaluate();
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		passwordExpression.represent(password);
 	}
 
 	public String test() throws ClassNotFoundException, SQLException {
-		ClassUtils.getCachedClassForName(driverClassName);
-		DriverManager.getConnection(url, userName, password);
-		return "Connection successful !";
+		ClassUtils.getCachedClassForName(getDriverClassName());
+		DriverManager.getConnection(getUrl(), getUserName(), getPassword());
+		return "Connection successful!";
 	}
-	
+
 	public Connection build() throws ClassNotFoundException, SQLException {
-		ClassUtils.getCachedClassForName(driverClassName);
-		return DriverManager.getConnection(url, userName, password);
+		ClassUtils.getCachedClassForName(getDriverClassName());
+		return DriverManager.getConnection(getUrl(), getUserName(), getPassword());
 	}
 
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
 		try {
-			ClassUtils.getCachedClassForName(driverClassName);
+			ClassUtils.getCachedClassForName(getDriverClassName());
 		} catch (ClassNotFoundException t) {
-			throw new ValidationError("Failed to load the driver class '" + driverClassName + "'", t);
+			throw new ValidationError("Failed to load the driver class '" + getDriverClassName() + "'", t);
 		}
 		try {
-			DriverManager.getConnection(url, userName, password);
+			DriverManager.getConnection(getUrl(), getUserName(), getPassword());
 		} catch (SQLException t) {
 			throw new ValidationError("Failed to create the connection", t);
 		}

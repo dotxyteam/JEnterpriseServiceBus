@@ -17,7 +17,8 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
+import com.otk.jesb.Expression;
+import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -77,7 +78,7 @@ public abstract class JDBCOperation implements Operation {
 	public static abstract class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
-		private String statement;
+		private Expression<String> statementExpression = new Expression<String>(String.class);
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
@@ -100,12 +101,28 @@ public abstract class JDBCOperation implements Operation {
 			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
+		public Expression<String> getStatementExpression() {
+			return statementExpression;
+		}
+
+		public void setStatementExpression(Expression<String> statementExpression) {
+			this.statementExpression = statementExpression;
+		}
+
+		public boolean isStatementDynamic() {
+			return statementExpression.isDynamic();
+		}
+
+		public void setStatementDynamic(boolean b) {
+			statementExpression.setDynamic(b);
+		}
+
 		public String getStatement() {
-			return statement;
+			return statementExpression.evaluate();
 		}
 
 		public void setStatement(String statement) {
-			this.statement = statement;
+			statementExpression.represent(statement);
 		}
 
 		public List<ParameterDefinition> getParameterDefinitions() {
@@ -139,7 +156,7 @@ public abstract class JDBCOperation implements Operation {
 			}
 			try {
 				Connection sqlConnection = getConnection().build();
-				PreparedStatement preparedStatement = sqlConnection.prepareStatement(statement);
+				PreparedStatement preparedStatement = sqlConnection.prepareStatement(getStatement());
 				int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 				if (expectedParameterCount != parameterDefinitions.size()) {
 					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()

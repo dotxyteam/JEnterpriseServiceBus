@@ -11,7 +11,6 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;

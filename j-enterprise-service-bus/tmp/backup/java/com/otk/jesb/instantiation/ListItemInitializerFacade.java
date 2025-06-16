@@ -4,27 +4,111 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
-public class ListItemInitializerFacade extends Facade {
+public class ListItemInitializerFacade extends InitializerFacade {
 
-	private Facade parent;
 	private int index;
-	private Object itemValue;
+	private ITypeInfo itemTypeInfo;
 
 	public ListItemInitializerFacade(Facade parent, int index) {
-		this.parent = parent;
+		super(parent);
 		this.index = index;
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			this.itemValue = createDefaultItemValue();
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		List<VariableDeclaration> baseResult = getParent().getAdditionalVariableDeclarations(null,
+				baseVariableDeclarations);
+		List<VariableDeclaration> result;
+		if (getItemReplicationFacade() == null) {
+			result = baseResult;
 		} else {
-			this.itemValue = listItemInitializer.getItemValue();
+			result = new ArrayList<VariableDeclaration>(baseResult);
+			result.add(new VariableDeclaration() {
+
+				@Override
+				public String getVariableName() {
+					return getItemReplicationFacade().getIterationVariableName();
+				}
+
+				@Override
+				public Class<?> getVariableType() {
+					ListItemReplicationFacade itemReplicationFacade = getItemReplicationFacade();
+					ITypeInfo declaredIterationVariableType = itemReplicationFacade
+							.getDeclaredIterationVariableTypeInfo();
+					if (declaredIterationVariableType != null) {
+						return ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();
+					}
+					ITypeInfo guessedIterationVariableType = itemReplicationFacade
+							.guessIterationVariableTypeInfo(baseVariableDeclarations);
+					if (guessedIterationVariableType != null) {
+						return ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();
+					}
+					return Object.class;
+				}
+			});
 		}
+		if (function == null) {
+			return result;
+		}
+		if (getCondition() == function) {
+			return baseResult;
+		}
+		if (getItemReplicationFacade() != null) {
+			if (getItemReplicationFacade().getIterationListValue() == function) {
+				return baseResult;
+			}
+		}
+		if (getItemValue() == function) {
+			return result;
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		if (getCondition() == function) {
+			return boolean.class;
+		}
+		if (getItemReplicationFacade() != null) {
+			if (getItemReplicationFacade().getIterationListValue() == function) {
+				return Object.class;
+			}
+		}
+		if (getItemValue() == function) {
+			return ((DefaultTypeInfo) getItemTypeInfo()).getJavaType();
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (getCondition() != null) {
+			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), this,
+					"condition", recursively, variableDeclarations);
+		}
+		if (recursively) {
+			if (getItemReplicationFacade() != null) {
+				getItemReplicationFacade().validate(recursively, variableDeclarations);
+			}
+		}
+		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
+				recursively, variableDeclarations);
 	}
 
 	@Override
@@ -35,9 +119,7 @@ public class ListItemInitializerFacade extends Facade {
 		}
 		String result = InstantiationUtils.express(value);
 		if (getItemReplicationFacade() != null) {
-			result = "FOR " + getItemReplicationFacade().getIterationVariableName() + " IN "
-					+ InstantiationUtils.express(getItemReplicationFacade().getIterationListValue())
-					+ ((result != null) ? (" LOOP " + result) : "");
+			result = getItemReplicationFacade().preprendExpression(result);
 		}
 		if (getCondition() != null) {
 			result = "IF " + InstantiationUtils.express(getCondition()) + ((result != null) ? (" THEN " + result) : "");
@@ -45,18 +127,8 @@ public class ListItemInitializerFacade extends Facade {
 		return result;
 	}
 
-	@Override
-	public Facade getParent() {
-		return parent;
-	}
-
 	public int getIndex() {
 		return index;
-	}
-
-	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
-		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
 	}
 
 	public ListItemReplicationFacade getItemReplicationFacade() {
@@ -65,7 +137,7 @@ public class ListItemInitializerFacade extends Facade {
 			return null;
 		}
 		return (listItemInitializer.getItemReplication() == null) ? null
-				: new ListItemReplicationFacade(listItemInitializer.getItemReplication());
+				: new ListItemReplicationFacade(this, listItemInitializer.getItemReplication());
 	}
 
 	public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {
@@ -93,104 +165,84 @@ public class ListItemInitializerFacade extends Facade {
 	}
 
 	public Object getItemValue() {
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			return null;
-		}
-		Object result = InstantiationUtils.maintainInterpretableValue(listItemInitializer.getItemValue(),
-				getItemType());
-		if (result instanceof InstanceBuilder) {
-			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
-		}
-		return result;
+		return super.getValue();
 	}
 
 	public void setItemValue(Object value) {
-		if (value instanceof InstanceBuilderFacade) {
-			value = ((InstanceBuilderFacade) value).getUnderlying();
-		}
-		setConcrete(true);
-		ListItemInitializer listItemInitializer = getUnderlying();
-		ITypeInfo itemType = getItemType();
-		if ((value == null) && (itemType != null) && (itemType.isPrimitive())) {
-			throw new AssertionError("Cannot add null item to primitive item list");
-		}
-		listItemInitializer.setItemValue(value);
+		super.setValue(value);
 	}
 
 	public ValueMode getItemValueMode() {
-		ListItemInitializer listItemInitializer = getUnderlying();
-		if (listItemInitializer == null) {
-			return null;
-		}
-		return InstantiationUtils.getValueMode(listItemInitializer.getItemValue());
+		return super.getValueMode();
 	}
 
 	public void setItemValueMode(ValueMode valueMode) {
-		setConcrete(true);
-		if (valueMode == getItemValueMode()) {
-			return;
-		}
-		ITypeInfo itemType = getItemType();
-		Object newItemValue = InstantiationUtils.getDefaultInterpretableValue(itemType, valueMode, this);
-		if (newItemValue instanceof InstanceBuilder) {
-			newItemValue = new InstanceBuilderFacade(this, (InstanceBuilder) newItemValue);
-		}
-		setItemValue(newItemValue);
+		super.setValueMode(valueMode);
 	}
 
 	public Object createDefaultItemValue() {
-		ITypeInfo itemType = getItemType();
-		return InstantiationUtils.getDefaultInterpretableValue(itemType, this);
+		return super.createDefaultValue();
 	}
 
-	public ITypeInfo getItemType() {
-		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		return ((IListTypeInfo) parentTypeInfo).getItemType();
+	public ITypeInfo getItemTypeInfo() {
+		if (itemTypeInfo == null) {
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			ITypeInfo result = ((IListTypeInfo) parentTypeInfo).getItemType();
+			if (result == null) {
+				result = TypeInfoProvider.getTypeInfo(Object.class.getName());
+			}
+			itemTypeInfo = result;
+		}
+		return itemTypeInfo;
 	}
 
 	public String getItemTypeName() {
-		ITypeInfo itemType = getItemType();
-		String result = (itemType == null) ? Object.class.getName() : itemType.getName();
-		result = InstantiationUtils.makeTypeNamesRelative(result,
-				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
-		return result;
+		return super.getValueTypeName();
 	}
 
 	@Override
 	public ListItemInitializer getUnderlying() {
-		return ((InitializationCase) parent.getUnderlying()).getListItemInitializer(index);
+		return ((InitializationCase) getParent().getUnderlying()).getListItemInitializer(index);
 	}
 
 	@Override
-	public boolean isConcrete() {
-		if (!parent.isConcrete()) {
-			return false;
-		}
-		return getUnderlying() != null;
+	protected Object retrieveInitializerValue(Object initializer) {
+		return ((ListItemInitializer) initializer).getItemValue();
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+		((ListItemInitializer) initializer).setItemValue(newValue);
+	}
+
+	@Override
+	protected ITypeInfo getValueType() {
+		return getItemTypeInfo();
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+		((InitializationCase) getParent().getUnderlying()).getListItemInitializers()
+				.add(new ListItemInitializer(index, value));
+	}
+
+	@Override
+	protected void deleteUnderlying() {
+		((InitializationCase) getParent().getUnderlying()).removeListItemInitializer(index);
 	}
 
 	@Override
 	public void setConcrete(boolean b) {
-		if (b == isConcrete()) {
-			return;
-		}
 		if (b) {
-			if (!parent.isConcrete()) {
-				parent.setConcrete(true);
-			}
 			if (getUnderlying() == null) {
 				makeIndexAvailable(index);
-				((InitializationCase) parent.getUnderlying()).getListItemInitializers()
-						.add(new ListItemInitializer(index, itemValue));
 			}
 		} else {
 			if (getUnderlying() != null) {
-				((InitializationCase) parent.getUnderlying()).removeListItemInitializer(index);
-				itemValue = createDefaultItemValue();
 				makeIndexUnavailable(index);
 			}
 		}
+		super.setConcrete(b);
 	}
 
 	protected void makeIndexAvailable(int index) {
@@ -247,24 +299,13 @@ public class ListItemInitializerFacade extends Facade {
 		return result;
 	}
 
-	@Override
-	public List<Facade> getChildren() {
-		List<Facade> result = new ArrayList<Facade>();
-		if (itemValue instanceof MapEntryBuilder) {
-			result.addAll(new MapEntryBuilderFacade(this, (MapEntryBuilder) itemValue).getChildren());
-		} else if (itemValue instanceof InstanceBuilder) {
-			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) itemValue).getChildren());
-		}
-		return result;
-	}
-
 	public void duplicate() {
 		setConcrete(true);
 		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying());
 		int underlyingCopyIndex = getUnderlying().getIndex() + 1;
 		makeIndexAvailable(underlyingCopyIndex);
 		underlyingCopy.setIndex(underlyingCopyIndex);
-		((InitializationCase) parent.getUnderlying()).getListItemInitializers().add(underlyingCopy);
+		((InitializationCase) getParent().getUnderlying()).getListItemInitializers().add(underlyingCopy);
 	}
 
 	@Override

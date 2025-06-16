@@ -8,9 +8,12 @@
 	. Log
 	. ...
 - maybe change the project name since ESBs are not popular anymore
-- allow to start plan execution on event (timer, file poller, etc)
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - to ease co-working and version control, plans and resources must be stored in separate files  
+- add environment variables/properties:
+	. allow to interpret them
+	. allow to create profiles for each env
+- it is difficult to find appropriate names for steps and structure elements 
 - allow to deploy and execute a project outside of the designer in a production environment
 - improve the UI design:
 	. change the font look and feel (maybe the windows look and feel would be good)

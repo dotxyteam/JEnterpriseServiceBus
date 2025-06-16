@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.ArrayStream;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.GetterFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -18,7 +20,8 @@ import xy.reflect.ui.info.type.iterable.ArrayTypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.StandardCollectionTypeInfo;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
-import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PathExplorer {
@@ -44,7 +47,7 @@ public class PathExplorer {
 	}
 
 	public ITypeInfo getRootExpressionType() {
-		return new TypedNodeUtility(null, typeName).getTypeInfo();
+		return TypeInfoProvider.getTypeInfo(typeName);
 	}
 
 	public static interface PathNode {
@@ -58,6 +61,40 @@ public class PathExplorer {
 		String getExpressionPattern();
 
 		ITypeInfo getExpressionType();
+
+	}
+
+	public static class PathNodeProxy implements PathNode {
+		private PathNode base;
+
+		public PathNodeProxy(PathNode base) {
+			this.base = base;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return base.getParent();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return base.getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			return base.getTypicalExpression();
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			return base.getExpressionPattern();
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			return base.getExpressionType();
+		}
 
 	}
 
@@ -76,21 +113,7 @@ public class PathExplorer {
 		}
 
 		public ITypeInfo getTypeInfo() {
-			ITypeInfo result = TypeInfoProvider.getTypeInfo(typeName);
-			if (result instanceof IListTypeInfo) {
-				if (node instanceof FieldNode) {
-					FieldNode fieldNode = (FieldNode) node;
-					IFieldInfo listFieldInfo = fieldNode.getFieldInfo();
-					result = TypeInfoProvider.getTypeInfo(typeName, listFieldInfo);
-				}
-			}
-			if (result instanceof IMapEntryTypeInfo) {
-				if (node instanceof ListItemNode) {
-					ListItemNode mapEntryNode = (ListItemNode) node;
-					result = (StandardMapEntryTypeInfo) mapEntryNode.getItemType();
-				}
-			}
-			return result;
+			return (node != null) ? node.getExpressionType() : PathExplorer.this.getRootExpressionType();
 		}
 
 		public List<PathNode> getChildren() {
@@ -101,30 +124,54 @@ public class PathExplorer {
 					result.add(new MapValueNode(this));
 				} else {
 					result.add(new ListItemNode(this));
+					result.add(new ListSizeNode(this));
+					result.add(new ListFilteringNode(this));
+					result.add(new ListMappingNode(this));
+					result.add(new ListReducingNode(this));
 				}
-			} else if (!InstantiationUtils.isComplexType(typeInfo)) {
-				return Collections.emptyList();
+			} else if (Stream.class.isAssignableFrom(((DefaultTypeInfo) typeInfo).getJavaType())) {
+				result.add(new StreamFilteringNode(this));
+				result.add(new StreamMappingNode(this));
+				result.add(new StreamReducingNode(this));
+				result.add(new StreamListCollectorNode(this));
 			} else {
-				for (IFieldInfo field : typeInfo.getFields()) {
-					result.add(new FieldNode(this, field.getName()));
+				if (InstantiationUtils.isComplexType(typeInfo)) {
+					if (!typeInfo.getName().equals(Object.class.getName())) {
+						for (IFieldInfo field : typeInfo.getFields()) {
+							result.add(new FieldNode(this, field.getName()));
+						}
+					}
 				}
 			}
 			Collections.sort(result, new Comparator<PathNode>() {
-				List<Class<?>> CLASSES_ORDER = Arrays.asList(FieldNode.class, ListItemNode.class, MapValueNode.class);
+				List<Class<?>> CLASSES_ORDER = Arrays.asList(FieldNode.class, ListItemNode.class, MapValueNode.class,
+						ListSizeNode.class, StreamNode.class, StreamFilteringNode.class, StreamMappingNode.class,
+						StreamListCollectorNode.class);
 
 				@Override
 				public int compare(PathNode o1, PathNode o2) {
 					if (!o1.getClass().equals(o2.getClass())) {
-						return Integer.valueOf(CLASSES_ORDER.indexOf(o1.getClass()))
-								.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(o2.getClass())));
+						Class<?> class1 = o1.getClass();
+						{
+							while (class1.isAnonymousClass()) {
+								class1 = class1.getSuperclass();
+							}
+						}
+						Class<?> class2 = o1.getClass();
+						{
+							while (class2.isAnonymousClass()) {
+								class2 = class2.getSuperclass();
+							}
+						}
+						return Integer.valueOf(CLASSES_ORDER.indexOf(class1))
+								.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(class2)));
 					}
 					if ((o1 instanceof FieldNode) && (o2 instanceof FieldNode)) {
 						FieldNode fn1 = (FieldNode) o1;
 						FieldNode fn2 = (FieldNode) o2;
 						return fn1.getFieldName().compareTo(fn2.getFieldName());
-					} else {
-						throw new AssertionError();
 					}
+					return o1.toString().compareTo(o2.toString());
 				}
 			});
 			return result;
@@ -174,7 +221,7 @@ public class PathExplorer {
 
 		@Override
 		public List<PathNode> getChildren() {
-			return new TypedNodeUtility(this, getFieldInfo().getType().getName()).getChildren();
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
 		}
 
 		@Override
@@ -187,7 +234,7 @@ public class PathExplorer {
 			} else if (fieldInfo instanceof PublicFieldInfo) {
 				return parentExpression + "." + ((PublicFieldInfo) fieldInfo).getJavaField().getName();
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -200,15 +247,21 @@ public class PathExplorer {
 				return parentPattern + "\\s*\\.\\s*" + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName()
 						+ "\\s*\\(\\s*\\)\\s*";
 			} else if (fieldInfo instanceof PublicFieldInfo) {
-				return parentPattern + "\\s*\\.\\s*\\b" + ((PublicFieldInfo) fieldInfo).getJavaField().getName() + "\\b\\s*";
+				return parentPattern + "\\s*\\.\\s*\\b" + ((PublicFieldInfo) fieldInfo).getJavaField().getName()
+						+ "\\b\\s*";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
 		@Override
 		public ITypeInfo getExpressionType() {
-			return new TypedNodeUtility(this, getFieldInfo().getType().getName()).getTypeInfo();
+			IFieldInfo fieldInfo = getFieldInfo();
+			ITypeInfo result = fieldInfo.getType();
+			if (result instanceof IListTypeInfo) {
+				result = TypeInfoProvider.getTypeInfo(result.getName(), fieldInfo);
+			}
+			return result;
 		}
 
 		@Override
@@ -225,11 +278,6 @@ public class PathExplorer {
 			this.parentTypedNodeUtility = parent;
 		}
 
-		public ITypeInfo getItemType() {
-			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
-			return parentTypeInfo.getItemType();
-		}
-
 		@Override
 		public PathNode getParent() {
 			return parentTypedNodeUtility.getNode();
@@ -237,11 +285,7 @@ public class PathExplorer {
 
 		@Override
 		public List<PathNode> getChildren() {
-			ITypeInfo itemType = getItemType();
-			if (itemType == null) {
-				return Collections.emptyList();
-			}
-			return new TypedNodeUtility(this, itemType.getName()).getChildren();
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
 		}
 
 		@Override
@@ -250,13 +294,13 @@ public class PathExplorer {
 					: PathExplorer.this.getTypicalRootExpression();
 			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
 			if (parentTypeInfo instanceof ArrayTypeInfo) {
-				return parentExpression + "[i]";
+				return parentExpression + "[?]";
 			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {
-				return parentExpression + ".get(i)";
+				return parentExpression + ".get(?)";
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentExpression + ".iterator().next()";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
@@ -272,20 +316,404 @@ public class PathExplorer {
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
 				return parentPattern + "\\s*\\.\\s*iterator\\s*\\(\\s*\\)\\s*\\.\\s*next\\s*\\(\\s*\\)\\s*";
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 
 		@Override
 		public ITypeInfo getExpressionType() {
-			ITypeInfo itemType = getItemType();
-			String itemTypeName = (itemType != null) ? itemType.getName() : Object.class.getName();
-			return new TypedNodeUtility(this, itemTypeName).getTypeInfo();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			ITypeInfo result = parentTypeInfo.getItemType();
+			if (result == null) {
+				result = TypeInfoProvider.getTypeInfo(Object.class);
+			}
+			return result;
+
 		}
 
 		@Override
 		public String toString() {
 			return "[i]";
+		}
+	}
+
+	public class ListSizeNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public ListSizeNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, int.class.getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return parentExpression + ".length";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return parentExpression + ".size())";
+			} else {
+				throw new UnexpectedError();
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return "\\s*" + parentPattern + "\\s*\\.\\s*length\\s*";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return "\\s*" + parentPattern + "\\s*\\.\\s*size\\s*\\(\\s*\\)\\s*";
+			} else {
+				throw new UnexpectedError();
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			return TypeInfoProvider.getTypeInfo(int.class);
+		}
+
+		@Override
+		public String toString() {
+			return "<count>";
+		}
+	}
+
+	public class StreamNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public StreamNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return ArrayStream.class.getName() + ".get(" + parentExpression + ")";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return parentExpression + ".stream()";
+			} else {
+				throw new UnexpectedError();
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			if (parentTypeInfo instanceof ArrayTypeInfo) {
+				return "\\s*" + ArrayStream.class.getName().replace(".", "\\.") + "\\s*\\.get\\s*\\(\\s*"
+						+ parentPattern + "\\s*\\)\\s*\\.\\s*";
+			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
+				return "\\s*" + parentPattern + "\\s*\\.\\s*stream\\s*\\(\\s*\\)\\s*";
+			} else {
+				throw new UnexpectedError();
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();
+			ITypeInfo itemType = parentTypeInfo.getItemType();
+			Class<?> itemClass;
+			if (itemType != null) {
+				itemClass = ((DefaultTypeInfo) itemType).getJavaType();
+				if (itemType.isPrimitive()) {
+					itemClass = ClassUtils.primitiveToWrapperClass(itemClass);
+				}
+			} else {
+				itemClass = null;
+			}
+			return TypeInfoProvider.getTypeInfo(Stream.class,
+					(itemClass != null) ? new Class<?>[] { itemClass } : null);
+		}
+
+		@Override
+		public String toString() {
+			return "<stream>";
+		}
+	}
+
+	public class StreamFilteringNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public StreamFilteringNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, Stream.class.getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			if (!Stream.class
+					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {
+				throw new UnexpectedError();
+			}
+			return parentExpression + ".filter(element -> ?)";
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return "\\s*" + parentPattern + "\\s*\\.\\s*filter\\s*\\([^\\(\\)]+\\)\\s*";
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
+			return TypeInfoProvider.getTypeInfo(Stream.class,
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+		}
+
+		@Override
+		public String toString() {
+			return "<filter>";
+		}
+	}
+
+	public class StreamMappingNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public StreamMappingNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			if (!Stream.class
+					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {
+				throw new UnexpectedError();
+			}
+			return parentExpression + ".map(element -> ?)";
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return "\\s*" + parentPattern + "\\s*\\.\\s*map\\s*\\([^\\(\\)]+\\)\\s*";
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
+			return TypeInfoProvider.getTypeInfo(Stream.class,
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+		}
+
+		@Override
+		public String toString() {
+			return "<map>";
+		}
+	}
+
+	public class StreamReducingNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public StreamReducingNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			if (!Stream.class
+					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {
+				throw new UnexpectedError();
+			}
+			return parentExpression + ".reduce((element1, element2) -> ?).orElse(?)";
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return "\\s*" + parentPattern
+					+ "\\s*\\.\\s*reduce\\s*\\([^\\(\\)]+\\)\\s*\\.\\s*orElse\\s*\\([^\\(\\)]+\\)\\s*";
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
+			return TypeInfoProvider.getTypeInfo(
+					(parentStreamTypeParameters != null) ? parentStreamTypeParameters.get(0) : Object.class);
+		}
+
+		@Override
+		public String toString() {
+			return "<reduce>";
+		}
+	}
+
+	public class StreamListCollectorNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+		public StreamListCollectorNode(TypedNodeUtility parent) {
+			this.parentTypedNodeUtility = parent;
+		}
+
+		@Override
+		public PathNode getParent() {
+			return parentTypedNodeUtility.getNode();
+		}
+
+		@Override
+		public List<PathNode> getChildren() {
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
+		}
+
+		@Override
+		public String getTypicalExpression() {
+			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()
+					: PathExplorer.this.getTypicalRootExpression();
+			if (!Stream.class
+					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {
+				throw new UnexpectedError();
+			}
+			return parentExpression + ".collect(" + Collectors.class.getName() + ".toList())";
+		}
+
+		@Override
+		public String getExpressionPattern() {
+			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()
+					: PathExplorer.this.getRootExpressionPattern();
+			return "\\s*" + parentPattern + "\\s*\\.\\s*collect\\s*\\(\\s*"
+					+ Collectors.class.getName().replace(".", "\\.") + "\\s*toList\\s*\\(\\s*\\)\\s*\\)\\s*";
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
+			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
+					.guessGenericTypeParameter(Stream.class);
+			return TypeInfoProvider.getTypeInfo(List.class,
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+		}
+
+		@Override
+		public String toString() {
+			return "<collect>";
+		}
+	}
+
+	public class ListFilteringNode extends PathNodeProxy {
+
+		public ListFilteringNode(TypedNodeUtility parentTypedNodeUtility) {
+			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)
+					? parentTypedNodeUtility.getNode().getParent()
+					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()
+							.filter(StreamFilteringNode.class::isInstance).findFirst().get().getChildren().stream()
+							.filter(StreamListCollectorNode.class::isInstance).findFirst().get());
+		}
+
+		@Override
+		public String toString() {
+			return "<filtered>";
+		}
+	}
+
+	public class ListMappingNode extends PathNodeProxy {
+
+		public ListMappingNode(TypedNodeUtility parentTypedNodeUtility) {
+			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)
+					? parentTypedNodeUtility.getNode().getParent()
+					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()
+							.filter(StreamMappingNode.class::isInstance).findFirst().get().getChildren().stream()
+							.filter(StreamListCollectorNode.class::isInstance).findFirst().get());
+		}
+
+		@Override
+		public String toString() {
+			return "<mapped>";
+		}
+	}
+
+	public class ListReducingNode extends PathNodeProxy {
+
+		public ListReducingNode(TypedNodeUtility parentTypedNodeUtility) {
+			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)
+					? parentTypedNodeUtility.getNode().getParent()
+					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()
+							.filter(StreamReducingNode.class::isInstance).findFirst().get());
+		}
+
+		@Override
+		public String toString() {
+			return "<reduced>";
 		}
 	}
 
@@ -302,15 +730,9 @@ public class PathExplorer {
 			return parentTypedNodeUtility.getNode();
 		}
 
-		public ITypeInfo getValueType() {
-			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
-			IMapEntryTypeInfo mapTypeInfo = (IMapEntryTypeInfo) ((IListTypeInfo) parentTypeInfo).getItemType();
-			return mapTypeInfo.getValueField().getType();
-		}
-
 		@Override
 		public List<PathNode> getChildren() {
-			return new TypedNodeUtility(this, getValueType().getName()).getChildren();
+			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();
 		}
 
 		@Override
@@ -329,7 +751,9 @@ public class PathExplorer {
 
 		@Override
 		public ITypeInfo getExpressionType() {
-			return new TypedNodeUtility(this, getValueType().getName()).getTypeInfo();
+			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();
+			IMapEntryTypeInfo mapTypeInfo = (IMapEntryTypeInfo) ((IListTypeInfo) parentTypeInfo).getItemType();
+			return mapTypeInfo.getValueField().getType();
 		}
 
 		@Override

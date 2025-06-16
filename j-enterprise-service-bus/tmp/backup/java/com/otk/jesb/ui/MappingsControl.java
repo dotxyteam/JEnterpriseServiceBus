@@ -51,12 +51,11 @@ import com.otk.jesb.PathExplorer.FieldNode;
 import com.otk.jesb.PathExplorer.ListItemNode;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathExplorer.RelativePathNode;
-import com.otk.jesb.ValidationContext;
-import com.otk.jesb.instantiation.CompilationContext;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
-import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ListItemReplication;
@@ -64,6 +63,8 @@ import com.otk.jesb.instantiation.ListItemReplicationFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.Listener;
@@ -77,6 +78,7 @@ import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.menu.MenuModel;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
@@ -87,10 +89,22 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	private static final long serialVersionUID = 1L;
 
+	private SwingRenderer swingRenderer;
+	private IFieldControlInput input;
+
 	private InstanceBuilderVariableTreeControl foundSourceControl;
 	private InstanceBuilderInitializerTreeControl foundTargetControl;
 
 	private Set<Pair<BufferedItemPosition, BufferedItemPosition>> mappingsCache;
+
+	public MappingsControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+		this.swingRenderer = swingRenderer;
+		this.input = input;
+	}
+
+	private Source getSource() {
+		return (Source) input.getControlData().getValue();
+	}
 
 	@Override
 	public boolean showsCaption() {
@@ -104,7 +118,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public void validateSubForms() throws Exception {
+	public void validateControl(ValidationSession session) throws Exception {
 	}
 
 	@Override
@@ -122,7 +136,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean displayError(String msg) {
+	public boolean displayError(Throwable error) {
 		return false;
 	}
 
@@ -234,7 +248,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		} else if (side == Side.TARGET) {
 			return pair.getSecond();
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 
@@ -303,11 +317,11 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							@Override
 							public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
 								if (!(targetItemPosition.getItem() instanceof Facade)) {
-									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 								}
 								final Facade initializerFacade = (Facade) targetItemPosition.getItem();
 								if (!initializerFacade.isConcrete()) {
-									return VisitStatus.BRANCH_VISIT_INTERRUPTED;
+									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 								}
 								List<InstantiationFunction> functions = new ArrayList<InstantiationFunction>();
 								if (initializerFacade instanceof ParameterInitializerFacade) {
@@ -358,7 +372,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							}
 						});
 					}
-					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.BRANCH_VISIT_INTERRUPTED;
+					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 				}
 			});
 			mappingsCache = result.stream()
@@ -375,7 +389,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	public InstanceBuilderInitializerTreeControl findTargetControl() {
-		return findControl(this, InstanceBuilderInitializerTreeControl.class,
+		return findControl(swingRenderer, this, InstanceBuilderInitializerTreeControl.class,
 				new Accessor<InstanceBuilderInitializerTreeControl>() {
 
 					@Override
@@ -392,7 +406,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	public InstanceBuilderVariableTreeControl findSourceControl() {
-		return findControl(this, InstanceBuilderVariableTreeControl.class,
+		return findControl(swingRenderer, this, InstanceBuilderVariableTreeControl.class,
 				new Accessor<InstanceBuilderVariableTreeControl>() {
 
 					@Override
@@ -414,18 +428,18 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		} else if (side == Side.TARGET) {
 			return findTargetControl();
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Component> T findControl(Component fromComponent, Class<T> controlClass,
-			Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
+	private static <T extends Component> T findControl(SwingRenderer swingRenderer, Component fromComponent,
+			Class<T> controlClass, Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
 		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent, FacadeOutline.class.getName(),
-				GUI.INSTANCE);
+				swingRenderer);
 		if (facadeOutlineForm == null) {
 			return null;
 		}
@@ -451,6 +465,28 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	public static class Source {
 
+		private RootInstanceBuilderFacade rootInstanceBuilderFacade;
+		private Plan currentPlan;
+		private Step currentStep;
+
+		public Source(RootInstanceBuilderFacade rootInstanceBuilderFacade, Plan currentPlan, Step currentStep) {
+			this.rootInstanceBuilderFacade = rootInstanceBuilderFacade;
+			this.currentPlan = currentPlan;
+			this.currentStep = currentStep;
+		}
+
+		public RootInstanceBuilderFacade getRootInstanceBuilderFacade() {
+			return rootInstanceBuilderFacade;
+		}
+
+		public Plan getCurrentPlan() {
+			return currentPlan;
+		}
+
+		public Step getCurrentStep() {
+			return currentStep;
+		}
+
 	}
 
 	public enum Side {
@@ -462,7 +498,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			} else if (side == TARGET) {
 				return SOURCE;
 			} else {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 		}
 	}
@@ -615,7 +651,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 
 		public MappingsControl findMappingsControl() {
-			return findControl(this, MappingsControl.class, new Accessor<MappingsControl>() {
+			return findControl(swingRenderer, this, MappingsControl.class, new Accessor<MappingsControl>() {
 
 				@Override
 				public MappingsControl get() {
@@ -778,7 +814,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						}
 					}
 				} catch (Exception e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 			return accept;
@@ -841,7 +877,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						: pathNode, initializerPosition, new Supplier<ITypeInfo>() {
 							@Override
 							public ITypeInfo get() {
-								return ((ListItemInitializerFacade) initializerFacade).getItemType();
+								return ((ListItemInitializerFacade) initializerFacade).getItemTypeInfo();
 							}
 						}, new Accessor<Object>() {
 							@Override
@@ -925,10 +961,9 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 						pathNode, listItemInitializerFacade, initializerTreeControl);
 				if (choice == 0) {
 					ListItemReplication itemReplication = new ListItemReplication();
-					itemReplication.setIterationListValue(
-							new InstantiationFunction("return " + pathNode.getParent().getTypicalExpression() + ";"));
-					itemReplication.setIterationListValueTypeName(pathNode.getParent().getExpressionType().getName());
-					itemReplication.setIterationVariableTypeName(pathNode.getExpressionType().getName());
+					InstantiationFunction function = new InstantiationFunction(
+							"return " + pathNode.getParent().getTypicalExpression() + ";");
+					itemReplication.setIterationListValue(function);
 					listItemInitializerFacade.setConcrete(true);
 					listItemInitializerFacade.getUnderlying().setItemReplication(itemReplication);
 
@@ -939,12 +974,14 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 								.setIterationVariableName("current" + parentFieldName.substring(0, 1).toUpperCase()
 										+ parentFieldName.substring(1) + "Item");
 					}
-					CompilationContext compilationContext = ((InstanceBuilderFacade) Facade
-							.getRoot(listItemInitializerFacade)).findFunctionCompilationContext(
-									(InstantiationFunction) itemReplication.getIterationListValue(),
-									new ValidationContext());
+					Source mappingsSource = initializerTreeControl.findMappingsControl().getSource();
+					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(
+							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())
+									.getVariableDeclarations());
+					variableDeclarations.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations(function,
+							variableDeclarations));
 					while (true) {
-						boolean nameConflictDetected = compilationContext.getVariableDeclarations().stream()
+						boolean nameConflictDetected = variableDeclarations.stream()
 								.anyMatch(variableDeclaration -> variableDeclaration.getVariableName()
 										.equals(itemReplication.getIterationVariableName()));
 						if (!nameConflictDetected) {
@@ -973,7 +1010,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
 					"Choose a mapping option for: " + pathNode.toString() + " => " + initializerFacade.toString(),

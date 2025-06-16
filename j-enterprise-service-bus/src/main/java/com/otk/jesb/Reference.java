@@ -1,9 +1,13 @@
-package com.otk.jesb.solution;
+package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.Solution;
 
 public class Reference<T extends Asset> {
 

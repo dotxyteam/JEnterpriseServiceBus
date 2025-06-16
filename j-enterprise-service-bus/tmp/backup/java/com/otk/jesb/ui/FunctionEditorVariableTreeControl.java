@@ -18,6 +18,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.TextTransferHandler;
 
 import xy.reflect.ui.control.IFieldControlInput;
@@ -96,7 +97,7 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 						if (component instanceof JTextComponent) {
 							JTextComponent textComponent = (JTextComponent) component;
 							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(textComponent,
-									InstantiationFunctionEditor.class.getName(), GUI.INSTANCE);
+									FunctionEditor.class.getName(), GUI.INSTANCE);
 							if (functionEditorForm != null) {
 								Point dropPoint = support.getDropLocation().getDropPoint();
 								int textInsertPosition = textComponent.viewToModel(dropPoint);
@@ -111,7 +112,7 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 					}
 				} catch (UnsupportedFlavorException e) {
 				} catch (Exception e) {
-					throw new AssertionError(e);
+					throw new UnexpectedError(e);
 				}
 			}
 			if (accept) {

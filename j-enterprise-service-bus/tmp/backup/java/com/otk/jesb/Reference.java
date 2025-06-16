@@ -2,16 +2,31 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.Solution;
 
 public class Reference<T extends Asset> {
 
 	private static final String PATH_SEPARATOR = " > ";
 
 	private String path;
+
 	private Class<T> assetClass;
+	private Predicate<T> assetFilter;
+	private Consumer<String> newPathValidator;
+
+	public Reference(Class<T> assetClass, Predicate<T> assetFilter, Consumer<String> newPathValidator) {
+		this.assetClass = assetClass;
+		this.assetFilter = assetFilter;
+		this.newPathValidator = newPathValidator;
+	}
 
 	public Reference(Class<T> assetClass) {
-		this.assetClass = assetClass;
+		this(assetClass, null, null);
 	}
 
 	public String getPath() {
@@ -19,6 +34,9 @@ public class Reference<T extends Asset> {
 	}
 
 	public void setPath(String path) {
+		if (newPathValidator != null) {
+			newPathValidator.accept(path);
+		}
 		this.path = path;
 	}
 
@@ -32,7 +50,7 @@ public class Reference<T extends Asset> {
 
 	private List<String> findOptionsFrom(Asset asset, String assetPath) {
 		List<String> result = new ArrayList<String>();
-		if (assetClass.isInstance(asset)) {
+		if (assetClass.isInstance(asset) && ((assetFilter == null) || assetFilter.test(assetClass.cast(asset)))) {
 			result.add(assetPath);
 		}
 		if (asset instanceof Folder) {
@@ -44,7 +62,7 @@ public class Reference<T extends Asset> {
 	}
 
 	public T resolve() {
-		if(path == null) {
+		if (path == null) {
 			return null;
 		}
 		for (Asset asset : Solution.INSTANCE.getContents()) {
@@ -70,13 +88,13 @@ public class Reference<T extends Asset> {
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T extends Asset> Reference<T> get(T asset){
-		for(String pathOption: new Reference<T>((Class<T>) asset.getClass()).getPathOptions()) {
+	public static <T extends Asset> Reference<T> get(T asset) {
+		for (String pathOption : new Reference<T>((Class<T>) asset.getClass()).getPathOptions()) {
 			Reference<T> candidate = new Reference<T>((Class<T>) asset.getClass());
 			candidate.setPath(pathOption);
-			if(candidate.resolve() == asset) {
+			if (candidate.resolve() == asset) {
 				return candidate;
 			}
 		}

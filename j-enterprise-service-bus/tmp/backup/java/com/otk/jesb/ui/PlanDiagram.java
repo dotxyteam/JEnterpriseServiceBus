@@ -1,11 +1,12 @@
 package com.otk.jesb.ui;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -20,10 +21,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -31,33 +34,38 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.PlanElement;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Metadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
-import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.diagram.DragIntent;
-import com.otk.jesb.diagram.JConnection;
-import com.otk.jesb.diagram.JDiagram;
-import com.otk.jesb.diagram.JDiagramAction;
-import com.otk.jesb.diagram.JDiagramActionCategory;
-import com.otk.jesb.diagram.JDiagramActionScheme;
-import com.otk.jesb.diagram.JDiagramListener;
-import com.otk.jesb.diagram.JDiagramObject;
-import com.otk.jesb.diagram.JNode;
+import com.otk.jesb.ui.diagram.DragIntent;
+import com.otk.jesb.ui.diagram.JConnection;
+import com.otk.jesb.ui.diagram.JDiagram;
+import com.otk.jesb.ui.diagram.JDiagramAction;
+import com.otk.jesb.ui.diagram.JDiagramActionCategory;
+import com.otk.jesb.ui.diagram.JDiagramActionScheme;
+import com.otk.jesb.ui.diagram.JDiagramListener;
+import com.otk.jesb.ui.diagram.JDiagramObject;
+import com.otk.jesb.ui.diagram.JNode;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.control.DefaultFieldControlData;
 import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
-import xy.reflect.ui.control.swing.customizer.CustomizingForm;
-import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.HyperlinkTooltip;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
 import xy.reflect.ui.info.menu.MenuInfo;
 import xy.reflect.ui.info.menu.MenuItemCategory;
@@ -66,6 +74,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.AbstractSimpleModificationListener;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
@@ -79,55 +88,49 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	private static final int STEP_ICON_WIDTH = 64;
 	private static final int STEP_ICON_HEIGHT = 64;
+	private static final Color OBJECTS_COLOR = new Color(95, 99, 104);
+	private static final Image BACKGROUND_IMAGE;
+	static {
+		try {
+			BACKGROUND_IMAGE = ImageIO.read(PlanDiagram.class.getResourceAsStream("diagram-background.png"));
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+	}
 
 	protected SwingRenderer swingRenderer;
-	protected CustomizingForm parentForm;
+	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
+	private Map<Pair<String, PlanElement>, Exception> validitionErrorMap = new HashMap<Pair<String, PlanElement>, Exception>();
 
-	public PlanDiagram(SwingRenderer swingRenderer, CustomizingForm parentForm) {
+	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
-		this.parentForm = parentForm;
+		this.input = input;
+		setConnectionColor(OBJECTS_COLOR);
+		setNodeColor(OBJECTS_COLOR);
 		setActionSchemes(createActionSchemes());
 		updateExternalComponentsOnInternalEvents();
 		updateInternalComponentsOnExternalEvents();
-		setBackground(Color.WHITE);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				selectionListeningEnabled = false;
-				try {
-					PlanDiagram.this.refreshUI(true);
-					updateStepSelection();
-				} finally {
-					selectionListeningEnabled = true;
-				}
-			}
-		});
+		setImage(BACKGROUND_IMAGE);
+		setPreservingRatio(true);
+		setFillingAreaWhenPreservingRatio(true);
+		setScalingQualitHigh(false);
+		refreshUI(true);
 	}
 
 	public Plan getPlan() {
-		return (Plan) getPlanEditor().getObject();
+		return (Plan) ((Source) input.getControlData().getValue()).getPlan();
 	}
 
-	protected ListControl getStepsControl() {
-		List<Form> forms = new ArrayList<Form>();
-		forms.add(getPlanEditor());
-		forms.addAll(SwingRendererUtils.findDescendantForms(getPlanEditor(), swingRenderer));
-		for (Form form : forms) {
-			FieldControlPlaceHolder stepsFieldControlPlaceHolder = form.getFieldControlPlaceHolder("steps");
-			if (stepsFieldControlPlaceHolder != null) {
-				return (ListControl) stepsFieldControlPlaceHolder.getFieldControl();
-			}
-		}
-		throw new AssertionError();
+	protected ListControl getFocusedPlanElementsControl() {
+		return (ListControl) SwingRendererUtils
+				.findDescendantFieldControlPlaceHolder(getPlanEditor(), "focusedElementSurroundings", swingRenderer)
+				.getFieldControl();
 	}
 
 	protected Form getPlanEditor() {
-		if (parentForm.getObject() instanceof Plan) {
-			return parentForm;
-		}
-		return SwingRendererUtils.findAncestorFormOfType(parentForm, Plan.class.getName(), swingRenderer);
+		return SwingRendererUtils.findAncestorFormOfType(this, Plan.class.getName(), swingRenderer);
 	}
 
 	protected void updateExternalComponentsOnInternalEvents() {
@@ -137,7 +140,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			public void nodesMoved(Set<JNode> nodes) {
 				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 				ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));
-				parentForm.getModificationStack().insideComposite("Move Step(s)", UndoOrder.getNormal(),
+				input.getModificationStack().insideComposite("Move Step(s)", UndoOrder.getNormal(),
 						new xy.reflect.ui.util.Accessor<Boolean>() {
 							@Override
 							public Boolean get() {
@@ -148,14 +151,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramX")),
-													node.getCenterX(), parentForm.getModificationStack(),
+													node.getCenterX(), input.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 									ReflectionUIUtils
 											.setFieldValueThroughModificationStack(
 													new DefaultFieldControlData(reflectionUI, step,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"diagramY")),
-													node.getCenterY(), parentForm.getModificationStack(),
+													node.getCenterY(), input.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 								}
 								return true;
@@ -168,12 +171,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				if (selectionListeningEnabled) {
 					selectionListeningEnabled = false;
 					try {
-						ListControl stepsControl = getStepsControl();
-						stepsControl.setSelection(PlanDiagram.this.getSelection().stream()
-								.filter(diagramObject -> diagramObject instanceof JNode)
-								.map(diagramObject -> stepsControl
-										.findItemPositionByReference(diagramObject.getValue()))
-								.collect(Collectors.toList()));
+						Set<JDiagramObject> selection = PlanDiagram.this.getSelection();
+						getPlan().setSelectedElements(
+								selection.stream().map(diagramObject -> (PlanElement) diagramObject.getValue())
+										.collect(Collectors.toSet()));
+						getPlan().setFocusedElementSelectedSurrounding(null);
+						updateFocusedPlanElementsControl();
 						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
 						selectionListeningEnabled = true;
@@ -182,11 +185,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 
 			@Override
-			public void connectionAdded(JConnection conn) {
-				Transition newTransition = new Transition();
-				newTransition.setStartStep((Step) conn.getStartNode().getValue());
-				newTransition.setEndStep((Step) conn.getEndNode().getValue());
-				onTransitionInsertionRequest(newTransition);
+			public void connectionAdded(JConnection connection) {
+				Step startStep = (Step) connection.getStartNode().getValue();
+				Step endStep = (Step) connection.getEndNode().getValue();
+				if (startStep.getParent() == endStep.getParent()) {
+					Transition newTransition = new Transition();
+					newTransition.setStartStep((Step) connection.getStartNode().getValue());
+					newTransition.setEndStep((Step) connection.getEndNode().getValue());
+					onTransitionInsertionRequest(newTransition);
+				} else {
+					PlanDiagram.this.getConnections().remove(connection);
+				}
 			}
 		});
 	}
@@ -195,26 +204,54 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				getStepsControl().addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
-					@Override
-					public void handle(List<BufferedItemPosition> event) {
-						if (selectionListeningEnabled) {
-							selectionListeningEnabled = false;
-							try {
-								updateStepSelection();
-							} finally {
-								selectionListeningEnabled = true;
+				if (!isShowing()) {
+					return;
+				}
+				getFocusedPlanElementsControl()
+						.addListControlSelectionListener(new Listener<List<BufferedItemPosition>>() {
+							@Override
+							public void handle(List<BufferedItemPosition> event) {
+								ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+								BufferedItemPosition singleSelection = focusedPlanElementsControl.getSingleSelection();
+								getPlan().setFocusedElementSelectedSurrounding(
+										(singleSelection != null) ? (PlanElement) singleSelection.getItem() : null);
+								if (selectionListeningEnabled) {
+									selectionListeningEnabled = false;
+									try {
+										updateSelection();
+									} finally {
+										selectionListeningEnabled = true;
+									}
+								}
 							}
-						}
-					}
-				});
+						});
 			}
 		});
 	}
 
-	protected void updateStepSelection() {
-		setSelection(getStepsControl().getSelection().stream()
-				.map(itemPosition -> (JDiagramObject) findNode(itemPosition.getItem())).collect(Collectors.toSet()));
+	protected void updateFocusedPlanElementsControl() {
+		ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+		Set<JDiagramObject> selection = getSelection();
+		focusedPlanElementsControl.refreshUI(false);
+		focusedPlanElementsControl.setSelection((selection.size() == 1)
+				? selection.stream()
+						.map(diagramObject -> focusedPlanElementsControl
+								.findItemPositionByReference(diagramObject.getValue()))
+						.collect(Collectors.toList())
+				: Collections.emptyList());
+	}
+
+	protected void updateSelection() {
+		Plan plan = getPlan();
+		if (plan.getFocusedElementSelectedSurrounding() != null) {
+			setSelection(Collections.singleton(findDiagramObject(plan.getFocusedElementSelectedSurrounding())));
+		} else {
+			setSelection(plan.getSelectedElements().stream().map(element -> findDiagramObject(element))
+					.collect(Collectors.toSet()));
+		}
+		if (getSelection().size() == 1) {
+			scrollTo(getSelection().iterator().next());
+		}
 	}
 
 	protected void onStepInsertionRequest(Step newStep) {
@@ -230,18 +267,29 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
 		IModification modification = new ListModificationFactory(
-				new ItemPositionFactory(stepsData).getRootItemPosition(-1)).add(getPlan().getSteps().size(), newStep);
-		parentForm.getModificationStack().apply(modification);
+				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1)).add(getPlan().getSteps().size(),
+						newStep);
+		input.getModificationStack().apply(modification);
 	}
 
 	protected void onTransitionInsertionRequest(Transition newTransition) {
+		Plan plan = getPlan();
+		plan.getTransitions().add(newTransition);
+		if (plan.isPreceding(newTransition.getEndStep(), newTransition.getStartStep())) {
+			plan.getTransitions().remove(newTransition);
+			refreshUI(false);
+			swingRenderer.handleException(this, new Plan.PlanificationError("Cycle detected"));
+			return;
+		} else {
+			plan.getTransitions().remove(newTransition);
+		}
 		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
 		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 		IModification modification = new ListModificationFactory(
-				new ItemPositionFactory(transitionsData).getRootItemPosition(-1)).add(0, newTransition);
-		parentForm.getModificationStack().apply(modification);
+				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1)).add(0, newTransition);
+		input.getModificationStack().apply(modification);
 	}
 
 	protected void onDeletionRequest() {
@@ -272,20 +320,20 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, plan,
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "transitions"));
 		ListModificationFactory stepsModificationFactory = new ListModificationFactory(
-				new ItemPositionFactory(stepsData).getRootItemPosition(-1));
+				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1));
 		ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-				new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
-		parentForm.getModificationStack().insideComposite("Delete", UndoOrder.getNormal(), new Accessor<Boolean>() {
+				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1));
+		input.getModificationStack().insideComposite("Delete", UndoOrder.getNormal(), new Accessor<Boolean>() {
 			@Override
 			public Boolean get() {
 				for (Step step : stepsToDelete) {
 					IModification modification = stepsModificationFactory.remove(plan.getSteps().indexOf(step));
-					parentForm.getModificationStack().apply(modification);
+					input.getModificationStack().apply(modification);
 				}
 				for (Transition transition : transitionsToDelete) {
 					IModification modification = transitionsModificationFactory
 							.remove(plan.getTransitions().indexOf(transition));
-					parentForm.getModificationStack().apply(modification);
+					input.getModificationStack().apply(modification);
 				}
 				return true;
 			}
@@ -303,7 +351,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+				for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -320,7 +368,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (OperationMetadata metadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+							for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
@@ -379,7 +427,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 			@Override
 			public void perform(int x, int y) {
-				parentForm.getModificationStack().insideComposite("Add '" + label + "'", UndoOrder.getNormal(),
+				input.getModificationStack().insideComposite("Add '" + label + "'", UndoOrder.getNormal(),
 						new Accessor<Boolean>() {
 							@Override
 							public Boolean get() {
@@ -408,7 +456,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 													new DefaultFieldControlData(reflectionUI, selectedStep,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"parent")),
-													(CompositeStep) newStep, parentForm.getModificationStack(),
+													(CompositeStep) newStep, input.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 											if ((selectedStep.getParent() == null)
 													|| MiscUtils.getDescendants(selectedStep.getParent(), plan)
@@ -433,7 +481,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 															new DefaultFieldControlData(reflectionUI, transition,
 																	ReflectionUIUtils.findInfoByName(
 																			transitionType.getFields(), "endStep")),
-															(CompositeStep) newStep, parentForm.getModificationStack(),
+															(CompositeStep) newStep, input.getModificationStack(),
 															ReflectionUIUtils.getDebugLogListener(reflectionUI));
 												}
 											}
@@ -450,7 +498,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 															new DefaultFieldControlData(reflectionUI, transition,
 																	ReflectionUIUtils.findInfoByName(
 																			transitionType.getFields(), "startStep")),
-															(CompositeStep) newStep, parentForm.getModificationStack(),
+															(CompositeStep) newStep, input.getModificationStack(),
 															ReflectionUIUtils.getDebugLogListener(reflectionUI));
 												}
 											}
@@ -462,10 +510,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 													reflectionUI, plan, ReflectionUIUtils
 															.findInfoByName(planType.getFields(), "transitions"));
 											ListModificationFactory transitionsModificationFactory = new ListModificationFactory(
-													new ItemPositionFactory(transitionsData).getRootItemPosition(-1));
+													new ItemPositionFactory(transitionsData, this)
+															.getRootItemPosition(-1));
 											IModification modification = transitionsModificationFactory
 													.remove(plan.getTransitions().indexOf(transition));
-											parentForm.getModificationStack().apply(modification);
+											input.getModificationStack().apply(modification);
 										}
 										newStep.setParent(selectedStepsCommonParent);
 									}
@@ -498,6 +547,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
+		Form tmpPlanEditor = swingRenderer.createForm(getPlan());
+		Component dragIntentControl = SwingRendererUtils
+				.findDescendantFieldControlPlaceHolder(tmpPlanEditor, "diagramDragIntent", swingRenderer)
+				.getFieldControl();
+		tmpPlanEditor.getModificationStack().addListener(new AbstractSimpleModificationListener() {
+			@Override
+			protected void handleAnyEvent(IModification modification) {
+				((IAdvancedFieldControl) dragIntentControl).refreshUI(false);
+			}
+		});
+		result.insert(dragIntentControl, 0);
 		result.add(new JSeparator());
 		result.add(createCopyAction());
 		result.add(createCutAction());
@@ -615,98 +675,248 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
+		if (refreshStructure) {
+			if (input.getControlData().getEditorBackgroundColor() != null) {
+				setBackground(SwingRendererUtils.getColor(input.getControlData().getEditorBackgroundColor()));
+			} else {
+				setBackground(Color.WHITE);
+			}
+		}
 		Plan plan = getPlan();
 		setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
 		Set<JDiagramObject> selection = getSelection();
 		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
 				.collect(Collectors.toList());
-		clear();
-		List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
-		Collections.sort(sortedSteps, new Comparator<Step>() {
-			@Override
-			public int compare(Step o1, Step o2) {
-				if ((o1.getParent() == null) && (o2.getParent() != null)) {
-					return -1;
-				}
-				if ((o1.getParent() != null) && (o2.getParent() == null)) {
-					return 1;
-				}
-				if ((o1.getParent() != null) && (o2.getParent() != null)) {
-					return compare(o1.getParent(), o2.getParent());
-				}
-				return 0;
-			}
-		});
-		for (Step step : sortedSteps) {
-			JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
-			ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
-			if (iconImagePath != null) {
-				Image iconImage = adaptedIconImageByPath.get(iconImagePath);
-				if (iconImage == null) {
-					iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
-							ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
-					iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH, STEP_ICON_HEIGHT,
-							Image.SCALE_SMOOTH);
-					adaptedIconImageByPath.put(iconImagePath, iconImage);
-				}
-				node.setImage(iconImage);
-			}
-			if (step instanceof CompositeStep) {
-				int headerHeight = 16;
-				int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
-				int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
-				Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
-						STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
-				BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
-						BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g = compositeImage.createGraphics();
-				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
-				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-				g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
-						node.getImage().getHeight(null), null);
-				g.setColor(Color.BLACK);
-				g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
-				g.dispose();
-				node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
-				node.setCenterY((int) Math.round(compositeBounds.getCenterY()));
-				node.setImage(compositeImage);
-			}
-		}
 		selectionListeningEnabled = false;
 		try {
+			clear();
+			List<Step> sortedSteps = new ArrayList<Step>(plan.getSteps());
+			Collections.sort(sortedSteps, new Comparator<Step>() {
+				@Override
+				public int compare(Step o1, Step o2) {
+					if ((o1.getParent() == null) && (o2.getParent() != null)) {
+						return -1;
+					}
+					if ((o1.getParent() != null) && (o2.getParent() == null)) {
+						return 1;
+					}
+					if ((o1.getParent() != null) && (o2.getParent() != null)) {
+						return compare(o1.getParent(), o2.getParent());
+					}
+					return 0;
+				}
+			});
+			for (Step step : sortedSteps) {
+				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
+				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
+				if (iconImagePath != null) {
+					Image iconImage = adaptedIconImageByPath.get(iconImagePath);
+					if (iconImage == null) {
+						iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
+								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
+						iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH,
+								STEP_ICON_HEIGHT, Image.SCALE_SMOOTH);
+						adaptedIconImageByPath.put(iconImagePath, iconImage);
+					}
+					node.setImage(iconImage);
+				}
+				if (step instanceof CompositeStep) {
+					int headerHeight = 16;
+					int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
+					int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
+					Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
+							STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
+					BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
+							BufferedImage.TYPE_INT_ARGB);
+					Graphics2D g = compositeImage.createGraphics();
+					g.setColor(getNodeColor());
+					MiscUtils.improveRenderingQuality(g);
+					g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
+					g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
+							node.getImage().getHeight(null), null);
+					g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);
+					g.dispose();
+					node.setCenterX((int) Math.round(compositeBounds.getCenterX()));
+					node.setCenterY((int) Math.round(compositeBounds.getCenterY()));
+					node.setImage(compositeImage);
+				}
+			}
+			for (Transition t : plan.getTransitions()) {
+				JNode node1 = findNode(t.getStartStep());
+				JNode node2 = findNode(t.getEndStep());
+				if ((node1 != null) && (node2 != null)) {
+					addConnection(node1, node2, t);
+				}
+			}
 			setSelection(selectedStepAndTransitions.stream().map(selectedStepOrTransition -> {
 				if (selectedStepOrTransition instanceof Step) {
 					return findNode(selectedStepOrTransition);
 				} else if (selectedStepOrTransition instanceof Transition) {
 					return findConnection(selectedStepOrTransition);
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 			}).collect(Collectors.toSet()));
 		} finally {
 			selectionListeningEnabled = true;
 		}
-		for (Transition t : plan.getTransitions()) {
-			JNode node1 = findNode(t.getStartStep());
-			JNode node2 = findNode(t.getEndStep());
-			if ((node1 != null) && (node2 != null)) {
-				addConnection(node1, node2, t);
-			}
-		}
 		SwingRendererUtils.handleComponentSizeChange(this);
+		Runnable selectionUpdate = new Runnable() {
+			@Override
+			public void run() {
+				selectionListeningEnabled = false;
+				try {
+					updateSelection();
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							if (!isShowing()) {
+								return;
+							}
+							selectionListeningEnabled = false;
+							try {
+								updateFocusedPlanElementsControl();
+							} finally {
+								selectionListeningEnabled = true;
+							}
+						}
+					});
+				} finally {
+					selectionListeningEnabled = true;
+				}
+			}
+		};
+		if (isShowing()) {
+			selectionUpdate.run();
+		} else {
+			SwingUtilities.invokeLater(selectionUpdate);
+		}
 		return true;
 	}
 
 	@Override
-	public void validateSubForms() throws Exception {
+	protected void paintNode(Graphics g, JNode node) {
+		super.paintNode(g, node);
+		if (validitionErrorMap.entrySet().stream().anyMatch(entry -> entry.getKey().getSecond() == node.getValue())) {
+			Point errorMarkerLocation = getErrorMarkerLocation(node);
+			if (errorMarkerLocation != null) {
+				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
+			}
+		}
+	}
+
+	@Override
+	protected void paintConnection(Graphics g, JConnection connection) {
+		super.paintConnection(g, connection);
+		if (validitionErrorMap.entrySet().stream()
+				.anyMatch(entry -> entry.getKey().getSecond() == connection.getValue())) {
+			Point errorMarkerLocation = getErrorMarkerLocation(connection);
+			if (errorMarkerLocation != null) {
+				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
+			}
+		}
+	}
+
+	private Image getErrorMarker() {
+		return SwingRendererUtils.ERROR_OVERLAY_ICON.getImage();
+	}
+
+	private Point getErrorMarkerLocation(JDiagramObject diagramObject) {
+		if (diagramObject instanceof JNode) {
+			Rectangle nodeBounds = ((JNode) diagramObject).getImageBounds();
+			return new Point(nodeBounds.x, nodeBounds.y);
+		}
+		if (diagramObject instanceof JConnection) {
+			Pair<Point, Point> segment = ((JConnection) diagramObject).getLineSegment();
+			if (segment == null) {
+				return null;
+			}
+			return new Point((segment.getFirst().x + segment.getSecond().x) / 2,
+					(segment.getFirst().y + segment.getSecond().y) / 2);
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validateControl(ValidationSession session) throws Exception {
+		Plan plan = getPlan();
+		plan.validate(false);
+		List<Pair<String, PlanElement>> titleAndElementPairs = new ArrayList<Pair<String, PlanElement>>();
+		titleAndElementPairs.addAll(plan.getSteps().stream()
+				.map(step -> new Pair<String, PlanElement>("step '" + step.getName() + "'", step))
+				.collect(Collectors.toList()));
+		titleAndElementPairs.addAll(plan.getTransitions().stream().map(
+				transition -> new Pair<String, PlanElement>("transition '" + transition.getSummary() + "'", transition))
+				.collect(Collectors.toList()));
+		validitionErrorMap.clear();
+		for (Pair<String, PlanElement> toValidate : titleAndElementPairs) {
+			if (Thread.currentThread().isInterrupted()) {
+				return;
+			}
+			try {
+				toValidate.getSecond().validate(true, plan);
+			} catch (Exception e) {
+				validitionErrorMap.put(toValidate, e);
+			}
+		}
+		if (Thread.currentThread().isInterrupted()) {
+			return;
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				repaint();
+			}
+		});
+		if (validitionErrorMap.size() > 0) {
+			Entry<Pair<String, PlanElement>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator()
+					.next();
+			Pair<String, PlanElement> titleAndObjectPair = firstErrorEntry.getKey();
+			Exception validationError = firstErrorEntry.getValue();
+			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst(), validationError);
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent mouseEvent) {
+		super.mouseMoved(mouseEvent);
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+		Exception currentError = (pointedDiagramObject != null)
+				? validitionErrorMap.entrySet().stream()
+						.filter(entry -> entry.getKey().getSecond() == pointedDiagramObject.getValue())
+						.map(entry -> entry.getValue()).findFirst().orElse(null)
+				: null;
+		if (currentError != null) {
+			Pair<PlanElement, Exception> newTooltipId = new Pair<PlanElement, Exception>(
+					(PlanElement) pointedDiagramObject.getValue(), currentError);
+			@SuppressWarnings("unchecked")
+			Pair<PlanElement, Exception> oldTooltipId = (HyperlinkTooltip.get(this) != null)
+					? (Pair<PlanElement, Exception>) HyperlinkTooltip.get(this).getCustomValue()
+					: null;
+			if (!newTooltipId.equals(oldTooltipId)) {
+				HyperlinkTooltip.set(this, xy.reflect.ui.util.MiscUtils.getPrettyErrorMessage(currentError),
+						new Runnable() {
+							@Override
+							public void run() {
+								swingRenderer.openErrorDetailsDialog(PlanDiagram.this, currentError);
+							}
+						});
+				HyperlinkTooltip.get(this).setCustomComponentResponsiveBoundsMapper(component -> {
+					Image errorMarker = getErrorMarker();
+					Point location = getErrorMarkerLocation(pointedDiagramObject);
+					return new Rectangle(location.x, location.y, errorMarker.getWidth(null),
+							errorMarker.getHeight(null));
+				});
+				HyperlinkTooltip.get(this).setCustomValue(newTooltipId);
+				HyperlinkTooltip.get(this).getMouseMotionListener().mouseMoved(mouseEvent);
+			}
+		}
 	}
 
 	@Override
 	public void addMenuContributions(MenuModel menuModel) {
 		MenuInfo editMenu = menuModel.getMenus().stream().filter(menu -> menu.getCaption().equals("Edit")).findFirst()
-				.get();
+				.orElse(null);
 		{
 			MenuItemCategory category = new MenuItemCategory();
 			{
@@ -749,14 +959,20 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean displayError(String msg) {
+	public boolean displayError(Throwable error) {
 		return false;
 	}
 
 	public static class Source {
-	}
+		private Plan plan;
 
-	public static class PaletteSource {
+		public Source(Plan plan) {
+			this.plan = plan;
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
 	}
 
 	private static class Clipboard {
@@ -783,7 +999,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			try {
 				MiscUtils.serialize(plan, current.planStore);
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 			for (Object object : selectedStepAndTransitions) {
 				if (object instanceof Step) {
@@ -791,7 +1007,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				} else if (object instanceof Transition) {
 					current.selectedTransitionIndexes.add(plan.getTransitions().indexOf(object));
 				} else {
-					throw new AssertionError();
+					throw new UnexpectedError();
 				}
 			}
 		}
@@ -801,9 +1017,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			try {
 				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()));
 			} catch (IOException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
-			planDiagram.parentForm.getModificationStack().insideComposite("Paste", UndoOrder.getNormal(),
+			planDiagram.input.getModificationStack().insideComposite("Paste", UndoOrder.getNormal(),
 					new Accessor<Boolean>() {
 						@Override
 						public Boolean get() {
@@ -856,10 +1072,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								}
 							}
 							planDiagram.refreshUI(false);
-							planDiagram.getStepsControl().refreshUI(false);
 							planDiagram.setSelection(new HashSet<JDiagramObject>(
 									allStepsToPaste.stream().map(step -> (JDiagramObject) planDiagram.findNode(step))
 											.collect(Collectors.toSet())));
+							planDiagram.getFocusedPlanElementsControl().refreshUI(false);
 							return true;
 						}
 					}, false);

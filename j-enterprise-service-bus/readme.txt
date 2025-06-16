@@ -35,3 +35,34 @@ reasonable cost. A change in a part of the model could be detected by
 analyzing the serialized version of this model part. Actually the real
 model is the serialized model, and model objects are just tools used to
 exploit this model.
+
+OPERATION SETTINGS DESIGN
+-------------------------
+An operation behavior can potentially be configured through some referenced
+resource settings, some static settings (operation builder parameters) and
+some dynamic settings (calculated by instance builders). All these parameter
+values must be available when executing the operation but there is no 
+obvious rule that indicates how these parameter values must be specified.
+However we can infer that settings which shape some algorithms cannot be
+calculated during the runtime. They must then be specified as resource
+or operation static parameters. Common sense also dictates that common use 
+cases must be easily applicable while uncommon use cases should remain 
+applicable through advanced features. 
+Settings that are shared by multiple operations in most use cases should be
+specified as resource parameters. Other settings should be specified as
+operation dynamic parameters unless they shape some algorithms, in which 
+case they should be specified as operation static parameters.
+But a question arises: can a shared setting be dynamic? In other words,
+can we require to share an algorithm (not a simple parameter value)
+between multiple operations? Yes, even if it would be very exceptional.
+For instance a database password may be automatically changed every day
+or hour, requiring to obtain it automatically when it expires. In such
+a case the password specified as a shared resource parameter value would 
+need to be changed dynamically. It would be possible if an advanced feature
+allows to alter environment properties.
+That being said, every setting that is required to execute an operation
+could be calculated dynamically, except operation static parameter which
+values are part of the algorithms. Note that if an operation static parameter
+value need to be changed dynamically, then an alternate operation that use
+a lower level protocol should be used (eg: HTTP instead of SOAP).  
+

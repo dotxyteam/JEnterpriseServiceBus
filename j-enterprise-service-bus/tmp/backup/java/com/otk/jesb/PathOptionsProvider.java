@@ -9,12 +9,10 @@ import xy.reflect.ui.info.type.ITypeInfo;
 
 public class PathOptionsProvider {
 
-	protected Plan currentPlan;
-	protected Step currentStep;
+	protected List<VariableDeclaration> variableDeclarations;
 
-	public PathOptionsProvider(Plan currentPlan, Step currentStep) {
-		this.currentPlan = currentPlan;
-		this.currentStep = currentStep;
+	public PathOptionsProvider(List<VariableDeclaration> variableDeclarations) {
+		this.variableDeclarations = variableDeclarations;
 	}
 
 	public List<PathNode> getRootPathNodes() {
@@ -27,7 +25,7 @@ public class PathOptionsProvider {
 	}
 
 	protected List<VariableDeclaration> getVariableDeclarations() {
-		return currentPlan.getValidationContext(currentStep).getVariableDeclarations();
+		return variableDeclarations;
 	}
 
 	private static class RootPathNode implements PathNode {

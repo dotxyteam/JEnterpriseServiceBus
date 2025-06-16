@@ -69,8 +69,8 @@ public class Function {
 		this.functionBody = functionBody;
 	}
 
-	public CompiledFunction getCompiledVersion(java.util.function.Function<String, String> precompiler,
-			List<VariableDeclaration> variableDeclarations, Class<?> functionReturnType) throws CompilationError {
+	public CompiledFunction getCompiledVersion(Precompiler precompiler, List<VariableDeclaration> variableDeclarations,
+			Class<?> functionReturnType) throws CompilationError {
 		Map<String, Object> compilationData = new HashMap<String, Object>();
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
@@ -81,7 +81,18 @@ public class Function {
 			return upToDateCompiledVersion.get();
 		} catch (VersionAccessException e) {
 			if (e.getCause() instanceof CompilationError) {
-				throw (CompilationError) e.getCause();
+				String sourceCode = functionBody;
+				int startPosition = (precompiler != null)
+						? precompiler.unprecompileFunctionBodyPosition(
+								((CompilationError) e.getCause()).getStartPosition(),
+								((CompilationError) e.getCause()).getSourceCode())
+						: ((CompilationError) e.getCause()).getStartPosition();
+				int endPosition = (precompiler != null)
+						? precompiler.unprecompileFunctionBodyPosition(
+								((CompilationError) e.getCause()).getEndPosition(),
+								((CompilationError) e.getCause()).getSourceCode())
+						: ((CompilationError) e.getCause()).getEndPosition();
+				throw new CompilationError(startPosition, endPosition, e.getMessage(), null, sourceCode, e);
 			} else {
 				throw new UnexpectedError(e);
 			}
@@ -91,7 +102,7 @@ public class Function {
 	public static interface Precompiler {
 		String apply(String functionBody);
 
-		boolean equals(Precompiler other);
+		int unprecompileFunctionBodyPosition(int position, String precompiledFunctionBody);
 	}
 
 }

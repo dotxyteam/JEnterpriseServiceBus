@@ -1,6 +1,10 @@
 package com.otk.jesb.util;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
+import java.beans.PropertyDescriptor;
+import java.beans.Transient;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,6 +16,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -23,34 +29,95 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
-import com.otk.jesb.solution.Asset;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.operation.OperationBuilder;
-import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.compiler.InMemoryJavaCompiler;
 import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
 
-	public static InMemoryJavaCompiler IN_MEMORY_JAVA_COMPILER = new InMemoryJavaCompiler();
+	private static final XStream XSTREAM = new XStream() {
+		@Override
+		protected MapperWrapper wrapMapper(MapperWrapper next) {
+			return new MapperWrapper(next) {
+				@Override
+				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
+					if (type.isAnonymousClass()) {
+						throw new UnexpectedError("Cannot serialize instance of forbidden anonymous class " + type);
+					}
+					return super.serializedClass(type);
+				}
+			};
+		}
+	};
 	static {
-		MiscUtils.IN_MEMORY_JAVA_COMPILER.setOptions(Arrays.asList("-parameters"));
+		XSTREAM.registerConverter(new JavaBeanConverter(XSTREAM.getMapper(), new BeanProvider() {
+			@Override
+			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
+				final boolean canStream = super.canStreamProperty(descriptor);
+				if (!canStream) {
+					return false;
+				}
+				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
+						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
+				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
+						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
+				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
+
+				return !isTransient;
+			}
+		}), -20);
+		XSTREAM.addPermission(AnyTypePermission.ANY);
+		XSTREAM.ignoreUnknownElements();
 	}
-	public static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
+	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
+	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
+
+	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
+	static {
+		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
+	}
+	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
+	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
+
+	public static void sleepSafely(long durationMilliseconds) {
+		try {
+			Thread.sleep(durationMilliseconds);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
 
 	public static String escapeRegex(String str) {
-		return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
+		return SPECIAL_REGEX_CHARS_PATTERN.matcher(str).replaceAll("\\\\$0");
 	}
 
 	public static String escapeJavaString(String s) {
@@ -61,6 +128,27 @@ public class MiscUtils {
 
 	public static String getDigitalUniqueIdentifier() {
 		return String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16));
+	}
+
+	public static String toDigitalUniqueIdentifier(Object object) {
+		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
+			String result = DIGITAL_UNIQUE_IDENTIFIER_CACHE.get(object);
+			if (result == null) {
+				result = getDigitalUniqueIdentifier();
+				DIGITAL_UNIQUE_IDENTIFIER_CACHE.put(object, result);
+			}
+			return result;
+		}
+	}
+
+	public static Object fromFromDigitalUniqueIdentifier(String digitalUniqueIdentifier) {
+		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {
+			List<Object> keys = MiscUtils.getKeysFromValue(DIGITAL_UNIQUE_IDENTIFIER_CACHE, digitalUniqueIdentifier);
+			if (keys.size() != 1) {
+				throw new UnexpectedError();
+			}
+			return keys.get(0);
+		}
 	}
 
 	public static <E> Iterable<E> secureIterable(Iterable<E> iterable) {
@@ -80,7 +168,7 @@ public class MiscUtils {
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata operationMetadata : JESBReflectionUI.ACTIVITY_METADATAS) {
+		for (OperationMetadata operationMetadata : JESBReflectionUI.OPERATION_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
@@ -194,7 +282,7 @@ public class MiscUtils {
 			return new Point(x, y);
 		}
 		// Should never happen :) If it does, please tell me!
-		throw new AssertionError();
+		throw new UnexpectedError();
 	}
 
 	public static <T> String stringJoin(T[] array, String separator) {
@@ -236,15 +324,57 @@ public class MiscUtils {
 
 	public static String adaptClassNameToSourceCode(String className) {
 		className = className.replace("$", ".");
-		className = className.replaceAll("^\\[L(.+);$", "$1[]");
+		int arrayDimension = 0;
+		String arrayComponentTypeName = className;
+		while ((arrayComponentTypeName = getArrayComponentTypeName(arrayComponentTypeName)) != null) {
+			arrayDimension++;
+			className = arrayComponentTypeName;
+		}
+		for (int i = 0; i < arrayDimension; i++) {
+			className += "[]";
+		}
 		return className;
 	}
 
-	public static String read(InputStream in) throws Exception {
+	public static String getArrayComponentTypeName(String className) {
+		if (className.startsWith("[[")) {
+			return className.substring(1);
+		}
+		if (className.startsWith("[L") && className.endsWith(";")) {
+			return className.substring(2, className.length() - 1);
+		}
+		if (className.equals("[Z")) {
+			return "boolean";
+		}
+		if (className.equals("[B")) {
+			return "byte";
+		}
+		if (className.equals("[S")) {
+			return "short";
+		}
+		if (className.equals("[I")) {
+			return "int";
+		}
+		if (className.equals("[J")) {
+			return "long";
+		}
+		if (className.equals("[F")) {
+			return "float";
+		}
+		if (className.equals("[D")) {
+			return "double";
+		}
+		if (className.equals("[C")) {
+			return "char";
+		}
+		return null;
+	}
+
+	public static String read(InputStream in) throws IOException {
 		return new String(readBinary(in));
 	}
 
-	public static byte[] readBinary(InputStream in) throws Exception {
+	public static byte[] readBinary(InputStream in) throws IOException {
 		try {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			int nRead;
@@ -255,15 +385,15 @@ public class MiscUtils {
 			buffer.flush();
 			return buffer.toByteArray();
 		} catch (IOException e) {
-			throw new Exception("Error while reading input stream: " + e.getMessage(), e);
+			throw new IOException("Error while reading input stream: " + e.getMessage(), e);
 		}
 	}
 
-	public static void write(File file, String text, boolean append) throws Exception {
+	public static void write(File file, String text, boolean append) throws IOException {
 		writeBinary(file, text.getBytes(), append);
 	}
 
-	public static void writeBinary(File file, byte[] bytes, boolean append) throws Exception {
+	public static void writeBinary(File file, byte[] bytes, boolean append) throws IOException {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(file, append);
@@ -271,7 +401,7 @@ public class MiscUtils {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			throw new Exception("Unable to write file : '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+			throw new IOException("Unable to write file : '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
 		} finally {
 			if (out != null) {
 				try {
@@ -283,7 +413,7 @@ public class MiscUtils {
 
 	}
 
-	public static File createTemporaryFile(String extension) throws Exception {
+	public static File createTemporaryFile(String extension) throws IOException {
 		return File.createTempFile("file-", "." + extension);
 	}
 
@@ -294,25 +424,25 @@ public class MiscUtils {
 		return result;
 	}
 
-	public static void createDirectory(File dir) throws Exception {
+	public static void createDirectory(File dir) throws IOException {
 		if (dir.isDirectory()) {
 			return;
 		}
 		try {
 			if (!dir.mkdir()) {
-				throw new Exception("System error");
+				throw new IOException("System error");
 			}
 		} catch (Exception e) {
-			throw new Exception("Failed to create directory: '" + dir + "': " + e.toString(), e);
+			throw new IOException("Failed to create directory: '" + dir + "': " + e.toString(), e);
 		}
 	}
 
-	public static void delete(File file) throws Exception {
+	public static void delete(File file) throws IOException {
 		delete(file, null, null);
 	}
 
 	public static void delete(File file, FilenameFilter filter, Listener<Pair<File, Exception>> errorHandler)
-			throws Exception {
+			throws IOException {
 		if (file.isDirectory()) {
 			for (File childFile : file.listFiles(filter)) {
 				delete(childFile, filter, errorHandler);
@@ -325,10 +455,11 @@ public class MiscUtils {
 		try {
 			success = file.delete();
 			if (!success) {
-				throw new Exception("System error");
+				throw new IOException("System error");
 			}
-		} catch (Exception e) {
-			e = new Exception("Failed to delete resource: '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
+		} catch (IOException e) {
+			e = new IOException(
+					"Failed to delete file system resource: '" + file.getAbsolutePath() + "': " + e.getMessage(), e);
 			if (errorHandler != null) {
 				errorHandler.handle(new Pair<File, Exception>(file, e));
 			} else {
@@ -389,24 +520,44 @@ public class MiscUtils {
 			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
 			return (T) deserialize(input);
 		} catch (IOException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
-	public static Object deserialize(InputStream input) throws IOException {
-		return getXStream().fromXML(new InputStreamReader(input, "UTF-8"));
-	}
-
 	public static void serialize(Object object, OutputStream output) throws IOException {
-		getXStream().toXML(object, new OutputStreamWriter(output, "UTF-8"));
+		XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
 	}
 
-	private static XStream getXStream() {
-		XStream result = new XStream();
-		result.registerConverter(new JavaBeanConverter(result.getMapper()), -20);
-		result.addPermission(AnyTypePermission.ANY);
-		result.ignoreUnknownElements();
-		return result;
+	public static Object deserialize(InputStream input) throws IOException {
+		return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+	}
+
+	public static String serialize(Object object) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			serialize(object, output);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+		try {
+			return output.toString(SERIALIZATION_CHARSET_NAME);
+		} catch (UnsupportedEncodingException e) {
+			throw new UnexpectedError(e);
+		}
+	}
+
+	public static Object deserialize(String inputString) {
+		ByteArrayInputStream input;
+		try {
+			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));
+		} catch (UnsupportedEncodingException e) {
+			throw new UnexpectedError(e);
+		}
+		try {
+			return deserialize(input);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
 	public static String getPrintedStackTrace(Throwable t) {
@@ -422,8 +573,6 @@ public class MiscUtils {
 	public static Date now() {
 		return new Date();
 	}
-
-	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
 	public static char standardizeNewLineSequences(char lastC, char c) {
 		for (String newLineSequence : NEW_LINE_SEQUENCES) {
@@ -489,6 +638,81 @@ public class MiscUtils {
 			int number = Integer.valueOf(name.replaceAll(NUMBERED_NAME_PATTERN, "$2"));
 			return name.replaceAll(NUMBERED_NAME_PATTERN, "$1") + (number + 1);
 		}
+	}
+
+	public static <T> List<T> added(List<T> ts, int index, T newItem) {
+		List<T> result = new ArrayList<T>(ts);
+		if (index == -1) {
+			result.add(newItem);
+		} else {
+			result.add(index, newItem);
+		}
+		return result;
+	}
+
+	public static void improveRenderingQuality(Graphics2D g) {
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+	}
+
+	public static CompiledFunction compileExpression(String expression, List<VariableDeclaration> variableDeclarations,
+			Class<?> returnType) throws CompilationError {
+		try {
+			return CompiledFunction.get("return " + expression + ";", variableDeclarations, returnType);
+		} catch (CompilationError e) {
+			String sourceCode = expression;
+			int startPosition = (e.getStartPosition() != -1) ? (e.getStartPosition() - "return ".length())
+					: e.getStartPosition();
+			int endPosition = (e.getEndPosition() != -1) ? (e.getEndPosition() - "return ".length())
+					: e.getEndPosition();
+			throw new CompilationError(startPosition, endPosition, e.getMessage(), null, sourceCode);
+		}
+	}
+
+	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
+		if (resolvedType.isPrimitive()) {
+			return TypeInfoProvider.getTypeInfo(ClassUtils
+					.wrapperToPrimitiveClass(TypeInfoProvider.getClass(resolvedType.asPrimitive().getBoxTypeQName())));
+		} else if (resolvedType.isReferenceType()) {
+			ResolvedReferenceType referenceType = resolvedType.asReferenceType();
+			String qualifiedName = referenceType.getQualifiedName();
+			Class<?> javaType = TypeInfoProvider.getClassFromCanonicalName(qualifiedName);
+			List<ResolvedType> typeParameters = referenceType.typeParametersValues();
+			if (typeParameters.size() > 0) {
+				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
+				for (ResolvedType resolvedTypeParameter : typeParameters) {
+					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter);
+					if (typeParameterInfo == null) {
+						return TypeInfoProvider.getTypeInfo(javaType);
+					}
+					typeParameterClasses.add(((DefaultTypeInfo) typeParameterInfo).getJavaType());
+				}
+				return TypeInfoProvider.getTypeInfo(javaType,
+						typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]));
+			} else {
+				return TypeInfoProvider.getTypeInfo(javaType);
+			}
+		} else if (resolvedType.isArray()) {
+			Class<?> componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(
+					resolvedType.asArrayType().getComponentType())).getJavaType();
+			return TypeInfoProvider.getTypeInfo(Array.newInstance(componentClass, 0).getClass());
+		} else if (resolvedType.isWildcard() && resolvedType.asWildcard().isBounded()) {
+			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType());
+		} else {
+			return null;
+		}
+	}
+
+	public static boolean areIncompatible(Class<?> class1, Class<?> class2) {
+		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2)
+				.isAssignableFrom((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1))) {
+			return false;
+		}
+		if ((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1)
+				.isAssignableFrom((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2))) {
+			return false;
+		}
+		return true;
 	}
 
 }

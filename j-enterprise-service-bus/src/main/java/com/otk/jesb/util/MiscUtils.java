@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.Expression;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
@@ -655,9 +656,12 @@ public class MiscUtils {
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	}
 
-	public static CompiledFunction compileExpression(String expression, List<VariableDeclaration> variableDeclarations,
-			Class<?> returnType) throws CompilationError {
-		return CompiledFunction.get("return " + expression + ";", variableDeclarations, returnType);
+	public static <T> CompiledFunction compileExpression(String expressionString, List<VariableDeclaration> variableDeclarations,
+			Class<T> returnType) throws CompilationError {
+		Expression<T> expression = new Expression<T>(returnType);
+		expression.set(expressionString);
+		expression.setVariableDeclarations(variableDeclarations);
+		return expression.compile();
 	}
 
 	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
@@ -705,5 +709,34 @@ public class MiscUtils {
 		}
 		return true;
 	}
+
+	public static int indexAfterReplacement(int index, String inputString, String target, String replacement) {
+        if (target.isEmpty() || index < 0 || index > inputString.length()) {
+            return index;
+        }
+        int newIndex = index;
+        int i = 0;
+        int shift = 0;
+        while (i < inputString.length()) {
+            int found = inputString.indexOf(target, i);
+            if (found == -1) {
+                break;
+            }
+            int end = found + target.length();
+            if (index >= found && index < end) {
+                // The index falls inside a replaced segment — it no longer maps to any position.
+                return -1;
+            }
+            if (found >= index) {
+                // No need to process further if the replacement occurs after the original index.
+                break;
+            }
+            // Accumulate the change in length caused by this replacement.
+            shift += replacement.length() - target.length();
+            i = end;
+        }
+        return newIndex + shift;
+    }
+
 
 }

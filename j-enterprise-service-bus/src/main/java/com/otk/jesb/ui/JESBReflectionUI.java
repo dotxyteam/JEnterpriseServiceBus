@@ -58,6 +58,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
@@ -124,6 +125,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Step displayedStep;
 	private Transition displayedTransition;
 	private RootInstanceBuilderFacade displayedRootInstanceBuilderFacade;
+	private String sidePaneValueName;
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
@@ -555,7 +557,49 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+				if (type.getName().equals(Solution.class.getName())) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+						@Override
+						public String getName() {
+							return "sidePaneValue";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName());
+						}
+
+						@Override
+						public Object getValue(Object object) {
+							if ("env".equals(sidePaneValueName)) {
+								return System.getenv();
+							} else if ("logs".equals(sidePaneValueName)) {
+								return MiscUtils.getPrintedStackTrace(new Exception());
+							} else {
+								return null;
+							}
+						}
+
+						@Override
+						public ITypeInfo getType() {
+							return getTypeInfo(new JavaTypeInfoSource(Object.class, null));
+						}
+
+						@Override
+						public boolean isTransient() {
+							return true;
+						}
+
+						@Override
+						public boolean isGetOnly() {
+							return true;
+						}
+
+					});
+					return result;
+				} else if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
 					for (IFieldInfo field : super.getFields(type)) {
 						if (field.getName().equals("cause")) {
@@ -849,7 +893,65 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if ((objectClass != null) && Function.class.isAssignableFrom(objectClass)) {
+				if (type.getName().equals(Solution.class.getName())) {
+					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "changeSidePanelValue";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName());
+						}
+
+						@Override
+						public List<IParameterInfo> getParameters() {
+							return Collections
+									.singletonList(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+										@Override
+										public String getName() {
+											return "newSidePanelValueName";
+										}
+
+										@Override
+										public String getCaption() {
+											return ReflectionUIUtils.identifierToCaption(getName());
+										}
+
+										@Override
+										public ITypeInfo getType() {
+											return getTypeInfo(new JavaTypeInfoSource(String.class, null));
+										}
+									});
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							String newSidePaneValueName = (String) invocationData.getParameterValue(0);
+							if (newSidePaneValueName.equals(sidePaneValueName)) {
+								sidePaneValueName = null;
+							} else {
+								sidePaneValueName = newSidePaneValueName;
+							}
+							return null;
+						}
+
+						@Override
+						public boolean isReadOnly() {
+							return true;
+						}
+					});
+					return result;
+				} else if ((objectClass != null) && Function.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 

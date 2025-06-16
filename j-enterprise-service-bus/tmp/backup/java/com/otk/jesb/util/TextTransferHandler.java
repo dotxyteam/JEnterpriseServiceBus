@@ -17,8 +17,6 @@ import javax.swing.event.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.synth.SynthUI;
-import sun.swing.DefaultLookup;
-import sun.awt.AppContext;
 
 /**
  * This class is a just a copy allowing to sublass the original class

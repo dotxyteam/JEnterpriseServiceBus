@@ -3,6 +3,9 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
 
 public abstract class Facade {
@@ -18,6 +21,19 @@ public abstract class Facade {
 	public abstract void setConcrete(boolean b);
 
 	public abstract Object getUnderlying();
+
+	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations);
+
+	public abstract Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations);
+
+	public abstract void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
+			throws ValidationError;
+
+	public boolean isValidable() {
+		return isConcrete();
+	}
 
 	public static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();
@@ -40,7 +56,7 @@ public abstract class Facade {
 	public static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof RootInstanceBuilder) {
 			if (parentFacade != null) {
-				throw new AssertionError();
+				throw new UnexpectedError();
 			}
 			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);
 		} else if (node instanceof MapEntryBuilder) {
@@ -61,7 +77,7 @@ public abstract class Facade {
 							.findCondition((InitializationCase) node),
 					(InitializationCase) node);
 		} else {
-			throw new AssertionError();
+			throw new UnexpectedError();
 		}
 	}
 

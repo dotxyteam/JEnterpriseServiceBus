@@ -1,28 +1,69 @@
 package com.otk.jesb.instantiation;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
+
 import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
-public class FieldInitializerFacade extends Facade {
+public class FieldInitializerFacade extends InitializerFacade {
 
-	private Facade parent;
 	private String fieldName;
-	private Object fieldValue;
+	private IFieldInfo fieldInfo;
 
 	public FieldInitializerFacade(Facade parent, String fieldName) {
-		this.parent = parent;
+		super(parent);
 		this.fieldName = fieldName;
-		FieldInitializer fieldInitializer = getUnderlying();
-		if (fieldInitializer == null) {
-			this.fieldValue = createDefaultFieldValue();
-		} else {
-			this.fieldValue = fieldInitializer.getFieldValue();
+	}
+
+	@Override
+	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		List<VariableDeclaration> baseResult = getParent().getAdditionalVariableDeclarations(null,
+				baseVariableDeclarations);
+		List<VariableDeclaration> result = baseResult;
+		if (function == null) {
+			return result;
 		}
+		if (getCondition() == function) {
+			return baseResult;
+		}
+		if (getFieldValue() == function) {
+			return result;
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public Class<?> getFunctionReturnType(InstantiationFunction function,
+			List<VariableDeclaration> baseVariableDeclarations) {
+		if (getCondition() == function) {
+			return boolean.class;
+		}
+		if (getFieldValue() == function) {
+			return ((DefaultTypeInfo) getFieldInfo().getType()).getJavaType();
+		}
+		throw new UnexpectedError();
+	}
+
+	@Override
+	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		if (!isConcrete()) {
+			return;
+		}
+		if (getCondition() != null) {
+			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), getParent(),
+					"condition", recursively, variableDeclarations);
+		}
+		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, "field value",
+				recursively, variableDeclarations);
 	}
 
 	@Override
@@ -38,29 +79,47 @@ public class FieldInitializerFacade extends Facade {
 		return result;
 	}
 
-	@Override
-	public Facade getParent() {
-		return parent;
-	}
-
 	public Object createDefaultFieldValue() {
-		IFieldInfo field = getFieldInfo();
-		return InstantiationUtils.getDefaultInterpretableValue(field.getType(), this);
-	}
-
-	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
-		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade)).findFirst().get();
+		return super.createDefaultValue();
 	}
 
 	public IFieldInfo getFieldInfo() {
-		ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
-		return ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
+		if (fieldInfo == null) {
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			fieldInfo = ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
+		}
+		return fieldInfo;
 	}
 
 	@Override
 	public FieldInitializer getUnderlying() {
-		return ((InitializationCase) parent.getUnderlying()).getFieldInitializer(fieldName);
+		return ((InitializationCase) getParent().getUnderlying()).getFieldInitializer(fieldName);
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+		((InitializationCase) getParent().getUnderlying()).getFieldInitializers()
+				.add(new FieldInitializer(fieldName, value));
+	}
+
+	@Override
+	protected void deleteUnderlying() {
+		((InitializationCase) getParent().getUnderlying()).removeFieldInitializer(fieldName);
+	}
+
+	@Override
+	protected Object retrieveInitializerValue(Object initializer) {
+		return ((FieldInitializer) initializer).getFieldValue();
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+		((FieldInitializer) initializer).setFieldValue(newValue);
+	}
+
+	@Override
+	protected ITypeInfo getValueType() {
+		return getFieldInfo().getType();
 	}
 
 	public String getFieldName() {
@@ -68,8 +127,7 @@ public class FieldInitializerFacade extends Facade {
 	}
 
 	public String getFieldTypeName() {
-		return InstantiationUtils.makeTypeNamesRelative(getFieldInfo().getType().getName(),
-				InstantiationUtils.getAncestorStructureInstanceBuilders(this));
+		return super.getValueTypeName();
 	}
 
 	public InstantiationFunction getCondition() {
@@ -89,89 +147,20 @@ public class FieldInitializerFacade extends Facade {
 		fieldInitializer.setCondition(condition);
 	}
 
-	@Override
-	public boolean isConcrete() {
-		if (!parent.isConcrete()) {
-			return false;
-		}
-		return getUnderlying() != null;
-	}
-
-	@Override
-	public void setConcrete(boolean b) {
-		if (b == isConcrete()) {
-			return;
-		}
-		if (b) {
-			if (!parent.isConcrete()) {
-				parent.setConcrete(true);
-			}
-			if (getUnderlying() == null) {
-				((InitializationCase) parent.getUnderlying()).getFieldInitializers()
-						.add(new FieldInitializer(fieldName, fieldValue));
-			}
-		} else {
-			if (getUnderlying() != null) {
-				((InitializationCase) parent.getUnderlying()).removeFieldInitializer(fieldName);
-				fieldValue = createDefaultFieldValue();
-			}
-		}
-	}
-
 	public ValueMode getFieldValueMode() {
-		FieldInitializer fieldInitializer = getUnderlying();
-		if (fieldInitializer == null) {
-			return null;
-		}
-		return InstantiationUtils.getValueMode(fieldInitializer.getFieldValue());
+		return super.getValueMode();
 	}
 
 	public void setFieldValueMode(ValueMode valueMode) {
-		setConcrete(true);
-		if (valueMode == getFieldValueMode()) {
-			return;
-		}
-		IFieldInfo field = getFieldInfo();
-		Object newFieldValue = InstantiationUtils.getDefaultInterpretableValue(field.getType(), valueMode, this);
-		if (newFieldValue instanceof InstanceBuilder) {
-			newFieldValue = new InstanceBuilderFacade(this, (InstanceBuilder) newFieldValue);
-		}
-		setFieldValue(newFieldValue);
+		super.setValueMode(valueMode);
 	}
 
 	public Object getFieldValue() {
-		FieldInitializer fieldInitializer = getUnderlying();
-		if (fieldInitializer == null) {
-			return null;
-		}
-		Object result = InstantiationUtils.maintainInterpretableValue(fieldInitializer.getFieldValue(),
-				getFieldInfo().getType());
-		if (result instanceof InstanceBuilder) {
-			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
-		}
-		return result;
+		return super.getValue();
 	}
 
 	public void setFieldValue(Object value) {
-		if (value instanceof InstanceBuilderFacade) {
-			value = ((InstanceBuilderFacade) value).getUnderlying();
-		}
-		setConcrete(true);
-		FieldInitializer fieldInitializer = getUnderlying();
-		IFieldInfo field = getFieldInfo();
-		if ((value == null) && (field.getType().isPrimitive())) {
-			throw new AssertionError("Cannot set null to primitive field");
-		}
-		fieldInitializer.setFieldValue(fieldValue = value);
-	}
-
-	@Override
-	public List<Facade> getChildren() {
-		List<Facade> result = new ArrayList<Facade>();
-		if (fieldValue instanceof InstanceBuilder) {
-			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) fieldValue).getChildren());
-		}
-		return result;
+		super.setValue(value);
 	}
 
 	@Override

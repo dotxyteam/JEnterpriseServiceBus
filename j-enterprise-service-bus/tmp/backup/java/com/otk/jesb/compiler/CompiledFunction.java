@@ -5,7 +5,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.solution.Plan;
+import com.otk.jesb.StandardError;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
@@ -18,6 +19,14 @@ public class CompiledFunction {
 	private CompiledFunction(Class<?> functionClass, String functionClassSource) {
 		this.functionClass = functionClass;
 		this.functionClassSource = functionClassSource;
+	}
+
+	public Class<?> getFunctionClass() {
+		return functionClass;
+	}
+
+	public String getFunctionClassSource() {
+		return functionClassSource;
 	}
 
 	public static CompiledFunction get(String functionBody, List<VariableDeclaration> variableDeclarations,
@@ -33,7 +42,9 @@ public class CompiledFunction {
 			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
 					+ declaration.getVariableName());
 		}
-		preBody += MiscUtils.stringJoin(declrartionStrings, ", ");
+		if (declrartionStrings.size() > 0) {
+			preBody += "\n    " + MiscUtils.stringJoin(declrartionStrings, ",\n    ") + "\n";
+		}
 		preBody += ") throws " + Throwable.class.getName() + "{" + "\n";
 		String postBody = "\n";
 		postBody += "}" + "\n";
@@ -41,7 +52,7 @@ public class CompiledFunction {
 		String functionClassSource = preBody + functionBody + postBody;
 		Class<?> functionClass;
 		try {
-			functionClass = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(functionClassName, functionClassSource);
+			functionClass = MiscUtils.IN_MEMORY_COMPILER.compile(functionClassName, functionClassSource);
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {
@@ -62,11 +73,11 @@ public class CompiledFunction {
 		return new CompiledFunction(functionClass, functionClassSource);
 	}
 
-	public Object execute(Plan.ExecutionContext context) throws Exception {
+	public Object call(List<Variable> variables) throws FunctionCallError {
 		Object[] functionParameterValues = new Object[functionClass.getMethods()[0].getParameterCount()];
 		int i = 0;
 		for (Parameter param : functionClass.getMethods()[0].getParameters()) {
-			for (Variable variable : MiscUtils.getReverse(context.getVariables())) {
+			for (Variable variable : MiscUtils.getReverse(variables)) {
 				if (param.getName().equals(variable.getName())) {
 					functionParameterValues[i] = variable.getValue();
 					break;
@@ -77,26 +88,46 @@ public class CompiledFunction {
 		try {
 			return functionClass.getMethods()[0].invoke(null, functionParameterValues);
 		} catch (IllegalAccessException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (IllegalArgumentException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (SecurityException e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		} catch (Throwable t) {
 			if (t instanceof InvocationTargetException) {
 				t = ((InvocationTargetException) t).getTargetException();
 			}
-			String errorSourceDescription;
+			throw new FunctionCallError(t);
+		}
+	}
+
+	public class FunctionCallError extends StandardError {
+
+		private static final long serialVersionUID = 1L;
+
+		public FunctionCallError(Throwable cause) {
+			super(cause);
+		}
+
+		@Override
+		public String getMessage() {
+			return getCause().toString() + "\n" + describeSource();
+		}
+
+		public String describeSource() {
+			String result;
+			Throwable t = getCause();
 			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
 					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
-				errorSourceDescription = "/* Failure statement */\n"
+				result = "/* The instruction that crashed */\n"
 						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
-				errorSourceDescription = "/* Function class source code (" + functionClass.getSimpleName()
+				result = "/* The source code of the function that crashed (" + functionClass.getSimpleName()
 						+ ".java) */\n" + functionClassSource;
 			}
-			throw new Exception("Function error: " + t.toString() + ":\n" + errorSourceDescription, t);
+			return result;
 		}
+
 	}
 
 }

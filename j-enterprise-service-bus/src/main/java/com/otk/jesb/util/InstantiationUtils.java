@@ -321,6 +321,17 @@ public class InstantiationUtils {
 		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
+	public static int indexBeforeTypeNamesMadeAbsolute(int index, String text,
+			List<InstanceBuilder> ancestorStructureInstanceBuilders) {
+		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
+			return index;
+		}
+		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
+		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
+				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
+		return MiscUtils.indexAfterReplacement(index, text, absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
+	}
+
 	public static List<InstanceBuilder> getAncestorStructuredInstanceBuilders(Facade facade) {
 		if (facade == null) {
 			return null;

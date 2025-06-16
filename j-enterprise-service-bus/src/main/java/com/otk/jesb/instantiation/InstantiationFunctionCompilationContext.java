@@ -2,9 +2,8 @@ package com.otk.jesb.instantiation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.util.InstantiationUtils;
 
 public class InstantiationFunctionCompilationContext {
@@ -32,11 +31,17 @@ public class InstantiationFunctionCompilationContext {
 		return parentFacade.getFunctionReturnType(function, baseVariableDeclarations);
 	}
 
-	public Function<String, String> getPrecompiler() {
-		return new Function<String, String>() {
+	public Precompiler getPrecompiler() {
+		return new Precompiler() {
 			@Override
 			public String apply(String functionBody) {
 				return InstantiationUtils.makeTypeNamesAbsolute(functionBody,
+						InstantiationUtils.getAncestorStructuredInstanceBuilders(parentFacade));
+			}
+
+			@Override
+			public int unprecompileFunctionBodyPosition(int position, String precompiledFunctionBody) {
+				return InstantiationUtils.indexBeforeTypeNamesMadeAbsolute(position, precompiledFunctionBody,
 						InstantiationUtils.getAncestorStructuredInstanceBuilders(parentFacade));
 			}
 		};

@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
 
 public abstract class CompositeStep extends Step {
 
-	protected abstract List<VariableDeclaration> getContextualVariableDeclarations();
+	public abstract List<VariableDeclaration> getContextualVariableDeclarations();
 
 	public CompositeStep(OperationMetadata operationMetadata) {
 		super(operationMetadata);

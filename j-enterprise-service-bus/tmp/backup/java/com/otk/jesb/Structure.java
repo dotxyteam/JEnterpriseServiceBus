@@ -1,17 +1,27 @@
 package com.otk.jesb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.Reference;
 import com.otk.jesb.util.MiscUtils;
+import xy.reflect.ui.util.ClassUtils;
 
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className);
+
+	public abstract void validate(boolean recursively) throws ValidationError;
+
+	public abstract String toString();
 
 	public static class ClassicStructure extends Structure {
 
@@ -23,20 +33,6 @@ public abstract class Structure {
 
 		public void setElements(List<Element> elements) {
 			this.elements = elements;
-			if (elements != null) {
-				Collections.sort(elements, new Comparator<Element>() {
-					@Override
-					public int compare(Element e1, Element e2) {
-						if ((e1.getOptionality() != null) && (e2.getOptionality() == null)) {
-							return 1;
-						}
-						if ((e1.getOptionality() == null) && (e2.getOptionality() != null)) {
-							return -1;
-						}
-						return 0;
-					}
-				});
-			}
 		}
 
 		@Override
@@ -69,6 +65,32 @@ public abstract class Structure {
 			result.append("}");
 			return result.toString();
 		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			if (elements.size() == 0) {
+				throw new ValidationError("No declared element");
+			}
+			List<String> elementNames = new ArrayList<String>();
+			for (Element element : elements) {
+				if (elementNames.contains(element.getName())) {
+					throw new ValidationError("Duplicate element name detected: '" + element.getName() + "'");
+				} else {
+					elementNames.add(element.getName());
+				}
+			}
+			if (recursively) {
+				for (Element element : elements) {
+					element.validate(recursively);
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "<ClassicStructure>";
+		}
+
 	}
 
 	public static interface Structured {
@@ -92,10 +114,131 @@ public abstract class Structure {
 					+ MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
 					+ ";" + "\n" + "}";
 		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			if (items.size() == 0) {
+				throw new ValidationError("No declared item");
+			}
+			List<String> itemNames = new ArrayList<String>();
+			for (EnumerationItem item : items) {
+				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(item.getName()).matches()) {
+					throw new ValidationError("Invalid element name: '" + item.getName()
+							+ "' (should match the following regular expression: "
+							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+				}
+				if (itemNames.contains(item.getName())) {
+					throw new ValidationError("Duplicate item name detected: '" + item.getName() + "'");
+				} else {
+					itemNames.add(item.getName());
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "<EnumerationStructure>";
+		}
+
+	}
+
+	public static class SharedStructureReference extends Structure {
+
+		private Reference<SharedStructureModel> modelReference = new Reference<SharedStructureModel>(
+				SharedStructureModel.class, model -> {
+					Reference<SharedStructureModel> newModelReference = Reference.get(model);
+					try {
+						checkNoReferenceCycle(newModelReference, false);
+						return true;
+					} catch (IllegalArgumentException e) {
+						return false;
+					}
+				}, newPath -> {
+					if (newPath != null) {
+						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
+								SharedStructureModel.class);
+						newModelReference.setPath(newPath);
+						checkNoReferenceCycle(newModelReference, true);
+					}
+				}
+
+		);
+
+		public Reference<SharedStructureModel> getModelReference() {
+			return modelReference;
+		}
+
+		public void setModelReference(Reference<SharedStructureModel> modelReference) {
+			this.modelReference = modelReference;
+		}
+
+		private void checkNoReferenceCycle(Reference<SharedStructureModel> modelReference, boolean recursiveCheck) {
+			if (modelReference != null) {
+				SharedStructureModel model = modelReference.resolve();
+				if (model != null) {
+					Structure structure = model.getStructure();
+					if (structure instanceof ClassicStructure) {
+						checkNoReferenceCycle((ClassicStructure) structure, recursiveCheck);
+					}
+				}
+			}
+		}
+
+		private void checkNoReferenceCycle(ClassicStructure classicStructure, boolean recursiveCheck) {
+			for (Element element : classicStructure.getElements()) {
+				if (element instanceof StructuredElement) {
+					Structure subStructure = ((StructuredElement) element).getStructure();
+					if (subStructure instanceof SharedStructureReference) {
+						if (subStructure == SharedStructureReference.this) {
+							throw new IllegalArgumentException("Shared structure reference cycle detected");
+						}
+						if (recursiveCheck) {
+							checkNoReferenceCycle(((SharedStructureReference) subStructure).getModelReference(),
+									recursiveCheck);
+						}
+					}
+					if (subStructure instanceof ClassicStructure) {
+						checkNoReferenceCycle((ClassicStructure) subStructure, recursiveCheck);
+					}
+				}
+			}
+		}
+
+		public Class<? extends Structured> getStructuredClass() {
+			if (modelReference == null) {
+				return null;
+			}
+			SharedStructureModel model = modelReference.resolve();
+			if (model == null) {
+				return null;
+			}
+			return model.getStructuredClass();
+		}
+
+		@Override
+		public String generateJavaTypeSourceCode(String className) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			if (modelReference == null) {
+				throw new ValidationError("Shared structure model reference not set");
+			}
+			SharedStructureModel model = modelReference.resolve();
+			if (model == null) {
+				throw new ValidationError("Failed to resolve the shared structure model reference");
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "<SharedStructureReference>";
+		}
 	}
 
 	public static class EnumerationItem {
-		private String name;
+		private String name = "ITEM";
 
 		public String getName() {
 			return name;
@@ -105,10 +248,14 @@ public abstract class Structure {
 			this.name = name;
 		}
 
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 
 	public static abstract class Element {
-		private String name;
+		private String name = "element";
 		private Optionality optionality;
 		private boolean multiple = false;
 
@@ -155,7 +302,8 @@ public abstract class Structure {
 					defaultValueSettingString = "=" + getOptionality().getDefaultValueExpression();
 				}
 			}
-			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString + ";";
+			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString
+					+ ";";
 		}
 
 		protected String generateJavaConstructorParameterDeclarationSourceCode() {
@@ -174,40 +322,93 @@ public abstract class Structure {
 
 		protected String generateJavaFieldAccessorsSourceCode() {
 			StringBuilder result = new StringBuilder();
-			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get" + getName().substring(0, 1).toUpperCase()
-					+ getName().substring(1) + "(){" + "\n");
+			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get"
+					+ getName().substring(0, 1).toUpperCase() + getName().substring(1) + "(){" + "\n");
 			result.append("return " + getName() + ";" + "\n");
 			result.append("}");
 			if (getOptionality() != null) {
-				result.append("\n" + "public void set" + getName().substring(0, 1).toUpperCase()
-						+ getName().substring(1) + "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
+				result.append(
+						"\n" + "public void set" + getName().substring(0, 1).toUpperCase() + getName().substring(1)
+								+ "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
 				result.append("this." + getName() + "=" + getName() + ";" + "\n");
 				result.append("}");
 			}
 			return result.toString();
 		}
 
+		public void validate(boolean recursively) throws ValidationError {
+			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
+				throw new ValidationError(
+						"Invalid element name: '" + name + "' (should match the following regular expression: "
+								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
+			}
+			if (optionality != null) {
+				if (optionality.getDefaultValueExpression() != null) {
+					try {
+						MiscUtils.compileExpression(optionality.getDefaultValueExpression(), Collections.emptyList(),
+								Object.class);
+					} catch (CompilationError e) {
+						throw new ValidationError("Invalid default value expression detected", e);
+					}
+				}
+			}
+		}
+
 		@Override
 		public String toString() {
-			if (optionality != null) {
-				return name;
-			} else {
-				return "(" + name + ")";
+			String result = name;
+			if (optionality == null) {
+				result = "(" + result + ")";
 			}
+			if (multiple) {
+				result = result + "*";
+			}
+			if (optionality != null) {
+				result = result + "?";
+			}
+			return result;
 		}
 
 	}
 
 	public static class SimpleElement extends Element {
-		private String typeName;
+
+		private static final Map<String, String> TYPE_NAME_BY_ALIAS = new HashMap<String, String>();
+		static {
+			TYPE_NAME_BY_ALIAS.put("<binary>", byte[].class.getName());
+		}
+
+		private String typeNameOrAlias = getTypeNameOrAliasOptions().get(0);
+
+		public String getTypeNameOrAlias() {
+			return typeNameOrAlias;
+		}
+
+		public void setTypeNameOrAlias(String typeNameOrAlias) {
+			this.typeNameOrAlias = typeNameOrAlias;
+		}
 
 		@Override
 		public String getTypeName() {
-			return typeName;
+			return TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias);
 		}
 
 		public void setTypeName(String typeName) {
-			this.typeName = typeName;
+			if (TYPE_NAME_BY_ALIAS.containsValue(typeName)) {
+				typeName = MiscUtils.getFirstKeyFromValue(TYPE_NAME_BY_ALIAS, typeName);
+			}
+			this.typeNameOrAlias = typeName;
+		}
+
+		public List<String> getTypeNameOrAliasOptions() {
+			List<String> result = new ArrayList<String>();
+			result.add(String.class.getName());
+			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_CLASSES).stream().map(cls -> cls.getName())
+					.collect(Collectors.toList()));
+			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_WRAPPER_CLASSES).stream().map(cls -> cls.getName())
+					.collect(Collectors.toList()));
+			result.addAll(TYPE_NAME_BY_ALIAS.keySet());
+			return result;
 		}
 
 		@Override
@@ -218,7 +419,8 @@ public abstract class Structure {
 	}
 
 	public static class StructuredElement extends Element {
-		private Structure structure;
+
+		private Structure structure = new ClassicStructure();
 
 		public Structure getStructure() {
 			return structure;
@@ -230,16 +432,48 @@ public abstract class Structure {
 
 		@Override
 		protected String generateRequiredInnerJavaTypesSourceCode() {
-			return "static " + structure.generateJavaTypeSourceCode(getStructureClassName());
+			if (structure instanceof SharedStructureReference) {
+				return "";
+			}
+			return "static " + structure.generateJavaTypeSourceCode(getStructuredClassName());
 		}
 
 		@Override
 		protected String getTypeName() {
-			return getStructureClassName();
+			return getStructuredClassName();
 		}
 
-		private String getStructureClassName() {
+		private String getStructuredClassName() {
+			if (structure instanceof SharedStructureReference) {
+				Class<? extends Structured> structuredClass = ((SharedStructureReference) structure)
+						.getStructuredClass();
+				return structuredClass.getName();
+			}
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+		}
+
+		public List<Element> getSubElements() {
+			if (!(structure instanceof ClassicStructure)) {
+				return null;
+			}
+			return ((ClassicStructure) structure).getElements();
+		}
+
+		public void setSubElements(List<Element> elements) {
+			if (!(structure instanceof ClassicStructure)) {
+				return;
+			}
+			((ClassicStructure) structure).setElements(elements);
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			super.validate(recursively);
+			if (recursively) {
+				if (structure != null) {
+					structure.validate(recursively);
+				}
+			}
 		}
 	}
 

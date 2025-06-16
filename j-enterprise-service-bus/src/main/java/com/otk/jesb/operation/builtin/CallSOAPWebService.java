@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Reference;
+import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;

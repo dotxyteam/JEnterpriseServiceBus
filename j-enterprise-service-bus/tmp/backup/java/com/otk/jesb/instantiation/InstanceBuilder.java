@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -45,7 +46,7 @@ public class InstanceBuilder extends InitializationCase {
 			if ("<Dynamic>".equals(typeName)) {
 				return;
 			}
-			throw new UnsupportedOperationException();
+			throw new UnexpectedError();
 		}
 		this.typeName = typeName;
 	}
@@ -68,6 +69,9 @@ public class InstanceBuilder extends InitializationCase {
 		} else {
 			result = typeName;
 		}
+		if(result == null) {
+			result = NullInstance.class.getName();
+		}
 		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
 		return result;
 	}
@@ -80,18 +84,18 @@ public class InstanceBuilder extends InitializationCase {
 		this.selectedConstructorSignature = selectedConstructorSignature;
 	}
 
-	public Object build(EvaluationContext context) throws Exception {
+	public Object build(InstantiationContext context) throws Exception {
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
 				context.getParentFacade());
 		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					InstantiationUtils.getAncestorStructureInstanceBuilders(context.getParentFacade()));
+					InstantiationUtils.getAncestorStructuredInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
-				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: No constructor available");
+				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
-				throw new AssertionError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
+				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}
@@ -104,7 +108,7 @@ public class InstanceBuilder extends InitializationCase {
 				parameterValue = InstantiationUtils.interpretValue(
 						parameterInitializerFacade.getUnderlying().getParameterValue(),
 						parameterInitializerFacade.getParameterInfo().getType(),
-						new EvaluationContext(context.getExecutionContext(), parameterInitializerFacade));
+						new InstantiationContext(context, parameterInitializerFacade));
 				parameterValues[parameterInitializerFacade.getParameterPosition()] = parameterValue;
 			}
 		}
@@ -127,7 +131,7 @@ public class InstanceBuilder extends InitializationCase {
 					continue;
 				}
 				if (!InstantiationUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),
-						new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade))) {
+						new InstantiationContext(context, listItemInitializerFacade))) {
 					continue;
 				}
 				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();
@@ -135,41 +139,35 @@ public class InstanceBuilder extends InitializationCase {
 					Object iterationListValue = InstantiationUtils.interpretValue(
 							itemReplicationFacade.getIterationListValue(),
 							TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+							new InstantiationContext(context, listItemInitializerFacade));
 					if (iterationListValue == null) {
-						throw new AssertionError("Cannot replicate item: Iteration list value is null");
+						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
-					if (!itemReplicationFacade.getIterationListValueClass().isInstance(iterationListValue)) {
-						throw new AssertionError("The iteration list value is not an instance of '"
-								+ itemReplicationFacade.getIterationListValueClass().getName() + "' as expected: "
-								+ iterationListValue);
-					}
-					ITypeInfo iterationListTypeInfo = TypeInfoProvider
+					ITypeInfo actualIterationListType = TypeInfoProvider
 							.getTypeInfo(iterationListValue.getClass().getName());
-					if (!(iterationListTypeInfo instanceof IListTypeInfo)) {
-						throw new AssertionError("Cannot replicate item: Iteration list value is not iterable: '"
+					if (!(actualIterationListType instanceof IListTypeInfo)) {
+						throw new UnexpectedError("Cannot replicate item: Iteration list value is not iterable: '"
 								+ iterationListValue + "'");
 					}
-					Object[] iterationListArray = ((IListTypeInfo) iterationListTypeInfo).toArray(iterationListValue);
+					Object[] iterationListArray = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);
+					ITypeInfo declaredIterationVariableType = itemReplicationFacade
+							.getDeclaredIterationVariableTypeInfo();
 					for (Object iterationVariableValue : iterationListArray) {
-						if (!itemReplicationFacade.getIterationVariableClass().isInstance(iterationVariableValue)) {
-							throw new AssertionError("The iteration variable value is not an instance of '"
-									+ itemReplicationFacade.getIterationVariableClass().getName() + "' as expected: "
-									+ iterationVariableValue);
+						if (declaredIterationVariableType != null) {
+							if (!declaredIterationVariableType.supports(iterationVariableValue)) {
+								throw new UnexpectedError("Cannot replicate item: Iteration variable value '"
+										+ iterationVariableValue + "' is not compatible with the declared type '"
+										+ declaredIterationVariableType.getName() + "'");
+							}
 						}
 						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(
 								itemReplicationFacade.getUnderlying(), iterationVariableValue);
-						context.getExecutionContext().getVariables().add(iterationVariable);
-						Object itemValue;
-						try {
-							itemValue = InstantiationUtils.interpretValue(
-									listItemInitializerFacade.getUnderlying().getItemValue(),
-									(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-											: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-									context);
-						} finally {
-							context.getExecutionContext().getVariables().remove(iterationVariable);
-						}
+						Object itemValue = InstantiationUtils.interpretValue(
+								listItemInitializerFacade.getUnderlying().getItemValue(),
+								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
+										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),
+										iterationVariable));
 						itemList.add(itemValue);
 					}
 				} else {
@@ -177,7 +175,7 @@ public class InstanceBuilder extends InitializationCase {
 							listItemInitializerFacade.getUnderlying().getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
 									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
-							new EvaluationContext(context.getExecutionContext(), listItemInitializerFacade));
+							new InstantiationContext(context, listItemInitializerFacade));
 					itemList.add(itemValue);
 				}
 			}
@@ -187,7 +185,7 @@ public class InstanceBuilder extends InitializationCase {
 			} else if (listTypeInfo.canInstantiateFromArray()) {
 				object = listTypeInfo.fromArray(itemList.toArray());
 			} else {
-				throw new AssertionError("Cannot initialize list of type " + listTypeInfo
+				throw new UnexpectedError("Cannot initialize list of type " + listTypeInfo
 						+ ": Cannot replace instance content or instantiate from array");
 			}
 		} else {
@@ -202,7 +200,7 @@ public class InstanceBuilder extends InitializationCase {
 				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();
 				Object fieldValue = InstantiationUtils.interpretValue(
 						fieldInitializerFacade.getUnderlying().getFieldValue(), fieldInfo.getType(),
-						new EvaluationContext(context.getExecutionContext(), fieldInitializerFacade));
+						new InstantiationContext(context, fieldInitializerFacade));
 				fieldInfo.setValue(object, fieldValue);
 			}
 		}

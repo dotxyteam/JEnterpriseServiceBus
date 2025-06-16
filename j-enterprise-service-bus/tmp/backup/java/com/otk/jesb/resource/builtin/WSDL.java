@@ -3,7 +3,6 @@ package com.otk.jesb.resource.builtin;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -22,10 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.JESB;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
+import com.sun.tools.ws.processor.ProcessorException;
 import com.sun.tools.ws.wscompile.WsimportTool;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -56,7 +59,7 @@ public class WSDL extends Resource {
 	}
 
 	public Map<String, String> getDependencyTextByFileName() {
-		return dependencyTextByFileName;
+		return Collections.unmodifiableMap(dependencyTextByFileName);
 	}
 
 	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {
@@ -74,7 +77,7 @@ public class WSDL extends Resource {
 				}
 			});
 		} catch (Exception e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -144,6 +147,7 @@ public class WSDL extends Resource {
 			File metaSchemaDirectory = MiscUtils.createTemporaryDirectory();
 			File wsdlFile = new File(metaSchemaDirectory, "main.wsdl");
 			File metaSchemaFile = new File(metaSchemaDirectory, "XMLSchema.xsd");
+			File metaXMLFile = new File(metaSchemaDirectory, "xml.xsd");
 			File metaSchemaDTDFile = new File(metaSchemaDirectory, "XMLSchema.dtd");
 			File metaSchemaDatatypesDTDFile = new File(metaSchemaDirectory, "datatypes.dtd");
 			Map<File, String> dependencyTextByFile = new HashMap<File, String>();
@@ -155,6 +159,8 @@ public class WSDL extends Resource {
 				MiscUtils.write(wsdlFile, text, false);
 				MiscUtils.write(metaSchemaFile,
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaFile.getName())), false);
+				MiscUtils.write(metaXMLFile, MiscUtils.read(WSDL.class.getResourceAsStream(metaXMLFile.getName())),
+						false);
 				MiscUtils.write(metaSchemaDTDFile,
 						MiscUtils.read(WSDL.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
 				MiscUtils.write(metaSchemaDatatypesDTDFile,
@@ -164,35 +170,49 @@ public class WSDL extends Resource {
 				}
 				File sourceDirectory = MiscUtils.createTemporaryDirectory();
 				try {
+					String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep", "-Xnocompile",
+							"-b", metaSchemaFile.toURI().toString(), "-verbose", wsdlFile.getPath() };
+					System.setProperty("javax.xml.accessExternalSchema", "all");
+					System.setProperty("javax.xml.accessExternalDTD", "all");
+					ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
+					boolean importStatus;
+					Throwable importException;
 					try {
-						String[] wsImportArguments = new String[] { "-s", sourceDirectory.getPath(), "-keep",
-								"-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose",
-								wsdlFile.getPath() };
-						System.setProperty("javax.xml.accessExternalSchema", "all");
-						System.setProperty("javax.xml.accessExternalDTD", "all");
-						ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
-						if (!new WsimportTool(logsBuffer).run(wsImportArguments)) {
-							throw new Exception("Failed to generate classes:\n" + logsBuffer.toString());
-						}
+						importStatus = new WsimportTool(logsBuffer).run(wsImportArguments);
+						importException = null;
 					} catch (Throwable t) {
-						throw new RuntimeException(t);
+						importStatus = false;
+						importException = t;
 					}
-					generatedClasses = MiscUtils.IN_MEMORY_JAVA_COMPILER.compile(sourceDirectory);
+					if (!importStatus || (importException != null)) {
+						throw new ProcessorException(
+								"Failed to generate WSDL classes"
+										+ ((logsBuffer.size() > 0) ? (":\n" + logsBuffer.toString()) : ""),
+								importException);
+					}
+					generatedClasses = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
 				} finally {
 					MiscUtils.delete(sourceDirectory);
 				}
 			} finally {
-				for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
-					MiscUtils.delete(dependencyTextByFileEntry.getKey());
+				try {
+					for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+						MiscUtils.delete(dependencyTextByFileEntry.getKey());
+					}
+					MiscUtils.delete(metaSchemaDatatypesDTDFile);
+					MiscUtils.delete(metaSchemaDTDFile);
+					MiscUtils.delete(metaXMLFile);
+					MiscUtils.delete(metaSchemaFile);
+					MiscUtils.delete(wsdlFile);
+					MiscUtils.delete(metaSchemaDirectory);
+				} catch (Throwable ignore) {
+					if (JESB.DEBUG) {
+						ignore.printStackTrace();
+					}
 				}
-				MiscUtils.delete(metaSchemaDatatypesDTDFile);
-				MiscUtils.delete(metaSchemaDTDFile);
-				MiscUtils.delete(metaSchemaFile);
-				MiscUtils.delete(wsdlFile);
-				MiscUtils.delete(metaSchemaDirectory);
 			}
 		} catch (Exception e) {
-			throw new AssertionError(e);
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -204,9 +224,21 @@ public class WSDL extends Resource {
 				.map(c -> new ServiceDescriptor(c)).collect(Collectors.toList());
 	}
 
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+		super.validate(recursively);
+		if (generatedClasses == null) {
+			try {
+				generateClasses();
+			} catch (Throwable t) {
+				throw new ValidationError("Failed to validate the WSDL", t);
+			}
+		}
+	}
+
 	public interface Source {
 
-		InputStream getInputStream();
+		InputStream getInputStream() throws IOException;
 
 		String extractFileName();
 
@@ -227,12 +259,8 @@ public class WSDL extends Resource {
 		}
 
 		@Override
-		public InputStream getInputStream() {
-			try {
-				return new FileInputStream(file);
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+		public InputStream getInputStream() throws IOException {
+			return new FileInputStream(file);
 		}
 
 		@Override
@@ -260,13 +288,11 @@ public class WSDL extends Resource {
 		}
 
 		@Override
-		public InputStream getInputStream() {
+		public InputStream getInputStream() throws IOException {
 			try {
 				return new URL(urlSpecification).openStream();
 			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IOException(e);
 			}
 		}
 
@@ -275,9 +301,9 @@ public class WSDL extends Resource {
 			try {
 				return new File(new URL(urlSpecification).toURI().getPath()).getName();
 			} catch (MalformedURLException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			} catch (URISyntaxException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 
@@ -286,9 +312,9 @@ public class WSDL extends Resource {
 			try {
 				return new URL(urlSpecification).toURI();
 			} catch (MalformedURLException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			} catch (URISyntaxException e) {
-				throw new AssertionError(e);
+				throw new UnexpectedError(e);
 			}
 		}
 

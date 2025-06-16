@@ -51,7 +51,7 @@ public class InitializationCase {
 		return null;
 	}
 
-	public void removeParameterInitializer(int parameterPosition, String parameterTypeName) {
+	public void removeParameterInitializer(int parameterPosition) {
 		for (Iterator<ParameterInitializer> it = parameterInitializers.iterator(); it.hasNext();) {
 			ParameterInitializer parameterInitializer = it.next();
 			if (parameterInitializer.getParameterPosition() == parameterPosition) {

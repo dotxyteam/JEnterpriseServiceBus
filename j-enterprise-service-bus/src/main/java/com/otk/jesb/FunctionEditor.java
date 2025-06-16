@@ -2,19 +2,20 @@ package com.otk.jesb;
 
 import java.util.List;
 
+import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.compiler.CompilationError;
 
 public class FunctionEditor extends PathOptionsProvider {
 
 	private Function function;
-	private java.util.function.Function<String, String> precompiler;
+	private Precompiler precompiler;
 	private Class<?> returnType;
 
 	private PathNode selectedPathNode;
 
-	public FunctionEditor(Function function, java.util.function.Function<String, String> precompiler,
-			List<VariableDeclaration> variableDeclarations, Class<?> returnType) {
+	public FunctionEditor(Function function, Precompiler precompiler, List<VariableDeclaration> variableDeclarations,
+			Class<?> returnType) {
 		super(variableDeclarations);
 		this.function = function;
 		this.precompiler = precompiler;

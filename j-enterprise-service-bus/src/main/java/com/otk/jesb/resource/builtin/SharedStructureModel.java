@@ -8,7 +8,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
-import com.otk.jesb.solution.Reference;
+import com.otk.jesb.Reference;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;

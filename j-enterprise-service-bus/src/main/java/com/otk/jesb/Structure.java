@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
-import com.otk.jesb.solution.Reference;
+import com.otk.jesb.Reference;
 import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.util.ClassUtils;
 
