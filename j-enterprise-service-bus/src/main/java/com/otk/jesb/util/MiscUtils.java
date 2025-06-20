@@ -660,8 +660,7 @@ public class MiscUtils {
 			Class<T> returnType) throws CompilationError {
 		Expression<T> expression = new Expression<T>(returnType);
 		expression.set(expressionString);
-		expression.setVariableDeclarations(variableDeclarations);
-		return expression.compile();
+		return expression.compile(variableDeclarations);
 	}
 
 	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {

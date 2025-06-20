@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.otk.jesb.Expression;
+import com.otk.jesb.EnvironmentVariant;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -20,10 +20,10 @@ public class JDBCConnection extends Resource {
 		SwingCustomizer.getDefault().openObjectFrame(new JDBCConnection("test"));
 	}
 
-	private Expression<String> driverClassNameExpression = new Expression<String>(String.class);
-	private Expression<String> urlExpression = new Expression<String>(String.class);
-	private Expression<String> userNameExpression = new Expression<String>(String.class);
-	private Expression<String> passwordExpression = new Expression<String>(String.class);
+	private EnvironmentVariant<String> driverClassNameVariant = new EnvironmentVariant<String>(String.class);
+	private EnvironmentVariant<String> urlVariant = new EnvironmentVariant<String>(String.class);
+	private EnvironmentVariant<String> userNameVariant = new EnvironmentVariant<String>(String.class);
+	private EnvironmentVariant<String> passwordVariant = new EnvironmentVariant<String>(String.class);
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -33,100 +33,100 @@ public class JDBCConnection extends Resource {
 		super(name);
 	}
 
-	public Expression<String> getDriverClassNameExpression() {
-		return driverClassNameExpression;
+	public EnvironmentVariant<String> getDriverClassNameVariant() {
+		return driverClassNameVariant;
 	}
 
-	public void setDriverClassNameExpression(Expression<String> driverClassNameExpression) {
-		this.driverClassNameExpression = driverClassNameExpression;
+	public void setDriverClassNameVariant(EnvironmentVariant<String> driverClassNameVariant) {
+		this.driverClassNameVariant = driverClassNameVariant;
 	}
 
-	public Expression<String> getUrlExpression() {
-		return urlExpression;
+	public EnvironmentVariant<String> getUrlVariant() {
+		return urlVariant;
 	}
 
-	public void setUrlExpression(Expression<String> urlExpression) {
-		this.urlExpression = urlExpression;
+	public void setUrlVariant(EnvironmentVariant<String> urlVariant) {
+		this.urlVariant = urlVariant;
 	}
 
-	public Expression<String> getUserNameExpression() {
-		return userNameExpression;
+	public EnvironmentVariant<String> getUserNameVariant() {
+		return userNameVariant;
 	}
 
-	public void setUserNameExpression(Expression<String> userNameExpression) {
-		this.userNameExpression = userNameExpression;
+	public void setUserNameVariant(EnvironmentVariant<String> userNameVariant) {
+		this.userNameVariant = userNameVariant;
 	}
 
-	public Expression<String> getPasswordExpression() {
-		return passwordExpression;
+	public EnvironmentVariant<String> getPasswordVariant() {
+		return passwordVariant;
 	}
 
-	public void setPasswordExpression(Expression<String> passwordExpression) {
-		this.passwordExpression = passwordExpression;
+	public void setPasswordVariant(EnvironmentVariant<String> passwordVariant) {
+		this.passwordVariant = passwordVariant;
 	}
 
-	public boolean isDriverClassNameDynamic() {
-		return driverClassNameExpression.isDynamic();
+	public boolean isDriverClassNameVariable() {
+		return driverClassNameVariant.isVariable();
 	}
 
-	public void setDriverClassNameDynamic(boolean b) {
-		driverClassNameExpression.setDynamic(b);
+	public void setDriverClassNameVariable(boolean b) {
+		driverClassNameVariant.setVariable(b);
 	}
 
-	public boolean isUrlExpression() {
-		return urlExpression.isDynamic();
+	public boolean isUrlVariable() {
+		return urlVariant.isVariable();
 	}
 
-	public void setUrlExpression(boolean b) {
-		urlExpression.setDynamic(b);
+	public void setUrlVariable(boolean b) {
+		urlVariant.setVariable(b);
 	}
 
-	public boolean isUserNameExpression() {
-		return userNameExpression.isDynamic();
+	public boolean isUserNameVariable() {
+		return userNameVariant.isVariable();
 	}
 
-	public void setUserNameExpression(boolean b) {
-		userNameExpression.setDynamic(b);
+	public void setUserNameVariable(boolean b) {
+		userNameVariant.setVariable(b);
 	}
 
-	public boolean isPasswordExpression() {
-		return passwordExpression.isDynamic();
+	public boolean isPasswordVariable() {
+		return passwordVariant.isVariable();
 	}
 
-	public void setPasswordExpression(boolean b) {
-		passwordExpression.setDynamic(b);
+	public void setPasswordVariable(boolean b) {
+		passwordVariant.setVariable(b);
 	}
 
 	public String getDriverClassName() {
-		return driverClassNameExpression.evaluate();
+		return driverClassNameVariant.getValue();
 	}
 
 	public void setDriverClassName(String driverClassName) {
-		driverClassNameExpression.represent(driverClassName);
+		driverClassNameVariant.setValue(driverClassName);
 	}
 
 	public String getUrl() {
-		return urlExpression.evaluate();
+		return urlVariant.getValue();
 	}
 
 	public void setUrl(String url) {
-		urlExpression.represent(url);
+		urlVariant.setValue(url);
 	}
 
 	public String getUserName() {
-		return userNameExpression.evaluate();
+		return userNameVariant.getValue();
 	}
 
 	public void setUserName(String userName) {
-		userNameExpression.represent(userName);
+		userNameVariant.setValue(userName);
 	}
 
 	public String getPassword() {
-		return passwordExpression.evaluate();
+		return passwordVariant.getValue();
 	}
 
 	public void setPassword(String password) {
-		passwordExpression.represent(password);
+		passwordVariant.setValue(password);
 	}
 
 	public String test() throws ClassNotFoundException, SQLException {

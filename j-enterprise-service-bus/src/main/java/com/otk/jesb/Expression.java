@@ -1,6 +1,5 @@
 package com.otk.jesb;
 
-import java.util.Collections;
 import java.util.List;
 import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.compiler.CompilationError;
@@ -29,9 +28,6 @@ public class Expression<T> {
 	private Function internalFunction;
 	private boolean dynamic = false;
 
-	private List<VariableDeclaration> variableDeclarations = Collections.emptyList();
-	private List<Variable> variables = Collections.emptyList();
-
 	public Expression(Class<T> valueClass) {
 		this.valueClass = valueClass;
 	}
@@ -45,40 +41,24 @@ public class Expression<T> {
 		dynamic = true;
 	}
 
-	public List<VariableDeclaration> getVariableDeclarations() {
-		return variableDeclarations;
-	}
-
-	public void setVariableDeclarations(List<VariableDeclaration> variableDeclarations) {
-		this.variableDeclarations = variableDeclarations;
-	}
-
-	public List<Variable> getVariables() {
-		return variables;
-	}
-
-	public void setVariables(List<Variable> variables) {
-		this.variables = variables;
-	}
-
 	public boolean isDynamic() {
 		return dynamic;
 	}
 
-	public void setDynamic(boolean dynamic) {
+	public void setDynamic(boolean dynamic, List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
 		if (!dynamic) {
-			represent(evaluate());
+			represent(evaluate(variableDeclarations, variables));
 		}
 		this.dynamic = dynamic;
 	}
 
-	public T evaluate() {
+	public T evaluate(List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
 		if (internalFunction == null) {
 			return null;
 		}
 		try {
-			CompiledFunction compiledFunction = compile();
-			return valueClass.cast(compiledFunction.call(getVariables()));
+			CompiledFunction compiledFunction = compile(variableDeclarations);
+			return valueClass.cast(compiledFunction.call(variables));
 		} catch (CompilationError | FunctionCallError e) {
 			throw new UnexpectedError(e);
 		}
@@ -101,8 +81,15 @@ public class Expression<T> {
 		dynamic = false;
 	}
 
-	public CompiledFunction compile() throws CompilationError {
-		return internalFunction.getCompiledVersion(PRECOMPILER, getVariableDeclarations(), valueClass);
+	public CompiledFunction compile(List<VariableDeclaration> variableDeclarations) throws CompilationError {
+		return internalFunction.getCompiledVersion(PRECOMPILER, variableDeclarations, valueClass);
 	}
 
+	@Override
+	public String toString() {
+		return get();
+	}
+
+	
+	
 }

@@ -17,7 +17,7 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.Expression;
+import com.otk.jesb.EnvironmentVariant;
 import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
@@ -78,7 +78,7 @@ public abstract class JDBCOperation implements Operation {
 	public static abstract class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
-		private Expression<String> statementExpression = new Expression<String>(String.class);
+		private EnvironmentVariant<String> statementVariant = new EnvironmentVariant<String>(String.class);
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
@@ -101,28 +101,28 @@ public abstract class JDBCOperation implements Operation {
 			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
-		public Expression<String> getStatementExpression() {
-			return statementExpression;
+		public EnvironmentVariant<String> getStatementVariant() {
+			return statementVariant;
 		}
 
-		public void setStatementExpression(Expression<String> statementExpression) {
-			this.statementExpression = statementExpression;
+		public void setStatementVariant(EnvironmentVariant<String> statementVariant) {
+			this.statementVariant = statementVariant;
 		}
 
-		public boolean isStatementDynamic() {
-			return statementExpression.isDynamic();
+		public boolean isStatementVariable() {
+			return statementVariant.isVariable();
 		}
 
-		public void setStatementDynamic(boolean b) {
-			statementExpression.setDynamic(b);
+		public void setStatementVariable(boolean b) {
+			statementVariant.setVariable(b);
 		}
 
 		public String getStatement() {
-			return statementExpression.evaluate();
+			return statementVariant.getValue();
 		}
 
 		public void setStatement(String statement) {
-			statementExpression.represent(statement);
+			statementVariant.setValue(statement);
 		}
 
 		public List<ParameterDefinition> getParameterDefinitions() {

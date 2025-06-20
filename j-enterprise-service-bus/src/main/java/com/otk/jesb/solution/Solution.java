@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
+import com.otk.jesb.Environment;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.MiscUtils;
 
@@ -18,6 +19,15 @@ public class Solution {
 	public static Solution INSTANCE = new Solution();
 
 	private Folder rootFolder = new Folder(Solution.class.getName() + ".rootFolder");
+	private Environment environment = new Environment();
+
+	public Environment getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
 
 	public List<Asset> getContents() {
 		return rootFolder.getContents();

@@ -262,18 +262,14 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					public void refreshUI(boolean refreshStructure) {
-						setVisible(true);
 						if (object instanceof InstanceBuilderFacade) {
 							if (field.getName().equals("constructorGroup")) {
-								if (((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() <= 1) {
-									setVisible(false);
-								}
+								setVisible(
+										((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() > 1);
 							}
 							if (field.getName().equals("typeGroup")) {
-								if (((InstanceBuilderFacade) object).getUnderlying()
-										.getDynamicTypeNameAccessor() != null) {
-									setVisible(false);
-								}
+								setVisible(((InstanceBuilderFacade) object).getUnderlying()
+										.getDynamicTypeNameAccessor() == null);
 							}
 						}
 						boolean mustFade = isVisible() && prepareToFade();
