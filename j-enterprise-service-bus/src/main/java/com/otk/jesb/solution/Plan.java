@@ -200,6 +200,7 @@ public class Plan extends Asset {
 	public Object execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
 		try {
 			ExecutionContext context = new ExecutionContext(this);
+			context.getVariables().add(MiscUtils.ENVIRONMENT_VARIABLES_ROOT);
 			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
@@ -437,6 +438,7 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
+			result.getVariableDeclarations().add(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
 			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {

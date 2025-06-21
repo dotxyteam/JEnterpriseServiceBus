@@ -6,10 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Window;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +22,6 @@ import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.table.JTableHeader;
 import javax.swing.text.JTextComponent;
 
-import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
 import com.formdev.flatlaf.ui.FlatTableHeaderUI;
 import com.formdev.flatlaf.util.UIScale;
@@ -45,6 +41,7 @@ import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.util.FadingPanel;
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
 import xy.reflect.ui.control.swing.ListControl;
@@ -78,10 +75,10 @@ import xy.reflect.ui.util.SystemProperties;
 public class GUI extends SwingCustomizer {
 
 	public enum Theme {
-		SYSTEM, CROSS_PLATFORM, FLAT, FLATLAF_TESTER
+		SYSTEM, CROSS_PLATFORM, FLAT
 	}
 
-	private static Theme theme = Theme.CROSS_PLATFORM;
+	private static Theme theme = Theme.FLAT;
 
 	static {
 		if (JESB.DEBUG) {
@@ -104,40 +101,8 @@ public class GUI extends SwingCustomizer {
 						return result;
 					}
 				});
-			} else if (theme == Theme.FLATLAF_TESTER) {
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						INSTANCE.openObjectFrame(Arrays.stream(FlatAllIJThemes.INFOS).map(info -> {
-							return new Runnable() {
-
-								@Override
-								public void run() {
-									try {
-										Class.forName(info.getClassName()).getMethod("setup").invoke(null);
-									} catch (IllegalAccessException | ClassNotFoundException | IllegalArgumentException
-											| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-										throw new UnexpectedError(e);
-									}
-									SwingUtilities.invokeLater(new Runnable() {
-										@Override
-										public void run() {
-											for (Window window : Window.getWindows()) {
-												SwingUtilities.updateComponentTreeUI(window);
-											}
-										}
-									});
-								}
-
-								@Override
-								public String toString() {
-									return info.getClassName();
-								}
-
-							};
-						}).toArray());
-					}
-				});
+			} else {
+				throw new UnexpectedError();
 			}
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
@@ -230,7 +195,7 @@ public class GUI extends SwingCustomizer {
 							return false;
 						}
 						Object newValue = field.getValue(getObject());
-						if (lastValue == newValue) {
+						if (MiscUtils.equalsOrBothNull(lastValue, newValue)) {
 							return false;
 						}
 						lastValue = newValue;

@@ -246,12 +246,10 @@ public class LoopCompositeStep extends CompositeStep {
 							.filter(targetedStepName -> result.stream()
 									.noneMatch(entry -> entry.getStepName().equals(targetedStepName)))
 							.forEach(notFoundStepName -> result
-									.add(new ResultsCollectionConfigurationEntry(null, false) {
-										@Override
-										public String getStepName() {
-											return notFoundStepName;
-										}
-									}));
+									.add(new InvalidResultsCollectionConfigurationEntry(notFoundStepName)));
+					if (result.size() == 0) {
+						result.add(new InformativeResultsCollectionConfigurationEntry("No compatible steps found!"));
+					}
 					return result;
 				}
 			}
@@ -428,6 +426,153 @@ public class LoopCompositeStep extends CompositeStep {
 					} else {
 						resultsCollectionTargetedStepNames.remove(getStepName());
 					}
+				}
+
+				@Override
+				public int hashCode() {
+					final int prime = 31;
+					int result = 1;
+					result = prime * result + getEnclosingInstance().hashCode();
+					result = prime * result + ((targetedStep == null) ? 0 : targetedStep.hashCode());
+					result = prime * result + (valid ? 1231 : 1237);
+					return result;
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+					if (this == obj)
+						return true;
+					if (obj == null)
+						return false;
+					if (getClass() != obj.getClass())
+						return false;
+					ResultsCollectionConfigurationEntry other = (ResultsCollectionConfigurationEntry) obj;
+					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+						return false;
+					if (targetedStep == null) {
+						if (other.targetedStep != null)
+							return false;
+					} else if (!targetedStep.equals(other.targetedStep))
+						return false;
+					if (valid != other.valid)
+						return false;
+					return true;
+				}
+
+				private Builder getEnclosingInstance() {
+					return Builder.this;
+				}
+
+				@Override
+				public String toString() {
+					return "ResultsCollectionConfigurationEntry [targetedStep=" + targetedStep + ", valid=" + valid
+							+ "]";
+				}
+
+			}
+
+			public class InvalidResultsCollectionConfigurationEntry extends ResultsCollectionConfigurationEntry {
+
+				private String stepName;
+
+				public InvalidResultsCollectionConfigurationEntry(String stepName) {
+					super(null, false);
+					this.stepName = stepName;
+				}
+
+				@Override
+				public String getStepName() {
+					return stepName;
+				}
+
+				@Override
+				public int hashCode() {
+					final int prime = 31;
+					int result = super.hashCode();
+					result = prime * result + getEnclosingInstance().hashCode();
+					result = prime * result + ((stepName == null) ? 0 : stepName.hashCode());
+					return result;
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+					if (this == obj)
+						return true;
+					if (!super.equals(obj))
+						return false;
+					if (getClass() != obj.getClass())
+						return false;
+					InvalidResultsCollectionConfigurationEntry other = (InvalidResultsCollectionConfigurationEntry) obj;
+					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+						return false;
+					if (stepName == null) {
+						if (other.stepName != null)
+							return false;
+					} else if (!stepName.equals(other.stepName))
+						return false;
+					return true;
+				}
+
+				private Builder getEnclosingInstance() {
+					return Builder.this;
+				}
+
+				@Override
+				public String toString() {
+					return "InvalidResultsCollectionConfigurationEntry [stepName=" + stepName + "]";
+				}
+
+			}
+
+			public class InformativeResultsCollectionConfigurationEntry extends ResultsCollectionConfigurationEntry {
+
+				private String message;
+
+				public InformativeResultsCollectionConfigurationEntry(String message) {
+					super(null, false);
+					this.message = message;
+				}
+
+				@Override
+				public String getStepName() {
+					return message;
+				}
+
+				@Override
+				public int hashCode() {
+					final int prime = 31;
+					int result = super.hashCode();
+					result = prime * result + getEnclosingInstance().hashCode();
+					result = prime * result + ((message == null) ? 0 : message.hashCode());
+					return result;
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+					if (this == obj)
+						return true;
+					if (!super.equals(obj))
+						return false;
+					if (getClass() != obj.getClass())
+						return false;
+					InformativeResultsCollectionConfigurationEntry other = (InformativeResultsCollectionConfigurationEntry) obj;
+					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+						return false;
+					if (message == null) {
+						if (other.message != null)
+							return false;
+					} else if (!message.equals(other.message))
+						return false;
+					return true;
+				}
+
+				private Builder getEnclosingInstance() {
+					return Builder.this;
+				}
+
+				@Override
+				public String toString() {
+					return "InformativeResultsCollectionConfigurationEntry [message=" + message + "]";
 				}
 
 			}

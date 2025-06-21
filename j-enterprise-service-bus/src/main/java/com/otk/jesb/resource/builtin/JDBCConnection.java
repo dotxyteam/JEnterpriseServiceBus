@@ -143,13 +143,23 @@ public class JDBCConnection extends Resource {
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		try {
-			ClassUtils.getCachedClassForName(getDriverClassName());
-		} catch (ClassNotFoundException t) {
-			throw new ValidationError("Failed to load the driver class '" + getDriverClassName() + "'", t);
+		String driverClassName = getDriverClassName();
+		String url = getUrl();
+		String userName = getUserName();
+		String password = getPassword();
+		if ((driverClassName == null) || (driverClassName.trim().length() == 0)) {
+			throw new ValidationError("Driver class name not provided");
+		}
+		if ((url == null) || (url.trim().length() == 0)) {
+			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			DriverManager.getConnection(getUrl(), getUserName(), getPassword());
+			ClassUtils.getCachedClassForName(driverClassName);
+		} catch (ClassNotFoundException t) {
+			throw new ValidationError("Failed to load the driver class '" + driverClassName + "'", t);
+		}
+		try {
+			DriverManager.getConnection(url, userName, password);
 		} catch (SQLException t) {
 			throw new ValidationError("Failed to create the connection", t);
 		}

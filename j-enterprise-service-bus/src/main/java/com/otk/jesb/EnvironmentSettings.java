@@ -9,17 +9,18 @@ import com.otk.jesb.Structure.Element;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
-public class Environment {
+public class EnvironmentSettings {
 
-	private List<EnvironmentVariableTreeElement> environmentVariableTreeElements = new ArrayList<Environment.EnvironmentVariableTreeElement>();
+	private List<EnvironmentVariableTreeElement> environmentVariableTreeElements = new ArrayList<EnvironmentSettings.EnvironmentVariableTreeElement>();
 
 	private UpToDate<Class<?>> upToDateVariablesRootClass = new UpToDate<Class<?>>() {
 
@@ -30,7 +31,8 @@ public class Environment {
 
 		@Override
 		protected Class<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
-			String className = Environment.class.getName() + MiscUtils.toDigitalUniqueIdentifier(Environment.this);
+			String className = EnvironmentSettings.class.getName()
+					+ MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this);
 			try {
 				return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						getVariablesRootStructure().generateJavaTypeSourceCode(className));
@@ -40,15 +42,13 @@ public class Environment {
 		}
 
 	};
-	private RootInstanceBuilder variablesRootBuilder = new RootInstanceBuilder("VariablesRoot",
-			new VariablesRootClassNameAccessor());
 	private UpToDate<Object> upToDateVariablesRoot = new UpToDate<Object>() {
 
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
 			try {
 				return new Pair<Class<?>, String>(upToDateVariablesRootClass.get(),
-						MiscUtils.serialize(variablesRootBuilder));
+						MiscUtils.serialize(environmentVariableTreeElements));
 			} catch (VersionAccessException e) {
 				throw new UnexpectedError(e);
 			}
@@ -57,7 +57,7 @@ public class Environment {
 		@Override
 		protected Object obtainLatest(Object versionIdentifier) throws VersionAccessException {
 			try {
-				return variablesRootBuilder
+				return getVariablesRootBuilder()
 						.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 			} catch (Exception e) {
 				throw new UnexpectedError(e);
@@ -99,6 +99,27 @@ public class Environment {
 		return result;
 	}
 
+	private RootInstanceBuilder getVariablesRootBuilder() {
+		RootInstanceBuilder result;
+		try {
+			result = new RootInstanceBuilder("VariablesRoot", upToDateVariablesRootClass.get().getName());
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
+		ParameterInitializerFacade rootInitializerFacade = (ParameterInitializerFacade) result.getFacade().getChildren()
+				.get(0);
+		rootInitializerFacade.setConcrete(true);
+		List<Facade> elementInitializerFacades = rootInitializerFacade.getChildren();
+		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {
+			ParameterInitializerFacade elementInitializerFacade = (ParameterInitializerFacade) elementInitializerFacades
+					.stream().filter(facade -> ((ParameterInitializerFacade) facade).getParameterName()
+							.equals(element.getName()))
+					.findFirst().get();
+			configureInitializer(elementInitializerFacade, element);
+		}
+		return result;
+	}
+
 	private Element toStructure(EnvironmentVariableTreeElement element) {
 		if (element instanceof EnvironmentVariable) {
 			SimpleElement result = new SimpleElement();
@@ -109,18 +130,39 @@ public class Environment {
 			StructuredElement result = new StructuredElement();
 			result.setName(element.getName());
 			ClassicStructure structure = new ClassicStructure();
+			result.setStructure(structure);
 			for (EnvironmentVariableTreeElement childElement : ((EnvironmentVariableGroup) element).getElements()) {
 				result.getSubElements().add(toStructure(childElement));
 			}
-			result.setStructure(structure);
 			return result;
 		} else {
 			throw new UnexpectedError();
 		}
 	}
 
-	public static class EnvironmentVariableTreeElement {
+	private void configureInitializer(ParameterInitializerFacade elementInitializerFacade,
+			EnvironmentVariableTreeElement element) {
+		if (element instanceof EnvironmentVariable) {
+			elementInitializerFacade.setParameterValue(((EnvironmentVariable) element).getValueString());
+		} else if (element instanceof EnvironmentVariableGroup) {
+			elementInitializerFacade.setConcrete(true);
+			List<Facade> childElementInitializerFacades = elementInitializerFacade.getChildren();
+			for (EnvironmentVariableTreeElement childElement : ((EnvironmentVariableGroup) element).getElements()) {
+				ParameterInitializerFacade childElementInitializerFacade = (ParameterInitializerFacade) childElementInitializerFacades
+						.stream().filter(facade -> ((ParameterInitializerFacade) facade).getParameterName()
+								.equals(childElement.getName()))
+						.findFirst().get();
+				configureInitializer(childElementInitializerFacade, childElement);
+			}
+		} else {
+			throw new UnexpectedError();
+		}
+	}
+
+	public abstract static class EnvironmentVariableTreeElement {
 		private String name;
+
+		public abstract String getValueSummary();
 
 		public String getName() {
 			return name;
@@ -135,6 +177,10 @@ public class Environment {
 	public static class EnvironmentVariable extends EnvironmentVariableTreeElement {
 		private String valueString;
 
+		public EnvironmentVariable() {
+			setName("var");
+		}
+
 		public String getValueString() {
 			return valueString;
 		}
@@ -143,10 +189,19 @@ public class Environment {
 			this.valueString = valueString;
 		}
 
+		@Override
+		public String getValueSummary() {
+			return valueString;
+		}
+
 	}
 
 	public static class EnvironmentVariableGroup extends EnvironmentVariableTreeElement {
-		private List<EnvironmentVariableTreeElement> elements = new ArrayList<Environment.EnvironmentVariableTreeElement>();
+		private List<EnvironmentVariableTreeElement> elements = new ArrayList<EnvironmentSettings.EnvironmentVariableTreeElement>();
+
+		public EnvironmentVariableGroup() {
+			setName("group");
+		}
 
 		public List<EnvironmentVariableTreeElement> getElements() {
 			return elements;
@@ -156,19 +211,10 @@ public class Environment {
 			this.elements = elements;
 		}
 
-	}
-
-	public class VariablesRootClassNameAccessor extends Accessor<String> {
-
 		@Override
-		public String get() {
-			try {
-				return upToDateVariablesRootClass.get().getName();
-			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
-			}
+		public String getValueSummary() {
+			return null;
 		}
-
 	}
 
 }

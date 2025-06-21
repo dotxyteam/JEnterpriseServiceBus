@@ -8,38 +8,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class EnvironmentVariant<T> {
 
-	private static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
-		@Override
-		public String getVariableName() {
-			return "ENV";
-		}
-
-		@Override
-		public Class<?> getVariableType() {
-			return Solution.INSTANCE.getEnvironment().getVariablesRootClass();
-		}
-
-	};
-	private static final Variable ENVIRONMENT_VARIABLES_ROOT = new Variable() {
-
-		@Override
-		public String getName() {
-			return ENVIRONMENT_VARIABLES_ROOT_DECLARATION.getVariableName();
-		}
-
-		@Override
-		public Object getValue() {
-			return Solution.INSTANCE.getEnvironment().getVariablesRoot();
-		}
-
-	};
 	private Class<T> valueClass;
 	private Object value;
 
@@ -51,8 +26,8 @@ public class EnvironmentVariant<T> {
 	public T getValue() {
 		if (value instanceof Expression) {
 			String valueString = ((Expression<String>) value).evaluate(
-					Collections.singletonList(ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
-					Collections.singletonList(ENVIRONMENT_VARIABLES_ROOT));
+					Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
+					Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT));
 			if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {
 				return valueClass.cast(ReflectionUIUtils.primitiveFromString(valueString, valueClass));
 			} else if (valueClass == String.class) {
@@ -90,7 +65,7 @@ public class EnvironmentVariant<T> {
 	public List<Expression<String>> getVariableReferenceExpressionOptions() {
 		List<Expression<String>> result = new ArrayList<Expression<String>>();
 		PathOptionsProvider pathOptionsProvider = new PathOptionsProvider(
-				Collections.singletonList(ENVIRONMENT_VARIABLES_ROOT_DECLARATION));
+				Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION));
 		result.addAll(getVariableReferenceExpressionOptions(pathOptionsProvider.getRootPathNodes()));
 		return result;
 	}
@@ -98,12 +73,11 @@ public class EnvironmentVariant<T> {
 	private Collection<? extends Expression<String>> getVariableReferenceExpressionOptions(List<PathNode> pathNodes) {
 		List<Expression<String>> result = new ArrayList<Expression<String>>();
 		for (PathNode pathNode : pathNodes) {
-			if (!pathNode.getExpressionType().getName().equals(String.class.getName())) {
-				continue;
+			if (pathNode.getExpressionType().getName().equals(String.class.getName())) {
+				Expression<String> expression = new Expression<String>(String.class);
+				expression.set(pathNode.getTypicalExpression());
+				result.add(expression);
 			}
-			Expression<String> expression = new Expression<String>(String.class);
-			expression.set(pathNode.getTypicalExpression());
-			result.add(expression);
 			result.addAll(getVariableReferenceExpressionOptions(pathNode.getChildren()));
 		}
 		return result;

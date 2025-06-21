@@ -37,6 +37,7 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Expression;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
@@ -62,7 +63,32 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
+	
+	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
+		@Override
+		public String getVariableName() {
+			return "ENV";
+		}
 
+		@Override
+		public Class<?> getVariableType() {
+			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRootClass();
+		}
+
+	};
+	public static final Variable ENVIRONMENT_VARIABLES_ROOT = new Variable() {
+
+		@Override
+		public String getName() {
+			return ENVIRONMENT_VARIABLES_ROOT_DECLARATION.getVariableName();
+		}
+
+		@Override
+		public Object getValue() {
+			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRoot();
+		}
+
+	};
 	private static final XStream XSTREAM = new XStream() {
 		@Override
 		protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -656,8 +682,8 @@ public class MiscUtils {
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	}
 
-	public static <T> CompiledFunction compileExpression(String expressionString, List<VariableDeclaration> variableDeclarations,
-			Class<T> returnType) throws CompilationError {
+	public static <T> CompiledFunction compileExpression(String expressionString,
+			List<VariableDeclaration> variableDeclarations, Class<T> returnType) throws CompilationError {
 		Expression<T> expression = new Expression<T>(returnType);
 		expression.set(expressionString);
 		return expression.compile(variableDeclarations);
@@ -710,32 +736,33 @@ public class MiscUtils {
 	}
 
 	public static int indexAfterReplacement(int index, String inputString, String target, String replacement) {
-        if (target.isEmpty() || index < 0 || index > inputString.length()) {
-            return index;
-        }
-        int newIndex = index;
-        int i = 0;
-        int shift = 0;
-        while (i < inputString.length()) {
-            int found = inputString.indexOf(target, i);
-            if (found == -1) {
-                break;
-            }
-            int end = found + target.length();
-            if (index >= found && index < end) {
-                // The index falls inside a replaced segment — it no longer maps to any position.
-                return -1;
-            }
-            if (found >= index) {
-                // No need to process further if the replacement occurs after the original index.
-                break;
-            }
-            // Accumulate the change in length caused by this replacement.
-            shift += replacement.length() - target.length();
-            i = end;
-        }
-        return newIndex + shift;
-    }
-
+		if (target.isEmpty() || index < 0 || index > inputString.length()) {
+			return index;
+		}
+		int newIndex = index;
+		int i = 0;
+		int shift = 0;
+		while (i < inputString.length()) {
+			int found = inputString.indexOf(target, i);
+			if (found == -1) {
+				break;
+			}
+			int end = found + target.length();
+			if (index >= found && index < end) {
+				// The index falls inside a replaced segment — it no longer maps to any
+				// position.
+				return -1;
+			}
+			if (found >= index) {
+				// No need to process further if the replacement occurs after the original
+				// index.
+				break;
+			}
+			// Accumulate the change in length caused by this replacement.
+			shift += replacement.length() - target.length();
+			i = end;
+		}
+		return newIndex + shift;
+	}
 
 }

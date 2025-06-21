@@ -125,7 +125,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Step displayedStep;
 	private Transition displayedTransition;
 	private RootInstanceBuilderFacade displayedRootInstanceBuilderFacade;
-	private String sidePaneValueName;
+	private SidePaneValueName sidePaneValueName;
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
@@ -563,7 +563,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public String getName() {
-							return "sidePaneValue";
+							return "sidePaneValueName";
 						}
 
 						@Override
@@ -573,18 +573,18 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
-							if ("env".equals(sidePaneValueName)) {
-								return System.getenv();
-							} else if ("logs".equals(sidePaneValueName)) {
-								return MiscUtils.getPrintedStackTrace(new Exception());
-							} else {
-								return null;
-							}
+							return sidePaneValueName;
+						}
+
+						@Override
+						public void setValue(Object object, Object value) {
+							sidePaneValueName = (SidePaneValueName) value;
 						}
 
 						@Override
 						public ITypeInfo getType() {
-							return getTypeInfo(new JavaTypeInfoSource(Object.class, null));
+							return getTypeInfo(new JavaTypeInfoSource(SidePaneValueName.class,
+									new SpecificitiesIdentifier(Solution.class.getName(), getName())));
 						}
 
 						@Override
@@ -594,7 +594,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public boolean isGetOnly() {
-							return true;
+							return false;
 						}
 
 					});
@@ -904,7 +904,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public String getName() {
-							return "changeSidePanelValue";
+							return "isSidePanelValueSelected";
 						}
 
 						@Override
@@ -919,7 +919,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 										@Override
 										public String getName() {
-											return "newSidePanelValueName";
+											return "sidePaneValueNameParam";
 										}
 
 										@Override
@@ -929,20 +929,21 @@ public class JESBReflectionUI extends CustomizedUI {
 
 										@Override
 										public ITypeInfo getType() {
-											return getTypeInfo(new JavaTypeInfoSource(String.class, null));
+											return getTypeInfo(new JavaTypeInfoSource(SidePaneValueName.class, null));
 										}
 									});
 						}
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							String newSidePaneValueName = (String) invocationData.getParameterValue(0);
-							if (newSidePaneValueName.equals(sidePaneValueName)) {
-								sidePaneValueName = null;
-							} else {
-								sidePaneValueName = newSidePaneValueName;
-							}
-							return null;
+							SidePaneValueName sidePaneValueNameParam = (SidePaneValueName) invocationData
+									.getParameterValue(0);
+							return sidePaneValueName == sidePaneValueNameParam;
+						}
+
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return getTypeInfo(new JavaTypeInfoSource(boolean.class, null));
 						}
 
 						@Override
@@ -1492,4 +1493,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		}.wrapTypeInfo(super.getTypeInfoAfterCustomizations(type));
 	}
 
+	public enum SidePaneValueName {
+		ENVIRONMENT_SETTINGS, CONSOLE
+	}
 }

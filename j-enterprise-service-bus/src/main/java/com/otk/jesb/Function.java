@@ -99,6 +99,36 @@ public class Function {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((functionBody == null) ? 0 : functionBody.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Function other = (Function) obj;
+		if (functionBody == null) {
+			if (other.functionBody != null)
+				return false;
+		} else if (!functionBody.equals(other.functionBody))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Function [functionBody=" + functionBody + "]";
+	}
+
 	public static interface Precompiler {
 		String apply(String functionBody);
 

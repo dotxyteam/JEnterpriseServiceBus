@@ -119,7 +119,7 @@ public class CompiledFunction {
 			Throwable t = getCause();
 			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
 					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
-				result = "/* The instruction that crashed */\n"
+				result = "/* The instruction that raised the exception */\n"
 						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
 				result = "/* The source code of the function that crashed (" + functionClass.getSimpleName()

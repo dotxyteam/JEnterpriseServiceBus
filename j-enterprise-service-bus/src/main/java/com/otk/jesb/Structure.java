@@ -449,7 +449,8 @@ public abstract class Structure {
 						.getStructuredClass();
 				return structuredClass.getName();
 			}
-			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure"
+					+ MiscUtils.toDigitalUniqueIdentifier(this);
 		}
 
 		public List<Element> getSubElements() {

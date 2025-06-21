@@ -86,6 +86,41 @@ public class Expression<T> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (dynamic ? 1231 : 1237);
+		result = prime * result + ((internalFunction == null) ? 0 : internalFunction.hashCode());
+		result = prime * result + ((valueClass == null) ? 0 : valueClass.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		Expression other = (Expression) obj;
+		if (dynamic != other.dynamic)
+			return false;
+		if (internalFunction == null) {
+			if (other.internalFunction != null)
+				return false;
+		} else if (!internalFunction.equals(other.internalFunction))
+			return false;
+		if (valueClass == null) {
+			if (other.valueClass != null)
+				return false;
+		} else if (!valueClass.equals(other.valueClass))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return get();
 	}
