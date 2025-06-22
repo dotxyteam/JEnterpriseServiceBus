@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.EnvironmentVariant;
 import com.otk.jesb.Function;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.UnexpectedError;
@@ -71,6 +74,8 @@ import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin;
+import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin.ToggleButtonConfiguration;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.field.FieldInfoProxy;
@@ -99,6 +104,7 @@ import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -557,7 +563,14 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if (type.getName().equals(Solution.class.getName())) {
+				List<IFieldInfo> variantFields = VariantCustomizations.findVariantFields(type);
+				if (variantFields.size() > 0) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					for (IFieldInfo variantField : variantFields) {
+						result.add(VariantCustomizations.adaptVariantField(variantField, type));
+					}
+					return result;
+				} else if (type.getName().equals(Solution.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
@@ -1203,6 +1216,9 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
+				if (VariantCustomizations.shouldHide(field, objectType)) {
+					return true;
+				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
 					if (!field.getName().equals("message") && !field.getName().equals("cause")) {
 						for (IFieldInfo throwableField : ReflectionUI.getDefault()
@@ -1491,6 +1507,143 @@ public class JESBReflectionUI extends CustomizedUI {
 				return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
 			}
 		}.wrapTypeInfo(super.getTypeInfoAfterCustomizations(type));
+	}
+
+	private static class VariantCustomizations {
+
+		public static boolean shouldHide(IFieldInfo field, ITypeInfo objectType) {
+			if (isVariantField(field)) {
+				return true;
+			}
+			if (isVariableStatusField(field)) {
+				return true;
+			}
+			if (ReflectionUIUtils.findInfoByName(objectType.getFields(), field.getName() + "Variant") != null) {
+				return true;
+			}
+			return false;
+		}
+
+		public static boolean isVariableStatusField(IFieldInfo field) {
+			return field.getName().endsWith("Variable") && field.getType().getName().equals(boolean.class.getName());
+		}
+
+		public static List<IFieldInfo> findVariantFields(ITypeInfo type) {
+			return type.getFields().stream().filter(VariantCustomizations::isVariantField).collect(Collectors.toList());
+		}
+
+		public static boolean isVariantField(IFieldInfo field) {
+			return field.getName().endsWith("Variant")
+					&& field.getType().getName().equals(EnvironmentVariant.class.getName());
+		}
+
+		public static IFieldInfo adaptVariantField(IFieldInfo variantField, ITypeInfo objectType) {
+			return new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+				String baseFieldName = variantField.getName().substring(0,
+						variantField.getName().length() - "Variant".length());
+
+				@Override
+				public String getName() {
+					return baseFieldName + "Box";
+				}
+
+				@Override
+				public String getCaption() {
+					return ReflectionUIUtils.identifierToCaption(baseFieldName);
+				}
+
+				@Override
+				public boolean isValueValidityDetectionEnabled() {
+					return true;
+				}
+
+				@Override
+				public boolean isFormControlEmbedded() {
+					return true;
+				}
+
+				@Override
+				public Object getValue(Object object) {
+					return new PrecomputedTypeInstanceWrapper(object, new InfoProxyFactory() {
+
+						String adapterTypeName = variantField.getName().substring(0, 1).toUpperCase()
+								+ variantField.getName().substring(1) + "AdapterType";
+
+						@Override
+						protected String getName(ITypeInfo type) {
+							return adapterTypeName;
+						}
+
+						@Override
+						protected List<IFieldInfo> getFields(ITypeInfo type) {
+							return Arrays.asList(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+								IFieldInfo variableStatusField = objectType.getFields().stream()
+										.filter(field -> isVariableStatusField(field)
+												&& field.getName().startsWith(baseFieldName))
+										.findFirst().get();
+								
+								@Override
+								public String getName() {
+									return baseFieldName + "VariableStatus";
+								}
+
+								@Override
+								public String getCaption() {
+									return "";
+								}
+
+								@Override
+								public double getDisplayAreaHorizontalWeight() {
+									return 0.0;
+								}
+
+								@Override
+								public boolean isGetOnly() {
+									return false;
+								}
+
+								@Override
+								public Object getValue(Object object) {
+									return variableStatusField.getValue(object);
+								}
+
+								@Override
+								public void setValue(Object object, Object value) {
+									variableStatusField.setValue(object, value);
+								}
+
+								@Override
+								public ITypeInfo getType() {
+									return new InfoProxyFactory() {
+										ToggleButtonPlugin plugin = new ToggleButtonPlugin();
+										ToggleButtonConfiguration pluginConfiguration = new ToggleButtonConfiguration();
+										{
+											pluginConfiguration.iconImagePath = new ResourcePath(GUI.class,
+													"environment.png");
+										}
+
+										@Override
+										protected Map<String, Object> getSpecificProperties(ITypeInfo type) {
+											Map<String, Object> result = new HashMap<String, Object>(
+													super.getSpecificProperties(type));
+											ReflectionUIUtils.setFieldControlPluginIdentifier(result,
+													plugin.getIdentifier());
+											ReflectionUIUtils.setFieldControlPluginConfiguration(result,
+													plugin.getIdentifier(), pluginConfiguration);
+											return result;
+										}
+									}.wrapTypeInfo(GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(
+											boolean.class, new SpecificitiesIdentifier(adapterTypeName, getName()))));
+								}
+
+							});
+						}
+
+					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO));
+				}
+
+			};
+		}
 	}
 
 	public enum SidePaneValueName {

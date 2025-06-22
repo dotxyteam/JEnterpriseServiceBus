@@ -29,6 +29,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
+		getFacade().getChildren().get(0).setConcrete(true);
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {
@@ -36,9 +37,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()
 				: rootInstanceTypeName;
+		getFacade().getChildren().get(0).setConcrete(true);
 	}
-
-	
 
 	@Override
 	public void setTypeName(String typeName) {
@@ -74,7 +74,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public RootInstanceBuilderFacade getFacade() {
 		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) Facade.get(this, null);
-		result.getChildren().get(0).setConcrete(true);
 		return result;
 	}
 

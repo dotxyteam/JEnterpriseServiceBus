@@ -227,16 +227,6 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					public void refreshUI(boolean refreshStructure) {
-						if (object instanceof InstanceBuilderFacade) {
-							if (field.getName().equals("constructorGroup")) {
-								setVisible(
-										((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() > 1);
-							}
-							if (field.getName().equals("typeGroup")) {
-								setVisible(((InstanceBuilderFacade) object).getUnderlying()
-										.getDynamicTypeNameAccessor() == null);
-							}
-						}
 						boolean mustFade = isVisible() && prepareToFade();
 						if (mustFade) {
 							transparentPanel.fade(+1, 0.0);
@@ -251,6 +241,16 @@ public class GUI extends SwingCustomizer {
 								}
 							});
 						}
+						if (object instanceof InstanceBuilderFacade) {
+							if (field.getName().equals("constructorGroup")) {
+								setVisible(
+										((InstanceBuilderFacade) object).getConstructorSignatureOptions().size() > 1);
+							}
+							if (field.getName().equals("typeGroup")) {
+								setVisible(((InstanceBuilderFacade) object).getUnderlying()
+										.getDynamicTypeNameAccessor() == null);
+							}
+						}						
 					}
 
 					@Override
