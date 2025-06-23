@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -23,7 +24,9 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.EnvironmentSettings.EnvironmentVariable;
 import com.otk.jesb.EnvironmentVariant;
+import com.otk.jesb.Expression;
 import com.otk.jesb.Function;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.UnexpectedError;
@@ -89,6 +92,8 @@ import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
+import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.EmbeddedItemDetailsAccessMode;
@@ -99,8 +104,11 @@ import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
 import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.Mapper;
@@ -1541,10 +1549,17 @@ public class JESBReflectionUI extends CustomizedUI {
 			return new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 				String baseFieldName = variantField.getName().substring(0,
 						variantField.getName().length() - "Variant".length());
+				String adapterFieldName = variantField.getName() + "Adapter";
+				String referenceFieldName = baseFieldName + "Reference";
+				IFieldInfo baseField = objectType.getFields().stream()
+						.filter(field -> field.getName().equals(baseFieldName)).findFirst().get();
+				IFieldInfo variableStatusField = objectType.getFields().stream()
+						.filter(field -> isVariableStatusField(field) && field.getName().startsWith(baseFieldName))
+						.findFirst().get();
 
 				@Override
 				public String getName() {
-					return baseFieldName + "Box";
+					return adapterFieldName;
 				}
 
 				@Override
@@ -1564,7 +1579,16 @@ public class JESBReflectionUI extends CustomizedUI {
 
 				@Override
 				public Object getValue(Object object) {
-					return new PrecomputedTypeInstanceWrapper(object, new InfoProxyFactory() {
+					return new PrecomputedTypeInstanceWrapper(object, precomputeAdapterType());
+				}
+
+				@Override
+				public ITypeInfo getType() {
+					return GUI.INSTANCE.getReflectionUI().getTypeInfo(precomputeAdapterType().getSource());
+				}
+
+				ITypeInfo precomputeAdapterType() {
+					return new InfoProxyFactory() {
 
 						String adapterTypeName = variantField.getName().substring(0, 1).toUpperCase()
 								+ variantField.getName().substring(1) + "AdapterType";
@@ -1575,13 +1599,25 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 
 						@Override
+						protected FieldsLayout getFieldsLayout(ITypeInfo type) {
+							return FieldsLayout.HORIZONTAL_FLOW;
+						}
+
+						@Override
+						protected int getFormSpacing(ITypeInfo type) {
+							return 10;
+						}
+
+						@Override
+						protected ITypeInfoSource getSource(ITypeInfo type) {
+							return new PrecomputedTypeInfoSource(precomputeAdapterType(),
+									new SpecificitiesIdentifier(objectType.getName(), adapterFieldName));
+						}
+
+						@Override
 						protected List<IFieldInfo> getFields(ITypeInfo type) {
 							return Arrays.asList(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-								IFieldInfo variableStatusField = objectType.getFields().stream()
-										.filter(field -> isVariableStatusField(field)
-												&& field.getName().startsWith(baseFieldName))
-										.findFirst().get();
-								
+
 								@Override
 								public String getName() {
 									return baseFieldName + "VariableStatus";
@@ -1636,17 +1672,158 @@ public class JESBReflectionUI extends CustomizedUI {
 											boolean.class, new SpecificitiesIdentifier(adapterTypeName, getName()))));
 								}
 
+							}, new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+								@Override
+								public String getName() {
+									return baseFieldName;
+								}
+
+								@Override
+								public String getCaption() {
+									return "";
+								}
+
+								@Override
+								public double getDisplayAreaHorizontalWeight() {
+									return 1.0;
+								}
+
+								@Override
+								public boolean isGetOnly() {
+									return false;
+								}
+
+								@Override
+								public boolean isRelevant(Object object) {
+									return Boolean.FALSE.equals(variableStatusField.getValue(object));
+								}
+
+								@Override
+								public Object getValue(Object object) {
+									return baseField.getValue(object);
+								}
+
+								@Override
+								public void setValue(Object object, Object value) {
+									baseField.setValue(object, value);
+								}
+
+								@Override
+								public ITypeInfo getType() {
+									return GUI.INSTANCE.getReflectionUI()
+											.getTypeInfo(new TypeInfoSourceProxy(baseField.getType().getSource()) {
+
+												@Override
+												protected String getTypeInfoProxyFactoryIdentifier() {
+													return "VariantBaseValueTypeInfoProxyFactory [objectType="
+															+ objectType.getName() + ", variantField"
+															+ variantField.getName() + "]";
+												}
+
+												@Override
+												public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+													return new SpecificitiesIdentifier(adapterTypeName, getName());
+												}
+
+											});
+								}
+
+							}, new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+								GenericEnumerationFactory optionsFactory = new GenericEnumerationFactory(
+										GUI.INSTANCE.getReflectionUI(), new EnvironmentVariableOptionCollector(),
+										EnvironmentVariable.class.getName() + "Option", "Environment Variable Option",
+										true, false);
+
+								@Override
+								public String getName() {
+									return referenceFieldName;
+								}
+
+								@Override
+								public String getCaption() {
+									return "";
+								}
+
+								@Override
+								public double getDisplayAreaHorizontalWeight() {
+									return 1.0;
+								}
+
+								@Override
+								public boolean isGetOnly() {
+									return false;
+								}
+
+								@Override
+								public boolean isRelevant(Object object) {
+									return Boolean.TRUE.equals(variableStatusField.getValue(object));
+								}
+
+								@Override
+								public Object getValue(Object object) {
+									return optionsFactory
+											.getItemInstance(((EnvironmentVariant<?>) variantField.getValue(object))
+													.getVariableReferenceExpression());
+								}
+
+								@SuppressWarnings("unchecked")
+								@Override
+								public void setValue(Object object, Object value) {
+									((EnvironmentVariant<?>) variantField.getValue(object))
+											.setVariableReferenceExpression(
+													(Expression<String>) optionsFactory.getInstanceItem(value));
+								}
+
+								@Override
+								public ITypeInfo getType() {
+									return GUI.INSTANCE.getReflectionUI()
+											.getTypeInfo(optionsFactory.getInstanceTypeInfoSource(
+													new SpecificitiesIdentifier(adapterTypeName, getName())));
+								}
+
 							});
 						}
 
-					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO));
+					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO);
 				}
 
 			};
 		}
 	}
 
+	private static class EnvironmentVariableOptionCollector implements Iterable<Expression<String>> {
+
+		@Override
+		public Iterator<Expression<String>> iterator() {
+			return new EnvironmentVariant<Object>(Object.class).getVariableReferenceExpressionOptions().iterator();
+		}
+
+		@Override
+		public int hashCode() {
+			return 1;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "EnvironmentVariableOptionCollector []";
+		}
+
+	}
+
 	public enum SidePaneValueName {
-		ENVIRONMENT_SETTINGS, CONSOLE
+		ENVIRONMENT_SETTINGS
 	}
 }

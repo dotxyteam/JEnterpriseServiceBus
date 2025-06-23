@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 import com.otk.jesb.solution.AssetVisitor;
-import com.otk.jesb.Console;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.ValidationError;
@@ -21,7 +20,6 @@ public class Solution {
 
 	private Folder rootFolder = new Folder(Solution.class.getName() + ".rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
-	private Console console = new Console();
 
 	public EnvironmentSettings getEnvironmentSettings() {
 		return environmentSettings;
@@ -29,14 +27,6 @@ public class Solution {
 
 	public void setEnvironmentSettings(EnvironmentSettings environmentSettings) {
 		this.environmentSettings = environmentSettings;
-	}
-
-	public Console getConsole() {
-		return console;
-	}
-
-	public void setConsole(Console console) {
-		this.console = console;
 	}
 
 	public List<Asset> getContents() {
