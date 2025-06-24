@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
+import com.otk.jesb.Preferences;
 import com.otk.jesb.Structure;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
@@ -581,6 +582,44 @@ public class JESBReflectionUI extends CustomizedUI {
 				} else if (type.getName().equals(Solution.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+						@Override
+						public String getName() {
+							return "preferences";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.identifierToCaption(getName());
+						}
+
+						@Override
+						public Object getValue(Object object) {
+							return Preferences.INSTANCE;
+						}
+
+						@Override
+						public void setValue(Object object, Object value) {
+							Preferences.INSTANCE.persist();
+						}
+
+						@Override
+						public ITypeInfo getType() {
+							return getTypeInfo(new JavaTypeInfoSource(Preferences.class,
+									new SpecificitiesIdentifier(Solution.class.getName(), getName())));
+						}
+
+						@Override
+						public boolean isTransient() {
+							return true;
+						}
+
+						@Override
+						public boolean isGetOnly() {
+							return false;
+						}
+
+					});result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
 						@Override
 						public String getName() {

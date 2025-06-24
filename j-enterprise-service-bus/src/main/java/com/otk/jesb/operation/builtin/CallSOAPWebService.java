@@ -118,9 +118,9 @@ public class CallSOAPWebService implements Operation {
 	public static class Builder implements OperationBuilder {
 
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
+		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDateOperationInputClass();
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
 				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());
-		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDateOperationInputClass();
 		private String serviceName;
 		private String portName;
 		private String operationSignature;

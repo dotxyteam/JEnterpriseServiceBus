@@ -14,21 +14,18 @@ import javax.swing.DropMode;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.table.JTableHeader;
 import javax.swing.text.JTextComponent;
 
-import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
 import com.formdev.flatlaf.ui.FlatTableHeaderUI;
 import com.formdev.flatlaf.util.UIScale;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.Preferences;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.compiler.CompilationError;
@@ -74,40 +71,11 @@ import xy.reflect.ui.util.SystemProperties;
 
 public class GUI extends SwingCustomizer {
 
-	public enum Theme {
-		SYSTEM, CROSS_PLATFORM, FLAT
-	}
-
-	private static Theme theme = Theme.FLAT;
-
 	static {
 		if (JESB.DEBUG) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
-		try {
-			if (theme == Theme.SYSTEM) {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} else if (theme == Theme.SYSTEM) {
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			} else if (theme == Theme.FLAT) {
-				UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public UIDefaults getDefaults() {
-						UIDefaults result = super.getDefaults();
-						result.put("TableHeaderUI", BetterFlatTableHeaderUI.class.getName());
-						return result;
-					}
-				});
-			} else {
-				throw new UnexpectedError();
-			}
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
+		Preferences.INSTANCE.getTheme().activate();
 	}
 
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
@@ -172,6 +140,9 @@ public class GUI extends SwingCustomizer {
 					Object lastValue;
 
 					boolean mayFade() {
+						if (!Preferences.INSTANCE.isFadingTransitioningEnabled()) {
+							return false;
+						}
 						if (getObject() instanceof PrecomputedTypeInstanceWrapper) {
 							ITypeInfo precomputedType = ((PrecomputedTypeInstanceWrapper) getObject())
 									.getPrecomputedType();
@@ -250,7 +221,7 @@ public class GUI extends SwingCustomizer {
 								setVisible(((InstanceBuilderFacade) object).getUnderlying()
 										.getDynamicTypeNameAccessor() == null);
 							}
-						}						
+						}
 					}
 
 					@Override
