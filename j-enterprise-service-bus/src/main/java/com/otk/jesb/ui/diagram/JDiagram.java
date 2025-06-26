@@ -322,12 +322,12 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				} else {
 					newSelection.add(pointedDiagramObject);
 				}
-				setSelection(newSelection);
+				setSelection(newSelection, true);
 			} else {
-				setSelection(Collections.singleton(pointedDiagramObject));
+				setSelection(Collections.singleton(pointedDiagramObject), true);
 			}
 		} else {
-			setSelection(Collections.emptySet());
+			setSelection(Collections.emptySet(), true);
 		}
 	}
 
@@ -399,13 +399,19 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 	}
 
 	public void setSelection(Set<JDiagramObject> selection) {
+		setSelection(selection, false);
+	}
+
+	private void setSelection(Set<JDiagramObject> selection, boolean paintBeforeNotifications) {
 		for (JNode eachNode : nodes) {
 			eachNode.setSelected(selection.contains(eachNode));
 		}
 		for (JConnection eachConnection : connections) {
 			eachConnection.setSelected(selection.contains(eachConnection));
 		}
-		paintImmediately(getBounds());
+		if (paintBeforeNotifications) {
+			paintImmediately(getBounds());
+		}
 		for (JDiagramListener l : listeners) {
 			l.selectionChanged();
 		}

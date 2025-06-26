@@ -87,9 +87,9 @@ public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldCo
 					}
 
 					@Override
-					public boolean refreshUI(boolean refreshStructure) {
-						return true;
+					protected void refreshElementObjects() {
 					}
+
 				}.createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

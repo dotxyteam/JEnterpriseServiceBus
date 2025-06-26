@@ -529,8 +529,13 @@ public class LoopCompositeStep extends CompositeStep {
 				private String message;
 
 				public InformativeResultsCollectionConfigurationEntry(String message) {
-					super(null, false);
+					super(null, true);
 					this.message = message;
+				}
+
+				@Override
+				public boolean isResultsCollectionEnabled() {
+					return false;
 				}
 
 				@Override

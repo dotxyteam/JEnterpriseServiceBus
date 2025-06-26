@@ -2,6 +2,8 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -82,7 +84,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		ListControl facadeTreeControl = (ListControl) SwingRendererUtils
 				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm[0], "children", swingRenderer)
 				.getFieldControl();
-		validitionErrorByItemPosition.clear();
+		final Map<BufferedItemPosition, Exception> tmpErrorMap = new HashMap<BufferedItemPosition, Exception>();
 		visitItems(new IItemsVisitor() {
 			@Override
 			public VisitStatus visitItem(BufferedItemPosition itemPosition) {
@@ -111,7 +113,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 				try {
 					itemForm[0].validateForm(session);
 				} catch (Exception e) {
-					validitionErrorByItemPosition.put(itemPosition, e);
+					tmpErrorMap.put(itemPosition, e);
 				}
 				return VisitStatus.VISIT_NOT_INTERRUPTED;
 			}
@@ -127,6 +129,8 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		if (Thread.currentThread().isInterrupted()) {
 			return;
 		}
+		validitionErrorByItemPosition.clear();
+		validitionErrorByItemPosition.putAll(tmpErrorMap);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

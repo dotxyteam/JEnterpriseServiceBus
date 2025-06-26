@@ -1,4 +1,4 @@
 <com.otk.jesb.Preferences>
-  <fadingTransitioningEnabled>true</fadingTransitioningEnabled>
+  <fadingTransitioningEnabled>false</fadingTransitioningEnabled>
   <theme>FLAT</theme>
 </com.otk.jesb.Preferences>

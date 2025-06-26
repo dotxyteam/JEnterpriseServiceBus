@@ -682,6 +682,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				setBackground(Color.WHITE);
 			}
 		}
+		refreshElementObjects();
+		return true;
+	}
+
+	protected void refreshElementObjects() {
 		Plan plan = getPlan();
 		setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
 		Set<JDiagramObject> selection = getSelection();
@@ -791,7 +796,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		} else {
 			SwingUtilities.invokeLater(selectionUpdate);
 		}
-		return true;
 	}
 
 	@Override
