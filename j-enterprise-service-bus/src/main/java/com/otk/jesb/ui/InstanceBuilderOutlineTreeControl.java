@@ -84,7 +84,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		ListControl facadeTreeControl = (ListControl) SwingRendererUtils
 				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm[0], "children", swingRenderer)
 				.getFieldControl();
-		final Map<BufferedItemPosition, Exception> tmpErrorMap = new HashMap<BufferedItemPosition, Exception>();
+		final Map<BufferedItemPosition, Exception> validitionErrorByItemPosition = new HashMap<BufferedItemPosition, Exception>();
 		visitItems(new IItemsVisitor() {
 			@Override
 			public VisitStatus visitItem(BufferedItemPosition itemPosition) {
@@ -112,8 +112,14 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 				}
 				try {
 					itemForm[0].validateForm(session);
+					swingRenderer.getLastValidationErrors().remove(itemPosition.getItem());
+					swingRenderer.getLastValidationErrors().remove(facadeItemPosition.getItem());
 				} catch (Exception e) {
-					tmpErrorMap.put(itemPosition, e);
+					swingRenderer.getLastValidationErrors().put(itemPosition.getItem(),
+							new ItemValidationError(itemPosition, e));
+					swingRenderer.getLastValidationErrors().put(facadeItemPosition.getItem(),
+							new ItemValidationError(itemPosition, e));
+					validitionErrorByItemPosition.put(itemPosition, e);
 				}
 				return VisitStatus.VISIT_NOT_INTERRUPTED;
 			}
@@ -129,8 +135,6 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		if (Thread.currentThread().isInterrupted()) {
 			return;
 		}
-		validitionErrorByItemPosition.clear();
-		validitionErrorByItemPosition.putAll(tmpErrorMap);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -139,7 +143,7 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 			}
 		});
 		if (validitionErrorByItemPosition.size() > 0) {
-			throw new ListValidationError("Invalid element(s) detected", validitionErrorByItemPosition);
+			throw new ListValidationError(validitionErrorByItemPosition);
 		}
 	}
 

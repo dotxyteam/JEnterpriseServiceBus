@@ -859,7 +859,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			}
 			try {
 				toValidate.getSecond().validate(true, plan);
+				swingRenderer.getLastValidationErrors().remove(toValidate.getSecond());
 			} catch (Exception e) {
+				swingRenderer.getLastValidationErrors().put(toValidate.getSecond(), e);
 				validitionErrorMap.put(toValidate, e);
 			}
 		}

@@ -18,7 +18,6 @@ import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Structure;
-import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivationStrategy;
 import com.otk.jesb.activation.ActivationHandler;
@@ -1406,79 +1405,39 @@ public class JESBReflectionUI extends CustomizedUI {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-					try {
-						((Asset) object).validate(false);
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Asset) object).validate(false);
 				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-					try {
-						((Step) object).validate(false, getCurrentValidationPlan(session));
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Step) object).validate(false, getCurrentValidationPlan(session));
 				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-					try {
-						((Transition) object).validate(false, getCurrentValidationPlan(session));
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Transition) object).validate(false, getCurrentValidationPlan(session));
 				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
-					try {
-						((Transition.Condition) object).validate(getCurrentValidationPlan(session)
-								.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Transition.Condition) object).validate(getCurrentValidationPlan(session)
+							.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
 				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
-					try {
-						((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
-								getCurrentValidationStep(session));
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
+							getCurrentValidationStep(session));
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
 					Step step = getCurrentValidationStep(session);
 					Plan plan = getCurrentValidationPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot((Facade) object);
 					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					try {
-						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());					
 				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
 					Step step = getCurrentValidationStep(session);
 					Plan plan = getCurrentValidationPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
 					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					try {
-						((ListItemReplicationFacade) object).validate(false,
-								plan.getValidationContext(step).getVariableDeclarations());
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((ListItemReplicationFacade) object).validate(false,
+							plan.getValidationContext(step).getVariableDeclarations());
 				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
-					try {
-						((Structure) object).validate(false);
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Structure) object).validate(false);
 				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
-					try {
-						((Structure.Element) object).validate(false);
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((Structure.Element) object).validate(false);
 				} else if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
 					Plan plan = getCurrentValidationPlan(session);
-					try {
-						((ActivationStrategy) object).validate(false, plan);
-					} catch (ValidationError e) {
-						throw new ReflectionUIError(e);
-					}
+					((ActivationStrategy) object).validate(false, plan);
 				} else {
 					super.validate(type, object, session);
 				}
