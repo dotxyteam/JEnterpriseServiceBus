@@ -2,14 +2,12 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXTreeTable;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 
@@ -20,11 +18,12 @@ import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
-import xy.reflect.ui.util.ReflectionUIError;
 
 public class InstanceBuilderOutlineTreeControl extends ListControl {
 
 	private static final long serialVersionUID = 1L;
+
+	private ListControl facadeTreeControl;
 
 	public InstanceBuilderOutlineTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 		super(swingRenderer, input);
@@ -64,87 +63,46 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 
 	@Override
 	public void validateControl(ValidationSession session) throws Exception {
-		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(this,
-				RootInstanceBuilder.class.getName(), swingRenderer);
-		Form[] rootInstanceBuilderFacadeForm = new Form[1];
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					rootInstanceBuilderFacadeForm[0] = swingRenderer
-							.createForm(((RootInstanceBuilder) rootInstanceBuilderForm.getObject()).getFacade());
+					facadeTreeControl = createFacadeTreeControl();
 				}
 			});
-		} catch (InvocationTargetException e) {
-			throw new ReflectionUIError(e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
+		} catch (InvocationTargetException e) {
+			throw new UnexpectedError(e);
 		}
-		ListControl facadeTreeControl = (ListControl) SwingRendererUtils
-				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm[0], "children", swingRenderer)
-				.getFieldControl();
-		final Map<BufferedItemPosition, Exception> validitionErrorByItemPosition = new HashMap<BufferedItemPosition, Exception>();
-		visitItems(new IItemsVisitor() {
-			@Override
-			public VisitStatus visitItem(BufferedItemPosition itemPosition) {
-				if (Thread.currentThread().isInterrupted()) {
-					return VisitStatus.TREE_VISIT_INTERRUPTED;
+		try {
+			facadeTreeControl.validateControl(session);
+		} finally {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					refreshRendrers();
+					treeTableComponent.repaint();
 				}
-				if (!itemPosition.getContainingListType().isItemNodeValidityDetectionEnabled(itemPosition)) {
-					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
-				}
-				BufferedItemPosition facadeItemPosition = getFacadeItemPosition(itemPosition);
-				Form[] itemForm = new Form[1];
-				try {
-					SwingUtilities.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							itemForm[0] = facadeTreeControl.new ItemUIBuilder(facadeItemPosition)
-									.createEditorForm(false, false);
-						}
-					});
-				} catch (InvocationTargetException e) {
-					throw new ReflectionUIError(e);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					return VisitStatus.TREE_VISIT_INTERRUPTED;
-				}
-				try {
-					itemForm[0].validateForm(session);
-					swingRenderer.getLastValidationErrors().remove(itemPosition.getItem());
-					swingRenderer.getLastValidationErrors().remove(facadeItemPosition.getItem());
-				} catch (Exception e) {
-					swingRenderer.getLastValidationErrors().put(itemPosition.getItem(),
-							new ItemValidationError(itemPosition, e));
-					swingRenderer.getLastValidationErrors().put(facadeItemPosition.getItem(),
-							new ItemValidationError(itemPosition, e));
-					validitionErrorByItemPosition.put(itemPosition, e);
-				}
-				return VisitStatus.VISIT_NOT_INTERRUPTED;
-			}
+			});
+		}
+	}
 
-			BufferedItemPosition getFacadeItemPosition(BufferedItemPosition outlineItemPosition) {
-				if (outlineItemPosition.isRoot()) {
-					return facadeTreeControl.getRootListItemPosition(outlineItemPosition.getIndex());
-				}
-				BufferedItemPosition parentResult = getFacadeItemPosition(outlineItemPosition.getParentItemPosition());
-				return parentResult.getSubItemPosition(outlineItemPosition.getIndex());
-			}
-		});
-		if (Thread.currentThread().isInterrupted()) {
-			return;
-		}
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				refreshRendrers();
-				treeTableComponent.repaint();
-			}
-		});
-		if (validitionErrorByItemPosition.size() > 0) {
-			throw new ListValidationError(validitionErrorByItemPosition);
-		}
+	@Override
+	public Exception getValidationError(BufferedItemPosition itemPosition) {
+		return swingRenderer.getReflectionUI().getValidationErrorRegistry()
+				.getValidationError(((FacadeOutline) itemPosition.getItem()).getFacade(), null);
+	}
+
+	private ListControl createFacadeTreeControl() {
+		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(this,
+				RootInstanceBuilder.class.getName(), swingRenderer);
+		Form rootInstanceBuilderFacadeForm = swingRenderer
+				.createForm(((RootInstanceBuilder) rootInstanceBuilderForm.getObject()).getFacade());
+		return (ListControl) SwingRendererUtils
+				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm, "children", swingRenderer)
+				.getFieldControl();
 	}
 
 }

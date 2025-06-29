@@ -114,7 +114,13 @@ public class JDBCConnection extends Resource {
 	}
 
 	public String getUserName() {
-		return userNameVariant.getValue();
+		String result = userNameVariant.getValue();
+		if (result != null) {
+			if (result.length() == 0) {
+				result = null;
+			}
+		}
+		return result;
 	}
 
 	public void setUserName(String userName) {
@@ -122,7 +128,13 @@ public class JDBCConnection extends Resource {
 	}
 
 	public String getPassword() {
-		return passwordVariant.getValue();
+		String result = passwordVariant.getValue();
+		if (result != null) {
+			if (result.length() == 0) {
+				result = null;
+			}
+		}
+		return result;
 	}
 
 	public void setPassword(String password) {

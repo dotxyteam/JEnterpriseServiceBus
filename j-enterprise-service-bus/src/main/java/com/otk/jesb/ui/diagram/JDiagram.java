@@ -324,7 +324,9 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				}
 				setSelection(newSelection, true);
 			} else {
-				setSelection(Collections.singleton(pointedDiagramObject), true);
+				if (!(SwingUtilities.isRightMouseButton(mouseEvent) && getSelection().contains(pointedDiagramObject))) {
+					setSelection(Collections.singleton(pointedDiagramObject), true);
+				}
 			}
 		} else {
 			setSelection(Collections.emptySet(), true);

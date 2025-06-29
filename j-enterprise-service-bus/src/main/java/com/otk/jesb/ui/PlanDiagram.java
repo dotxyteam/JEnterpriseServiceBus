@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,6 +81,7 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -102,7 +104,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected IFieldControlInput input;
 	protected boolean selectionListeningEnabled = true;
 	private Map<ResourcePath, Image> adaptedIconImageByPath = new HashMap<ResourcePath, Image>();
-	private Map<Pair<String, PlanElement>, Exception> validitionErrorMap = new HashMap<Pair<String, PlanElement>, Exception>();
 
 	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
 		this.swingRenderer = swingRenderer;
@@ -801,7 +802,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
 		super.paintNode(g, node);
-		if (validitionErrorMap.entrySet().stream().anyMatch(entry -> entry.getKey().getSecond() == node.getValue())) {
+		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(node.getValue(),
+				null) != null) {
 			Point errorMarkerLocation = getErrorMarkerLocation(node);
 			if (errorMarkerLocation != null) {
 				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
@@ -812,8 +814,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
 		super.paintConnection(g, connection);
-		if (validitionErrorMap.entrySet().stream()
-				.anyMatch(entry -> entry.getKey().getSecond() == connection.getValue())) {
+		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(connection.getValue(),
+				null) != null) {
 			Point errorMarkerLocation = getErrorMarkerLocation(connection);
 			if (errorMarkerLocation != null) {
 				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
@@ -852,21 +854,34 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		titleAndElementPairs.addAll(plan.getTransitions().stream().map(
 				transition -> new Pair<String, PlanElement>("transition '" + transition.getSummary() + "'", transition))
 				.collect(Collectors.toList()));
-		validitionErrorMap.clear();
+		Map<Pair<String, PlanElement>, Exception> validitionErrorMap = new HashMap<Pair<String, PlanElement>, Exception>();
 		for (Pair<String, PlanElement> toValidate : titleAndElementPairs) {
+			if(toValidate.getSecond().toString().equals("a")) {
+				System.out.println("debug");
+			}
+			
 			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
+			Form[] itemForm = new Form[1];
 			try {
-				toValidate.getSecond().validate(true, plan);
-				swingRenderer.getLastValidationErrors().remove(toValidate.getSecond());
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						itemForm[0] = swingRenderer.createForm(toValidate.getSecond());
+					}
+				});
+			} catch (InvocationTargetException e) {
+				throw new ReflectionUIError(e);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+			try {
+				itemForm[0].validateForm(session);
 			} catch (Exception e) {
-				swingRenderer.getLastValidationErrors().put(toValidate.getSecond(), e);
 				validitionErrorMap.put(toValidate, e);
 			}
-		}
-		if (Thread.currentThread().isInterrupted()) {
-			return;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -874,6 +889,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				repaint();
 			}
 		});
+		if (Thread.currentThread().isInterrupted()) {
+			return;
+		}
 		if (validitionErrorMap.size() > 0) {
 			Entry<Pair<String, PlanElement>, Exception> firstErrorEntry = validitionErrorMap.entrySet().iterator()
 					.next();
@@ -887,11 +905,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	public void mouseMoved(MouseEvent mouseEvent) {
 		super.mouseMoved(mouseEvent);
 		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
-		Exception currentError = (pointedDiagramObject != null)
-				? validitionErrorMap.entrySet().stream()
-						.filter(entry -> entry.getKey().getSecond() == pointedDiagramObject.getValue())
-						.map(entry -> entry.getValue()).findFirst().orElse(null)
-				: null;
+		Exception currentError = (pointedDiagramObject != null) ? swingRenderer.getReflectionUI()
+				.getValidationErrorRegistry().getValidationError(pointedDiagramObject.getValue(), null) : null;
 		if (currentError != null) {
 			Pair<PlanElement, Exception> newTooltipId = new Pair<PlanElement, Exception>(
 					(PlanElement) pointedDiagramObject.getValue(), currentError);
@@ -1063,6 +1078,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								} else {
 									boundsOfAllStepsToPaste.add(stepCopyBounds);
 								}
+							}
+							if (boundsOfAllStepsToPaste == null) {
+								return false;
 							}
 							Point stepCopyMoveAtDestination = new Point(x - (int) boundsOfAllStepsToPaste.getCenterX(),
 									y - (int) boundsOfAllStepsToPaste.getCenterY());

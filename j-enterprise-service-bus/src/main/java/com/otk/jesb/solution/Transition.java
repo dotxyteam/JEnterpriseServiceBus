@@ -106,7 +106,7 @@ public class Transition extends PlanElement{
 			try {
 				getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
-				throw new ValidationError("Failed to validate the condition", e);
+				throw new ValidationError("Failed to validate the predicate", e);
 			}
 		}
 

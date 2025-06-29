@@ -26,6 +26,9 @@
 	. disabling animations
 	. disabling the step occurrences collection
 	. disabling all breakpoints
+- allow to have special password variables
+- allow to copy/cut/paste assets
+- allow to retarget a transition
 - add a binary type (maybe an alias of byte[]) for structure elements
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
 - use the same structure (list or array) for structure multiple elements 

@@ -115,6 +115,7 @@ import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ValidationErrorRegistry;
 
 public class JESBReflectionUI extends CustomizedUI {
 
@@ -618,7 +619,8 @@ public class JESBReflectionUI extends CustomizedUI {
 							return false;
 						}
 
-					});result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+					});
+					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
 						@Override
 						public String getName() {
@@ -1388,6 +1390,18 @@ public class JESBReflectionUI extends CustomizedUI {
 			}
 
 			@Override
+			protected boolean isModificationStackAccessible(ITypeInfo type) {
+				try {
+					Class<?> objectClass = ClassUtils.getCachedClassForName(type.getName());
+					if (Throwable.class.isAssignableFrom(objectClass)) {
+						return false;
+					}
+				} catch (ClassNotFoundException e) {
+				}
+				return super.isModificationStackAccessible(type);
+			}
+
+			@Override
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
 				if (object instanceof Plan) {
 					session.put(CURRENT_VALIDATION_PLAN_KEY, object);
@@ -1422,7 +1436,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot((Facade) object);
 					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());					
+					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
 					Step step = getCurrentValidationStep(session);
 					Plan plan = getCurrentValidationPlan(session);
@@ -1443,43 +1457,51 @@ public class JESBReflectionUI extends CustomizedUI {
 				}
 			}
 
-			Plan getCurrentValidationPlan(ValidationSession session) {
-				Plan result = (Plan) session.get(CURRENT_VALIDATION_PLAN_KEY);
-				if (result == null) {
-					result = displayedPlan;
-				}
-				return result;
-			}
+		}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
+	}
 
-			Step getCurrentValidationStep(ValidationSession session) {
-				Step result = (Step) session.get(CURRENT_VALIDATION_STEP_KEY);
-				if (result == null) {
-					result = displayedStep;
-				}
-				return result;
-			}
-
-			Transition getCurrentValidationTransition(ValidationSession session) {
-				Transition result = (Transition) session.get(CURRENT_VALIDATION_TRANSITION_KEY);
-				if (result == null) {
-					result = displayedTransition;
-				}
-				return result;
-			}
+	@Override
+	protected ValidationErrorRegistry createValidationErrorRegistry() {
+		return new ValidationErrorRegistry() {
 
 			@Override
-			protected boolean isModificationStackAccessible(ITypeInfo type) {
-				try {
-					Class<?> objectClass = ClassUtils.getCachedClassForName(type.getName());
-					if (Throwable.class.isAssignableFrom(objectClass)) {
-						return false;
+			protected Object getValidationErrorMapKey(Object object, ValidationSession session) {
+				if (object instanceof Step) {
+					return Arrays.asList(object, getCurrentValidationPlan(session));
+				} else if (object instanceof Transition) {
+					return Arrays.asList(object, getCurrentValidationPlan(session));
+				} else if (object instanceof Transition.Condition) {
+					return Arrays.asList(object, getCurrentValidationPlan(session),
+							getCurrentValidationTransition(session));
+				} else if (object instanceof OperationBuilder) {
+					return Arrays.asList(object, getCurrentValidationPlan(session), getCurrentValidationStep(session));
+				} else if (object instanceof Facade) {
+					Step step = getCurrentValidationStep(session);
+					Plan plan = getCurrentValidationPlan(session);
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot((Facade) object);
+					if (plan != null) {
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 					}
-				} catch (ClassNotFoundException e) {
+					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
+				} else if (object instanceof ListItemReplicationFacade) {
+					Step step = getCurrentValidationStep(session);
+					Plan plan = getCurrentValidationPlan(session);
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+					if (plan != null) {
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+					}
+					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
+				} else if (object instanceof ActivationStrategy) {
+					Plan plan = getCurrentValidationPlan(session);
+					return Arrays.asList(object, plan);
+				} else {
+					return super.getValidationErrorMapKey(object, session);
 				}
-				return super.isModificationStackAccessible(type);
 			}
 
-		}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
+		};
 	}
 
 	@Override
@@ -1513,6 +1535,30 @@ public class JESBReflectionUI extends CustomizedUI {
 				return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
 			}
 		}.wrapTypeInfo(super.getTypeInfoAfterCustomizations(type));
+	}
+
+	private Plan getCurrentValidationPlan(ValidationSession session) {
+		Plan result = (session == null) ? null : (Plan) session.get(CURRENT_VALIDATION_PLAN_KEY);
+		if (result == null) {
+			result = displayedPlan;
+		}
+		return result;
+	}
+
+	private Step getCurrentValidationStep(ValidationSession session) {
+		Step result = (session == null) ? null : (Step) session.get(CURRENT_VALIDATION_STEP_KEY);
+		if (result == null) {
+			result = displayedStep;
+		}
+		return result;
+	}
+
+	private Transition getCurrentValidationTransition(ValidationSession session) {
+		Transition result = (session == null) ? null : (Transition) session.get(CURRENT_VALIDATION_TRANSITION_KEY);
+		if (result == null) {
+			result = displayedTransition;
+		}
+		return result;
 	}
 
 	private static class VariantCustomizations {
