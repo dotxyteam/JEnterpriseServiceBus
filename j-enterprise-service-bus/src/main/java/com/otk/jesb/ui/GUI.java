@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -198,6 +199,11 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					public void refreshUI(boolean refreshStructure) {
+						if (!refreshStructure
+								&& (mayFade() != (Arrays.asList(getComponents()).contains(transparentPanel)))) {
+							refreshUI(true);
+							return;
+						}
 						boolean mustFade = isVisible() && prepareToFade();
 						if (mustFade) {
 							transparentPanel.fade(+1, 0.0);

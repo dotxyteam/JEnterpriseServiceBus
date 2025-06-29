@@ -856,10 +856,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				.collect(Collectors.toList()));
 		Map<Pair<String, PlanElement>, Exception> validitionErrorMap = new HashMap<Pair<String, PlanElement>, Exception>();
 		for (Pair<String, PlanElement> toValidate : titleAndElementPairs) {
-			if(toValidate.getSecond().toString().equals("a")) {
-				System.out.println("debug");
-			}
-			
 			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
