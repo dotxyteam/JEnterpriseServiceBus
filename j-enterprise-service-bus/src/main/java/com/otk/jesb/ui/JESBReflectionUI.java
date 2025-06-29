@@ -672,6 +672,11 @@ public class JESBReflectionUI extends CustomizedUI {
 								}
 
 								@Override
+								public boolean isRelevant(Object object) {
+									return getValue(object) != null;
+								}
+
+								@Override
 								protected IListTypeInfo createListType() {
 									return new ListTypeInfo() {
 										@Override

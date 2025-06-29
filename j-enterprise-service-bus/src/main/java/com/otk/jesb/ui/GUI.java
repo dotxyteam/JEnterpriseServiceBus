@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -139,6 +138,7 @@ public class GUI extends SwingCustomizer {
 
 					FadingPanel transparentPanel = new FadingPanel();
 					Object lastValue;
+					boolean fadingEnabled = false;
 
 					boolean mayFade() {
 						if (!Preferences.INSTANCE.isFadingTransitioningEnabled()) {
@@ -163,7 +163,14 @@ public class GUI extends SwingCustomizer {
 					}
 
 					boolean prepareToFade() {
-						if (!mayFade()) {
+						if (fadingEnabled != mayFade()) {
+							if (fieldControl != null) {
+								destroyFieldControl();
+							}
+							fadingEnabled = mayFade();
+							super.refreshUI(false);
+						}
+						if (!fadingEnabled) {
 							return false;
 						}
 						Object newValue = field.getValue(getObject());
@@ -180,7 +187,7 @@ public class GUI extends SwingCustomizer {
 					@Override
 					protected void layoutFieldControl() {
 						super.layoutFieldControl();
-						if (mayFade()) {
+						if (fadingEnabled) {
 							remove(fieldControl);
 							add(transparentPanel, BorderLayout.CENTER);
 							transparentPanel.add(fieldControl, BorderLayout.CENTER);
@@ -189,7 +196,7 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					protected void destroyFieldControl() {
-						if (mayFade()) {
+						if (fadingEnabled) {
 							transparentPanel.remove(fieldControl);
 							remove(transparentPanel);
 							add(fieldControl, BorderLayout.CENTER);
@@ -199,11 +206,6 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					public void refreshUI(boolean refreshStructure) {
-						if (!refreshStructure
-								&& (mayFade() != (Arrays.asList(getComponents()).contains(transparentPanel)))) {
-							refreshUI(true);
-							return;
-						}
 						boolean mustFade = isVisible() && prepareToFade();
 						if (mustFade) {
 							transparentPanel.fade(+1, 0.0);
