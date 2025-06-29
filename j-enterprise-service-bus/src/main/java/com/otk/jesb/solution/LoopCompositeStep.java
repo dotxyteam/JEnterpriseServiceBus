@@ -1,11 +1,12 @@
 package com.otk.jesb.solution;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Function;
@@ -13,6 +14,8 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -91,6 +94,7 @@ public class LoopCompositeStep extends CompositeStep {
 		private ExecutionInspector executionInspector;
 		private Function loopEndCondition;
 		private String iterationIndexVariableName;
+		private int currentIndex = -1;
 
 		public LoopOperation(ExecutionContext context, ExecutionInspector executionInspector, Function loopEndCondition,
 				String iterationIndexVariableName) {
@@ -100,20 +104,21 @@ public class LoopCompositeStep extends CompositeStep {
 			this.iterationIndexVariableName = iterationIndexVariableName;
 		}
 
+		public int getCurrentIndex() {
+			return currentIndex;
+		}
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute() throws Exception {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
 			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
-			final int[] index = new int[] { 0 };
-			LoopOperationResult result = null;
-			{
-				Class<?> resultClass = loopCompositeStep.getOperationBuilder()
-						.getOperationResultClass(context.getPlan(), loopCompositeStep);
-				if (resultClass != null) {
-					result = (LoopOperationResult) resultClass.getConstructor().newInstance();
-				}
-			}
+			currentIndex = 0;
+			Class<?> resultClass = loopCompositeStep.getOperationBuilder().getOperationResultClass(context.getPlan(),
+					loopCompositeStep);
+			List<Object>[] resultLists = (resultClass != null) ? IntStream
+					.range(0, resultClass.getDeclaredFields().length).mapToObj(ArrayList::new).toArray(List[]::new)
+					: null;
 			Variable iterationIndexVariable = new Variable() {
 
 				@Override
@@ -123,7 +128,7 @@ public class LoopCompositeStep extends CompositeStep {
 
 				@Override
 				public Object getValue() {
-					return index[0];
+					return currentIndex;
 				}
 			};
 			context.getVariables().add(iterationIndexVariable);
@@ -153,29 +158,39 @@ public class LoopCompositeStep extends CompositeStep {
 						throw new UnexpectedError(t);
 					}
 					context.setCutrrentStep(loopCompositeStep);
-					if (result != null) {
+					if (resultLists != null) {
 						for (Variable variable : context.getVariables()) {
-							if (variable.getValue() != null) {
-								if (result.listResultsCollectionTargetedStepNames().contains(variable.getName())) {
-									result.accessCollectedStepResults(variable.getName()).add(variable.getValue());
+							int resultFieldIndex = IntStream.range(0, resultClass.getDeclaredFields().length).filter(
+									i -> variable.getName().equals(resultClass.getDeclaredFields()[i].getName()))
+									.findFirst().orElse(-1);
+							if (resultFieldIndex != -1) {
+								if (variable.getValue() != null) {
+									List<Object> resultList = resultLists[resultFieldIndex];
+									resultList.add(variable.getValue());
 								}
 							}
 						}
 					}
-					index[0]++;
+					currentIndex++;
 				}
 			} finally {
 				context.getVariables().remove(iterationIndexVariable);
 			}
-			return result;
-		}
-
-		public static interface LoopOperationResult {
-
-			List<String> listResultsCollectionTargetedStepNames();
-
-			@SuppressWarnings("rawtypes")
-			List accessCollectedStepResults(String stepName);
+			if (resultLists != null) {
+				Object[] resultConstructorArguments = IntStream.range(0, resultLists.length).mapToObj(i -> {
+					List<Object> resultList = resultLists[i];
+					Object resultArray = Array.newInstance(
+							resultClass.getDeclaredFields()[i].getType().getComponentType(), resultList.size());
+					for (int resultArrayIndex = 0; resultArrayIndex < resultList.size(); resultArrayIndex++) {
+						Object object = resultList.get(resultArrayIndex);
+						Array.set(resultArray, resultArrayIndex, object);
+					}
+					return resultArray;
+				}).toArray();
+				return resultClass.getConstructors()[0].newInstance(resultConstructorArguments);
+			} else {
+				return null;
+			}
 		}
 
 		public static class Metadata implements OperationMetadata {
@@ -277,60 +292,27 @@ public class LoopCompositeStep extends CompositeStep {
 				}
 				String resultClassName = LoopCompositeStep.class.getName() + "Result"
 						+ MiscUtils.toDigitalUniqueIdentifier(this);
-				StringBuilder javaSource = new StringBuilder();
-				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
-				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName)
-						+ " implements " + MiscUtils.adaptClassNameToSourceCode(LoopOperationResult.class.getName())
-						+ "{" + "\n");
-				StringBuilder privateFieldDeclarationsSource = new StringBuilder();
-				StringBuilder getterDeclarationsSource = new StringBuilder();
-				StringBuilder resultsCollectionTargetedStepNameListingMethodDeclarationSource = new StringBuilder();
-				StringBuilder collectedStepResultsAccessorDeclarationSource = new StringBuilder();
-				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append("  @Override\n  public  "
-						+ List.class.getName() + "<String> listResultsCollectionTargetedStepNames() {" + "\n");
-				resultsCollectionTargetedStepNameListingMethodDeclarationSource
-						.append("    return " + Arrays.class.getName() + ".asList(");
-				collectedStepResultsAccessorDeclarationSource.append("  @Override\n  public  " + List.class.getName()
-						+ " accessCollectedStepResults(String stepName) {" + "\n");
-				for (int i = 0; i < resultsCollectionEntries.size(); i++) {
-					ResultsCollectionConfigurationEntry resultsCollectionEntry = resultsCollectionEntries.get(i);
-					if (!resultsCollectionEntry.isValid()) {
-						continue;
+				ClassicStructure structure = new ClassicStructure();
+				{
+					for (int i = 0; i < resultsCollectionEntries.size(); i++) {
+						ResultsCollectionConfigurationEntry resultsCollectionEntry = resultsCollectionEntries.get(i);
+						if (!resultsCollectionEntry.isValid()) {
+							continue;
+						}
+						if (!resultsCollectionEntry.isResultsCollectionEnabled()) {
+							continue;
+						}
+						SimpleElement element = new SimpleElement();
+						structure.getElements().add(element);
+						element.setName(resultsCollectionEntry.getStepName());
+						element.setTypeName(MiscUtils.adaptClassNameToSourceCode(
+								resultsCollectionEntry.getOperationResultClass(currentPlan).getName()));
+						element.setMultiple(true);
 					}
-					if (!resultsCollectionEntry.isResultsCollectionEnabled()) {
-						continue;
-					}
-					String fieldName = resultsCollectionEntry.getStepName();
-					String fieldTypeName = List.class.getName() + "<" + MiscUtils.adaptClassNameToSourceCode(
-							resultsCollectionEntry.getOperationResultClass(currentPlan).getName()) + ">";
-					privateFieldDeclarationsSource.append("  private " + fieldTypeName + " " + fieldName + " = new "
-							+ fieldTypeName.replace(List.class.getName(), ArrayList.class.getName()) + "();\n");
-					String getterMethoName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-					getterDeclarationsSource
-							.append("  public " + fieldTypeName + " " + getterMethoName + "() {" + "\n");
-					getterDeclarationsSource.append("    return " + fieldName + ";" + "\n");
-					getterDeclarationsSource.append("  }" + "\n");
-					resultsCollectionTargetedStepNameListingMethodDeclarationSource
-							.append(((i > 0) ? ", " : "") + "\"" + fieldName + "\"");
-					collectedStepResultsAccessorDeclarationSource.append(
-							((i > 0) ? "    else " : "    ") + "if(stepName.equals(\"" + fieldName + "\")){" + "\n");
-					collectedStepResultsAccessorDeclarationSource.append("      return " + fieldName + ";" + "\n");
-					collectedStepResultsAccessorDeclarationSource.append("    }" + "\n");
 				}
-				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append(");" + "\n");
-				resultsCollectionTargetedStepNameListingMethodDeclarationSource.append("  }" + "\n");
-				collectedStepResultsAccessorDeclarationSource
-						.append("    throw new " + IllegalArgumentException.class.getName()
-								+ "(\"Invalid step name: '\" + stepName + \"'\");\n");
-				collectedStepResultsAccessorDeclarationSource.append("  }" + "\n");
-
-				javaSource.append(privateFieldDeclarationsSource.toString());
-				javaSource.append(getterDeclarationsSource.toString());
-				javaSource.append(resultsCollectionTargetedStepNameListingMethodDeclarationSource.toString());
-				javaSource.append(collectedStepResultsAccessorDeclarationSource.toString());
-				javaSource.append("}" + "\n");
 				try {
-					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName, javaSource.toString());
+					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,
+							structure.generateJavaTypeSourceCode(resultClassName));
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
 				}

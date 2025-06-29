@@ -1,5 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
+import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,6 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.otk.jesb.Structure;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
@@ -20,14 +25,19 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
 public class JDBCQuery extends JDBCOperation {
 
@@ -42,10 +52,49 @@ public class JDBCQuery extends JDBCOperation {
 	public Object execute() throws Exception {
 		PreparedStatement preparedStatement = prepare();
 		ResultSet resultSet = preparedStatement.executeQuery();
+		ResultSetMetaData metaData = resultSet.getMetaData();
 		if (customResultClass != null) {
-			return customResultClass.getConstructor(ResultSet.class).newInstance(resultSet);
+			Constructor<?> customResultConstructor = customResultClass.getConstructors()[0];
+			Class<?> customResultRowListClass = customResultConstructor.getParameterTypes()[0];
+			IListTypeInfo customResultRowListTypeInfo = (IListTypeInfo) TypeInfoProvider
+					.getTypeInfo(customResultRowListClass);
+			ITypeInfo customResultRowTypeInfo = customResultRowListTypeInfo.getItemType();
+			IMethodInfo customResultRowConstructorInfo = customResultRowTypeInfo.getConstructors().get(0);
+			List<IParameterInfo> customResultRowConstructorParameterInfos = customResultRowConstructorInfo
+					.getParameters();
+			if (metaData.getColumnCount() != customResultRowConstructorParameterInfos.size()) {
+				throw new ValidationError("Unexpected result row column count: " + metaData.getColumnCount()
+						+ ". Expected " + customResultRowConstructorParameterInfos.size() + " column(s).");
+			}
+			List<Object> customResultRowStandardList = new ArrayList<Object>();
+			while (resultSet.next()) {
+				Object[] parameterValues = new Object[metaData.getColumnCount()];
+				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
+					IParameterInfo parameterInfo = customResultRowConstructorParameterInfos.get(iColumn - 1);
+					if (!parameterInfo.getName().equals(metaData.getColumnName(iColumn))) {
+						throw new ValidationError(
+								"Unexpected result row column name: '" + metaData.getColumnName(iColumn) + "' at the "
+										+ iColumn + "th position. Expected '" + parameterInfo.getName() + "'");
+					}
+					parameterValues[iColumn - 1] = resultSet.getObject(iColumn);
+				}
+				InvocationData invocationData = new InvocationData(null, customResultRowConstructorInfo,
+						parameterValues);
+				Object row = customResultRowConstructorInfo.invoke(null, invocationData);
+				customResultRowStandardList.add(row);
+			}
+			Object customResultRowList = customResultRowListTypeInfo.fromArray(customResultRowStandardList.toArray());
+			return customResultClass.getConstructors()[0].newInstance(customResultRowList);
 		} else {
-			return new GenericResult(resultSet);
+			List<GenericResultRow> rows = new ArrayList<JDBCQuery.GenericResultRow>();
+			while (resultSet.next()) {
+				GenericResultRow row = new GenericResultRow();
+				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
+					row.cellValues.put(metaData.getColumnName(iColumn), resultSet.getObject(iColumn));
+				}
+				rows.add(row);
+			}
+			return new GenericResult(rows.toArray(new GenericResultRow[rows.size()]));
 		}
 	}
 
@@ -85,52 +134,39 @@ public class JDBCQuery extends JDBCOperation {
 				return null;
 			}
 			String resultClassName = JDBCQuery.class.getName() + "Result" + MiscUtils.toDigitalUniqueIdentifier(this);
-			String resultRowClassName = "ResultRow";
-			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(resultClassName) + ";" + "\n");
-			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "{" + "\n");
-			javaSource.append("  private " + List.class.getName() + "<" + resultRowClassName + "> rows = new "
-					+ ArrayList.class.getName() + "<" + resultRowClassName + ">();\n");
-			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(resultClassName) + "("
-					+ ResultSet.class.getName() + " resultSet) throws " + SQLException.class.getName() + "{\n");
-			javaSource.append("    while (resultSet.next()) {\n");
-			javaSource.append("      " + resultRowClassName + " row = new " + resultRowClassName + "();\n");
-			for (int i = 0; i < resultColumnDefinitions.size(); i++) {
-				ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
-				javaSource.append(
-						"      row." + columnDefinition.getColumnName() + " = (" + columnDefinition.getColumnTypeName()
-								+ ")resultSet.getObject(\"" + columnDefinition.getColumnName() + "\");\n");
-			}
-			javaSource.append("      rows.add(row);\n");
-			javaSource.append("    }\n");
-			javaSource.append("  }\n");
-			javaSource.append("  public " + List.class.getName() + "<" + resultRowClassName + "> getRows(){\n");
-			javaSource.append("    return rows;\n");
-			javaSource.append("  }\n");
-			{
-				javaSource.append("public static class " + resultRowClassName + "{" + "\n");
-				for (int i = 0; i < resultColumnDefinitions.size(); i++) {
-					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
-					javaSource.append("  private " + columnDefinition.getColumnTypeName() + " "
-							+ columnDefinition.getColumnName() + ";\n");
-				}
-				for (int i = 0; i < resultColumnDefinitions.size(); i++) {
-					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
-					String getterMethoName = "get" + columnDefinition.getColumnName().substring(0, 1).toUpperCase()
-							+ columnDefinition.getColumnName().substring(1);
-					javaSource.append(
-							"  public " + columnDefinition.getColumnTypeName() + " " + getterMethoName + "() {" + "\n");
-					javaSource.append("    return " + columnDefinition.getColumnName() + ";" + "\n");
-					javaSource.append("  }" + "\n");
-				}
-				javaSource.append("}" + "\n");
-			}
-			javaSource.append("}" + "\n");
 			try {
-				return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName, javaSource.toString());
+				return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,
+						createCustomResultStructure().generateJavaTypeSourceCode(resultClassName));
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);
 			}
+		}
+
+		private Structure createCustomResultStructure() {
+			ClassicStructure resultStructure = new ClassicStructure();
+			{
+				StructuredElement rowsElement = new StructuredElement();
+				resultStructure.getElements().add(rowsElement);
+				rowsElement.setName("rows");
+				rowsElement.setMultiple(true);
+				rowsElement.setStructure(createResultRowStructure());
+			}
+			return resultStructure;
+		}
+
+		private Structure createResultRowStructure() {
+			ClassicStructure rowStructure = new ClassicStructure();
+			{
+				for (int i = 0; i < resultColumnDefinitions.size(); i++) {
+					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
+					SimpleElement columnElement = new SimpleElement();
+					rowStructure.getElements().add(columnElement);
+					columnElement.setName(columnDefinition.getColumnName());
+					columnElement
+							.setTypeName(MiscUtils.adaptClassNameToSourceCode(columnDefinition.getColumnTypeName()));
+				}
+			}
+			return rowStructure;
 		}
 
 		public List<ColumnDefinition> getResultColumnDefinitions() {
@@ -261,35 +297,20 @@ public class JDBCQuery extends JDBCOperation {
 	}
 
 	public static class GenericResult {
-		private List<GenericResultRow> rows = new ArrayList<GenericResultRow>();
+		public final GenericResultRow[] rows;
 
-		public GenericResult(ResultSet resultSet) throws SQLException {
-			ResultSetMetaData metaData = resultSet.getMetaData();
-			while (resultSet.next()) {
-				GenericResultRow row = new GenericResultRow();
-				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
-					row.getCellValues().put(metaData.getColumnName(iColumn), resultSet.getObject(iColumn));
-				}
-				rows.add(row);
-			}
-		}
-
-		public List<GenericResultRow> getRows() {
-			return rows;
+		public GenericResult(GenericResultRow[] rows) {
+			this.rows = rows;
 		}
 
 	}
 
 	public static class GenericResultRow {
 
-		private Map<String, Object> cellValues = new HashMap<String, Object>();
+		public final Map<String, Object> cellValues = new HashMap<String, Object>();
 
 		public List<String> getColumnNames() {
 			return new ArrayList<String>(cellValues.keySet());
-		}
-
-		public Map<String, Object> getCellValues() {
-			return cellValues;
 		}
 
 	}

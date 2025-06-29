@@ -97,14 +97,10 @@ public class JDBCUpdate extends JDBCOperation {
 
 	public static class Result {
 
-		private int affectedRowCount;
+		public final int affectedRowCount;
 
 		public Result(int affectedRowCount) {
 			this.affectedRowCount = affectedRowCount;
-		}
-
-		public int getAffectedRowCount() {
-			return affectedRowCount;
 		}
 
 	}

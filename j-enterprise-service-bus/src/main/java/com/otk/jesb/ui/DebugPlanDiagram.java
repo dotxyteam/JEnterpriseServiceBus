@@ -50,12 +50,12 @@ public class DebugPlanDiagram extends PlanDiagram {
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
 		boolean result = super.refreshUI(refreshStructure);
-		if(result) {
-			if(isShowing()) {
+		if (result) {
+			if (isShowing()) {
 				PlanExecutor planExecutor = getPlanExecutor();
-				if(!planExecutor.isScrollLocked()) {
+				if (!planExecutor.isScrollLocked()) {
 					StepCrossing currentStepCrossing = planExecutor.getCurrentStepCrossing();
-					if(currentStepCrossing != null) {
+					if (currentStepCrossing != null) {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
@@ -118,7 +118,9 @@ public class DebugPlanDiagram extends PlanDiagram {
 								.filter(diagramObject -> diagramObject instanceof JNode).map(diagramObject -> {
 									Step step = (Step) diagramObject.getValue();
 									for (StepCrossing stepCrossing : MiscUtils
-											.getReverse(getPlanExecutor().getStepCrossings())) {
+											.getReverse(stepCrossingsControl.getRootListItemPositions().stream()
+													.map(itemPosition -> (StepCrossing) itemPosition.getItem())
+													.collect(Collectors.toList()))) {
 										if (stepCrossing.getStep() == step) {
 											return stepCrossing;
 										}
@@ -210,7 +212,8 @@ public class DebugPlanDiagram extends PlanDiagram {
 
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
-		int transitionOccurrenceCount = getPlanExecutor().getTransitionOccurrenceCount((Transition)connection.getValue());
+		int transitionOccurrenceCount = getPlanExecutor()
+				.getTransitionOccurrenceCount((Transition) connection.getValue());
 		if (transitionOccurrenceCount > 0) {
 			Color connectionColorToRestore = getConnectionColor();
 			try {

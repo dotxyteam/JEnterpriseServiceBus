@@ -66,7 +66,7 @@ public class JESB {
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(1, new InstantiationFunction(
-						"return (String)a.getRows().get(index).getCellValues().get(\"TABLE_NAME\");")));
+						"return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);

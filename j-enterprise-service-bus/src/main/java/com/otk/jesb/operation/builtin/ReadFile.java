@@ -207,28 +207,20 @@ public class ReadFile implements Operation {
 
 	public static class TextResult {
 
-		private String text;
+		public final String text;
 
 		public TextResult(String text) {
 			this.text = text;
-		}
-
-		public String getText() {
-			return text;
 		}
 
 	}
 
 	public static class BinaryResult {
 
-		private byte[] data;
+		public final byte[] data;
 
 		public BinaryResult(byte[] data) {
 			this.data = data;
-		}
-
-		public byte[] getData() {
-			return data;
 		}
 
 	}

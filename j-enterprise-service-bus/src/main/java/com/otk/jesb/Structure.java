@@ -17,11 +17,16 @@ import xy.reflect.ui.util.ClassUtils;
 
 public abstract class Structure {
 
-	public abstract String generateJavaTypeSourceCode(String className);
+	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
+			String additionalMethodDeclarations);
 
 	public abstract void validate(boolean recursively) throws ValidationError;
 
 	public abstract String toString();
+
+	public String generateJavaTypeSourceCode(String className) {
+		return generateJavaTypeSourceCode(className, null, null, null);
+	}
 
 	public static class ClassicStructure extends Structure {
 
@@ -36,13 +41,16 @@ public abstract class Structure {
 		}
 
 		@Override
-		public String generateJavaTypeSourceCode(String className) {
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String additionalMethodDeclarations) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
-			result.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
-					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName()) + "{" + "\n");
+			result.append("public class " + MiscUtils.extractSimpleNameFromClassName(className)
+					+ ((additionalyExtended != null) ? (" " + additionalyExtended) : "") + " implements "
+					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName())
+					+ ((additionalyImplemented != null) ? (", " + additionalyImplemented) : "") + "{" + "\n");
 			result.append(MiscUtils.stringJoin(elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode())
 					.collect(Collectors.toList()), "\n") + "\n");
 			result.append(
@@ -56,9 +64,9 @@ public abstract class Structure {
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
 			result.append("}" + "\n");
-			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> e.generateJavaFieldAccessorsSourceCode()).collect(Collectors.toList()),
-					"\n") + "\n");
+			if (additionalMethodDeclarations != null) {
+				result.append(additionalMethodDeclarations + "\n");
+			}
 			result.append(
 					MiscUtils.stringJoin(elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode())
 							.filter(Objects::nonNull).collect(Collectors.toList()), "\n") + "\n");
@@ -109,10 +117,24 @@ public abstract class Structure {
 		}
 
 		@Override
-		public String generateJavaTypeSourceCode(String className) {
-			return "public enum " + className + "{" + "\n"
-					+ MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
-					+ ";" + "\n" + "}";
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String additionalMethodDeclarations) {
+			StringBuilder result = new StringBuilder();
+			if (MiscUtils.isPackageNameInClassName(className)) {
+				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+			}
+			result.append("public enum " + MiscUtils.extractSimpleNameFromClassName(className)
+					+ ((additionalyExtended != null) ? (" " + additionalyExtended) : "") + " implements "
+					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName())
+					+ ((additionalyImplemented != null) ? (", " + additionalyImplemented) : "") + "{" + "\n");
+			result.append(
+					MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
+							+ ";" + "\n");
+			if (additionalMethodDeclarations != null) {
+				result.append(additionalMethodDeclarations + "\n");
+			}
+			result.append("}");
+			return result.toString();
 		}
 
 		@Override
@@ -153,7 +175,9 @@ public abstract class Structure {
 					} catch (IllegalArgumentException e) {
 						return false;
 					}
-				}, newPath -> {
+				}, newPath ->
+
+				{
 					if (newPath != null) {
 						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
 								SharedStructureModel.class);
@@ -216,7 +240,8 @@ public abstract class Structure {
 		}
 
 		@Override
-		public String generateJavaTypeSourceCode(String className) {
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String additionalMethodDeclarations) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -296,14 +321,16 @@ public abstract class Structure {
 		}
 
 		protected String generateJavaFieldDeclarationSourceCode() {
-			String defaultValueSettingString = "";
-			if (getOptionality() != null) {
-				if (getOptionality().getDefaultValueExpression() != null) {
-					defaultValueSettingString = "=" + getOptionality().getDefaultValueExpression();
-				}
+			String result = "public ";
+			if (getOptionality() == null) {
+				result += "final ";
 			}
-			return "private " + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + defaultValueSettingString
-					+ ";";
+			result += getFinalTypeNameAdaptedToSourceCode() + " " + getName();
+			if ((getOptionality() != null) && (getOptionality().getDefaultValueExpression() != null)) {
+				result += "=" + getOptionality().getDefaultValueExpression();
+			}
+			result += ";";
+			return result;
 		}
 
 		protected String generateJavaConstructorParameterDeclarationSourceCode() {
@@ -318,22 +345,6 @@ public abstract class Structure {
 				return null;
 			}
 			return "this." + getName() + "=" + getName() + ";";
-		}
-
-		protected String generateJavaFieldAccessorsSourceCode() {
-			StringBuilder result = new StringBuilder();
-			result.append("public " + getFinalTypeNameAdaptedToSourceCode() + " get"
-					+ getName().substring(0, 1).toUpperCase() + getName().substring(1) + "(){" + "\n");
-			result.append("return " + getName() + ";" + "\n");
-			result.append("}");
-			if (getOptionality() != null) {
-				result.append(
-						"\n" + "public void set" + getName().substring(0, 1).toUpperCase() + getName().substring(1)
-								+ "(" + getFinalTypeNameAdaptedToSourceCode() + " " + getName() + "){" + "\n");
-				result.append("this." + getName() + "=" + getName() + ";" + "\n");
-				result.append("}");
-			}
-			return result.toString();
 		}
 
 		public void validate(boolean recursively) throws ValidationError {
