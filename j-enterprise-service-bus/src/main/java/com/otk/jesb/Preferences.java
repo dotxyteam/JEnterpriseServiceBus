@@ -1,10 +1,15 @@
 package com.otk.jesb;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
 import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -76,6 +81,17 @@ public class Preferences {
 					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
 
 						private static final long serialVersionUID = 1L;
+
+						{
+							try (InputStream is = Preferences.class.getResourceAsStream("ui/FlatLightFlatIJTheme.ttf")) {
+								Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+								GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+							} catch (IOException | FontFormatException e) {
+								throw new UnexpectedError(e);
+							}
+							FlatLightFlatIJTheme
+									.registerCustomDefaultsSource(Preferences.class.getPackage().getName() + ".ui");
+						}
 
 						@Override
 						public UIDefaults getDefaults() {
