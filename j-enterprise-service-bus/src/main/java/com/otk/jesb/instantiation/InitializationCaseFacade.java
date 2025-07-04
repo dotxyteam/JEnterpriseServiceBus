@@ -126,7 +126,7 @@ public class InitializationCaseFacade extends Facade {
 				}
 			}
 		}
-		throw new UnexpectedError();
+		return null;
 	}
 
 	@Override

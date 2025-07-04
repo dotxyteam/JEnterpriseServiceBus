@@ -15,6 +15,7 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
 import com.otk.jesb.ui.GUI.BetterFlatTableHeaderUI;
 import com.otk.jesb.util.MiscUtils;
@@ -78,20 +79,19 @@ public class Preferences {
 				} else if (this == Theme.CROSS_PLATFORM) {
 					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 				} else if (this == Theme.FLAT) {
+					System.setProperty("awt.useSystemAAFontSettings", "on");
+					System.setProperty("swing.aatext", "true");
+					Font font;
+					try (InputStream is = Preferences.class.getResourceAsStream("ui/FlatLightFlatIJTheme.ttf")) {
+						font = Font.createFont(Font.TRUETYPE_FONT, is);
+						GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+						FlatLaf.setPreferredFontFamily(font.getFamily());
+					} catch (IOException | FontFormatException e) {
+						throw new UnexpectedError(e);
+					}
 					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
 
 						private static final long serialVersionUID = 1L;
-
-						{
-							try (InputStream is = Preferences.class.getResourceAsStream("ui/FlatLightFlatIJTheme.ttf")) {
-								Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-								GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
-							} catch (IOException | FontFormatException e) {
-								throw new UnexpectedError(e);
-							}
-							FlatLightFlatIJTheme
-									.registerCustomDefaultsSource(Preferences.class.getPackage().getName() + ".ui");
-						}
 
 						@Override
 						public UIDefaults getDefaults() {
