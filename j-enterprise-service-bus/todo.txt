@@ -4,24 +4,19 @@
 	. release a first version
 	. advertise
 	. improve the features
+- to ease co-working and version control, plans and resources must be stored in separate files  
 - add general activities:
 	. Log
 	. ...
 - maybe change the project name since ESBs are not popular anymore
 - add other built-in activities (file, jdbc, jms, data format, ...)
-- to ease co-working and version control, plans and resources must be stored in separate files  
-- add environment variables/properties:
-	. allow to interpret them
-	. allow to create profiles for each env
+- allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
 - allow to deploy and execute a project outside of the designer in a production environment
 - improve the UI design:
-	. change the font look and feel (maybe the windows look and feel would be good)
-	. change the fonts ???
 	. add a banner ???
 - allow to add debug breakpoints
 - allow to add comments to plan diagrams
-- allow to add description/notes to assets
 - allow to optimize a debug session by:
 	. disabling animations
 	. disabling the step occurrences collection
@@ -29,10 +24,7 @@
 - allow to have special password variables
 - allow to copy/cut/paste assets
 - allow to retarget a transition
-- add a binary type (maybe an alias of byte[]) for structure elements
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
-- use the same structure (list or array) for structure multiple elements 
-and loop results
 - create and use TypeInfoProvider.getClass(ITypeInfo)
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities

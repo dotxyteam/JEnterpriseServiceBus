@@ -18,7 +18,7 @@ public class Solution {
 
 	public static Solution INSTANCE = new Solution();
 
-	private Folder rootFolder = new Folder(Solution.class.getName() + ".rootFolder");
+	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
 
 	public EnvironmentSettings getEnvironmentSettings() {
@@ -49,6 +49,73 @@ public class Solution {
 		return new Debugger(this);
 	}
 
+	public void loadFromDirectory(File directory) throws IOException {
+		if (!directory.isDirectory()) {
+			throw new IllegalArgumentException("'" + directory + "' is not a valid directory");
+		}
+		try (FileInputStream fileInputStream = new FileInputStream(new File(directory, "environmentSettings"))) {
+			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
+		}
+		rootFolder = loadFolder(directory, rootFolder.getName());
+	}
+
+	private Folder loadFolder(File parentDirectory, String folderName) throws IOException {
+		File folderDirectory = new File(parentDirectory, folderName);
+		if (!folderDirectory.isDirectory()) {
+			throw new IllegalArgumentException("'" + folderDirectory + "' is not a valid directory");
+		}
+		Folder folder = new Folder(folderName);
+		for (String name : folderDirectory.list()) {
+			folder.getContents().add(loadAsset(folderDirectory, name));
+		}
+		return folder;
+	}
+
+	private Asset loadAsset(File parentDirectory, String name) throws IOException {
+		File fileOrDirectory = new File(parentDirectory, name);
+		if (fileOrDirectory.isDirectory()) {
+			return loadFolder(parentDirectory, name);
+		} else {
+			try (FileInputStream fileInputStream = new FileInputStream(fileOrDirectory)) {
+				return (Asset) MiscUtils.deserialize(fileInputStream);
+			}
+		}
+	}
+
+	public void saveToDirectory(File parentDirectory, String directoryName) throws IOException {
+		File directory = new File(parentDirectory, directoryName);
+		if (directory.exists()) {
+			MiscUtils.delete(directory);
+		}
+		saveToDirectory(directory);
+	}
+
+	public void saveToDirectory(File directory) throws IOException {
+		MiscUtils.createDirectory(directory);
+		try (FileOutputStream fileOutputStream = new FileOutputStream(new File(directory, "environmentSettings"))) {
+			MiscUtils.serialize(environmentSettings, fileOutputStream);
+		}
+		saveFolder(directory, rootFolder);
+	}
+
+	private void saveFolder(File parentDirectory, Folder folder) throws IOException {
+		File folderDirectory = new File(parentDirectory, folder.getName());
+		MiscUtils.createDirectory(folderDirectory);
+		for (Asset asset : folder.getContents()) {
+			saveAsset(folderDirectory, asset);
+		}
+	}
+
+	private void saveAsset(File parentDirectory, Asset asset) throws IOException {
+		if (asset instanceof Folder) {
+			saveFolder(parentDirectory, (Folder) asset);
+		} else {
+			try (FileOutputStream fileOutputStream = new FileOutputStream(new File(parentDirectory, asset.getName()))) {
+				MiscUtils.serialize(asset, fileOutputStream);
+			}
+		}
+	}
+
 	public void loadFromFile(File input) throws IOException {
 		FileInputStream stream = new FileInputStream(input);
 		try {
@@ -61,17 +128,6 @@ public class Solution {
 		}
 	}
 
-	public void loadFromStream(InputStream input) throws IOException {
-		Solution loaded = (Solution) MiscUtils.deserialize(input);
-		setContents(loaded.getContents());
-	}
-
-	public void saveToStream(OutputStream output) throws IOException {
-		Solution toSave = new Solution();
-		toSave.setContents(getContents());
-		MiscUtils.serialize(toSave, output);
-	}
-
 	public void saveToFile(File output) throws IOException {
 		FileOutputStream stream = new FileOutputStream(output);
 		try {
@@ -82,6 +138,19 @@ public class Solution {
 			} catch (Exception ignore) {
 			}
 		}
+	}
+
+	public void loadFromStream(InputStream input) throws IOException {
+		Solution loaded = (Solution) MiscUtils.deserialize(input);
+		setContents(loaded.getContents());
+		setEnvironmentSettings(loaded.getEnvironmentSettings());
+	}
+
+	public void saveToStream(OutputStream output) throws IOException {
+		Solution toSave = new Solution();
+		toSave.setContents(getContents());
+		toSave.setEnvironmentSettings(getEnvironmentSettings());
+		MiscUtils.serialize(toSave, output);
 	}
 
 }
