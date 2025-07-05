@@ -65,88 +65,32 @@ public class JDBCConnection extends Resource {
 		this.passwordVariant = passwordVariant;
 	}
 
-	public boolean isDriverClassNameVariable() {
-		return driverClassNameVariant.isVariable();
-	}
-
-	public void setDriverClassNameVariable(boolean b) {
-		driverClassNameVariant.setVariable(b);
-	}
-
-	public boolean isUrlVariable() {
-		return urlVariant.isVariable();
-	}
-
-	public void setUrlVariable(boolean b) {
-		urlVariant.setVariable(b);
-	}
-
-	public boolean isUserNameVariable() {
-		return userNameVariant.isVariable();
-	}
-
-	public void setUserNameVariable(boolean b) {
-		userNameVariant.setVariable(b);
-	}
-
-	public boolean isPasswordVariable() {
-		return passwordVariant.isVariable();
-	}
-
-	public void setPasswordVariable(boolean b) {
-		passwordVariant.setVariable(b);
-	}
-
-	public String getDriverClassName() {
-		return driverClassNameVariant.getValue();
-	}
-
-	public void setDriverClassName(String driverClassName) {
-		driverClassNameVariant.setValue(driverClassName);
-	}
-
-	public String getUrl() {
-		return urlVariant.getValue();
-	}
-
-	public void setUrl(String url) {
-		urlVariant.setValue(url);
-	}
-
-	public String getUserName() {
-		return userNameVariant.getValue();
-	}
-
-	public void setUserName(String userName) {
-		userNameVariant.setValue(userName);
-	}
-
-	public String getPassword() {
-		return passwordVariant.getValue();
-	}
-
-	public void setPassword(String password) {
-		passwordVariant.setValue(password);
-	}
-
 	public String test() throws ClassNotFoundException, SQLException {
-		ClassUtils.getCachedClassForName(getDriverClassName());
-		DriverManager.getConnection(getUrl(), getUserName(), getPassword());
+		String driverClassName = getDriverClassNameVariant().getValue();
+		String url = getUrlVariant().getValue();
+		String userName = getUserNameVariant().getValue();
+		String password = getPasswordVariant().getValue();
+		ClassUtils.getCachedClassForName(driverClassName);
+		DriverManager.getConnection(url, userName, password);
 		return "Connection successful!";
 	}
 
 	public Connection build() throws ClassNotFoundException, SQLException {
-		ClassUtils.getCachedClassForName(getDriverClassName());
-		return DriverManager.getConnection(getUrl(), getUserName(), getPassword());
+		String driverClassName = getDriverClassNameVariant().getValue();
+		String url = getUrlVariant().getValue();
+		String userName = getUserNameVariant().getValue();
+		String password = getPasswordVariant().getValue();
+		ClassUtils.getCachedClassForName(driverClassName);
+		return DriverManager.getConnection(url, userName, password);
 	}
 
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		String driverClassName = getDriverClassName();
-		String url = getUrl();
-		String userName = getUserName();
-		String password = getPassword();
+		String driverClassName = getDriverClassNameVariant().getValue();
+		String url = getUrlVariant().getValue();
+		String userName = getUserNameVariant().getValue();
+		String password = getPasswordVariant().getValue();
 		if ((driverClassName == null) || (driverClassName.trim().length() == 0)) {
 			throw new ValidationError("Driver class name not provided");
 		}

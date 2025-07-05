@@ -116,30 +116,6 @@ public class Solution {
 		}
 	}
 
-	public void loadFromFile(File input) throws IOException {
-		FileInputStream stream = new FileInputStream(input);
-		try {
-			loadFromStream(stream);
-		} finally {
-			try {
-				stream.close();
-			} catch (Exception ignore) {
-			}
-		}
-	}
-
-	public void saveToFile(File output) throws IOException {
-		FileOutputStream stream = new FileOutputStream(output);
-		try {
-			saveToStream(stream);
-		} finally {
-			try {
-				stream.close();
-			} catch (Exception ignore) {
-			}
-		}
-	}
-
 	public void loadFromStream(InputStream input) throws IOException {
 		Solution loaded = (Solution) MiscUtils.deserialize(input);
 		setContents(loaded.getContents());

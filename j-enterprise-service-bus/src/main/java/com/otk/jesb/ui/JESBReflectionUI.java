@@ -108,7 +108,6 @@ import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
-import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.Mapper;
@@ -1599,12 +1598,6 @@ public class JESBReflectionUI extends CustomizedUI {
 				String baseFieldName = variantField.getName().substring(0,
 						variantField.getName().length() - "Variant".length());
 				String adapterFieldName = variantField.getName() + "Adapter";
-				String referenceFieldName = baseFieldName + "Reference";
-				IFieldInfo baseField = objectType.getFields().stream()
-						.filter(field -> field.getName().equals(baseFieldName)).findFirst().get();
-				IFieldInfo variableStatusField = objectType.getFields().stream()
-						.filter(field -> isVariableStatusField(field) && field.getName().startsWith(baseFieldName))
-						.findFirst().get();
 
 				@Override
 				public String getName() {
@@ -1641,6 +1634,166 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						String adapterTypeName = variantField.getName().substring(0, 1).toUpperCase()
 								+ variantField.getName().substring(1) + "AdapterType";
+						IFieldInfo variableStatusField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+							@Override
+							public String getName() {
+								return baseFieldName + "VariableStatus";
+							}
+
+							@Override
+							public String getCaption() {
+								return "";
+							}
+
+							@Override
+							public double getDisplayAreaHorizontalWeight() {
+								return 0.0;
+							}
+
+							@Override
+							public boolean isGetOnly() {
+								return false;
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return ((EnvironmentVariant<?>) variantField.getValue(object)).isVariable();
+							}
+
+							@Override
+							public void setValue(Object object, Object value) {
+								((EnvironmentVariant<?>) variantField.getValue(object)).setVariable((boolean) value);
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return new InfoProxyFactory() {
+									ToggleButtonPlugin plugin = new ToggleButtonPlugin();
+									ToggleButtonConfiguration pluginConfiguration = new ToggleButtonConfiguration();
+									{
+										pluginConfiguration.iconImagePath = new ResourcePath(GUI.class,
+												"environment.png");
+									}
+
+									@Override
+									protected Map<String, Object> getSpecificProperties(ITypeInfo type) {
+										Map<String, Object> result = new HashMap<String, Object>(
+												super.getSpecificProperties(type));
+										ReflectionUIUtils.setFieldControlPluginIdentifier(result,
+												plugin.getIdentifier());
+										ReflectionUIUtils.setFieldControlPluginConfiguration(result,
+												plugin.getIdentifier(), pluginConfiguration);
+										return result;
+									}
+								}.wrapTypeInfo(GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(
+										boolean.class, new SpecificitiesIdentifier(adapterTypeName, getName()))));
+							}
+
+						};
+						IFieldInfo baseField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+							@Override
+							public String getName() {
+								return baseFieldName;
+							}
+
+							@Override
+							public String getCaption() {
+								return "";
+							}
+
+							@Override
+							public double getDisplayAreaHorizontalWeight() {
+								return 1.0;
+							}
+
+							@Override
+							public boolean isGetOnly() {
+								return false;
+							}
+
+							@Override
+							public boolean isRelevant(Object object) {
+								return Boolean.FALSE.equals(variableStatusField.getValue(object));
+							}
+
+							@SuppressWarnings({ "rawtypes" })
+							@Override
+							public Object getValue(Object object) {
+								return ((EnvironmentVariant) variantField.getValue(object)).getValue();
+							}
+
+							@SuppressWarnings({ "unchecked", "rawtypes" })
+							@Override
+							public void setValue(Object object, Object value) {
+								((EnvironmentVariant) variantField.getValue(object)).setValue(value);
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return GUI.INSTANCE.getReflectionUI()
+										.getTypeInfo(new JavaTypeInfoSource(
+												((JavaTypeInfoSource) variantField.getType().getSource())
+														.guessGenericTypeParameters(EnvironmentVariant.class, 0),
+												new SpecificitiesIdentifier(adapterTypeName, getName())));
+							}
+
+						};
+						IFieldInfo referenceField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+							GenericEnumerationFactory optionsFactory = new GenericEnumerationFactory(
+									GUI.INSTANCE.getReflectionUI(), new EnvironmentVariableOptionCollector(),
+									EnvironmentVariable.class.getName() + "Option", "Environment Variable Option", true,
+									false);
+
+							@Override
+							public String getName() {
+								return baseFieldName + "Reference";
+							}
+
+							@Override
+							public String getCaption() {
+								return "";
+							}
+
+							@Override
+							public double getDisplayAreaHorizontalWeight() {
+								return 1.0;
+							}
+
+							@Override
+							public boolean isGetOnly() {
+								return false;
+							}
+
+							@Override
+							public boolean isRelevant(Object object) {
+								return Boolean.TRUE.equals(variableStatusField.getValue(object));
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return optionsFactory
+										.getItemInstance(((EnvironmentVariant<?>) variantField.getValue(object))
+												.getVariableReferenceExpression());
+							}
+
+							@SuppressWarnings("unchecked")
+							@Override
+							public void setValue(Object object, Object value) {
+								((EnvironmentVariant<?>) variantField.getValue(object)).setVariableReferenceExpression(
+										(Expression<String>) optionsFactory.getInstanceItem(value));
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return GUI.INSTANCE.getReflectionUI()
+										.getTypeInfo(optionsFactory.getInstanceTypeInfoSource(
+												new SpecificitiesIdentifier(adapterTypeName, getName())));
+							}
+
+						};
 
 						@Override
 						protected String getName(ITypeInfo type) {
@@ -1665,174 +1818,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						protected List<IFieldInfo> getFields(ITypeInfo type) {
-							return Arrays.asList(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-
-								@Override
-								public String getName() {
-									return baseFieldName + "VariableStatus";
-								}
-
-								@Override
-								public String getCaption() {
-									return "";
-								}
-
-								@Override
-								public double getDisplayAreaHorizontalWeight() {
-									return 0.0;
-								}
-
-								@Override
-								public boolean isGetOnly() {
-									return false;
-								}
-
-								@Override
-								public Object getValue(Object object) {
-									return variableStatusField.getValue(object);
-								}
-
-								@Override
-								public void setValue(Object object, Object value) {
-									variableStatusField.setValue(object, value);
-								}
-
-								@Override
-								public ITypeInfo getType() {
-									return new InfoProxyFactory() {
-										ToggleButtonPlugin plugin = new ToggleButtonPlugin();
-										ToggleButtonConfiguration pluginConfiguration = new ToggleButtonConfiguration();
-										{
-											pluginConfiguration.iconImagePath = new ResourcePath(GUI.class,
-													"environment.png");
-										}
-
-										@Override
-										protected Map<String, Object> getSpecificProperties(ITypeInfo type) {
-											Map<String, Object> result = new HashMap<String, Object>(
-													super.getSpecificProperties(type));
-											ReflectionUIUtils.setFieldControlPluginIdentifier(result,
-													plugin.getIdentifier());
-											ReflectionUIUtils.setFieldControlPluginConfiguration(result,
-													plugin.getIdentifier(), pluginConfiguration);
-											return result;
-										}
-									}.wrapTypeInfo(GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(
-											boolean.class, new SpecificitiesIdentifier(adapterTypeName, getName()))));
-								}
-
-							}, new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-
-								@Override
-								public String getName() {
-									return baseFieldName;
-								}
-
-								@Override
-								public String getCaption() {
-									return "";
-								}
-
-								@Override
-								public double getDisplayAreaHorizontalWeight() {
-									return 1.0;
-								}
-
-								@Override
-								public boolean isGetOnly() {
-									return false;
-								}
-
-								@Override
-								public boolean isRelevant(Object object) {
-									return Boolean.FALSE.equals(variableStatusField.getValue(object));
-								}
-
-								@Override
-								public Object getValue(Object object) {
-									return baseField.getValue(object);
-								}
-
-								@Override
-								public void setValue(Object object, Object value) {
-									baseField.setValue(object, value);
-								}
-
-								@Override
-								public ITypeInfo getType() {
-									return GUI.INSTANCE.getReflectionUI()
-											.getTypeInfo(new TypeInfoSourceProxy(baseField.getType().getSource()) {
-
-												@Override
-												protected String getTypeInfoProxyFactoryIdentifier() {
-													return "VariantBaseValueTypeInfoProxyFactory [objectType="
-															+ objectType.getName() + ", variantField"
-															+ variantField.getName() + "]";
-												}
-
-												@Override
-												public SpecificitiesIdentifier getSpecificitiesIdentifier() {
-													return new SpecificitiesIdentifier(adapterTypeName, getName());
-												}
-
-											});
-								}
-
-							}, new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-
-								GenericEnumerationFactory optionsFactory = new GenericEnumerationFactory(
-										GUI.INSTANCE.getReflectionUI(), new EnvironmentVariableOptionCollector(),
-										EnvironmentVariable.class.getName() + "Option", "Environment Variable Option",
-										true, false);
-
-								@Override
-								public String getName() {
-									return referenceFieldName;
-								}
-
-								@Override
-								public String getCaption() {
-									return "";
-								}
-
-								@Override
-								public double getDisplayAreaHorizontalWeight() {
-									return 1.0;
-								}
-
-								@Override
-								public boolean isGetOnly() {
-									return false;
-								}
-
-								@Override
-								public boolean isRelevant(Object object) {
-									return Boolean.TRUE.equals(variableStatusField.getValue(object));
-								}
-
-								@Override
-								public Object getValue(Object object) {
-									return optionsFactory
-											.getItemInstance(((EnvironmentVariant<?>) variantField.getValue(object))
-													.getVariableReferenceExpression());
-								}
-
-								@SuppressWarnings("unchecked")
-								@Override
-								public void setValue(Object object, Object value) {
-									((EnvironmentVariant<?>) variantField.getValue(object))
-											.setVariableReferenceExpression(
-													(Expression<String>) optionsFactory.getInstanceItem(value));
-								}
-
-								@Override
-								public ITypeInfo getType() {
-									return GUI.INSTANCE.getReflectionUI()
-											.getTypeInfo(optionsFactory.getInstanceTypeInfoSource(
-													new SpecificitiesIdentifier(adapterTypeName, getName())));
-								}
-
-							});
+							return Arrays.asList(variableStatusField, baseField, referenceField);
 						}
 
 					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO);

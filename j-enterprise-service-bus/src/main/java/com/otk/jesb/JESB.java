@@ -32,8 +32,8 @@ public class JESB {
 		plansFolder.getContents().add(plan);
 
 		JDBCConnection c = new JDBCConnection("db");
-		c.setDriverClassName("org.hsqldb.jdbcDriver");
-		c.setUrl("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
+		c.getDriverClassNameVariant().setValue("org.hsqldb.jdbcDriver");
+		c.getUrlVariant().setValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
 		otheResourcesFolder.getContents().add(c);
 
 		Step s1 = new Step(null);
@@ -44,7 +44,7 @@ public class JESB {
 		JDBCQuery.Builder ab1 = new JDBCQuery.Builder();
 		s1.setOperationBuilder(ab1);
 		ab1.setConnectionReference(Reference.get(c));
-		ab1.setStatement("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
+		ab1.getStatementVariant().setValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
 		LoopCompositeStep ls = new LoopCompositeStep();
 		plan.getSteps().add(ls);
@@ -65,8 +65,8 @@ public class JESB {
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
 				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
 		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(1, new InstantiationFunction(
-						"return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
+				.getParameterInitializers().add(new ParameterInitializer(1,
+						new InstantiationFunction("return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
 
 		Transition t1 = new Transition();
 		t1.setStartStep(s1);

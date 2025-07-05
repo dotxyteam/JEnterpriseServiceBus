@@ -2,7 +2,6 @@ package com.otk.jesb.operation.builtin;
 
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -177,11 +176,10 @@ public class JDBCQuery extends JDBCOperation {
 			this.resultColumnDefinitions = resultColumnDefinitions;
 		}
 
-		public void retrieveResultColumnDefinitions() throws SQLException {
+		public void retrieveResultColumnDefinitions() throws SQLException, ClassNotFoundException {
 			JDBCConnection connection = getConnection();
-			Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
-					connection.getPassword());
-			PreparedStatement preparedStatement = conn.prepareStatement(getStatement());
+			Connection conn = connection.build();
+			PreparedStatement preparedStatement = conn.prepareStatement(getStatementVariant().getValue());
 			ResultSetMetaData metaData = preparedStatement.getMetaData();
 			this.resultColumnDefinitions = new ArrayList<ColumnDefinition>();
 			for (int i = 0; i < metaData.getColumnCount(); i++) {
@@ -197,7 +195,7 @@ public class JDBCQuery extends JDBCOperation {
 		@Override
 		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCQuery result = new JDBCQuery(getConnection(), upToDateCustomResultClass.get());
-			result.setStatement(getStatement());
+			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
 		}

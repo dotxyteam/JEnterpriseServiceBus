@@ -22,6 +22,10 @@ public class EnvironmentVariant<T> {
 		this.valueClass = valueClass;
 	}
 
+	public Class<T> getValueClass() {
+		return valueClass;
+	}
+
 	@SuppressWarnings("unchecked")
 	public T getValue() {
 		if (value instanceof Expression) {

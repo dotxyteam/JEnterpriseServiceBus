@@ -55,7 +55,7 @@ public class JDBCUpdate extends JDBCOperation {
 		@Override
 		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCUpdate result = new JDBCUpdate(getConnection());
-			result.setStatement(getStatement());
+			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
 		}

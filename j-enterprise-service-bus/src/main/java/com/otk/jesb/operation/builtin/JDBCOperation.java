@@ -1,7 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,8 +25,6 @@ import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
-
-import xy.reflect.ui.util.ClassUtils;
 
 public abstract class JDBCOperation implements Operation {
 
@@ -60,9 +57,7 @@ public abstract class JDBCOperation implements Operation {
 	}
 
 	protected PreparedStatement prepare() throws Exception {
-		ClassUtils.getCachedClassForName(connection.getDriverClassName());
-		Connection conn = DriverManager.getConnection(connection.getUrl(), connection.getUserName(),
-				connection.getPassword());
+		Connection conn = connection.build();
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
 		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 		if (expectedParameterCount != parameterValues.countParameters()) {
@@ -109,22 +104,6 @@ public abstract class JDBCOperation implements Operation {
 			this.statementVariant = statementVariant;
 		}
 
-		public boolean isStatementVariable() {
-			return statementVariant.isVariable();
-		}
-
-		public void setStatementVariable(boolean b) {
-			statementVariant.setVariable(b);
-		}
-
-		public String getStatement() {
-			return statementVariant.getValue();
-		}
-
-		public void setStatement(String statement) {
-			statementVariant.setValue(statement);
-		}
-
 		public List<ParameterDefinition> getParameterDefinitions() {
 			return parameterDefinitions;
 		}
@@ -156,7 +135,7 @@ public abstract class JDBCOperation implements Operation {
 			}
 			try {
 				Connection sqlConnection = getConnection().build();
-				PreparedStatement preparedStatement = sqlConnection.prepareStatement(getStatement());
+				PreparedStatement preparedStatement = sqlConnection.prepareStatement(getStatementVariant().getValue());
 				int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
 				if (expectedParameterCount != parameterDefinitions.size()) {
 					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
