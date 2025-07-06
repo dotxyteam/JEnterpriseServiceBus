@@ -63,7 +63,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
-	
+
 	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
 		@Override
 		public String getVariableName() {
@@ -453,7 +453,7 @@ public class MiscUtils {
 
 	public static void createDirectory(File dir) throws IOException {
 		if (dir.isDirectory()) {
-			return;
+			throw new IOException("Cannot create directory: '" + dir + "': It already exists");
 		}
 		try {
 			if (!dir.mkdir()) {

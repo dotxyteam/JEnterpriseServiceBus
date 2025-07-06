@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import com.otk.jesb.solution.AssetVisitor;
@@ -17,6 +15,8 @@ import com.otk.jesb.util.MiscUtils;
 public class Solution {
 
 	public static Solution INSTANCE = new Solution();
+
+	private static final String FILE_NAME_SUFFIX = ".xml";
 
 	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
@@ -53,7 +53,8 @@ public class Solution {
 		if (!directory.isDirectory()) {
 			throw new IllegalArgumentException("'" + directory + "' is not a valid directory");
 		}
-		try (FileInputStream fileInputStream = new FileInputStream(new File(directory, "environmentSettings"))) {
+		try (FileInputStream fileInputStream = new FileInputStream(
+				new File(directory, "environmentSettings" + FILE_NAME_SUFFIX))) {
 			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
 		}
 		rootFolder = loadFolder(directory, rootFolder.getName());
@@ -82,17 +83,13 @@ public class Solution {
 		}
 	}
 
-	public void saveToDirectory(File parentDirectory, String directoryName) throws IOException {
-		File directory = new File(parentDirectory, directoryName);
+	public void saveToDirectory(File directory) throws IOException {
 		if (directory.exists()) {
 			MiscUtils.delete(directory);
 		}
-		saveToDirectory(directory);
-	}
-
-	public void saveToDirectory(File directory) throws IOException {
 		MiscUtils.createDirectory(directory);
-		try (FileOutputStream fileOutputStream = new FileOutputStream(new File(directory, "environmentSettings"))) {
+		try (FileOutputStream fileOutputStream = new FileOutputStream(
+				new File(directory, "environmentSettings" + FILE_NAME_SUFFIX))) {
 			MiscUtils.serialize(environmentSettings, fileOutputStream);
 		}
 		saveFolder(directory, rootFolder);
@@ -110,23 +107,11 @@ public class Solution {
 		if (asset instanceof Folder) {
 			saveFolder(parentDirectory, (Folder) asset);
 		} else {
-			try (FileOutputStream fileOutputStream = new FileOutputStream(new File(parentDirectory, asset.getName()))) {
+			try (FileOutputStream fileOutputStream = new FileOutputStream(
+					new File(parentDirectory, asset.getName() + FILE_NAME_SUFFIX))) {
 				MiscUtils.serialize(asset, fileOutputStream);
 			}
 		}
-	}
-
-	public void loadFromStream(InputStream input) throws IOException {
-		Solution loaded = (Solution) MiscUtils.deserialize(input);
-		setContents(loaded.getContents());
-		setEnvironmentSettings(loaded.getEnvironmentSettings());
-	}
-
-	public void saveToStream(OutputStream output) throws IOException {
-		Solution toSave = new Solution();
-		toSave.setContents(getContents());
-		toSave.setEnvironmentSettings(getEnvironmentSettings());
-		MiscUtils.serialize(toSave, output);
 	}
 
 }
