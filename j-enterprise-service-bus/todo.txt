@@ -4,7 +4,7 @@
 	. release a first version
 	. advertise
 	. improve the features
-- to ease co-working and version control, plans and resources must be stored in separate files  
+- add xml extension to asset file names 
 - add general activities:
 	. Log
 	. ...

@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.otk.jesb.EnvironmentVariant;
+import com.otk.jesb.Variant;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -20,10 +20,10 @@ public class JDBCConnection extends Resource {
 		SwingCustomizer.getDefault().openObjectFrame(new JDBCConnection("test"));
 	}
 
-	private EnvironmentVariant<String> driverClassNameVariant = new EnvironmentVariant<String>(String.class);
-	private EnvironmentVariant<String> urlVariant = new EnvironmentVariant<String>(String.class);
-	private EnvironmentVariant<String> userNameVariant = new EnvironmentVariant<String>(String.class);
-	private EnvironmentVariant<String> passwordVariant = new EnvironmentVariant<String>(String.class);
+	private Variant<String> driverClassNameVariant = new Variant<String>(String.class);
+	private Variant<String> urlVariant = new Variant<String>(String.class);
+	private Variant<String> userNameVariant = new Variant<String>(String.class);
+	private Variant<String> passwordVariant = new Variant<String>(String.class);
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -33,35 +33,35 @@ public class JDBCConnection extends Resource {
 		super(name);
 	}
 
-	public EnvironmentVariant<String> getDriverClassNameVariant() {
+	public Variant<String> getDriverClassNameVariant() {
 		return driverClassNameVariant;
 	}
 
-	public void setDriverClassNameVariant(EnvironmentVariant<String> driverClassNameVariant) {
+	public void setDriverClassNameVariant(Variant<String> driverClassNameVariant) {
 		this.driverClassNameVariant = driverClassNameVariant;
 	}
 
-	public EnvironmentVariant<String> getUrlVariant() {
+	public Variant<String> getUrlVariant() {
 		return urlVariant;
 	}
 
-	public void setUrlVariant(EnvironmentVariant<String> urlVariant) {
+	public void setUrlVariant(Variant<String> urlVariant) {
 		this.urlVariant = urlVariant;
 	}
 
-	public EnvironmentVariant<String> getUserNameVariant() {
+	public Variant<String> getUserNameVariant() {
 		return userNameVariant;
 	}
 
-	public void setUserNameVariant(EnvironmentVariant<String> userNameVariant) {
+	public void setUserNameVariant(Variant<String> userNameVariant) {
 		this.userNameVariant = userNameVariant;
 	}
 
-	public EnvironmentVariant<String> getPasswordVariant() {
+	public Variant<String> getPasswordVariant() {
 		return passwordVariant;
 	}
 
-	public void setPasswordVariant(EnvironmentVariant<String> passwordVariant) {
+	public void setPasswordVariant(Variant<String> passwordVariant) {
 		this.passwordVariant = passwordVariant;
 	}
 

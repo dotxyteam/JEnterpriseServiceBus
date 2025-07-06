@@ -16,7 +16,7 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.EnvironmentVariant;
+import com.otk.jesb.Variant;
 import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
@@ -73,7 +73,7 @@ public abstract class JDBCOperation implements Operation {
 	public static abstract class Builder implements OperationBuilder {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
-		private EnvironmentVariant<String> statementVariant = new EnvironmentVariant<String>(String.class);
+		private Variant<String> statementVariant = new Variant<String>(String.class);
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
 
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
@@ -96,11 +96,11 @@ public abstract class JDBCOperation implements Operation {
 			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
-		public EnvironmentVariant<String> getStatementVariant() {
+		public Variant<String> getStatementVariant() {
 			return statementVariant;
 		}
 
-		public void setStatementVariant(EnvironmentVariant<String> statementVariant) {
+		public void setStatementVariant(Variant<String> statementVariant) {
 			this.statementVariant = statementVariant;
 		}
 

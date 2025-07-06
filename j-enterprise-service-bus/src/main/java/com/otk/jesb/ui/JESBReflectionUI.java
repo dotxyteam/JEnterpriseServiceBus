@@ -25,7 +25,7 @@ import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.EnvironmentSettings.EnvironmentVariable;
-import com.otk.jesb.EnvironmentVariant;
+import com.otk.jesb.Variant;
 import com.otk.jesb.Expression;
 import com.otk.jesb.Function;
 import com.otk.jesb.Structure.Element;
@@ -571,11 +571,15 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				List<IFieldInfo> variantFields = VariantCustomizations.findVariantFields(type);
-				if (variantFields.size() > 0) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
-					for (IFieldInfo variantField : variantFields) {
-						result.add(VariantCustomizations.adaptVariantField(variantField, type));
+				if ((objectClass != null) && (OperationBuilder.class.isAssignableFrom(objectClass)
+						|| Resource.class.isAssignableFrom(objectClass))) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
+					for (IFieldInfo field : super.getFields(type)) {
+						if (VariantCustomizations.isVariantField(field)) {
+							result.add(VariantCustomizations.adaptVariantField(field, type));
+						} else {
+							result.add(field);
+						}
 					}
 					return result;
 				} else if (type.getName().equals(Solution.class.getName())) {
@@ -1268,9 +1272,6 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if (VariantCustomizations.shouldHide(field, objectType)) {
-					return true;
-				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
 					if (!field.getName().equals("message") && !field.getName().equals("cause")) {
 						for (IFieldInfo throwableField : ReflectionUI.getDefault()
@@ -1567,47 +1568,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	private static class VariantCustomizations {
 
-		public static boolean shouldHide(IFieldInfo field, ITypeInfo objectType) {
-			if (isVariantField(field)) {
-				return true;
-			}
-			if (isVariableStatusField(field)) {
-				return true;
-			}
-			if (ReflectionUIUtils.findInfoByName(objectType.getFields(), field.getName() + "Variant") != null) {
-				return true;
-			}
-			return false;
-		}
-
-		public static boolean isVariableStatusField(IFieldInfo field) {
-			return field.getName().endsWith("Variable") && field.getType().getName().equals(boolean.class.getName());
-		}
-
-		public static List<IFieldInfo> findVariantFields(ITypeInfo type) {
-			return type.getFields().stream().filter(VariantCustomizations::isVariantField).collect(Collectors.toList());
-		}
-
 		public static boolean isVariantField(IFieldInfo field) {
-			return field.getName().endsWith("Variant")
-					&& field.getType().getName().equals(EnvironmentVariant.class.getName());
+			return field.getType().getName().equals(Variant.class.getName());
 		}
 
 		public static IFieldInfo adaptVariantField(IFieldInfo variantField, ITypeInfo objectType) {
-			return new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
-				String baseFieldName = variantField.getName().substring(0,
-						variantField.getName().length() - "Variant".length());
-				String adapterFieldName = variantField.getName() + "Adapter";
-
-				@Override
-				public String getName() {
-					return adapterFieldName;
-				}
-
-				@Override
-				public String getCaption() {
-					return ReflectionUIUtils.identifierToCaption(baseFieldName);
-				}
+			return new FieldInfoProxy(variantField) {
 
 				@Override
 				public boolean isValueValidityDetectionEnabled() {
@@ -1625,6 +1591,11 @@ public class JESBReflectionUI extends CustomizedUI {
 				}
 
 				@Override
+				public boolean isGetOnly() {
+					return true;
+				}
+
+				@Override
 				public ITypeInfo getType() {
 					return GUI.INSTANCE.getReflectionUI().getTypeInfo(precomputeAdapterType().getSource());
 				}
@@ -1638,7 +1609,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public String getName() {
-								return baseFieldName + "VariableStatus";
+								return variantField.getName() + "VariableStatus";
 							}
 
 							@Override
@@ -1658,12 +1629,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public Object getValue(Object object) {
-								return ((EnvironmentVariant<?>) variantField.getValue(object)).isVariable();
+								return ((Variant<?>) variantField.getValue(object)).isVariable();
 							}
 
 							@Override
 							public void setValue(Object object, Object value) {
-								((EnvironmentVariant<?>) variantField.getValue(object)).setVariable((boolean) value);
+								((Variant<?>) variantField.getValue(object)).setVariable((boolean) value);
 							}
 
 							@Override
@@ -1691,11 +1662,11 @@ public class JESBReflectionUI extends CustomizedUI {
 							}
 
 						};
-						IFieldInfo baseField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+						IFieldInfo valueField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
 							@Override
 							public String getName() {
-								return baseFieldName;
+								return variantField.getName() + "Value";
 							}
 
 							@Override
@@ -1721,13 +1692,13 @@ public class JESBReflectionUI extends CustomizedUI {
 							@SuppressWarnings({ "rawtypes" })
 							@Override
 							public Object getValue(Object object) {
-								return ((EnvironmentVariant) variantField.getValue(object)).getValue();
+								return ((Variant) variantField.getValue(object)).getValue();
 							}
 
 							@SuppressWarnings({ "unchecked", "rawtypes" })
 							@Override
 							public void setValue(Object object, Object value) {
-								((EnvironmentVariant) variantField.getValue(object)).setValue(value);
+								((Variant) variantField.getValue(object)).setValue(value);
 							}
 
 							@Override
@@ -1735,7 +1706,7 @@ public class JESBReflectionUI extends CustomizedUI {
 								return GUI.INSTANCE.getReflectionUI()
 										.getTypeInfo(new JavaTypeInfoSource(
 												((JavaTypeInfoSource) variantField.getType().getSource())
-														.guessGenericTypeParameters(EnvironmentVariant.class, 0),
+														.guessGenericTypeParameters(Variant.class, 0),
 												new SpecificitiesIdentifier(adapterTypeName, getName())));
 							}
 
@@ -1749,7 +1720,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public String getName() {
-								return baseFieldName + "Reference";
+								return variantField.getName() + "Reference";
 							}
 
 							@Override
@@ -1774,15 +1745,14 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public Object getValue(Object object) {
-								return optionsFactory
-										.getItemInstance(((EnvironmentVariant<?>) variantField.getValue(object))
-												.getVariableReferenceExpression());
+								return optionsFactory.getItemInstance(
+										((Variant<?>) variantField.getValue(object)).getVariableReferenceExpression());
 							}
 
 							@SuppressWarnings("unchecked")
 							@Override
 							public void setValue(Object object, Object value) {
-								((EnvironmentVariant<?>) variantField.getValue(object)).setVariableReferenceExpression(
+								((Variant<?>) variantField.getValue(object)).setVariableReferenceExpression(
 										(Expression<String>) optionsFactory.getInstanceItem(value));
 							}
 
@@ -1813,12 +1783,12 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						protected ITypeInfoSource getSource(ITypeInfo type) {
 							return new PrecomputedTypeInfoSource(precomputeAdapterType(),
-									new SpecificitiesIdentifier(objectType.getName(), adapterFieldName));
+									new SpecificitiesIdentifier(objectType.getName(), variantField.getName()));
 						}
 
 						@Override
 						protected List<IFieldInfo> getFields(ITypeInfo type) {
-							return Arrays.asList(variableStatusField, baseField, referenceField);
+							return Arrays.asList(variableStatusField, valueField, referenceField);
 						}
 
 					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO);
@@ -1832,7 +1802,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 		@Override
 		public Iterator<Expression<String>> iterator() {
-			return new EnvironmentVariant<Object>(Object.class).getVariableReferenceExpressionOptions().iterator();
+			return new Variant<Object>(Object.class).getVariableReferenceExpressionOptions().iterator();
 		}
 
 		@Override

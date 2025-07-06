@@ -13,12 +13,12 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
-public class EnvironmentVariant<T> {
+public class Variant<T> {
 
 	private Class<T> valueClass;
 	private Object value;
 
-	public EnvironmentVariant(Class<T> valueClass) {
+	public Variant(Class<T> valueClass) {
 		this.valueClass = valueClass;
 	}
 
