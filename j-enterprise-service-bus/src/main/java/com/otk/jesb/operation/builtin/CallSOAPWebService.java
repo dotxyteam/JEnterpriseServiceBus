@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
@@ -21,9 +20,8 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.WebDocumentBasedResource;
 import com.otk.jesb.resource.builtin.WSDL;
-import com.otk.jesb.solution.Asset;
-import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -51,7 +49,7 @@ public class CallSOAPWebService implements Operation {
 		this.operationInput = operationInput;
 	}
 
-	public WSDL getWSDL() {
+	public WebDocumentBasedResource getWSDL() {
 		return wsdl;
 	}
 
@@ -247,20 +245,6 @@ public class CallSOAPWebService implements Operation {
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);
 			}
-		}
-
-		public List<WSDL> getWSDLOptions() {
-			final List<WSDL> result = new ArrayList<WSDL>();
-			Solution.INSTANCE.visitContents(new AssetVisitor() {
-				@Override
-				public boolean visitAsset(Asset asset) {
-					if (asset instanceof WSDL) {
-						result.add((WSDL) asset);
-					}
-					return true;
-				}
-			});
-			return result;
 		}
 
 		public List<String> getServiceNameOptions() {

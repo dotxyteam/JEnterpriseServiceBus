@@ -491,7 +491,9 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 							handle.exportAsDrag(button, e, TransferHandler.COPY);
 						}
 					});
-					categoryPanel.add(SwingRendererUtils.flowInLayout(button, GridBagConstraints.CENTER));
+					JPanel buttonBox = SwingRendererUtils.flowInLayout(button, GridBagConstraints.CENTER);
+					buttonBox.setMaximumSize(buttonBox.getPreferredSize());
+					categoryPanel.add(buttonBox);
 				}
 				actionSchemeTabbedPane.addTab(category.getName(), categoryPanel);
 			}

@@ -55,6 +55,7 @@ import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
+import com.otk.jesb.operation.builtin.ParseXML;
 import com.otk.jesb.operation.builtin.ReadFile;
 import com.otk.jesb.operation.builtin.Sleep;
 import com.otk.jesb.operation.builtin.WriteFile;
@@ -63,6 +64,7 @@ import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
@@ -121,10 +123,10 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<OperationMetadata> OPERATION_METADATAS = Arrays.asList(new DoNothing.Metadata(),
 			new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(), new ReadFile.Metadata(),
 			new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
-			new CallSOAPWebService.Metadata());
+			new ParseXML.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
-			new JDBCConnection.Metadata(), new WSDL.Metadata());
+			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata());
 	private static final String CURRENT_VALIDATION_PLAN_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_KEY";
 	private static final String CURRENT_VALIDATION_STEP_KEY = JESBReflectionUI.class.getName()

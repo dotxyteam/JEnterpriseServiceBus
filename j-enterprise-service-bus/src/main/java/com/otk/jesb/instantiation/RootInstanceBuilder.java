@@ -7,7 +7,6 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.Accessor;
-import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -128,9 +127,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					: rootInstanceTypeName;
 			if (actualRootInstanceTypeName == null) {
 				actualRootInstanceTypeName = NullInstance.class.getName();
-			}
-			if (!InstantiationUtils.isComplexType(TypeInfoProvider.getTypeInfo(actualRootInstanceTypeName))) {
-				throw new UnexpectedError();
 			}
 			Object finalRootInstanceName;
 			if (rootInstanceName != null) {
