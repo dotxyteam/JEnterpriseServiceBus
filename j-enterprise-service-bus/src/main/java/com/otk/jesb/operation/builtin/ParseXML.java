@@ -1,6 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class ParseXML implements Operation {
 	public Object execute() throws Exception {
 		JAXBContext context = JAXBContext.newInstance(rootElementClass);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		return unmarshaller.unmarshal(new ByteArrayInputStream(xmlText.getBytes()));
+		return unmarshaller.unmarshal(new StringReader(xmlText));
 	}
 
 	public static class Metadata implements OperationMetadata {
@@ -84,7 +84,7 @@ public class ParseXML implements Operation {
 
 		private Reference<XSD> xsdReference = new Reference<XSD>(XSD.class);
 		private String rootElementName;
-		private RootInstanceBuilder xmlTextBuilder = new RootInstanceBuilder("XML", String.class.getName());
+		private RootInstanceBuilder xmlTextBuilder = new RootInstanceBuilder("XMLText", String.class.getName());
 
 		private XSD getXSD() {
 			return xsdReference.resolve();
