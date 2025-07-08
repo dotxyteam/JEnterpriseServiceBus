@@ -1,10 +1,12 @@
 package com.otk.jesb.resource.builtin;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,12 +14,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.github.javaparser.ast.visitor.Visitable;
 import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
+
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 
 public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource {
 
@@ -42,7 +53,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 	}
 
 	public Map<String, String> getDependencyTextByFileName() {
-		return Collections.unmodifiableMap(dependencyTextByFileName);
+		return dependencyTextByFileName;
 	}
 
 	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {
@@ -155,6 +166,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 				File sourceDirectory = MiscUtils.createTemporaryDirectory();
 				try {
 					runClassesGenerationTool(mainFile, metaSchemaFile, sourceDirectory);
+					JAXBPostProcessor.process(sourceDirectory);
 					generatedClasses = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
 				} finally {
 					MiscUtils.delete(sourceDirectory);
@@ -189,6 +201,90 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 				generateClasses();
 			} catch (Throwable t) {
 				throw new ValidationError("Failed to validate the " + getClass().getSimpleName(), t);
+			}
+		}
+	}
+
+	protected static class JAXBPostProcessor {
+
+		private static final Pattern GETTER_PATTERN = Pattern.compile("^(?:get|is)(.*)");
+
+		private static String getterToFieldName(String getterMethodName) {
+			Matcher m = GETTER_PATTERN.matcher(getterMethodName);
+			if (!m.matches()) {
+				return null;
+			}
+			String result = m.group(1);
+			if (result.length() > 0) {
+				result = result.substring(0, 1).toLowerCase() + result.substring(1);
+			}
+			return result;
+		}
+
+		public static void process(File sourceDirectory) throws IOException {
+			List<File> javaFiles = Files.walk(sourceDirectory.toPath()).filter(p -> p.toString().endsWith(".java"))
+					.map(p -> p.toFile()).collect(Collectors.toList());
+			for (File file : javaFiles) {
+				CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+				compilationUnit.accept(new ModifierVisitor<Void>() {
+
+					@Override
+					public Visitable visit(FieldDeclaration fieldDeclaration, Void arg) {
+						if (!isXMLPartFieldDeclaration(fieldDeclaration)) {
+							return super.visit(fieldDeclaration, arg);
+						}
+						fieldDeclaration.getModifiers().clear();
+						fieldDeclaration.addModifier(Modifier.Keyword.PUBLIC);
+						if (isListFieldDeclaration(fieldDeclaration)) {
+							fieldDeclaration.addModifier(Modifier.Keyword.FINAL);
+							fieldDeclaration.getVariables().forEach(variable -> {
+								if (!variable.getInitializer().isPresent()) {
+									variable.setInitializer(
+											new ObjectCreationExpr().setType(ArrayList.class.getName() + "<>"));
+								}
+							});
+						}
+						return super.visit(fieldDeclaration, arg);
+					}
+
+					@Override
+					public Visitable visit(MethodDeclaration methodDeclaration, Void arg) {
+						if (!methodDeclaration.getModifiers().contains(new Modifier(Modifier.Keyword.PUBLIC))) {
+							return super.visit(methodDeclaration, arg);
+						}
+						if (!methodDeclaration.getBody().isPresent()) {
+							return super.visit(methodDeclaration, arg);
+						}
+						String methodName = methodDeclaration.getNameAsString();
+						String getterFieldName = getterToFieldName(methodName);
+						if (getterFieldName == null) {
+							return super.visit(methodDeclaration, arg);
+						}
+						FieldDeclaration getterFieldDeclaration = compilationUnit.findFirst(FieldDeclaration.class,
+								fieldDeclaration -> (getterFieldName
+										.equals(fieldDeclaration.getVariable(0).getName().asString())
+										|| ("_" + getterFieldName)
+												.equals(fieldDeclaration.getVariable(0).getName().asString()))
+										&& isXMLPartFieldDeclaration(fieldDeclaration))
+								.orElse(null);
+						if (getterFieldDeclaration == null) {
+							return super.visit(methodDeclaration, arg);
+						}
+						return null;
+					}
+
+					private boolean isXMLPartFieldDeclaration(FieldDeclaration fieldDeclaration) {
+						return fieldDeclaration.getAnnotations().stream()
+								.anyMatch(annotation -> annotation.getNameAsString().startsWith("Xml"));
+					}
+
+					private boolean isListFieldDeclaration(FieldDeclaration fieldDeclaration) {
+						return fieldDeclaration.getElementType().isClassOrInterfaceType() && fieldDeclaration
+								.getElementType().asClassOrInterfaceType().getNameAsString().equals("List");
+					}
+
+				}, null);
+				Files.write(file.toPath(), compilationUnit.toString().getBytes());
 			}
 		}
 	}

@@ -2,10 +2,10 @@ package com.otk.jesb.ui.diagram;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,14 +47,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 
 	private static final long serialVersionUID = 1L;
 
-	private static Image DRAGGING_IMAGE;
-	static {
-		try {
-			DRAGGING_IMAGE = ImageIO.read(JDiagram.class.getResource("Dragging.png"));
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
-		}
-	}
 	private List<JNode> nodes = new ArrayList<JNode>();
 	private List<JConnection> connections = new ArrayList<JConnection>();
 	private List<JDiagramListener> listeners = new ArrayList<JDiagramListener>();
@@ -64,7 +55,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 	private JNode newConnectionEndNode;
 	private JNode draggedNode;
 	private Point draggedNodeCenterOffset;
-	private Point draggingPoint;
 	private List<JDiagramActionScheme> actionSchemes;
 	private DragIntent dragIntent = DragIntent.MOVE;
 	private int connectionArrowSize = 25;
@@ -219,8 +209,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 	public void mouseDragged(MouseEvent mouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			if (draggedNode != null) {
-				draggingPoint = new Point(mouseEvent.getX(), mouseEvent.getY());
-				repaint();
 				if (dragIntent == DragIntent.CONNECT) {
 					JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
 					if (pointedDiagramObject instanceof JNode) {
@@ -231,7 +219,11 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 							}
 						}
 					}
+					setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				} else {
+					setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 				}
+				repaint();
 			}
 		}
 	}
@@ -264,7 +256,7 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseReleased(MouseEvent mouseEvent) {
-		draggingPoint = null;
+		setCursor(Cursor.getDefaultCursor());
 		repaint();
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			try {
@@ -448,14 +440,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		for (JConnection conn : connections) {
 			paintConnection(g, conn);
 		}
-		if (draggingPoint != null) {
-			paintDraggingPoint(g, draggingPoint);
-		}
-	}
-
-	protected void paintDraggingPoint(Graphics g, Point draggingPoint2) {
-		g.drawImage(DRAGGING_IMAGE, draggingPoint.x - DRAGGING_IMAGE.getWidth(null) / 2,
-				draggingPoint.y - DRAGGING_IMAGE.getHeight(null) / 2, null);
 	}
 
 	protected void paintConnection(Graphics g, JConnection connection) {

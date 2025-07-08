@@ -1,6 +1,8 @@
 package com.otk.jesb.compiler;
 
 import com.otk.jesb.StandardError;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 public class CompilationError extends StandardError {
 
@@ -39,6 +41,12 @@ public class CompilationError extends StandardError {
 
 	public String getSourceCode() {
 		return sourceCode;
+	}
+
+	public Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> getRowAndColumnPairs() {
+		return new Pair<Pair<Integer, Integer>, Pair<Integer, Integer>>(
+				(startPosition == -1) ? null : MiscUtils.convertIndexToPosition(sourceCode, startPosition),
+				(endPosition == -1) ? null : MiscUtils.convertIndexToPosition(sourceCode, endPosition));
 	}
 
 }

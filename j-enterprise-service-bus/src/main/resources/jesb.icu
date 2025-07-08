@@ -91,26 +91,26 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>outputEnabled</customFieldsOrder>
-        <customFieldsOrder>activationStrategy</customFieldsOrder>
-        <customFieldsOrder>focusedElement</customFieldsOrder>
-        <customFieldsOrder>focusedElementSelectedSurrounding</customFieldsOrder>
-        <customFieldsOrder>note</customFieldsOrder>
-        <customFieldsOrder>focusedElementSurroundings</customFieldsOrder>
-        <customFieldsOrder>selectedElements</customFieldsOrder>
-        <customFieldsOrder>diagramDragIntent</customFieldsOrder>
-        <customFieldsOrder>top</customFieldsOrder>
-        <customFieldsOrder>centerAndBottom</customFieldsOrder>
-        <customFieldsOrder>centerAndBottomGroup</customFieldsOrder>
-        <customFieldsOrder>planGroup</customFieldsOrder>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>center</customFieldsOrder>
-        <customFieldsOrder>diagram</customFieldsOrder>
-        <customFieldsOrder>palette</customFieldsOrder>
-        <customFieldsOrder>steps</customFieldsOrder>
-        <customFieldsOrder>bottom</customFieldsOrder>
-        <customFieldsOrder>outputBuilder</customFieldsOrder>
-        <customFieldsOrder>transitions</customFieldsOrder>
+        <customFieldsOrderEntry>outputEnabled</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationStrategy</customFieldsOrderEntry>
+        <customFieldsOrderEntry>focusedElement</customFieldsOrderEntry>
+        <customFieldsOrderEntry>focusedElementSelectedSurrounding</customFieldsOrderEntry>
+        <customFieldsOrderEntry>note</customFieldsOrderEntry>
+        <customFieldsOrderEntry>focusedElementSurroundings</customFieldsOrderEntry>
+        <customFieldsOrderEntry>selectedElements</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramDragIntent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>top</customFieldsOrderEntry>
+        <customFieldsOrderEntry>centerAndBottom</customFieldsOrderEntry>
+        <customFieldsOrderEntry>centerAndBottomGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>center</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagram</customFieldsOrderEntry>
+        <customFieldsOrderEntry>palette</customFieldsOrderEntry>
+        <customFieldsOrderEntry>steps</customFieldsOrderEntry>
+        <customFieldsOrderEntry>bottom</customFieldsOrderEntry>
+        <customFieldsOrderEntry>outputBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>transitions</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:-1c05</uniqueIdentifier>
             <specificProperties/>
@@ -813,7 +813,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f64</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-119e</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -1409,12 +1409,12 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>builderTitle</customFieldsOrder>
-        <customFieldsOrder>operationBuilder</customFieldsOrder>
-        <customFieldsOrder>verticalFiller</customFieldsOrder>
-        <customFieldsOrder>diagramX</customFieldsOrder>
-        <customFieldsOrder>diagramY</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>builderTitle</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>verticalFiller</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramX</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramY</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>3745ab1b:1937eb8f993:46a9</uniqueIdentifier>
             <specificProperties/>
@@ -1782,9 +1782,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>objectClassName</customFieldsOrder>
-        <customFieldsOrder>facade</customFieldsOrder>
-        <customFieldsOrder>fieldInitializers</customFieldsOrder>
+        <customFieldsOrderEntry>objectClassName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>facade</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldInitializers</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>27bee7ae:1937ebdba86:46f9</uniqueIdentifier>
             <specificProperties/>
@@ -1854,16 +1854,16 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>changeTypeGroup</customFieldsOrder>
-        <customFieldsOrder>concrete</customFieldsOrder>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>typeName</customFieldsOrder>
-        <customFieldsOrder>selectedConstructorSignature</customFieldsOrder>
-        <customFieldsOrder>children</customFieldsOrder>
-        <customFieldsOrder>typeGroup</customFieldsOrder>
-        <customFieldsOrder>constructorSignatureOptions</customFieldsOrder>
-        <customFieldsOrder>typeInfo</customFieldsOrder>
+        <customFieldsOrderEntry>changeTypeGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>concrete</customFieldsOrderEntry>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>selectedConstructorSignature</customFieldsOrderEntry>
+        <customFieldsOrderEntry>children</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>constructorSignatureOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeInfo</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-c8fa02e:193ee6d1cab:7843</uniqueIdentifier>
             <specificProperties/>
@@ -1963,7 +1963,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f63</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-119d</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -3101,17 +3101,17 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>fieldTypeName</customFieldsOrder>
-        <customFieldsOrder>concrete</customFieldsOrder>
-        <customFieldsOrder>fieldName</customFieldsOrder>
-        <customFieldsOrder>condition</customFieldsOrder>
-        <customFieldsOrder>fieldValueMode</customFieldsOrder>
-        <customFieldsOrder>fieldInfo</customFieldsOrder>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>fieldValue</customFieldsOrder>
-        <customFieldsOrder>children</customFieldsOrder>
-        <customFieldsOrder>valueGroup</customFieldsOrder>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>concrete</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>condition</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldInfo</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldValue</customFieldsOrderEntry>
+        <customFieldsOrderEntry>children</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valueGroup</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>2b7731f4:193db67e2a8:612e</uniqueIdentifier>
             <specificProperties/>
@@ -3154,7 +3154,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f62</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-119c</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -4044,33 +4044,33 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>columns</customFieldsOrder>
-        <customFieldsOrder>driverGroup</customFieldsOrder>
-        <customFieldsOrder>credentialsGroup</customFieldsOrder>
-        <customFieldsOrder>driverClassNameVariable</customFieldsOrder>
-        <customFieldsOrder>passwordVariable</customFieldsOrder>
-        <customFieldsOrder>urlVariable</customFieldsOrder>
-        <customFieldsOrder>userNameVariable</customFieldsOrder>
-        <customFieldsOrder>driverClassNameVariant</customFieldsOrder>
-        <customFieldsOrder>passwordVariant</customFieldsOrder>
-        <customFieldsOrder>urlVariant</customFieldsOrder>
-        <customFieldsOrder>userNameVariant</customFieldsOrder>
-        <customFieldsOrder>note</customFieldsOrder>
-        <customFieldsOrder>driverClassNameVariant</customFieldsOrder>
-        <customFieldsOrder>urlVariant</customFieldsOrder>
-        <customFieldsOrder>userNameVariant</customFieldsOrder>
-        <customFieldsOrder>passwordVariant</customFieldsOrder>
-        <customFieldsOrder>noteBox</customFieldsOrder>
-        <customFieldsOrder>driverClassName</customFieldsOrder>
-        <customFieldsOrder>url</customFieldsOrder>
-        <customFieldsOrder>userName</customFieldsOrder>
-        <customFieldsOrder>password</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>columns</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>credentialsGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassNameVariable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>passwordVariable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>urlVariable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>userNameVariable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>passwordVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>urlVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>userNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>note</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>urlVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>userNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>passwordVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>noteBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>url</customFieldsOrderEntry>
+        <customFieldsOrderEntry>userName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>password</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18de</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f61</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-119b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -4132,7 +4132,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:5188</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f60</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-119a</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -4423,15 +4423,15 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>resultClass</customFieldsOrder>
-        <customFieldsOrder>connectionPath</customFieldsOrder>
-        <customFieldsOrder>statement</customFieldsOrder>
-        <customFieldsOrder>uniqueIdentifier</customFieldsOrder>
-        <customFieldsOrder>connectionPathOptions</customFieldsOrder>
-        <customFieldsOrder>parameterDefinitions</customFieldsOrder>
-        <customFieldsOrder>parameterValuesSpecification</customFieldsOrder>
-        <customFieldsOrder>resultColumnDefinitions</customFieldsOrder>
-        <customFieldsOrder>resultPathExplorer</customFieldsOrder>
+        <customFieldsOrderEntry>resultClass</customFieldsOrderEntry>
+        <customFieldsOrderEntry>connectionPath</customFieldsOrderEntry>
+        <customFieldsOrderEntry>statement</customFieldsOrderEntry>
+        <customFieldsOrderEntry>uniqueIdentifier</customFieldsOrderEntry>
+        <customFieldsOrderEntry>connectionPathOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterDefinitions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterValuesSpecification</customFieldsOrderEntry>
+        <customFieldsOrderEntry>resultColumnDefinitions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>resultPathExplorer</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>35d408fa:193d09d64d8:580f</uniqueIdentifier>
             <specificProperties/>
@@ -4622,7 +4622,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f5f</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1199</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -4667,7 +4667,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f5e</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1198</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -4729,7 +4729,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f5d</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1197</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4770,7 +4770,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f5c</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1196</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -4788,7 +4788,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f5b</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1195</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4823,7 +4823,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f5a</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1194</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -4938,7 +4938,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f59</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1193</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -5085,7 +5085,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f58</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1192</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -5164,7 +5164,7 @@
             <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f57</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1191</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -6383,8 +6383,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>functionBody</customFieldsOrder>
-        <customFieldsOrder>methodsField</customFieldsOrder>
+        <customFieldsOrderEntry>functionBody</customFieldsOrderEntry>
+        <customFieldsOrderEntry>methodsField</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>7eeb0ae1:193c75003df:594b</uniqueIdentifier>
             <specificProperties/>
@@ -6709,13 +6709,13 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>mode</customFieldsOrder>
-        <customFieldsOrder>instanceBuilder</customFieldsOrder>
+        <customFieldsOrderEntry>mode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>instanceBuilder</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f56</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1190</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -6804,7 +6804,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f55</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -7162,17 +7162,17 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>parameterTypeName</customFieldsOrder>
-        <customFieldsOrder>valueGroup</customFieldsOrder>
-        <customFieldsOrder>concrete</customFieldsOrder>
-        <customFieldsOrder>parameterName</customFieldsOrder>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>parameterPosition</customFieldsOrder>
-        <customFieldsOrder>parameterValueMode</customFieldsOrder>
-        <customFieldsOrder>parameterValue</customFieldsOrder>
-        <customFieldsOrder>children</customFieldsOrder>
-        <customFieldsOrder>parameterInfo</customFieldsOrder>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valueGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>concrete</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterPosition</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterValue</customFieldsOrderEntry>
+        <customFieldsOrderEntry>children</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterInfo</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>2b7731f4:193db67e2a8:6957</uniqueIdentifier>
             <specificProperties/>
@@ -7215,7 +7215,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f54</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118e</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -8125,7 +8125,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f53</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118d</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -8232,7 +8232,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f52</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118c</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -8451,7 +8451,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f51</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118b</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -8587,7 +8587,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f50</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-118a</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -8753,7 +8753,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4f</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1189</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -8978,8 +8978,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customMethodsOrder>retrieveResultColumnDefinitions</customMethodsOrder>
-        <customMethodsOrder>clearResultColumnDefinitions</customMethodsOrder>
+        <customMethodsOrderEntry>retrieveResultColumnDefinitions</customMethodsOrderEntry>
+        <customMethodsOrderEntry>clearResultColumnDefinitions</customMethodsOrderEntry>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
@@ -9043,7 +9043,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4e</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1188</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -9072,10 +9072,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>fieldValueMode</customFieldsOrder>
-        <customFieldsOrder>valueBox</customFieldsOrder>
-        <customFieldsOrder>fieldValueMode.nullStatus</customFieldsOrder>
-        <customFieldsOrder>fieldValue</customFieldsOrder>
+        <customFieldsOrderEntry>fieldValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valueBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldValueMode.nullStatus</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldValue</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>35d408fa:193d0a8a704:74f</uniqueIdentifier>
             <specificProperties/>
@@ -9575,23 +9575,23 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>_underlying</customFieldsOrder>
-        <customFieldsOrder>additionalVariableDeclarations</customFieldsOrder>
-        <customFieldsOrder>itemTypeInfo</customFieldsOrder>
-        <customFieldsOrder>replicationGroup</customFieldsOrder>
-        <customFieldsOrder>currentInstanceBuilderFacade</customFieldsOrder>
-        <customFieldsOrder>concrete</customFieldsOrder>
-        <customFieldsOrder>itemTypeName</customFieldsOrder>
-        <customFieldsOrder>condition</customFieldsOrder>
-        <customFieldsOrder>replicationGroupBox</customFieldsOrder>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>itemReplicationFacade</customFieldsOrder>
-        <customFieldsOrder>itemValueMode</customFieldsOrder>
-        <customFieldsOrder>index</customFieldsOrder>
-        <customFieldsOrder>itemValue</customFieldsOrder>
-        <customFieldsOrder>children</customFieldsOrder>
-        <customFieldsOrder>valueGroup</customFieldsOrder>
+        <customFieldsOrderEntry>_underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>additionalVariableDeclarations</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemTypeInfo</customFieldsOrderEntry>
+        <customFieldsOrderEntry>replicationGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>currentInstanceBuilderFacade</customFieldsOrderEntry>
+        <customFieldsOrderEntry>concrete</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>condition</customFieldsOrderEntry>
+        <customFieldsOrderEntry>replicationGroupBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemReplicationFacade</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>index</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemValue</customFieldsOrderEntry>
+        <customFieldsOrderEntry>children</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valueGroup</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-fcd0cdb:196bb3665e5:2ca1</uniqueIdentifier>
             <specificProperties/>
@@ -9688,7 +9688,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4d</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1187</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -10628,14 +10628,14 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>iterationVariableTypeName</customFieldsOrder>
-        <customFieldsOrder>iterationVariableName</customFieldsOrder>
-        <customFieldsOrder>iterationListValueTypeName</customFieldsOrder>
-        <customFieldsOrder>valueGroup</customFieldsOrder>
-        <customFieldsOrder>itemVariableGroup</customFieldsOrder>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>iterationListValueMode</customFieldsOrder>
-        <customFieldsOrder>iterationListValue</customFieldsOrder>
+        <customFieldsOrderEntry>iterationVariableTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationVariableName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationListValueTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valueGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemVariableGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationListValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationListValue</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>5ccfd91d:193e98db350:-72a3</uniqueIdentifier>
             <specificProperties/>
@@ -11415,7 +11415,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4c</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1186</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -11710,8 +11710,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>typeName</customFieldsOrder>
-        <customFieldsOrder>changeTypeGroup</customFieldsOrder>
+        <customFieldsOrderEntry>typeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>changeTypeGroup</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-c8fa02e:193ee6d1cab:6f5d</uniqueIdentifier>
             <specificProperties/>
@@ -11853,14 +11853,14 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>INSTANCE</customFieldsOrder>
-        <customFieldsOrder>contents</customFieldsOrder>
-        <customFieldsOrder>console</customFieldsOrder>
-        <customFieldsOrder>environmentSettings</customFieldsOrder>
-        <customFieldsOrder>sidePaneValueName</customFieldsOrder>
-        <customFieldsOrder>returnValueOf-boolean-preset01Of-boolean-isSidePanelValueSelected-com.otk.jesb.ui.JESBReflectionUI$SidePaneValueName</customFieldsOrder>
-        <customFieldsOrder>returnValueOf-boolean-preset02Of-boolean-isSidePanelValueSelected-com.otk.jesb.ui.JESBReflectionUI$SidePaneValueName</customFieldsOrder>
-        <customFieldsOrder>sideToolBar</customFieldsOrder>
+        <customFieldsOrderEntry>INSTANCE</customFieldsOrderEntry>
+        <customFieldsOrderEntry>contents</customFieldsOrderEntry>
+        <customFieldsOrderEntry>console</customFieldsOrderEntry>
+        <customFieldsOrderEntry>environmentSettings</customFieldsOrderEntry>
+        <customFieldsOrderEntry>sidePaneValueName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>returnValueOf-boolean-preset01Of-boolean-isSidePanelValueSelected-com.otk.jesb.ui.JESBReflectionUI$SidePaneValueName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>returnValueOf-boolean-preset02Of-boolean-isSidePanelValueSelected-com.otk.jesb.ui.JESBReflectionUI$SidePaneValueName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>sideToolBar</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-e239d82:193f3d2e88e:-605f</uniqueIdentifier>
             <specificProperties/>
@@ -11993,7 +11993,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4b</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1185</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -12842,11 +12842,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>nameBox</customFieldsOrder>
-        <customFieldsOrder>mainGroup</customFieldsOrder>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>contents</customFieldsOrder>
-        <customFieldsOrder>note</customFieldsOrder>
+        <customFieldsOrderEntry>nameBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>mainGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>contents</customFieldsOrderEntry>
+        <customFieldsOrderEntry>note</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-e239d82:193f3d2e88e:6830</uniqueIdentifier>
             <specificProperties/>
@@ -12886,8 +12886,8 @@
                         <columnName>toStringValue</columnName>
                         <hidden>true</hidden>
                     </columnCustomization>
-                    <columnsCustomOrder>name</columnsCustomOrder>
-                    <columnsCustomOrder>typeName</columnsCustomOrder>
+                    <columnsCustomOrderEntry>name</columnsCustomOrderEntry>
+                    <columnsCustomOrderEntry>typeName</columnsCustomOrderEntry>
                     <editOptions>
                         <uniqueIdentifier>44fe688f:196e9a34250:35e3</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
@@ -12904,7 +12904,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f4a</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1184</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>true</itemTypeColumnAdded>
@@ -13425,10 +13425,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>selectedPathNode</customFieldsOrder>
-        <customFieldsOrder>rootPathNodes</customFieldsOrder>
-        <customFieldsOrder>functionBodyGroup</customFieldsOrder>
-        <customFieldsOrder>functionBody</customFieldsOrder>
+        <customFieldsOrderEntry>selectedPathNode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootPathNodes</customFieldsOrderEntry>
+        <customFieldsOrderEntry>functionBodyGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>functionBody</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>17b217bd:1940269f569:6b4b</uniqueIdentifier>
             <specificProperties/>
@@ -13559,7 +13559,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f49</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1183</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -13905,7 +13905,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f48</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1182</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -14218,7 +14218,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f47</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1181</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -14383,9 +14383,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>iterationListValueMode</customFieldsOrder>
-        <customFieldsOrder>iterationListValueTypeName</customFieldsOrder>
-        <customFieldsOrder>iterationListValue</customFieldsOrder>
+        <customFieldsOrderEntry>iterationListValueMode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationListValueTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationListValue</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>1f29ab9d:19404c60b3e:-2c11</uniqueIdentifier>
             <specificProperties/>
@@ -14600,7 +14600,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f46</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1180</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -14686,8 +14686,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>commands</customFieldsOrder>
-        <customFieldsOrder>planActivators</customFieldsOrder>
+        <customFieldsOrderEntry>commands</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planActivators</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7099</uniqueIdentifier>
             <specificProperties/>
@@ -14747,7 +14747,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f45</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117f</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -14824,7 +14824,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f44</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117e</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -15056,10 +15056,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>active</customFieldsOrder>
-        <customFieldsOrder>plan</customFieldsOrder>
-        <customFieldsOrder>stepCrossings</customFieldsOrder>
-        <customFieldsOrder>executionError</customFieldsOrder>
+        <customFieldsOrderEntry>active</customFieldsOrderEntry>
+        <customFieldsOrderEntry>plan</customFieldsOrderEntry>
+        <customFieldsOrderEntry>stepCrossings</customFieldsOrderEntry>
+        <customFieldsOrderEntry>executionError</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>6009287d:1941ca54e3e:7733</uniqueIdentifier>
             <specificProperties/>
@@ -15189,7 +15189,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f43</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117d</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -15355,7 +15355,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f42</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117c</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -15528,7 +15528,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f41</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117b</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -15590,7 +15590,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f40</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-117a</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -15625,7 +15625,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f3f</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1179</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -15986,16 +15986,16 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>activationGroup</customFieldsOrder>
-        <customFieldsOrder>automaticTriggerReady</customFieldsOrder>
-        <customFieldsOrder>automaticallyTriggerable</customFieldsOrder>
-        <customFieldsOrder>activationStrategy</customFieldsOrder>
-        <customFieldsOrder>titleBox</customFieldsOrder>
-        <customFieldsOrder>actionGroup</customFieldsOrder>
-        <customFieldsOrder>plan</customFieldsOrder>
-        <customFieldsOrder>planReferencePath</customFieldsOrder>
-        <customFieldsOrder>planInputBuilder</customFieldsOrder>
-        <customFieldsOrder>planExecutors</customFieldsOrder>
+        <customFieldsOrderEntry>activationGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>automaticTriggerReady</customFieldsOrderEntry>
+        <customFieldsOrderEntry>automaticallyTriggerable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationStrategy</customFieldsOrderEntry>
+        <customFieldsOrderEntry>titleBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>actionGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>plan</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planReferencePath</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planInputBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planExecutors</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-1c47250a:1941ce65b96:7629</uniqueIdentifier>
             <specificProperties/>
@@ -16075,7 +16075,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f3e</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1178</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -16498,8 +16498,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>mode</customFieldsOrder>
-        <customFieldsOrder>instanceBuilder</customFieldsOrder>
+        <customFieldsOrderEntry>mode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>instanceBuilder</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77bb</uniqueIdentifier>
             <specificProperties/>
@@ -16531,7 +16531,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f3d</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1177</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -16566,7 +16566,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f3c</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1176</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -16902,7 +16902,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f3b</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1175</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17328,7 +17328,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f3a</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1174</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17470,7 +17470,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f39</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1173</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17914,7 +17914,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f38</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1172</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -18150,10 +18150,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>plan</customFieldsOrder>
-        <customFieldsOrder>planInputBuilder</customFieldsOrder>
-        <customFieldsOrder>operationResultClass</customFieldsOrder>
-        <customFieldsOrder>planOptions</customFieldsOrder>
+        <customFieldsOrderEntry>plan</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planInputBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationResultClass</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planOptions</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>5ccdaa5b:19466870aef:-7d85</uniqueIdentifier>
             <specificProperties/>
@@ -18185,7 +18185,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f37</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1171</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -18225,7 +18225,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f36</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1170</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -18287,7 +18287,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f35</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -18731,14 +18731,14 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>outputBuilder</customFieldsOrder>
-        <customFieldsOrder>planGroup</customFieldsOrder>
-        <customFieldsOrder>activationStrategy</customFieldsOrder>
-        <customFieldsOrder>activationDetails</customFieldsOrder>
-        <customFieldsOrder>activationGroup</customFieldsOrder>
-        <customFieldsOrder>outputBox</customFieldsOrder>
-        <customFieldsOrder>outputEnabled</customFieldsOrder>
-        <customFieldsOrder>activationStrategy.duplicate</customFieldsOrder>
+        <customFieldsOrderEntry>outputBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationStrategy</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationDetails</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>outputBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>outputEnabled</customFieldsOrderEntry>
+        <customFieldsOrderEntry>activationStrategy.duplicate</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:47f6</uniqueIdentifier>
             <specificProperties/>
@@ -19289,7 +19289,7 @@
                     <itemCreationMode>CUSTOM_UNVERIFIED_INSTANCE</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f34</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116e</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -19424,7 +19424,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f33</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116d</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -19561,12 +19561,12 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>typeNameOrAlias</customFieldsOrder>
-        <customFieldsOrder>typeNameOrAliasOptions</customFieldsOrder>
-        <customFieldsOrder>typeName</customFieldsOrder>
-        <customFieldsOrder>optionality</customFieldsOrder>
-        <customFieldsOrder>multiple</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeNameOrAlias</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeNameOrAliasOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>optionality</customFieldsOrderEntry>
+        <customFieldsOrderEntry>multiple</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>2c253423:19475727861:-69d3</uniqueIdentifier>
             <specificProperties/>
@@ -19795,11 +19795,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>structure</customFieldsOrder>
-        <customFieldsOrder>subElements</customFieldsOrder>
-        <customFieldsOrder>optionality</customFieldsOrder>
-        <customFieldsOrder>multiple</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>structure</customFieldsOrderEntry>
+        <customFieldsOrderEntry>subElements</customFieldsOrderEntry>
+        <customFieldsOrderEntry>optionality</customFieldsOrderEntry>
+        <customFieldsOrderEntry>multiple</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-419bc95a:1947609bd70:-77c1</uniqueIdentifier>
             <specificProperties/>
@@ -19869,7 +19869,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f32</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116c</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -20517,11 +20517,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>topMethods</customFieldsOrder>
-        <customFieldsOrder>content</customFieldsOrder>
-        <customFieldsOrder>text</customFieldsOrder>
-        <customFieldsOrder>serviceDescriptors</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>topMethods</customFieldsOrderEntry>
+        <customFieldsOrderEntry>content</customFieldsOrderEntry>
+        <customFieldsOrderEntry>text</customFieldsOrderEntry>
+        <customFieldsOrderEntry>serviceDescriptors</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-6a09c6e4:194b44869ec:-6fa1</uniqueIdentifier>
             <specificProperties/>
@@ -20718,7 +20718,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f31</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -21262,16 +21262,16 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>operationSignatureOptions</customFieldsOrder>
-        <customFieldsOrder>operationInputBuilder</customFieldsOrder>
-        <customFieldsOrder>wSDL</customFieldsOrder>
-        <customFieldsOrder>operationResultClass</customFieldsOrder>
-        <customFieldsOrder>serviceName</customFieldsOrder>
-        <customFieldsOrder>portName</customFieldsOrder>
-        <customFieldsOrder>operationSignature</customFieldsOrder>
-        <customFieldsOrder>portNameOptions</customFieldsOrder>
-        <customFieldsOrder>serviceNameOptions</customFieldsOrder>
-        <customFieldsOrder>wSDLOptions</customFieldsOrder>
+        <customFieldsOrderEntry>operationSignatureOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationInputBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>wSDL</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationResultClass</customFieldsOrderEntry>
+        <customFieldsOrderEntry>serviceName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>portName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationSignature</customFieldsOrderEntry>
+        <customFieldsOrderEntry>portNameOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>serviceNameOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>wSDLOptions</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-26abd643:194b6e911ea:-71c6</uniqueIdentifier>
             <specificProperties/>
@@ -21515,7 +21515,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f30</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-116a</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -21898,7 +21898,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f2f</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1169</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -22005,7 +22005,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f2e</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1168</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -22067,7 +22067,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f2d</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1167</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -22113,7 +22113,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f2c</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1166</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -22161,7 +22161,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f2b</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1165</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -22224,7 +22224,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f2a</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1164</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -22242,7 +22242,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f29</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1163</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -22781,19 +22781,19 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <baseTypeName>com.otk.jesb.instantiation.InstanceBuilder</baseTypeName>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>data</customFieldsOrder>
-        <customFieldsOrder>facade</customFieldsOrder>
-        <customFieldsOrder>dynamicTypeNameAccessor</customFieldsOrder>
-        <customFieldsOrder>rootInstanceDynamicTypeNameAccessor</customFieldsOrder>
-        <customFieldsOrder>rootInitializer</customFieldsOrder>
-        <customFieldsOrder>rootInstanceName</customFieldsOrder>
-        <customFieldsOrder>rootInstanceTypeName</customFieldsOrder>
-        <customFieldsOrder>selectedConstructorSignature</customFieldsOrder>
-        <customFieldsOrder>typeName</customFieldsOrder>
-        <customFieldsOrder>fieldInitializers</customFieldsOrder>
-        <customFieldsOrder>initializationSwitches</customFieldsOrder>
-        <customFieldsOrder>listItemInitializers</customFieldsOrder>
-        <customFieldsOrder>parameterInitializers</customFieldsOrder>
+        <customFieldsOrderEntry>data</customFieldsOrderEntry>
+        <customFieldsOrderEntry>facade</customFieldsOrderEntry>
+        <customFieldsOrderEntry>dynamicTypeNameAccessor</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootInstanceDynamicTypeNameAccessor</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootInitializer</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootInstanceName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootInstanceTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>selectedConstructorSignature</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fieldInitializers</customFieldsOrderEntry>
+        <customFieldsOrderEntry>initializationSwitches</customFieldsOrderEntry>
+        <customFieldsOrderEntry>listItemInitializers</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parameterInitializers</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-37ad8a59:194cd011a17:-3e19</uniqueIdentifier>
             <specificProperties/>
@@ -23104,7 +23104,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f28</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1162</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -23293,8 +23293,8 @@
                         <columnName>rootInstanceBuilderFacade</columnName>
                         <hidden>true</hidden>
                     </columnCustomization>
-                    <columnsCustomOrder>toStringValue</columnsCustomOrder>
-                    <columnsCustomOrder>returnValueOf-java.lang.String-express</columnsCustomOrder>
+                    <columnsCustomOrderEntry>toStringValue</columnsCustomOrderEntry>
+                    <columnsCustomOrderEntry>returnValueOf-java.lang.String-express</columnsCustomOrderEntry>
                     <editOptions>
                         <uniqueIdentifier>-54551627:195f7a0ad3d:7690</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
@@ -23311,7 +23311,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f27</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1161</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -23645,15 +23645,15 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>concrete</customFieldsOrder>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>underlying</customFieldsOrder>
-        <customFieldsOrder>selectedConstructorSignature</customFieldsOrder>
-        <customFieldsOrder>typeName</customFieldsOrder>
-        <customFieldsOrder>mappings</customFieldsOrder>
-        <customFieldsOrder>children</customFieldsOrder>
-        <customFieldsOrder>constructorSignatureOptions</customFieldsOrder>
-        <customFieldsOrder>typeInfo</customFieldsOrder>
+        <customFieldsOrderEntry>concrete</customFieldsOrderEntry>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>underlying</customFieldsOrderEntry>
+        <customFieldsOrderEntry>selectedConstructorSignature</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>mappings</customFieldsOrderEntry>
+        <customFieldsOrderEntry>children</customFieldsOrderEntry>
+        <customFieldsOrderEntry>constructorSignatureOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeInfo</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-37ad8a59:194cd013638:244</uniqueIdentifier>
             <specificProperties/>
@@ -23789,7 +23789,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f26</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1160</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -24973,7 +24973,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f25</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115f</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -25011,7 +25011,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f24</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115e</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -25100,7 +25100,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f23</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115d</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -25584,7 +25584,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f22</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115c</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -26533,8 +26533,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>palette</customFieldsOrder>
-        <customFieldsOrder>steps</customFieldsOrder>
+        <customFieldsOrderEntry>palette</customFieldsOrderEntry>
+        <customFieldsOrderEntry>steps</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-1651ba40:1957c394375:-5c7b</uniqueIdentifier>
             <specificProperties/>
@@ -26585,7 +26585,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f21</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115b</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -26648,7 +26648,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f20</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-115a</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -26686,7 +26686,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1f</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1159</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -26820,7 +26820,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1e</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1158</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -26854,11 +26854,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>diagram</customFieldsOrder>
-        <customFieldsOrder>diagramBox</customFieldsOrder>
-        <customFieldsOrder>diagramDragIntent</customFieldsOrder>
-        <customFieldsOrder>paletteBox</customFieldsOrder>
-        <customFieldsOrder>palette</customFieldsOrder>
+        <customFieldsOrderEntry>diagram</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramDragIntent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>paletteBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>palette</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>43ff8db7:19581aacce3:-5b5b</uniqueIdentifier>
             <specificProperties/>
@@ -26998,8 +26998,8 @@
                         </iconImagePath>
                         <itemName>MOVE</itemName>
                     </itemCustomization>
-                    <itemsCustomOrder>MOVE</itemsCustomOrder>
-                    <itemsCustomOrder>CONNECT</itemsCustomOrder>
+                    <itemsCustomOrderEntry>MOVE</itemsCustomOrderEntry>
+                    <itemsCustomOrderEntry>CONNECT</itemsCustomOrderEntry>
                 </enumerationCustomization>
                 <enumerationCustomization>
                     <uniqueIdentifier>3011e024:196c0b641fa:2902</uniqueIdentifier>
@@ -27126,8 +27126,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>center</customFieldsOrder>
-        <customFieldsOrder>bottom</customFieldsOrder>
+        <customFieldsOrderEntry>center</customFieldsOrderEntry>
+        <customFieldsOrderEntry>bottom</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-38bf6b34:195822bcd14:-1005</uniqueIdentifier>
             <specificProperties/>
@@ -27343,9 +27343,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>diagram</customFieldsOrder>
-        <customFieldsOrder>scrollLocked</customFieldsOrder>
-        <customFieldsOrder>stepCrossings</customFieldsOrder>
+        <customFieldsOrderEntry>diagram</customFieldsOrderEntry>
+        <customFieldsOrderEntry>scrollLocked</customFieldsOrderEntry>
+        <customFieldsOrderEntry>stepCrossings</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-18464e28:1959c217a77:-530e</uniqueIdentifier>
             <specificProperties/>
@@ -27430,7 +27430,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1d</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1157</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -27603,8 +27603,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>data</customFieldsOrder>
-        <customFieldsOrder>facade</customFieldsOrder>
+        <customFieldsOrderEntry>data</customFieldsOrderEntry>
+        <customFieldsOrderEntry>facade</customFieldsOrderEntry>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>7ce421cb:195bf8fe6ff:-5702</uniqueIdentifier>
@@ -27620,8 +27620,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>data</customFieldsOrder>
-        <customFieldsOrder>facade</customFieldsOrder>
+        <customFieldsOrderEntry>data</customFieldsOrderEntry>
+        <customFieldsOrderEntry>facade</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>2ec2c10d:195e2ca1102:771c</uniqueIdentifier>
             <specificProperties/>
@@ -27661,7 +27661,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1c</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1156</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -27694,7 +27694,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1b</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1155</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -27828,7 +27828,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f1a</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1154</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -28178,7 +28178,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f19</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1153</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -28351,10 +28351,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>selectedPathNode</customFieldsOrder>
-        <customFieldsOrder>rootPathNodes</customFieldsOrder>
-        <customFieldsOrder>variablesAndSelectedPathNode</customFieldsOrder>
-        <customFieldsOrder>functionBodyGroup</customFieldsOrder>
+        <customFieldsOrderEntry>selectedPathNode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootPathNodes</customFieldsOrderEntry>
+        <customFieldsOrderEntry>variablesAndSelectedPathNode</customFieldsOrderEntry>
+        <customFieldsOrderEntry>functionBodyGroup</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-4674df6f:195fc93ba49:-2fa6</uniqueIdentifier>
             <specificProperties/>
@@ -28440,7 +28440,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f18</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1152</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -28648,8 +28648,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>rootPathNodes</customFieldsOrder>
-        <customFieldsOrder>selectedPathNode</customFieldsOrder>
+        <customFieldsOrderEntry>rootPathNodes</customFieldsOrderEntry>
+        <customFieldsOrderEntry>selectedPathNode</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-4674df6f:195fc93ba49:2a18</uniqueIdentifier>
             <specificProperties/>
@@ -28728,7 +28728,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f17</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1151</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -29090,10 +29090,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>iterationVariableName</customFieldsOrder>
-        <customFieldsOrder>typeGroup</customFieldsOrder>
-        <customFieldsOrder>inferredIterationVariableTypeName</customFieldsOrder>
-        <customFieldsOrder>iterationVariableTypeName</customFieldsOrder>
+        <customFieldsOrderEntry>iterationVariableName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>typeGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>inferredIterationVariableTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationVariableTypeName</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>1b1f104b:19606aeddc0:-5980</uniqueIdentifier>
             <specificProperties/>
@@ -29421,7 +29421,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f16</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1150</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -29653,12 +29653,12 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>parent</customFieldsOrder>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>operationBuilder</customFieldsOrder>
-        <customFieldsOrder>filler</customFieldsOrder>
-        <customFieldsOrder>diagramX</customFieldsOrder>
-        <customFieldsOrder>diagramY</customFieldsOrder>
+        <customFieldsOrderEntry>parent</customFieldsOrderEntry>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>filler</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramX</customFieldsOrderEntry>
+        <customFieldsOrderEntry>diagramY</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:11a</uniqueIdentifier>
             <specificProperties/>
@@ -30299,14 +30299,14 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>iterationIndexVariableName</customFieldsOrder>
-        <customFieldsOrder>loopEndCondition</customFieldsOrder>
-        <customFieldsOrder>operationResultClass</customFieldsOrder>
+        <customFieldsOrderEntry>iterationIndexVariableName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>loopEndCondition</customFieldsOrderEntry>
+        <customFieldsOrderEntry>operationResultClass</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f15</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30367,7 +30367,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f14</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30429,7 +30429,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f13</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30586,7 +30586,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f12</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30647,7 +30647,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f11</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30709,7 +30709,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f10</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-114a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30765,7 +30765,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f0f</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1149</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30816,7 +30816,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f0e</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1148</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -31241,8 +31241,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>resultsCollectionEnabled</customFieldsOrder>
-        <customFieldsOrder>stepName</customFieldsOrder>
+        <customFieldsOrderEntry>resultsCollectionEnabled</customFieldsOrderEntry>
+        <customFieldsOrderEntry>stepName</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>49f00072:19658bc8a61:14e6</uniqueIdentifier>
             <specificProperties/>
@@ -31430,7 +31430,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f0d</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1147</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -31754,7 +31754,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f0c</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1146</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -31870,7 +31870,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f0b</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1145</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -32146,10 +32146,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>label</customFieldsOrder>
-        <customFieldsOrder>condition</customFieldsOrder>
-        <customFieldsOrder>startStep</customFieldsOrder>
-        <customFieldsOrder>endStep</customFieldsOrder>
+        <customFieldsOrderEntry>label</customFieldsOrderEntry>
+        <customFieldsOrderEntry>condition</customFieldsOrderEntry>
+        <customFieldsOrderEntry>startStep</customFieldsOrderEntry>
+        <customFieldsOrderEntry>endStep</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>75d753d6:19678437b25:-472c</uniqueIdentifier>
             <specificProperties/>
@@ -32505,9 +32505,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>startStep</customFieldsOrder>
-        <customFieldsOrder>arrow</customFieldsOrder>
-        <customFieldsOrder>endStep</customFieldsOrder>
+        <customFieldsOrderEntry>startStep</customFieldsOrderEntry>
+        <customFieldsOrderEntry>arrow</customFieldsOrderEntry>
+        <customFieldsOrderEntry>endStep</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>75d753d6:19678437b25:-3f1d</uniqueIdentifier>
             <specificProperties/>
@@ -33534,9 +33534,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>structure</customFieldsOrder>
-        <customFieldsOrder>structuredClass</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>structure</customFieldsOrderEntry>
+        <customFieldsOrderEntry>structuredClass</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-4272bbb8:196a21863d8:-42ba</uniqueIdentifier>
             <specificProperties/>
@@ -33651,7 +33651,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:3a7e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f0a</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1144</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -34354,8 +34354,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>label</customFieldsOrder>
-        <customFieldsOrder>condition</customFieldsOrder>
+        <customFieldsOrderEntry>label</customFieldsOrderEntry>
+        <customFieldsOrderEntry>condition</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-7b09dee9:196df692dcc:-6e3d</uniqueIdentifier>
             <specificProperties/>
@@ -34768,7 +34768,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3955</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f09</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1143</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -34803,7 +34803,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f08</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1142</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -35662,8 +35662,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>inferredIterationVariableTypeName</customFieldsOrder>
-        <customFieldsOrder>iterationVariableTypeName</customFieldsOrder>
+        <customFieldsOrderEntry>inferredIterationVariableTypeName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>iterationVariableTypeName</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-7fc282bd:1971b296cc1:6534</uniqueIdentifier>
             <specificProperties/>
@@ -37289,7 +37289,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f07</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1141</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -37351,7 +37351,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f06</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1140</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -37412,7 +37412,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f05</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113f</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -37817,10 +37817,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>automaticTriggerReady</customFieldsOrder>
-        <customFieldsOrder>readyBox</customFieldsOrder>
-        <customFieldsOrder>automaticallyTriggerable</customFieldsOrder>
-        <customFieldsOrder>planReferencePath</customFieldsOrder>
+        <customFieldsOrderEntry>automaticTriggerReady</customFieldsOrderEntry>
+        <customFieldsOrderEntry>readyBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>automaticallyTriggerable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>planReferencePath</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-13f9f6a8:1974612c84c:3697</uniqueIdentifier>
             <specificProperties/>
@@ -38073,7 +38073,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f04</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113e</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -38149,7 +38149,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:518d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-f03</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113d</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -38925,10 +38925,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>driverClassNameVariable</customFieldsOrder>
-        <customFieldsOrder>driverClassNameVariable.duplicate</customFieldsOrder>
-        <customFieldsOrder>driverClassNameVariant</customFieldsOrder>
-        <customFieldsOrder>driverClassName</customFieldsOrder>
+        <customFieldsOrderEntry>driverClassNameVariable</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassNameVariable.duplicate</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>driverClassName</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>51048056:1976f341648:5d57</uniqueIdentifier>
             <specificProperties/>
@@ -39467,11 +39467,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>resultsCollectionEnabled</customFieldsOrder>
-        <customFieldsOrder>valid</customFieldsOrder>
-        <customFieldsOrder>targetedStep</customFieldsOrder>
-        <customFieldsOrder>stepName</customFieldsOrder>
-        <customFieldsOrder>errorMessage</customFieldsOrder>
+        <customFieldsOrderEntry>resultsCollectionEnabled</customFieldsOrderEntry>
+        <customFieldsOrderEntry>valid</customFieldsOrderEntry>
+        <customFieldsOrderEntry>targetedStep</customFieldsOrderEntry>
+        <customFieldsOrderEntry>stepName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>errorMessage</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-7b8abf11:1979190749f:39b6</uniqueIdentifier>
             <specificProperties/>
@@ -39855,9 +39855,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>filler</customFieldsOrder>
-        <customFieldsOrder>sidePaneValueName</customFieldsOrder>
-        <customFieldsOrder>methodsGroup</customFieldsOrder>
+        <customFieldsOrderEntry>filler</customFieldsOrderEntry>
+        <customFieldsOrderEntry>sidePaneValueName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>methodsGroup</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>25f68bfe:1979258f8ad:4e1b</uniqueIdentifier>
             <specificProperties/>
@@ -40087,8 +40087,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customMethodsOrder>createDebugger</customMethodsOrder>
-        <customMethodsOrder>preferences.set</customMethodsOrder>
+        <customMethodsOrderEntry>createDebugger</customMethodsOrderEntry>
+        <customMethodsOrderEntry>preferences.set</customMethodsOrderEntry>
         <formButtonBackgroundColor>
             <blue>249</blue>
             <green>249</green>
@@ -40284,7 +40284,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f02</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113c</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -40496,7 +40496,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f01</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113b</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -40534,8 +40534,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>contents</customFieldsOrder>
-        <customFieldsOrder>note</customFieldsOrder>
+        <customFieldsOrderEntry>contents</customFieldsOrderEntry>
+        <customFieldsOrderEntry>note</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-dbeb793:19796e27e85:269e</uniqueIdentifier>
             <specificProperties/>
@@ -40574,8 +40574,8 @@
                         <columnName>toStringValue</columnName>
                         <hidden>true</hidden>
                     </columnCustomization>
-                    <columnsCustomOrder>name</columnsCustomOrder>
-                    <columnsCustomOrder>typeName</columnsCustomOrder>
+                    <columnsCustomOrderEntry>name</columnsCustomOrderEntry>
+                    <columnsCustomOrderEntry>typeName</columnsCustomOrderEntry>
                     <editOptions>
                         <uniqueIdentifier>44fe688f:196e9a34250:35e3</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
@@ -40592,7 +40592,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-f00</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-113a</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>true</itemTypeColumnAdded>
@@ -40758,8 +40758,8 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>userNameVariant</customFieldsOrder>
-        <customFieldsOrder>passwordVariant</customFieldsOrder>
+        <customFieldsOrderEntry>userNameVariant</customFieldsOrderEntry>
+        <customFieldsOrderEntry>passwordVariant</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-137f1d58:197df0c195d:40fc</uniqueIdentifier>
             <specificProperties/>
@@ -40973,9 +40973,9 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>INSTANCE</customFieldsOrder>
-        <customFieldsOrder>theme</customFieldsOrder>
-        <customFieldsOrder>fadingTransitioningEnabled</customFieldsOrder>
+        <customFieldsOrderEntry>INSTANCE</customFieldsOrderEntry>
+        <customFieldsOrderEntry>theme</customFieldsOrderEntry>
+        <customFieldsOrderEntry>fadingTransitioningEnabled</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>743360f6:197a3523619:3ab4</uniqueIdentifier>
             <specificProperties/>
@@ -41210,13 +41210,13 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>stackTrace</customFieldsOrder>
-        <customFieldsOrder>suppressed</customFieldsOrder>
-        <customFieldsOrder>message</customFieldsOrder>
-        <customFieldsOrder>baseMessage</customFieldsOrder>
-        <customFieldsOrder>localizedMessage</customFieldsOrder>
-        <customFieldsOrder>cause</customFieldsOrder>
-        <customFieldsOrder>itemPosition</customFieldsOrder>
+        <customFieldsOrderEntry>stackTrace</customFieldsOrderEntry>
+        <customFieldsOrderEntry>suppressed</customFieldsOrderEntry>
+        <customFieldsOrderEntry>message</customFieldsOrderEntry>
+        <customFieldsOrderEntry>baseMessage</customFieldsOrderEntry>
+        <customFieldsOrderEntry>localizedMessage</customFieldsOrderEntry>
+        <customFieldsOrderEntry>cause</customFieldsOrderEntry>
+        <customFieldsOrderEntry>itemPosition</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>5d99aa98:197b0644ccc:4270</uniqueIdentifier>
             <specificProperties/>
@@ -41740,18 +41740,18 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>name</customFieldsOrder>
-        <customFieldsOrder>topMethods</customFieldsOrder>
-        <customFieldsOrder>content</customFieldsOrder>
-        <customFieldsOrder>note</customFieldsOrder>
-        <customFieldsOrder>text</customFieldsOrder>
-        <customFieldsOrder>rootElements</customFieldsOrder>
-        <customFieldsOrder>dependencyTextByFileName</customFieldsOrder>
+        <customFieldsOrderEntry>name</customFieldsOrderEntry>
+        <customFieldsOrderEntry>topMethods</customFieldsOrderEntry>
+        <customFieldsOrderEntry>content</customFieldsOrderEntry>
+        <customFieldsOrderEntry>note</customFieldsOrderEntry>
+        <customFieldsOrderEntry>text</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootElements</customFieldsOrderEntry>
+        <customFieldsOrderEntry>dependencyTextByFileName</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>-d88499a:197e12932ee:447f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-eff</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1139</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -42055,7 +42055,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>5367327e:197e1a68816:-efe</uniqueIdentifier>
+                        <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1138</uniqueIdentifier>
                     </itemNodeValidityDetectionConfiguration>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
@@ -42159,7 +42159,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:7219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-efd</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1137</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -42274,7 +42274,7 @@
             <uniqueIdentifier>-d88499a:197e166c2ba:-3cf6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-efc</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1136</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -42452,16 +42452,16 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrder>xsdReference</customFieldsOrder>
-        <customFieldsOrder>rootElementName</customFieldsOrder>
-        <customFieldsOrder>xmlTextBuilder</customFieldsOrder>
-        <customFieldsOrder>rootElementNameOptions</customFieldsOrder>
-        <customFieldsOrder>xSDOptions</customFieldsOrder>
+        <customFieldsOrderEntry>xsdReference</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootElementName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>xmlTextBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootElementNameOptions</customFieldsOrderEntry>
+        <customFieldsOrderEntry>xSDOptions</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>69a6204e:197e18b2500:49</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-efb</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1135</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -42502,7 +42502,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:4e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-efa</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1134</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -42536,7 +42536,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:57</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-ef9</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1133</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -42570,7 +42570,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-ef8</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1132</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -42605,7 +42605,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:3d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>5367327e:197e1a68816:-ef7</uniqueIdentifier>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1131</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -42917,6 +42917,209 @@
             <uniqueIdentifier>69a6204e:197e18b2500:-5337</uniqueIdentifier>
         </menuModel>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$URLSource]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-4d22aa2c:197e6a580cb:3e18</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <customFieldsOrderEntry>xsdReference</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootElementName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>outputFormatted</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootObjectBuilder</customFieldsOrderEntry>
+        <customFieldsOrderEntry>rootElementNameOptions</customFieldsOrderEntry>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:4761</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-1130</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>outputFormatted</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-4d22aa2c:197e6a580cb:4763</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:4762</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:4772</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-112f</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>rootElementName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-4d22aa2c:197e6a580cb:4774</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:4773</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <enumerationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:4f94</uniqueIdentifier>
+                    <dynamicEnumerationForced>true</dynamicEnumerationForced>
+                    <enumerationTypeName>ValueOptions [ownerType=com.otk.jesb.operation.builtin.GenerateXML$Builder, field=rootElementName]</enumerationTypeName>
+                </enumerationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueOptionsFieldName>rootElementNameOptions</valueOptionsFieldName>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:4777</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-112e</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>rootElementNameOptions</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-4d22aa2c:197e6a580cb:4779</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:4778</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:476b</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-112d</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>rootObjectBuilder</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-4d22aa2c:197e6a580cb:476d</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:476c</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>true</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:4766</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>-4d22aa2c:197e6aa1d4f:-112c</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption>XSD</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>xsdReference</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-4d22aa2c:197e6a580cb:4768</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-4d22aa2c:197e6a580cb:4767</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:499b</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
+        <menuModel>
+            <uniqueIdentifier>-4d22aa2c:197e6a580cb:3e19</uniqueIdentifier>
+        </menuModel>
+        <typeName>com.otk.jesb.operation.builtin.GenerateXML$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

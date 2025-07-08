@@ -264,6 +264,27 @@ public class MiscUtils {
 		}
 	}
 
+	public static Pair<Integer, Integer> convertIndexToPosition(String text, int index) {
+		if (index < 0 || index > text.length()) {
+			throw new IllegalArgumentException("Index out of bounds");
+		}
+
+		int line = 0;
+		int column = 0;
+
+		for (int i = 0; i < index; i++) {
+			char c = text.charAt(i);
+			if (c == '\n') {
+				line++;
+				column = 0;
+			} else {
+				column++;
+			}
+		}
+
+		return new Pair<Integer, Integer>(line, column);
+	}
+
 	public static Point getRectangleBorderContactOfLineToExternalPoint(int rectangleCenterX, int rectangleCenterY,
 			int rectangleWidth, int rectangleHeight, int externalPointX, int externalPointY) {
 		int x = externalPointX;

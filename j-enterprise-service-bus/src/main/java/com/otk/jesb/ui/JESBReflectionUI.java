@@ -53,6 +53,7 @@ import com.otk.jesb.operation.builtin.CallSOAPWebService;
 import com.otk.jesb.operation.builtin.DoNothing;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.operation.builtin.GenerateXML;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.ParseXML;
@@ -122,8 +123,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	public static final List<OperationMetadata> OPERATION_METADATAS = Arrays.asList(new DoNothing.Metadata(),
 			new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(), new ReadFile.Metadata(),
-			new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
-			new ParseXML.Metadata(), new CallSOAPWebService.Metadata());
+			new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new ParseXML.Metadata(),
+			new GenerateXML.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata());
