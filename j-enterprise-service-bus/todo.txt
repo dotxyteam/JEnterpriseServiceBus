@@ -15,6 +15,7 @@
 - keyboard shortcuts (for menu items first???)
 - improve the UI design:
 	. add a banner ???
+	. get inspiration from TIBCO Flogo
 - allow to add debug breakpoints
 - allow to add comments to plan diagrams
 - allow to optimize a debug session by:

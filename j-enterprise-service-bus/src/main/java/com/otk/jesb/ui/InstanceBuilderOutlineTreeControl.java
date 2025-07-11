@@ -1,29 +1,18 @@
 package com.otk.jesb.ui;
 
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
 import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
-
 import org.jdesktop.swingx.JXTreeTable;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.instantiation.FacadeOutline;
-import com.otk.jesb.instantiation.RootInstanceBuilder;
-
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.swing.ListControl;
-import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
-import xy.reflect.ui.control.swing.util.SwingRendererUtils;
-import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 
 public class InstanceBuilderOutlineTreeControl extends ListControl {
 
 	private static final long serialVersionUID = 1L;
-
-	private ListControl facadeTreeControl;
 
 	public InstanceBuilderOutlineTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
 		super(swingRenderer, input);
@@ -62,47 +51,38 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 	}
 
 	@Override
-	public void validateControl(ValidationSession session) throws Exception {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					facadeTreeControl = createFacadeTreeControl();
-				}
-			});
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
-		} catch (InvocationTargetException e) {
-			throw new UnexpectedError(e);
-		}
-		try {
-			facadeTreeControl.validateControl(session);
-		} finally {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					refreshRendrers();
-					treeTableComponent.repaint();
-				}
-			});
-		}
-	}
+	protected ItemDialogBuilder createItemDialogBuilder(BufferedItemPosition bufferedItemPosition) {
+		return new ItemDialogBuilder(bufferedItemPosition) {
 
-	@Override
-	public Exception getValidationError(BufferedItemPosition itemPosition) {
-		return swingRenderer.getReflectionUI().getValidationErrorRegistry()
-				.getValidationError(((FacadeOutline) itemPosition.getItem()).getFacade(), null);
-	}
+			@Override
+			protected void copyValidationErrorFromCapsuleToItem(Object capsule) {
+				if (bufferedItemPosition.getContainingListType()
+						.getListItemAbstractFormValidationJob(bufferedItemPosition) != null) {
+					/*
+					 * Do not copy the eventual abstract form validation error because it may be
+					 * structurally different (even if it represents the same incoherence) from the
+					 * error that would be generated from the concrete form.
+					 */
+					return;
+				}
+				super.copyValidationErrorFromCapsuleToItem(capsule);
+			}
 
-	private ListControl createFacadeTreeControl() {
-		Form rootInstanceBuilderForm = SwingRendererUtils.findAncestorFormOfType(this,
-				RootInstanceBuilder.class.getName(), swingRenderer);
-		Form rootInstanceBuilderFacadeForm = swingRenderer
-				.createForm(((RootInstanceBuilder) rootInstanceBuilderForm.getObject()).getFacade());
-		return (ListControl) SwingRendererUtils
-				.findDescendantFieldControlPlaceHolder(rootInstanceBuilderFacadeForm, "children", swingRenderer)
-				.getFieldControl();
+			@Override
+			protected void copyValidationErrorFromItemToCapsule(Object capsule) {
+				if (bufferedItemPosition.getContainingListType()
+						.getListItemAbstractFormValidationJob(bufferedItemPosition) != null) {
+					/*
+					 * Do not copy the eventual abstract form validation error because it may be
+					 * structurally different (even if it represents the same incoherence) from the
+					 * error that would be generated from the concrete form.
+					 */
+					return;
+				}
+				super.copyValidationErrorFromItemToCapsule(capsule);
+			}
+			
+		};
 	}
 
 }

@@ -32,6 +32,7 @@ import com.otk.jesb.Structure.Element;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
 import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FacadeOutline;
 import com.otk.jesb.instantiation.FieldInitializer;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.InitializationCase;
@@ -96,6 +97,7 @@ import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
 import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -1463,6 +1465,64 @@ public class JESBReflectionUI extends CustomizedUI {
 				} else {
 					super.validate(type, object, session);
 				}
+			}
+
+			@Override
+			protected IValidationJob getValueAbstractFormValidationJob(IFieldInfo field, Object object,
+					ITypeInfo objectType) {
+				if (field.getType().getName().equals(RootInstanceBuilder.class.getName())) {
+					return (session) -> {
+						Object value = field.getValue(object);
+						Step step = getCurrentValidationStep(session);
+						Plan plan = getCurrentValidationPlan(session);
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = ((RootInstanceBuilder) value).getFacade();
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+						rootInstanceBuilderFacade.validate(true,
+								plan.getValidationContext(step).getVariableDeclarations());
+					};
+				}
+				return super.getValueAbstractFormValidationJob(field, object, objectType);
+			}
+
+			@Override
+			protected IValidationJob getReturnValueAbstractFormValidationJob(IMethodInfo method, Object object,
+					Object returnValue, ITypeInfo objectType) {
+				if (returnValue instanceof ActivationStrategy) {
+					return (session) -> {
+						Plan plan = getCurrentValidationPlan(session);
+						((ActivationStrategy) returnValue).validate(true, plan);
+					};
+				}
+				return super.getReturnValueAbstractFormValidationJob(method, object, returnValue, objectType);
+			}
+
+			@Override
+			protected IValidationJob getListItemAbstractFormValidationJob(IListTypeInfo listType,
+					ItemPosition itemPosition) {
+				Object item = itemPosition.getItem();
+				if (item instanceof Asset) {
+					return (session) -> ((Asset) item).validate(true);
+				} else if (item instanceof Facade) {
+					return (session) -> {
+						Step step = getCurrentValidationStep(session);
+						Plan plan = getCurrentValidationPlan(session);
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+								.getRoot((Facade) item);
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+						((Facade) item).validate(true, plan.getValidationContext(step).getVariableDeclarations());
+					};
+				} else if (item instanceof FacadeOutline) {
+					return (session) -> {
+						Step step = getCurrentValidationStep(session);
+						Plan plan = getCurrentValidationPlan(session);
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+								.getRoot(((FacadeOutline) item).getFacade());
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+						(((FacadeOutline) item).getFacade()).validate(true,
+								plan.getValidationContext(step).getVariableDeclarations());
+					};
+				}
+				return super.getListItemAbstractFormValidationJob(listType, itemPosition);
 			}
 
 		}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));

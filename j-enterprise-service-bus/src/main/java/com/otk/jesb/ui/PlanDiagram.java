@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,7 +80,6 @@ import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
-import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
@@ -859,23 +857,15 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			if (Thread.currentThread().isInterrupted()) {
 				return;
 			}
-			Form[] itemForm = new Form[1];
 			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						itemForm[0] = swingRenderer.createForm(toValidate.getSecond());
-					}
-				});
-			} catch (InvocationTargetException e) {
-				throw new ReflectionUIError(e);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return;
-			}
-			try {
-				itemForm[0].validateForm(session);
+				toValidate.getSecond().validate(true, plan);
+				if (!Thread.currentThread().isInterrupted()) {
+					swingRenderer.getReflectionUI().getValidationErrorRegistry()
+							.cancelAttribution(toValidate.getSecond(), session);
+				}
 			} catch (Exception e) {
+				swingRenderer.getReflectionUI().getValidationErrorRegistry().attribute(toValidate.getSecond(), e,
+						session);
 				validitionErrorMap.put(toValidate, e);
 			}
 		}
