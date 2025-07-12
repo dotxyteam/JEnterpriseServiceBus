@@ -17,8 +17,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
+import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.GUI.BetterFlatTableHeaderUI;
 import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
 public class Preferences {
 
@@ -113,6 +116,13 @@ public class Preferences {
 					for (Window window : Window.getWindows()) {
 						SwingUtilities.updateComponentTreeUI(window);
 					}
+					// force recreation of all controls to prevent some components painting issues
+					GUI.INSTANCE.getCustomizationOptions()
+							.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
+					SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
+					GUI.INSTANCE.getCustomizationOptions()
+							.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
+					SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
 				}
 			});
 		}
