@@ -100,12 +100,10 @@ public class ListItemInitializerFacade extends InitializerFacade {
 		}
 		if (getCondition() != null) {
 			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), this,
-					"condition", recursively, variableDeclarations);
+					"condition", true, variableDeclarations);
 		}
-		if (recursively) {
-			if (getItemReplicationFacade() != null) {
-				getItemReplicationFacade().validate(recursively, variableDeclarations);
-			}
+		if (getItemReplicationFacade() != null) {
+			getItemReplicationFacade().validate(true, variableDeclarations);
 		}
 		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
 				recursively, variableDeclarations);

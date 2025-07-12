@@ -73,6 +73,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
@@ -1501,7 +1502,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					ItemPosition itemPosition) {
 				Object item = itemPosition.getItem();
 				if (item instanceof Asset) {
-					return (session) -> ((Asset) item).validate(true);
+					return (session) -> ((Asset) item).validate(!(item instanceof Folder));
 				} else if (item instanceof Facade) {
 					return (session) -> {
 						Step step = getCurrentValidationStep(session);
@@ -1509,7 +1510,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 								.getRoot((Facade) item);
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-						((Facade) item).validate(true, plan.getValidationContext(step).getVariableDeclarations());
+						((Facade) item).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 					};
 				} else if (item instanceof FacadeOutline) {
 					return (session) -> {
@@ -1518,7 +1519,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 								.getRoot(((FacadeOutline) item).getFacade());
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-						(((FacadeOutline) item).getFacade()).validate(true,
+						(((FacadeOutline) item).getFacade()).validate(false,
 								plan.getValidationContext(step).getVariableDeclarations());
 					};
 				}
@@ -1535,34 +1536,54 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected Object getValidationErrorMapKey(Object object, ValidationSession session) {
 				if (object instanceof Step) {
-					return Arrays.asList(object, getCurrentValidationPlan(session));
+					Plan plan = getCurrentValidationPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
+					return Arrays.asList(object, plan);
 				} else if (object instanceof Transition) {
-					return Arrays.asList(object, getCurrentValidationPlan(session));
+					Plan plan = getCurrentValidationPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
+					return Arrays.asList(object, plan);
 				} else if (object instanceof Transition.Condition) {
-					return Arrays.asList(object, getCurrentValidationPlan(session),
-							getCurrentValidationTransition(session));
+					Plan plan = getCurrentValidationPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
+					Transition transition = getCurrentValidationTransition(session);
+					if (transition == null) {
+						throw new UnexpectedError();
+					}
+					return Arrays.asList(object, plan, transition);
 				} else if (object instanceof OperationBuilder) {
 					return Arrays.asList(object, getCurrentValidationPlan(session), getCurrentValidationStep(session));
 				} else if (object instanceof Facade) {
-					Step step = getCurrentValidationStep(session);
 					Plan plan = getCurrentValidationPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot((Facade) object);
-					if (plan != null) {
-						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					}
+					Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
+							: getCurrentValidationStep(session);
 					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
 				} else if (object instanceof ListItemReplicationFacade) {
-					Step step = getCurrentValidationStep(session);
 					Plan plan = getCurrentValidationPlan(session);
-					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
-					if (plan != null) {
-						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+					if (plan == null) {
+						throw new UnexpectedError();
 					}
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot((Facade) object);
+					Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
+							: getCurrentValidationStep(session);
 					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
 				} else if (object instanceof ActivationStrategy) {
 					Plan plan = getCurrentValidationPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
 					return Arrays.asList(object, plan);
 				} else {
 					return super.getValidationErrorMapKey(object, session);

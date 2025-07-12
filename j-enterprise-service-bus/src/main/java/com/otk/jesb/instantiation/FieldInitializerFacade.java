@@ -60,7 +60,7 @@ public class FieldInitializerFacade extends InitializerFacade {
 		}
 		if (getCondition() != null) {
 			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), getParent(),
-					"condition", recursively, variableDeclarations);
+					"condition", true, variableDeclarations);
 		}
 		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, "field value",
 				recursively, variableDeclarations);
