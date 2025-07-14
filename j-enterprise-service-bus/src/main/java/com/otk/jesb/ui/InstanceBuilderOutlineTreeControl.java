@@ -50,39 +50,4 @@ public class InstanceBuilderOutlineTreeControl extends ListControl {
 		return new Color(245, 245, 255);
 	}
 
-	@Override
-	protected ItemDialogBuilder createItemDialogBuilder(BufferedItemPosition bufferedItemPosition) {
-		return new ItemDialogBuilder(bufferedItemPosition) {
-
-			@Override
-			protected void copyValidationErrorFromCapsuleToItem(Object capsule) {
-				if (bufferedItemPosition.getContainingListType()
-						.getListItemAbstractFormValidationJob(bufferedItemPosition) != null) {
-					/*
-					 * Do not copy the eventual abstract form validation error because it may be
-					 * structurally different (even if it represents the same incoherence) from the
-					 * error that would be generated from the concrete form.
-					 */
-					return;
-				}
-				super.copyValidationErrorFromCapsuleToItem(capsule);
-			}
-
-			@Override
-			protected void copyValidationErrorFromItemToCapsule(Object capsule) {
-				if (bufferedItemPosition.getContainingListType()
-						.getListItemAbstractFormValidationJob(bufferedItemPosition) != null) {
-					/*
-					 * Do not copy the eventual abstract form validation error because it may be
-					 * structurally different (even if it represents the same incoherence) from the
-					 * error that would be generated from the concrete form.
-					 */
-					return;
-				}
-				super.copyValidationErrorFromItemToCapsule(capsule);
-			}
-			
-		};
-	}
-
 }

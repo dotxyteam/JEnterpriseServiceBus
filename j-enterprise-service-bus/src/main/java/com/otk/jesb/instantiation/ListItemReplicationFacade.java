@@ -143,7 +143,7 @@ public class ListItemReplicationFacade {
 				+ ((baseExpression != null) ? (" LOOP " + baseExpression) : "");
 	}
 
-	public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+	public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
 		try {
 			ITypeInfo guessedIterationVariableType = guessIterationVariableTypeInfo(variableDeclarations);
 			ITypeInfo declaredIterationVariableType = getDeclaredIterationVariableTypeInfo();
@@ -163,7 +163,7 @@ public class ListItemReplicationFacade {
 			throw new ValidationError("Iteration variable type evaluation error", e);
 		}
 		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),
-				listItemInitializerFacade, "iteration list value", recursively, variableDeclarations);
+				listItemInitializerFacade, "iteration list value", true, variableDeclarations);
 	}
 
 	@Override

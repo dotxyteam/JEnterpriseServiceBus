@@ -842,7 +842,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public void validateControl(ValidationSession session) throws Exception {
+	public void validateControlData(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
 		plan.validate(false);
 		List<Pair<String, PlanElement>> titleAndElementPairs = new ArrayList<Pair<String, PlanElement>>();

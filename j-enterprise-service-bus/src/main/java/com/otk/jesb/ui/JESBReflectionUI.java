@@ -1367,6 +1367,12 @@ public class JESBReflectionUI extends CustomizedUI {
 						return true;
 					}
 				}
+				if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(List.class.getName())))) {
+						return true;
+					}
+				}
 				if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(boolean.class.getName())))) {
@@ -1454,8 +1460,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
 					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					((ListItemReplicationFacade) object).validate(false,
-							plan.getValidationContext(step).getVariableDeclarations());
+					((ListItemReplicationFacade) object)
+							.validate(plan.getValidationContext(step).getVariableDeclarations());
 				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
 					((Structure) object).validate(false);
 				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
@@ -1575,7 +1581,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						throw new UnexpectedError();
 					}
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-							.getRoot((Facade) object);
+							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
 					Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
 							: getCurrentValidationStep(session);
 					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
@@ -1660,7 +1666,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			return new FieldInfoProxy(variantField) {
 
 				@Override
-				public boolean isValueValidityDetectionEnabled() {
+				public boolean isControlValueValiditionEnabled() {
 					return true;
 				}
 
