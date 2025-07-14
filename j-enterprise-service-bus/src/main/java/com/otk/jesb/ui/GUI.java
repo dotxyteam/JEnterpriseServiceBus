@@ -424,8 +424,10 @@ public class GUI extends SwingCustomizer {
 						private void postSelectNewPlanExecutor() {
 							Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
 									Debugger.class.getName(), swingRenderer);
-							ListControl planActivatorsControl = (ListControl) debuggerForm
-									.getFieldControlPlaceHolder("planActivators").getFieldControl();
+							ListControl planActivatorsControl = (ListControl) SwingRendererUtils
+									.findDescendantFieldControlPlaceHolder(debuggerForm, "planActivators",
+											swingRenderer)
+									.getFieldControl();
 							planActivatorsControl.refreshUI(false);
 							Form currentPlanActivatorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
 									PlanActivator.class.getName(), swingRenderer);

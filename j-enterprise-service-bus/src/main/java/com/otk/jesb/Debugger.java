@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,16 +20,23 @@ import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
+import com.otk.jesb.util.MiscUtils;
 
 public class Debugger {
 
 	private Solution solution;
 	private List<PlanActivator> planActivators;
 	private PlanActivatorsFilter currentPlanActivatorsFilter = PlanActivatorsFilter.ACTIVABLE_PLANS;
+	private Console console = new Console();
+	private static boolean scrollLocked = false;
 
 	public Debugger(Solution solution) {
 		this.solution = solution;
 		planActivators = collectPlanActivators();
+	}
+
+	public Console getConsole() {
+		return console;
 	}
 
 	public List<PlanActivator> getPlanActivators() {
@@ -84,7 +92,7 @@ public class Debugger {
 		}
 	}
 
-	public static class PlanActivator {
+	public class PlanActivator {
 
 		private Plan plan;
 		private RootInstanceBuilder planInputBuilder;
@@ -174,7 +182,7 @@ public class Debugger {
 		}
 	}
 
-	public static class PlanExecutor {
+	public class PlanExecutor {
 
 		protected Plan plan;
 		protected Object planInput;
@@ -184,7 +192,6 @@ public class Debugger {
 		protected Thread thread;
 		protected List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
 		protected Stack<SubPlanExecutor> subPlanExecutionStack = new Stack<SubPlanExecutor>();
-		protected static boolean scrollLocked = false;
 		protected boolean interrupted = false;
 
 		public PlanExecutor(Plan plan, Object planInput) {
@@ -206,7 +213,7 @@ public class Debugger {
 		}
 
 		public void setScrollLocked(boolean scrollLocked) {
-			PlanExecutor.scrollLocked = scrollLocked;
+			Debugger.scrollLocked = scrollLocked;
 		}
 
 		public List<StepCrossing> getStepCrossings() {
@@ -266,43 +273,69 @@ public class Debugger {
 		}
 
 		protected void execute() {
+			Plan.ExecutionInspector executionInspector = new Plan.ExecutionInspector() {
+				@Override
+				public void beforeOperation(StepCrossing stepCrossing) {
+					getTopPlanExecutor().currentStepCrossing = stepCrossing;
+					getTopPlanExecutor().stepCrossings.add(stepCrossing);
+					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
+						Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
+								.getPlanReference().resolve();
+						SubPlanExecutor subPlanExecutor = new SubPlanExecutor(subPlan);
+						getTopPlanExecutor().children.add(subPlanExecutor);
+						subPlanExecutionStack.add(subPlanExecutor);
+					}
+				}
+
+				@Override
+				public void afterOperation(StepCrossing stepCrossing) {
+					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
+						subPlanExecutionStack.pop().executionError = stepCrossing.getOperationError();
+					}
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					getTopPlanExecutor().currentStepCrossing = null;
+				}
+
+				@Override
+				public boolean isExecutionInterrupted() {
+					return Thread.currentThread().isInterrupted();
+				}
+
+				@Override
+				public void logInformation(String message) {
+					log(message, "INFORMATION", "gray");
+				}
+
+				@Override
+				public void logWarning(String message) {
+					log(message, "WARNING", "yellow");
+				}
+
+				@Override
+				public void logError(String message) {
+					log(message, "ERROR", "red");
+				}
+
+				private void log(String message, String levelName, String colorName) {
+					String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
+							.format(MiscUtils.now());
+					String formattedMessage = String.format("%s [%s] %s - %s", date,
+							Thread.currentThread().getName(), levelName,
+							"<font color=\"" + colorName + "\">" + message + "</font>") + "<BR>";
+					console.writeLine(formattedMessage);
+				}
+			};
 			try {
-				plan.execute(planInput, new Plan.ExecutionInspector() {
-					@Override
-					public void beforeOperation(StepCrossing stepCrossing) {
-						getTopPlanExecutor().currentStepCrossing = stepCrossing;
-						getTopPlanExecutor().stepCrossings.add(stepCrossing);
-						if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
-							Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
-									.getPlanReference().resolve();
-							SubPlanExecutor subPlanExecutor = new SubPlanExecutor(subPlan);
-							getTopPlanExecutor().children.add(subPlanExecutor);
-							subPlanExecutionStack.add(subPlanExecutor);
-						}
-					}
-
-					@Override
-					public void afterOperation(StepCrossing stepCrossing) {
-						if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
-							subPlanExecutionStack.pop().executionError = stepCrossing.getOperationError();
-						}
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-						}
-						getTopPlanExecutor().currentStepCrossing = null;
-					}
-
-					@Override
-					public boolean isExecutionInterrupted() {
-						return Thread.currentThread().isInterrupted();
-					}
-				});
+				plan.execute(planInput, executionInspector);
 			} catch (Throwable t) {
 				if (JESB.DEBUG) {
 					t.printStackTrace();
 				}
+				executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
 				executionError = t;
 			}
 		}
@@ -322,7 +355,7 @@ public class Debugger {
 					: (interrupted ? "INTERRUPTED" : ((executionError == null) ? "DONE" : "FAILED")));
 		}
 
-		public static class SubPlanExecutor extends PlanExecutor {
+		public class SubPlanExecutor extends PlanExecutor {
 
 			public SubPlanExecutor(Plan plan) {
 				super(plan, null);
@@ -340,7 +373,7 @@ public class Debugger {
 
 	}
 
-	public static class PlanActivationFailure extends PlanExecutor {
+	public class PlanActivationFailure extends PlanExecutor {
 
 		public PlanActivationFailure(Plan plan, Exception error) {
 			super(plan, null);
@@ -378,6 +411,24 @@ public class Debugger {
 				return planActivator.isAutomaticallyTriggerable() && !planActivator.isAutomaticTriggerReady();
 			}
 		}
+	}
+
+	public class Console {
+
+		private StringBuilder buffer = new StringBuilder();
+
+		public void writeLine(String line) {
+			buffer.append(line + System.lineSeparator());
+		}
+
+		public String read() {
+			return buffer.toString();
+		}
+
+		public void clear() {
+			buffer.delete(0, buffer.length());
+		}
+
 	}
 
 }

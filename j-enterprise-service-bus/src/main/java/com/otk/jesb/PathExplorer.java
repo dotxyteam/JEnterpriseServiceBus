@@ -363,7 +363,7 @@ public class PathExplorer {
 			if (parentTypeInfo instanceof ArrayTypeInfo) {
 				return parentExpression + ".length";
 			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {
-				return parentExpression + ".size())";
+				return parentExpression + ".size()";
 			} else {
 				throw new UnexpectedError();
 			}

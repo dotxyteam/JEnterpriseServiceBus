@@ -48,6 +48,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	@Override
+	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
+	}
+
+	@Override
 	public boolean refreshUI(boolean refreshStructure) {
 		boolean result = super.refreshUI(refreshStructure);
 		if (result) {

@@ -800,21 +800,19 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	protected void paintNode(Graphics g, JNode node) {
 		super.paintNode(g, node);
-		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(node.getValue(),
-				null) != null) {
-			Point errorMarkerLocation = getErrorMarkerLocation(node);
-			if (errorMarkerLocation != null) {
-				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
-			}
-		}
+		paintErrorMarker(g, node);
 	}
 
 	@Override
 	protected void paintConnection(Graphics g, JConnection connection) {
 		super.paintConnection(g, connection);
-		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(connection.getValue(),
+		paintErrorMarker(g, connection);
+	}
+
+	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
+		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(diagramObject.getValue(),
 				null) != null) {
-			Point errorMarkerLocation = getErrorMarkerLocation(connection);
+			Point errorMarkerLocation = getErrorMarkerLocation(diagramObject);
 			if (errorMarkerLocation != null) {
 				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);
 			}
@@ -858,14 +856,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				return;
 			}
 			try {
-				toValidate.getSecond().validate(true, plan);
-				if (!Thread.currentThread().isInterrupted()) {
-					swingRenderer.getReflectionUI().getValidationErrorRegistry()
-							.cancelAttribution(toValidate.getSecond(), session);
-				}
+				swingRenderer.getReflectionUI().getValidationErrorRegistry()
+						.attributing(plan, (sessionArg) -> toValidate.getSecond().validate(true, plan))
+						.validate(session);
 			} catch (Exception e) {
-				swingRenderer.getReflectionUI().getValidationErrorRegistry().attribute(toValidate.getSecond(), e,
-						session);
 				validitionErrorMap.put(toValidate, e);
 			}
 		}

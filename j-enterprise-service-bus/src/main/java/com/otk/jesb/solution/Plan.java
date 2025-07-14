@@ -1,6 +1,8 @@
 package com.otk.jesb.solution;
 
 import java.beans.Transient;
+import java.io.PrintStream;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -193,6 +195,29 @@ public class Plan extends Asset {
 			@Override
 			public boolean isExecutionInterrupted() {
 				return false;
+			}
+
+			@Override
+			public void logInformation(String message) {
+				log(message, "INFORMATION", System.out);
+			}
+
+			@Override
+			public void logError(String message) {
+				log(message, "ERROR", System.err);
+			}
+
+			@Override
+			public void logWarning(String message) {
+				log(message, "WARNING", System.err);
+			}
+
+			private void log(String message, String levelName, PrintStream printStream) {
+				String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
+						.format(MiscUtils.now());
+				String formattedMessage = String.format("%1$s [%2$s] %3$s - %4$s", date,
+						Thread.currentThread().getName(), levelName, message);
+				printStream.println(formattedMessage);
 			}
 		});
 	}
@@ -573,6 +598,12 @@ public class Plan extends Asset {
 		boolean isExecutionInterrupted();
 
 		void afterOperation(StepCrossing stepCrossing);
+
+		void logInformation(String message);
+
+		void logError(String message);
+
+		void logWarning(String message);
 
 	}
 
