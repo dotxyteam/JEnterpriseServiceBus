@@ -53,8 +53,8 @@ public class Solution {
 		if (!directory.isDirectory()) {
 			throw new IllegalArgumentException("'" + directory + "' is not a valid directory");
 		}
-		try (FileInputStream fileInputStream = new FileInputStream(
-				new File(directory, "." + environmentSettings.getClass().getSimpleName() + FILE_NAME_SUFFIX))) {
+		try (FileInputStream fileInputStream = new FileInputStream(new File(directory,
+				"." + environmentSettings.getClass().getSimpleName().toLowerCase() + FILE_NAME_SUFFIX))) {
 			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
 		}
 		rootFolder = loadFolder(directory, rootFolder.getName());
