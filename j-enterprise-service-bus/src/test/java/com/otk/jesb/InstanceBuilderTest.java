@@ -6,7 +6,7 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.activation.Execution;
+import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
@@ -29,7 +29,7 @@ public class InstanceBuilderTest {
 
 	public static void main(String[] args) throws Exception {
 		Plan plan = new Plan();
-		Execution activation = new Execution();
+		Operate activation = new Operate();
 		plan.setActivationStrategy(activation);
 		ClassicStructure planInputStructure = new ClassicStructure();
 		{

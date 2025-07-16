@@ -1,7 +1,12 @@
-package com.otk.jesb.activation;
+package com.otk.jesb.activation.builtin;
 
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.ActivationStrategyMetadata;
 import com.otk.jesb.solution.Plan;
+
+import xy.reflect.ui.info.ResourcePath;
 
 public class LaunchAtStartup extends ActivationStrategy {
 
@@ -40,5 +45,25 @@ public class LaunchAtStartup extends ActivationStrategy {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+	}
+
+	public static class Metadata implements ActivationStrategyMetadata {
+
+		@Override
+		public ResourcePath getActivationStrategyIconImagePath() {
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(LaunchAtStartup.class.getName().replace(".", "/") + ".png"));
+		}
+
+		@Override
+		public Class<? extends ActivationStrategy> getActivationStrategyClass() {
+			return LaunchAtStartup.class;
+		}
+
+		@Override
+		public String getActivationStrategyName() {
+			return "Launch At Startup";
+		}
+
 	}
 }

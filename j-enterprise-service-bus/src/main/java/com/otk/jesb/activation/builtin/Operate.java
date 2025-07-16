@@ -1,15 +1,20 @@
-package com.otk.jesb.activation;
+package com.otk.jesb.activation.builtin;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.ActivationStrategyMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
-public class Execution extends ActivationStrategy {
+import xy.reflect.ui.info.ResourcePath;
+
+public class Operate extends ActivationStrategy {
 
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
@@ -102,7 +107,7 @@ public class Execution extends ActivationStrategy {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.toDigitalUniqueIdentifier(Execution.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Operate.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -125,7 +130,7 @@ public class Execution extends ActivationStrategy {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.toDigitalUniqueIdentifier(Execution.this);
+							+ MiscUtils.toDigitalUniqueIdentifier(Operate.this);
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -135,4 +140,23 @@ public class Execution extends ActivationStrategy {
 		}
 	}
 
+	public static class Metadata implements ActivationStrategyMetadata {
+
+		@Override
+		public ResourcePath getActivationStrategyIconImagePath() {
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(Operate.class.getName().replace(".", "/") + ".png"));
+		}
+
+		@Override
+		public Class<? extends ActivationStrategy> getActivationStrategyClass() {
+			return Operate.class;
+		}
+
+		@Override
+		public String getActivationStrategyName() {
+			return "(Sub-Plan) Operate";
+		}
+
+	}
 }

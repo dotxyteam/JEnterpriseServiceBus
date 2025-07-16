@@ -20,6 +20,9 @@ import com.otk.jesb.Preferences;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.ActivationStrategyMetadata;
+import com.otk.jesb.activation.builtin.LaunchAtStartup;
+import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
@@ -132,6 +135,8 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata());
+	public static final List<ActivationStrategyMetadata> ACTIVATION_STRATEGY__METADATAS = Arrays
+			.asList(new LaunchAtStartup.Metadata(), new Operate.Metadata());
 	private static final String CURRENT_VALIDATION_PLAN_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_KEY";
 	private static final String CURRENT_VALIDATION_STEP_KEY = JESBReflectionUI.class.getName()
@@ -1199,6 +1204,13 @@ public class JESBReflectionUI extends CustomizedUI {
 						result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 					}
 					return result;
+				} else if (type.getName().equals(ActivationStrategy.class.getName())) {
+					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
+					for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
+						result.add(getTypeInfo(
+								new JavaTypeInfoSource(activationStrategyMetadata.getActivationStrategyClass(), null)));
+					}
+					return result;
 				} else {
 					return super.getPolymorphicInstanceSubTypes(type);
 				}
@@ -1219,6 +1231,11 @@ public class JESBReflectionUI extends CustomizedUI {
 						return resourceMetadata.getResourceTypeName();
 					}
 				}
+				for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
+					if (activationStrategyMetadata.getActivationStrategyClass().getName().equals(type.getName())) {
+						return activationStrategyMetadata.getActivationStrategyName();
+					}
+				}
 				return super.getCaption(type);
 			}
 
@@ -1232,6 +1249,11 @@ public class JESBReflectionUI extends CustomizedUI {
 				for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
 					if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 						return resourceMetadata.getResourceIconImagePath();
+					}
+				}
+				for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
+					if (activationStrategyMetadata.getActivationStrategyClass().getName().equals(type.getName())) {
+						return activationStrategyMetadata.getActivationStrategyIconImagePath();
 					}
 				}
 				if (object instanceof Step) {

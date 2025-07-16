@@ -35586,7 +35586,7 @@
         </javaClassBasedTypeInfoFinder>
         <javaClassBasedTypeInfoFinder>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:31c1</uniqueIdentifier>
-            <className>com.otk.jesb.activation.Execution</className>
+            <className>com.otk.jesb.activation.Operate</className>
         </javaClassBasedTypeInfoFinder>
         <typeName>com.otk.jesb.activation.ActivationStrategy</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -35714,7 +35714,7 @@
         <menuModel>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:5bb4</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Execution]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Operate]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36132,7 +36132,7 @@
                     <menuModel>
                         <uniqueIdentifier>-7ea92b19:197453a3f88:65e2</uniqueIdentifier>
                     </menuModel>
-                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Execution], fieldName=structures]</typeName>
+                    <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Operate], fieldName=structures]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -36144,7 +36144,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:309f</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.activation.Execution</typeName>
+        <typeName>com.otk.jesb.activation.Operate</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36465,7 +36465,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:6591</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Execution]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Operate]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36540,7 +36540,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:65d1</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Execution], fieldName=structures]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Operate], fieldName=structures]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36584,7 +36584,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:7bbf</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Execution], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Operate], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36628,7 +36628,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:7bc8</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Execution], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.Operate], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

@@ -18,7 +18,7 @@ import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivationStrategy;
-import com.otk.jesb.activation.LaunchAtStartup;
+import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;

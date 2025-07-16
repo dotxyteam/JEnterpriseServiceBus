@@ -3,7 +3,7 @@ package com.otk.jesb.operation.builtin;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activation.Execution;
+import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -107,7 +107,7 @@ public class ExecutePlan implements Operation {
 			if (plan == null) {
 				return null;
 			}
-			Execution activation = (Execution) plan.getActivationStrategy();
+			Operate activation = (Operate) plan.getActivationStrategy();
 			return activation.getOutputClass();
 		}
 

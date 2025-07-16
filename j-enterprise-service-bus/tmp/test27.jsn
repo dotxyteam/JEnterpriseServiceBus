@@ -382,7 +382,7 @@
           </transitions>
         </com.otk.jesb.solution.Plan>
         <com.otk.jesb.solution.Plan>
-          <activationStrategy class="com.otk.jesb.activation.Execution">
+          <activationStrategy class="com.otk.jesb.activation.Operate">
             <enabled>true</enabled>
             <inputStructure>
               <elements>
