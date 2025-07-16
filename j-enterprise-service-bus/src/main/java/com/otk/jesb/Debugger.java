@@ -307,25 +307,25 @@ public class Debugger {
 
 				@Override
 				public void logInformation(String message) {
-					log(message, "INFORMATION", "gray");
+					log(message, "INFORMATION", "#AAAAAA");
 				}
 
 				@Override
 				public void logWarning(String message) {
-					log(message, "WARNING", "yellow");
+					log(message, "WARNING", "#FFC13B");
 				}
 
 				@Override
 				public void logError(String message) {
-					log(message, "ERROR", "red");
+					log(message, "ERROR", "#FF6E40");
 				}
 
 				private void log(String message, String levelName, String colorName) {
 					String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
 							.format(MiscUtils.now());
-					String formattedMessage = String.format("%s [%s] %s - %s", date,
-							Thread.currentThread().getName(), levelName,
-							"<font color=\"" + colorName + "\">" + message + "</font>") + "<BR>";
+					String formattedMessage = String.format(
+							"<font color=\"%s\">%s [%s] %s:</font> <font color=\"%s\">%s</font><BR>", "#FFFFFF", date,
+							Thread.currentThread().getName(), levelName, colorName, message);
 					console.writeLine(formattedMessage);
 				}
 			};
