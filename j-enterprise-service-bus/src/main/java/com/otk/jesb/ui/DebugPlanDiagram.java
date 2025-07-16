@@ -52,6 +52,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 	}
 
 	@Override
+	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
+	}
+
+	@Override
 	public boolean refreshUI(boolean refreshStructure) {
 		boolean result = super.refreshUI(refreshStructure);
 		if (result) {

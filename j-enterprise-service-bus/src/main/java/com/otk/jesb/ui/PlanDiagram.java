@@ -884,6 +884,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	public void mouseMoved(MouseEvent mouseEvent) {
 		super.mouseMoved(mouseEvent);
+		manageErrorTooltipOnMouseMove(mouseEvent);
+	}
+
+	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
 		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
 		Exception currentError = (pointedDiagramObject != null) ? swingRenderer.getReflectionUI()
 				.getValidationErrorRegistry().getValidationError(pointedDiagramObject.getValue(), null) : null;
