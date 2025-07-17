@@ -11,6 +11,7 @@
 - add other built-in activities (file, jdbc, jms, data format, ...)
 - allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
+- Limit console size
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts (for menu items first???)
 - improve the UI design:

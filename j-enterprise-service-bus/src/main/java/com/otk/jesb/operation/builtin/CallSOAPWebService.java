@@ -3,12 +3,15 @@ package com.otk.jesb.operation.builtin;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.xml.ws.BindingProvider;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
@@ -39,14 +42,16 @@ public class CallSOAPWebService implements Operation {
 	private Class<?> portInterface;
 	private Method operationMethod;
 	private OperationInput operationInput;
+	private String customEndpointURL;
 
 	public CallSOAPWebService(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
-			OperationInput operationInput) {
+			OperationInput operationInput, String customEndpointURL) {
 		this.wsdl = wsdl;
 		this.serviceClass = serviceClass;
 		this.portInterface = portInterface;
 		this.operationMethod = operationMethod;
 		this.operationInput = operationInput;
+		this.customEndpointURL = customEndpointURL;
 	}
 
 	public WebDocumentBasedResource getWSDL() {
@@ -69,6 +74,10 @@ public class CallSOAPWebService implements Operation {
 		return operationInput;
 	}
 
+	public String getCustomEndpointURL() {
+		return customEndpointURL;
+	}
+
 	@Override
 	public Object execute() throws Exception {
 		File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
@@ -76,6 +85,10 @@ public class CallSOAPWebService implements Operation {
 			MiscUtils.write(wsdlFile, wsdl.getText(), false);
 			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());
 			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portInterface);
+			if (customEndpointURL != null) {
+				BindingProvider bindingProvider = (BindingProvider) port;
+				bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, customEndpointURL);
+			}
 			return operationMethod.invoke(port,
 					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
 		} finally {
@@ -122,6 +135,7 @@ public class CallSOAPWebService implements Operation {
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
+		private String customEndpointURL;
 
 		private WSDL getWSDL() {
 			return wsdlReference.resolve();
@@ -169,6 +183,14 @@ public class CallSOAPWebService implements Operation {
 
 		public void setOperationInputBuilder(RootInstanceBuilder operationInputBuilder) {
 			this.operationInputBuilder = operationInputBuilder;
+		}
+
+		public String getCustomEndpointURL() {
+			return customEndpointURL;
+		}
+
+		public void setCustomEndpointURL(String customEndpointURL) {
+			this.customEndpointURL = customEndpointURL;
 		}
 
 		private void tryToSelectValuesAutomatically() {
@@ -274,11 +296,15 @@ public class CallSOAPWebService implements Operation {
 
 		@Override
 		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new CallSOAPWebService(getWSDL(), retrieveServiceDescriptor().retrieveClass(),
-					retrievePortDescriptor().retrieveInterface(), retrieveOperationDescriptor().retrieveMethod(),
-					(OperationInput) operationInputBuilder
-							.build(new InstantiationContext(context.getVariables(), context.getPlan()
-									.getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
+			WSDL wsdl = getWSDL();
+			Class<?> serviceClass = retrieveServiceDescriptor().retrieveClass();
+			Class<?> portInterface = retrievePortDescriptor().retrieveInterface();
+			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();
+			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
+					context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,
+					customEndpointURL);
 		}
 
 		@Override
@@ -330,6 +356,13 @@ public class CallSOAPWebService implements Operation {
 			}
 			if (retrieveOperationDescriptor() == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
+			}
+			if (customEndpointURL != null) {
+				try {
+					new URL(customEndpointURL);
+				} catch (MalformedURLException e) {
+					throw new ValidationError("Invalid custom endpoint URL: '" + customEndpointURL + "'", e);
+				}
 			}
 			if (recursively) {
 				operationInputBuilder.getFacade().validate(recursively,

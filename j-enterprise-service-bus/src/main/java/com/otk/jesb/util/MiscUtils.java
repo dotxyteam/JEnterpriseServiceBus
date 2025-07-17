@@ -786,4 +786,43 @@ public class MiscUtils {
 		return newIndex + shift;
 	}
 
+	public static OutputStream unifyOutputStreams(final OutputStream... outputStreams) {
+		return new OutputStream() {
+
+			@Override
+			public void write(int b) throws IOException {
+				for (OutputStream out : outputStreams) {
+					out.write(b);
+				}
+			}
+
+			@Override
+			public void write(byte[] b) throws IOException {
+				for (OutputStream out : outputStreams) {
+					out.write(b);
+				}
+			}
+
+			@Override
+			public void write(byte[] b, int off, int len) throws IOException {
+				for (OutputStream out : outputStreams) {
+					out.write(b, off, len);
+				}
+			}
+
+			@Override
+			public void flush() throws IOException {
+				for (OutputStream out : outputStreams) {
+					out.flush();
+				}
+			}
+
+			@Override
+			public void close() throws IOException {
+				for (OutputStream out : outputStreams) {
+					out.close();
+				}
+			}
+		};
+	}
 }

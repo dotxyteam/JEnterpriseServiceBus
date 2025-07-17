@@ -11,22 +11,22 @@ import javax.xml.ws.Service;
 public class Test {
 
 	public static void main(String[] args) {
-		System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-		System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
-		System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-		System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
-		System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+		//System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+		//System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
+		//System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+		//System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
+		//System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
 
 		try {
-			//URL url = new URL("http://localhost:9090/SOAPDemo");
+			URL url = new URL("http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso");
 			/*SOAPDemoImpl implementor = new SOAPDemoImpl();
 			Endpoint.publish(url.toString(), implementor);*/
 
 			
 			CountryInfoServiceSoapType port = new CountryInfoService().getPort(CountryInfoServiceSoapType.class); 
-			//BindingProvider bindingProvider = (BindingProvider) port;
-			//bindingProvider.getRequestContext().put(BindingProvider.
-			//ENDPOINT_ADDRESS_PROPERTY, url.toString());
+			BindingProvider bindingProvider = (BindingProvider) port;
+			bindingProvider.getRequestContext().put(BindingProvider.
+			ENDPOINT_ADDRESS_PROPERTY, url.toString());
 			System.out.println(port.listOfContinentsByName());
 			 
 

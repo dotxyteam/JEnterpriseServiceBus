@@ -1,6 +1,5 @@
 package com.otk.jesb;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +26,7 @@ public class Debugger {
 	private Solution solution;
 	private List<PlanActivator> planActivators;
 	private PlanActivatorsFilter currentPlanActivatorsFilter = PlanActivatorsFilter.ACTIVABLE_PLANS;
-	private Console console = new Console();
+	private Console console = Console.INSTANCE;
 	private static boolean scrollLocked = false;
 
 	public Debugger(Solution solution) {
@@ -307,27 +306,19 @@ public class Debugger {
 
 				@Override
 				public void logInformation(String message) {
-					log(message, "INFORMATION", "#AAAAAA");
+					console.log(message, "INFORMATION", "#FFFFFF", "#AAAAAA");
 				}
 
 				@Override
 				public void logWarning(String message) {
-					log(message, "WARNING", "#FFC13B");
+					console.log(message, "WARNING", "#FFFFFF", "#FFC13B");
 				}
 
 				@Override
 				public void logError(String message) {
-					log(message, "ERROR", "#FF6E40");
+					console.log(message, "ERROR", "#FFFFFF", "#FF6E40");
 				}
 
-				private void log(String message, String levelName, String colorName) {
-					String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
-							.format(MiscUtils.now());
-					String formattedMessage = String.format(
-							"<font color=\"%s\">%s [%s] %s:</font> <font color=\"%s\">%s</font><BR>", "#FFFFFF", date,
-							Thread.currentThread().getName(), levelName, colorName, message);
-					console.writeLine(formattedMessage);
-				}
 			};
 			try {
 				plan.execute(planInput, executionInspector);
@@ -411,24 +402,6 @@ public class Debugger {
 				return planActivator.isAutomaticallyTriggerable() && !planActivator.isAutomaticTriggerReady();
 			}
 		}
-	}
-
-	public class Console {
-
-		private StringBuilder buffer = new StringBuilder();
-
-		public void writeLine(String line) {
-			buffer.append(line + System.lineSeparator());
-		}
-
-		public String read() {
-			return buffer.toString();
-		}
-
-		public void clear() {
-			buffer.delete(0, buffer.length());
-		}
-
 	}
 
 }
