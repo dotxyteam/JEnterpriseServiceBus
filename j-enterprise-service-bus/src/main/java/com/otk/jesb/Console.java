@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -18,6 +19,7 @@ public class Console {
 
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
+	private Object bufferMutex = new Object();
 
 	private Console() {
 	}
@@ -34,16 +36,20 @@ public class Console {
 	}
 
 	public void log(String message, String levelName, String prefixColor, String messageColor) {
-		String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
-		String formattedMessage = String.format("<font color=\"%s\">- %s - %s [%s] </font> <font color=\"%s\">%s</font>",
-				prefixColor, date, levelName, Thread.currentThread().getName(), messageColor, message);
-		buffer.append(formattedMessage + "<BR>" + System.lineSeparator());
-		if ((buffer.length() - size) > 0) {
-			int endOfFirstLine = buffer.indexOf(System.lineSeparator());
-			if(endOfFirstLine == -1) {
-				endOfFirstLine = buffer.length();
+		synchronized (bufferMutex) {
+			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
+			String formattedMessage = String.format(
+					"<div style='white-space: nowrap;'><font color=\"%s\">- %s - %s [%s] </font> <font color=\"%s\">%s</font></div>",
+					prefixColor, date, levelName, Thread.currentThread().getName(), messageColor,
+					message.replace("\n", "<BR>"));
+			buffer.append(formattedMessage + "\n");
+			if ((buffer.length() - size) > 0) {
+				int endOfFirstLine = buffer.indexOf("\n");
+				if (endOfFirstLine == -1) {
+					endOfFirstLine = buffer.length();
+				}
+				buffer.delete(0, endOfFirstLine + "\n".length());
 			}
-			buffer.delete(0, endOfFirstLine);
 		}
 	}
 
@@ -84,10 +90,11 @@ public class Console {
 			}
 
 			@Override
-			protected void finalize() throws Throwable {
+			public void close() throws IOException {
 				if (line.length() > 0) {
-					flush();
+					pushLine();
 				}
+				super.close();
 			}
 
 		};
