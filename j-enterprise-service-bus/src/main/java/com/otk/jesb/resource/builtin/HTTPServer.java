@@ -1,12 +1,18 @@
 package com.otk.jesb.resource.builtin;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import com.otk.jesb.Variant;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -28,6 +34,9 @@ public class HTTPServer extends Resource {
 
 	private Variant<String> hostNameVariant = new Variant<String>(String.class, "localhost");
 	private Variant<Integer> portVariant = new Variant<Integer>(Integer.class, 8080);
+
+	private Map<String, RequestHandler> requestHandlerByPath = new HashMap<String, RequestHandler>();
+	private Server jettyServer;
 
 	public HTTPServer() {
 		this(HTTPServer.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -53,6 +62,32 @@ public class HTTPServer extends Resource {
 		this.portVariant = portVariant;
 	}
 
+	public void addRequestHandler(String servicePath, RequestHandler requestHandler) throws Exception {
+		if (requestHandlerByPath.isEmpty()) {
+			start();
+		}
+		requestHandler.install(this, servicePath);
+		requestHandlerByPath.put(servicePath, requestHandler);
+	}
+
+	public void removeRequestHandler(String servicePath) throws Exception {
+		RequestHandler requestHandler = requestHandlerByPath.remove(servicePath);
+		requestHandler.uninstall(this, servicePath);
+		if (requestHandlerByPath.isEmpty()) {
+			stop();
+		}
+	}
+
+	public RequestHandler getRequestHandler(String servicePath) {
+		return requestHandlerByPath.get(servicePath);
+	}
+
+	public String getLocaBaseURL() {
+		String hostName = getHostNameVariant().getValue();
+		Integer port = getPortVariant().getValue();
+		return "http://" + hostName + ":" + port;
+	}
+
 	public String test() throws Exception {
 		String hostName = getHostNameVariant().getValue();
 		Integer port = getPortVariant().getValue();
@@ -60,6 +95,34 @@ public class HTTPServer extends Resource {
 		server.start();
 		server.stop();
 		return "Connection successful!";
+	}
+
+	private synchronized void start() throws Exception {
+		if (isActive()) {
+			throw new UnexpectedError();
+		}
+		String hostName = getHostNameVariant().getValue();
+		Integer port = getPortVariant().getValue();
+		jettyServer = new Server(new InetSocketAddress(hostName, port));
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+		context.setContextPath("/");
+		jettyServer.setHandler(context);
+		CXFServlet cxfServlet = new CXFServlet();
+		ServletHolder servletHolder = new ServletHolder(cxfServlet);
+		context.addServlet(servletHolder, "/*");
+		jettyServer.start();
+	}
+
+	private synchronized void stop() throws Exception {
+		if (!isActive()) {
+			throw new UnexpectedError();
+		}
+		jettyServer.stop();
+		jettyServer = null;
+	}
+
+	private boolean isActive() {
+		return jettyServer != null;
 	}
 
 	@Override
@@ -76,6 +139,14 @@ public class HTTPServer extends Resource {
 		if ((port < 0) || (port > 65535)) {
 			throw new ValidationError("Invalid port (must be between 0 and 65535)");
 		}
+	}
+
+	public interface RequestHandler {
+
+		void install(HTTPServer server, String servicePath) throws Exception;
+
+		void uninstall(HTTPServer server, String servicePath) throws Exception;
+
 	}
 
 	public static class Metadata implements ResourceMetadata {
@@ -97,4 +168,5 @@ public class HTTPServer extends Resource {
 		}
 
 	}
+
 }

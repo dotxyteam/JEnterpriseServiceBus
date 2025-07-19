@@ -40,9 +40,9 @@ public class Console {
 		synchronized (bufferMutex) {
 			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
 			String formattedMessage = String.format(
-					"<div style='white-space: nowrap;'><font color=\"%s\">- %s - %s [%s] </font> <font color=\"%s\">%s</font></div>",
+					"<pre><font color=\"%s\">- %s - %s [%s] </font><font color=\"%s\"><b>%s</b></font></pre>",
 					prefixColor, date, levelName, Thread.currentThread().getName(), messageColor,
-					MiscUtils.escapeHTML(message, true));
+					MiscUtils.escapeHTML(message, false));
 			buffer.append(formattedMessage + "\n");
 			if ((buffer.length() - size) > 0) {
 				int endOfFirstLine = buffer.indexOf("\n");
