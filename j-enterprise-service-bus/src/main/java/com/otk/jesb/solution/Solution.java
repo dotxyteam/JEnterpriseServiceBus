@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
@@ -17,6 +20,7 @@ public class Solution {
 	public static Solution INSTANCE = new Solution();
 
 	private static final String FILE_NAME_SUFFIX = ".xml";
+	private static final String SORTED_NAMES_FILE_NAME = ".sortedNames" + FILE_NAME_SUFFIX;
 
 	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
@@ -67,7 +71,22 @@ public class Solution {
 		}
 		Folder folder = new Folder(folderName);
 		for (String name : folderDirectory.list()) {
+			if (name.equals(SORTED_NAMES_FILE_NAME)) {
+				continue;
+			}
 			folder.getContents().add(loadAsset(folderDirectory, name));
+		}
+		try (FileInputStream fileInputStream = new FileInputStream(new File(folderDirectory, SORTED_NAMES_FILE_NAME))) {
+			@SuppressWarnings("unchecked")
+			final List<String> sortedNames = (List<String>) MiscUtils.deserialize(fileInputStream);
+			Collections.sort(folder.getContents(), new Comparator<Asset>() {
+				@Override
+				public int compare(Asset asset1, Asset asset2) {
+					return new Integer(sortedNames.indexOf(asset1.getName()))
+							.compareTo(new Integer(sortedNames.indexOf(asset2.getName())));
+				}
+			});
+		} catch (IOException ignore) {
 		}
 		return folder;
 	}
@@ -100,6 +119,12 @@ public class Solution {
 		MiscUtils.createDirectory(folderDirectory);
 		for (Asset asset : folder.getContents()) {
 			saveAsset(folderDirectory, asset);
+		}
+		try (FileOutputStream fileOutputStream = new FileOutputStream(
+				new File(folderDirectory, SORTED_NAMES_FILE_NAME))) {
+			List<String> sortedNames = folder.getContents().stream().map(asset -> asset.getName())
+					.collect(Collectors.toList());
+			MiscUtils.serialize(sortedNames, fileOutputStream);
 		}
 	}
 

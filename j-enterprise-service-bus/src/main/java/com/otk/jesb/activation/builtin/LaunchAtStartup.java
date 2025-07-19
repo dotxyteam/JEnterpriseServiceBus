@@ -25,7 +25,14 @@ public class LaunchAtStartup extends ActivationStrategy {
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		this.activationHandler = activationHandler;
-		activationHandler.trigger(null);
+		new Thread(LaunchAtStartup.class.getName() + "Executor[of=" + activationHandler + "]") {
+
+			@Override
+			public void run() {
+				activationHandler.trigger(null);
+			}
+
+		}.start();
 	}
 
 	@Override

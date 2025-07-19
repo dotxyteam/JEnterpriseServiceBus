@@ -2,6 +2,6 @@ package com.otk.jesb.activation;
 
 public interface ActivationHandler {
 
-	void trigger(Object planInput);
+	Object trigger(Object planInput);
 
 }

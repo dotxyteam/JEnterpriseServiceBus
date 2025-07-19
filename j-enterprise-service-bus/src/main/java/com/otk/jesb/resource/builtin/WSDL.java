@@ -2,15 +2,24 @@ package com.otk.jesb.resource.builtin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 import com.sun.tools.ws.processor.ProcessorException;
 import com.sun.tools.ws.wscompile.WsimportTool;
 
@@ -29,7 +38,8 @@ public class WSDL extends XMLBasedDocumentResource {
 
 	@Override
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory) {
-		String[] wsImportArguments = new String[] { "-s", outputDirectory.getPath(), "-keep", "-Xnocompile", "-b",
+		String[] wsImportArguments = new String[] { "-s", outputDirectory.getPath(), "-p",
+				WSDL.class.getName() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this), "-keep", "-Xnocompile", "-b",
 				metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
 		System.setProperty("javax.xml.accessExternalSchema", "all");
 		System.setProperty("javax.xml.accessExternalDTD", "all");
@@ -49,15 +59,42 @@ public class WSDL extends XMLBasedDocumentResource {
 		}
 	}
 
-	public List<WSDL.ServiceDescriptor> getServiceDescriptors() {
-		if (generatedClasses == null) {
-			generateClasses();
+	public List<WSDL.ServiceClientDescriptor> getServiceClientDescriptors() {
+		try {
+			return upToDateGeneratedClasses.get().stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
+					.map(c -> new ServiceClientDescriptor(c)).collect(Collectors.toList());
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
 		}
-		return generatedClasses.stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
-				.map(c -> new ServiceDescriptor(c)).collect(Collectors.toList());
 	}
 
-	public class OperationDescriptor {
+	public List<WSDL.ServiceSpecificationDescriptor> getServiceSpecificationDescriptors() {
+		try {
+			return upToDateGeneratedClasses.get().stream()
+					.filter(c -> c.isInterface() && c.getAnnotation(javax.jws.WebService.class) != null)
+					.map(c -> new ServiceSpecificationDescriptor(c)).collect(Collectors.toList());
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
+	}
+
+	public WSDL.ServiceClientDescriptor getServiceClientDescriptor(String serviceName) {
+		return getServiceClientDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName)).findFirst()
+				.orElse(null);
+	}
+
+	public WSDL.ServiceSpecificationDescriptor getServiceSpecificationDescriptor(String serviceName) {
+		return getServiceSpecificationDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName))
+				.findFirst().orElse(null);
+	}
+
+	public static class OperationDescriptor {
+		/*
+		 * Cannot have a simple inputClassByMethod WeakHashMap because the method object
+		 * reference is not stable, unlike the reference method declaring class object
+		 * that is then used as the WeakHashMap key.
+		 */
+		private static WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>> inputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>>();
 
 		private Method operationMethod;
 
@@ -73,9 +110,107 @@ public class WSDL extends XMLBasedDocumentResource {
 			return operationMethod;
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((operationMethod == null) ? 0 : operationMethod.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			OperationDescriptor other = (OperationDescriptor) obj;
+			if (operationMethod == null) {
+				if (other.operationMethod != null)
+					return false;
+			} else if (!operationMethod.equals(other.operationMethod))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "OperationDescriptor [operationMethod=" + operationMethod + "]";
+		}
+
+		@SuppressWarnings("unchecked")
+		public Class<? extends OperationInput> getOperationInputClass() {
+			synchronized (inputClassByMethodByDeclaringClass) {
+				inputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),
+						(declaringClass -> new HashMap<Method, Class<? extends OperationInput>>()));
+				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.computeIfAbsent(operationMethod, operationMethod -> {
+							String className = operationMethod.getDeclaringClass().getName() + "_"
+									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName()
+									+ MiscUtils.toDigitalUniqueIdentifier(this);
+							StringBuilder javaSource = new StringBuilder();
+							javaSource.append(
+									"package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+							javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className)
+									+ " implements "
+									+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{"
+									+ "\n");
+							for (Parameter parameter : operationMethod.getParameters()) {
+								javaSource.append("  private "
+										+ MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " "
+										+ parameter.getName() + ";\n");
+							}
+							List<String> constructorParameterDeclarations = new ArrayList<String>();
+							for (Parameter parameter : operationMethod.getParameters()) {
+								constructorParameterDeclarations
+										.add(MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " "
+												+ parameter.getName());
+							}
+							javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
+									+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
+							for (Parameter parameter : operationMethod.getParameters()) {
+								javaSource.append(
+										"    this." + parameter.getName() + " = " + parameter.getName() + ";\n");
+							}
+							javaSource.append("  }" + "\n");
+							for (Parameter parameter : operationMethod.getParameters()) {
+								javaSource.append("  public "
+										+ MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " get"
+										+ parameter.getName().substring(0, 1).toUpperCase()
+										+ parameter.getName().substring(1) + "() {" + "\n");
+								javaSource.append("    return " + parameter.getName() + ";" + "\n");
+								javaSource.append("  }" + "\n");
+							}
+							javaSource.append("  @Override" + "\n");
+							javaSource.append("  public Object[] listParameterValues() {" + "\n");
+							javaSource
+									.append("  return new Object[] {"
+											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
+													.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ")
+											+ "};" + "\n");
+							javaSource.append("  }" + "\n");
+							javaSource.append("}" + "\n");
+							try {
+								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+										javaSource.toString());
+							} catch (CompilationError e) {
+								throw new UnexpectedError(e);
+							}
+						});
+				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
+			}
+		}
+
+		public interface OperationInput {
+
+			Object[] listParameterValues();
+
+		}
 	}
 
-	public class PortDescriptor {
+	public static class PortDescriptor {
 
 		private Class<?> portInterface;
 
@@ -96,13 +231,48 @@ public class WSDL extends XMLBasedDocumentResource {
 			return portInterface;
 		}
 
+		public WSDL.OperationDescriptor getOperationDescriptor(String operationSignature) {
+			return getOperationDescriptors().stream().filter(o -> o.getOperationSignature().equals(operationSignature))
+					.findFirst().orElse(null);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((portInterface == null) ? 0 : portInterface.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PortDescriptor other = (PortDescriptor) obj;
+			if (portInterface == null) {
+				if (other.portInterface != null)
+					return false;
+			} else if (!portInterface.equals(other.portInterface))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "PortDescriptor [portInterface=" + portInterface + "]";
+		}
+
 	}
 
-	public class ServiceDescriptor {
+	public static class ServiceClientDescriptor {
 
 		private Class<?> serviceClass;
 
-		public ServiceDescriptor(Class<?> c) {
+		public ServiceClientDescriptor(Class<?> c) {
 			this.serviceClass = c;
 		}
 
@@ -119,6 +289,171 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		public Class<?> retrieveClass() {
 			return serviceClass;
+		}
+
+		public WSDL.PortDescriptor getPortDescriptor(String portName) {
+			return getPortDescriptors().stream().filter(p -> p.getPortName().equals(portName)).findFirst().orElse(null);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((serviceClass == null) ? 0 : serviceClass.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ServiceClientDescriptor other = (ServiceClientDescriptor) obj;
+			if (serviceClass == null) {
+				if (other.serviceClass != null)
+					return false;
+			} else if (!serviceClass.equals(other.serviceClass))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ServiceClientDescriptor [serviceClass=" + serviceClass + "]";
+		}
+
+	}
+
+	public static class ServiceSpecificationDescriptor {
+
+		private static WeakHashMap<Class<?>, Class<?>> implementationClassByInterface = new WeakHashMap<Class<?>, Class<?>>();
+
+		private Class<?> serviceInterface;
+
+		public ServiceSpecificationDescriptor(Class<?> c) {
+			this.serviceInterface = c;
+		}
+
+		public String getServiceName() {
+			return serviceInterface.getSimpleName();
+		}
+
+		public Class<?> retrieveInterface() {
+			return serviceInterface;
+		}
+
+		public List<WSDL.OperationDescriptor> getOperationDescriptors() {
+			return Arrays.asList(serviceInterface.getDeclaredMethods()).stream().map(m -> new OperationDescriptor(m))
+					.collect(Collectors.toList());
+		}
+
+		public WSDL.OperationDescriptor getOperationDescriptor(String operationSignature) {
+			return getOperationDescriptors().stream().filter(o -> o.getOperationSignature().equals(operationSignature))
+					.findFirst().orElse(null);
+		}
+
+		public Class<?> getImplementationClass() {
+			synchronized (implementationClassByInterface) {
+				implementationClassByInterface.computeIfAbsent(serviceInterface, serviceInterface -> {
+					String className = WSDL.class.getName() + "SeviceImpl" + MiscUtils.toDigitalUniqueIdentifier(this);
+					StringBuilder javaSource = new StringBuilder();
+					javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+					javaSource.append(
+							"public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
+									+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + "{" + "\n");
+					javaSource.append("  private " + InvocationHandler.class.getName() + " invocationHandler;\n");
+					javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
+							+ InvocationHandler.class.getName() + " invocationHandler){" + "\n");
+					javaSource.append("    this.invocationHandler = invocationHandler;\n");
+					javaSource.append("  }" + "\n");
+					for (Method method : serviceInterface.getMethods()) {
+						if (!Modifier.isAbstract(method.getModifiers())) {
+							continue;
+						}
+						javaSource.append("  @Override\n");
+						javaSource.append(
+								"  public " + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName())
+										+ " " + method.getName() + "("
+										+ Arrays.stream(method.getParameters())
+												.map(parameter -> MiscUtils.adaptClassNameToSourceCode(
+														parameter.getType().getName()) + " " + parameter.getName())
+												.collect(Collectors.joining(", "))
+										+ ") {" + "\n");
+						String methodReflectionAccessInstruction = MiscUtils
+								.adaptClassNameToSourceCode(serviceInterface.getName()) + ".class.getMethod(\""
+								+ method.getName() + "\", new Class[]{"
+								+ Arrays.stream(method.getParameters())
+										.map(parameter -> MiscUtils
+												.adaptClassNameToSourceCode(parameter.getType().getName()) + ".class")
+										.collect(Collectors.joining(", "))
+								+ "})";
+						String methodArgumentArrayCreationInstruction = "new Object[]{"
+								+ Arrays.stream(method.getParameters()).map(parameter -> parameter.getName())
+										.collect(Collectors.joining(", "))
+								+ "}";
+						javaSource.append("    try {\n");
+						javaSource
+								.append("        "
+										+ (method.getReturnType().equals(void.class) ? ""
+												: ("return (" + MiscUtils.adaptClassNameToSourceCode(
+														method.getReturnType().getName()) + ")"))
+										+ "invocationHandler.invoke(this, " + methodReflectionAccessInstruction + ", "
+										+ methodArgumentArrayCreationInstruction + ");" + "\n");
+						javaSource.append("    } catch (Throwable t) {\n");
+						for (Class<?> exceptionType : method.getExceptionTypes()) {
+							javaSource.append("			if(t instanceof "
+									+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ") {\n");
+							javaSource.append("				throw ("
+									+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ")t;\n");
+							javaSource.append("			}\n");
+						}
+						javaSource.append("			throw new "
+								+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName()) + "(t);\n");
+						javaSource.append("    }");
+						javaSource.append("  }" + "\n");
+					}
+					javaSource.append("}" + "\n");
+					try {
+						return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
+					} catch (CompilationError e) {
+						throw new UnexpectedError(e);
+					}
+				});
+				return implementationClassByInterface.get(serviceInterface);
+			}
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((serviceInterface == null) ? 0 : serviceInterface.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ServiceSpecificationDescriptor other = (ServiceSpecificationDescriptor) obj;
+			if (serviceInterface == null) {
+				if (other.serviceInterface != null)
+					return false;
+			} else if (!serviceInterface.equals(other.serviceInterface))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ServiceSpecificationDescriptor [serviceInterface=" + serviceInterface + "]";
 		}
 
 	}

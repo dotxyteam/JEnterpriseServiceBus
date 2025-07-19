@@ -45,6 +45,7 @@ public class Preferences {
 	}
 
 	private boolean fadingTransitioningEnabled = false;
+	private boolean logVerbose = false;
 	private Theme theme = Theme.FLAT;
 
 	public void persist() {
@@ -70,6 +71,14 @@ public class Preferences {
 	public void setTheme(Theme theme) {
 		theme.activate();
 		this.theme = theme;
+	}
+
+	public boolean isLogVerbose() {
+		return logVerbose;
+	}
+
+	public void setLogVerbose(boolean logVerbose) {
+		this.logVerbose = logVerbose;
 	}
 
 	public enum Theme {

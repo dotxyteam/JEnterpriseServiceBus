@@ -15,6 +15,8 @@ import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
@@ -125,14 +127,25 @@ public class Debugger {
 			if (ready) {
 				ActivationHandler activationHandler = new ActivationHandler() {
 					@Override
-					public void trigger(Object planInput) {
-						planExecutors.add(new PlanExecutor(plan, planInput));
+					public Object trigger(Object planInput) {
+						PlanExecutor planExecutor = new PlanExecutor(plan, planInput);
+						planExecutors.add(planExecutor);
+						try {
+							planExecutor.join();
+						} catch (InterruptedException e) {
+							throw new UnexpectedError(e);
+						}
+						return planExecutor.getPlanOutput();
 					}
 				};
 				try {
 					plan.getActivationStrategy().initializeAutomaticTrigger(activationHandler);
 				} catch (Exception e) {
 					planExecutors.add(new PlanActivationFailure(plan, e));
+					try {
+						plan.getActivationStrategy().finalizeAutomaticTrigger();
+					} catch (Throwable ignore) {
+					}
 				}
 			} else {
 				try {
@@ -185,6 +198,7 @@ public class Debugger {
 
 		protected Plan plan;
 		protected Object planInput;
+		protected Object planOutput;
 		protected List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
 		protected StepCrossing currentStepCrossing;
 		protected Throwable executionError;
@@ -192,87 +206,13 @@ public class Debugger {
 		protected List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
 		protected Stack<SubPlanExecutor> subPlanExecutionStack = new Stack<SubPlanExecutor>();
 		protected boolean interrupted = false;
+		protected ExecutionInspector executionInspector;
+		protected ExecutionContext executionContext;
 
 		public PlanExecutor(Plan plan, Object planInput) {
 			this.plan = plan;
 			this.planInput = planInput;
-			start();
-		}
-
-		public Plan getPlan() {
-			return plan;
-		}
-
-		public String getPlanReferencePath() {
-			return Reference.get(plan).getPath();
-		}
-
-		public boolean isScrollLocked() {
-			return scrollLocked;
-		}
-
-		public void setScrollLocked(boolean scrollLocked) {
-			Debugger.scrollLocked = scrollLocked;
-		}
-
-		public List<StepCrossing> getStepCrossings() {
-			return stepCrossings;
-		}
-
-		public StepCrossing getCurrentStepCrossing() {
-			return currentStepCrossing;
-		}
-
-		public Throwable getExecutionError() {
-			return executionError;
-		}
-
-		private PlanExecutor getTopPlanExecutor() {
-			if (subPlanExecutionStack.size() > 0) {
-				return subPlanExecutionStack.peek();
-			}
-			return this;
-		}
-
-		public List<PlanExecutor> getChildren() {
-			return children;
-		}
-
-		public int getTransitionOccurrenceCount(Transition transition) {
-			int result = 0;
-			for (StepCrossing stepCrossing : stepCrossings) {
-				List<Transition> validaTransitions = stepCrossing.getValidTransitions();
-				if (validaTransitions != null) {
-					if (validaTransitions.contains(transition)) {
-						result++;
-					}
-				}
-			}
-			return result;
-		}
-
-		protected void start() {
-			thread = new Thread("PlanExecutor [plan=" + plan.getName() + "]") {
-
-				@Override
-				public void run() {
-					execute();
-					interrupted = isInterrupted();
-				}
-
-			};
-			thread.start();
-		}
-
-		public synchronized void stop() {
-			if (!isActive()) {
-				return;
-			}
-			thread.interrupt();
-		}
-
-		protected void execute() {
-			Plan.ExecutionInspector executionInspector = new Plan.ExecutionInspector() {
+			this.executionInspector = new Plan.ExecutionInspector() {
 				@Override
 				public void beforeOperation(StepCrossing stepCrossing) {
 					getTopPlanExecutor().currentStepCrossing = stepCrossing;
@@ -320,15 +260,101 @@ public class Debugger {
 				}
 
 			};
-			try {
-				plan.execute(planInput, executionInspector);
-			} catch (Throwable t) {
-				if (JESB.DEBUG) {
-					t.printStackTrace();
-				}
-				executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
-				executionError = t;
+			this.executionContext = new ExecutionContext(plan);
+			start();
+		}
+
+		public Plan getPlan() {
+			return plan;
+		}
+
+		public String getPlanReferencePath() {
+			return Reference.get(plan).getPath();
+		}
+
+		public boolean isScrollLocked() {
+			return scrollLocked;
+		}
+
+		public void setScrollLocked(boolean scrollLocked) {
+			Debugger.scrollLocked = scrollLocked;
+		}
+
+		public List<StepCrossing> getStepCrossings() {
+			return stepCrossings;
+		}
+
+		public StepCrossing getCurrentStepCrossing() {
+			return currentStepCrossing;
+		}
+
+		public Object getPlanOutput() {
+			return planOutput;
+		}
+
+		public Throwable getExecutionError() {
+			return executionError;
+		}
+
+		private PlanExecutor getTopPlanExecutor() {
+			if (subPlanExecutionStack.size() > 0) {
+				return subPlanExecutionStack.peek();
 			}
+			return this;
+		}
+
+		public List<PlanExecutor> getChildren() {
+			return children;
+		}
+
+		public int getTransitionOccurrenceCount(Transition transition) {
+			int result = 0;
+			for (StepCrossing stepCrossing : stepCrossings) {
+				List<Transition> validaTransitions = stepCrossing.getValidTransitions();
+				if (validaTransitions != null) {
+					if (validaTransitions.contains(transition)) {
+						result++;
+					}
+				}
+			}
+			return result;
+		}
+
+		public List<Variable> getVariables() {
+			return executionContext.getVariables().stream()
+					.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE)
+					.map(variable -> new Variable() {
+
+						@Override
+						public Object getValue() {
+							return variable.getValue();
+						}
+
+						@Override
+						public String getName() {
+							return variable.getName();
+						}
+					}).collect(Collectors.toList());
+		}
+
+		protected synchronized void start() {
+			thread = new Thread("PlanExecutor [plan=" + plan.getName() + "]") {
+
+				@Override
+				public void run() {
+					execute();
+					interrupted = isInterrupted();
+				}
+
+			};
+			thread.start();
+		}
+
+		public synchronized void stop() {
+			if (!isActive()) {
+				return;
+			}
+			thread.interrupt();
 		}
 
 		public synchronized boolean isActive() {
@@ -338,6 +364,25 @@ public class Debugger {
 				}
 			}
 			return false;
+		}
+
+		public synchronized void join() throws InterruptedException {
+			if (!isActive()) {
+				return;
+			}
+			thread.join();
+		}
+
+		protected void execute() {
+			try {
+				planOutput = plan.execute(planInput, executionInspector, executionContext);
+			} catch (Throwable t) {
+				if (JESB.DEBUG) {
+					t.printStackTrace();
+				}
+				executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
+				executionError = t;
+			}
 		}
 
 		@Override

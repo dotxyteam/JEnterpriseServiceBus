@@ -18,6 +18,7 @@
 	. add a banner ???
 	. get inspiration from TIBCO Flogo
 - allow to add debug breakpoints
+- add advanced HTTP server options (see https://docs.tibco.com/pub/activematrix_businessworks/6.7.0/doc/html/GUID-E7A7A6BD-20C7-496D-9F75-868B6F82FD1E.html)
 - allow to add comments to plan diagrams
 - allow to optimize a debug session by:
 	. disabling animations

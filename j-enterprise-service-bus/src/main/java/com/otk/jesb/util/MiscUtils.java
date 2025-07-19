@@ -37,7 +37,6 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Expression;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
@@ -64,31 +63,6 @@ import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
 
-	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
-		@Override
-		public String getVariableName() {
-			return "ENV";
-		}
-
-		@Override
-		public Class<?> getVariableType() {
-			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRootClass();
-		}
-
-	};
-	public static final Variable ENVIRONMENT_VARIABLES_ROOT = new Variable() {
-
-		@Override
-		public String getName() {
-			return ENVIRONMENT_VARIABLES_ROOT_DECLARATION.getVariableName();
-		}
-
-		@Override
-		public Object getValue() {
-			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRoot();
-		}
-
-	};
 	private static final XStream XSTREAM = new XStream() {
 		@Override
 		protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -151,6 +125,46 @@ public class MiscUtils {
 		return s.replace("\\", "\\\\").replace("\t", "\\t").replace("\b", "\\b").replace("\n", "\\n")
 				.replace("\r", "\\r").replace("\f", "\\f").replace("\'", "\\'") // <== not necessary
 				.replace("\"", "\\\"");
+	}
+
+	public static String escapeHTML(String string, boolean convertNewLinesToHTML) {
+		StringBuffer sb = new StringBuffer(string.length());
+		int len = string.length();
+		char currentC;
+		char lastC = 0;
+		for (int i = 0; i < len; i++) {
+			currentC = string.charAt(i);
+			currentC = MiscUtils.standardizeNewLineSequences(lastC, currentC);
+			if (currentC == '"')
+				sb.append("&quot;");
+			else if (currentC == '&')
+				sb.append("&amp;");
+			else if (currentC == '<')
+				sb.append("&lt;");
+			else if (currentC == '>')
+				sb.append("&gt;");
+			else if (currentC == '\n')
+				// Handle Newline
+				if (convertNewLinesToHTML) {
+					sb.append("<BR>");
+				} else {
+					sb.append(currentC);
+				}
+			else {
+				int ci = 0xffff & currentC;
+				if (ci < 160)
+					// nothing special only 7 Bit
+					sb.append(currentC);
+				else {
+					// Not 7 Bit use the unicode system
+					sb.append("&#");
+					sb.append(new Integer(ci).toString());
+					sb.append(';');
+				}
+			}
+			lastC = currentC;
+		}
+		return sb.toString();
 	}
 
 	public static String getDigitalUniqueIdentifier() {

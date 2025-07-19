@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 
 import org.xml.sax.SAXParseException;
 
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 import com.sun.tools.xjc.BadCommandLineException;
 import com.sun.tools.xjc.Driver;
 import com.sun.tools.xjc.XJCListener;
@@ -75,12 +77,13 @@ public class XSD extends XMLBasedDocumentResource {
 	}
 
 	public List<RootElement> getRootElements() {
-		if (generatedClasses == null) {
-			generateClasses();
+		try {
+			return upToDateGeneratedClasses.get().stream()
+					.filter(c -> c.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class) != null)
+					.map(c -> new RootElement(c)).collect(Collectors.toList());
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
 		}
-		return generatedClasses.stream()
-				.filter(c -> c.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class) != null)
-				.map(c -> new RootElement(c)).collect(Collectors.toList());
 	}
 
 	public class RootElement {

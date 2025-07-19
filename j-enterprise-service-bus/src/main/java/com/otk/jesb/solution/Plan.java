@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.CompositeStep;
+import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.Reference;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
@@ -219,13 +220,13 @@ public class Plan extends Asset {
 						Thread.currentThread().getName(), levelName, message);
 				printStream.println(formattedMessage);
 			}
-		});
+		}, new ExecutionContext(this));
 	}
 
-	public Object execute(final Object input, ExecutionInspector executionInspector) throws ExecutionError {
+	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
+			throws ExecutionError {
 		try {
-			ExecutionContext context = new ExecutionContext(this);
-			context.getVariables().add(MiscUtils.ENVIRONMENT_VARIABLES_ROOT);
+			context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
 			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
@@ -463,7 +464,7 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			result.getVariableDeclarations().add(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
+			result.getVariableDeclarations().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
 			Class<?> inputClass = activationStrategy.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {

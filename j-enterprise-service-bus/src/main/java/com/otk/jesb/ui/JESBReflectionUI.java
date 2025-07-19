@@ -23,6 +23,7 @@ import com.otk.jesb.activation.ActivationStrategy;
 import com.otk.jesb.activation.ActivationStrategyMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
+import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;
@@ -67,6 +68,7 @@ import com.otk.jesb.operation.builtin.Sleep;
 import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
@@ -134,9 +136,9 @@ public class JESBReflectionUI extends CustomizedUI {
 			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
-			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata());
+			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
 	public static final List<ActivationStrategyMetadata> ACTIVATION_STRATEGY__METADATAS = Arrays
-			.asList(new LaunchAtStartup.Metadata(), new Operate.Metadata());
+			.asList(new LaunchAtStartup.Metadata(), new Operate.Metadata(), new ReceiveSOAPRequest.Metadata());
 	private static final String CURRENT_VALIDATION_PLAN_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_KEY";
 	private static final String CURRENT_VALIDATION_STEP_KEY = JESBReflectionUI.class.getName()

@@ -38,9 +38,7 @@ public class ExecutePlan implements Operation {
 
 	@Override
 	public Object execute() throws Throwable {
-		return plan.execute(planInput, executionInspector);
-		
-
+		return plan.execute(planInput, executionInspector, new ExecutionContext(plan));
 	}
 
 	public static class Metadata implements OperationMetadata {

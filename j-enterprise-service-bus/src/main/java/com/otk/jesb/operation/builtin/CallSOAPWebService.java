@@ -2,11 +2,8 @@ package com.otk.jesb.operation.builtin;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,9 +12,7 @@ import javax.xml.ws.BindingProvider;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -25,14 +20,12 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.WebDocumentBasedResource;
 import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
-import com.otk.jesb.util.UpToDate;
-import com.otk.jesb.util.UpToDate.VersionAccessException;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class CallSOAPWebService implements Operation {
@@ -42,16 +35,16 @@ public class CallSOAPWebService implements Operation {
 	private Class<?> portInterface;
 	private Method operationMethod;
 	private OperationInput operationInput;
-	private String customEndpointURL;
+	private String customServiceEndpointURL;
 
 	public CallSOAPWebService(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
-			OperationInput operationInput, String customEndpointURL) {
+			OperationInput operationInput, String customServiceEndpointURL) {
 		this.wsdl = wsdl;
 		this.serviceClass = serviceClass;
 		this.portInterface = portInterface;
 		this.operationMethod = operationMethod;
 		this.operationInput = operationInput;
-		this.customEndpointURL = customEndpointURL;
+		this.customServiceEndpointURL = customServiceEndpointURL;
 	}
 
 	public WebDocumentBasedResource getWSDL() {
@@ -74,8 +67,8 @@ public class CallSOAPWebService implements Operation {
 		return operationInput;
 	}
 
-	public String getCustomEndpointURL() {
-		return customEndpointURL;
+	public String getCustomServiceEndpointURL() {
+		return customServiceEndpointURL;
 	}
 
 	@Override
@@ -85,21 +78,16 @@ public class CallSOAPWebService implements Operation {
 			MiscUtils.write(wsdlFile, wsdl.getText(), false);
 			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());
 			Object port = serviceClass.getMethod("getPort", Class.class).invoke(service, portInterface);
-			if (customEndpointURL != null) {
+			if (customServiceEndpointURL != null) {
 				BindingProvider bindingProvider = (BindingProvider) port;
-				bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, customEndpointURL);
+				bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+						customServiceEndpointURL);
 			}
 			return operationMethod.invoke(port,
 					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
 		} finally {
 			MiscUtils.delete(wsdlFile);
 		}
-	}
-
-	public interface OperationInput {
-
-		Object[] listParameterValues();
-
 	}
 
 	public static class Metadata implements OperationMetadata {
@@ -129,13 +117,12 @@ public class CallSOAPWebService implements Operation {
 	public static class Builder implements OperationBuilder {
 
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
-		private UpToDate<Class<?>> upToDateOperationInputClass = new UpToDateOperationInputClass();
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
 				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());
 		private String serviceName;
 		private String portName;
 		private String operationSignature;
-		private String customEndpointURL;
+		private String customServiceEndpointURL;
 
 		private WSDL getWSDL() {
 			return wsdlReference.resolve();
@@ -185,12 +172,12 @@ public class CallSOAPWebService implements Operation {
 			this.operationInputBuilder = operationInputBuilder;
 		}
 
-		public String getCustomEndpointURL() {
-			return customEndpointURL;
+		public String getCustomServiceEndpointURL() {
+			return customServiceEndpointURL;
 		}
 
-		public void setCustomEndpointURL(String customEndpointURL) {
-			this.customEndpointURL = customEndpointURL;
+		public void setCustomServiceEndpointURL(String customServiceEndpointURL) {
+			this.customServiceEndpointURL = customServiceEndpointURL;
 		}
 
 		private void tryToSelectValuesAutomatically() {
@@ -198,14 +185,14 @@ public class CallSOAPWebService implements Operation {
 				if (serviceName == null) {
 					WSDL wsdl = getWSDL();
 					if (wsdl != null) {
-						List<WSDL.ServiceDescriptor> services = wsdl.getServiceDescriptors();
+						List<WSDL.ServiceClientDescriptor> services = wsdl.getServiceClientDescriptors();
 						if (services.size() > 0) {
 							serviceName = services.get(0).getServiceName();
 						}
 					}
 				}
 				if (portName == null) {
-					WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+					WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
 					if (service != null) {
 						List<WSDL.PortDescriptor> ports = service.getPortDescriptors();
 						if (ports.size() > 0) {
@@ -226,59 +213,17 @@ public class CallSOAPWebService implements Operation {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		private Class<? extends OperationInput> obtainOperationInputClass() {
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-			if (operation == null) {
-				return null;
-			}
-			Method operationMethod = operation.retrieveMethod();
-			String className = OperationInput.class.getPackage().getName() + "." + OperationInput.class.getSimpleName()
-					+ MiscUtils.toDigitalUniqueIdentifier(this);
-			StringBuilder javaSource = new StringBuilder();
-			javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
-			javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
-					+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{" + "\n");
-			for (Parameter parameter : operationMethod.getParameters()) {
-				javaSource.append("  private " + MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
-						+ " " + parameter.getName() + ";\n");
-			}
-			List<String> constructorParameterDeclarations = new ArrayList<String>();
-			for (Parameter parameter : operationMethod.getParameters()) {
-				constructorParameterDeclarations.add(MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName())
-						+ " " + parameter.getName());
-			}
-			javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
-					+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
-			for (Parameter parameter : operationMethod.getParameters()) {
-				javaSource.append("    this." + parameter.getName() + " = " + parameter.getName() + ";\n");
-			}
-			javaSource.append("  }" + "\n");
-			javaSource.append("  @Override" + "\n");
-			javaSource.append("  public Object[] listParameterValues() {" + "\n");
-			javaSource.append(
-					"  return new Object[] {" + MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
-							.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ") + "};" + "\n");
-			javaSource.append("  }" + "\n");
-			javaSource.append("}" + "\n");
-			try {
-				return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-						javaSource.toString());
-			} catch (CompilationError e) {
-				throw new UnexpectedError(e);
-			}
-		}
-
 		public List<String> getServiceNameOptions() {
 			WSDL wsdl = getWSDL();
 			if (wsdl == null) {
 				return Collections.emptyList();
 			}
-			return wsdl.getServiceDescriptors().stream().map(s -> s.getServiceName()).collect(Collectors.toList());
+			return wsdl.getServiceClientDescriptors().stream().map(s -> s.getServiceName())
+					.collect(Collectors.toList());
 		}
 
 		public List<String> getPortNameOptions() {
-			WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
 			if (service == null) {
 				return Collections.emptyList();
 			}
@@ -297,14 +242,14 @@ public class CallSOAPWebService implements Operation {
 		@Override
 		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			WSDL wsdl = getWSDL();
-			Class<?> serviceClass = retrieveServiceDescriptor().retrieveClass();
+			Class<?> serviceClass = retrieveServiceClientDescriptor().retrieveClass();
 			Class<?> portInterface = retrievePortDescriptor().retrieveInterface();
 			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();
 			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,
-					customEndpointURL);
+					customServiceEndpointURL);
 		}
 
 		@Override
@@ -316,22 +261,20 @@ public class CallSOAPWebService implements Operation {
 			return operation.retrieveMethod().getReturnType();
 		}
 
-		private WSDL.ServiceDescriptor retrieveServiceDescriptor() {
+		private WSDL.ServiceClientDescriptor retrieveServiceClientDescriptor() {
 			WSDL wsdl = getWSDL();
 			if (wsdl == null) {
 				return null;
 			}
-			return wsdl.getServiceDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName)).findFirst()
-					.orElse(null);
+			return wsdl.getServiceClientDescriptor(serviceName);
 		}
 
 		private WSDL.PortDescriptor retrievePortDescriptor() {
-			WSDL.ServiceDescriptor service = retrieveServiceDescriptor();
+			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
 			if (service == null) {
 				return null;
 			}
-			return service.getPortDescriptors().stream().filter(p -> p.getPortName().equals(portName)).findFirst()
-					.orElse(null);
+			return service.getPortDescriptor(portName);
 		}
 
 		private WSDL.OperationDescriptor retrieveOperationDescriptor() {
@@ -339,8 +282,7 @@ public class CallSOAPWebService implements Operation {
 			if (port == null) {
 				return null;
 			}
-			return port.getOperationDescriptors().stream()
-					.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);
+			return port.getOperationDescriptor(operationSignature);
 		}
 
 		@Override
@@ -348,7 +290,7 @@ public class CallSOAPWebService implements Operation {
 			if (getWSDL() == null) {
 				throw new ValidationError("Failed to resolve the WSDL reference");
 			}
-			if (retrieveServiceDescriptor() == null) {
+			if (retrieveServiceClientDescriptor() == null) {
 				throw new ValidationError("Invalid service name '" + serviceName + "'");
 			}
 			if (retrievePortDescriptor() == null) {
@@ -357,11 +299,11 @@ public class CallSOAPWebService implements Operation {
 			if (retrieveOperationDescriptor() == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
 			}
-			if (customEndpointURL != null) {
+			if (customServiceEndpointURL != null) {
 				try {
-					new URL(customEndpointURL);
+					new URL(customServiceEndpointURL);
 				} catch (MalformedURLException e) {
-					throw new ValidationError("Invalid custom endpoint URL: '" + customEndpointURL + "'", e);
+					throw new ValidationError("Invalid custom endpoint URL: '" + customServiceEndpointURL + "'", e);
 				}
 			}
 			if (recursively) {
@@ -373,32 +315,11 @@ public class CallSOAPWebService implements Operation {
 		private class OperationInputClassNameAccessor extends Accessor<String> {
 			@Override
 			public String get() {
-				Class<?> operationInputClass;
-				try {
-					operationInputClass = upToDateOperationInputClass.get();
-				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
-				}
-				if (operationInputClass == null) {
-					return null;
-				}
-				return operationInputClass.getName();
-			}
-		}
-
-		private class UpToDateOperationInputClass extends UpToDate<Class<?>> {
-			@Override
-			protected Object retrieveLastVersionIdentifier() {
 				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
 				if (operation == null) {
 					return null;
 				}
-				return operation.retrieveMethod();
-			}
-
-			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				return obtainOperationInputClass();
+				return operation.getOperationInputClass().getName();
 			}
 		}
 

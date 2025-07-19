@@ -13,12 +13,40 @@ import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public class EnvironmentSettings {
+
+	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
+		@Override
+		public String getVariableName() {
+			return "ENVIRONMENT";
+		}
+
+		@Override
+		public Class<?> getVariableType() {
+			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRootClass();
+		}
+
+	};
+
+	public static final Variable ENVIRONMENT_VARIABLES_ROOT = new Variable() {
+
+		@Override
+		public String getName() {
+			return ENVIRONMENT_VARIABLES_ROOT_DECLARATION.getVariableName();
+		}
+
+		@Override
+		public Object getValue() {
+			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRoot();
+		}
+
+	};
 
 	private List<EnvironmentVariableTreeElement> environmentVariableTreeElements = new ArrayList<EnvironmentSettings.EnvironmentVariableTreeElement>();
 

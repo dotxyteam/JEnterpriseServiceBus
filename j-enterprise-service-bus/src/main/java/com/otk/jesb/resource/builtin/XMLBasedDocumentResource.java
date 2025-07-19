@@ -25,7 +25,8 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -37,7 +38,79 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 
 	protected String text;
 	protected Map<String, String> dependencyTextByFileName = new HashMap<String, String>();
-	protected List<Class<?>> generatedClasses;
+
+	protected UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
+
+	protected class UpToDateGeneratedClasses extends UpToDate<List<Class<?>>> {
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			return new Pair<String, Map<String, String>>(text, dependencyTextByFileName);
+		}
+
+		@Override
+		protected List<Class<?>> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+			if (text == null) {
+				return Collections.emptyList();
+			}
+			try {
+				File directory = MiscUtils.createTemporaryDirectory();
+				File mainFile = new File(directory,
+						"main." + XMLBasedDocumentResource.this.getClass().getSimpleName().toLowerCase());
+				File metaSchemaFile = new File(directory, "XMLSchema.xsd");
+				File metaXMLFile = new File(directory, "xml.xsd");
+				File metaSchemaDTDFile = new File(directory, "XMLSchema.dtd");
+				File metaSchemaDatatypesDTDFile = new File(directory, "datatypes.dtd");
+				Map<File, String> dependencyTextByFile = new HashMap<File, String>();
+				for (Map.Entry<String, String> dependencyTextByFileNameEntry : dependencyTextByFileName.entrySet()) {
+					dependencyTextByFile.put(new File(directory, dependencyTextByFileNameEntry.getKey()),
+							dependencyTextByFileNameEntry.getValue());
+				}
+				try {
+					MiscUtils.write(mainFile, text, false);
+					MiscUtils.write(metaSchemaFile,
+							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaFile.getName())), false);
+					MiscUtils.write(metaXMLFile, MiscUtils.read(XSD.class.getResourceAsStream(metaXMLFile.getName())),
+							false);
+					MiscUtils.write(metaSchemaDTDFile,
+							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
+					MiscUtils.write(metaSchemaDatatypesDTDFile,
+							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDatatypesDTDFile.getName())), false);
+					for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+						MiscUtils.write(dependencyTextByFileEntry.getKey(), dependencyTextByFileEntry.getValue(),
+								false);
+					}
+					File sourceDirectory = MiscUtils.createTemporaryDirectory();
+					try {
+						runClassesGenerationTool(mainFile, metaSchemaFile, sourceDirectory);
+						JAXBPostProcessor.process(sourceDirectory);
+						return MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
+					} finally {
+						MiscUtils.delete(sourceDirectory);
+					}
+				} finally {
+					try {
+						for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
+							MiscUtils.delete(dependencyTextByFileEntry.getKey());
+						}
+						MiscUtils.delete(metaSchemaDatatypesDTDFile);
+						MiscUtils.delete(metaSchemaDTDFile);
+						MiscUtils.delete(metaXMLFile);
+						MiscUtils.delete(metaSchemaFile);
+						MiscUtils.delete(mainFile);
+						MiscUtils.delete(directory);
+					} catch (Throwable ignore) {
+						if (JESB.DEBUG) {
+							ignore.printStackTrace();
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new UnexpectedError(e);
+			}
+		}
+
+	}
 
 	public XMLBasedDocumentResource(String name) {
 		super(name);
@@ -49,7 +122,6 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 
 	public void setText(String text) {
 		this.text = text;
-		generatedClasses = null;
 	}
 
 	public Map<String, String> getDependencyTextByFileName() {
@@ -58,7 +130,6 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 
 	public void setDependencyTextByFileName(Map<String, String> dependencyTextByFileName) {
 		this.dependencyTextByFileName = dependencyTextByFileName;
-		generatedClasses = null;
 	}
 
 	public void load(Source source) {
@@ -132,76 +203,13 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 		return dependencyFileName;
 	}
 
-	protected void generateClasses() {
-		if (text == null) {
-			generatedClasses = Collections.emptyList();
-			return;
-		}
-		generatedClasses = null;
-		try {
-			File directory = MiscUtils.createTemporaryDirectory();
-			File mainFile = new File(directory, "main." + getClass().getSimpleName().toLowerCase());
-			File metaSchemaFile = new File(directory, "XMLSchema.xsd");
-			File metaXMLFile = new File(directory, "xml.xsd");
-			File metaSchemaDTDFile = new File(directory, "XMLSchema.dtd");
-			File metaSchemaDatatypesDTDFile = new File(directory, "datatypes.dtd");
-			Map<File, String> dependencyTextByFile = new HashMap<File, String>();
-			for (Map.Entry<String, String> dependencyTextByFileNameEntry : dependencyTextByFileName.entrySet()) {
-				dependencyTextByFile.put(new File(directory, dependencyTextByFileNameEntry.getKey()),
-						dependencyTextByFileNameEntry.getValue());
-			}
-			try {
-				MiscUtils.write(mainFile, text, false);
-				MiscUtils.write(metaSchemaFile, MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaFile.getName())),
-						false);
-				MiscUtils.write(metaXMLFile, MiscUtils.read(XSD.class.getResourceAsStream(metaXMLFile.getName())),
-						false);
-				MiscUtils.write(metaSchemaDTDFile,
-						MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);
-				MiscUtils.write(metaSchemaDatatypesDTDFile,
-						MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDatatypesDTDFile.getName())), false);
-				for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
-					MiscUtils.write(dependencyTextByFileEntry.getKey(), dependencyTextByFileEntry.getValue(), false);
-				}
-				File sourceDirectory = MiscUtils.createTemporaryDirectory();
-				try {
-					runClassesGenerationTool(mainFile, metaSchemaFile, sourceDirectory);
-					JAXBPostProcessor.process(sourceDirectory);
-					generatedClasses = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
-				} finally {
-					MiscUtils.delete(sourceDirectory);
-				}
-			} finally {
-				try {
-					for (Map.Entry<File, String> dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {
-						MiscUtils.delete(dependencyTextByFileEntry.getKey());
-					}
-					MiscUtils.delete(metaSchemaDatatypesDTDFile);
-					MiscUtils.delete(metaSchemaDTDFile);
-					MiscUtils.delete(metaXMLFile);
-					MiscUtils.delete(metaSchemaFile);
-					MiscUtils.delete(mainFile);
-					MiscUtils.delete(directory);
-				} catch (Throwable ignore) {
-					if (JESB.DEBUG) {
-						ignore.printStackTrace();
-					}
-				}
-			}
-		} catch (Exception e) {
-			throw new UnexpectedError(e);
-		}
-	}
-
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		if (generatedClasses == null) {
-			try {
-				generateClasses();
-			} catch (Throwable t) {
-				throw new ValidationError("Failed to validate the " + getClass().getSimpleName(), t);
-			}
+		try {
+			upToDateGeneratedClasses.get();
+		} catch (Throwable t) {
+			throw new ValidationError("Failed to validate the " + getClass().getSimpleName(), t);
 		}
 	}
 

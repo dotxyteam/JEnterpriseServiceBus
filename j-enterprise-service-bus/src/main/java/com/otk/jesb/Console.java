@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.DateFormat;
+import java.util.function.Supplier;
 
 import com.otk.jesb.util.MiscUtils;
 
@@ -11,10 +12,10 @@ public class Console {
 
 	public static final Console INSTANCE = new Console();
 	static {
-		System.setOut(new PrintStream(
-				MiscUtils.unifyOutputStreams(System.out, INSTANCE.getStream("DEBUG", "#009999", "#00FFFF"))));
-		System.setErr(new PrintStream(
-				MiscUtils.unifyOutputStreams(System.err, INSTANCE.getStream("DEBUG", "#009999", "#00FFFF"))));
+		System.setOut(new PrintStream(MiscUtils.unifyOutputStreams(System.out,
+				INSTANCE.getStream("DEBUG", "#009999", "#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()))));
+		System.setErr(new PrintStream(MiscUtils.unifyOutputStreams(System.err,
+				INSTANCE.getStream("DEBUG", "#009999", "#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()))));
 	}
 
 	private StringBuilder buffer = new StringBuilder();
@@ -41,7 +42,7 @@ public class Console {
 			String formattedMessage = String.format(
 					"<div style='white-space: nowrap;'><font color=\"%s\">- %s - %s [%s] </font> <font color=\"%s\">%s</font></div>",
 					prefixColor, date, levelName, Thread.currentThread().getName(), messageColor,
-					message.replace("\n", "<BR>"));
+					MiscUtils.escapeHTML(message, true));
 			buffer.append(formattedMessage + "\n");
 			if ((buffer.length() - size) > 0) {
 				int endOfFirstLine = buffer.indexOf("\n");
@@ -61,13 +62,17 @@ public class Console {
 		buffer.delete(0, buffer.length());
 	}
 
-	public OutputStream getStream(final String levelName, final String prefixColor, final String messageColor) {
+	public OutputStream getStream(final String levelName, final String prefixColor, final String messageColor,
+			final Supplier<Boolean> enablementStatusSupplier) {
 		return new OutputStream() {
 			private String line = "";
 			private char lastC = 0;
 			private char currentC = 0;
 
 			public void write(int b) {
+				if (!enablementStatusSupplier.get()) {
+					return;
+				}
 				currentC = (char) (b & 0xff);
 				char standardC = MiscUtils.standardizeNewLineSequences(lastC, currentC);
 				try {

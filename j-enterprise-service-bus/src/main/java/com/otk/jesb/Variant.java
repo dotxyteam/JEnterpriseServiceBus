@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -18,8 +17,13 @@ public class Variant<T> {
 	private Class<T> valueClass;
 	private Object value;
 
-	public Variant(Class<T> valueClass) {
+	public Variant(Class<T> valueClass, T value) {
 		this.valueClass = valueClass;
+		this.value = value;
+	}
+
+	public Variant(Class<T> valueClass) {
+		this(valueClass, null);
 	}
 
 	public Class<T> getValueClass() {
@@ -30,8 +34,8 @@ public class Variant<T> {
 	public T getValue() {
 		if (value instanceof Expression) {
 			String valueString = ((Expression<String>) value).evaluate(
-					Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
-					Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT));
+					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
+					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT));
 			if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {
 				return valueClass.cast(ReflectionUIUtils.primitiveFromString(valueString, valueClass));
 			} else if (valueClass == String.class) {
@@ -69,7 +73,7 @@ public class Variant<T> {
 	public List<Expression<String>> getVariableReferenceExpressionOptions() {
 		List<Expression<String>> result = new ArrayList<Expression<String>>();
 		PathOptionsProvider pathOptionsProvider = new PathOptionsProvider(
-				Collections.singletonList(MiscUtils.ENVIRONMENT_VARIABLES_ROOT_DECLARATION));
+				Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION));
 		result.addAll(getVariableReferenceExpressionOptions(pathOptionsProvider.getRootPathNodes()));
 		return result;
 	}

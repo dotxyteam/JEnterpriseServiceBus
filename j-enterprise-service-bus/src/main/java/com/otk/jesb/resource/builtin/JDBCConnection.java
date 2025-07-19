@@ -4,20 +4,27 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.swing.SwingUtilities;
+
 import com.otk.jesb.Variant;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.ui.GUI;
 import com.otk.jesb.util.MiscUtils;
 
-import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.util.ClassUtils;
 
 public class JDBCConnection extends Resource {
 
 	public static void main(String[] args) {
-		SwingCustomizer.getDefault().openObjectFrame(new JDBCConnection("test"));
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				GUI.INSTANCE.openObjectFrame(new JDBCConnection("test"));
+			}
+		});
 	}
 
 	private Variant<String> driverClassNameVariant = new Variant<String>(String.class);
