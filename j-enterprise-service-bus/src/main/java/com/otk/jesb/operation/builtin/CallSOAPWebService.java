@@ -1,6 +1,7 @@
 package com.otk.jesb.operation.builtin;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +13,7 @@ import javax.xml.ws.BindingProvider;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
@@ -85,6 +87,12 @@ public class CallSOAPWebService implements Operation {
 			}
 			return operationMethod.invoke(port,
 					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
+		} catch (InvocationTargetException e) {
+			if (e instanceof Exception) {
+				throw (Exception) e.getTargetException();
+			} else {
+				throw new UnexpectedError(e.getTargetException());
+			}
 		} finally {
 			MiscUtils.delete(wsdlFile);
 		}

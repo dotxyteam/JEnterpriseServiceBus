@@ -510,6 +510,14 @@ public class Plan extends Asset {
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
+		List<String> stepNames = new ArrayList<String>();
+		for (Step step : steps) {
+			if (stepNames.contains(step.getName())) {
+				throw new ValidationError("Duplicate step name detected: '" + step.getName() + "'");
+			} else {
+				stepNames.add(step.getName());
+			}
+		}
 		if (recursively) {
 			for (Step step : steps) {
 				try {

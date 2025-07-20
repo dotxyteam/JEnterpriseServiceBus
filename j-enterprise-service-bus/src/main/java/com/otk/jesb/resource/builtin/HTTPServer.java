@@ -70,12 +70,13 @@ public class HTTPServer extends Resource {
 		requestHandlerByPath.put(servicePath, requestHandler);
 	}
 
-	public void removeRequestHandler(String servicePath) throws Exception {
+	public RequestHandler removeRequestHandler(String servicePath) throws Exception {
 		RequestHandler requestHandler = requestHandlerByPath.remove(servicePath);
 		requestHandler.uninstall(this, servicePath);
 		if (requestHandlerByPath.isEmpty()) {
 			stop();
 		}
+		return requestHandler;
 	}
 
 	public RequestHandler getRequestHandler(String servicePath) {

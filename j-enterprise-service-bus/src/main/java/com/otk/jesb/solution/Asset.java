@@ -4,14 +4,12 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import com.otk.jesb.ValidationError;
-
-import xy.reflect.ui.util.MiscUtils;
+import com.otk.jesb.util.MiscUtils;
 
 public abstract class Asset {
 
 	private static final char[] ILLEGAL_NAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
 			'>', '|', '\"', ':' };
-
 	private String name;
 	private String note;
 
@@ -33,6 +31,14 @@ public abstract class Asset {
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public String getFileSystemResourceName() {
+		if (this instanceof Folder) {
+			return name;
+		} else {
+			return name + "." + getClass().getSimpleName().toLowerCase() + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
+		}
 	}
 
 	public void validate(boolean recursively) throws ValidationError {

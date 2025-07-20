@@ -142,7 +142,7 @@ public abstract class JDBCOperation implements Operation {
 							+ ". Expected " + expectedParameterCount + " parameter(s).");
 				}
 			} catch (ClassNotFoundException | SQLException e) {
-				throw new ValidationError("Failed to validate the JDBC opertation settings", e);
+				throw new ValidationError("Failed to validate the JDBC opertation", e);
 			}
 			if (recursively) {
 				List<String> parameterNames = new ArrayList<String>();

@@ -35,7 +35,6 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.ValidationError;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.PlanElement;
 import com.otk.jesb.solution.LoopCompositeStep;
@@ -81,6 +80,7 @@ import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
 import xy.reflect.ui.util.Listener;
 import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ValidationErrorWrapper;
 
 public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
@@ -876,7 +876,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					.next();
 			Pair<String, PlanElement> titleAndObjectPair = firstErrorEntry.getKey();
 			Exception validationError = firstErrorEntry.getValue();
-			throw new ValidationError("Failed to validate the " + titleAndObjectPair.getFirst(), validationError);
+			throw new ValidationErrorWrapper("Failed to validate the " + titleAndObjectPair.getFirst(),
+					validationError);
 		}
 	}
 

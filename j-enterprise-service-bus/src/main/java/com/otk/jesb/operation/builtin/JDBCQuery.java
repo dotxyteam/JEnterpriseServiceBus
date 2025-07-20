@@ -162,7 +162,7 @@ public class JDBCQuery extends JDBCOperation {
 					rowStructure.getElements().add(columnElement);
 					columnElement.setName(columnDefinition.getColumnName());
 					columnElement
-							.setTypeName(MiscUtils.adaptClassNameToSourceCode(columnDefinition.getColumnTypeName()));
+							.setTypeName(columnDefinition.getColumnTypeName());
 				}
 			}
 			return rowStructure;

@@ -47,6 +47,15 @@ public class Folder extends Asset {
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
+		List<String> assetFileNames = new ArrayList<String>();
+		for (Asset asset : contents) {
+			if (assetFileNames.contains(asset.getFileSystemResourceName())) {
+				throw new ValidationError(
+						"Duplicate name detected among child asset files: '" + asset.getFileSystemResourceName() + "'");
+			} else {
+				assetFileNames.add(asset.getFileSystemResourceName());
+			}
+		}
 		if (recursively) {
 			for (Asset asset : contents) {
 				try {

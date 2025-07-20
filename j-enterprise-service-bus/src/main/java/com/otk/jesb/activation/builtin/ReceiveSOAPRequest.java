@@ -34,7 +34,7 @@ public class ReceiveSOAPRequest extends ActivationStrategy {
 	private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 	private String serviceName;
 	private String operationSignature;
-	private String servicePath = "";
+	private String servicePath = "/";
 
 	private ActivationHandler activationHandler;
 	private UpToDateOperationOutputClass upToDateOperationOutputClass = new UpToDateOperationOutputClass();
@@ -186,13 +186,13 @@ public class ReceiveSOAPRequest extends ActivationStrategy {
 				}
 				if (!((SOAPRequestHandler) requestHandler).getService().equals(service)) {
 					throw new UnexpectedError(
-							"Cannot install service " + service + "' on SOAP request handler from service path '"
-									+ servicePath + "': Already installed service found: "
+							"Cannot install " + service + "' on SOAP request handler registered on service path '"
+									+ servicePath + "': Already installed on this path: "
 									+ ((SOAPRequestHandler) requestHandler).getService());
 				}
 				if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
 					throw new UnexpectedError(
-							"Cannot configure operation " + operation + " on SOAP request handler from service path '"
+							"Cannot configure " + operation + " of SOAP request handler registered on service path '"
 									+ servicePath + "': Operation already configured");
 				}
 			}
@@ -299,7 +299,7 @@ public class ReceiveSOAPRequest extends ActivationStrategy {
 							return registeredActivationHandler.trigger(operationInput);
 						}
 					}));
-			endpoint.publish("/" + servicePath);
+			endpoint.publish(servicePath);
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Published SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 			}

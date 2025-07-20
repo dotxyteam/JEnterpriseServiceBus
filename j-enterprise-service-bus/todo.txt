@@ -12,8 +12,11 @@
 - allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
 - Limit console size
+- need to generate OperationOutput class for web services ???
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts (for menu items first???)
+- deleting the whole solution folder before saving is risky. 
+find a solution (merge files and folders ???)..  
 - improve the UI design:
 	. add a banner ???
 	. get inspiration from TIBCO Flogo

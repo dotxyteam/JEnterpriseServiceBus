@@ -839,4 +839,6 @@ public class MiscUtils {
 			}
 		};
 	}
+
+	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".xml";
 }

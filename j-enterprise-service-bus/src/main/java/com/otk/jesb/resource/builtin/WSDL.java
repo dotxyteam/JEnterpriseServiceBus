@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +13,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
@@ -110,6 +111,46 @@ public class WSDL extends XMLBasedDocumentResource {
 			return operationMethod;
 		}
 
+		@SuppressWarnings("unchecked")
+		public Class<? extends OperationInput> getOperationInputClass() {
+			synchronized (inputClassByMethodByDeclaringClass) {
+				inputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),
+						(declaringClass -> new HashMap<Method, Class<? extends OperationInput>>()));
+				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.computeIfAbsent(operationMethod, operationMethod -> {
+							String className = operationMethod.getDeclaringClass().getName() + "_"
+									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName()
+									+ MiscUtils.toDigitalUniqueIdentifier(this);
+							String additionalyImplemented = MiscUtils
+									.adaptClassNameToSourceCode(OperationInput.class.getName());
+							ClassicStructure stucture = new ClassicStructure();
+							for (Parameter parameter : operationMethod.getParameters()) {
+								SimpleElement element = new SimpleElement();
+								element.setName(parameter.getName());
+								element.setTypeName(parameter.getType().getName());
+								stucture.getElements().add(element);
+							}
+							StringBuilder additionalMethodDeclarations = new StringBuilder();
+							additionalMethodDeclarations.append("  @Override" + "\n");
+							additionalMethodDeclarations.append("  public Object[] listParameterValues() {" + "\n");
+							additionalMethodDeclarations
+									.append("  return new Object[] {"
+											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
+													.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ")
+											+ "};" + "\n");
+							additionalMethodDeclarations.append("  }" + "\n");
+							try {
+								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
+												additionalMethodDeclarations.toString()));
+							} catch (CompilationError e) {
+								throw new UnexpectedError(e);
+							}
+						});
+				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
+			}
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -137,70 +178,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "OperationDescriptor [operationMethod=" + operationMethod + "]";
-		}
-
-		@SuppressWarnings("unchecked")
-		public Class<? extends OperationInput> getOperationInputClass() {
-			synchronized (inputClassByMethodByDeclaringClass) {
-				inputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),
-						(declaringClass -> new HashMap<Method, Class<? extends OperationInput>>()));
-				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
-						.computeIfAbsent(operationMethod, operationMethod -> {
-							String className = operationMethod.getDeclaringClass().getName() + "_"
-									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName()
-									+ MiscUtils.toDigitalUniqueIdentifier(this);
-							StringBuilder javaSource = new StringBuilder();
-							javaSource.append(
-									"package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
-							javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className)
-									+ " implements "
-									+ MiscUtils.adaptClassNameToSourceCode(OperationInput.class.getName()) + "{"
-									+ "\n");
-							for (Parameter parameter : operationMethod.getParameters()) {
-								javaSource.append("  private "
-										+ MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " "
-										+ parameter.getName() + ";\n");
-							}
-							List<String> constructorParameterDeclarations = new ArrayList<String>();
-							for (Parameter parameter : operationMethod.getParameters()) {
-								constructorParameterDeclarations
-										.add(MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " "
-												+ parameter.getName());
-							}
-							javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
-									+ MiscUtils.stringJoin(constructorParameterDeclarations, ", ") + "){" + "\n");
-							for (Parameter parameter : operationMethod.getParameters()) {
-								javaSource.append(
-										"    this." + parameter.getName() + " = " + parameter.getName() + ";\n");
-							}
-							javaSource.append("  }" + "\n");
-							for (Parameter parameter : operationMethod.getParameters()) {
-								javaSource.append("  public "
-										+ MiscUtils.adaptClassNameToSourceCode(parameter.getType().getName()) + " get"
-										+ parameter.getName().substring(0, 1).toUpperCase()
-										+ parameter.getName().substring(1) + "() {" + "\n");
-								javaSource.append("    return " + parameter.getName() + ";" + "\n");
-								javaSource.append("  }" + "\n");
-							}
-							javaSource.append("  @Override" + "\n");
-							javaSource.append("  public Object[] listParameterValues() {" + "\n");
-							javaSource
-									.append("  return new Object[] {"
-											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
-													.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ")
-											+ "};" + "\n");
-							javaSource.append("  }" + "\n");
-							javaSource.append("}" + "\n");
-							try {
-								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-										javaSource.toString());
-							} catch (CompilationError e) {
-								throw new UnexpectedError(e);
-							}
-						});
-				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
-			}
+			return "Operation [method=" + operationMethod + "]";
 		}
 
 		public interface OperationInput {
@@ -263,7 +241,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "PortDescriptor [portInterface=" + portInterface + "]";
+			return "Port [interface=" + portInterface + "]";
 		}
 
 	}
@@ -322,7 +300,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "ServiceClientDescriptor [serviceClass=" + serviceClass + "]";
+			return "ServiceClient [class=" + serviceClass + "]";
 		}
 
 	}
@@ -453,7 +431,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "ServiceSpecificationDescriptor [serviceInterface=" + serviceInterface + "]";
+			return "ServiceSpecification [interface=" + serviceInterface + "]";
 		}
 
 	}

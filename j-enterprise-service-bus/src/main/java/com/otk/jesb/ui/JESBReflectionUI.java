@@ -197,6 +197,35 @@ public class JESBReflectionUI extends CustomizedUI {
 		return new InfoProxyFactory() {
 
 			@Override
+			protected boolean canCopy(ITypeInfo type, Object object) {
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					return true;
+				}
+				return super.canCopy(type, object);
+			}
+
+			@Override
+			protected Object copy(ITypeInfo type, Object object) {
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					return MiscUtils.copy(object);
+				} else {
+					return super.copy(type, object);
+				}
+			}
+
+			@Override
 			protected void onFormRefresh(ITypeInfo type, Object object) {
 				if (object instanceof RootInstanceBuilderFacade) {
 					backupRootInstanceBuilderState(((RootInstanceBuilderFacade) object).getUnderlying());
@@ -1445,58 +1474,62 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
-				if (object instanceof Plan) {
-					session.put(CURRENT_VALIDATION_PLAN_KEY, object);
-				}
-				if (object instanceof Step) {
-					session.put(CURRENT_VALIDATION_STEP_KEY, object);
-				}
-				if (object instanceof Transition) {
-					session.put(CURRENT_VALIDATION_TRANSITION_KEY, object);
-				}
-				Class<?> objectClass;
-				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
-				} catch (ClassNotFoundException e) {
-					objectClass = null;
-				}
-				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-					((Asset) object).validate(false);
-				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-					((Step) object).validate(false, getCurrentValidationPlan(session));
-				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-					((Transition) object).validate(false, getCurrentValidationPlan(session));
-				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
-					((Transition.Condition) object).validate(getCurrentValidationPlan(session)
-							.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
-				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
-					((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
-							getCurrentValidationStep(session));
-				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
-					Step step = getCurrentValidationStep(session);
-					Plan plan = getCurrentValidationPlan(session);
-					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-							.getRoot((Facade) object);
-					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
-				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
-					Step step = getCurrentValidationStep(session);
-					Plan plan = getCurrentValidationPlan(session);
-					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
-					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-					((ListItemReplicationFacade) object)
-							.validate(plan.getValidationContext(step).getVariableDeclarations());
-				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
-					((Structure) object).validate(false);
-				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
-					((Structure.Element) object).validate(false);
-				} else if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
-					Plan plan = getCurrentValidationPlan(session);
-					((ActivationStrategy) object).validate(false, plan);
-				} else {
-					super.validate(type, object, session);
-				}
+				//try {
+					if (object instanceof Plan) {
+						session.put(CURRENT_VALIDATION_PLAN_KEY, object);
+					}
+					if (object instanceof Step) {
+						session.put(CURRENT_VALIDATION_STEP_KEY, object);
+					}
+					if (object instanceof Transition) {
+						session.put(CURRENT_VALIDATION_TRANSITION_KEY, object);
+					}
+					Class<?> objectClass;
+					try {
+						objectClass = ClassUtils.getCachedClassForName(type.getName());
+					} catch (ClassNotFoundException e) {
+						objectClass = null;
+					}
+					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+						((Asset) object).validate(false);
+					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
+						((Step) object).validate(false, getCurrentValidationPlan(session));
+					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
+						((Transition) object).validate(false, getCurrentValidationPlan(session));
+					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
+						((Transition.Condition) object).validate(getCurrentValidationPlan(session)
+								.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
+					} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
+						((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
+								getCurrentValidationStep(session));
+					} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
+						Step step = getCurrentValidationStep(session);
+						Plan plan = getCurrentValidationPlan(session);
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+								.getRoot((Facade) object);
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+					} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
+						Step step = getCurrentValidationStep(session);
+						Plan plan = getCurrentValidationPlan(session);
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+								.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+						((ListItemReplicationFacade) object)
+								.validate(plan.getValidationContext(step).getVariableDeclarations());
+					} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
+						((Structure) object).validate(false);
+					} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
+						((Structure.Element) object).validate(false);
+					} else if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+						Plan plan = getCurrentValidationPlan(session);
+						((ActivationStrategy) object).validate(false, plan);
+					} else {
+						super.validate(type, object, session);
+					}
+				//} catch (Exception e) {
+				//	throw new ValidationErrorWrapper(null, e);
+				//}
 			}
 
 			@Override

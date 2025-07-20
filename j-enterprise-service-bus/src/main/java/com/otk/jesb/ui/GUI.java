@@ -460,7 +460,7 @@ public class GUI extends SwingCustomizer {
 									(e.getEndPosition() == -1) ? textComponent.getText().length() : e.getEndPosition(),
 									new SquigglePainter(Color.RED));
 						}
-						throw e;
+						throw e;//new ValidationErrorWrapper(null, e);
 					}
 				} else {
 					super.validateForm(session);

@@ -82,7 +82,7 @@ public abstract class Structure {
 			List<String> elementNames = new ArrayList<String>();
 			for (Element element : elements) {
 				if (elementNames.contains(element.getName())) {
-					throw new ValidationError("Duplicate element name detected: '" + element.getName() + "'");
+					throw new ValidationError("Duplicate name detected among child elements: '" + element.getName() + "'");
 				} else {
 					elementNames.add(element.getName());
 				}
@@ -150,7 +150,7 @@ public abstract class Structure {
 							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
 				}
 				if (itemNames.contains(item.getName())) {
-					throw new ValidationError("Duplicate item name detected: '" + item.getName() + "'");
+					throw new ValidationError("Duplicate name detected among child items: '" + item.getName() + "'");
 				} else {
 					itemNames.add(item.getName());
 				}

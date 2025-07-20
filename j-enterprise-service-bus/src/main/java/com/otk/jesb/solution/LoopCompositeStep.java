@@ -305,8 +305,8 @@ public class LoopCompositeStep extends CompositeStep {
 						SimpleElement element = new SimpleElement();
 						structure.getElements().add(element);
 						element.setName(resultsCollectionEntry.getStepName());
-						element.setTypeName(MiscUtils.adaptClassNameToSourceCode(
-								resultsCollectionEntry.getOperationResultClass(currentPlan).getName()));
+						element.setTypeName(
+								resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
 						element.setMultiple(true);
 					}
 				}
