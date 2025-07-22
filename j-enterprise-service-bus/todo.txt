@@ -12,6 +12,7 @@
 - allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
 - Limit console size
+- create a basic WSDL generator
 - need to generate OperationOutput class for web services ???
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts (for menu items first???)
@@ -70,6 +71,7 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - JDBCConnection:
 	. driver jars location ???
 - comment the code
+- check dependencies vulnerabilities and change versions
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
 - improve JDBCQueryActivity:

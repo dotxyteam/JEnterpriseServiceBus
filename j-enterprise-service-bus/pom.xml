@@ -53,18 +53,28 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>3.6.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>3.0.1</version>
+			<version>3.6.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-			<version>3.0.1</version>
+			<version>3.6.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>3.0.1</version>
+			<artifactId>cxf-rt-rs-service-description-common-openapi</artifactId>
+			<version>3.6.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>openapi-generator</artifactId>
+			<version>6.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

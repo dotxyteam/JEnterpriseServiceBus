@@ -63,6 +63,15 @@ import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
 
+	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
+	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
+	static {
+		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
+	}
+	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
+	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
+
 	private static final XStream XSTREAM = new XStream() {
 		@Override
 		protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -100,14 +109,6 @@ public class MiscUtils {
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
-
-	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
-	static {
-		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
-	}
-	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
-	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
-	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
 	public static void sleepSafely(long durationMilliseconds) {
 		try {
@@ -840,5 +841,4 @@ public class MiscUtils {
 		};
 	}
 
-	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".xml";
 }
