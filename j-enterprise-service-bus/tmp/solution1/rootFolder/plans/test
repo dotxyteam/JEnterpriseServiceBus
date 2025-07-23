@@ -1,0 +1,159 @@
+<com.otk.jesb.solution.Plan>
+  <activationStrategy class="com.otk.jesb.activation.LaunchAtStartup">
+    <enabled>true</enabled>
+  </activationStrategy>
+  <name>test</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <name>a</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
+        <connectionReference>
+          <path>resources &gt; db</path>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+        </connectionReference>
+        <parameterDefinitions/>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCQuery$Builder" reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <resultColumnDefinitions class="null"/>
+        <statement>SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES</statement>
+        <statementVariable>false</statementVariable>
+        <statementVariant>
+          <valueClass>java.lang.String</valueClass>
+          <value class="string">SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES</value>
+        </statementVariant>
+      </operationBuilder>
+      <diagramX>100</diagramX>
+      <diagramY>100</diagramY>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.LoopCompositeStep>
+      <diagramX>200</diagramX>
+      <diagramY>100</diagramY>
+      <name>loop</name>
+      <operationBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopOperation$Builder">
+        <iterationIndexVariableName>index</iterationIndexVariableName>
+        <loopEndCondition>
+          <functionBody>return index==3;</functionBody>
+        </loopEndCondition>
+        <resultsCollectionTargetedStepNames/>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.LoopCompositeStep>
+    <com.otk.jesb.solution.Step>
+      <name>w</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor">
+                  <outer-class reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="string">tmp/test.txt</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>1</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return (String)a.rows[index].cellValues.get(&quot;TABLE_NAME&quot;);</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.WriteFile$Builder$SpecificOperationClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>WriteFileInput</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+        <mode>TEXT</mode>
+      </operationBuilder>
+      <diagramX>300</diagramX>
+      <diagramY>100</diagramY>
+      <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.LoopCompositeStep"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep class="com.otk.jesb.solution.LoopCompositeStep" reference="../../../steps/com.otk.jesb.solution.LoopCompositeStep"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
+  </transitions>
+</com.otk.jesb.solution.Plan>

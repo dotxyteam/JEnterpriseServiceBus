@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.cxf.transport.servlet.CXFServlet;
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -108,7 +108,7 @@ public class HTTPServer extends Resource {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath("/");
 		jettyServer.setHandler(context);
-		CXFServlet cxfServlet = new CXFServlet();
+		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
 		ServletHolder servletHolder = new ServletHolder(cxfServlet);
 		context.addServlet(servletHolder, "/*");
 		jettyServer.start();

@@ -40,8 +40,8 @@ public class WSDL extends XMLBasedDocumentResource {
 	@Override
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory) {
 		String[] wsImportArguments = new String[] { "-s", outputDirectory.getPath(), "-p",
-				WSDL.class.getName() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this), "-keep", "-Xnocompile", "-b",
-				metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
+				WSDL.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this), "-keep",
+				"-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
 		System.setProperty("javax.xml.accessExternalSchema", "all");
 		System.setProperty("javax.xml.accessExternalDTD", "all");
 		ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
@@ -316,7 +316,12 @@ public class WSDL extends XMLBasedDocumentResource {
 		}
 
 		public String getServiceName() {
-			return serviceInterface.getSimpleName();
+			javax.jws.WebService annotation = serviceInterface.getAnnotation(javax.jws.WebService.class);
+			if (annotation.name() != null) {
+				return annotation.name();
+			} else {
+				return serviceInterface.getSimpleName();
+			}
 		}
 
 		public Class<?> retrieveInterface() {
@@ -336,7 +341,7 @@ public class WSDL extends XMLBasedDocumentResource {
 		public Class<?> getImplementationClass() {
 			synchronized (implementationClassByInterface) {
 				implementationClassByInterface.computeIfAbsent(serviceInterface, serviceInterface -> {
-					String className = WSDL.class.getName() + "SeviceImpl" + MiscUtils.toDigitalUniqueIdentifier(this);
+					String className = serviceInterface.getName() + "Impl" + MiscUtils.toDigitalUniqueIdentifier(this);
 					StringBuilder javaSource = new StringBuilder();
 					javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 					javaSource.append(

@@ -29,15 +29,15 @@ public class InstanceBuilderTest {
 
 	public static void main(String[] args) throws Exception {
 		Plan plan = new Plan();
-		Operate activation = new Operate();
-		plan.setActivationStrategy(activation);
+		Operate activator = new Operate();
+		plan.setActivator(activator);
 		ClassicStructure planInputStructure = new ClassicStructure();
 		{
 			SimpleElement element = new Structure.SimpleElement();
 			element.setName("tree");
 			element.setTypeName(Tree.class.getName());
 			planInputStructure.getElements().add(element);
-			activation.setInputStructure(planInputStructure);
+			activator.setInputStructure(planInputStructure);
 		}
 		Step step = new Step(new Tree.Metadata());
 		plan.getSteps().add(step);
@@ -47,7 +47,7 @@ public class InstanceBuilderTest {
 			element.setName("tree");
 			element.setTypeName(Tree.class.getName());
 			planOutputStructure.getElements().add(element);
-			activation.setOutputStructure(planOutputStructure);
+			activator.setOutputStructure(planOutputStructure);
 		}
 		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer())
 				.getParameterValue()).getParameterInitializers()
@@ -65,7 +65,7 @@ public class InstanceBuilderTest {
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
 				try {
-					Object input = plan.getActivationStrategy().getInputClass().getConstructor(Tree.class)
+					Object input = plan.getActivator().getInputClass().getConstructor(Tree.class)
 							.newInstance(inputTree);
 					output = plan.execute(input);
 				} catch (Throwable t) {

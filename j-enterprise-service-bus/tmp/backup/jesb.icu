@@ -18036,7 +18036,7 @@
             <encapsulationFieldName>activationDetails</encapsulationFieldName>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>activationStrategy.duplicate.get</methodName>
-            <methodSignature>com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get()</methodSignature>
+            <methodSignature>com.otk.jesb.activation.Activator activationStrategy.duplicate.get()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -35588,7 +35588,7 @@
             <uniqueIdentifier>-5e2fae22:197418e3cbc:31c1</uniqueIdentifier>
             <className>com.otk.jesb.activation.Operate</className>
         </javaClassBasedTypeInfoFinder>
-        <typeName>com.otk.jesb.activation.ActivationStrategy</typeName>
+        <typeName>com.otk.jesb.activation.Activator</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -35672,7 +35672,7 @@
         <menuModel>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:483f</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy.duplicate, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.ActivationStrategy]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy.duplicate, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.Activator]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -35766,7 +35766,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <methodName>activationStrategy.duplicate.get</methodName>
-            <methodSignature>com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get()</methodSignature>
+            <methodSignature>com.otk.jesb.activation.Activator activationStrategy.duplicate.get()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -35934,7 +35934,7 @@
         <menuModel>
             <uniqueIdentifier>4f438af2:197420eb040:3069</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -35950,7 +35950,7 @@
         <menuModel>
             <uniqueIdentifier>76d0cfee:19742296da2:306f</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.ActivationStrategy]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.Activator]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36375,7 +36375,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:64fe</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.Activator activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36420,7 +36420,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:6511</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.Activator activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.Activator]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36465,7 +36465,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:6591</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Operate]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.Activator activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.Activator]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Operate]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36677,7 +36677,7 @@
         <menuModel>
             <uniqueIdentifier>-2b727653:1974553c33c:46e6</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.ActivationStrategy activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.LaunchAtStartup]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.Activator activationStrategy.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.Activator]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.LaunchAtStartup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36911,7 +36911,7 @@
         <menuModel>
             <uniqueIdentifier>3c5a7523:19749b43388:5572</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.ActivationStrategy]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.Activator]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36953,7 +36953,7 @@
         <menuModel>
             <uniqueIdentifier>3c5a7523:19749b43388:557d</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.ActivationStrategy]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

@@ -1,0 +1,7 @@
+.openapi-generator-ignore
+pom.xml
+src/gen/java/my/service/Error.java
+src/gen/java/my/service/Pet.java
+src/gen/java/my/service/PetsApi.java
+src/main/java/my/service/impl/PetsApiServiceImpl.java
+src/test/java/my/service/PetsApiTest.java

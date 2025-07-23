@@ -16,7 +16,7 @@ import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Structure;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivator;

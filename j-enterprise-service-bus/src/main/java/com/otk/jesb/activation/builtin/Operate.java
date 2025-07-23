@@ -5,8 +5,8 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activation.ActivationHandler;
-import com.otk.jesb.activation.ActivationStrategy;
-import com.otk.jesb.activation.ActivationStrategyMetadata;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -14,7 +14,7 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class Operate extends ActivationStrategy {
+public class Operate extends Activator {
 
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
@@ -140,21 +140,21 @@ public class Operate extends ActivationStrategy {
 		}
 	}
 
-	public static class Metadata implements ActivationStrategyMetadata {
+	public static class Metadata implements ActivatorMetadata {
 
 		@Override
-		public ResourcePath getActivationStrategyIconImagePath() {
+		public ResourcePath getActivatorIconImagePath() {
 			return new ResourcePath(ResourcePath
 					.specifyClassPathResourceLocation(Operate.class.getName().replace(".", "/") + ".png"));
 		}
 
 		@Override
-		public Class<? extends ActivationStrategy> getActivationStrategyClass() {
+		public Class<? extends Activator> getActivatorClass() {
 			return Operate.class;
 		}
 
 		@Override
-		public String getActivationStrategyName() {
+		public String getActivatorName() {
 			return "(Sub-Plan) Operate";
 		}
 

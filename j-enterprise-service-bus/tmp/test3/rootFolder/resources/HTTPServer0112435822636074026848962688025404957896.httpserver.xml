@@ -1,0 +1,12 @@
+<com.otk.jesb.resource.builtin.HTTPServer>
+  <hostNameVariant>
+    <valueClass>java.lang.String</valueClass>
+    <value class="string">localhost</value>
+  </hostNameVariant>
+  <name>HTTPServer0112435822636074026848962688025404957896</name>
+  <note class="null"/>
+  <portVariant>
+    <valueClass>java.lang.Integer</valueClass>
+    <value class="int">8080</value>
+  </portVariant>
+</com.otk.jesb.resource.builtin.HTTPServer>

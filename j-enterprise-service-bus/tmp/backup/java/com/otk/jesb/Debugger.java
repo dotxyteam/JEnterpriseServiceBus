@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.activation.ActivationHandler;
-import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.Activator;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.builtin.ExecutePlan;

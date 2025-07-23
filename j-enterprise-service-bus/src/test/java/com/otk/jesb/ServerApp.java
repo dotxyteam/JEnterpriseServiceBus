@@ -12,8 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.transport.servlet.CXFServlet;
-
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -28,7 +27,7 @@ public class ServerApp {
 		server.setHandler(context);
 
 		// Register CXF servlet
-		CXFServlet cxfServlet = new CXFServlet();
+		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
 		ServletHolder servletHolder = new ServletHolder(cxfServlet);
 		context.addServlet(servletHolder, "/services/*");
 
@@ -36,6 +35,7 @@ public class ServerApp {
 		server.start();
 
 		// Publish service after Jetty has started
+		@SuppressWarnings("resource")
 		EndpointImpl endpoint = new EndpointImpl(new HelloServiceImpl());
 		endpoint.publish("/HelloService");
 		System.out.println("SOAP service started at http://localhost:8080/services/HelloService?wsdl");

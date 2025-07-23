@@ -50,6 +50,8 @@ ExecutePlan.inputBuilder is filled
 - manage renamings
 - what if 2 variables have the same name ?
 - replace "Edit..." by an icon ???
+- UnexpectedError is used for exceptions that are not really related to bugs
+(such as allowing to debug erroneous solution)
 - add support to Iterable for ListItemReplication.iterationListValue
 - alternatives: 
 https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_discontinued/

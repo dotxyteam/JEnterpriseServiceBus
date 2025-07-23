@@ -105,7 +105,7 @@ public class ExecutePlan implements Operation {
 			if (plan == null) {
 				return null;
 			}
-			Operate activation = (Operate) plan.getActivationStrategy();
+			Operate activation = (Operate) plan.getActivator();
 			return activation.getOutputClass();
 		}
 
@@ -133,10 +133,10 @@ public class ExecutePlan implements Operation {
 				if (plan == null) {
 					return null;
 				}
-				if (plan.getActivationStrategy().getInputClass() == null) {
+				if (plan.getActivator().getInputClass() == null) {
 					return null;
 				}
-				return plan.getActivationStrategy().getInputClass().getName();
+				return plan.getActivator().getInputClass().getName();
 			}
 		}
 

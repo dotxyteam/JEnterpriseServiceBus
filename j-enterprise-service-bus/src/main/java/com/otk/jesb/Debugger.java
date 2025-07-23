@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.activation.ActivationHandler;
-import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.Activator;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.builtin.ExecutePlan;
@@ -101,9 +101,9 @@ public class Debugger {
 
 		public PlanActivator(Plan plan) {
 			this.plan = plan;
-			if (plan.getActivationStrategy().getInputClass() != null) {
+			if (plan.getActivator().getInputClass() != null) {
 				planInputBuilder = new RootInstanceBuilder("Input",
-						plan.getActivationStrategy().getInputClass().getName());
+						plan.getActivator().getInputClass().getName());
 			}
 		}
 
@@ -139,17 +139,17 @@ public class Debugger {
 					}
 				};
 				try {
-					plan.getActivationStrategy().initializeAutomaticTrigger(activationHandler);
+					plan.getActivator().initializeAutomaticTrigger(activationHandler);
 				} catch (Exception e) {
 					planExecutors.add(new PlanActivationFailure(plan, e));
 					try {
-						plan.getActivationStrategy().finalizeAutomaticTrigger();
+						plan.getActivator().finalizeAutomaticTrigger();
 					} catch (Throwable ignore) {
 					}
 				}
 			} else {
 				try {
-					plan.getActivationStrategy().finalizeAutomaticTrigger();
+					plan.getActivator().finalizeAutomaticTrigger();
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}
@@ -157,11 +157,11 @@ public class Debugger {
 		}
 
 		public boolean isAutomaticTriggerReady() {
-			return plan.getActivationStrategy().isAutomaticTriggerReady();
+			return plan.getActivator().isAutomaticTriggerReady();
 		}
 
 		public boolean isAutomaticallyTriggerable() {
-			return plan.getActivationStrategy().isAutomaticallyTriggerable();
+			return plan.getActivator().isAutomaticallyTriggerable();
 		}
 
 		public void stopExecutions() {
@@ -170,8 +170,8 @@ public class Debugger {
 			}
 		}
 
-		public ActivationStrategy getActivationStrategy() {
-			return plan.getActivationStrategy();
+		public Activator getActivator() {
+			return plan.getActivator();
 		}
 
 		public void executePlan() throws Exception {

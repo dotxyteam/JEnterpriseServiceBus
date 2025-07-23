@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+	<element name="command-list" type="command-list-type"/>
+	<complexType name="command-list-type">
+		<sequence>
+			<element name="command" type="command-type"/>
+		</sequence>
+	</complexType>
+	<complexType name="command-type">
+		<attribute name="name"/>
+		<sequence>
+			<element name="capability" type="capability-type"/>
+			<element name="argument" type="argument-type"/>
+		</sequence>
+	</complexType>
+	<complexType name="capability-type">
+		<attribute name="value"/>
+	</complexType>
+	<complexType name="argument-type">
+		<attribute name="value"/>
+		<attribute name="optional"/>
+	</complexType>
+</schema>

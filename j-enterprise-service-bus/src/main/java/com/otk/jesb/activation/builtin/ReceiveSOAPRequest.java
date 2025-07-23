@@ -14,8 +14,8 @@ import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.ActivationHandler;
-import com.otk.jesb.activation.ActivationStrategy;
-import com.otk.jesb.activation.ActivationStrategyMetadata;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
 import com.otk.jesb.resource.builtin.WSDL;
@@ -28,7 +28,7 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class ReceiveSOAPRequest extends ActivationStrategy {
+public class ReceiveSOAPRequest extends Activator {
 
 	private Reference<HTTPServer> serverReference = new Reference<HTTPServer>(HTTPServer.class);
 	private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
@@ -323,21 +323,21 @@ public class ReceiveSOAPRequest extends ActivationStrategy {
 
 	}
 
-	public static class Metadata implements ActivationStrategyMetadata {
+	public static class Metadata implements ActivatorMetadata {
 
 		@Override
-		public ResourcePath getActivationStrategyIconImagePath() {
+		public ResourcePath getActivatorIconImagePath() {
 			return new ResourcePath(ResourcePath
 					.specifyClassPathResourceLocation(ReceiveSOAPRequest.class.getName().replace(".", "/") + ".png"));
 		}
 
 		@Override
-		public Class<? extends ActivationStrategy> getActivationStrategyClass() {
+		public Class<? extends Activator> getActivatorClass() {
 			return ReceiveSOAPRequest.class;
 		}
 
 		@Override
-		public String getActivationStrategyName() {
+		public String getActivatorName() {
 			return "Receive SOAP Request";
 		}
 

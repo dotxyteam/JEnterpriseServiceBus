@@ -1,0 +1,183 @@
+<com.otk.jesb.resource.builtin.OpenAPIDescription>
+  <name>petstore</name>
+  <note class="null"/>
+  <text>{
+	  &quot;openapi&quot;: &quot;3.0.0&quot;,
+	  &quot;info&quot;: {
+	    &quot;version&quot;: &quot;1.0.0&quot;,
+	    &quot;title&quot;: &quot;Swagger Petstore&quot;,
+	    &quot;license&quot;: {
+	      &quot;name&quot;: &quot;MIT&quot;
+	    }
+	  },
+	  &quot;servers&quot;: [
+	    {
+	      &quot;url&quot;: &quot;http://petstore.swagger.io/v1&quot;
+	    }
+	  ],
+	  &quot;paths&quot;: {
+	    &quot;/pets&quot;: {
+	      &quot;get&quot;: {
+	        &quot;summary&quot;: &quot;List all pets&quot;,
+	        &quot;operationId&quot;: &quot;listPets&quot;,
+	        &quot;tags&quot;: [&quot;pets&quot;],
+	        &quot;parameters&quot;: [
+	          {
+	            &quot;name&quot;: &quot;limit&quot;,
+	            &quot;in&quot;: &quot;query&quot;,
+	            &quot;description&quot;: &quot;How many items to return at one time (max 100)&quot;,
+	            &quot;required&quot;: false,
+	            &quot;schema&quot;: {
+	              &quot;type&quot;: &quot;integer&quot;,
+	              &quot;maximum&quot;: 100,
+	              &quot;format&quot;: &quot;int32&quot;
+	            }
+	          }
+	        ],
+	        &quot;responses&quot;: {
+	          &quot;200&quot;: {
+	            &quot;description&quot;: &quot;A paged array of pets&quot;,
+	            &quot;headers&quot;: {
+	              &quot;x-next&quot;: {
+	                &quot;description&quot;: &quot;A link to the next page of responses&quot;,
+	                &quot;schema&quot;: {
+	                  &quot;type&quot;: &quot;string&quot;
+	                }
+	              }
+	            },
+	            &quot;content&quot;: {
+	              &quot;application/json&quot;: {
+	                &quot;schema&quot;: {
+	                  &quot;$ref&quot;: &quot;#/components/schemas/Pets&quot;
+	                }
+	              }
+	            }
+	          },
+	          &quot;default&quot;: {
+	            &quot;description&quot;: &quot;unexpected error&quot;,
+	            &quot;content&quot;: {
+	              &quot;application/json&quot;: {
+	                &quot;schema&quot;: {
+	                  &quot;$ref&quot;: &quot;#/components/schemas/Error&quot;
+	                }
+	              }
+	            }
+	          }
+	        }
+	      },
+	      &quot;post&quot;: {
+	        &quot;summary&quot;: &quot;Create a pet&quot;,
+	        &quot;operationId&quot;: &quot;createPets&quot;,
+	        &quot;tags&quot;: [&quot;pets&quot;],
+	        &quot;requestBody&quot;: {
+	          &quot;content&quot;: {
+	            &quot;application/json&quot;: {
+	              &quot;schema&quot;: {
+	                &quot;$ref&quot;: &quot;#/components/schemas/Pet&quot;
+	              }
+	            }
+	          },
+	          &quot;required&quot;: true
+	        },
+	        &quot;responses&quot;: {
+	          &quot;201&quot;: {
+	            &quot;description&quot;: &quot;Null response&quot;
+	          },
+	          &quot;default&quot;: {
+	            &quot;description&quot;: &quot;unexpected error&quot;,
+	            &quot;content&quot;: {
+	              &quot;application/json&quot;: {
+	                &quot;schema&quot;: {
+	                  &quot;$ref&quot;: &quot;#/components/schemas/Error&quot;
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    },
+	    &quot;/pets/{petId}&quot;: {
+	      &quot;get&quot;: {
+	        &quot;summary&quot;: &quot;Info for a specific pet&quot;,
+	        &quot;operationId&quot;: &quot;showPetById&quot;,
+	        &quot;tags&quot;: [&quot;pets&quot;],
+	        &quot;parameters&quot;: [
+	          {
+	            &quot;name&quot;: &quot;petId&quot;,
+	            &quot;in&quot;: &quot;path&quot;,
+	            &quot;required&quot;: true,
+	            &quot;description&quot;: &quot;The id of the pet to retrieve&quot;,
+	            &quot;schema&quot;: {
+	              &quot;type&quot;: &quot;string&quot;
+	            }
+	          }
+	        ],
+	        &quot;responses&quot;: {
+	          &quot;200&quot;: {
+	            &quot;description&quot;: &quot;Expected response to a valid request&quot;,
+	            &quot;content&quot;: {
+	              &quot;application/json&quot;: {
+	                &quot;schema&quot;: {
+	                  &quot;$ref&quot;: &quot;#/components/schemas/Pet&quot;
+	                }
+	              }
+	            }
+	          },
+	          &quot;default&quot;: {
+	            &quot;description&quot;: &quot;unexpected error&quot;,
+	            &quot;content&quot;: {
+	              &quot;application/json&quot;: {
+	                &quot;schema&quot;: {
+	                  &quot;$ref&quot;: &quot;#/components/schemas/Error&quot;
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	  },
+	  &quot;components&quot;: {
+	    &quot;schemas&quot;: {
+	      &quot;Pet&quot;: {
+	        &quot;type&quot;: &quot;object&quot;,
+	        &quot;required&quot;: [&quot;id&quot;, &quot;name&quot;],
+	        &quot;properties&quot;: {
+	          &quot;id&quot;: {
+	            &quot;type&quot;: &quot;integer&quot;,
+	            &quot;format&quot;: &quot;int64&quot;
+	          },
+	          &quot;name&quot;: {
+	            &quot;type&quot;: &quot;string&quot;
+	          },
+	          &quot;tag&quot;: {
+	            &quot;type&quot;: &quot;string&quot;
+	          }
+	        }
+	      },
+	      &quot;Pets&quot;: {
+	        &quot;type&quot;: &quot;array&quot;,
+	        &quot;maxItems&quot;: 100,
+	        &quot;items&quot;: {
+	          &quot;$ref&quot;: &quot;#/components/schemas/Pet&quot;
+	        }
+	      },
+	      &quot;Error&quot;: {
+	        &quot;type&quot;: &quot;object&quot;,
+	        &quot;required&quot;: [&quot;code&quot;, &quot;message&quot;],
+	        &quot;properties&quot;: {
+	          &quot;code&quot;: {
+	            &quot;type&quot;: &quot;integer&quot;,
+	            &quot;format&quot;: &quot;int32&quot;
+	          },
+	          &quot;message&quot;: {
+	            &quot;type&quot;: &quot;string&quot;
+	          }
+	        }
+	      }
+	    }
+	  }
+}
+
+</text>
+</com.otk.jesb.resource.builtin.OpenAPIDescription>

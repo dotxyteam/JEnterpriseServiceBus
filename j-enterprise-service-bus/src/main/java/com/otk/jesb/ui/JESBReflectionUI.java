@@ -19,8 +19,8 @@ import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.activation.ActivationStrategy;
-import com.otk.jesb.activation.ActivationStrategyMetadata;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
@@ -54,6 +54,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.builtin.CallRESTAPI;
 import com.otk.jesb.operation.builtin.CallSOAPWebService;
 import com.otk.jesb.operation.builtin.DoNothing;
 import com.otk.jesb.operation.builtin.Evaluate;
@@ -70,6 +71,7 @@ import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.resource.builtin.XSD;
@@ -133,12 +135,14 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<OperationMetadata> OPERATION_METADATAS = Arrays.asList(new DoNothing.Metadata(),
 			new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(),
 			new ReadFile.Metadata(), new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
-			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallSOAPWebService.Metadata());
+			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+			new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
-			new JDBCConnection.Metadata(), new XSD.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
-	public static final List<ActivationStrategyMetadata> ACTIVATION_STRATEGY__METADATAS = Arrays
-			.asList(new LaunchAtStartup.Metadata(), new Operate.Metadata(), new ReceiveSOAPRequest.Metadata());
+			new JDBCConnection.Metadata(), new XSD.Metadata(), new OpenAPIDescription.Metadata(), new WSDL.Metadata(),
+			new HTTPServer.Metadata());
+	public static final List<ActivatorMetadata> ACTIVATOR__METADATAS = Arrays.asList(new LaunchAtStartup.Metadata(),
+			new Operate.Metadata(), new ReceiveSOAPRequest.Metadata());
 	private static final String CURRENT_VALIDATION_PLAN_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_KEY";
 	private static final String CURRENT_VALIDATION_STEP_KEY = JESBReflectionUI.class.getName()
@@ -1235,11 +1239,10 @@ public class JESBReflectionUI extends CustomizedUI {
 						result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 					}
 					return result;
-				} else if (type.getName().equals(ActivationStrategy.class.getName())) {
+				} else if (type.getName().equals(Activator.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
-						result.add(getTypeInfo(
-								new JavaTypeInfoSource(activationStrategyMetadata.getActivationStrategyClass(), null)));
+					for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+						result.add(getTypeInfo(new JavaTypeInfoSource(activatorMetadata.getActivatorClass(), null)));
 					}
 					return result;
 				} else {
@@ -1262,9 +1265,9 @@ public class JESBReflectionUI extends CustomizedUI {
 						return resourceMetadata.getResourceTypeName();
 					}
 				}
-				for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
-					if (activationStrategyMetadata.getActivationStrategyClass().getName().equals(type.getName())) {
-						return activationStrategyMetadata.getActivationStrategyName();
+				for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+					if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
+						return activatorMetadata.getActivatorName();
 					}
 				}
 				return super.getCaption(type);
@@ -1282,9 +1285,9 @@ public class JESBReflectionUI extends CustomizedUI {
 						return resourceMetadata.getResourceIconImagePath();
 					}
 				}
-				for (ActivationStrategyMetadata activationStrategyMetadata : ACTIVATION_STRATEGY__METADATAS) {
-					if (activationStrategyMetadata.getActivationStrategyClass().getName().equals(type.getName())) {
-						return activationStrategyMetadata.getActivationStrategyIconImagePath();
+				for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+					if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
+						return activatorMetadata.getActivatorIconImagePath();
 					}
 				}
 				if (object instanceof Step) {
@@ -1342,7 +1345,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					}
 				}
-				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 					if (field.getName().equals("inputClass")) {
 						return true;
 					}
@@ -1439,19 +1442,19 @@ public class JESBReflectionUI extends CustomizedUI {
 						return true;
 					}
 				}
-				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
 						return true;
 					}
 				}
-				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
 							"initializeAutomaticTrigger", Arrays.asList(ActivationHandler.class.getName())))) {
 						return true;
 					}
 				}
-				if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
 							"finalizeAutomaticTrigger", Arrays.asList()))) {
 						return true;
@@ -1474,62 +1477,62 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
-				//try {
-					if (object instanceof Plan) {
-						session.put(CURRENT_VALIDATION_PLAN_KEY, object);
-					}
-					if (object instanceof Step) {
-						session.put(CURRENT_VALIDATION_STEP_KEY, object);
-					}
-					if (object instanceof Transition) {
-						session.put(CURRENT_VALIDATION_TRANSITION_KEY, object);
-					}
-					Class<?> objectClass;
-					try {
-						objectClass = ClassUtils.getCachedClassForName(type.getName());
-					} catch (ClassNotFoundException e) {
-						objectClass = null;
-					}
-					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-						((Asset) object).validate(false);
-					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-						((Step) object).validate(false, getCurrentValidationPlan(session));
-					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-						((Transition) object).validate(false, getCurrentValidationPlan(session));
-					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
-						((Transition.Condition) object).validate(getCurrentValidationPlan(session)
-								.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
-					} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
-						((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
-								getCurrentValidationStep(session));
-					} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
-						Step step = getCurrentValidationStep(session);
-						Plan plan = getCurrentValidationPlan(session);
-						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-								.getRoot((Facade) object);
-						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
-					} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
-						Step step = getCurrentValidationStep(session);
-						Plan plan = getCurrentValidationPlan(session);
-						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-								.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
-						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-						((ListItemReplicationFacade) object)
-								.validate(plan.getValidationContext(step).getVariableDeclarations());
-					} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
-						((Structure) object).validate(false);
-					} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
-						((Structure.Element) object).validate(false);
-					} else if ((objectClass != null) && ActivationStrategy.class.isAssignableFrom(objectClass)) {
-						Plan plan = getCurrentValidationPlan(session);
-						((ActivationStrategy) object).validate(false, plan);
-					} else {
-						super.validate(type, object, session);
-					}
-				//} catch (Exception e) {
-				//	throw new ValidationErrorWrapper(null, e);
-				//}
+				// try {
+				if (object instanceof Plan) {
+					session.put(CURRENT_VALIDATION_PLAN_KEY, object);
+				}
+				if (object instanceof Step) {
+					session.put(CURRENT_VALIDATION_STEP_KEY, object);
+				}
+				if (object instanceof Transition) {
+					session.put(CURRENT_VALIDATION_TRANSITION_KEY, object);
+				}
+				Class<?> objectClass;
+				try {
+					objectClass = ClassUtils.getCachedClassForName(type.getName());
+				} catch (ClassNotFoundException e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					((Asset) object).validate(false);
+				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
+					((Step) object).validate(false, getCurrentValidationPlan(session));
+				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
+					((Transition) object).validate(false, getCurrentValidationPlan(session));
+				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
+					((Transition.Condition) object).validate(getCurrentValidationPlan(session)
+							.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
+				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
+					((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
+							getCurrentValidationStep(session));
+				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
+					Step step = getCurrentValidationStep(session);
+					Plan plan = getCurrentValidationPlan(session);
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot((Facade) object);
+					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
+					Step step = getCurrentValidationStep(session);
+					Plan plan = getCurrentValidationPlan(session);
+					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
+					((ListItemReplicationFacade) object)
+							.validate(plan.getValidationContext(step).getVariableDeclarations());
+				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
+					((Structure) object).validate(false);
+				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
+					((Structure.Element) object).validate(false);
+				} else if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
+					Plan plan = getCurrentValidationPlan(session);
+					((Activator) object).validate(false, plan);
+				} else {
+					super.validate(type, object, session);
+				}
+				// } catch (Exception e) {
+				// throw new ValidationErrorWrapper(null, e);
+				// }
 			}
 
 			@Override
@@ -1552,10 +1555,10 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected IValidationJob getReturnValueAbstractFormValidationJob(IMethodInfo method, Object object,
 					Object returnValue, ITypeInfo objectType) {
-				if (returnValue instanceof ActivationStrategy) {
+				if (returnValue instanceof Activator) {
 					return (session) -> {
 						Plan plan = getCurrentValidationPlan(session);
-						((ActivationStrategy) returnValue).validate(true, plan);
+						((Activator) returnValue).validate(true, plan);
 					};
 				}
 				return super.getReturnValueAbstractFormValidationJob(method, object, returnValue, objectType);
@@ -1643,7 +1646,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
 							: getCurrentValidationStep(session);
 					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
-				} else if (object instanceof ActivationStrategy) {
+				} else if (object instanceof Activator) {
 					Plan plan = getCurrentValidationPlan(session);
 					if (plan == null) {
 						throw new UnexpectedError();

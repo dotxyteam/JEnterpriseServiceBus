@@ -18,7 +18,7 @@ import com.otk.jesb.Reference;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
-import com.otk.jesb.activation.ActivationStrategy;
+import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -45,7 +45,7 @@ public class Plan extends Asset {
 		super(name);
 	}
 
-	private ActivationStrategy activationStrategy = new LaunchAtStartup();
+	private Activator activator = new LaunchAtStartup();
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
 	private transient Set<PlanElement> selectedElements = new HashSet<PlanElement>();
@@ -53,12 +53,12 @@ public class Plan extends Asset {
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new OutputClassNameAccessor());
 
-	public ActivationStrategy getActivationStrategy() {
-		return activationStrategy;
+	public Activator getActivator() {
+		return activator;
 	}
 
-	public void setActivationStrategy(ActivationStrategy activationStrategy) {
-		this.activationStrategy = activationStrategy;
+	public void setActivator(Activator activator) {
+		this.activator = activator;
 	}
 
 	public RootInstanceBuilder getOutputBuilder() {
@@ -70,7 +70,7 @@ public class Plan extends Asset {
 	}
 
 	public boolean isOutputEnabled() {
-		return activationStrategy.getOutputClass() != null;
+		return activator.getOutputClass() != null;
 	}
 
 	public List<Step> getSteps() {
@@ -227,7 +227,7 @@ public class Plan extends Asset {
 			throws ExecutionError {
 		try {
 			context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
-			Class<?> inputClass = activationStrategy.getInputClass();
+			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
 					if (!inputClass.isInstance(input)) {
@@ -465,7 +465,7 @@ public class Plan extends Asset {
 		} else {
 			result = new ValidationContext(this, currentStep);
 			result.getVariableDeclarations().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
-			Class<?> inputClass = activationStrategy.getInputClass();
+			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 
@@ -533,7 +533,7 @@ public class Plan extends Asset {
 					throw new ValidationError("Failed to validate transition '" + transition.getSummary() + "'", e);
 				}
 			}
-			activationStrategy.validate(recursively, this);
+			activator.validate(recursively, this);
 			outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
 		}
 	}
@@ -662,7 +662,7 @@ public class Plan extends Asset {
 	private class OutputClassNameAccessor extends Accessor<String> {
 		@Override
 		public String get() {
-			Class<?> outputClass = activationStrategy.getOutputClass();
+			Class<?> outputClass = activator.getOutputClass();
 			if (outputClass == null) {
 				return null;
 			}
