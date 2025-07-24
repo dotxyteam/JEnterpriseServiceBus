@@ -3,7 +3,9 @@ package com.otk.jesb.resource.builtin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -43,9 +45,10 @@ import com.github.javaparser.ast.Node;
 
 public class OpenAPIDescription extends WebDocumentBasedResource {
 
-	protected String text;
+	private String text;
 
-	protected UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
+	private UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
+	private Class<?> serviceImplementationClass;
 
 	public OpenAPIDescription() {
 		this(OpenAPIDescription.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -97,7 +100,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
-	public Class<?> getAPIServiceClass() {
+	public Class<?> getAPIServiceInterface() {
 		try {
 			return upToDateGeneratedClasses
 					.get().stream().filter(c -> c.getPackage().getName().equals(getServicePackageName())
@@ -105,6 +108,77 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					.findFirst().get();
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
+		}
+	}
+
+	public Class<?> getAPIServiceImplementationClass() {
+		synchronized (this) {
+			if(serviceImplementationClass == null) {
+				Class<?> serviceInterface = getAPIServiceInterface();
+				String className = serviceInterface.getName() + "Impl" + MiscUtils.toDigitalUniqueIdentifier(this);
+				StringBuilder javaSource = new StringBuilder();
+				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
+						+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + "{" + "\n");
+				javaSource.append("  private " + InvocationHandler.class.getName() + " invocationHandler;\n");
+				javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
+						+ InvocationHandler.class.getName() + " invocationHandler){" + "\n");
+				javaSource.append("    this.invocationHandler = invocationHandler;\n");
+				javaSource.append("  }" + "\n");
+				for (Method method : serviceInterface.getMethods()) {
+					if (!Modifier.isAbstract(method.getModifiers())) {
+						continue;
+					}
+					javaSource.append("  @Override\n");
+					javaSource
+							.append("  public " + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName())
+									+ " " + method.getName() + "("
+									+ Arrays.stream(method.getParameters())
+											.map(parameter -> MiscUtils.adaptClassNameToSourceCode(
+													parameter.getType().getName()) + " " + parameter.getName())
+											.collect(Collectors.joining(", "))
+									+ ") {" + "\n");
+					String methodReflectionAccessInstruction = MiscUtils
+							.adaptClassNameToSourceCode(serviceInterface.getName()) + ".class.getMethod(\""
+							+ method.getName() + "\", new Class[]{"
+							+ Arrays.stream(method.getParameters())
+									.map(parameter -> MiscUtils
+											.adaptClassNameToSourceCode(parameter.getType().getName()) + ".class")
+									.collect(Collectors.joining(", "))
+							+ "})";
+					String methodArgumentArrayCreationInstruction = "new Object[]{"
+							+ Arrays.stream(method.getParameters()).map(parameter -> parameter.getName())
+									.collect(Collectors.joining(", "))
+							+ "}";
+					javaSource.append("    try {\n");
+					javaSource
+							.append("        "
+									+ (method.getReturnType().equals(void.class) ? ""
+											: ("return (" + MiscUtils.adaptClassNameToSourceCode(
+													method.getReturnType().getName()) + ")"))
+									+ "invocationHandler.invoke(this, " + methodReflectionAccessInstruction + ", "
+									+ methodArgumentArrayCreationInstruction + ");" + "\n");
+					javaSource.append("    } catch (Throwable t) {\n");
+					for (Class<?> exceptionType : method.getExceptionTypes()) {
+						javaSource.append("			if(t instanceof "
+								+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ") {\n");
+						javaSource.append("				throw ("
+								+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ")t;\n");
+						javaSource.append("			}\n");
+					}
+					javaSource.append("			throw new "
+							+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName()) + "(t);\n");
+					javaSource.append("    }");
+					javaSource.append("  }" + "\n");
+				}
+				javaSource.append("}" + "\n");
+				try {
+					serviceImplementationClass = (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
+			};
+			return serviceImplementationClass;
 		}
 	}
 
@@ -130,7 +204,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	public List<APIOperationDescriptor> getServiceOperationDescriptors() {
-		return Arrays.asList(getAPIServiceClass().getDeclaredMethods()).stream().map(m -> new APIOperationDescriptor(m))
+		return Arrays.asList(getAPIServiceInterface().getDeclaredMethods()).stream().map(m -> new APIOperationDescriptor(m))
 				.collect(Collectors.toList());
 	}
 

@@ -2,13 +2,15 @@ package com.otk.jesb.activation.builtin;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
@@ -18,21 +20,20 @@ import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
-import com.otk.jesb.resource.builtin.WSDL;
-import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
-import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class ReceiveSOAPRequest extends Activator {
+public class ReceiveRESTRequest extends Activator {
 
 	private Reference<HTTPServer> serverReference = new Reference<HTTPServer>(HTTPServer.class);
-	private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
-	private String serviceName;
+	private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
+			OpenAPIDescription.class);
 	private String operationSignature;
 	private String servicePath = "/";
 
@@ -43,8 +44,8 @@ public class ReceiveSOAPRequest extends Activator {
 		return serverReference.resolve();
 	}
 
-	private WSDL getWSDL() {
-		return wsdlReference.resolve();
+	private OpenAPIDescription getOpenAPIDescription() {
+		return openAPIDescriptionReference.resolve();
 	}
 
 	public Reference<HTTPServer> getServerReference() {
@@ -55,21 +56,12 @@ public class ReceiveSOAPRequest extends Activator {
 		this.serverReference = serverReference;
 	}
 
-	public Reference<WSDL> getWsdlReference() {
-		return wsdlReference;
+	public Reference<OpenAPIDescription> getOpenAPIDescriptionReference() {
+		return openAPIDescriptionReference;
 	}
 
-	public void setWsdlReference(Reference<WSDL> wsdlReference) {
-		this.wsdlReference = wsdlReference;
-		tryToSelectValuesAutomatically();
-	}
-
-	public String getServiceName() {
-		return serviceName;
-	}
-
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
+	public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
+		this.openAPIDescriptionReference = openAPIDescriptionReference;
 		tryToSelectValuesAutomatically();
 	}
 
@@ -92,12 +84,6 @@ public class ReceiveSOAPRequest extends Activator {
 
 	private void tryToSelectValuesAutomatically() {
 		try {
-			if (serviceName == null) {
-				List<String> options = getServiceNameOptions();
-				if (options.size() > 0) {
-					serviceName = options.get(0);
-				}
-			}
 			if (operationSignature == null) {
 				List<String> options = getOperationSignatureOptions();
 				if (options.size() > 0) {
@@ -108,43 +94,26 @@ public class ReceiveSOAPRequest extends Activator {
 		}
 	}
 
-	public List<String> getServiceNameOptions() {
-		WSDL wsdl = getWSDL();
-		if (wsdl == null) {
-			return Collections.emptyList();
-		}
-		return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
-				.collect(Collectors.toList());
-	}
-
 	public List<String> getOperationSignatureOptions() {
-		WSDL.ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
+		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		if (openAPIDescription == null) {
 			return Collections.emptyList();
 		}
-		return service.getOperationDescriptors().stream().map(o -> o.getOperationSignature())
+		return openAPIDescription.getServiceOperationDescriptors().stream().map(o -> o.getOperationSignature())
 				.collect(Collectors.toList());
 	}
 
-	private WSDL.ServiceSpecificationDescriptor retrieveServiceSpecificationDescriptor() {
-		WSDL wsdl = getWSDL();
-		if (wsdl == null) {
+	private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor() {
+		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		if (openAPIDescription == null) {
 			return null;
 		}
-		return wsdl.getServiceSpecificationDescriptor(serviceName);
-	}
-
-	private WSDL.OperationDescriptor retrieveOperationDescriptor() {
-		WSDL.ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
-			return null;
-		}
-		return service.getOperationDescriptor(operationSignature);
+		return openAPIDescription.getServiceOperationDescriptor(operationSignature);
 	}
 
 	@Override
 	public Class<?> getInputClass() {
-		WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
 		if (operation == null) {
 			return null;
 		}
@@ -162,11 +131,11 @@ public class ReceiveSOAPRequest extends Activator {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
-		ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
-			throw new UnexpectedError("Failed to get the service descriptor");
+		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		if (openAPIDescription == null) {
+			throw new ValidationError("Failed to resolve the OpenAPI Description reference");
 		}
-		WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
 		if (operation == null) {
 			throw new UnexpectedError("Failed to get the operation descriptor");
 		}
@@ -177,26 +146,28 @@ public class ReceiveSOAPRequest extends Activator {
 		synchronized (server) {
 			RequestHandler requestHandler = server.getRequestHandler(servicePath);
 			if (requestHandler == null) {
-				requestHandler = new SOAPRequestHandler(service);
+				requestHandler = new RESTRequestHandler(openAPIDescription);
 				server.addRequestHandler(servicePath, requestHandler);
 			} else {
-				if (!(requestHandler instanceof SOAPRequestHandler)) {
-					throw new UnexpectedError("Cannot register SOAP request handler on service path '" + servicePath
+				if (!(requestHandler instanceof RESTRequestHandler)) {
+					throw new UnexpectedError("Cannot register REST request handler on service path '" + servicePath
 							+ "': " + requestHandler + " already registered on this path");
 				}
-				if (!((SOAPRequestHandler) requestHandler).getService().equals(service)) {
+				if (((RESTRequestHandler) requestHandler).getOpenAPIDescription() != openAPIDescription) {
 					throw new UnexpectedError(
-							"Cannot install " + service + " on SOAP request handler registered on service path '"
-									+ servicePath + "': Already installed on this path: "
-									+ ((SOAPRequestHandler) requestHandler).getService());
+							"Cannot install '" + openAPIDescription.getAPIServiceInterface().getSimpleName()
+									+ "' API on REST request handler registered on service path '" + servicePath
+									+ "': Already installed on this path: " + ((RESTRequestHandler) requestHandler)
+											.getOpenAPIDescription().getAPIServiceInterface().getSimpleName());
 				}
-				if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
+				if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
 					throw new UnexpectedError(
-							"Cannot configure " + operation + " of SOAP request handler registered on service path '"
+							"Cannot configure " + operation + " of REST request handler registered on service path '"
 									+ servicePath + "': Operation already configured");
 				}
 			}
-			((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
+			((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
+
 		}
 		this.activationHandler = activationHandler;
 	}
@@ -206,9 +177,9 @@ public class ReceiveSOAPRequest extends Activator {
 		HTTPServer server = getServer();
 		synchronized (server) {
 			RequestHandler requestHandler = server.getRequestHandler(servicePath);
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-			((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
-			if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
+			((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+			if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
 				server.removeRequestHandler(servicePath);
 			}
 		}
@@ -230,11 +201,8 @@ public class ReceiveSOAPRequest extends Activator {
 		if (getServer() == null) {
 			throw new ValidationError("Failed to resolve the HTTP server reference");
 		}
-		if (getWSDL() == null) {
-			throw new ValidationError("Failed to resolve the WSDL reference");
-		}
-		if (retrieveServiceSpecificationDescriptor() == null) {
-			throw new ValidationError("Invalid service name '" + serviceName + "'");
+		if (getOpenAPIDescription() == null) {
+			throw new ValidationError("Failed to resolve the OpenAPI Description reference");
 		}
 		if (retrieveOperationDescriptor() == null) {
 			throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
@@ -244,7 +212,7 @@ public class ReceiveSOAPRequest extends Activator {
 	private class UpToDateOperationOutputClass extends UpToDate<Class<?>> {
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;
 			}
@@ -253,7 +221,7 @@ public class ReceiveSOAPRequest extends Activator {
 
 		@Override
 		protected Class<?> obtainLatest(Object versionIdentifier) {
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
 			if (operation == null) {
 				return null;
 			}
@@ -261,34 +229,38 @@ public class ReceiveSOAPRequest extends Activator {
 		}
 	}
 
-	public static class SOAPRequestHandler implements RequestHandler {
+	public static class RESTRequestHandler implements RequestHandler {
 
-		private ServiceSpecificationDescriptor service;
-		private Map<WSDL.OperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<WSDL.OperationDescriptor, ActivationHandler>();
-		private EndpointImpl endpoint;
+		private OpenAPIDescription openAPIDescription;
+		private Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<OpenAPIDescription.APIOperationDescriptor, ActivationHandler>();
+		private Server endpoint;
 
-		public SOAPRequestHandler(ServiceSpecificationDescriptor service) {
-			this.service = service;
+		public RESTRequestHandler(OpenAPIDescription openAPIDescription) {
+			super();
+			this.openAPIDescription = openAPIDescription;
 		}
 
-		public ServiceSpecificationDescriptor getService() {
-			return service;
+		public OpenAPIDescription getOpenAPIDescription() {
+			return openAPIDescription;
 		}
 
-		public Map<WSDL.OperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
+		public Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
 			return activationHandlerByOperation;
 		}
 
 		@Override
 		public void install(HTTPServer server, String servicePath) throws Exception {
+
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
-			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)
-					.newInstance(new InvocationHandler() {
+			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
+			factory.setAddress("/rest");
+			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()
+					.getConstructor(InvocationHandler.class).newInstance(new InvocationHandler() {
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-							OperationDescriptor operation = new WSDL.OperationDescriptor(method);
+							APIOperationDescriptor operation = new OpenAPIDescription.APIOperationDescriptor(method);
 							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()
 									.get(operation);
 							if (registeredActivationHandler == null) {
@@ -298,10 +270,10 @@ public class ReceiveSOAPRequest extends Activator {
 									.getConstructor(method.getParameterTypes()).newInstance(args);
 							return registeredActivationHandler.trigger(operationInput);
 						}
-					}));
-			endpoint.publish(servicePath);
+					})));
+			endpoint = factory.create();
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+				System.out.println("Published REST service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 			}
 		}
 
@@ -310,7 +282,8 @@ public class ReceiveSOAPRequest extends Activator {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
-			endpoint.stop();
+			endpoint.destroy();
+			;
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 			}
@@ -318,7 +291,7 @@ public class ReceiveSOAPRequest extends Activator {
 
 		@Override
 		public String toString() {
-			return "SOAPRequestHandler [service=" + service + "]";
+			return "RESTRequestHandler [API=" + openAPIDescription.getAPIServiceInterface().getSimpleName() + "]";
 		}
 
 	}
@@ -328,17 +301,17 @@ public class ReceiveSOAPRequest extends Activator {
 		@Override
 		public ResourcePath getActivatorIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(ReceiveSOAPRequest.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(ReceiveRESTRequest.class.getName().replace(".", "/") + ".png"));
 		}
 
 		@Override
 		public Class<? extends Activator> getActivatorClass() {
-			return ReceiveSOAPRequest.class;
+			return ReceiveRESTRequest.class;
 		}
 
 		@Override
 		public String getActivatorName() {
-			return "Receive SOAP Request";
+			return "Receive REST Request";
 		}
 
 	}
