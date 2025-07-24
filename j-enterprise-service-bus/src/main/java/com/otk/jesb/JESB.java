@@ -36,7 +36,7 @@ public class JESB {
 		c.getUrlVariant().setValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
 		otheResourcesFolder.getContents().add(c);
 
-		Step s1 = new Step(null);
+		Step s1 = new Step();
 		plan.getSteps().add(s1);
 		s1.setName("a");
 		s1.setDiagramX(100);
@@ -54,7 +54,7 @@ public class JESB {
 		ls.getOperationBuilder().setIterationIndexVariableName("index");
 		ls.getOperationBuilder().setLoopEndCondition(new Function("return index==3;"));
 
-		Step s2 = new Step(null);
+		Step s2 = new Step();
 		plan.getSteps().add(s2);
 		s2.setName("w");
 		s2.setDiagramX(300);

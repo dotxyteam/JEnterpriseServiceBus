@@ -41,7 +41,7 @@ public class ExecutePlan implements Operation {
 		return plan.execute(planInput, executionInspector, new ExecutionContext(plan));
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<ExecutePlan> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -54,7 +54,7 @@ public class ExecutePlan implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<ExecutePlan>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -65,7 +65,7 @@ public class ExecutePlan implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<ExecutePlan> {
 
 		private Reference<Plan> planReference = new Reference<Plan>(Plan.class);
 
@@ -93,7 +93,7 @@ public class ExecutePlan implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public ExecutePlan build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			return new ExecutePlan(getPlan(), planInput, executionInspector);

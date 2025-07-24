@@ -4,16 +4,17 @@ import java.awt.Rectangle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 
-public abstract class CompositeStep extends Step {
+public abstract class CompositeStep<T extends Operation> extends Step {
 
 	public abstract List<VariableDeclaration> getContextualVariableDeclarations();
 
-	public CompositeStep(OperationMetadata operationMetadata) {
-		super(operationMetadata);
+	public CompositeStep(OperationBuilder<T> operationBuilder) {
+		super(operationBuilder);
 	}
 
 	public List<Step> getChildren(Plan plan) {
@@ -26,7 +27,7 @@ public abstract class CompositeStep extends Step {
 		for (Step child : getChildren(plan)) {
 			Rectangle childBounds;
 			if (child instanceof CompositeStep) {
-				childBounds = ((CompositeStep) child).getChildrenBounds(plan, stepIconWidth, stepIconHeight,
+				childBounds = ((CompositeStep<?>) child).getChildrenBounds(plan, stepIconWidth, stepIconHeight,
 						horizontalPadding, verticalPadding);
 			} else {
 				childBounds = new Rectangle(child.getDiagramX() - (stepIconWidth / 2),

@@ -67,6 +67,12 @@ public abstract class Structure {
 			if (additionalMethodDeclarations != null) {
 				result.append(additionalMethodDeclarations + "\n");
 			}
+			result.append("@Override\n");
+			result.append("public String toString() {\n");
+			result.append("return \"" + MiscUtils.extractSimpleNameFromClassName(className) + " [" + elements.stream()
+					.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
+					+ "]\";\n");
+			result.append("}\n");
 			result.append(
 					MiscUtils.stringJoin(elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode())
 							.filter(Objects::nonNull).collect(Collectors.toList()), "\n") + "\n");
@@ -82,7 +88,8 @@ public abstract class Structure {
 			List<String> elementNames = new ArrayList<String>();
 			for (Element element : elements) {
 				if (elementNames.contains(element.getName())) {
-					throw new ValidationError("Duplicate name detected among child elements: '" + element.getName() + "'");
+					throw new ValidationError(
+							"Duplicate name detected among child elements: '" + element.getName() + "'");
 				} else {
 					elementNames.add(element.getName());
 				}
@@ -460,8 +467,7 @@ public abstract class Structure {
 						.getStructuredClass();
 				return structuredClass.getName();
 			}
-			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure"
-					+ MiscUtils.toDigitalUniqueIdentifier(this);
+			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
 		}
 
 		public List<Element> getSubElements() {

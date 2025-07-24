@@ -442,7 +442,7 @@ public class Plan extends Asset {
 		context.setCutrrentStep(step);
 		executionInspector.beforeOperation(stepCrossing);
 		try {
-			OperationBuilder operationBuilder = step.getOperationBuilder();
+			OperationBuilder<?> operationBuilder = step.getOperationBuilder();
 			Operation operation = operationBuilder.build(context, executionInspector);
 			stepCrossing.setOperation(operation);
 			stepCrossing.setOperationResult(operation.execute());
@@ -489,7 +489,7 @@ public class Plan extends Asset {
 				result.getVariableDeclarations().add(stepVariableDeclaration);
 			}
 			if (step instanceof CompositeStep) {
-				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep) step, this)) {
+				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep<?>) step, this)) {
 					if (descendantStep.getOperationBuilder().getOperationResultClass(this, descendantStep) != null) {
 						result.getVariableDeclarations().add(new StepEventuality(descendantStep, this));
 					}

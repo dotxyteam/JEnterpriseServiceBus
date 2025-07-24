@@ -36,7 +36,9 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <name>systemTables</name>
+      <diagramX>58</diagramX>
+      <diagramY>80</diagramY>
+      <name>allTables</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
         <connectionReference>
           <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
@@ -134,8 +136,7 @@
           <value class="string">SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES</value>
         </statementVariant>
       </operationBuilder>
-      <diagramX>58</diagramX>
-      <diagramY>80</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.LoopCompositeStep>
       <diagramX>200</diagramX>
@@ -151,6 +152,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.LoopCompositeStep>
     <com.otk.jesb.solution.Step>
+      <diagramX>228</diagramX>
+      <diagramY>79</diagramY>
       <name>writeTableName</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
         <instanceBuilder>
@@ -202,11 +205,11 @@
         </instanceBuilder>
         <mode>TEXT</mode>
       </operationBuilder>
-      <diagramX>228</diagramX>
-      <diagramY>79</diagramY>
       <parent class="com.otk.jesb.solution.LoopCompositeStep" reference="../../com.otk.jesb.solution.LoopCompositeStep"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
+      <diagramX>366</diagramX>
+      <diagramY>84</diagramY>
       <name>parseXML</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ParseXML$Builder">
         <rootElementName>postals</rootElementName>
@@ -243,10 +246,11 @@
           <path>resources &gt; postals</path>
         </xsdReference>
       </operationBuilder>
-      <diagramX>366</diagramX>
-      <diagramY>84</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
+      <diagramX>501</diagramX>
+      <diagramY>84</diagramY>
       <name>generateXML</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.GenerateXML$Builder">
         <outputFormatted>true</outputFormatted>
@@ -282,10 +286,11 @@
           <path>resources &gt; postals</path>
         </xsdReference>
       </operationBuilder>
-      <diagramX>501</diagramX>
-      <diagramY>84</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
+      <diagramX>503</diagramX>
+      <diagramY>216</diagramY>
       <name>rowCountToWords</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
         <customServiceEndpointURL class="null"/>
@@ -349,10 +354,11 @@
           <path>resources &gt; NumberConversion</path>
         </wsdlReference>
       </operationBuilder>
-      <diagramX>503</diagramX>
-      <diagramY>216</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
+      <diagramX>370</diagramX>
+      <diagramY>217</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -391,10 +397,11 @@
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
       </operationBuilder>
-      <diagramX>370</diagramX>
-      <diagramY>217</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
+      <diagramX>243</diagramX>
+      <diagramY>215</diagramY>
       <name>sleep</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
         <instanceBuilder>
@@ -431,11 +438,66 @@
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
       </operationBuilder>
-      <diagramX>243</diagramX>
-      <diagramY>215</diagramY>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>152</diagramX>
+      <diagramY>245</diagramY>
+      <name>builder</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
+        <connectionReference>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path class="null"/>
+        </connectionReference>
+        <parameterDefinitions/>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder" reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <statementVariant>
+          <valueClass>java.lang.String</valueClass>
+        </statementVariant>
+      </operationBuilder>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
   </steps>
   <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$IfCondition">
+        <functionBody>return com.otk.jesb.util.ArrayStream.get(allTables.rows).noneMatch(element -&gt; element.TABLE_NAME.equals(&quot;PET&quot;));</functionBody>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[8]"/>
+      <label>No Pet table</label>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
     <com.otk.jesb.solution.Transition>
       <condition class="null"/>
       <endStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>

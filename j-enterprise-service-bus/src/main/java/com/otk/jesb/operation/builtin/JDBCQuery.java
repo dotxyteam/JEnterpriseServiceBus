@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
@@ -19,7 +20,6 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
-import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -66,11 +66,13 @@ public class JDBCQuery extends JDBCOperation {
 						+ ". Expected " + customResultRowConstructorParameterInfos.size() + " column(s).");
 			}
 			List<Object> customResultRowStandardList = new ArrayList<Object>();
+			List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(metaData);
 			while (resultSet.next()) {
 				Object[] parameterValues = new Object[metaData.getColumnCount()];
 				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
 					IParameterInfo parameterInfo = customResultRowConstructorParameterInfos.get(iColumn - 1);
-					if (!parameterInfo.getName().equals(metaData.getColumnName(iColumn))) {
+					ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);
+					if (!parameterInfo.getName().matches(resultColumnDefinition.getColumnName())) {
 						throw new ValidationError(
 								"Unexpected result row column name: '" + metaData.getColumnName(iColumn) + "' at the "
 										+ iColumn + "th position. Expected '" + parameterInfo.getName() + "'");
@@ -97,7 +99,21 @@ public class JDBCQuery extends JDBCOperation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata {
+	private static List<ColumnDefinition> retrieveResultColumnDefinitions(ResultSetMetaData metaData)
+			throws SQLException {
+		List<ColumnDefinition> result = new ArrayList<ColumnDefinition>();
+		for (int i = 0; i < metaData.getColumnCount(); i++) {
+			String columnClassName = metaData.getColumnClassName(i + 1);
+			String columnName = metaData.getColumnLabel(i + 1);
+			while (result.stream().map(ColumnDefinition::getColumnName).anyMatch(Predicate.isEqual(columnName))) {
+				columnName = MiscUtils.nextNumbreredName(columnName);
+			}
+			result.add(new ColumnDefinition(columnName, columnClassName));
+		}
+		return result;
+	}
+
+	public static class Metadata implements OperationMetadata<JDBCQuery> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -110,7 +126,7 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<JDBCQuery>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -122,7 +138,7 @@ public class JDBCQuery extends JDBCOperation {
 
 	}
 
-	public static class Builder extends JDBCOperation.Builder {
+	public static class Builder extends JDBCOperation.Builder<JDBCQuery> {
 
 		private List<ColumnDefinition> resultColumnDefinitions;
 
@@ -161,8 +177,7 @@ public class JDBCQuery extends JDBCOperation {
 					SimpleElement columnElement = new SimpleElement();
 					rowStructure.getElements().add(columnElement);
 					columnElement.setName(columnDefinition.getColumnName());
-					columnElement
-							.setTypeName(columnDefinition.getColumnTypeName());
+					columnElement.setTypeName(columnDefinition.getColumnTypeName());
 				}
 			}
 			return rowStructure;
@@ -181,11 +196,7 @@ public class JDBCQuery extends JDBCOperation {
 			Connection conn = connection.build();
 			PreparedStatement preparedStatement = conn.prepareStatement(getStatementVariant().getValue());
 			ResultSetMetaData metaData = preparedStatement.getMetaData();
-			this.resultColumnDefinitions = new ArrayList<ColumnDefinition>();
-			for (int i = 0; i < metaData.getColumnCount(); i++) {
-				this.resultColumnDefinitions
-						.add(new ColumnDefinition(metaData.getColumnLabel(i + 1), metaData.getColumnClassName(i + 1)));
-			}
+			this.resultColumnDefinitions = JDBCQuery.retrieveResultColumnDefinitions(metaData);
 		}
 
 		public void clearResultColumnDefinitions() throws SQLException {
@@ -193,7 +204,7 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCQuery result = new JDBCQuery(getConnection(), upToDateCustomResultClass.get());
 			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
@@ -309,6 +320,11 @@ public class JDBCQuery extends JDBCOperation {
 
 		public List<String> getColumnNames() {
 			return new ArrayList<String>(cellValues.keySet());
+		}
+
+		@Override
+		public String toString() {
+			return cellValues.toString();
 		}
 
 	}

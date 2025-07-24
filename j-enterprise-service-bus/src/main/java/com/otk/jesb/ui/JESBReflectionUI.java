@@ -23,6 +23,7 @@ import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
+import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
@@ -132,17 +133,18 @@ import xy.reflect.ui.util.ValidationErrorRegistry;
 
 public class JESBReflectionUI extends CustomizedUI {
 
-	public static final List<OperationMetadata> OPERATION_METADATAS = Arrays.asList(new DoNothing.Metadata(),
-			new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(), new ExecutePlan.Metadata(),
-			new ReadFile.Metadata(), new WriteFile.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
-			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+	public static final List<OperationMetadata<?>> OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
+			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
+			new ExecutePlan.Metadata(), new ReadFile.Metadata(), new WriteFile.Metadata(), new JDBCQuery.Metadata(),
+			new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
 			new CallSOAPWebService.Metadata());
-	public static final List<OperationMetadata> COMPOSITE_METADATAS = Arrays.asList(new LoopOperation.Metadata());
+	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
+			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new XSD.Metadata(), new OpenAPIDescription.Metadata(), new WSDL.Metadata(),
 			new HTTPServer.Metadata());
 	public static final List<ActivatorMetadata> ACTIVATOR__METADATAS = Arrays.asList(new LaunchAtStartup.Metadata(),
-			new Operate.Metadata(), new ReceiveSOAPRequest.Metadata());
+			new Operate.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
 	private static final String CURRENT_VALIDATION_PLAN_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_KEY";
 	private static final String CURRENT_VALIDATION_STEP_KEY = JESBReflectionUI.class.getName()
@@ -199,6 +201,20 @@ public class JESBReflectionUI extends CustomizedUI {
 	@Override
 	protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 		return new InfoProxyFactory() {
+
+			@Override
+			protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
+				Class<?> fieldClass;
+				try {
+					fieldClass = ClassUtils.getCachedClassForName(field.getType().getName());
+				} catch (ClassNotFoundException e) {
+					fieldClass = null;
+				}
+				if ((fieldClass != null) && OperationBuilder.class.isAssignableFrom(fieldClass)) {
+					return true;
+				}
+				return super.isFormControlEmbedded(field, objectType);
+			}
 
 			@Override
 			protected boolean canCopy(ITypeInfo type, Object object) {
@@ -576,7 +592,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected String toString(ITypeInfo type, Object object) {
 				if (object instanceof OperationMetadata) {
-					return ((OperationMetadata) object).getOperationTypeName();
+					return ((OperationMetadata<?>) object).getOperationTypeName();
 				}
 				if (object instanceof Throwable) {
 					return object.toString();
@@ -1228,7 +1244,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
 				if (type.getName().equals(OperationBuilder.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (OperationMetadata operationMetadata : OPERATION_METADATAS) {
+					for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
 						result.add(getTypeInfo(
 								new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 					}
@@ -1255,7 +1271,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (type.getName().equals(ReflectionUIError.class.getName())) {
 					return "Error";
 				}
-				for (OperationMetadata operationMetadata : OPERATION_METADATAS) {
+				for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
 					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 						return operationMetadata.getOperationTypeName();
 					}
@@ -1275,7 +1291,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-				for (OperationMetadata operationMetadata : OPERATION_METADATAS) {
+				for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
 					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 						return operationMetadata.getOperationIconImagePath();
 					}
@@ -1503,7 +1519,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					((Transition.Condition) object).validate(getCurrentValidationPlan(session)
 							.getTransitionContextVariableDeclarations(getCurrentValidationTransition(session)));
 				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
-					((OperationBuilder) object).validate(false, getCurrentValidationPlan(session),
+					((OperationBuilder<?>) object).validate(false, getCurrentValidationPlan(session),
 							getCurrentValidationStep(session));
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
 					Step step = getCurrentValidationStep(session);

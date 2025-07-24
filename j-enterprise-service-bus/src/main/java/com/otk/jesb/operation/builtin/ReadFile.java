@@ -105,7 +105,7 @@ public class ReadFile implements Operation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<ReadFile> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -118,7 +118,7 @@ public class ReadFile implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<ReadFile>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -129,7 +129,7 @@ public class ReadFile implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<ReadFile> {
 
 		public enum Mode {
 			TEXT, BINARY
@@ -156,7 +156,7 @@ public class ReadFile implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public ReadFile build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new ReadFile((SpecificReadFileOperation) instanceBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));

@@ -36,6 +36,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
+      <diagramX>275</diagramX>
+      <diagramY>292</diagramY>
       <name>addPet</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
         <customBaseURL class="null"/>
@@ -106,8 +108,7 @@
         </operationInputBuilder>
         <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription0006223507786916666669422261714763406830.client.Pet)</operationSignature>
       </operationBuilder>
-      <diagramX>275</diagramX>
-      <diagramY>292</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
   </steps>
   <transitions/>

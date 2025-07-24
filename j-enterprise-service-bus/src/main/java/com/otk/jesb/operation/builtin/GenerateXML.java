@@ -7,7 +7,6 @@ import javax.xml.bind.Marshaller;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.XSD.RootElement;
@@ -48,7 +47,7 @@ public class GenerateXML extends XMLOperation {
 		return stringWriter.toString();
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<GenerateXML> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -61,7 +60,7 @@ public class GenerateXML extends XMLOperation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<GenerateXML>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -72,7 +71,7 @@ public class GenerateXML extends XMLOperation {
 		}
 	}
 
-	public static class Builder extends XMLOperation.Builder {
+	public static class Builder extends XMLOperation.Builder<GenerateXML> {
 
 		private RootInstanceBuilder rootObjectBuilder = new RootInstanceBuilder("XMLObject",
 				new RootObjectClassNameAccessor());
@@ -95,7 +94,7 @@ public class GenerateXML extends XMLOperation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public GenerateXML build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new GenerateXML(
 					rootObjectBuilder.build(new InstantiationContext(context.getVariables(),
 							context.getPlan().getValidationContext(context.getCurrentStep())

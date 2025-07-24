@@ -7,7 +7,6 @@ import javax.xml.bind.Unmarshaller;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.XSD.RootElement;
@@ -38,7 +37,7 @@ public class ParseXML extends XMLOperation {
 		return unmarshaller.unmarshal(new StringReader(xmlText));
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<ParseXML> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -51,7 +50,7 @@ public class ParseXML extends XMLOperation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<ParseXML>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -62,7 +61,7 @@ public class ParseXML extends XMLOperation {
 		}
 	}
 
-	public static class Builder extends XMLOperation.Builder {
+	public static class Builder extends XMLOperation.Builder<ParseXML> {
 
 		private RootInstanceBuilder xmlTextBuilder = new RootInstanceBuilder("XMLText", String.class.getName());
 
@@ -75,7 +74,7 @@ public class ParseXML extends XMLOperation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public ParseXML build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new ParseXML(
 					(String) xmlTextBuilder.build(new InstantiationContext(context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep()).getVariableDeclarations())),

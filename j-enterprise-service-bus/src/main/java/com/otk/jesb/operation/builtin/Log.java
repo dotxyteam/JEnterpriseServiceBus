@@ -59,7 +59,7 @@ public class Log implements Operation {
 		INFORMATION, WARNING, EERROR
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<Log> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -72,7 +72,7 @@ public class Log implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<Log>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -83,7 +83,7 @@ public class Log implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<Log> {
 
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(Log.class.getSimpleName() + "Input",
 				Log.class.getName());
@@ -97,7 +97,7 @@ public class Log implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public Log build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Log instance = (Log) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			instance.setExecutionInspector(executionInspector);

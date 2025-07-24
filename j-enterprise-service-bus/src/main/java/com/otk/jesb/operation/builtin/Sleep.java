@@ -36,7 +36,7 @@ public class Sleep implements Operation {
 		return null;
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<Sleep> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -49,7 +49,7 @@ public class Sleep implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<Sleep>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -60,7 +60,7 @@ public class Sleep implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<Sleep> {
 
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
 				Sleep.class.getSimpleName() + "Input", Sleep.class.getName());
@@ -74,7 +74,7 @@ public class Sleep implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public Sleep build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return (Sleep) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 		}

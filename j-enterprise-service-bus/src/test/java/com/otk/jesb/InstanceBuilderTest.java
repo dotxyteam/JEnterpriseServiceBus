@@ -49,9 +49,9 @@ public class InstanceBuilderTest {
 			planOutputStructure.getElements().add(element);
 			activator.setOutputStructure(planOutputStructure);
 		}
-		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer())
-				.getParameterValue()).getParameterInitializers()
-						.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer()).getParameterValue())
+				.getParameterInitializers()
+				.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
@@ -202,11 +202,11 @@ public class InstanceBuilderTest {
 			return this;
 		}
 
-		public static class Builder implements OperationBuilder {
+		public static class Builder implements OperationBuilder<Tree> {
 			RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("testInput", Tree.class.getName());
 
 			@Override
-			public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			public Tree build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 				return (Tree) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 						context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			}
@@ -222,7 +222,7 @@ public class InstanceBuilderTest {
 
 		}
 
-		public static class Metadata implements OperationMetadata {
+		public static class Metadata implements OperationMetadata<Tree> {
 
 			@Override
 			public String getCategoryName() {
@@ -240,7 +240,7 @@ public class InstanceBuilderTest {
 			}
 
 			@Override
-			public Class<? extends OperationBuilder> getOperationBuilderClass() {
+			public Class<? extends OperationBuilder<Tree>> getOperationBuilderClass() {
 				return Builder.class;
 			}
 		}

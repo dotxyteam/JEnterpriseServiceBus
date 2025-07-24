@@ -138,7 +138,10 @@ public class JNode extends JDiagramObject {
 		Rectangle result = getImageBounds();
 		Graphics g = diagram.getGraphics();
 		if (g != null) {
-			result.add(getLabelBounds(g));
+			Rectangle labelBounds = getLabelBounds(g);
+			if (labelBounds != null) {
+				result.add(labelBounds);
+			}
 		}
 		return result;
 	}

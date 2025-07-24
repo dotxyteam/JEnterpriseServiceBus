@@ -45,6 +45,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
+      <diagramX>261</diagramX>
+      <diagramY>116</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -83,8 +85,7 @@
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
       </operationBuilder>
-      <diagramX>261</diagramX>
-      <diagramY>116</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
   </steps>
   <transitions/>

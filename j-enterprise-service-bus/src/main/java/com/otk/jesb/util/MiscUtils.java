@@ -206,16 +206,16 @@ public class MiscUtils {
 	}
 
 	public static ResourcePath getIconImagePath(Step step) {
-		OperationBuilder operationBuilder = step.getOperationBuilder();
+		OperationBuilder<?> operationBuilder = step.getOperationBuilder();
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata operationMetadata : JESBReflectionUI.OPERATION_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.OPERATION_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
 		}
-		for (OperationMetadata operationMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
@@ -682,12 +682,12 @@ public class MiscUtils {
 		return result;
 	}
 
-	public static List<Step> getDescendants(CompositeStep compositeStep, Plan plan) {
+	public static List<Step> getDescendants(CompositeStep<?> compositeStep, Plan plan) {
 		List<Step> result = new ArrayList<Step>();
 		for (Step childStep : compositeStep.getChildren(plan)) {
 			result.add(childStep);
 			if (childStep instanceof CompositeStep) {
-				result.addAll(getDescendants((CompositeStep) childStep, plan));
+				result.addAll(getDescendants((CompositeStep<?>) childStep, plan));
 			}
 		}
 		return result;
@@ -839,6 +839,13 @@ public class MiscUtils {
 				}
 			}
 		};
+	}
+
+	public static String truncateNicely(String s, int length) {
+		if (s.length() > length) {
+			s = s.substring(0, length - 3) + "...";
+		}
+		return s;
 	}
 
 }

@@ -12,7 +12,7 @@ import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.meta.TypeInfoProvider;
 
-public class Transition extends PlanElement{
+public class Transition extends PlanElement {
 
 	private Step startStep;
 	private Step endStep;
@@ -71,7 +71,7 @@ public class Transition extends PlanElement{
 
 	@Override
 	public String toString() {
-		return ((label != null) && (label.length() > 0)) ? label : ((condition != null) ? condition.toString() : "");
+		return (label != null) ? label : ((condition != null) ? "?" : "");
 	}
 
 	public static interface Condition {

@@ -2,6 +2,7 @@ package com.otk.jesb.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -115,6 +116,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		setPreservingRatio(true);
 		setFillingAreaWhenPreservingRatio(true);
 		setScalingQualitHigh(false);
+		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, getFont().getSize()));
 		refreshUI(true);
 	}
 
@@ -258,7 +260,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
 			JNode selectedNode = (JNode) selection.iterator().next();
 			if (selectedNode.getValue() instanceof CompositeStep) {
-				newStep.setParent((CompositeStep) selectedNode.getValue());
+				newStep.setParent((CompositeStep<?>) selectedNode.getValue());
 			}
 		}
 		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
@@ -301,7 +303,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			if (object instanceof Step) {
 				stepsToDelete.add((Step) object);
 				if (object instanceof CompositeStep) {
-					stepsToDelete.addAll(MiscUtils.getDescendants((CompositeStep) object, plan));
+					stepsToDelete.addAll(MiscUtils.getDescendants((CompositeStep<?>) object, plan));
 				}
 			} else if (object instanceof Transition) {
 				transitionsToDelete.add((Transition) object);
@@ -350,7 +352,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
+				for (OperationMetadata<?> metadata : JESBReflectionUI.OPERATION_METADATAS) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -367,12 +369,16 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (OperationMetadata metadata : JESBReflectionUI.OPERATION_METADATAS) {
+							for (OperationMetadata<?> metadata : JESBReflectionUI.OPERATION_METADATAS) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
 										public Step get() {
-											return new Step(metadata);
+											try {
+												return new Step(metadata);
+											} catch (InstantiationException | IllegalAccessException e) {
+												throw new UnexpectedError(e);
+											}
 										}
 									}, metadata.getOperationTypeName(), metadata.getOperationIconImagePath()));
 								}
@@ -445,7 +451,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 											.map(diagramObject -> (Step) diagramObject.getValue())
 											.collect(Collectors.toSet());
 									if (selectedSteps.size() > 0) {
-										CompositeStep selectedStepsCommonParent = selectedSteps.iterator().next()
+										CompositeStep<?> selectedStepsCommonParent = selectedSteps.iterator().next()
 												.getParent();
 										ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 										ITypeInfo stepType = reflectionUI
@@ -455,7 +461,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 													new DefaultFieldControlData(reflectionUI, selectedStep,
 															ReflectionUIUtils.findInfoByName(stepType.getFields(),
 																	"parent")),
-													(CompositeStep) newStep, input.getModificationStack(),
+													(CompositeStep<?>) newStep, input.getModificationStack(),
 													ReflectionUIUtils.getDebugLogListener(reflectionUI));
 											if ((selectedStep.getParent() == null)
 													|| MiscUtils.getDescendants(selectedStep.getParent(), plan)
@@ -480,7 +486,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 															new DefaultFieldControlData(reflectionUI, transition,
 																	ReflectionUIUtils.findInfoByName(
 																			transitionType.getFields(), "endStep")),
-															(CompositeStep) newStep, input.getModificationStack(),
+															(CompositeStep<?>) newStep, input.getModificationStack(),
 															ReflectionUIUtils.getDebugLogListener(reflectionUI));
 												}
 											}
@@ -497,7 +503,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 															new DefaultFieldControlData(reflectionUI, transition,
 																	ReflectionUIUtils.findInfoByName(
 																			transitionType.getFields(), "startStep")),
-															(CompositeStep) newStep, input.getModificationStack(),
+															(CompositeStep<?>) newStep, input.getModificationStack(),
 															ReflectionUIUtils.getDebugLogListener(reflectionUI));
 												}
 											}
@@ -656,11 +662,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		};
 	}
 
-	private CompositeStep getDestinationCompositeStep(int x, int y) {
+	private CompositeStep<?> getDestinationCompositeStep(int x, int y) {
 		for (JNode node : MiscUtils.getReverse(getNodes())) {
 			if (node.getValue() instanceof CompositeStep) {
 				if (node.containsPoint(x, y, this)) {
-					return (CompositeStep) node.getValue();
+					return (CompositeStep<?>) node.getValue();
 				}
 			}
 		}
@@ -728,7 +734,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					int headerHeight = 16;
 					int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
 					int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
-					Rectangle compositeBounds = ((CompositeStep) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
+					Rectangle compositeBounds = ((CompositeStep<?>) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
 							STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
 					BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
 							BufferedImage.TYPE_INT_ARGB);
@@ -1034,10 +1040,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								allStepsToPaste.add(stepCopy);
 								if (stepCopy instanceof CompositeStep) {
 									allStepsToPaste
-											.addAll(MiscUtils.getDescendants((CompositeStep) stepCopy, planCopy));
+											.addAll(MiscUtils.getDescendants((CompositeStep<?>) stepCopy, planCopy));
 								}
 							}
-							CompositeStep destinationCompositeStep = planDiagram.getDestinationCompositeStep(x, y);
+							CompositeStep<?> destinationCompositeStep = planDiagram.getDestinationCompositeStep(x, y);
 							Plan destinationPlan = planDiagram.getPlan();
 							Rectangle boundsOfAllStepsToPaste = null;
 							for (Step stepCopy : allStepsToPaste) {
@@ -1052,7 +1058,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 									stepCopy.setName(MiscUtils.nextNumbreredName(stepCopy.getName()));
 								}
 								Rectangle stepCopyBounds = (stepCopy instanceof CompositeStep)
-										? ((CompositeStep) stepCopy).getChildrenBounds(planCopy, STEP_ICON_WIDTH,
+										? ((CompositeStep<?>) stepCopy).getChildrenBounds(planCopy, STEP_ICON_WIDTH,
 												STEP_ICON_HEIGHT, 0, 0)
 										: new Rectangle(stepCopy.getDiagramX() - (STEP_ICON_WIDTH / 2),
 												stepCopy.getDiagramY() - (STEP_ICON_HEIGHT / 2), STEP_ICON_WIDTH,

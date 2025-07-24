@@ -30,10 +30,10 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class LoopCompositeStep extends CompositeStep {
+public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOperation> {
 
 	public LoopCompositeStep() {
-		super(new LoopOperation.Metadata());
+		super(new LoopOperation.Builder());
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class LoopCompositeStep extends CompositeStep {
 	}
 
 	@Override
-	public void setOperationBuilder(OperationBuilder operationBuilder) {
+	public void setOperationBuilder(OperationBuilder<?> operationBuilder) {
 		if (!(operationBuilder instanceof LoopOperation.Builder)) {
 			throw new UnexpectedError();
 		}
@@ -193,7 +193,7 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 		}
 
-		public static class Metadata implements OperationMetadata {
+		public static class Metadata implements OperationMetadata<LoopOperation> {
 
 			@Override
 			public String getOperationTypeName() {
@@ -206,7 +206,7 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public Class<? extends OperationBuilder> getOperationBuilderClass() {
+			public Class<? extends OperationBuilder<LoopOperation>> getOperationBuilderClass() {
 				return Builder.class;
 			}
 
@@ -217,7 +217,7 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 		}
 
-		public static class Builder implements OperationBuilder {
+		public static class Builder implements OperationBuilder<LoopOperation> {
 
 			private String iterationIndexVariableName = "iterationIndex";
 			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
@@ -305,8 +305,7 @@ public class LoopCompositeStep extends CompositeStep {
 						SimpleElement element = new SimpleElement();
 						structure.getElements().add(element);
 						element.setName(resultsCollectionEntry.getStepName());
-						element.setTypeName(
-								resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
+						element.setTypeName(resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
 						element.setMultiple(true);
 					}
 				}
@@ -353,7 +352,8 @@ public class LoopCompositeStep extends CompositeStep {
 			}
 
 			@Override
-			public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			public LoopOperation build(ExecutionContext context, ExecutionInspector executionInspector)
+					throws Exception {
 				return new LoopOperation(context, executionInspector, loopEndCondition, iterationIndexVariableName);
 			}
 

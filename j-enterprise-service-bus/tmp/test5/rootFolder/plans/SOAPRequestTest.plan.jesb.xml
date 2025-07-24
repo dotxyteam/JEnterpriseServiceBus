@@ -36,6 +36,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
+      <diagramX>278</diagramX>
+      <diagramY>99</diagramY>
       <name>callSOAPWebService</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
         <customServiceEndpointURL>http://localhost:8080</customServiceEndpointURL>
@@ -97,8 +99,7 @@
           <path>resources &gt; NumberConversion</path>
         </wsdlReference>
       </operationBuilder>
-      <diagramX>278</diagramX>
-      <diagramY>99</diagramY>
+      <parent class="null"/>
     </com.otk.jesb.solution.Step>
   </steps>
   <transitions/>

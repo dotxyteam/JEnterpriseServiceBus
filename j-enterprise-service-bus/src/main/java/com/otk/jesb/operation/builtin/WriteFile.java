@@ -119,7 +119,7 @@ public class WriteFile implements Operation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<WriteFile> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -132,7 +132,7 @@ public class WriteFile implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<WriteFile>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -143,7 +143,7 @@ public class WriteFile implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<WriteFile> {
 
 		public enum Mode {
 			TEXT, BINARY
@@ -170,7 +170,7 @@ public class WriteFile implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public WriteFile build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new WriteFile((SpecificWriteFileOperation) instanceBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));

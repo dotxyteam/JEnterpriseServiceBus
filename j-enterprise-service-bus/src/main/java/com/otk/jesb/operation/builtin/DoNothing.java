@@ -20,7 +20,7 @@ public class DoNothing implements Operation {
 		return null;
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<DoNothing> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -33,7 +33,7 @@ public class DoNothing implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<DoNothing>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -44,10 +44,10 @@ public class DoNothing implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<DoNothing> {
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public DoNothing build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new DoNothing();
 		}
 

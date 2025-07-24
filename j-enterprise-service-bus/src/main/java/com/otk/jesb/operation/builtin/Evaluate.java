@@ -36,7 +36,7 @@ public class Evaluate implements Operation {
 		return value;
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<Evaluate> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -49,7 +49,7 @@ public class Evaluate implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<Evaluate>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -60,7 +60,7 @@ public class Evaluate implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<Evaluate> {
 
 		private ClassicStructure valueStructure = new ClassicStructure();
 		{
@@ -87,7 +87,7 @@ public class Evaluate implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public Evaluate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			return new Evaluate(valueBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 		}

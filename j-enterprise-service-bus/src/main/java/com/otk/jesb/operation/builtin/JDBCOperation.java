@@ -70,7 +70,7 @@ public abstract class JDBCOperation implements Operation {
 		return preparedStatement;
 	}
 
-	public static abstract class Builder implements OperationBuilder {
+	public static abstract class Builder<T extends JDBCOperation> implements OperationBuilder<T> {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private Variant<String> statementVariant = new Variant<String>(String.class);

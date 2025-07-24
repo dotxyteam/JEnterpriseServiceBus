@@ -65,7 +65,7 @@ public class CallRESTAPI implements Operation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<CallRESTAPI> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -78,7 +78,7 @@ public class CallRESTAPI implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<CallRESTAPI>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -89,7 +89,7 @@ public class CallRESTAPI implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<CallRESTAPI> {
 
 		private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
 				OpenAPIDescription.class);
@@ -162,7 +162,7 @@ public class CallRESTAPI implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public CallRESTAPI build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			OpenAPIDescription openAPIDescription = getOpenAPIDescription();
 			Class<?> apiClientClass = openAPIDescription.getAPIClientClass();
 			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();

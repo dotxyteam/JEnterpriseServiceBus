@@ -98,7 +98,7 @@ public class CallSOAPWebService implements Operation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<CallSOAPWebService> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -111,7 +111,7 @@ public class CallSOAPWebService implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<CallSOAPWebService>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -122,7 +122,7 @@ public class CallSOAPWebService implements Operation {
 		}
 	}
 
-	public static class Builder implements OperationBuilder {
+	public static class Builder implements OperationBuilder<CallSOAPWebService> {
 
 		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
@@ -248,7 +248,8 @@ public class CallSOAPWebService implements Operation {
 		}
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public CallSOAPWebService build(ExecutionContext context, ExecutionInspector executionInspector)
+				throws Exception {
 			WSDL wsdl = getWSDL();
 			Class<?> serviceClass = retrieveServiceClientDescriptor().retrieveClass();
 			Class<?> portInterface = retrievePortDescriptor().retrieveInterface();

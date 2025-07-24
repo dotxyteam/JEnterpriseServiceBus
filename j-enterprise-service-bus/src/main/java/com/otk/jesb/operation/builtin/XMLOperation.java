@@ -24,7 +24,7 @@ public abstract class XMLOperation implements Operation {
 		return rootElementClass;
 	}
 
-	public static abstract class Builder implements OperationBuilder {
+	public static abstract class Builder<T extends XMLOperation> implements OperationBuilder<T> {
 
 		private Reference<XSD> xsdReference = new Reference<XSD>(XSD.class);
 		private String rootElementName;

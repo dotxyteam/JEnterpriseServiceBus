@@ -5,26 +5,36 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.MiscUtils;
 
-public class Step extends PlanElement{
+public class Step extends PlanElement {
 
 	private String name = "";
-	private OperationBuilder operationBuilder;
+	private OperationBuilder<?> operationBuilder;
 	private int diagramX = 0;
 	private int diagramY = 0;
-	private CompositeStep parent;
+	private CompositeStep<?> parent;
 
-	public Step(OperationMetadata operationMetadata) {
-		if (operationMetadata != null) {
-			name = operationMetadata.getOperationTypeName();
-			name = name.replace(" ", "");
-			name = name.substring(0, 1).toLowerCase() + name.substring(1);
+	public Step() {
+		this((OperationBuilder<?>) null);
+	}
+
+	public Step(OperationMetadata<?> operationMetadata) throws InstantiationException, IllegalAccessException {
+		this((operationMetadata != null) ? operationMetadata.getOperationBuilderClass().newInstance() : null);
+	}
+
+	public Step(OperationBuilder<?> operationBuilder) {
+		this.operationBuilder = operationBuilder;
+		if (operationBuilder != null) {
 			try {
-				operationBuilder = operationMetadata.getOperationBuilderClass().newInstance();
-			} catch (Exception e) {
+				name = operationBuilder.getClass().getMethod("build", ExecutionContext.class, ExecutionInspector.class)
+						.getReturnType().getSimpleName();
+			} catch (NoSuchMethodException | SecurityException e) {
 				throw new UnexpectedError(e);
 			}
+			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 	}
 
@@ -36,11 +46,11 @@ public class Step extends PlanElement{
 		this.name = name;
 	}
 
-	public OperationBuilder getOperationBuilder() {
+	public OperationBuilder<?> getOperationBuilder() {
 		return operationBuilder;
 	}
 
-	public void setOperationBuilder(OperationBuilder operationBuilder) {
+	public void setOperationBuilder(OperationBuilder<?> operationBuilder) {
 		this.operationBuilder = operationBuilder;
 	}
 
@@ -60,11 +70,11 @@ public class Step extends PlanElement{
 		this.diagramY = diagramY;
 	}
 
-	public CompositeStep getParent() {
+	public CompositeStep<?> getParent() {
 		return parent;
 	}
 
-	public void setParent(CompositeStep parent) {
+	public void setParent(CompositeStep<?> parent) {
 		this.parent = parent;
 	}
 

@@ -1,6 +1,20 @@
 <com.otk.jesb.solution.Plan>
-  <activator class="com.otk.jesb.activation.builtin.LaunchAtStartup">
+  <activator class="com.otk.jesb.activation.builtin.ReceiveRESTRequest">
     <enabled>true</enabled>
+    <openAPIDescriptionReference>
+      <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>resources &gt; petstore</path>
+    </openAPIDescriptionReference>
+    <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription0289994616865466686433112668147477380798.service.Pet)</operationSignature>
+    <serverReference>
+      <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>resources &gt; HTTPServer0112435822636074026848962688025404957896</path>
+    </serverReference>
+    <servicePath>/</servicePath>
   </activator>
   <name>RESTServiceTest</name>
   <note class="null"/>
@@ -11,24 +25,11 @@
     <fieldInitializers/>
     <initializationSwitches/>
     <listItemInitializers/>
-    <parameterInitializers>
-      <com.otk.jesb.instantiation.ParameterInitializer>
-        <parameterPosition>0</parameterPosition>
-        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
-            <outer-class reference="../../../../../.."/>
-          </dynamicTypeNameAccessor>
-          <fieldInitializers/>
-          <initializationSwitches/>
-          <listItemInitializers/>
-          <parameterInitializers/>
-          <selectedConstructorSignature class="null"/>
-          <typeName>&lt;Dynamic&gt;</typeName>
-        </parameterValue>
-      </com.otk.jesb.instantiation.ParameterInitializer>
-    </parameterInitializers>
-    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <parameterInitializers/>
+    <rootInitializer class="null"/>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+      <outer-class reference="../../.."/>
+    </rootInstanceDynamicTypeNameAccessor>
     <rootInstanceName>PlanOutput</rootInstanceName>
     <rootInstanceTypeName class="null"/>
     <selectedConstructorSignature class="null"/>

@@ -416,13 +416,9 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		Dimension result = new Dimension(0, 0);
 		Graphics g = getGraphics();
 		for (JNode node : nodes) {
-			result.width = Math.max(result.width, node.getCenterX() + (node.getImageWidth() / 2));
-			result.height = Math.max(result.height, node.getCenterY() + (node.getImageHeight() / 2));
-			if (g != null) {
-				Rectangle labelBounds = node.getLabelBounds(g);
-				result.width = Math.max(result.width, labelBounds.x + labelBounds.width);
-				result.height = Math.max(result.height, labelBounds.y + labelBounds.height);
-			}
+			Rectangle nodeBounds = node.getBounds(this);
+			result.width = Math.max(result.width, nodeBounds.x + nodeBounds.width);
+			result.height = Math.max(result.height, nodeBounds.y + nodeBounds.height);
 		}
 		if (g != null) {
 			result.width += g.getFontMetrics().getHeight();

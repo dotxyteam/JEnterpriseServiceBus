@@ -2,7 +2,6 @@ package com.otk.jesb.operation.builtin;
 
 import java.sql.PreparedStatement;
 
-import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -25,7 +24,7 @@ public class JDBCUpdate extends JDBCOperation {
 		return new Result(affectedRows);
 	}
 
-	public static class Metadata implements OperationMetadata {
+	public static class Metadata implements OperationMetadata<JDBCUpdate> {
 
 		@Override
 		public String getOperationTypeName() {
@@ -38,7 +37,7 @@ public class JDBCUpdate extends JDBCOperation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<JDBCUpdate>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
@@ -50,10 +49,10 @@ public class JDBCUpdate extends JDBCOperation {
 
 	}
 
-	public static class Builder extends JDBCOperation.Builder {
+	public static class Builder extends JDBCOperation.Builder<JDBCUpdate> {
 
 		@Override
-		public Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+		public JDBCUpdate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			JDBCUpdate result = new JDBCUpdate(getConnection());
 			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));

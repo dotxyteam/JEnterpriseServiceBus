@@ -6,9 +6,9 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.ValidationError;
 
-public interface OperationBuilder {
+public interface OperationBuilder <T extends Operation>{
 
-	Operation build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
+	T build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
 
 	Class<?> getOperationResultClass(Plan currentPlan, Step currentStep);
 

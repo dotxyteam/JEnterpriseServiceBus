@@ -1,5 +1,6 @@
 package com.otk.jesb.solution;
 
+import java.beans.Transient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.util.MiscUtils;
 
 public class Solution {
@@ -24,6 +26,7 @@ public class Solution {
 
 	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
+	private Experiment defualtExperiment = new Experiment(new Evaluate.Builder());
 
 	public EnvironmentSettings getEnvironmentSettings() {
 		return environmentSettings;
@@ -39,6 +42,15 @@ public class Solution {
 
 	public void setContents(List<Asset> contents) {
 		rootFolder.setContents(contents);
+	}
+
+	@Transient
+	public Experiment getDefualtExperiment() {
+		return defualtExperiment;
+	}
+
+	public void setDefualtExperiment(Experiment defualtExperiment) {
+		this.defualtExperiment = defualtExperiment;
 	}
 
 	public void visitContents(AssetVisitor assetVisitor) {
@@ -57,8 +69,9 @@ public class Solution {
 		if (!directory.isDirectory()) {
 			throw new IllegalArgumentException("'" + directory + "' is not a valid directory");
 		}
-		try (FileInputStream fileInputStream = new FileInputStream(new File(directory,
-				"." + environmentSettings.getClass().getSimpleName().toLowerCase() + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
+		try (FileInputStream fileInputStream = new FileInputStream(
+				new File(directory, "." + environmentSettings.getClass().getSimpleName().toLowerCase()
+						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
 			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
 		}
 		rootFolder = loadFolder(directory, rootFolder.getName());
@@ -107,8 +120,9 @@ public class Solution {
 			MiscUtils.delete(directory);
 		}
 		MiscUtils.createDirectory(directory);
-		try (FileOutputStream fileOutputStream = new FileOutputStream(new File(directory,
-				"." + environmentSettings.getClass().getSimpleName().toLowerCase() + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
+		try (FileOutputStream fileOutputStream = new FileOutputStream(
+				new File(directory, "." + environmentSettings.getClass().getSimpleName().toLowerCase()
+						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
 			MiscUtils.serialize(environmentSettings, fileOutputStream);
 		}
 		saveFolder(directory, rootFolder);
