@@ -461,7 +461,7 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 					JButton button = new JButton(action.getLabel(), action.getIcon());
 					button.setHorizontalTextPosition(JButton.CENTER);
 					button.setVerticalTextPosition(JButton.BOTTOM);
-					button.setContentAreaFilled(false);
+					button.setBackground(getBackground());
 					button.setBorderPainted(false);
 					button.setTransferHandler(new ActionExportTransferHandler(action));
 					button.addMouseMotionListener(new MouseAdapter() {

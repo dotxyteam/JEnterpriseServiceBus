@@ -559,7 +559,7 @@
   <transitions>
     <com.otk.jesb.solution.Transition>
       <condition class="com.otk.jesb.solution.Transition$IfCondition">
-        <functionBody>return com.otk.jesb.util.ArrayStream.get(allTables.rows).noneMatch(element -&gt; element.TABLE_NAME.equals(&quot;PET&quot;));</functionBody>
+        <functionBody>return com.otk.jesb.util.ArrayStream.get(allTables).noneMatch(element -&gt; element.TABLE_NAME.equals(&quot;PET&quot;));</functionBody>
       </condition>
       <endStep reference="../../../steps/com.otk.jesb.solution.Step[8]"/>
       <label>No Pet table</label>

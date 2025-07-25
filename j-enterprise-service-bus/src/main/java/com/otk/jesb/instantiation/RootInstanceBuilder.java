@@ -134,8 +134,17 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			} else {
 				finalRootInstanceName = "none";
 			}
-			String rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
-					+ finalRootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
+			String rootInstanceWrapperClassName;
+			{
+				String arrayComponentTypeName = MiscUtils.getArrayComponentTypeName(actualRootInstanceTypeName);
+				if (arrayComponentTypeName != null) {
+					rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
+							+ finalRootInstanceName + "." + arrayComponentTypeName + "ArrayWrapper";
+				} else {
+					rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
+							+ finalRootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
+				}
+			}
 			StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
 			{
 				rootInstanceWrapperClassSourceBuilder.append(

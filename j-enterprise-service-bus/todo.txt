@@ -8,14 +8,15 @@
 	. Log
 	. ...
 - maybe change the project name since ESBs are not popular anymore
-- add other built-in activities (file, jdbc, jms, data format, ...)
+- add other built-in activities (fail, file, jdbc, jms, data format, ...)
 - allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
 - Limit console size
 - create a basic WSDL generator
 - need to generate OperationOutput class for web services ???
 - allow to deploy and execute a project outside of the designer in a production environment
-- keyboard shortcuts (for menu items first???)
+- keyboard shortcuts for common actions (delete, copy/cut/paste, ...)
+- find a better icon for 'connect' drag intent
 - deleting the whole solution folder before saving is risky. 
 find a solution (merge files and folders ???)..  
 - improve the UI design:

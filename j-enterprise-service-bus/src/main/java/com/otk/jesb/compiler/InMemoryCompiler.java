@@ -39,42 +39,7 @@ public class InMemoryCompiler {
 	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
-	private final JavaFileManager manager = new ForwardingJavaFileManager<JavaFileManager>(
-			compiler.getStandardFileManager(null, null, null)) {
-		@Override
-		public JavaFileObject getJavaFileForOutput(Location loc, String className, Kind kind, FileObject obj) {
-			if (currentCompilationIdentifier == null) {
-				throw new UnexpectedError();
-			}
-			return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind);
-		}
 
-		@Override
-		public Iterable<JavaFileObject> list(Location loc, String pkg, Set<Kind> kinds, boolean rec)
-				throws IOException {
-			List<JavaFileObject> result = new ArrayList<JavaFileObject>();
-			Iterable<JavaFileObject> files;
-			synchronized (classResourcesMutex) {
-				files = packages.get(pkg);
-			}
-			if (files != null)
-				for (JavaFileObject file : files)
-					result.add(file);
-			files = super.list(loc, pkg, kinds, rec);
-			if (files != null)
-				for (JavaFileObject file : files)
-					result.add(file);
-			return result;
-		}
-
-		@Override
-		public String inferBinaryName(Location loc, JavaFileObject file) {
-			if (file instanceof NamedJavaFileObject)
-				return ((NamedJavaFileObject) file).getClassIdentifier().getClassName();
-			else
-				return super.inferBinaryName(loc, file);
-		}
-	};
 	private Iterable<String> options;
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 	private final Object compilationMutex = new Object();
@@ -127,16 +92,20 @@ public class InMemoryCompiler {
 	private void compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
 		if (files.isEmpty())
 			throw new CompilationError(-1, -1, "No input files", null, null);
-		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-		boolean success;
-		CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
-		currentCompilationIdentifier = compilationIdentifier;
-		try {
-			success = task.call();
-		} finally {
-			currentCompilationIdentifier = null;
+		try (JavaFileManager manager = createJavaFileManager()) {
+			DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
+			boolean success;
+			CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
+			currentCompilationIdentifier = compilationIdentifier;
+			try {
+				success = task.call();
+			} finally {
+				currentCompilationIdentifier = null;
+			}
+			check(success, collector);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
 		}
-		check(success, collector);
 	}
 
 	private void check(boolean success, DiagnosticCollector<?> collector) throws CompilationError {
@@ -149,6 +118,44 @@ public class InMemoryCompiler {
 		if (!success) {
 			throw new CompilationError(-1, -1, "Unknown error", null, null);
 		}
+	}
+
+	private JavaFileManager createJavaFileManager() {
+		return new ForwardingJavaFileManager<JavaFileManager>(compiler.getStandardFileManager(null, null, null)) {
+			@Override
+			public JavaFileObject getJavaFileForOutput(Location loc, String className, Kind kind, FileObject obj) {
+				if (currentCompilationIdentifier == null) {
+					throw new UnexpectedError();
+				}
+				return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind);
+			}
+
+			@Override
+			public Iterable<JavaFileObject> list(Location loc, String pkg, Set<Kind> kinds, boolean rec)
+					throws IOException {
+				List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+				Iterable<JavaFileObject> files;
+				synchronized (classResourcesMutex) {
+					files = packages.get(pkg);
+				}
+				if (files != null)
+					for (JavaFileObject file : files)
+						result.add(file);
+				files = super.list(loc, pkg, kinds, rec);
+				if (files != null)
+					for (JavaFileObject file : files)
+						result.add(file);
+				return result;
+			}
+
+			@Override
+			public String inferBinaryName(Location loc, JavaFileObject file) {
+				if (file instanceof NamedJavaFileObject)
+					return ((NamedJavaFileObject) file).getClassIdentifier().getClassName();
+				else
+					return super.inferBinaryName(loc, file);
+			}
+		};
 	}
 
 	private String extractSourceFilePath(Diagnostic<?> diagnostic) {

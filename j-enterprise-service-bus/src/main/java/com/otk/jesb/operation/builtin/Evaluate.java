@@ -1,14 +1,17 @@
 package com.otk.jesb.operation.builtin;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
@@ -18,6 +21,7 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
@@ -62,24 +66,30 @@ public class Evaluate implements Operation {
 
 	public static class Builder implements OperationBuilder<Evaluate> {
 
-		private ClassicStructure valueStructure = new ClassicStructure();
-		{
-			valueStructure.getElements().add(new SimpleElement());
-		}
+		private ValueKind valueKind = new SimpleValueKind();
+		private boolean multiple = false;
 
 		private final UpToDate<Class<?>> upToDateValueClass = new UpToDateValueClass();
 		private RootInstanceBuilder valueBuilder = new RootInstanceBuilder("Value", new ValueClassNameAccessor());
 
-		public ClassicStructure getValueStructure() {
-			return valueStructure;
-		}
-
-		public void setValueStructure(ClassicStructure valueStructure) {
-			this.valueStructure = valueStructure;
-		}
-
 		public RootInstanceBuilder getValueBuilder() {
 			return valueBuilder;
+		}
+
+		public ValueKind getValueKind() {
+			return valueKind;
+		}
+
+		public void setValueKind(ValueKind valueKind) {
+			this.valueKind = valueKind;
+		}
+
+		public boolean isMultiple() {
+			return multiple;
+		}
+
+		public void setMultiple(boolean multiple) {
+			this.multiple = multiple;
 		}
 
 		public void setValueBuilder(RootInstanceBuilder valueBuilder) {
@@ -103,12 +113,15 @@ public class Evaluate implements Operation {
 
 		@Override
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			if (valueKind == null) {
+				throw new ValidationError("Value kind not provided");
+			}
+			try {
+				valueKind.validate(true);
+			} catch (ValidationError e) {
+				throw new ValidationError("Failed to validate the value kind", e);
+			}
 			if (recursively) {
-				try {
-					valueStructure.validate(recursively);
-				} catch (ValidationError e) {
-					throw new ValidationError("Failed to validate the value structure", e);
-				}
 				try {
 					valueBuilder.getFacade().validate(recursively,
 							plan.getValidationContext(step).getVariableDeclarations());
@@ -121,22 +134,19 @@ public class Evaluate implements Operation {
 		private class UpToDateValueClass extends UpToDate<Class<?>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return (valueStructure != null) ? MiscUtils.serialize(valueStructure) : null;
+				return new Pair<String, Boolean>((valueKind != null) ? MiscUtils.serialize(valueKind) : null, multiple);
 			}
 
 			@Override
 			protected Class<?> obtainLatest(Object versionIdentifier) {
-				if (valueStructure == null) {
+				if (valueKind == null) {
 					return null;
 				} else {
-					try {
-						String className = Evaluate.class.getPackage().getName() + "." + "Value"
-								+ MiscUtils.toDigitalUniqueIdentifier(Builder.this);
-						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-								valueStructure.generateJavaTypeSourceCode(className));
-					} catch (CompilationError e) {
-						throw new UnexpectedError(e);
+					Class<?> result = valueKind.obtainClass();
+					if (multiple) {
+						result = MiscUtils.getArrayType(result);
 					}
+					return result;
 				}
 			}
 		}
@@ -156,6 +166,70 @@ public class Evaluate implements Operation {
 				return valueClass.getName();
 			}
 		}
+
+		public static abstract class ValueKind {
+
+			public abstract Class<?> obtainClass();
+
+			public abstract void validate(boolean recursively) throws ValidationError;
+
+		}
+
+		public static class SimpleValueKind extends ValueKind {
+
+			private SimpleElement internalElement = new SimpleElement();
+
+			public String getTypeNameOrAlias() {
+				return internalElement.getTypeNameOrAlias();
+			}
+
+			public void setTypeNameOrAlias(String typeNameOrAlias) {
+				internalElement.setTypeNameOrAlias(typeNameOrAlias);
+			}
+
+			public List<String> getTypeNameOrAliasOptions() {
+				return internalElement.getTypeNameOrAliasOptions();
+			}
+
+			@Override
+			public Class<?> obtainClass() {
+				return TypeInfoProvider.getClass(internalElement.getTypeName());
+			}
+
+			public void validate(boolean recursively) throws ValidationError {
+				internalElement.validate(recursively);
+			}
+
+		}
+
+		public static class StructuredValueKind extends ValueKind {
+			private StructuredElement internalElement = new StructuredElement();
+
+			public Structure getStructure() {
+				return internalElement.getStructure();
+			}
+
+			public void setStructure(Structure structure) {
+				internalElement.setStructure(structure);
+			}
+
+			public void validate(boolean recursively) throws ValidationError {
+				internalElement.validate(recursively);
+			}
+
+			@Override
+			public Class<?> obtainClass() {
+				try {
+					String className = Evaluate.class.getName() + "Result" + MiscUtils.toDigitalUniqueIdentifier(this);
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							getStructure().generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
+			}
+
+		}
+
 	}
 
 }

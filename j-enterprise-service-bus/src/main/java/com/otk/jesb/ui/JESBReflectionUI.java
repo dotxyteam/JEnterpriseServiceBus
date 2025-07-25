@@ -1493,7 +1493,6 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
-				// try {
 				if (object instanceof Plan) {
 					session.put(CURRENT_VALIDATION_PLAN_KEY, object);
 				}
@@ -1546,9 +1545,6 @@ public class JESBReflectionUI extends CustomizedUI {
 				} else {
 					super.validate(type, object, session);
 				}
-				// } catch (Exception e) {
-				// throw new ValidationErrorWrapper(null, e);
-				// }
 			}
 
 			@Override

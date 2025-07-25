@@ -432,7 +432,10 @@ public class MiscUtils {
 		}
 		return null;
 	}
-
+	public static boolean isArrayTypeName(String className) {
+		return getArrayComponentTypeName(className) != null;
+	}
+		
 	public static Class<?> getArrayType(Class<?> componentType) {
 		return Array.newInstance(componentType, 0).getClass();
 	}

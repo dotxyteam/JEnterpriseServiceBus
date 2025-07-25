@@ -5,12 +5,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.XSD;
+import com.otk.jesb.resource.builtin.XSD.RootElementDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
 
 public abstract class XMLOperation implements Operation {
 
@@ -28,6 +35,7 @@ public abstract class XMLOperation implements Operation {
 
 		private Reference<XSD> xsdReference = new Reference<XSD>(XSD.class);
 		private String rootElementName;
+		protected UpToDateDocumentObjectClass upToDateDocumentObjectClass = new UpToDateDocumentObjectClass();
 
 		private XSD getXSD() {
 			return xsdReference.resolve();
@@ -90,6 +98,51 @@ public abstract class XMLOperation implements Operation {
 			if (retrieveRootElement() == null) {
 				throw new ValidationError("Invalid root element name '" + rootElementName + "'");
 			}
+		}
+
+		protected class UpToDateDocumentObjectClass extends UpToDate<Class<?>> {
+
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				RootElementDescriptor rootElementDescriptor = retrieveRootElement();
+				if (rootElementDescriptor == null) {
+					return null;
+				}
+				return rootElementDescriptor.retrieveClass();
+			}
+
+			@Override
+			protected Class<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+				RootElementDescriptor rootElementDescriptor = retrieveRootElement();
+				if (rootElementDescriptor == null) {
+					return null;
+				}
+				ClassicStructure resultStructure = new ClassicStructure();
+				{
+					SimpleElement rootElement = new SimpleElement();
+					rootElement.setName(getRootElementName());
+					rootElement.setTypeName(rootElementDescriptor.retrieveClass().getName());
+					resultStructure.getElements().add(rootElement);
+				}
+				String className = XMLOperation.class.getName() + "Document"
+						+ MiscUtils.toDigitalUniqueIdentifier(this);
+				try {
+					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							resultStructure.generateJavaTypeSourceCode(className));
+				} catch (CompilationError e) {
+					throw new UnexpectedError(e);
+				}
+			}
+
+		}
+
+	}
+
+	public static class SourceDocument {
+		public final String text;
+
+		public SourceDocument(String text) {
+			this.text = text;
 		}
 
 	}

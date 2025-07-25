@@ -1,0 +1,106 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.LaunchAtStartup">
+    <enabled>true</enabled>
+  </activator>
+  <name>SOAPRequestTest</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>278</diagramX>
+      <diagramY>99</diagramY>
+      <name>callSOAPWebService</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
+        <customServiceEndpointURL>http://localhost:8080</customServiceEndpointURL>
+        <operationInputBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder$OperationInputClassNameAccessor">
+                  <outer-class reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers/>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>0</parameterPosition>
+                          <parameterValue class="string">123</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                      </parameterInitializers>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>java.math.BigInteger</typeName>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder$OperationInputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>OperationInput</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </operationInputBuilder>
+        <operationSignature>java.lang.String numberToWords(java.math.BigInteger)</operationSignature>
+        <portName>NumberConversionSoapType</portName>
+        <serviceName>NumberConversion</serviceName>
+        <wsdlReference>
+          <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>resources &gt; NumberConversion</path>
+        </wsdlReference>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions/>
+</com.otk.jesb.solution.Plan>

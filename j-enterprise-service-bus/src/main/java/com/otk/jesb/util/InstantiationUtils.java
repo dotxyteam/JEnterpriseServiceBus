@@ -308,6 +308,9 @@ public class InstantiationUtils {
 		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
 		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
 				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
+		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
+			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		}
 		return text.replace(absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
 	}
 
@@ -318,6 +321,9 @@ public class InstantiationUtils {
 		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
 		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
 				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
+		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
+			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		}
 		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
 	}
 
@@ -329,6 +335,9 @@ public class InstantiationUtils {
 		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
 		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
 				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
+		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
+			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		}
 		return MiscUtils.indexAfterReplacement(index, text, absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
 	}
 
@@ -336,10 +345,22 @@ public class InstantiationUtils {
 		if (facade == null) {
 			return null;
 		}
-		return Facade.getAncestors(facade).stream()
-				.filter(f -> (f instanceof InstanceBuilderFacade) && Structured.class
-						.isAssignableFrom(((DefaultTypeInfo) ((InstanceBuilderFacade) f).getTypeInfo()).getJavaType()))
-				.map(f -> ((InstanceBuilderFacade) f).getUnderlying()).collect(Collectors.toList());
+		List<InstanceBuilder> result = new ArrayList<InstanceBuilder>();
+		for (Facade ancestorFacade : Facade.getAncestors(facade)) {
+			if (!(ancestorFacade instanceof InstanceBuilderFacade)) {
+				continue;
+			}
+			Class<?> ancestorClass = ((DefaultTypeInfo) ((InstanceBuilderFacade) ancestorFacade).getTypeInfo())
+					.getJavaType();
+			if (ancestorClass.isArray()) {
+				ancestorClass = ancestorClass.getComponentType();
+			}
+			if (!Structured.class.isAssignableFrom(ancestorClass)) {
+				continue;
+			}
+			result.add(((InstanceBuilderFacade) ancestorFacade).getUnderlying());
+		}
+		return result;
 	}
 
 	public InstantiationUtils() {
