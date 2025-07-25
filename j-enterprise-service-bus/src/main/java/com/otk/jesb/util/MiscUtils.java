@@ -433,6 +433,10 @@ public class MiscUtils {
 		return null;
 	}
 
+	public static Class<?> getArrayType(Class<?> componentType) {
+		return Array.newInstance(componentType, 0).getClass();
+	}
+
 	public static String read(InputStream in) throws IOException {
 		return new String(readBinary(in));
 	}

@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
@@ -47,6 +46,7 @@ public class JDBCQuery extends JDBCOperation {
 		this.customResultClass = customResultClass;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object execute() throws Exception {
 		PreparedStatement preparedStatement = prepare();
@@ -87,15 +87,17 @@ public class JDBCQuery extends JDBCOperation {
 			Object customResultRowList = customResultRowListTypeInfo.fromArray(customResultRowStandardList.toArray());
 			return customResultClass.getConstructors()[0].newInstance(customResultRowList);
 		} else {
-			List<GenericResultRow> rows = new ArrayList<JDBCQuery.GenericResultRow>();
+			List<ColumnDefinition> columns = retrieveResultColumnDefinitions(metaData);
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			while (resultSet.next()) {
-				GenericResultRow row = new GenericResultRow();
+				Map<String, Object> row = new HashMap<String, Object>();
 				for (int iColumn = 1; iColumn < metaData.getColumnCount(); iColumn++) {
-					row.cellValues.put(metaData.getColumnName(iColumn), resultSet.getObject(iColumn));
+					row.put(metaData.getColumnName(iColumn), resultSet.getObject(iColumn));
 				}
 				rows.add(row);
 			}
-			return new GenericResult(rows.toArray(new GenericResultRow[rows.size()]));
+			return new GenericResult(columns.toArray(new String[columns.size()]),
+					rows.toArray(new Map[rows.size()]));
 		}
 	}
 
@@ -148,25 +150,16 @@ public class JDBCQuery extends JDBCOperation {
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
-			String resultClassName = JDBCQuery.class.getName() + "Result" + MiscUtils.toDigitalUniqueIdentifier(this);
+			String resultRowClassName = JDBCQuery.class.getName() + "ResultRow"
+					+ MiscUtils.toDigitalUniqueIdentifier(this);
+			Class<?> resultRowClass;
 			try {
-				return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,
-						createCustomResultStructure().generateJavaTypeSourceCode(resultClassName));
+				resultRowClass = MiscUtils.IN_MEMORY_COMPILER.compile(resultRowClassName,
+						createResultRowStructure().generateJavaTypeSourceCode(resultRowClassName));
 			} catch (CompilationError e) {
 				throw new UnexpectedError(e);
 			}
-		}
-
-		private Structure createCustomResultStructure() {
-			ClassicStructure resultStructure = new ClassicStructure();
-			{
-				StructuredElement rowsElement = new StructuredElement();
-				resultStructure.getElements().add(rowsElement);
-				rowsElement.setName("rows");
-				rowsElement.setMultiple(true);
-				rowsElement.setStructure(createResultRowStructure());
-			}
-			return resultStructure;
+			return MiscUtils.getArrayType(resultRowClass);
 		}
 
 		private Structure createResultRowStructure() {
@@ -306,25 +299,12 @@ public class JDBCQuery extends JDBCOperation {
 	}
 
 	public static class GenericResult {
-		public final GenericResultRow[] rows;
+		public final Map<String, Object>[] rows;
+		public final String[] columnNames;
 
-		public GenericResult(GenericResultRow[] rows) {
+		public GenericResult(String[] columnNames, Map<String, Object>[] rows) {
+			this.columnNames = columnNames;
 			this.rows = rows;
-		}
-
-	}
-
-	public static class GenericResultRow {
-
-		public final Map<String, Object> cellValues = new HashMap<String, Object>();
-
-		public List<String> getColumnNames() {
-			return new ArrayList<String>(cellValues.keySet());
-		}
-
-		@Override
-		public String toString() {
-			return cellValues.toString();
 		}
 
 	}

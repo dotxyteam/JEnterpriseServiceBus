@@ -441,9 +441,63 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>152</diagramX>
-      <diagramY>245</diagramY>
-      <name>builder</name>
+      <diagramX>60</diagramX>
+      <diagramY>265</diagramY>
+      <name>createPetTable</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
+        <connectionReference>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>resources &gt; db</path>
+        </connectionReference>
+        <parameterDefinitions/>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder" reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <statementVariant>
+          <valueClass>java.lang.String</valueClass>
+          <value class="string">CREATE TABLE &quot;pet&quot; (
+  &quot;id&quot; int,
+  &quot;name&quot; varchar(30),
+  &quot;tag&quot; varchar(30),
+  PRIMARY KEY (&quot;id&quot;)
+);</value>
+        </statementVariant>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>311</diagramX>
+      <diagramY>262</diagramY>
+      <name>jDBCUpdate</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
           <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
@@ -486,8 +540,21 @@
           <valueClass>java.lang.String</valueClass>
         </statementVariant>
       </operationBuilder>
-      <parent class="null"/>
+      <parent class="com.otk.jesb.solution.LoopCompositeStep">
+        <diagramX>202</diagramX>
+        <diagramY>257</diagramY>
+        <name>loopOperation</name>
+        <operationBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopOperation$Builder">
+          <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
+          <loopEndCondition>
+            <functionBody>return iterationIndex==3;</functionBody>
+          </loopEndCondition>
+          <resultsCollectionTargetedStepNames/>
+        </operationBuilder>
+        <parent class="null"/>
+      </parent>
     </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[9]/parent"/>
   </steps>
   <transitions>
     <com.otk.jesb.solution.Transition>

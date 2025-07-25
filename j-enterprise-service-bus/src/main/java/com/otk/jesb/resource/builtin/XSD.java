@@ -76,21 +76,21 @@ public class XSD extends XMLBasedDocumentResource {
 		}
 	}
 
-	public List<RootElement> getRootElements() {
+	public List<RootElementDescriptor> getRootElements() {
 		try {
 			return upToDateGeneratedClasses.get().stream()
 					.filter(c -> c.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class) != null)
-					.map(c -> new RootElement(c)).collect(Collectors.toList());
+					.map(c -> new RootElementDescriptor(c)).collect(Collectors.toList());
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
 		}
 	}
 
-	public class RootElement {
+	public class RootElementDescriptor {
 
 		private Class<?> elementClass;
 
-		public RootElement(Class<?> elementClass) {
+		public RootElementDescriptor(Class<?> elementClass) {
 			this.elementClass = elementClass;
 		}
 

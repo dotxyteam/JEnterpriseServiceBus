@@ -72,13 +72,13 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 		List<VariableDeclaration> loopEndConditionVariableDeclarations = new ArrayList<VariableDeclaration>(
 				plan.getValidationContext(this).getVariableDeclarations());
 		loopEndConditionVariableDeclarations.addAll(((LoopCompositeStep) this).getContextualVariableDeclarations());
-		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantSteps(plan)) {
+		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantResultProducingSteps(plan)) {
 			loopEndConditionVariableDeclarations.add(new StepEventuality(descendantStep, plan));
 		}
 		return loopEndConditionVariableDeclarations;
 	}
 
-	private List<Step> getDescendantSteps(Plan currentPlan) {
+	private List<Step> getDescendantResultProducingSteps(Plan currentPlan) {
 		List<Step> result = new ArrayList<Step>();
 		for (Step descendantStep : MiscUtils.getDescendants(this, currentPlan)) {
 			if (descendantStep.getOperationBuilder().getOperationResultClass(currentPlan, descendantStep) != null) {
@@ -135,7 +135,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 			try {
 				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())
-						.getDescendantSteps(context.getPlan())) {
+						.getDescendantResultProducingSteps(context.getPlan())) {
 					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
 				}
 				List<VariableDeclaration> loopEndConditionVariableDeclarations = ((LoopCompositeStep) context
@@ -254,7 +254,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return null;
 				} else {
 					List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry>();
-					for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantSteps(currentPlan)) {
+					for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantResultProducingSteps(currentPlan)) {
 						result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));
 					}
 					resultsCollectionTargetedStepNames.stream()

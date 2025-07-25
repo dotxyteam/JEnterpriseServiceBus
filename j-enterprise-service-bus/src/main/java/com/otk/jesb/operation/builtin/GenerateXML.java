@@ -9,7 +9,7 @@ import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.resource.builtin.XSD.RootElement;
+import com.otk.jesb.resource.builtin.XSD.RootElementDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -120,7 +120,7 @@ public class GenerateXML extends XMLOperation {
 
 			@Override
 			public String get() {
-				RootElement rootElement = retrieveRootElement();
+				RootElementDescriptor rootElement = retrieveRootElement();
 				if (rootElement == null) {
 					return null;
 				}

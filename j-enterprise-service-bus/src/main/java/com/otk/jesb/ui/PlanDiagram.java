@@ -256,20 +256,24 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected void onStepInsertionRequest(Step newStep) {
-		Set<JDiagramObject> selection = getSelection();
-		if ((selection.size() == 1) && (selection.iterator().next() instanceof JNode)) {
-			JNode selectedNode = (JNode) selection.iterator().next();
-			if (selectedNode.getValue() instanceof CompositeStep) {
-				newStep.setParent((CompositeStep<?>) selectedNode.getValue());
+		Plan plan = getPlan();
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(newStep.getDiagramX(), newStep.getDiagramY());
+		if (pointedDiagramObject instanceof JNode) {
+			JNode pointedNode = (JNode) pointedDiagramObject;
+			if (pointedNode.getValue() instanceof CompositeStep) {
+				CompositeStep<?> parent = (CompositeStep<?>) pointedNode.getValue();
+				Rectangle parentBounds = getCompositeStepBounds(parent, plan);
+				if (parentBounds.contains(newStep.getDiagramX(), newStep.getDiagramY())) {
+					newStep.setParent(parent);
+				}
 			}
 		}
 		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();
 		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));
-		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, getPlan(),
+		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, plan,
 				ReflectionUIUtils.findInfoByName(planType.getFields(), "steps"));
 		IModification modification = new ListModificationFactory(
-				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1)).add(getPlan().getSteps().size(),
-						newStep);
+				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1)).add(plan.getSteps().size(), newStep);
 		input.getModificationStack().apply(modification);
 	}
 
@@ -731,16 +735,13 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					node.setImage(iconImage);
 				}
 				if (step instanceof CompositeStep) {
-					int headerHeight = 16;
-					int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
-					int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
-					Rectangle compositeBounds = ((CompositeStep<?>) step).getChildrenBounds(plan, STEP_ICON_WIDTH,
-							STEP_ICON_HEIGHT, (horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
+					Rectangle compositeBounds = getCompositeStepBounds((CompositeStep<?>) step, plan);
 					BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,
 							BufferedImage.TYPE_INT_ARGB);
 					Graphics2D g = compositeImage.createGraphics();
 					g.setColor(getNodeColor());
 					MiscUtils.improveRenderingQuality(g);
+					int headerHeight = getCompositeStepHeaderHeight();
 					g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);
 					g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),
 							node.getImage().getHeight(null), null);
@@ -801,6 +802,18 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		} else {
 			SwingUtilities.invokeLater(selectionUpdate);
 		}
+	}
+
+	private Rectangle getCompositeStepBounds(CompositeStep<?> step, Plan plan) {
+		int headerHeight = getCompositeStepHeaderHeight();
+		int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);
+		int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;
+		return ((CompositeStep<?>) step).getChildrenBounds(plan, STEP_ICON_WIDTH, STEP_ICON_HEIGHT,
+				(horizontalPadding / 2), (verticalPadding / 2) + headerHeight);
+	}
+
+	private int getCompositeStepHeaderHeight() {
+		return 16;
 	}
 
 	@Override
@@ -965,7 +978,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean isAutoManaged() {
+	public boolean isModificationStackManaged() {
+		return false;
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
 		return false;
 	}
 

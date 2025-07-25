@@ -55,7 +55,7 @@ public abstract class XMLOperation implements Operation {
 				if (rootElementName == null) {
 					XSD xsd = getXSD();
 					if (xsd != null) {
-						List<XSD.RootElement> rootElements = xsd.getRootElements();
+						List<XSD.RootElementDescriptor> rootElements = xsd.getRootElements();
 						if (rootElements.size() > 0) {
 							rootElementName = rootElements.get(0).getName();
 						}
@@ -73,7 +73,7 @@ public abstract class XMLOperation implements Operation {
 			return xsd.getRootElements().stream().map(e -> e.getName()).collect(Collectors.toList());
 		}
 
-		protected XSD.RootElement retrieveRootElement() {
+		protected XSD.RootElementDescriptor retrieveRootElement() {
 			XSD xsd = getXSD();
 			if (xsd == null) {
 				return null;

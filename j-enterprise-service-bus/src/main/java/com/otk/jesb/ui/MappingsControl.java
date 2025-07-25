@@ -131,7 +131,12 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	}
 
 	@Override
-	public boolean isAutoManaged() {
+	public boolean isModificationStackManaged() {
+		return false;
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
 		return false;
 	}
 
