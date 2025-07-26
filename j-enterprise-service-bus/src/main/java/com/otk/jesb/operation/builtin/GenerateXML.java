@@ -4,19 +4,17 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.XSD.RootElementDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.Accessor;
-import com.otk.jesb.util.UpToDate.VersionAccessException;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class GenerateXML extends XMLOperation {
@@ -75,15 +73,15 @@ public class GenerateXML extends XMLOperation {
 	public static class Builder extends XMLOperation.Builder<GenerateXML> {
 
 		private boolean outputFormatted = true;
-		private RootInstanceBuilder documentBuilder = new RootInstanceBuilder("XMLDocumentObject",
-				new DocumentClassNameAccessor());
+		private RootInstanceBuilder documentObjectBuilder = new RootInstanceBuilder("XMLDocumentObject",
+				new DocumentObjectClassNameAccessor());
 
-		public RootInstanceBuilder getDocumentBuilder() {
-			return documentBuilder;
+		public RootInstanceBuilder getDocumentObjectBuilder() {
+			return documentObjectBuilder;
 		}
 
-		public void setDocumentBuilder(RootInstanceBuilder documentBuilder) {
-			this.documentBuilder = documentBuilder;
+		public void setDocumentObjectBuilder(RootInstanceBuilder documentObjectBuilder) {
+			this.documentObjectBuilder = documentObjectBuilder;
 		}
 
 		public boolean isOutputFormatted() {
@@ -96,18 +94,17 @@ public class GenerateXML extends XMLOperation {
 
 		@Override
 		public GenerateXML build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new GenerateXML(
-					documentBuilder.build(new InstantiationContext(context.getVariables(),
-							context.getPlan().getValidationContext(context.getCurrentStep())
-									.getVariableDeclarations())),
-					retrieveRootElement().retrieveClass(), outputFormatted);
+			Object documentObject = documentObjectBuilder.build(new InstantiationContext(context.getVariables(),
+					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Object rootElementObject = documentObject.getClass().getField(getRootElementName()).get(documentObject);
+			return new GenerateXML(rootElementObject, retrieveRootElement().retrieveClass(), outputFormatted);
 		}
 
 		@Override
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 			super.validate(recursively, plan, step);
 			if (recursively) {
-				documentBuilder.getFacade().validate(recursively,
+				documentObjectBuilder.getFacade().validate(recursively,
 						plan.getValidationContext(step).getVariableDeclarations());
 			}
 		}
@@ -117,20 +114,15 @@ public class GenerateXML extends XMLOperation {
 			return SourceDocument.class;
 		}
 
-		public class DocumentClassNameAccessor extends Accessor<String> {
+		public class DocumentObjectClassNameAccessor extends Accessor<String> {
 
 			@Override
 			public String get() {
-				Class<?> documentClass;
-				try {
-					documentClass = upToDateDocumentObjectClass.get();
-				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
-				}
-				if (documentClass == null) {
+				RootElementDescriptor rootElement = retrieveRootElement();
+				if (rootElement == null) {
 					return null;
 				}
-				return documentClass.getName();
+				return rootElement.getDocumentClass().getName();
 			}
 
 		}

@@ -17,12 +17,15 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
+
 public class ServerApp {
 	public static void main(String[] args) throws Exception {
 		// Configure Jetty
 		Server server = new Server(new InetSocketAddress("localhost", 8080));
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        //ServletContextHandler context = new ServletContextHandler();
+		// ServletContextHandler context = new ServletContextHandler();
 		context.setContextPath("/");
 		server.setHandler(context);
 
@@ -41,10 +44,11 @@ public class ServerApp {
 		System.out.println("SOAP service started at http://localhost:8080/services/HelloService?wsdl");
 
 		JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
-        factory.setAddress("/rest"); // relatif au CXFServlet
-        factory.setServiceBeans(Arrays.asList(new HelloRestService()));
-        factory.create();
-        System.out.println("REST service available at http://localhost:8080/services/rest/hello?name=Test");
+		factory.setAddress("/rest"); // relatif au CXFServlet
+		factory.setServiceBeans(Arrays.asList(new HelloRestService()));
+		factory.setProvider(new JacksonJsonProvider());
+		factory.create();
+		System.out.println("REST service available at http://localhost:8080/services/rest/hello?name=Test");
 
 		server.join();
 	}
@@ -61,14 +65,14 @@ public class ServerApp {
 			return "Hello, " + name + "!";
 		}
 	}
-	
+
 	@Path("/hello")
 	public static class HelloRestService {
 
-	    @GET
-	    @Produces(MediaType.TEXT_PLAIN)
-	    public String sayHello(@QueryParam("name") String name) {
-	        return "Hello, " + (name != null ? name : "world") + "!";
-	    }
+		@GET
+		@Produces(MediaType.TEXT_PLAIN)
+		public String sayHello(@QueryParam("name") String name) {
+			return "Hello, " + (name != null ? name : "world") + "!";
+		}
 	}
 }

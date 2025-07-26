@@ -18,7 +18,9 @@
 - need to generate OperationOutput class for web services ???
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts for common actions (delete, copy/cut/paste, ...)
+- allow to have a feedback of current validation job in progress
 - find a better icon for 'connect' drag intent
+- allow to process REST XML message payloads 
 - deleting the whole solution folder before saving is risky. 
 find a solution (merge files and folders ???)..  
 - improve the UI design:

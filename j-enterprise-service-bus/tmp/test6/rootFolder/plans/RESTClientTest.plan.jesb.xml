@@ -36,11 +36,11 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>275</diagramX>
-      <diagramY>292</diagramY>
+      <diagramX>328</diagramX>
+      <diagramY>85</diagramY>
       <name>addPet</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
-        <customBaseURL class="null"/>
+        <customBaseURL>http://localhost:8080/rest</customBaseURL>
         <openAPIDescriptionReference>
           <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
           <assetFilter class="null"/>
@@ -112,7 +112,7 @@
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </operationInputBuilder>
-        <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription73746172740121795807921988426548560201215732366789656E64.client.Pet)</operationSignature>
+        <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription${_}.client.Pet)</operationSignature>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>

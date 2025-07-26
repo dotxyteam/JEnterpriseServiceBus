@@ -21,6 +21,7 @@ import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
 public class Debugger {
@@ -103,7 +104,7 @@ public class Debugger {
 			this.plan = plan;
 			if (plan.getActivator().getInputClass() != null) {
 				planInputBuilder = new RootInstanceBuilder("Input",
-						plan.getActivator().getInputClass().getName());
+						Accessor.returning(plan.getActivator().getInputClass().getName()));
 			}
 		}
 

@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
@@ -22,7 +24,7 @@ import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
 import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
-import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -225,7 +227,11 @@ public class ReceiveRESTRequest extends Activator {
 			if (operation == null) {
 				return null;
 			}
-			return operation.retrieveMethod().getReturnType();
+			Class<?> returnType = operation.retrieveMethod().getReturnType();
+			if (returnType == void.class) {
+				return null;
+			}
+			return returnType;
 		}
 	}
 
@@ -250,12 +256,11 @@ public class ReceiveRESTRequest extends Activator {
 
 		@Override
 		public void install(HTTPServer server, String servicePath) throws Exception {
-
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
 			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
-			factory.setAddress("/rest");
+			factory.setAddress(servicePath);
 			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()
 					.getConstructor(InvocationHandler.class).newInstance(new InvocationHandler() {
 						@Override
@@ -271,9 +276,10 @@ public class ReceiveRESTRequest extends Activator {
 							return registeredActivationHandler.trigger(operationInput);
 						}
 					})));
+			factory.setProvider(new JacksonJsonProvider());
 			endpoint = factory.create();
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published REST service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
 			}
 		}
 

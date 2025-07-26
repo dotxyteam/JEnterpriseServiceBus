@@ -9,7 +9,7 @@
       <path>resources &gt; HTTPServer0112435822636074026848962688025404957896</path>
     </serverReference>
     <serviceName>NumberConversionSoapType</serviceName>
-    <servicePath>/</servicePath>
+    <servicePath>/soap/</servicePath>
     <wsdlReference>
       <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
       <assetFilter class="null"/>

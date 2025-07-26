@@ -257,7 +257,11 @@ public class ReceiveSOAPRequest extends Activator {
 			if (operation == null) {
 				return null;
 			}
-			return operation.retrieveMethod().getReturnType();
+			Class<?> returnType = operation.retrieveMethod().getReturnType();
+			if (returnType == void.class) {
+				return null;
+			}
+			return returnType;
 		}
 	}
 
@@ -301,7 +305,7 @@ public class ReceiveSOAPRequest extends Activator {
 					}));
 			endpoint.publish(servicePath);
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath + "?WSDL");
 			}
 		}
 

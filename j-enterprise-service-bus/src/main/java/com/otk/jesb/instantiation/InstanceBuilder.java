@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.meta.TypeInfoProvider;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -49,17 +50,23 @@ public class InstanceBuilder extends InitializationCase {
 			throw new UnexpectedError();
 		}
 		this.typeName = typeName;
-
 		if (typeName != null) {
-			try {
-				Class<?> clazz = TypeInfoProvider.getClass(typeName);
-				System.out.println("class: " + clazz.getName());
-				System.out.println("class loader: " + clazz.getClassLoader());
-				System.out.println("debug" + "__________________________________________________________________");
-			} catch (Throwable t) {
-				t.printStackTrace();
-				System.out.println("unknown class: " + typeName);
-				System.out.println("debug" + "__________________________________________________________________");
+			if (!"<Dynamic>".equals(typeName)) {
+				if (!typeName.contains(InstantiationUtils.RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE)) {
+					Class<?> clazz;
+					try {
+						clazz = TypeInfoProvider.getClass(typeName);
+					} catch (Throwable t) {
+						return;
+					}
+					if (clazz.getClassLoader() != null) {
+						if (clazz.getClassLoader().getClass().getName().startsWith(InMemoryCompiler.class.getName())) {
+							throw new UnexpectedError(
+									"An instance builder absolute type name should not reference a dynamically generated class: "
+											+ clazz.getName());
+						}
+					}
+				}
 			}
 		}
 	}

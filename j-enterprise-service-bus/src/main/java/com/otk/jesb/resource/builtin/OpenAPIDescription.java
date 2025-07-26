@@ -32,8 +32,10 @@ import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -348,7 +350,10 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 
 		public String getOperationSignature() {
-			return ReflectionUIUtils.buildMethodSignature(operationMethod);
+			String result = ReflectionUIUtils.buildMethodSignature(operationMethod);
+			result = InstantiationUtils.makeTypeNamesRelative(result, Arrays
+					.asList(new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))));
+			return result;
 		}
 
 		public Method retrieveMethod() {

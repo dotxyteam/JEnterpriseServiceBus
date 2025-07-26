@@ -2,11 +2,15 @@ package com.otk.jesb.resource.builtin;
 
 import java.io.File;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import org.xml.sax.SAXParseException;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.InstantiationUtils;
@@ -89,9 +93,10 @@ public class XSD extends XMLBasedDocumentResource {
 		}
 	}
 
-	public class RootElementDescriptor {
+	public static class RootElementDescriptor {
 
 		private Class<?> elementClass;
+		private static WeakHashMap<Class<?>, Class<?>> documentClassByRootElementClass = new WeakHashMap<Class<?>, Class<?>>();
 
 		public RootElementDescriptor(Class<?> elementClass) {
 			this.elementClass = elementClass;
@@ -105,6 +110,28 @@ public class XSD extends XMLBasedDocumentResource {
 
 		public Class<?> retrieveClass() {
 			return elementClass;
+		}
+
+		public Class<?> getDocumentClass() {
+			synchronized (documentClassByRootElementClass) {
+				documentClassByRootElementClass.computeIfAbsent(elementClass, elementClass -> {
+					ClassicStructure resultStructure = new ClassicStructure();
+					{
+						SimpleElement rootElement = new SimpleElement();
+						rootElement.setName(getName());
+						rootElement.setTypeName(elementClass.getName());
+						resultStructure.getElements().add(rootElement);
+					}
+					String className = elementClass.getName() + "DocumentObject";
+					try {
+						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
+								resultStructure.generateJavaTypeSourceCode(className));
+					} catch (CompilationError e) {
+						throw new UnexpectedError(e);
+					}
+				});
+			}
+			return documentClassByRootElementClass.get(elementClass);
 		}
 
 	}

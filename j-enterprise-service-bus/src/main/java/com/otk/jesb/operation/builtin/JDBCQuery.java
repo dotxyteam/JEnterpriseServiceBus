@@ -1,6 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +35,6 @@ import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
-import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
 public class JDBCQuery extends JDBCOperation {
 
@@ -53,11 +52,8 @@ public class JDBCQuery extends JDBCOperation {
 		ResultSet resultSet = preparedStatement.executeQuery();
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		if (customResultClass != null) {
-			Constructor<?> customResultConstructor = customResultClass.getConstructors()[0];
-			Class<?> customResultRowListClass = customResultConstructor.getParameterTypes()[0];
-			IListTypeInfo customResultRowListTypeInfo = (IListTypeInfo) TypeInfoProvider
-					.getTypeInfo(customResultRowListClass);
-			ITypeInfo customResultRowTypeInfo = customResultRowListTypeInfo.getItemType();
+			Class<?> customResultRowClass = customResultClass.getComponentType();
+			ITypeInfo customResultRowTypeInfo = TypeInfoProvider.getTypeInfo(customResultRowClass);
 			IMethodInfo customResultRowConstructorInfo = customResultRowTypeInfo.getConstructors().get(0);
 			List<IParameterInfo> customResultRowConstructorParameterInfos = customResultRowConstructorInfo
 					.getParameters();
@@ -84,8 +80,11 @@ public class JDBCQuery extends JDBCOperation {
 				Object row = customResultRowConstructorInfo.invoke(null, invocationData);
 				customResultRowStandardList.add(row);
 			}
-			Object customResultRowList = customResultRowListTypeInfo.fromArray(customResultRowStandardList.toArray());
-			return customResultClass.getConstructors()[0].newInstance(customResultRowList);
+			Object customResult = Array.newInstance(customResultRowClass, customResultRowStandardList.size());
+			for (int i = 0; i < customResultRowStandardList.size(); i++) {
+				Array.set(customResult, i, customResultRowStandardList.get(i));
+			}
+			return customResult;
 		} else {
 			List<ColumnDefinition> columns = retrieveResultColumnDefinitions(metaData);
 			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
@@ -96,8 +95,7 @@ public class JDBCQuery extends JDBCOperation {
 				}
 				rows.add(row);
 			}
-			return new GenericResult(columns.toArray(new String[columns.size()]),
-					rows.toArray(new Map[rows.size()]));
+			return new GenericResult(columns.toArray(new String[columns.size()]), rows.toArray(new Map[rows.size()]));
 		}
 	}
 

@@ -7,14 +7,14 @@
       <newPathValidator class="null"/>
       <path>resources &gt; petstore</path>
     </openAPIDescriptionReference>
-    <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription73746172740121795807921988426548560201215732366789656E64.service.Pet)</operationSignature>
+    <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription${_}.service.Pet)</operationSignature>
     <serverReference>
       <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
       <assetFilter class="null"/>
       <newPathValidator class="null"/>
       <path>resources &gt; HTTPServer0112435822636074026848962688025404957896</path>
     </serverReference>
-    <servicePath>/</servicePath>
+    <servicePath>/rest/</servicePath>
   </activator>
   <name>RESTServiceTest</name>
   <note class="null"/>
@@ -35,6 +35,14 @@
     <selectedConstructorSignature class="null"/>
     <typeName>&lt;Dynamic&gt;</typeName>
   </outputBuilder>
-  <steps/>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>351</diagramX>
+      <diagramY>89</diagramY>
+      <name>doNothing</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
   <transitions/>
 </com.otk.jesb.solution.Plan>

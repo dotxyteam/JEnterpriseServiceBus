@@ -3,9 +3,11 @@ package com.otk.jesb.ui;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -155,10 +157,10 @@ public class JESBReflectionUI extends CustomizedUI {
 	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 	static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 
-	private Plan displayedPlan;
-	private Step displayedStep;
-	private Transition displayedTransition;
-	private RootInstanceBuilderFacade displayedRootInstanceBuilderFacade;
+	private Deque<Plan> displayedPlans = new ArrayDeque<Plan>();
+	private Deque<Step> displayedSteps = new ArrayDeque<Step>();
+	private Deque<Transition> displayedTransitions = new ArrayDeque<Transition>();
+	private Deque<RootInstanceBuilderFacade> displayedRootInstanceBuilderFacades = new ArrayDeque<RootInstanceBuilderFacade>();
 	private SidePaneValueName sidePaneValueName;
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
@@ -604,20 +606,40 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
 				if (visible) {
 					if (object instanceof Plan) {
-						displayedPlan = (Plan) object;
+						displayedPlans.push((Plan) object);
 						return true;
 					} else if (object instanceof Step) {
-						displayedStep = (Step) object;
+						displayedSteps.push((Step) object);
 						return true;
 					} else if (object instanceof Transition) {
-						displayedTransition = (Transition) object;
+						displayedTransitions.push((Transition) object);
 						return true;
 					} else if (object instanceof RootInstanceBuilderFacade) {
-						displayedRootInstanceBuilderFacade = (RootInstanceBuilderFacade) object;
+						displayedRootInstanceBuilderFacades.push((RootInstanceBuilderFacade) object);
 						return true;
 					}
 				} else {
-					if (object instanceof Debugger) {
+					if (object instanceof Plan) {
+						if (displayedPlans.pop() != object) {
+							throw new UnexpectedError();
+						}
+						return true;
+					} else if (object instanceof Step) {
+						if (displayedSteps.pop() != object) {
+							throw new UnexpectedError();
+						}
+						return true;
+					} else if (object instanceof Transition) {
+						if (displayedTransitions.pop() != object) {
+							throw new UnexpectedError();
+						}
+						return true;
+					} else if (object instanceof RootInstanceBuilderFacade) {
+						if (displayedRootInstanceBuilderFacades.pop() != object) {
+							throw new UnexpectedError();
+						}
+						return true;
+					} else if (object instanceof Debugger) {
 						((Debugger) object).deactivatePlans();
 						((Debugger) object).stopExecutions();
 						return true;
@@ -796,6 +818,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				} else if (type.getName().equals(Plan.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
 						@Override
 						public String getName() {
 							return "diagram";
@@ -879,7 +902,9 @@ public class JESBReflectionUI extends CustomizedUI {
 					});
 					return result;
 				} else if (type.getName().equals(PlanExecutor.class.getName())
-						|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName())) {
+						|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName()))
+
+				{
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
@@ -919,6 +944,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
+							Plan displayedPlan = displayedPlans.peek();
 							if (displayedPlan == null) {
 								return null;
 							}
@@ -927,7 +953,7 @@ public class JESBReflectionUI extends CustomizedUI {
 									.getUnderlying()) {
 								currentStep = null;
 							} else {
-								currentStep = displayedStep;
+								currentStep = displayedSteps.peek();
 							}
 							return new PathOptionsProvider(
 									displayedPlan.getValidationContext(currentStep).getVariableDeclarations())
@@ -954,8 +980,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
-							return new MappingsControl.Source((RootInstanceBuilderFacade) object, displayedPlan,
-									displayedStep);
+							return new MappingsControl.Source((RootInstanceBuilderFacade) object, displayedPlans.peek(),
+									displayedSteps.peek());
 						}
 
 						@Override
@@ -981,9 +1007,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object getValue(Object object) {
+							Plan displayedPlan = displayedPlans.peek();
 							if (displayedPlan == null) {
 								return null;
 							}
+							RootInstanceBuilderFacade displayedRootInstanceBuilderFacade = displayedRootInstanceBuilderFacades
+									.peek();
 							if (displayedRootInstanceBuilderFacade == null) {
 								return null;
 							}
@@ -992,7 +1021,7 @@ public class JESBReflectionUI extends CustomizedUI {
 									.getUnderlying()) {
 								currentStep = null;
 							} else {
-								currentStep = displayedStep;
+								currentStep = displayedSteps.peek();
 							}
 							ITypeInfo variableType = ((ListItemReplicationFacade) object)
 									.guessIterationVariableTypeInfo(
@@ -1115,6 +1144,11 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
+							Plan displayedPlan = displayedPlans.peek();
+							Step displayedStep = displayedSteps.peek();
+							Transition displayedTransition = displayedTransitions.peek();
+							RootInstanceBuilderFacade displayedRootInstanceBuilderFacade = displayedRootInstanceBuilderFacades
+									.peek();
 							if (object instanceof InstantiationFunction) {
 								InstantiationFunction function = (InstantiationFunction) object;
 								Facade parentFacade = displayedRootInstanceBuilderFacade
@@ -1180,8 +1214,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
-							return ((LoopOperation.Builder) object)
-									.retrieveResultsCollectionConfigurationEntries(displayedPlan, displayedStep);
+							return ((LoopOperation.Builder) object).retrieveResultsCollectionConfigurationEntries(
+									displayedPlans.peek(), displayedSteps.peek());
 						}
 					});
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
@@ -1230,7 +1264,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						public Object invoke(Object object, InvocationData invocationData) {
 							((LoopOperation.Builder) object).updateResultsCollectionConfigurationEntries(
 									(List<ResultsCollectionConfigurationEntry>) invocationData.getParameterValue(0),
-									displayedPlan, displayedStep);
+									displayedPlans.peek(), displayedSteps.peek());
 							return null;
 						}
 					});
@@ -1708,7 +1742,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Plan getCurrentValidationPlan(ValidationSession session) {
 		Plan result = (session == null) ? null : (Plan) session.get(CURRENT_VALIDATION_PLAN_KEY);
 		if (result == null) {
-			result = displayedPlan;
+			result = displayedPlans.peek();
 		}
 		return result;
 	}
@@ -1716,7 +1750,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Step getCurrentValidationStep(ValidationSession session) {
 		Step result = (session == null) ? null : (Step) session.get(CURRENT_VALIDATION_STEP_KEY);
 		if (result == null) {
-			result = displayedStep;
+			result = displayedSteps.peek();
 		}
 		return result;
 	}
@@ -1724,7 +1758,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Transition getCurrentValidationTransition(ValidationSession session) {
 		Transition result = (session == null) ? null : (Transition) session.get(CURRENT_VALIDATION_TRANSITION_KEY);
 		if (result == null) {
-			result = displayedTransition;
+			result = displayedTransitions.peek();
 		}
 		return result;
 	}

@@ -44,7 +44,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstantiationUtils {
 
-	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE = "${_}";
+	public static final String RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE = "${_}";
 	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_START = "7374617274";
 	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_END = "656E64";
 	private static final Pattern RELATIVE_TYPE_NAME_PATTERN = Pattern.compile(
@@ -305,23 +305,6 @@ public class InstantiationUtils {
 		return value;
 	}
 
-	public static String toRelativeTypeNameVariablePart(String baseClassNamePart) {
-		return RELATIVE_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + RELATIVE_TYPE_NAME_VARIABLE_PART_END;
-	}
-
-	private static String extractRelativeTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
-		for (int i = 0; i < ancestorInstanceBuilders.size(); i++) {
-			InstanceBuilder ancestorInstanceBuilder = ancestorInstanceBuilders.get(i);
-			String absoluteAncestorTypeName = ancestorInstanceBuilder
-					.computeActualTypeName(ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()));
-			Matcher matcher = RELATIVE_TYPE_NAME_PATTERN.matcher(absoluteAncestorTypeName);
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-		return null;
-	}
-
 	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
@@ -342,6 +325,23 @@ public class InstantiationUtils {
 			text = text.replace(RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE, dynamicTypeNamePart);
 		}
 		return text;
+	}
+
+	public static String toRelativeTypeNameVariablePart(String baseClassNamePart) {
+		return RELATIVE_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + RELATIVE_TYPE_NAME_VARIABLE_PART_END;
+	}
+
+	private static String extractRelativeTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
+		for (int i = 0; i < ancestorInstanceBuilders.size(); i++) {
+			InstanceBuilder ancestorInstanceBuilder = ancestorInstanceBuilders.get(i);
+			String absoluteAncestorTypeName = ancestorInstanceBuilder
+					.computeActualTypeName(ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()));
+			Matcher matcher = RELATIVE_TYPE_NAME_PATTERN.matcher(absoluteAncestorTypeName);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+		return null;
 	}
 
 	public static int positionBeforeTypeNamesMadeAbsolute(int positionAfter, String text,

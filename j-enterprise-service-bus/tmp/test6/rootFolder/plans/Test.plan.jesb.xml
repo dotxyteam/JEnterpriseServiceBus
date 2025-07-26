@@ -190,10 +190,10 @@
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
       <diagramX>70</diagramX>
-      <diagramY>48</diagramY>
+      <diagramY>49</diagramY>
       <name>generateXML</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.GenerateXML$Builder">
-        <documentBuilder>
+        <documentObjectBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
             <outer-class reference="../.."/>
           </dynamicTypeNameAccessor>
@@ -204,7 +204,7 @@
             <com.otk.jesb.instantiation.ParameterInitializer>
               <parameterPosition>0</parameterPosition>
               <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.GenerateXML$Builder$DocumentClassNameAccessor">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.GenerateXML$Builder$DocumentObjectClassNameAccessor">
                   <outer-class reference="../../../../../.."/>
                 </dynamicTypeNameAccessor>
                 <fieldInitializers/>
@@ -295,12 +295,12 @@
             </com.otk.jesb.instantiation.ParameterInitializer>
           </parameterInitializers>
           <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.GenerateXML$Builder$DocumentClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.GenerateXML$Builder$DocumentObjectClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
           <rootInstanceName>XMLDocumentObject</rootInstanceName>
           <rootInstanceTypeName class="null"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
-        </documentBuilder>
+        </documentObjectBuilder>
         <outputFormatted>true</outputFormatted>
         <rootElementName>postals</rootElementName>
         <xsdReference>
@@ -887,6 +887,12 @@ values
     </com.otk.jesb.solution.Step>
   </steps>
   <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ElseCondition"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[12]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
     <com.otk.jesb.solution.Transition>
       <condition class="null"/>
       <endStep reference="../../../steps/com.otk.jesb.solution.Step[12]"/>

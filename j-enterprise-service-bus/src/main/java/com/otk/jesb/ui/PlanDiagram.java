@@ -36,8 +36,10 @@ import javax.swing.SwingUtilities;
 
 import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.PlanElement;
+import com.otk.jesb.solution.Experiment;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Metadata;
 import com.otk.jesb.solution.Plan;
@@ -574,6 +576,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		result.add(createDeleteAction());
 		result.add(new JSeparator());
 		result.add(createSelectAllAction());
+		result.add(new JSeparator());
+		result.add(createExperimentAction());
 		return result;
 	}
 
@@ -662,6 +666,33 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				all.addAll(getNodes());
 				all.addAll(getConnections());
 				setSelection(all);
+			}
+		};
+	}
+
+	private AbstractAction createExperimentAction() {
+		return new AbstractAction("Experiment...") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+				Set<JDiagramObject> selection = getSelection();
+				if (selection.size() != 1) {
+					return false;
+				}
+				Object planElement = selection.iterator().next().getValue();
+				if (planElement.getClass() != Step.class) {
+					return false;
+				}
+				return true;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Step currentStep = (Step) getSelection().iterator().next().getValue();
+				OperationBuilder<?> operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder());
+				Experiment experiment = new Experiment(operationBuilder);
+				GUI.INSTANCE.openObjectDialog(PlanDiagram.this, experiment, null, null, false);
 			}
 		};
 	}

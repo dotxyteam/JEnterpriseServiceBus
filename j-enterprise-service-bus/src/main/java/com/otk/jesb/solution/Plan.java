@@ -226,7 +226,9 @@ public class Plan extends Asset {
 	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
 			throws ExecutionError {
 		try {
-			context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
+			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
+				context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
+			}
 			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
 				if (input != null) {
@@ -296,15 +298,22 @@ public class Plan extends Asset {
 					return;
 				}
 			} else {
-				List<Transition> validTransitions = filterValidTranstions(currentStepTransitions, executionError,
-						context);
+				List<Transition> validTransitions;
+				try {
+					validTransitions = filterValidTranstions(currentStepTransitions, executionError, context);
+				} catch (Throwable t) {
+					stepCrossing.setOperationError(t);
+					throw new ExecutionError(t);
+				}
 				stepCrossing.setValidTransitions(validTransitions);
 				if (validTransitions.size() == 0) {
 					if (executionError != null) {
 						throw executionError;
 					} else {
-						throw new ExecutionError(new PlanificationError(
-								"Could not find any valid transition from step '" + currentStep + "'"));
+						PlanificationError planificationError = new PlanificationError(
+								"Could not find any valid transition from step '" + currentStep + "'");
+						stepCrossing.setOperationError(planificationError);
+						throw new ExecutionError(planificationError);
 					}
 				}
 			}
@@ -383,20 +392,16 @@ public class Plan extends Asset {
 	}
 
 	private List<Transition> filterValidTranstions(List<Transition> transitions, ExecutionError executionError,
-			ExecutionContext context) throws ExecutionError {
+			ExecutionContext context) throws FunctionCallError {
 		List<Transition> result = new ArrayList<Transition>();
 		List<Transition> elseTransitions = new ArrayList<Transition>();
 		for (Transition transition : transitions) {
 			if (transition.getCondition() != null) {
 				if (transition.getCondition() instanceof IfCondition) {
 					if (executionError == null) {
-						try {
-							if (((IfCondition) transition.getCondition()).isFulfilled(
-									getTransitionContextVariableDeclarations(transition), context.getVariables())) {
-								result.add(transition);
-							}
-						} catch (FunctionCallError e) {
-							throw new ExecutionError(e);
+						if (((IfCondition) transition.getCondition()).isFulfilled(
+								getTransitionContextVariableDeclarations(transition), context.getVariables())) {
+							result.add(transition);
 						}
 					}
 				} else if (transition.getCondition() instanceof ElseCondition) {
@@ -464,7 +469,9 @@ public class Plan extends Asset {
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			result.getVariableDeclarations().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
+			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
+				result.getVariableDeclarations().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
+			}
 			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
@@ -534,7 +541,9 @@ public class Plan extends Asset {
 				}
 			}
 			activator.validate(recursively, this);
-			outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
+			if (isOutputEnabled()) {
+				outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
+			}
 		}
 	}
 

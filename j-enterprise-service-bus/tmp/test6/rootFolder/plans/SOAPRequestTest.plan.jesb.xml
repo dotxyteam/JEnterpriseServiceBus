@@ -40,7 +40,7 @@
       <diagramY>99</diagramY>
       <name>callSOAPWebService</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
-        <customServiceEndpointURL>http://localhost:8080</customServiceEndpointURL>
+        <customServiceEndpointURL>http://localhost:8080/soap</customServiceEndpointURL>
         <operationInputBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
             <outer-class reference="../.."/>
