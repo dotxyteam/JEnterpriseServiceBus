@@ -32,14 +32,40 @@ public class CallRESTAPI implements Operation {
 	private Method operationMethod;
 	private OperationInput operationInput;
 	private String customBaseURL;
+	private Class<?> operationOutputClass;
 
 	public CallRESTAPI(OpenAPIDescription openAPIDescription, Class<?> apiClientClass, Method operationMethod,
-			OperationInput operationInput, String customBaseURL) {
+			OperationInput operationInput, String customBaseURL, Class<?> operationOutputClass) {
 		this.openAPIDescription = openAPIDescription;
 		this.apiClientClass = apiClientClass;
 		this.operationMethod = operationMethod;
 		this.operationInput = operationInput;
 		this.customBaseURL = customBaseURL;
+		this.operationOutputClass = operationOutputClass;
+	}
+
+	public OpenAPIDescription getOpenAPIDescription() {
+		return openAPIDescription;
+	}
+
+	public Class<?> getApiClientClass() {
+		return apiClientClass;
+	}
+
+	public Method getOperationMethod() {
+		return operationMethod;
+	}
+
+	public OperationInput getOperationInput() {
+		return operationInput;
+	}
+
+	public String getCustomBaseURL() {
+		return customBaseURL;
+	}
+
+	public Class<?> getOperationOutputClass() {
+		return operationOutputClass;
 	}
 
 	@Override
@@ -54,8 +80,12 @@ public class CallRESTAPI implements Operation {
 				Method configurationSetter = apiClientClass.getMethod("setApiClient", configurationClass);
 				configurationSetter.invoke(apiClient, apiClientConfiguration);
 			}
-			return operationMethod.invoke(apiClient,
+			Object operationResult = operationMethod.invoke(apiClient,
 					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
+			if (operationOutputClass == null) {
+				return null;
+			}
+			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
 			if (e instanceof Exception) {
 				throw (Exception) e.getTargetException();
@@ -169,7 +199,9 @@ public class CallRESTAPI implements Operation {
 			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput, customBaseURL);
+			Class<?> operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();
+			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput, customBaseURL,
+					operationOutputClass);
 		}
 
 		@Override
@@ -178,7 +210,7 @@ public class CallRESTAPI implements Operation {
 			if (operation == null) {
 				return null;
 			}
-			return operation.retrieveMethod().getReturnType();
+			return operation.getOperationOutputClass();
 		}
 
 		private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor() {

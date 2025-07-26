@@ -404,7 +404,7 @@
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
                     <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                      <functionBody>return &quot;The number of rows is &quot; + rowCountToWords + &quot;.&quot;;</functionBody>
+                      <functionBody>return &quot;The number of rows is &quot; + rowCountToWords.result + &quot;.&quot;;</functionBody>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>

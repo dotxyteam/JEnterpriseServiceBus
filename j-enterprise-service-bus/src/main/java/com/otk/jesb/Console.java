@@ -20,7 +20,7 @@ public class Console {
 
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
-	private Object bufferMutex = new Object();
+	private final Object bufferMutex = new Object();
 
 	private Console() {
 	}

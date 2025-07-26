@@ -91,11 +91,12 @@ public class WSDL extends XMLBasedDocumentResource {
 
 	public static class OperationDescriptor {
 		/*
-		 * Cannot have a simple inputClassByMethod WeakHashMap because the method object
-		 * reference is not stable, unlike the reference method declaring class object
-		 * that is then used as the WeakHashMap key.
+		 * Cannot have simple inputClassByMethod/outputClassByMethod WeakHashMaps
+		 * because the method object reference is not stable, unlike the method
+		 * declaring class object reference that is then used as the WeakHashMap key.
 		 */
 		private static WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>> inputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>>();
+		private static WeakHashMap<Class<?>, Map<Method, Class<?>>> outputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<?>>>();
 
 		private Method operationMethod;
 
@@ -148,6 +149,38 @@ public class WSDL extends XMLBasedDocumentResource {
 							}
 						});
 				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public Class<?> getOperationOutputClass() {
+			synchronized (outputClassByMethodByDeclaringClass) {
+				outputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),
+						(declaringClass -> new HashMap<Method, Class<?>>()));
+				outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.computeIfAbsent(operationMethod, operationMethod -> {
+							if (operationMethod.getReturnType() == void.class) {
+								return null;
+							}
+							String className = operationMethod.getDeclaringClass().getName() + "_"
+									+ operationMethod.getName() + ".OperationOutput"
+									+ MiscUtils.toDigitalUniqueIdentifier(this);
+							ClassicStructure stucture = new ClassicStructure();
+							{
+								SimpleElement resultElement = new SimpleElement();
+								resultElement.setName("result");
+								resultElement.setTypeName(operationMethod.getReturnType().getName());
+								stucture.getElements().add(resultElement);
+							}
+							try {
+								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+										stucture.generateJavaTypeSourceCode(className));
+							} catch (CompilationError e) {
+								throw new UnexpectedError(e);
+							}
+						});
+				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.get(operationMethod);
 			}
 		}
 

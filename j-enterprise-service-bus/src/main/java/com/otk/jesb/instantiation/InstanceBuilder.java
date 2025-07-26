@@ -27,11 +27,11 @@ public class InstanceBuilder extends InitializationCase {
 	}
 
 	public InstanceBuilder(String typeName) {
-		this.typeName = typeName;
+		setTypeName(typeName);
 	}
 
 	public InstanceBuilder(Accessor<String> dynamicTypeNameAccessor) {
-		this.dynamicTypeNameAccessor = dynamicTypeNameAccessor;
+		setDynamicTypeNameAccessor(dynamicTypeNameAccessor);
 	}
 
 	public String getTypeName() {
@@ -49,6 +49,18 @@ public class InstanceBuilder extends InitializationCase {
 			throw new UnexpectedError();
 		}
 		this.typeName = typeName;
+
+		if (typeName != null) {
+			try {
+				Class<?> clazz = TypeInfoProvider.getClass(typeName);
+				System.out.println("class: " + clazz.getName());
+				System.out.println("class loader: " + clazz.getClassLoader());
+				System.out.println("debug" + "__________________________________________________________________");
+			} catch (Throwable t) {
+				t.printStackTrace();
+				System.out.println("debug" + "__________________________________________________________________");
+			}
+		}
 	}
 
 	public Accessor<String> getDynamicTypeNameAccessor() {
@@ -69,7 +81,7 @@ public class InstanceBuilder extends InitializationCase {
 		} else {
 			result = typeName;
 		}
-		if(result == null) {
+		if (result == null) {
 			result = NullInstance.class.getName();
 		}
 		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);

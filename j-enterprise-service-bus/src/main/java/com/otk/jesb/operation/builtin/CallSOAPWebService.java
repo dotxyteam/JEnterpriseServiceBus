@@ -38,15 +38,17 @@ public class CallSOAPWebService implements Operation {
 	private Method operationMethod;
 	private OperationInput operationInput;
 	private String customServiceEndpointURL;
+	private Class<?> operationOutputClass;
 
 	public CallSOAPWebService(WSDL wsdl, Class<?> serviceClass, Class<?> portInterface, Method operationMethod,
-			OperationInput operationInput, String customServiceEndpointURL) {
+			OperationInput operationInput, String customServiceEndpointURL, Class<?> operationOutputClass) {
 		this.wsdl = wsdl;
 		this.serviceClass = serviceClass;
 		this.portInterface = portInterface;
 		this.operationMethod = operationMethod;
 		this.operationInput = operationInput;
 		this.customServiceEndpointURL = customServiceEndpointURL;
+		this.operationOutputClass = operationOutputClass;
 	}
 
 	public WebDocumentBasedResource getWSDL() {
@@ -73,6 +75,10 @@ public class CallSOAPWebService implements Operation {
 		return customServiceEndpointURL;
 	}
 
+	public Class<?> getOperationOutputClass() {
+		return operationOutputClass;
+	}
+
 	@Override
 	public Object execute() throws Exception {
 		File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
@@ -85,8 +91,12 @@ public class CallSOAPWebService implements Operation {
 				bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
 						customServiceEndpointURL);
 			}
-			return operationMethod.invoke(port,
+			Object operationResult = operationMethod.invoke(port,
 					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());
+			if (operationOutputClass == null) {
+				return null;
+			}
+			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
 			if (e instanceof Exception) {
 				throw (Exception) e.getTargetException();
@@ -257,8 +267,9 @@ public class CallSOAPWebService implements Operation {
 			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Class<?> operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();
 			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,
-					customServiceEndpointURL);
+					customServiceEndpointURL, operationOutputClass);
 		}
 
 		@Override
@@ -267,7 +278,7 @@ public class CallSOAPWebService implements Operation {
 			if (operation == null) {
 				return null;
 			}
-			return operation.retrieveMethod().getReturnType();
+			return operation.getOperationOutputClass();
 		}
 
 		private WSDL.ServiceClientDescriptor retrieveServiceClientDescriptor() {

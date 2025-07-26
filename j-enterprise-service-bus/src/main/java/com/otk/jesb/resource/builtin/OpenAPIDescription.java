@@ -113,7 +113,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 	public Class<?> getAPIServiceImplementationClass() {
 		synchronized (this) {
-			if(serviceImplementationClass == null) {
+			if (serviceImplementationClass == null) {
 				Class<?> serviceInterface = getAPIServiceInterface();
 				String className = serviceInterface.getName() + "Impl" + MiscUtils.toDigitalUniqueIdentifier(this);
 				StringBuilder javaSource = new StringBuilder();
@@ -173,11 +173,13 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				}
 				javaSource.append("}" + "\n");
 				try {
-					serviceImplementationClass = (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
+					serviceImplementationClass = (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+							javaSource.toString());
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
 				}
-			};
+			}
+			;
 			return serviceImplementationClass;
 		}
 	}
@@ -204,8 +206,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	public List<APIOperationDescriptor> getServiceOperationDescriptors() {
-		return Arrays.asList(getAPIServiceInterface().getDeclaredMethods()).stream().map(m -> new APIOperationDescriptor(m))
-				.collect(Collectors.toList());
+		return Arrays.asList(getAPIServiceInterface().getDeclaredMethods()).stream()
+				.map(m -> new APIOperationDescriptor(m)).collect(Collectors.toList());
 	}
 
 	public List<APIOperationDescriptor> getClientOperationDescriptors() {
@@ -330,11 +332,12 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 	public static class APIOperationDescriptor {
 		/*
-		 * Cannot have a simple inputClassByMethod WeakHashMap because the method object
-		 * reference is not stable, unlike the reference method declaring class object
-		 * that is then used as the WeakHashMap key.
+		 * Cannot have simple inputClassByMethod/outputClassByMethod WeakHashMaps
+		 * because the method object reference is not stable, unlike the method
+		 * declaring class object reference that is then used as the WeakHashMap key.
 		 */
 		private static WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>> inputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>>();
+		private static WeakHashMap<Class<?>, Map<Method, Class<?>>> outputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<?>>>();
 
 		private Method operationMethod;
 
@@ -387,6 +390,38 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							}
 						});
 				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public Class<?> getOperationOutputClass() {
+			synchronized (outputClassByMethodByDeclaringClass) {
+				outputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),
+						(declaringClass -> new HashMap<Method, Class<?>>()));
+				outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.computeIfAbsent(operationMethod, operationMethod -> {
+							if (operationMethod.getReturnType() == void.class) {
+								return null;
+							}
+							String className = operationMethod.getDeclaringClass().getName() + "_"
+									+ operationMethod.getName() + ".OperationOutput"
+									+ MiscUtils.toDigitalUniqueIdentifier(this);
+							ClassicStructure stucture = new ClassicStructure();
+							{
+								SimpleElement resultElement = new SimpleElement();
+								resultElement.setName("result");
+								resultElement.setTypeName(operationMethod.getReturnType().getName());
+								stucture.getElements().add(resultElement);
+							}
+							try {
+								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+										stucture.generateJavaTypeSourceCode(className));
+							} catch (CompilationError e) {
+								throw new UnexpectedError(e);
+							}
+						});
+				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
+						.get(operationMethod);
 			}
 		}
 
