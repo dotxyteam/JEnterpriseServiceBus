@@ -8,6 +8,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -107,7 +108,8 @@ public class Operate extends Activator {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
-							+ MiscUtils.toDigitalUniqueIdentifier(Operate.this);
+							+ InstantiationUtils
+									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -130,7 +132,8 @@ public class Operate extends Activator {
 			} else {
 				try {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
-							+ MiscUtils.toDigitalUniqueIdentifier(Operate.this);
+							+ InstantiationUtils
+									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
@@ -144,8 +147,8 @@ public class Operate extends Activator {
 
 		@Override
 		public ResourcePath getActivatorIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(Operate.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(
+					ResourcePath.specifyClassPathResourceLocation(Operate.class.getName().replace(".", "/") + ".png"));
 		}
 
 		@Override

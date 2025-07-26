@@ -681,20 +681,15 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 											.createLineBorder(isHighlighted(node) ? getHighlightedMappingLinesColor()
 													: getMappingLinesColor(), getMappingLinesThickness()))
 							: BorderFactory.createEmptyBorder());
-			label.setText(getCellValue(node, columnIndex));
-		}
 
-		@Override
-		protected String getCellValue(ItemNode node, int columnIndex) {
-			String result = super.getCellValue(node, columnIndex);
-			if (result == null) {
-				return null;
+			String text = getCellValue(node, columnIndex);
+			if (text != null) {
+				text += "   ";
+				for (int i = 0; i < getMappingLinesThickness(); i++) {
+					text += "  ";
+				}
 			}
-			result += "   ";
-			for (int i = 0; i < getMappingLinesThickness(); i++) {
-				result += "  ";
-			}
-			return result;
+			label.setText(text);
 		}
 
 		protected boolean isVisiblyMapped(int rowIndex) {

@@ -20,6 +20,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
@@ -220,7 +221,8 @@ public class Evaluate implements Operation {
 			@Override
 			public Class<?> obtainClass() {
 				try {
-					String className = Evaluate.class.getName() + "Result" + MiscUtils.toDigitalUniqueIdentifier(this);
+					String className = Evaluate.class.getName() + "Result" + InstantiationUtils
+							.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							getStructure().generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {

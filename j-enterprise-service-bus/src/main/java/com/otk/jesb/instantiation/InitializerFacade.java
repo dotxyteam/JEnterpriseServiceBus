@@ -41,7 +41,7 @@ public abstract class InitializerFacade extends Facade {
 
 	protected String getValueTypeName() {
 		return InstantiationUtils.makeTypeNamesRelative(getValueType().getName(),
-				InstantiationUtils.getAncestorStructuredInstanceBuilders(this));
+				InstantiationUtils.getAncestorInstanceBuilders(this));
 	}
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {

@@ -19,6 +19,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 import com.sun.tools.ws.processor.ProcessorException;
@@ -40,8 +41,9 @@ public class WSDL extends XMLBasedDocumentResource {
 	@Override
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory) {
 		String[] wsImportArguments = new String[] { "-s", outputDirectory.getPath(), "-p",
-				WSDL.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this), "-keep",
-				"-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
+				WSDL.class.getName().toLowerCase() + InstantiationUtils
+						.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(WSDL.this)),
+				"-keep", "-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
 		System.setProperty("javax.xml.accessExternalSchema", "all");
 		System.setProperty("javax.xml.accessExternalDTD", "all");
 		ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();
@@ -120,8 +122,7 @@ public class WSDL extends XMLBasedDocumentResource {
 				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
 						.computeIfAbsent(operationMethod, operationMethod -> {
 							String className = operationMethod.getDeclaringClass().getName() + "_"
-									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName()
-									+ MiscUtils.toDigitalUniqueIdentifier(this);
+									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName();
 							String additionalyImplemented = MiscUtils
 									.adaptClassNameToSourceCode(OperationInput.class.getName());
 							ClassicStructure stucture = new ClassicStructure();
@@ -163,8 +164,7 @@ public class WSDL extends XMLBasedDocumentResource {
 								return null;
 							}
 							String className = operationMethod.getDeclaringClass().getName() + "_"
-									+ operationMethod.getName() + ".OperationOutput"
-									+ MiscUtils.toDigitalUniqueIdentifier(this);
+									+ operationMethod.getName() + ".OperationOutput";
 							ClassicStructure stucture = new ClassicStructure();
 							{
 								SimpleElement resultElement = new SimpleElement();
@@ -374,7 +374,7 @@ public class WSDL extends XMLBasedDocumentResource {
 		public Class<?> getImplementationClass() {
 			synchronized (implementationClassByInterface) {
 				implementationClassByInterface.computeIfAbsent(serviceInterface, serviceInterface -> {
-					String className = serviceInterface.getName() + "Impl" + MiscUtils.toDigitalUniqueIdentifier(this);
+					String className = serviceInterface.getName() + "Impl";
 					StringBuilder javaSource = new StringBuilder();
 					javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 					javaSource.append(

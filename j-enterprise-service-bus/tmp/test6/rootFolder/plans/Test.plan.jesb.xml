@@ -246,7 +246,7 @@
                                   <listItemInitializers/>
                                   <parameterInitializers/>
                                   <selectedConstructorSignature class="null"/>
-                                  <typeName>com.otk.jesb.resource.builtin.xsd0073056343052436175261527690543192816630.Row</typeName>
+                                  <typeName>com.otk.jesb.resource.builtin.xsd${_}.Row</typeName>
                                 </itemValue>
                               </com.otk.jesb.instantiation.ListItemInitializer>
                               <com.otk.jesb.instantiation.ListItemInitializer>
@@ -271,7 +271,7 @@
                                   <listItemInitializers/>
                                   <parameterInitializers/>
                                   <selectedConstructorSignature class="null"/>
-                                  <typeName>com.otk.jesb.resource.builtin.xsd0073056343052436175261527690543192816630.Row</typeName>
+                                  <typeName>com.otk.jesb.resource.builtin.xsd${_}.Row</typeName>
                                 </itemValue>
                               </com.otk.jesb.instantiation.ListItemInitializer>
                             </listItemInitializers>
@@ -285,7 +285,7 @@
                       <listItemInitializers/>
                       <parameterInitializers/>
                       <selectedConstructorSignature class="null"/>
-                      <typeName>com.otk.jesb.resource.builtin.xsd0073056343052436175261527690543192816630.Postals</typeName>
+                      <typeName>com.otk.jesb.resource.builtin.xsd${_}.Postals</typeName>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
@@ -662,7 +662,7 @@ values
                         </com.otk.jesb.instantiation.ParameterInitializer>
                       </parameterInitializers>
                       <selectedConstructorSignature class="null"/>
-                      <typeName>${..}</typeName>
+                      <typeName>com.otk.jesb.operation.builtin.EvaluateResult${_}</typeName>
                     </itemValue>
                   </com.otk.jesb.instantiation.ListItemInitializer>
                   <com.otk.jesb.instantiation.ListItemInitializer>
@@ -689,7 +689,7 @@ values
                         </com.otk.jesb.instantiation.ParameterInitializer>
                       </parameterInitializers>
                       <selectedConstructorSignature class="null"/>
-                      <typeName>${..}</typeName>
+                      <typeName>com.otk.jesb.operation.builtin.EvaluateResult${_}</typeName>
                     </itemValue>
                   </com.otk.jesb.instantiation.ListItemInitializer>
                 </listItemInitializers>
@@ -839,7 +839,7 @@ values
       <diagramY>378</diagramY>
       <name>callRESTAPI</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
-        <customBaseURL>htt</customBaseURL>
+        <customBaseURL>http://localhost:8080</customBaseURL>
         <openAPIDescriptionReference>
           <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
           <assetFilter class="null"/>
@@ -863,7 +863,12 @@ values
                 <fieldInitializers/>
                 <initializationSwitches/>
                 <listItemInitializers/>
-                <parameterInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="int">0</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
                 <selectedConstructorSignature class="null"/>
                 <typeName>&lt;Dynamic&gt;</typeName>
               </parameterValue>

@@ -34,6 +34,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -115,7 +116,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		synchronized (this) {
 			if (serviceImplementationClass == null) {
 				Class<?> serviceInterface = getAPIServiceInterface();
-				String className = serviceInterface.getName() + "Impl" + MiscUtils.toDigitalUniqueIdentifier(this);
+				String className = serviceInterface.getName() + "Impl";
 				StringBuilder javaSource = new StringBuilder();
 				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
@@ -238,7 +239,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	private String getBasePackageName() {
-		return OpenAPIDescription.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(this);
+		return OpenAPIDescription.class.getName().toLowerCase()
+				+ InstantiationUtils.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));
 	}
 
 	@Override
@@ -361,8 +363,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
 						.computeIfAbsent(operationMethod, operationMethod -> {
 							String className = operationMethod.getDeclaringClass().getName() + "_"
-									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName()
-									+ MiscUtils.toDigitalUniqueIdentifier(this);
+									+ operationMethod.getName() + "." + OperationInput.class.getSimpleName();
 							String additionalyImplemented = MiscUtils
 									.adaptClassNameToSourceCode(OperationInput.class.getName());
 							ClassicStructure stucture = new ClassicStructure();
@@ -404,8 +405,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 								return null;
 							}
 							String className = operationMethod.getDeclaringClass().getName() + "_"
-									+ operationMethod.getName() + ".OperationOutput"
-									+ MiscUtils.toDigitalUniqueIdentifier(this);
+									+ operationMethod.getName() + ".OperationOutput";
 							ClassicStructure stucture = new ClassicStructure();
 							{
 								SimpleElement resultElement = new SimpleElement();

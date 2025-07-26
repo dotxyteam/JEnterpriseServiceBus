@@ -254,7 +254,8 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return null;
 				} else {
 					List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry>();
-					for (Step descendantStep : ((LoopCompositeStep) currentStep).getDescendantResultProducingSteps(currentPlan)) {
+					for (Step descendantStep : ((LoopCompositeStep) currentStep)
+							.getDescendantResultProducingSteps(currentPlan)) {
 						result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));
 					}
 					resultsCollectionTargetedStepNames.stream()
@@ -291,7 +292,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return null;
 				}
 				String resultClassName = LoopCompositeStep.class.getName() + "Result"
-						+ MiscUtils.toDigitalUniqueIdentifier(this);
+						+ MiscUtils.toDigitalUniqueIdentifier(LoopOperation.Builder.this);
 				ClassicStructure structure = new ClassicStructure();
 				{
 					for (int i = 0; i < resultsCollectionEntries.size(); i++) {

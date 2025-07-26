@@ -179,7 +179,7 @@ public class InstanceBuilderFacade extends Facade {
 	public ITypeInfo getTypeInfo() {
 		if (typeInfo == null) {
 			String actualTypeName = underlying
-					.computeActualTypeName(InstantiationUtils.getAncestorStructuredInstanceBuilders(parent));
+					.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent));
 			ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
 			if (result instanceof IListTypeInfo) {
 				if (parent instanceof FieldInitializerFacade) {

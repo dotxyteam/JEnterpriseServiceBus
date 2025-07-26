@@ -2,7 +2,6 @@ package com.otk.jesb.resource.builtin;
 
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
-import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
@@ -10,6 +9,7 @@ import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -38,22 +38,21 @@ public class SharedStructureModel extends Resource {
 	}
 
 	private Structure structure = new ClassicStructure();
-	private UpToDate<Class<? extends Structured>> upToDateStructuredClass = new UpToDate<Class<? extends Structured>>() {
+	private UpToDate<Class<?>> upToDateStructuredClass = new UpToDate<Class<?>>() {
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
 			return (structure != null) ? MiscUtils.serialize(structure) : null;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		protected Class<? extends Structured> obtainLatest(Object versionIdentifier) {
+		protected Class<?> obtainLatest(Object versionIdentifier) {
 			if (structure == null) {
 				return null;
 			} else {
 				try {
-					String className = STRUCTURED_CLASS_NAME_PREFIX
-							+ MiscUtils.toDigitalUniqueIdentifier(SharedStructureModel.this);
-					return (Class<? extends Structured>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
+					String className = STRUCTURED_CLASS_NAME_PREFIX + InstantiationUtils.toRelativeTypeNameVariablePart(
+							MiscUtils.toDigitalUniqueIdentifier(SharedStructureModel.this));
+					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							structure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
@@ -78,7 +77,7 @@ public class SharedStructureModel extends Resource {
 		this.structure = structure;
 	}
 
-	public Class<? extends Structured> getStructuredClass() {
+	public Class<?> getStructuredClass() {
 		try {
 			return upToDateStructuredClass.get();
 		} catch (VersionAccessException e) {

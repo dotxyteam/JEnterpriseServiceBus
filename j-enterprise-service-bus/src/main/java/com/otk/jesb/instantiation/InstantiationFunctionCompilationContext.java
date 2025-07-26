@@ -36,13 +36,13 @@ public class InstantiationFunctionCompilationContext {
 			@Override
 			public String apply(String functionBody) {
 				return InstantiationUtils.makeTypeNamesAbsolute(functionBody,
-						InstantiationUtils.getAncestorStructuredInstanceBuilders(parentFacade));
+						InstantiationUtils.getAncestorInstanceBuilders(parentFacade));
 			}
 
 			@Override
 			public int unprecompileFunctionBodyPosition(int position, String precompiledFunctionBody) {
-				return InstantiationUtils.indexBeforeTypeNamesMadeAbsolute(position, precompiledFunctionBody,
-						InstantiationUtils.getAncestorStructuredInstanceBuilders(parentFacade));
+				return InstantiationUtils.positionBeforeTypeNamesMadeAbsolute(position, precompiledFunctionBody,
+						InstantiationUtils.getAncestorInstanceBuilders(parentFacade));
 			}
 		};
 	}

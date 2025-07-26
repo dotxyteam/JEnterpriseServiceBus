@@ -9,6 +9,7 @@ import org.xml.sax.SAXParseException;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 import com.sun.tools.xjc.BadCommandLineException;
@@ -31,7 +32,9 @@ public class XSD extends XMLBasedDocumentResource {
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory)
 			throws BadCommandLineException {
 		String[] xjcArgs = { "-d", outputDirectory.getPath(), "-p",
-				XSD.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(XSD.this), mainFile.getPath() };
+				XSD.class.getName().toLowerCase() + InstantiationUtils
+						.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(XSD.this)),
+				mainFile.getPath() };
 
 		final StringBuilder logsBuffer = new StringBuilder();
 		int driverStatus;

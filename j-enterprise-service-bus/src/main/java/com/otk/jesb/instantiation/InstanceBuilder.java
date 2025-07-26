@@ -58,6 +58,7 @@ public class InstanceBuilder extends InitializationCase {
 				System.out.println("debug" + "__________________________________________________________________");
 			} catch (Throwable t) {
 				t.printStackTrace();
+				System.out.println("unknown class: " + typeName);
 				System.out.println("debug" + "__________________________________________________________________");
 			}
 		}
@@ -103,7 +104,7 @@ public class InstanceBuilder extends InitializationCase {
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					InstantiationUtils.getAncestorStructuredInstanceBuilders(context.getParentFacade()));
+					InstantiationUtils.getAncestorInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
 				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {

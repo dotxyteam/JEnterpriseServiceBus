@@ -7,7 +7,7 @@
       <newPathValidator class="null"/>
       <path>resources &gt; petstore</path>
     </openAPIDescriptionReference>
-    <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription0289994616865466686433112668147477380798.service.Pet)</operationSignature>
+    <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription73746172740121795807921988426548560201215732366789656E64.service.Pet)</operationSignature>
     <serverReference>
       <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
       <assetFilter class="null"/>

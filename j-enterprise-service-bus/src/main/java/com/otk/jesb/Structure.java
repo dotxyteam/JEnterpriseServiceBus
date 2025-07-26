@@ -48,9 +48,8 @@ public abstract class Structure {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
 			result.append("public class " + MiscUtils.extractSimpleNameFromClassName(className)
-					+ ((additionalyExtended != null) ? (" " + additionalyExtended) : "") + " implements "
-					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName())
-					+ ((additionalyImplemented != null) ? (", " + additionalyImplemented) : "") + "{" + "\n");
+					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
+					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
 			result.append(MiscUtils.stringJoin(elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode())
 					.collect(Collectors.toList()), "\n") + "\n");
 			result.append(
@@ -108,10 +107,6 @@ public abstract class Structure {
 
 	}
 
-	public static interface Structured {
-
-	}
-
 	public static class EnumerationStructure extends Structure {
 		private List<EnumerationItem> items = new ArrayList<EnumerationItem>();
 
@@ -131,9 +126,8 @@ public abstract class Structure {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
 			result.append("public enum " + MiscUtils.extractSimpleNameFromClassName(className)
-					+ ((additionalyExtended != null) ? (" " + additionalyExtended) : "") + " implements "
-					+ MiscUtils.adaptClassNameToSourceCode(Structured.class.getName())
-					+ ((additionalyImplemented != null) ? (", " + additionalyImplemented) : "") + "{" + "\n");
+					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
+					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
 			result.append(
 					MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
 							+ ";" + "\n");
@@ -235,7 +229,7 @@ public abstract class Structure {
 			}
 		}
 
-		public Class<? extends Structured> getStructuredClass() {
+		public Class<?> getStructuredClass() {
 			if (modelReference == null) {
 				return null;
 			}
@@ -463,7 +457,7 @@ public abstract class Structure {
 
 		private String getStructuredClassName() {
 			if (structure instanceof SharedStructureReference) {
-				Class<? extends Structured> structuredClass = ((SharedStructureReference) structure)
+				Class<?> structuredClass = ((SharedStructureReference) structure)
 						.getStructuredClass();
 				return structuredClass.getName();
 			}

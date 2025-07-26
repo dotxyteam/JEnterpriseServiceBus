@@ -778,11 +778,11 @@ public class MiscUtils {
 		return true;
 	}
 
-	public static int indexAfterReplacement(int index, String inputString, String target, String replacement) {
-		if (target.isEmpty() || index < 0 || index > inputString.length()) {
-			return index;
+	public static int positionAfterReplacement(int positionBefore, String inputString, String target, String replacement) {
+		if (target.isEmpty() || positionBefore < 0 || positionBefore > inputString.length()) {
+			return positionBefore;
 		}
-		int newIndex = index;
+		int newIndex = positionBefore;
 		int i = 0;
 		int shift = 0;
 		while (i < inputString.length()) {
@@ -791,12 +791,12 @@ public class MiscUtils {
 				break;
 			}
 			int end = found + target.length();
-			if (index >= found && index < end) {
+			if (positionBefore >= found && positionBefore < end) {
 				// The index falls inside a replaced segment — it no longer maps to any
 				// position.
 				return -1;
 			}
-			if (found >= index) {
+			if (found >= positionBefore) {
 				// No need to process further if the replacement occurs after the original
 				// index.
 				break;

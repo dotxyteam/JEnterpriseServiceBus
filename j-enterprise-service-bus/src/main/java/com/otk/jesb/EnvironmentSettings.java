@@ -14,6 +14,7 @@ import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
@@ -59,8 +60,8 @@ public class EnvironmentSettings {
 
 		@Override
 		protected Class<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
-			String className = EnvironmentSettings.class.getName()
-					+ MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this);
+			String className = EnvironmentSettings.class.getName() + InstantiationUtils
+					.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this));
 			try {
 				return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						getVariablesRootStructure().generateJavaTypeSourceCode(className));

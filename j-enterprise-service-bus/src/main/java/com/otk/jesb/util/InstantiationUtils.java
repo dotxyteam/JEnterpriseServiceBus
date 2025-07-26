@@ -6,9 +6,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.Structure.Structured;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
@@ -43,7 +44,11 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstantiationUtils {
 
-	private static final String PARENT_STRUCTURE_TYPE_NAME_SYMBOL = "${..}";
+	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE = "${_}";
+	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_START = "7374617274";
+	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_END = "656E64";
+	private static final Pattern RELATIVE_TYPE_NAME_PATTERN = Pattern.compile(
+			".*(" + RELATIVE_TYPE_NAME_VARIABLE_PART_START + ".+" + RELATIVE_TYPE_NAME_VARIABLE_PART_END + ").*");
 
 	public static Object executeFunction(InstantiationFunction function, InstantiationContext instantiationContext)
 			throws FunctionCallError {
@@ -155,8 +160,8 @@ public class InstantiationUtils {
 			try {
 				Class<?> instanceBuilderJavaType;
 				try {
-					instanceBuilderJavaType = TypeInfoProvider.getClass(((InstanceBuilder) value)
-							.computeActualTypeName(getAncestorStructuredInstanceBuilders(parentFacade)));
+					instanceBuilderJavaType = TypeInfoProvider.getClass(
+							((InstanceBuilder) value).computeActualTypeName(getAncestorInstanceBuilders(parentFacade)));
 				} catch (Throwable t) {
 					instanceBuilderJavaType = null;
 				}
@@ -236,9 +241,8 @@ public class InstantiationUtils {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
-							+ makeTypeNamesRelative(type.getName(),
-									getAncestorStructuredInstanceBuilders(currentFacade))
-							+ "." + defaultValue.toString() + ";";
+							+ makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)) + "."
+							+ defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
 				} else {
@@ -267,8 +271,8 @@ public class InstantiationUtils {
 					InstanceBuilder result = new InstanceBuilder();
 					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-					if (!type.getName().equals(result.computeActualTypeName(
-							InstantiationUtils.getAncestorStructuredInstanceBuilders(currentFacade)))) {
+					if (!type.getName().equals(result
+							.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(currentFacade)))) {
 						throw new UnexpectedError();
 					}
 					return result;
@@ -281,8 +285,8 @@ public class InstantiationUtils {
 						if (type instanceof IMapEntryTypeInfo) {
 							return new MapEntryBuilder();
 						} else {
-							return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
-									getAncestorStructuredInstanceBuilders(currentFacade)));
+							return new InstanceBuilder(
+									makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)));
 						}
 					}
 				}
@@ -301,61 +305,65 @@ public class InstantiationUtils {
 		return value;
 	}
 
-	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
+	public static String toRelativeTypeNameVariablePart(String baseClassNamePart) {
+		return RELATIVE_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + RELATIVE_TYPE_NAME_VARIABLE_PART_END;
+	}
+
+	private static String extractRelativeTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
+		for (int i = 0; i < ancestorInstanceBuilders.size(); i++) {
+			InstanceBuilder ancestorInstanceBuilder = ancestorInstanceBuilders.get(i);
+			String absoluteAncestorTypeName = ancestorInstanceBuilder
+					.computeActualTypeName(ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()));
+			Matcher matcher = RELATIVE_TYPE_NAME_PATTERN.matcher(absoluteAncestorTypeName);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+		return null;
+	}
+
+	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
-		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
-				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
-		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
-			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		if (dynamicTypeNamePart != null) {
+			text = text.replace(dynamicTypeNamePart, RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);
 		}
-		return text.replace(absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
+		return text;
 	}
 
-	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
+	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
-		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
-				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
-		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
-			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		if (dynamicTypeNamePart != null) {
+			text = text.replace(RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE, dynamicTypeNamePart);
 		}
-		return text.replace(PARENT_STRUCTURE_TYPE_NAME_SYMBOL, absoluteParentTypeName);
+		return text;
 	}
 
-	public static int indexBeforeTypeNamesMadeAbsolute(int index, String text,
-			List<InstanceBuilder> ancestorStructureInstanceBuilders) {
-		if ((ancestorStructureInstanceBuilders == null) || (ancestorStructureInstanceBuilders.size() == 0)) {
-			return index;
+	public static int positionBeforeTypeNamesMadeAbsolute(int positionAfter, String text,
+			List<InstanceBuilder> ancestorInstanceBuilders) {
+		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
+			return positionAfter;
 		}
-		InstanceBuilder parentInstanceBuilder = ancestorStructureInstanceBuilders.get(0);
-		String absoluteParentTypeName = parentInstanceBuilder.computeActualTypeName(
-				ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()));
-		if (MiscUtils.isArrayTypeName(absoluteParentTypeName)) {
-			absoluteParentTypeName = MiscUtils.getArrayComponentTypeName(absoluteParentTypeName);
+		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		if (dynamicTypeNamePart != null) {
+			return MiscUtils.positionAfterReplacement(positionAfter, text, dynamicTypeNamePart,
+					RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);
 		}
-		return MiscUtils.indexAfterReplacement(index, text, absoluteParentTypeName, PARENT_STRUCTURE_TYPE_NAME_SYMBOL);
+		return positionAfter;
 	}
 
-	public static List<InstanceBuilder> getAncestorStructuredInstanceBuilders(Facade facade) {
+	public static List<InstanceBuilder> getAncestorInstanceBuilders(Facade facade) {
 		if (facade == null) {
 			return null;
 		}
 		List<InstanceBuilder> result = new ArrayList<InstanceBuilder>();
 		for (Facade ancestorFacade : Facade.getAncestors(facade)) {
 			if (!(ancestorFacade instanceof InstanceBuilderFacade)) {
-				continue;
-			}
-			Class<?> ancestorClass = ((DefaultTypeInfo) ((InstanceBuilderFacade) ancestorFacade).getTypeInfo())
-					.getJavaType();
-			if (ancestorClass.isArray()) {
-				ancestorClass = ancestorClass.getComponentType();
-			}
-			if (!Structured.class.isAssignableFrom(ancestorClass)) {
 				continue;
 			}
 			result.add(((InstanceBuilderFacade) ancestorFacade).getUnderlying());

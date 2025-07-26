@@ -124,8 +124,7 @@ public abstract class XMLOperation implements Operation {
 					rootElement.setTypeName(rootElementDescriptor.retrieveClass().getName());
 					resultStructure.getElements().add(rootElement);
 				}
-				String className = XMLOperation.class.getName() + "DocumentObject"
-						+ MiscUtils.toDigitalUniqueIdentifier(this);
+				String className = rootElementDescriptor.retrieveClass().getName() + "DocumentObject";
 				try {
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							resultStructure.generateJavaTypeSourceCode(className));

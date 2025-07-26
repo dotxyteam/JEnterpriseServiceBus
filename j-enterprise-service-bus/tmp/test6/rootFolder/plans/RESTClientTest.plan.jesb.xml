@@ -73,24 +73,30 @@
                         <com.otk.jesb.instantiation.FieldInitializer>
                           <condition class="null"/>
                           <fieldName>id</fieldName>
-                          <fieldValue class="long">0</fieldValue>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return System.currentTimeMillis();</functionBody>
+                          </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
                         <com.otk.jesb.instantiation.FieldInitializer>
                           <condition class="null"/>
                           <fieldName>name</fieldName>
-                          <fieldValue class="string">Dog</fieldValue>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return &quot;Pet&quot; + System.currentTimeMillis();</functionBody>
+                          </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
                         <com.otk.jesb.instantiation.FieldInitializer>
                           <condition class="null"/>
                           <fieldName>tag</fieldName>
-                          <fieldValue class="string">aze</fieldValue>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return &quot;tag&quot; + System.currentTimeMillis();</functionBody>
+                          </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
                       </fieldInitializers>
                       <initializationSwitches/>
                       <listItemInitializers/>
                       <parameterInitializers/>
                       <selectedConstructorSignature class="null"/>
-                      <typeName>com.otk.jesb.resource.builtin.openapidescription0006223507786916666669422261714763406830.client.Pet</typeName>
+                      <typeName>com.otk.jesb.resource.builtin.openapidescription${_}.client.Pet</typeName>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
@@ -106,7 +112,7 @@
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </operationInputBuilder>
-        <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription0006223507786916666669422261714763406830.client.Pet)</operationSignature>
+        <operationSignature>void createPets(com.otk.jesb.resource.builtin.openapidescription73746172740121795807921988426548560201215732366789656E64.client.Pet)</operationSignature>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
