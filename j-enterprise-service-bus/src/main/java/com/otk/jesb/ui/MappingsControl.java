@@ -222,8 +222,10 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					PathNode pathNodeOrAncestor = pathNode;
 					while (pathNodeOrAncestor != null) {
 						if (unrelativizePathNode(pathNodeOrAncestor) instanceof ListItemNode) {
-							String functionBodyPattern = "^\\s*return\\s+"
-									+ pathNodeOrAncestor.getParent().getExpressionPattern() + "\\s*;\\s*$";
+							String parentExpressionPattern = (pathNodeOrAncestor.getParent() != null)
+									? pathNodeOrAncestor.getParent().getExpressionPattern()
+									: pathNodeOrAncestor.getExplorer().getRootExpressionPattern();
+							String functionBodyPattern = "^\\s*return\\s+" + parentExpressionPattern + "\\s*;\\s*$";
 							if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)
 									.matcher(replicationFunction.getFunctionBody()).matches()) {
 								return new RelativePathNode(pathNode, pathNodeOrAncestor.getTypicalExpression(),

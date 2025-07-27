@@ -82,6 +82,8 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - check dependencies vulnerabilities and change versions
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
+- improve JDBCQueryActivity:
+	. check parameter type mappings
 - some modifications can disappear from the UI when 
 InstanceBuilder.(className|selectedConstructorSignature) are modified. It may be better
 to display incoherent nodes with an error marker

@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -400,6 +401,7 @@ public abstract class Structure {
 			this.typeNameOrAlias = typeNameOrAlias;
 		}
 
+		@Transient
 		@Override
 		public String getTypeName() {
 			return TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias);
@@ -457,8 +459,7 @@ public abstract class Structure {
 
 		private String getStructuredClassName() {
 			if (structure instanceof SharedStructureReference) {
-				Class<?> structuredClass = ((SharedStructureReference) structure)
-						.getStructuredClass();
+				Class<?> structuredClass = ((SharedStructureReference) structure).getStructuredClass();
 				return structuredClass.getName();
 			}
 			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";

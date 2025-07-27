@@ -29,15 +29,28 @@
     <parameterInitializers>
       <com.otk.jesb.instantiation.ParameterInitializer>
         <parameterPosition>0</parameterPosition>
-        <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-          <functionBody>return &quot;input was &quot; + PLAN_INPUT.dNum;</functionBody>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                <functionBody>return &quot;input was &quot; + PLAN_INPUT.dNum;</functionBody>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
         </parameterValue>
       </com.otk.jesb.instantiation.ParameterInitializer>
     </parameterInitializers>
     <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
-    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
-      <outer-class reference="../../.."/>
-    </rootInstanceDynamicTypeNameAccessor>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
     <rootInstanceName>PlanOutput</rootInstanceName>
     <rootInstanceTypeName class="null"/>
     <selectedConstructorSignature class="null"/>

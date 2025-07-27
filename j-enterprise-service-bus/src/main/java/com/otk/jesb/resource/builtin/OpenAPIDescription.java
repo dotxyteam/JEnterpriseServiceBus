@@ -42,6 +42,7 @@ import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 import com.github.javaparser.ast.Node;
@@ -375,7 +376,18 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							for (Parameter parameter : operationMethod.getParameters()) {
 								SimpleElement element = new SimpleElement();
 								element.setName(parameter.getName());
-								element.setTypeName(parameter.getType().getName());
+								String typeName = parameter.getType().getName();
+								{
+									List<Class<?>> genericTypeParameters = new JavaTypeInfoSource(parameter.getType(),
+											operationMethod,
+											Arrays.asList(operationMethod.getParameters()).indexOf(parameter), null)
+													.guessGenericTypeParameters(parameter.getType());
+									if (genericTypeParameters != null) {
+										typeName += "<" + genericTypeParameters.stream().map(Class::getName)
+												.collect(Collectors.joining(", ")) + ">";
+									}
+								}
+								element.setTypeName(typeName);
 								stucture.getElements().add(element);
 							}
 							StringBuilder additionalMethodDeclarations = new StringBuilder();
@@ -415,7 +427,17 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							{
 								SimpleElement resultElement = new SimpleElement();
 								resultElement.setName("result");
-								resultElement.setTypeName(operationMethod.getReturnType().getName());
+								String typeName = operationMethod.getReturnType().getName();
+								{
+									List<Class<?>> genericTypeParameters = new JavaTypeInfoSource(
+											operationMethod.getReturnType(), operationMethod, -1, null)
+													.guessGenericTypeParameters(operationMethod.getReturnType());
+									if (genericTypeParameters != null) {
+										typeName += "<" + genericTypeParameters.stream().map(Class::getName)
+												.collect(Collectors.joining(", ")) + ">";
+									}
+								}
+								resultElement.setTypeName(typeName);
 								stucture.getElements().add(resultElement);
 							}
 							try {

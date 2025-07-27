@@ -531,6 +531,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 									}
 								}
 								onStepInsertionRequest(newStep);
+								plan.setSelectedElements(Collections.singleton(newStep));
 								return true;
 							}
 						}, false);

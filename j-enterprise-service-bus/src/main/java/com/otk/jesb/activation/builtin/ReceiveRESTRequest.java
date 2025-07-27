@@ -26,9 +26,6 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.util.UpToDate;
-import com.otk.jesb.util.UpToDate.VersionAccessException;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class ReceiveRESTRequest extends Activator {
@@ -40,7 +37,6 @@ public class ReceiveRESTRequest extends Activator {
 	private String servicePath = "/";
 
 	private ActivationHandler activationHandler;
-	private UpToDateOperationOutputClass upToDateOperationOutputClass = new UpToDateOperationOutputClass();
 
 	private HTTPServer getServer() {
 		return serverReference.resolve();
@@ -124,11 +120,11 @@ public class ReceiveRESTRequest extends Activator {
 
 	@Override
 	public Class<?> getOutputClass() {
-		try {
-			return upToDateOperationOutputClass.get();
-		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
+		if (operation == null) {
+			return null;
 		}
+		return operation.getOperationOutputClass();
 	}
 
 	@Override
@@ -211,30 +207,6 @@ public class ReceiveRESTRequest extends Activator {
 		}
 	}
 
-	private class UpToDateOperationOutputClass extends UpToDate<Class<?>> {
-		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-			if (operation == null) {
-				return null;
-			}
-			return operation.retrieveMethod();
-		}
-
-		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
-			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-			if (operation == null) {
-				return null;
-			}
-			Class<?> returnType = operation.retrieveMethod().getReturnType();
-			if (returnType == void.class) {
-				return null;
-			}
-			return returnType;
-		}
-	}
-
 	public static class RESTRequestHandler implements RequestHandler {
 
 		private OpenAPIDescription openAPIDescription;
@@ -273,7 +245,12 @@ public class ReceiveRESTRequest extends Activator {
 							}
 							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()
 									.getConstructor(method.getParameterTypes()).newInstance(args);
-							return registeredActivationHandler.trigger(operationInput);
+							Object operationOutput = registeredActivationHandler.trigger(operationInput);
+							Class<?> operationOutputClass = operation.getOperationOutputClass();
+							if (operationOutputClass == null) {
+								return null;
+							}
+							return operationOutputClass.getFields()[0].get(operationOutput);
 						}
 					})));
 			factory.setProvider(new JacksonJsonProvider());

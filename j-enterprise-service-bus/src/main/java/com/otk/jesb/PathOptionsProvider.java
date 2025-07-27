@@ -37,6 +37,11 @@ public class PathOptionsProvider {
 		}
 
 		@Override
+		public PathExplorer getExplorer() {
+			return null;
+		}
+
+		@Override
 		public PathNode getParent() {
 			return null;
 		}

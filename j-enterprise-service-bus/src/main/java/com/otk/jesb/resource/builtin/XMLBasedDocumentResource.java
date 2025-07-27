@@ -178,8 +178,6 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 						if (isListFieldDeclaration(fieldDeclaration)) {
 							fieldDeclaration.getVariables().forEach(variable -> {
 								if (!variable.getInitializer().isPresent()) {
-									variable.setType(variable.getTypeAsString().replace(List.class.getSimpleName(),
-											ArrayList.class.getSimpleName()));
 									variable.setInitializer(
 											new ObjectCreationExpr().setType(ArrayList.class.getName() + "<>"));
 								}

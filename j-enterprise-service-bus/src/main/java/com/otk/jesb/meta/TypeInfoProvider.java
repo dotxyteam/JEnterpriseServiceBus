@@ -1,7 +1,6 @@
 package com.otk.jesb.meta;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
@@ -17,6 +16,8 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 
 public class TypeInfoProvider {
+
+	public static final ReflectionUI INTROSPECTOR = ReflectionUI.getDefault();
 
 	public static Class<?> getClass(String typeName) {
 		String arrayComponentTypeName = MiscUtils.getArrayComponentTypeName(typeName);
@@ -52,11 +53,7 @@ public class TypeInfoProvider {
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName) {
-		return getTypeInfo(typeName, null);
-	}
-
-	public static ITypeInfo getTypeInfo(Class<?> objectClass) {
-		return getTypeInfo(objectClass, (IInfo) null);
+		return getTypeInfo(getClass(typeName));
 	}
 
 	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
@@ -64,30 +61,34 @@ public class TypeInfoProvider {
 	}
 
 	public static ITypeInfo getTypeInfo(Class<?> objectClass, IInfo typeOwner) {
-		ReflectionUI reflectionUI = ReflectionUI.getDefault();
-		JavaTypeInfoSource javaTypeInfoSource;
 		if (typeOwner != null) {
+			Member javaTypeOwner;
 			if (typeOwner instanceof GetterFieldInfo) {
-				Method javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
-				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
+				javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();
 			} else if (typeOwner instanceof PublicFieldInfo) {
-				Field javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
-				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
+				javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();
 			} else if (typeOwner instanceof DefaultMethodInfo) {
-				Method javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
-				javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
+				javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();
 			} else {
 				throw new UnexpectedError();
 			}
+			return getTypeInfo(objectClass, javaTypeOwner);
 		} else {
-			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, null);
+			return getTypeInfo(objectClass);
 		}
-		return reflectionUI.getTypeInfo(javaTypeInfoSource);
+	}
+
+	public static ITypeInfo getTypeInfo(Class<?> objectClass) {
+		return INTROSPECTOR.getTypeInfo(new JavaTypeInfoSource(objectClass, null));
+	}
+
+	public static ITypeInfo getTypeInfo(Class<?> objectClass, Member javaTypeOwner) {
+		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);
+		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
 	public static ITypeInfo getTypeInfo(String parameterTypeName, IMethodInfo method, int parameterPosition) {
 		Class<?> objectClass = getClass(parameterTypeName);
-		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (method instanceof DefaultConstructorInfo) {
 			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
@@ -98,13 +99,12 @@ public class TypeInfoProvider {
 		} else {
 			throw new UnexpectedError();
 		}
-		return reflectionUI.getTypeInfo(javaTypeInfoSource);
+		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
 	public static ITypeInfo getTypeInfo(Class<?> objectClass, Class<?>[] genericTypeParameters) {
-		ReflectionUI reflectionUI = ReflectionUI.getDefault();
 		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, genericTypeParameters, null);
-		return reflectionUI.getTypeInfo(javaTypeInfoSource);
+		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
 }

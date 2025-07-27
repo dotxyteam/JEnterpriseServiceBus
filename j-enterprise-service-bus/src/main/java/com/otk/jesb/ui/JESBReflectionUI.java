@@ -1942,8 +1942,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public Object getValue(Object object) {
-								return optionsFactory.getItemInstance(
-										((Variant<?>) object).getVariableReferenceExpression());
+								return optionsFactory
+										.getItemInstance(((Variant<?>) object).getVariableReferenceExpression());
 							}
 
 							@SuppressWarnings("unchecked")

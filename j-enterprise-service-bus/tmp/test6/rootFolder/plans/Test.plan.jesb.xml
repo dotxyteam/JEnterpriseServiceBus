@@ -46,6 +46,7 @@
           <newPathValidator class="null"/>
           <path>resources &gt; db</path>
         </connectionReference>
+        <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
         <parameterDefinitions/>
         <parameterValuesBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
@@ -77,6 +78,7 @@
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </parameterValuesBuilder>
+        <resultColumnDefinitionAutomatic>true</resultColumnDefinitionAutomatic>
         <resultColumnDefinitions>
           <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
             <columnName>TABLE_CAT</columnName>
@@ -475,6 +477,7 @@
           <newPathValidator class="null"/>
           <path>resources &gt; db</path>
         </connectionReference>
+        <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
         <parameterDefinitions/>
         <parameterValuesBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
@@ -529,6 +532,7 @@
           <newPathValidator class="null"/>
           <path>resources &gt; db</path>
         </connectionReference>
+        <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
         <parameterDefinitions>
           <com.otk.jesb.operation.builtin.JDBCOperation_-ParameterDefinition>
             <parameterName>id</parameterName>
@@ -713,21 +717,18 @@ values
                 <multiple>false</multiple>
                 <name>id</name>
                 <optionality class="null"/>
-                <typeName>java.lang.String</typeName>
                 <typeNameOrAlias>java.lang.String</typeNameOrAlias>
               </com.otk.jesb.Structure_-SimpleElement>
               <com.otk.jesb.Structure_-SimpleElement>
                 <multiple>false</multiple>
                 <name>name</name>
                 <optionality class="null"/>
-                <typeName>java.lang.String</typeName>
                 <typeNameOrAlias>java.lang.String</typeNameOrAlias>
               </com.otk.jesb.Structure_-SimpleElement>
               <com.otk.jesb.Structure_-SimpleElement>
                 <multiple>false</multiple>
                 <name>tag</name>
                 <optionality class="null"/>
-                <typeName>java.lang.String</typeName>
                 <typeNameOrAlias>java.lang.String</typeNameOrAlias>
               </com.otk.jesb.Structure_-SimpleElement>
             </elements>

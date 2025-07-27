@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,11 +99,12 @@ public class InstantiationUtils {
 	}
 
 	public static AbstractConstructorInfo getConstructorInfo(ITypeInfo typeInfo, String selectedConstructorSignature) {
+		List<IMethodInfo> options = listSortedConstructors(typeInfo);
 		if (selectedConstructorSignature == null) {
-			if (typeInfo.getConstructors().size() == 0) {
+			if (options.size() == 0) {
 				return null;
 			} else {
-				return (AbstractConstructorInfo) listSortedConstructors(typeInfo).get(0);
+				return (AbstractConstructorInfo) options.get(0);
 			}
 		} else {
 			return (AbstractConstructorInfo) ReflectionUIUtils.findMethodBySignature(typeInfo.getConstructors(),
@@ -285,6 +289,19 @@ public class InstantiationUtils {
 						if (type instanceof IMapEntryTypeInfo) {
 							return new MapEntryBuilder();
 						} else {
+							/*
+							 * Automatically replace the type with a standard alternative when we detect
+							 * that it will need to be modified because it cannot be instantiated.
+							 * Generally, we replace standard interfaces with their default implementation
+							 * here.
+							 */
+							if (type.getName().equals(List.class.getName())) {
+								type = TypeInfoProvider.getTypeInfo(ArrayList.class);
+							} else if (type.getName().equals(Set.class.getName())) {
+								type = TypeInfoProvider.getTypeInfo(HashSet.class);
+							} else if (type.getName().equals(Map.class.getName())) {
+								type = TypeInfoProvider.getTypeInfo(HashMap.class);
+							}
 							return new InstanceBuilder(
 									makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)));
 						}
@@ -376,15 +393,15 @@ public class InstantiationUtils {
 	}
 
 	public static List<IMethodInfo> listSortedConstructors(ITypeInfo typeInfo) {
-		List<IMethodInfo> ctors = typeInfo.getConstructors();
-		ctors = new ArrayList<IMethodInfo>(ctors);
-		Collections.sort(ctors, new Comparator<IMethodInfo>() {
+		List<IMethodInfo> result = typeInfo.getConstructors();
+		result = new ArrayList<IMethodInfo>(result);
+		Collections.sort(result, new Comparator<IMethodInfo>() {
 			@Override
 			public int compare(IMethodInfo o1, IMethodInfo o2) {
 				return Integer.valueOf(o1.getParameters().size()).compareTo(Integer.valueOf(o2.getParameters().size()));
 			}
 		});
-		return ctors;
+		return result;
 	}
 
 }

@@ -25,11 +25,80 @@
     <fieldInitializers/>
     <initializationSwitches/>
     <listItemInitializers/>
-    <parameterInitializers/>
-    <rootInitializer class="null"/>
-    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
-      <outer-class reference="../../.."/>
-    </rootInstanceDynamicTypeNameAccessor>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers>
+                  <com.otk.jesb.instantiation.ListItemInitializer>
+                    <condition class="null"/>
+                    <index>0</index>
+                    <itemReplication>
+                      <iterationListValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                        <functionBody>return jDBCQuery;</functionBody>
+                      </iterationListValue>
+                      <iterationVariableName>current</iterationVariableName>
+                      <iterationVariableTypeName class="null"/>
+                    </itemReplication>
+                    <itemValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers>
+                        <com.otk.jesb.instantiation.FieldInitializer>
+                          <condition class="null"/>
+                          <fieldName>id</fieldName>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return (long)current.ID;</functionBody>
+                          </fieldValue>
+                        </com.otk.jesb.instantiation.FieldInitializer>
+                        <com.otk.jesb.instantiation.FieldInitializer>
+                          <condition class="null"/>
+                          <fieldName>name</fieldName>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return current.NAME;</functionBody>
+                          </fieldValue>
+                        </com.otk.jesb.instantiation.FieldInitializer>
+                        <com.otk.jesb.instantiation.FieldInitializer>
+                          <condition class="null"/>
+                          <fieldName>tag</fieldName>
+                          <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                            <functionBody>return current.TAG;</functionBody>
+                          </fieldValue>
+                        </com.otk.jesb.instantiation.FieldInitializer>
+                      </fieldInitializers>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers/>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>com.otk.jesb.resource.builtin.openapidescription${_}.service.Pet</typeName>
+                    </itemValue>
+                  </com.otk.jesb.instantiation.ListItemInitializer>
+                </listItemInitializers>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>java.util.ArrayList</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
     <rootInstanceName>PlanOutput</rootInstanceName>
     <rootInstanceTypeName class="null"/>
     <selectedConstructorSignature class="null"/>
@@ -47,6 +116,7 @@
           <newPathValidator class="null"/>
           <path>resources &gt; db</path>
         </connectionReference>
+        <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
         <parameterDefinitions/>
         <parameterValuesBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
@@ -78,6 +148,7 @@
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </parameterValuesBuilder>
+        <resultColumnDefinitionAutomatic>true</resultColumnDefinitionAutomatic>
         <resultColumnDefinitions>
           <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
             <columnName>ID</columnName>

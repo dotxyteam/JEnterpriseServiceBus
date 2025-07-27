@@ -248,6 +248,24 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 						draggedNode.getCenterY() - mouseEvent.getY());
 			}
 		}
+		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+		if (pointedDiagramObject != null) {
+			if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+				Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
+				if (newSelection.contains(pointedDiagramObject)) {
+					newSelection.remove(pointedDiagramObject);
+				} else {
+					newSelection.add(pointedDiagramObject);
+				}
+				setSelection(newSelection, true);
+			} else {
+				if (!(SwingUtilities.isRightMouseButton(mouseEvent) && getSelection().contains(pointedDiagramObject))) {
+					setSelection(Collections.singleton(pointedDiagramObject), true);
+				}
+			}
+		} else {
+			setSelection(Collections.emptySet(), true);
+		}
 		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
 			JPopupMenu popupMenu = createContextMenu(mouseEvent);
 			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());
@@ -304,24 +322,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				draggedNode = null;
 				draggedNodeCenterOffset = null;
 			}
-		}
-		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
-		if (pointedDiagramObject != null) {
-			if ((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
-				Set<JDiagramObject> newSelection = new HashSet<JDiagramObject>(getSelection());
-				if (newSelection.contains(pointedDiagramObject)) {
-					newSelection.remove(pointedDiagramObject);
-				} else {
-					newSelection.add(pointedDiagramObject);
-				}
-				setSelection(newSelection, true);
-			} else {
-				if (!(SwingUtilities.isRightMouseButton(mouseEvent) && getSelection().contains(pointedDiagramObject))) {
-					setSelection(Collections.singleton(pointedDiagramObject), true);
-				}
-			}
-		} else {
-			setSelection(Collections.emptySet(), true);
 		}
 	}
 
