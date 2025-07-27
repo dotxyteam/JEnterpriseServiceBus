@@ -1,11 +1,13 @@
 package com.otk.jesb.operation.builtin;
 
 import java.sql.Connection;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -18,11 +20,11 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Variant;
 import com.otk.jesb.Reference;
-import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
@@ -59,15 +61,42 @@ public abstract class JDBCOperation implements Operation {
 	protected PreparedStatement prepare() throws Exception {
 		Connection conn = connection.build();
 		PreparedStatement preparedStatement = conn.prepareStatement(statement);
-		int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
-		if (expectedParameterCount != parameterValues.countParameters()) {
-			throw new IllegalStateException("Unexpected defined parameter count: " + parameterValues.countParameters()
-					+ ". Expected " + expectedParameterCount + " parameter(s).");
+		ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
+		if (parameterMetaData != null) {
+			int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
+			if (expectedParameterCount != parameterValues.countParameters()) {
+				throw new IllegalStateException(
+						"Unexpected defined parameter count: " + parameterValues.countParameters() + ". Expected "
+								+ expectedParameterCount + " parameter(s).");
+			}
 		}
-		for (int i = 0; i < expectedParameterCount; i++) {
+		for (int i = 0; i < parameterValues.countParameters(); i++) {
 			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));
 		}
 		return preparedStatement;
+	}
+
+	private static List<ParameterDefinition> retrieveParameterDefinitions(PreparedStatement preparedStatement)
+			throws SQLException {
+		ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
+		if (parameterMetaData == null) {
+			throw new SQLException("No SQL statement paramater meta data found");
+		}
+		List<ParameterDefinition> result = new ArrayList<JDBCOperation.ParameterDefinition>();
+		for (int i = 0; i < parameterMetaData.getParameterCount(); i++) {
+			ParameterDefinition parameterDefinition = new ParameterDefinition();
+			String parameterTypeName = parameterMetaData.getParameterClassName(i + 1);
+			String parameterName = MiscUtils.extractSimpleNameFromClassName(parameterTypeName);
+			parameterName = parameterName.substring(0, 1).toLowerCase() + parameterName.substring(1);
+			while (result.stream().map(ParameterDefinition::getParameterName)
+					.anyMatch(Predicate.isEqual(parameterName))) {
+				parameterName = MiscUtils.nextNumbreredName(parameterName);
+			}
+			parameterDefinition.setParameterName(parameterName);
+			parameterDefinition.setParameterTypeName(parameterTypeName);
+			result.add(parameterDefinition);
+		}
+		return result;
 	}
 
 	public static abstract class Builder<T extends JDBCOperation> implements OperationBuilder<T> {
@@ -75,13 +104,19 @@ public abstract class JDBCOperation implements Operation {
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		private Variant<String> statementVariant = new Variant<String>(String.class);
 		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
+		private boolean parameterDefinitionAutomatic = false;
 
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
 		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
 				new ParameterValuesClassNameAccessor());
+		private UpToDateParameterDefinitions upToDateParameterDefinitions = new UpToDateParameterDefinitions();
 
-		protected JDBCConnection getConnection() {
-			return connectionReference.resolve();
+		public boolean isParameterDefinitionAutomatic() {
+			return parameterDefinitionAutomatic;
+		}
+
+		public void setParameterDefinitionAutomatic(boolean parameterDefinitionAutomatic) {
+			this.parameterDefinitionAutomatic = parameterDefinitionAutomatic;
 		}
 
 		public Reference<JDBCConnection> getConnectionReference() {
@@ -90,10 +125,6 @@ public abstract class JDBCOperation implements Operation {
 
 		public void setConnectionReference(Reference<JDBCConnection> connectionReference) {
 			this.connectionReference = connectionReference;
-		}
-
-		public static List<JDBCConnection> getConnectionOptions() {
-			return MiscUtils.findResources(Solution.INSTANCE, JDBCConnection.class);
 		}
 
 		public Variant<String> getStatementVariant() {
@@ -105,7 +136,15 @@ public abstract class JDBCOperation implements Operation {
 		}
 
 		public List<ParameterDefinition> getParameterDefinitions() {
-			return parameterDefinitions;
+			if (parameterDefinitionAutomatic) {
+				try {
+					return upToDateParameterDefinitions.get();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
+			} else {
+				return parameterDefinitions;
+			}
 		}
 
 		public void setParameterDefinitions(List<ParameterDefinition> parameterDefinitions) {
@@ -123,6 +162,18 @@ public abstract class JDBCOperation implements Operation {
 			this.parameterValuesBuilder = parameterValuesBuilder;
 		}
 
+		protected JDBCConnection getConnection() {
+			return connectionReference.resolve();
+		}
+
+		public void retrieveParameterDefinitions() {
+			try {
+				this.parameterDefinitions = upToDateParameterDefinitions.get();
+			} catch (VersionAccessException e) {
+				throw new UnexpectedError(e);
+			}
+		}
+
 		protected ParameterValues buildParameterValues(ExecutionContext context) throws Exception {
 			return (ParameterValues) getParameterValuesBuilder().build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
@@ -132,6 +183,12 @@ public abstract class JDBCOperation implements Operation {
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 			if (getConnection() == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
+			}
+			List<ParameterDefinition> parameterDefinitions;
+			try {
+				parameterDefinitions = getParameterDefinitions();
+			} catch (Throwable t) {
+				throw new ValidationError("Failed to get parameter definitions", t);
 			}
 			try {
 				Connection sqlConnection = getConnection().build();
@@ -182,15 +239,44 @@ public abstract class JDBCOperation implements Operation {
 			}
 		}
 
+		private class UpToDateParameterDefinitions extends UpToDate<List<ParameterDefinition>> {
+
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+				return new Pair<JDBCConnection, String>(getConnection(), getStatementVariant().getValue());
+			}
+
+			@Override
+			protected List<ParameterDefinition> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+				try {
+					JDBCConnection connection = getConnection();
+					if (connection == null) {
+						return null;
+					}
+					Connection conn = connection.build();
+					String statement = getStatementVariant().getValue();
+					if ((statement == null) || statement.trim().isEmpty()) {
+						return null;
+					}
+					PreparedStatement preparedStatement = conn.prepareStatement(statement);
+					return JDBCOperation.retrieveParameterDefinitions(preparedStatement);
+				} catch (Exception e) {
+					throw new VersionAccessException(e);
+				}
+			}
+
+		}
+
 		private class UpToDateParameterValuesClass extends UpToDate<Class<? extends ParameterValues>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return MiscUtils.serialize(parameterDefinitions);
+				return MiscUtils.serialize(getParameterDefinitions());
 			}
 
 			@SuppressWarnings("unchecked")
 			@Override
 			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
+				List<ParameterDefinition> parameterDefinitions = getParameterDefinitions();
 				String className = JDBCQuery.class.getName() + "ParameterValues"
 						+ MiscUtils.toDigitalUniqueIdentifier(this);
 				StringBuilder javaSource = new StringBuilder();

@@ -4,5 +4,6 @@
   <string>SOAPServiceTest2</string>
   <string>SOAPRequestTest</string>
   <string>RESTServiceTest</string>
+  <string>RESTServiceTest2</string>
   <string>RESTClientTest</string>
 </list>

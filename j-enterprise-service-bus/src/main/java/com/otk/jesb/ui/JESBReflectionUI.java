@@ -1784,12 +1784,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 				@Override
 				public Object getValue(Object object) {
-					return new PrecomputedTypeInstanceWrapper(object, precomputeAdapterType());
+					return new PrecomputedTypeInstanceWrapper(super.getValue(object), precomputeAdapterType());
 				}
 
 				@Override
-				public boolean isGetOnly() {
-					return true;
+				public void setValue(Object object, Object value) {
+					super.setValue(object, ((PrecomputedTypeInstanceWrapper) value).getInstance());
 				}
 
 				@Override
@@ -1826,12 +1826,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public Object getValue(Object object) {
-								return ((Variant<?>) variantField.getValue(object)).isVariable();
+								return ((Variant<?>) object).isVariable();
 							}
 
 							@Override
 							public void setValue(Object object, Object value) {
-								((Variant<?>) variantField.getValue(object)).setVariable((boolean) value);
+								((Variant<?>) object).setVariable((boolean) value);
 							}
 
 							@Override
@@ -1889,13 +1889,13 @@ public class JESBReflectionUI extends CustomizedUI {
 							@SuppressWarnings({ "rawtypes" })
 							@Override
 							public Object getValue(Object object) {
-								return ((Variant) variantField.getValue(object)).getValue();
+								return ((Variant) object).getValue();
 							}
 
 							@SuppressWarnings({ "unchecked", "rawtypes" })
 							@Override
 							public void setValue(Object object, Object value) {
-								((Variant) variantField.getValue(object)).setValue(value);
+								((Variant) object).setValue(value);
 							}
 
 							@Override
@@ -1943,13 +1943,13 @@ public class JESBReflectionUI extends CustomizedUI {
 							@Override
 							public Object getValue(Object object) {
 								return optionsFactory.getItemInstance(
-										((Variant<?>) variantField.getValue(object)).getVariableReferenceExpression());
+										((Variant<?>) object).getVariableReferenceExpression());
 							}
 
 							@SuppressWarnings("unchecked")
 							@Override
 							public void setValue(Object object, Object value) {
-								((Variant<?>) variantField.getValue(object)).setVariableReferenceExpression(
+								((Variant<?>) object).setVariableReferenceExpression(
 										(Expression<String>) optionsFactory.getInstanceItem(value));
 							}
 

@@ -1,0 +1,104 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.ReceiveRESTRequest">
+    <enabled>true</enabled>
+    <openAPIDescriptionReference>
+      <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>resources &gt; petstore</path>
+    </openAPIDescriptionReference>
+    <operationSignature>java.util.List listPets(java.lang.Integer)</operationSignature>
+    <serverReference>
+      <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>resources &gt; HTTPServer0112435822636074026848962688025404957896</path>
+    </serverReference>
+    <servicePath>/rest/</servicePath>
+  </activator>
+  <name>RESTServiceTest2</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers/>
+    <rootInitializer class="null"/>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+      <outer-class reference="../../.."/>
+    </rootInstanceDynamicTypeNameAccessor>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>340</diagramX>
+      <diagramY>103</diagramY>
+      <name>jDBCQuery</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
+        <connectionReference>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>resources &gt; db</path>
+        </connectionReference>
+        <parameterDefinitions/>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCQuery$Builder" reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInitializer class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <resultColumnDefinitions>
+          <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+            <columnName>ID</columnName>
+            <columnTypeName>java.lang.Integer</columnTypeName>
+          </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+          <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+            <columnName>NAME</columnName>
+            <columnTypeName>java.lang.String</columnTypeName>
+          </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+          <com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+            <columnName>TAG</columnName>
+            <columnTypeName>java.lang.String</columnTypeName>
+          </com.otk.jesb.operation.builtin.JDBCQuery_-ColumnDefinition>
+        </resultColumnDefinitions>
+        <statementVariant>
+          <valueClass>java.lang.String</valueClass>
+          <value class="string">select * from pet;</value>
+        </statementVariant>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions/>
+</com.otk.jesb.solution.Plan>

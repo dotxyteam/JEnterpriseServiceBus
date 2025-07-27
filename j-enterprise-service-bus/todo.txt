@@ -34,6 +34,7 @@ find a solution (merge files and folders ???)..
 	. disabling the step occurrences collection
 	. disabling all breakpoints
 - allow to have special password variables
+- allow totally dynamic JDBC queries 
 - allow to copy/cut/paste assets
 - allow to retarget a transition
 - add buttons/tools to delete/copy/cut/paste/selectAll plan elements
@@ -81,10 +82,6 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - check dependencies vulnerabilities and change versions
 - offer windows and linux versions
 - change the JRE/JDK: use OpenJDK or ...
-- improve JDBCQueryActivity:
-	. check parameter type mappings
-	. can generate automatically parameter definitions ???
-	. should automatically retrieve result columns ???
 - some modifications can disappear from the UI when 
 InstanceBuilder.(className|selectedConstructorSignature) are modified. It may be better
 to display incoherent nodes with an error marker

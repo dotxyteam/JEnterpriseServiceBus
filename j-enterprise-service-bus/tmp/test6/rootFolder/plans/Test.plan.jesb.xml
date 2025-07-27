@@ -839,7 +839,7 @@ values
       <diagramY>378</diagramY>
       <name>callRESTAPI</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
-        <customBaseURL>http://localhost:8080</customBaseURL>
+        <customBaseURL>http://localhost:8080/rest</customBaseURL>
         <openAPIDescriptionReference>
           <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
           <assetFilter class="null"/>

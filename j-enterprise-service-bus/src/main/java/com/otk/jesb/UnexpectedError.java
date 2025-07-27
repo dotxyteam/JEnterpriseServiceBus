@@ -8,8 +8,12 @@ public final class UnexpectedError extends AssertionError{
 		super("Internal Error");
 	}
 
-	public UnexpectedError(Object detailMessage) {
-		super(detailMessage);
+	public UnexpectedError(Object message) {
+		super(message);
+	}
+
+	public UnexpectedError(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }
