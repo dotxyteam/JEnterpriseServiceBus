@@ -25,30 +25,40 @@ import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
 import com.otk.jesb.solution.Plan;
 import xy.reflect.ui.info.ResourcePath;
 
-public class ReceiveSOAPRequest extends Activator {
+public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
-	private Reference<HTTPServer> serverReference = new Reference<HTTPServer>(HTTPServer.class);
 	private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
 	private String serviceName;
 	private String operationSignature;
-	private String servicePath = "/";
 
 	private ActivationHandler activationHandler;
 
-	private HTTPServer getServer() {
-		return serverReference.resolve();
+	@Override
+	protected SOAPRequestHandler createRequestHandler(String servicePath) {
+		return new SOAPRequestHandler(servicePath, wsdlReference);
 	}
 
-	private WSDL getWSDL() {
-		return wsdlReference.resolve();
+	@Override
+	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+		if (!(requestHandler instanceof SOAPRequestHandler)) {
+			return false;
+		}
+		WSDL wsdl = wsdlReference.resolve();
+		if (wsdl == null) {
+			return false;
+		}
+		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {
+			return false;
+		}
+		return true;
 	}
 
-	public Reference<HTTPServer> getServerReference() {
-		return serverReference;
-	}
-
-	public void setServerReference(Reference<HTTPServer> serverReference) {
-		this.serverReference = serverReference;
+	private WSDL expectWSDL() {
+		WSDL result = wsdlReference.resolve();
+		if (result == null) {
+			throw new IllegalStateException("Failed to resolve the WSDL reference");
+		}
+		return result;
 	}
 
 	public Reference<WSDL> getWsdlReference() {
@@ -78,14 +88,6 @@ public class ReceiveSOAPRequest extends Activator {
 		tryToSelectValuesAutomatically();
 	}
 
-	public String getServicePath() {
-		return servicePath;
-	}
-
-	public void setServicePath(String servicePath) {
-		this.servicePath = servicePath;
-	}
-
 	private void tryToSelectValuesAutomatically() {
 		try {
 			if (serviceName == null) {
@@ -105,42 +107,46 @@ public class ReceiveSOAPRequest extends Activator {
 	}
 
 	public List<String> getServiceNameOptions() {
-		WSDL wsdl = getWSDL();
-		if (wsdl == null) {
+		try {
+			WSDL wsdl = expectWSDL();
+			return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
+					.collect(Collectors.toList());
+		} catch (IllegalStateException e) {
 			return Collections.emptyList();
 		}
-		return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
-				.collect(Collectors.toList());
 	}
 
 	public List<String> getOperationSignatureOptions() {
-		WSDL.ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
+		try {
+			WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
+			return service.getOperationDescriptors().stream().map(o -> o.getOperationSignature())
+					.collect(Collectors.toList());
+		} catch (IllegalStateException e) {
 			return Collections.emptyList();
 		}
-		return service.getOperationDescriptors().stream().map(o -> o.getOperationSignature())
-				.collect(Collectors.toList());
 	}
 
-	private WSDL.ServiceSpecificationDescriptor retrieveServiceSpecificationDescriptor() {
-		WSDL wsdl = getWSDL();
-		if (wsdl == null) {
-			return null;
+	private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
+		WSDL wsdl = expectWSDL();
+		ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);
+		if (result == null) {
+			throw new IllegalStateException("Invalid service name '" + serviceName + "'");
 		}
-		return wsdl.getServiceSpecificationDescriptor(serviceName);
+		return result;
 	}
 
-	private WSDL.OperationDescriptor retrieveOperationDescriptor() {
-		WSDL.ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
-			return null;
+	private WSDL.OperationDescriptor expectOperationDescriptor() {
+		WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
+		OperationDescriptor result = service.getOperationDescriptor(operationSignature);
+		if (result == null) {
+			throw new IllegalStateException("Invalid operation signature '" + operationSignature + "'");
 		}
-		return service.getOperationDescriptor(operationSignature);
+		return result;
 	}
 
 	@Override
 	public Class<?> getInputClass() {
-		WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+		WSDL.OperationDescriptor operation = expectOperationDescriptor();
 		if (operation == null) {
 			return null;
 		}
@@ -149,7 +155,7 @@ public class ReceiveSOAPRequest extends Activator {
 
 	@Override
 	public Class<?> getOutputClass() {
-		WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+		WSDL.OperationDescriptor operation = expectOperationDescriptor();
 		if (operation == null) {
 			return null;
 		}
@@ -158,55 +164,43 @@ public class ReceiveSOAPRequest extends Activator {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
-		ServiceSpecificationDescriptor service = retrieveServiceSpecificationDescriptor();
-		if (service == null) {
-			throw new UnexpectedError("Failed to get the service descriptor");
+		WSDL wsdl = expectWSDL();
+		WSDL.OperationDescriptor operation = expectOperationDescriptor();
+		HTTPServer server = expectServer();
+		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		if (!(requestHandler instanceof SOAPRequestHandler)) {
+			throw new IllegalStateException(
+					"Cannot register " + operation + " on " + requestHandler + ": SOAP request handler required");
 		}
-		WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-		if (operation == null) {
-			throw new UnexpectedError("Failed to get the operation descriptor");
+		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {
+			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
+					+ ": SOAP request handler based on WSDL '" + wsdlReference.getPath() + "' required");
 		}
-		HTTPServer server = getServer();
-		if (server == null) {
-			throw new UnexpectedError("Failed to resolve the server reference");
+		if ((((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl)
+				|| !serviceName.equals(((SOAPRequestHandler) requestHandler).getServiceName())) {
+			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
+					+ ": SOAP request handler based on service '" + serviceName + "' of WSDL '"
+					+ wsdlReference.getPath() + "' required");
 		}
-		synchronized (server) {
-			RequestHandler requestHandler = server.getRequestHandler(servicePath);
-			if (requestHandler == null) {
-				requestHandler = new SOAPRequestHandler(service);
-				server.addRequestHandler(servicePath, requestHandler);
-			} else {
-				if (!(requestHandler instanceof SOAPRequestHandler)) {
-					throw new UnexpectedError("Cannot register SOAP request handler on service path '" + servicePath
-							+ "': " + requestHandler + " already registered on this path");
-				}
-				if (!((SOAPRequestHandler) requestHandler).getService().equals(service)) {
-					throw new UnexpectedError(
-							"Cannot install " + service + " on SOAP request handler registered on service path '"
-									+ servicePath + "': Already installed on this path: "
-									+ ((SOAPRequestHandler) requestHandler).getService());
-				}
-				if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
-					throw new UnexpectedError(
-							"Cannot configure " + operation + " of SOAP request handler registered on service path '"
-									+ servicePath + "': Operation already configured");
-				}
-			}
-			((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
+		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
+			throw new UnexpectedError(
+					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
+		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+			requestHandler.activate(server);
+		}
+		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
 		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		HTTPServer server = getServer();
-		synchronized (server) {
-			RequestHandler requestHandler = server.getRequestHandler(servicePath);
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
-			((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
-			if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-				server.removeRequestHandler(servicePath);
-			}
+		HTTPServer server = expectServer();
+		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		WSDL.OperationDescriptor operation = expectOperationDescriptor();
+		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+			requestHandler.deactivate(server);
 		}
 		this.activationHandler = null;
 	}
@@ -217,38 +211,50 @@ public class ReceiveSOAPRequest extends Activator {
 	}
 
 	@Override
-	public boolean isAutomaticallyTriggerable() {
-		return true;
-	}
-
-	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		if (getServer() == null) {
-			throw new ValidationError("Failed to resolve the HTTP server reference");
-		}
-		if (getWSDL() == null) {
-			throw new ValidationError("Failed to resolve the WSDL reference");
-		}
-		if (retrieveServiceSpecificationDescriptor() == null) {
-			throw new ValidationError("Invalid service name '" + serviceName + "'");
-		}
-		if (retrieveOperationDescriptor() == null) {
-			throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
+		try {
+			expectOperationDescriptor();
+		} catch (IllegalStateException e) {
+			throw new ValidationError(e.getMessage(), e);
 		}
 	}
 
-	public static class SOAPRequestHandler implements RequestHandler {
+	public static class SOAPRequestHandler extends RequestHandler {
 
-		private ServiceSpecificationDescriptor service;
+		private Reference<WSDL> wsdlReference = new Reference<WSDL>(WSDL.class);
+		private String serviceName;
+
 		private Map<WSDL.OperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<WSDL.OperationDescriptor, ActivationHandler>();
 		private EndpointImpl endpoint;
 
-		public SOAPRequestHandler(ServiceSpecificationDescriptor service) {
-			this.service = service;
+		public SOAPRequestHandler(String servicePath, Reference<WSDL> wsdlReference) {
+			super(servicePath);
+			this.wsdlReference = wsdlReference;
+			List<String> serviceNameOptions = getServiceNameOptions();
+			if (serviceNameOptions.size() > 0) {
+				serviceName = serviceNameOptions.get(0);
+			}
 		}
 
-		public ServiceSpecificationDescriptor getService() {
-			return service;
+		public String getServiceName() {
+			return serviceName;
+		}
+
+		public void setServiceName(String serviceName) {
+			this.serviceName = serviceName;
+		}
+
+		public List<String> getServiceNameOptions() {
+			WSDL wsdl = wsdlReference.resolve();
+			if (wsdl == null) {
+				return Collections.emptyList();
+			}
+			return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
+					.collect(Collectors.toList());
+		}
+
+		public Reference<WSDL> getWsdlReference() {
+			return wsdlReference;
 		}
 
 		public Map<WSDL.OperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
@@ -256,8 +262,16 @@ public class ReceiveSOAPRequest extends Activator {
 		}
 
 		@Override
-		public void install(HTTPServer server, String servicePath) throws Exception {
+		public void install(HTTPServer server) throws Exception {
 			if (endpoint != null) {
+				throw new UnexpectedError();
+			}
+			WSDL wsdl = wsdlReference.resolve();
+			if (wsdl == null) {
+				throw new UnexpectedError();
+			}
+			ServiceSpecificationDescriptor service = wsdl.getServiceSpecificationDescriptor(serviceName);
+			if (service == null) {
 				throw new UnexpectedError();
 			}
 			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)
@@ -287,7 +301,7 @@ public class ReceiveSOAPRequest extends Activator {
 		}
 
 		@Override
-		public void uninstall(HTTPServer server, String servicePath) throws Exception {
+		public void uninstall(HTTPServer server) throws Exception {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
@@ -299,7 +313,7 @@ public class ReceiveSOAPRequest extends Activator {
 
 		@Override
 		public String toString() {
-			return "SOAPRequestHandler [service=" + service + "]";
+			return "SOAPRequestHandler [wsdl=" + wsdlReference.getPath() + ", servicePath=" + servicePath + "]";
 		}
 
 	}

@@ -64,6 +64,9 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - adjust selection after a case (switch) is moved down/up
 - integrated log window (console)
 - allow to change default PathExplorer node type (it should generate a cast expression)
+- verify (during persistence probably) that:
+	. every asset is isolated (does not have other asset reference)
+	. there is no persisted inner class that hold a reference to the enclosing class instance (not sure) ???
 - diagram improvements:
 	. zoom
 - Switch/Cases feature issues:

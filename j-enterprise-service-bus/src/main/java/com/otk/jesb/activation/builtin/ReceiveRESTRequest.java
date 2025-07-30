@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiConfig;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.otk.jesb.Preferences;
@@ -28,30 +30,20 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.O
 import com.otk.jesb.solution.Plan;
 import xy.reflect.ui.info.ResourcePath;
 
-public class ReceiveRESTRequest extends Activator {
+public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
-	private Reference<HTTPServer> serverReference = new Reference<HTTPServer>(HTTPServer.class);
 	private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
 			OpenAPIDescription.class);
 	private String operationSignature;
-	private String servicePath = "/";
 
 	private ActivationHandler activationHandler;
 
-	private HTTPServer getServer() {
-		return serverReference.resolve();
-	}
-
-	private OpenAPIDescription getOpenAPIDescription() {
-		return openAPIDescriptionReference.resolve();
-	}
-
-	public Reference<HTTPServer> getServerReference() {
-		return serverReference;
-	}
-
-	public void setServerReference(Reference<HTTPServer> serverReference) {
-		this.serverReference = serverReference;
+	private OpenAPIDescription expectOpenAPIDescription() {
+		OpenAPIDescription result = openAPIDescriptionReference.resolve();
+		if (result == null) {
+			throw new IllegalStateException("Failed to resolve the OpenAPI Description reference");
+		}
+		return result;
 	}
 
 	public Reference<OpenAPIDescription> getOpenAPIDescriptionReference() {
@@ -72,14 +64,6 @@ public class ReceiveRESTRequest extends Activator {
 		tryToSelectValuesAutomatically();
 	}
 
-	public String getServicePath() {
-		return servicePath;
-	}
-
-	public void setServicePath(String servicePath) {
-		this.servicePath = servicePath;
-	}
-
 	private void tryToSelectValuesAutomatically() {
 		try {
 			if (operationSignature == null) {
@@ -92,94 +76,101 @@ public class ReceiveRESTRequest extends Activator {
 		}
 	}
 
-	public List<String> getOperationSignatureOptions() {
-		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
-		if (openAPIDescription == null) {
-			return Collections.emptyList();
-		}
-		return openAPIDescription.getServiceOperationDescriptors().stream().map(o -> o.getOperationSignature())
-				.collect(Collectors.toList());
+	@Override
+	protected RESTRequestHandler createRequestHandler(String servicePath) {
+		expectOpenAPIDescription();
+		return new RESTRequestHandler(servicePath, openAPIDescriptionReference);
 	}
 
-	private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor() {
-		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
-		if (openAPIDescription == null) {
-			return null;
+	@Override
+	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+		if (!(requestHandler instanceof RESTRequestHandler)) {
+			return false;
 		}
-		return openAPIDescription.getServiceOperationDescriptor(operationSignature);
+		OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve();
+		if (openAPIDescription == null) {
+			return false;
+		}
+		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {
+			return false;
+		}
+		return true;
+	}
+
+	public List<String> getOperationSignatureOptions() {
+		try {
+			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
+			return openAPIDescription.getServiceOperationDescriptors().stream().map(o -> o.getOperationSignature())
+					.collect(Collectors.toList());
+		} catch (IllegalStateException e) {
+			return Collections.emptyList();
+		}
+	}
+
+	private OpenAPIDescription.APIOperationDescriptor expectOperationDescriptor() {
+		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
+		APIOperationDescriptor result = openAPIDescription.getServiceOperationDescriptor(operationSignature);
+		if (result == null) {
+			throw new IllegalStateException(
+					"Failed to get the operation descriptor: Invalid operation signature '" + operationSignature + "'");
+		}
+		return result;
 	}
 
 	@Override
 	public Class<?> getInputClass() {
-		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-		if (operation == null) {
+		try {
+			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+			return operation.getOperationInputClass();
+		} catch (IllegalStateException e) {
 			return null;
 		}
-		return operation.getOperationInputClass();
 	}
 
 	@Override
 	public Class<?> getOutputClass() {
-		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-		if (operation == null) {
+		try {
+			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+			return operation.getOperationOutputClass();
+		} catch (IllegalStateException e) {
 			return null;
 		}
-		return operation.getOperationOutputClass();
 	}
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
-		OpenAPIDescription openAPIDescription = getOpenAPIDescription();
-		if (openAPIDescription == null) {
-			throw new ValidationError("Failed to resolve the OpenAPI Description reference");
+		HTTPServer server = expectServer();
+		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
+		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		if (!(requestHandler instanceof RESTRequestHandler)) {
+			throw new IllegalStateException(
+					"Cannot register " + operation + " on " + requestHandler + ": REST request handler required");
 		}
-		OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-		if (operation == null) {
-			throw new UnexpectedError("Failed to get the operation descriptor");
+		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {
+			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
+					+ ": REST request handler based on OpenAPI description '" + openAPIDescriptionReference.getPath()
+					+ "' required");
 		}
-		HTTPServer server = getServer();
-		if (server == null) {
-			throw new UnexpectedError("Failed to resolve the server reference");
+		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
+			throw new UnexpectedError(
+					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
-		synchronized (server) {
-			RequestHandler requestHandler = server.getRequestHandler(servicePath);
-			if (requestHandler == null) {
-				requestHandler = new RESTRequestHandler(openAPIDescription);
-				server.addRequestHandler(servicePath, requestHandler);
-			} else {
-				if (!(requestHandler instanceof RESTRequestHandler)) {
-					throw new UnexpectedError("Cannot register REST request handler on service path '" + servicePath
-							+ "': " + requestHandler + " already registered on this path");
-				}
-				if (((RESTRequestHandler) requestHandler).getOpenAPIDescription() != openAPIDescription) {
-					throw new UnexpectedError(
-							"Cannot install '" + openAPIDescription.getAPIServiceInterface().getSimpleName()
-									+ "' API on REST request handler registered on service path '" + servicePath
-									+ "': Already installed on this path: " + ((RESTRequestHandler) requestHandler)
-											.getOpenAPIDescription().getAPIServiceInterface().getSimpleName());
-				}
-				if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
-					throw new UnexpectedError(
-							"Cannot configure " + operation + " of REST request handler registered on service path '"
-									+ servicePath + "': Operation already configured");
-				}
-			}
-			((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
-
+		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+			requestHandler.activate(server);
 		}
+		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
 		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		HTTPServer server = getServer();
-		synchronized (server) {
-			RequestHandler requestHandler = server.getRequestHandler(servicePath);
-			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
-			((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
-			if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-				server.removeRequestHandler(servicePath);
-			}
+		HTTPServer server = expectServer();
+		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+			requestHandler.deactivate(server);
 		}
 		this.activationHandler = null;
 	}
@@ -190,36 +181,39 @@ public class ReceiveRESTRequest extends Activator {
 	}
 
 	@Override
-	public boolean isAutomaticallyTriggerable() {
-		return true;
-	}
-
-	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		if (getServer() == null) {
-			throw new ValidationError("Failed to resolve the HTTP server reference");
-		}
-		if (getOpenAPIDescription() == null) {
-			throw new ValidationError("Failed to resolve the OpenAPI Description reference");
-		}
-		if (retrieveOperationDescriptor() == null) {
-			throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
+		super.validate(recursively, plan);
+		try {
+			expectOperationDescriptor();
+		} catch (IllegalStateException e) {
+			throw new ValidationError(e.getMessage(), e);
 		}
 	}
 
-	public static class RESTRequestHandler implements RequestHandler {
+	public static class RESTRequestHandler extends RequestHandler {
 
-		private OpenAPIDescription openAPIDescription;
+		private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
+				OpenAPIDescription.class);
+		private WebUISupport webUISupport;
+
 		private Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<OpenAPIDescription.APIOperationDescriptor, ActivationHandler>();
 		private Server endpoint;
 
-		public RESTRequestHandler(OpenAPIDescription openAPIDescription) {
-			super();
-			this.openAPIDescription = openAPIDescription;
+		public RESTRequestHandler(String servicePath, Reference<OpenAPIDescription> openAPIDescriptionReference) {
+			super(servicePath);
+			this.openAPIDescriptionReference = openAPIDescriptionReference;
 		}
 
-		public OpenAPIDescription getOpenAPIDescription() {
-			return openAPIDescription;
+		public WebUISupport getWebUISupport() {
+			return webUISupport;
+		}
+
+		public void setWebUISupport(WebUISupport webUISupport) {
+			this.webUISupport = webUISupport;
+		}
+
+		public Reference<OpenAPIDescription> getOpenAPIDescriptionReference() {
+			return openAPIDescriptionReference;
 		}
 
 		public Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
@@ -227,8 +221,12 @@ public class ReceiveRESTRequest extends Activator {
 		}
 
 		@Override
-		public void install(HTTPServer server, String servicePath) throws Exception {
+		protected void install(HTTPServer server) throws Exception {
 			if (endpoint != null) {
+				throw new UnexpectedError();
+			}
+			OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve();
+			if (openAPIDescription == null) {
 				throw new UnexpectedError();
 			}
 			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
@@ -254,14 +252,33 @@ public class ReceiveRESTRequest extends Activator {
 						}
 					})));
 			factory.setProvider(new JacksonJsonProvider());
+			if (webUISupport != null) {
+				OpenApiFeature openApiFeature = new OpenApiFeature();
+				openApiFeature.setSupportSwaggerUi(true);
+				openApiFeature.setPrettyPrint(true);
+				openApiFeature.setTitle(webUISupport.getTitle());
+				openApiFeature.setContactName(webUISupport.getContactName());
+				openApiFeature.setContactEmail(webUISupport.getContactEmail());
+				openApiFeature.setContactUrl(webUISupport.getContactUrl());
+				openApiFeature.setDescription(webUISupport.getDescription());
+				openApiFeature.setVersion(webUISupport.getVersion());
+				openApiFeature.setLicense(webUISupport.getLicense());
+				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrl());
+				openApiFeature.setSwaggerUiConfig(new SwaggerUiConfig().url(webUISupport.getUrlSuffix()));
+				factory.setFeatures(Arrays.asList(openApiFeature));
+			}
 			endpoint = factory.create();
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
+				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath
+						+ ((webUISupport != null)
+								? ("(Web UI: " + server.getLocaBaseURL() + servicePath + webUISupport.getUrlSuffix()
+										+ ")")
+								: ""));
 			}
 		}
 
 		@Override
-		public void uninstall(HTTPServer server, String servicePath) throws Exception {
+		protected void uninstall(HTTPServer server) throws Exception {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
@@ -274,7 +291,93 @@ public class ReceiveRESTRequest extends Activator {
 
 		@Override
 		public String toString() {
-			return "RESTRequestHandler [API=" + openAPIDescription.getAPIServiceInterface().getSimpleName() + "]";
+			return "RESTRequestHandler [openAPIDescription=" + openAPIDescriptionReference.getPath() + ", servicePath="
+					+ servicePath + "]";
+		}
+
+		public static class WebUISupport {
+			private String title;
+			private String contactName;
+			private String contactEmail;
+			private String contactUrl;
+			private String description;
+			private String version;
+			private String license;
+			private String termsOfServiceUrl;
+			private String urlSuffix = "/api-docs";
+
+			public String getTitle() {
+				return title;
+			}
+
+			public void setTitle(String title) {
+				this.title = title;
+			}
+
+			public String getContactName() {
+				return contactName;
+			}
+
+			public void setContactName(String contactName) {
+				this.contactName = contactName;
+			}
+
+			public String getContactEmail() {
+				return contactEmail;
+			}
+
+			public void setContactEmail(String contactEmail) {
+				this.contactEmail = contactEmail;
+			}
+
+			public String getContactUrl() {
+				return contactUrl;
+			}
+
+			public void setContactUrl(String contactUrl) {
+				this.contactUrl = contactUrl;
+			}
+
+			public String getDescription() {
+				return description;
+			}
+
+			public void setDescription(String description) {
+				this.description = description;
+			}
+
+			public String getVersion() {
+				return version;
+			}
+
+			public void setVersion(String version) {
+				this.version = version;
+			}
+
+			public String getLicense() {
+				return license;
+			}
+
+			public void setLicense(String license) {
+				this.license = license;
+			}
+
+			public String getTermsOfServiceUrl() {
+				return termsOfServiceUrl;
+			}
+
+			public void setTermsOfServiceUrl(String termsOfServiceUrl) {
+				this.termsOfServiceUrl = termsOfServiceUrl;
+			}
+
+			public String getUrlSuffix() {
+				return urlSuffix;
+			}
+
+			public void setUrlSuffix(String urlSuffix) {
+				this.urlSuffix = urlSuffix;
+			}
+
 		}
 
 	}

@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -19,7 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-23T20:09:45.240+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
+@Component("my.client.PetsApi")
 public class PetsApi {
     private ApiClient apiClient;
 
@@ -27,6 +30,7 @@ public class PetsApi {
         this(new ApiClient());
     }
 
+    @Autowired
     public PetsApi(ApiClient apiClient) {
         this.apiClient = apiClient;
     }

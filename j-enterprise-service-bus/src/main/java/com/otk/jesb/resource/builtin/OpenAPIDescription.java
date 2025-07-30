@@ -279,7 +279,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					File sourceDirectory = MiscUtils.createTemporaryDirectory();
 					try {
 						runClassesGenerationTool(mainFile, sourceDirectory);
-						OpenAPIGenPostProcessor.process(sourceDirectory);
+						CodeGenerationPostProcessor.process(sourceDirectory);
 						List<Class<?>> result = new ArrayList<Class<?>>();
 						result.addAll(MiscUtils.IN_MEMORY_COMPILER
 								.compile(new File(sourceDirectory.getPath() + "/src/gen/java")));
@@ -306,7 +306,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 	}
 
-	protected static class OpenAPIGenPostProcessor {
+	protected static class CodeGenerationPostProcessor {
 
 		public static void process(File sourceDirectory) throws IOException {
 			List<File> javaFiles = Files.walk(sourceDirectory.toPath()).filter(p -> p.toString().endsWith(".java"))
@@ -318,10 +318,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					@Override
 					public Node visit(ImportDeclaration importDeclaration, Void arg) {
 						if (Arrays
-								.asList("org.springframework.stereotype.Component",
-										"org.openapitools.jackson.nullable.JsonNullableModule",
-										"io.swagger.jaxrs.PATCH", "org.springframework.stereotype.Component",
-										"org.apache.cxf.jaxrs.model.wadl.Description",
+								.asList("org.openapitools.jackson.nullable.JsonNullableModule",
+										"io.swagger.jaxrs.PATCH", "org.apache.cxf.jaxrs.model.wadl.Description",
 										"org.apache.cxf.jaxrs.model.wadl.DocTarget")
 								.contains(importDeclaration.getNameAsString())) {
 							return null;

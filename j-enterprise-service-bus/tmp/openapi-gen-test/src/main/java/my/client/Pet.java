@@ -16,6 +16,7 @@ package my.client;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -26,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   Pet.JSON_PROPERTY_NAME,
   Pet.JSON_PROPERTY_TAG
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-23T20:09:45.240+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
 public class Pet {
   public static final String JSON_PROPERTY_ID = "id";
   private Long id;
@@ -51,6 +52,7 @@ public class Pet {
    * @return id
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -77,6 +79,7 @@ public class Pet {
    * @return name
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -103,6 +106,7 @@ public class Pet {
    * @return tag
   **/
   @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
   @JsonProperty(JSON_PROPERTY_TAG)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -116,6 +120,7 @@ public class Pet {
   public void setTag(String tag) {
     this.tag = tag;
   }
+
 
   @Override
   public boolean equals(Object o) {

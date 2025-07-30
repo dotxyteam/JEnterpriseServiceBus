@@ -293,6 +293,16 @@ public class Debugger {
 			return planOutput;
 		}
 
+		public boolean isPlanOutputRelevant() {
+			if (!plan.isOutputEnabled()) {
+				return false;
+			}
+			if (isActive()) {
+				return false;
+			}
+			return true;
+		}
+
 		public Throwable getExecutionError() {
 			return executionError;
 		}

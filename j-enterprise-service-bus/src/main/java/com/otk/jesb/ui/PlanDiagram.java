@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -81,6 +82,7 @@ import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.undo.UndoOrder;
 import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.KeyboardShortcut;
 import xy.reflect.ui.util.Listener;
 import xy.reflect.ui.util.ReflectionUIUtils;
 import xy.reflect.ui.util.ValidationErrorWrapper;
@@ -977,26 +979,38 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			MenuItemCategory category = new MenuItemCategory();
 			{
 				editMenu.addItemCategory(category);
-				for (AbstractAction action : Arrays.asList(createCopyAction(), createCutAction(),
-						createPasteAction(getWidth() / 2, getHeight() / 2), createDeleteAction(), null,
-						createSelectAllAction())) {
-					if (action == null) {
+				Pair<AbstractAction, KeyboardShortcut> SEPARATOR = null;
+				for (Pair<AbstractAction, KeyboardShortcut> actionAndShortcut : Arrays.asList(
+						new Pair<AbstractAction, KeyboardShortcut>(createCopyAction(),
+								new KeyboardShortcut(KeyEvent.VK_C, false, true, false, false, false)),
+						new Pair<AbstractAction, KeyboardShortcut>(createCutAction(),
+								new KeyboardShortcut(KeyEvent.VK_X, false, true, false, false, false)),
+						new Pair<AbstractAction, KeyboardShortcut>(createPasteAction(getWidth() / 2, getHeight() / 2),
+								new KeyboardShortcut(KeyEvent.VK_V, false, true, false, false, false)),
+						new Pair<AbstractAction, KeyboardShortcut>(createDeleteAction(),
+								new KeyboardShortcut(KeyEvent.VK_DELETE, false, false, false, false, false)),
+						null, new Pair<AbstractAction, KeyboardShortcut>(createSelectAllAction(),
+								new KeyboardShortcut(KeyEvent.VK_A, false, true, false, false, false)))) {
+					if (actionAndShortcut == SEPARATOR) {
 						category = new MenuItemCategory();
 						editMenu.addItemCategory(category);
 						continue;
 					}
-					category.addItem(new CustomActionMenuItemInfo(swingRenderer.getReflectionUI(),
-							(String) action.getValue(AbstractAction.NAME), null, new Supplier<Boolean>() {
+					CustomActionMenuItemInfo menuItem = new CustomActionMenuItemInfo(swingRenderer.getReflectionUI(),
+							(String) actionAndShortcut.getFirst().getValue(AbstractAction.NAME), null,
+							new Supplier<Boolean>() {
 								@Override
 								public Boolean get() {
-									return action.isEnabled();
+									return actionAndShortcut.getFirst().isEnabled();
 								}
 							}, new Runnable() {
 								@Override
 								public void run() {
-									action.actionPerformed(null);
+									actionAndShortcut.getFirst().actionPerformed(null);
 								}
-							}));
+							});
+					menuItem.setKeyboardShortcut(actionAndShortcut.getSecond());
+					category.addItem(menuItem);
 				}
 			}
 

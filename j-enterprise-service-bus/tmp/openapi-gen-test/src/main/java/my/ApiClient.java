@@ -2,6 +2,7 @@ package my;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,7 +25,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
 
 
 import java.io.BufferedReader;
@@ -51,7 +52,8 @@ import java.time.OffsetDateTime;
 
 import my.auth.Authentication;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-23T20:09:45.240+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
+@Component("my.ApiClient")
 public class ApiClient extends JavaTimeFormatter {
     public enum CollectionFormat {
         CSV(","), TSV("\t"), SSV(" "), PIPES("|"), MULTI(null);
@@ -85,6 +87,7 @@ public class ApiClient extends JavaTimeFormatter {
         init();
     }
 
+    @Autowired
     public ApiClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         init();
@@ -553,15 +556,14 @@ public class ApiClient extends JavaTimeFormatter {
         String expandedPath = this.expandPath(finalUri, uriParams);
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(basePath).path(expandedPath);
 
-        @SuppressWarnings("unused")
-		URI uri;
+        URI uri;
         try {
             uri = new URI(builder.build().toUriString());
         } catch (URISyntaxException ex)  {
             throw new RestClientException("Could not build URL: " + builder.toUriString(), ex);
         }
 
-        final BodyBuilder requestBuilder = RequestEntity.method(method, UriComponentsBuilder.fromHttpUrl(basePath).toUriString() + finalUri, uriParams);
+        final BodyBuilder requestBuilder = RequestEntity.method(method, uri);
         if (accept != null) {
             requestBuilder.accept(accept.toArray(new MediaType[accept.size()]));
         }

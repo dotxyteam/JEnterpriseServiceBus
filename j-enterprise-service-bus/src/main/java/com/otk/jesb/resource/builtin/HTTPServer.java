@@ -1,8 +1,11 @@
 package com.otk.jesb.resource.builtin;
 
+import java.beans.Transient;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import javax.swing.SwingUtilities;
 
@@ -34,8 +37,8 @@ public class HTTPServer extends Resource {
 
 	private Variant<String> hostNameVariant = new Variant<String>(String.class, "localhost");
 	private Variant<Integer> portVariant = new Variant<Integer>(Integer.class, 8080);
+	private List<RequestHandler> requestHandlers = new ArrayList<HTTPServer.RequestHandler>();
 
-	private Map<String, RequestHandler> requestHandlerByPath = new HashMap<String, RequestHandler>();
 	private Server jettyServer;
 
 	public HTTPServer() {
@@ -62,25 +65,21 @@ public class HTTPServer extends Resource {
 		this.portVariant = portVariant;
 	}
 
-	public void addRequestHandler(String servicePath, RequestHandler requestHandler) throws Exception {
-		if (requestHandlerByPath.isEmpty()) {
-			start();
-		}
-		requestHandler.install(this, servicePath);
-		requestHandlerByPath.put(servicePath, requestHandler);
+	public List<RequestHandler> getRequestHandlers() {
+		return requestHandlers;
 	}
 
-	public RequestHandler removeRequestHandler(String servicePath) throws Exception {
-		RequestHandler requestHandler = requestHandlerByPath.remove(servicePath);
-		requestHandler.uninstall(this, servicePath);
-		if (requestHandlerByPath.isEmpty()) {
-			stop();
-		}
-		return requestHandler;
+	public void setRequestHandlers(List<RequestHandler> requestHandlers) {
+		this.requestHandlers = requestHandlers;
 	}
 
-	public RequestHandler getRequestHandler(String servicePath) {
-		return requestHandlerByPath.get(servicePath);
+	public RequestHandler expectRequestHandler(String servicePath) {
+		RequestHandler result = requestHandlers.stream()
+				.filter(requestHandler -> servicePath.equals(requestHandler.getServicePath())).findFirst().orElse(null);
+		if (result == null) {
+			throw new IllegalArgumentException("No request handler found for service path '" + servicePath + "'");
+		}
+		return result;
 	}
 
 	public String getLocaBaseURL() {
@@ -142,12 +141,70 @@ public class HTTPServer extends Resource {
 		}
 	}
 
-	public interface RequestHandler {
+	public static abstract class RequestHandler {
 
-		void install(HTTPServer server, String servicePath) throws Exception;
+		protected abstract void install(HTTPServer server) throws Exception;
 
-		void uninstall(HTTPServer server, String servicePath) throws Exception;
+		protected abstract void uninstall(HTTPServer server) throws Exception;
 
+		protected String servicePath;
+		protected boolean active = false;
+
+		public RequestHandler(String servicePath) {
+			this.servicePath = servicePath;
+		}
+
+		public String getServicePath() {
+			return servicePath;
+		}
+
+		public void setServicePath(String servicePath) {
+			this.servicePath = servicePath;
+		}
+
+		@Transient
+		public boolean isActive() {
+			return active;
+		}
+
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+
+		public void activate(HTTPServer server) throws Exception {
+			synchronized (server) {
+				if (!server.requestHandlers.contains(this)) {
+					throw new UnexpectedError();
+				}
+				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
+					server.start();
+				}
+				install(server);
+			}
+		}
+
+		public void deactivate(HTTPServer server) throws Exception {
+			synchronized (server) {
+				if (!server.requestHandlers.contains(this)) {
+					throw new UnexpectedError();
+				}
+				uninstall(server);
+				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
+					server.stop();
+				}
+			}
+		}
+
+		public void validate(HTTPServer server) throws ValidationError {
+			if ((servicePath == null) || servicePath.isEmpty()) {
+				throw new ValidationError("Service path not provided");
+			}
+			if (server.requestHandlers.stream().filter(Predicate.isEqual(this).negate())
+					.map(RequestHandler::getServicePath).filter(Objects::nonNull)
+					.anyMatch(Predicate.isEqual(servicePath))) {
+				throw new ValidationError("Duplicate service path: '" + servicePath + "'");
+			}
+		}
 	}
 
 	public static class Metadata implements ResourceMetadata {

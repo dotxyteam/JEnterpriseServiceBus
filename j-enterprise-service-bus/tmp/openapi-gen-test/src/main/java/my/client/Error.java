@@ -16,6 +16,7 @@ package my.client;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -25,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   Error.JSON_PROPERTY_CODE,
   Error.JSON_PROPERTY_MESSAGE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-23T20:09:45.240+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
 public class Error {
   public static final String JSON_PROPERTY_CODE = "code";
   private Integer code;
@@ -47,6 +48,7 @@ public class Error {
    * @return code
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -73,6 +75,7 @@ public class Error {
    * @return message
   **/
   @javax.annotation.Nonnull
+  @ApiModelProperty(required = true, value = "")
   @JsonProperty(JSON_PROPERTY_MESSAGE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -86,6 +89,7 @@ public class Error {
   public void setMessage(String message) {
     this.message = message;
   }
+
 
   @Override
   public boolean equals(Object o) {

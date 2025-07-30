@@ -73,6 +73,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+			<version>3.5.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-rs-extension-providers</artifactId>
 			<version>3.5.11</version>
 		</dependency>
@@ -84,7 +89,12 @@
 		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>openapi-generator</artifactId>
-			<version>6.6.0</version>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>swagger-ui</artifactId>
+			<version>4.15.5</version> 
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -104,6 +114,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
+			<version>5.3.39</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
 			<version>5.3.39</version>
 		</dependency>
 		<dependency>
