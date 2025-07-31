@@ -19,6 +19,7 @@
         <newPathValidator class="null"/>
         <path>resources &gt; NumberConversion</path>
       </wsdlReference>
+      <serviceName>NumberConversionSoapType</serviceName>
       <activationHandlerByOperation class="concurrent-hash-map"/>
     </com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
     <com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
@@ -30,6 +31,17 @@
         <newPathValidator class="null"/>
         <path>resources &gt; petstore</path>
       </openAPIDescriptionReference>
+      <webUISupport>
+        <contactEmail class="null"/>
+        <contactName class="null"/>
+        <contactUrl class="null"/>
+        <description class="null"/>
+        <license class="null"/>
+        <termsOfServiceUrl class="null"/>
+        <title class="null"/>
+        <urlSuffix>api-docs</urlSuffix>
+        <version class="null"/>
+      </webUISupport>
       <activationHandlerByOperation class="concurrent-hash-map"/>
     </com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
   </requestHandlers>

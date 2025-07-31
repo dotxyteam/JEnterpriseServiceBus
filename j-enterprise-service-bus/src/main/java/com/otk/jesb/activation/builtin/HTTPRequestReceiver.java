@@ -76,7 +76,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 				return null;
 			}
 			return result;
-		} catch (IllegalStateException e) {
+		} catch (IllegalStateException|IllegalArgumentException e) {
 			return null;
 		}
 	}
@@ -94,7 +94,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 			throw new ValidationError(e.getMessage(), e);
 		}
 		if (getRequestHandler() == null) {
-			throw new IllegalStateException("Failed to resolve the request handler reference");
+			throw new ValidationError("Failed to resolve the request handler reference");
 		}
 	}
 

@@ -293,9 +293,9 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					try {
 						MiscUtils.delete(mainFile);
 						MiscUtils.delete(directory);
-					} catch (Throwable ignore) {
+					} catch (Throwable t) {
 						if (JESB.DEBUG) {
-							ignore.printStackTrace();
+							t.printStackTrace();
 						}
 					}
 				}
@@ -477,7 +477,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 		@Override
 		public String toString() {
-			return "Operation [method=" + operationMethod + "]";
+			return "Operation [signature=" + getOperationSignature() + "]";
 		}
 
 		public interface OperationInput {

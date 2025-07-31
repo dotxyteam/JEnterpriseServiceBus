@@ -53,14 +53,6 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		return true;
 	}
 
-	private WSDL expectWSDL() {
-		WSDL result = wsdlReference.resolve();
-		if (result == null) {
-			throw new IllegalStateException("Failed to resolve the WSDL reference");
-		}
-		return result;
-	}
-
 	public Reference<WSDL> getWsdlReference() {
 		return wsdlReference;
 	}
@@ -124,6 +116,14 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		} catch (IllegalStateException e) {
 			return Collections.emptyList();
 		}
+	}
+
+	private WSDL expectWSDL() {
+		WSDL result = wsdlReference.resolve();
+		if (result == null) {
+			throw new IllegalStateException("Failed to resolve the WSDL reference");
+		}
+		return result;
 	}
 
 	private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
@@ -212,6 +212,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		super.validate(recursively, plan);
 		try {
 			expectOperationDescriptor();
 		} catch (IllegalStateException e) {
@@ -261,19 +262,29 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			return activationHandlerByOperation;
 		}
 
+		private WSDL expectWSDL() {
+			WSDL result = wsdlReference.resolve();
+			if (result == null) {
+				throw new IllegalStateException("Failed to resolve the WSDL reference");
+			}
+			return result;
+		}
+
+		private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
+			WSDL wsdl = expectWSDL();
+			ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);
+			if (result == null) {
+				throw new IllegalStateException("Invalid service name '" + serviceName + "'");
+			}
+			return result;
+		}
+
 		@Override
 		public void install(HTTPServer server) throws Exception {
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
-			WSDL wsdl = wsdlReference.resolve();
-			if (wsdl == null) {
-				throw new UnexpectedError();
-			}
-			ServiceSpecificationDescriptor service = wsdl.getServiceSpecificationDescriptor(serviceName);
-			if (service == null) {
-				throw new UnexpectedError();
-			}
+			ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
 			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)
 					.newInstance(new InvocationHandler() {
 						@Override
@@ -296,7 +307,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 					}));
 			endpoint.publish(servicePath);
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath + "?WSDL");
+				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
 			}
 		}
 
@@ -306,8 +317,19 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 				throw new UnexpectedError();
 			}
 			endpoint.stop();
+			endpoint = null;
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
+			}
+		}
+
+		@Override
+		public void validate(HTTPServer server) throws ValidationError {
+			super.validate(server);
+			try {
+				expectServiceSpecificationDescriptor();
+			} catch (IllegalStateException e) {
+				throw new ValidationError(e.getMessage(), e);
 			}
 		}
 

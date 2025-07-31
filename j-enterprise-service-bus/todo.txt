@@ -67,6 +67,9 @@ https://www.reddit.com/r/Talend/comments/19cvxwf/talend_open_source_is_being_dis
 - verify (during persistence probably) that:
 	. every asset is isolated (does not have other asset reference)
 	. there is no persisted inner class that hold a reference to the enclosing class instance (not sure) ???
+- do System.exit() when closing the GUI to ensure there is no running thread (buggy http server, etc)
+- on the debugger window, replace the plan activation check box by a button in order to
+have the busy indicator
 - diagram improvements:
 	. zoom
 - Switch/Cases feature issues:

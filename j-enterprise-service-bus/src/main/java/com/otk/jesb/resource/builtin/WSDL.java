@@ -216,7 +216,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "Operation [method=" + operationMethod + "]";
+			return "Operation [signature=" + getOperationSignature() + "]";
 		}
 
 		public interface OperationInput {
@@ -279,7 +279,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "Port [interface=" + portInterface + "]";
+			return "Port [name=" + getPortName() + "]";
 		}
 
 	}
@@ -338,7 +338,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "ServiceClient [class=" + serviceClass + "]";
+			return "ServiceClient [serviceName=" + getServiceName() + "]";
 		}
 
 	}
@@ -474,7 +474,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		@Override
 		public String toString() {
-			return "ServiceSpecification [interface=" + serviceInterface + "]";
+			return "ServiceSpecification [serviceName=" + getServiceName() + "]";
 		}
 
 	}

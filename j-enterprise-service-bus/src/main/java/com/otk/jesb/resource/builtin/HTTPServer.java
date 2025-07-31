@@ -1,6 +1,5 @@
 package com.otk.jesb.resource.builtin;
 
-import java.beans.Transient;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +138,11 @@ public class HTTPServer extends Resource {
 		if ((port < 0) || (port > 65535)) {
 			throw new ValidationError("Invalid port (must be between 0 and 65535)");
 		}
+		if (recursively) {
+			for (RequestHandler requestHandler : requestHandlers) {
+				requestHandler.validate(this);
+			}
+		}
 	}
 
 	public static abstract class RequestHandler {
@@ -162,13 +166,8 @@ public class HTTPServer extends Resource {
 			this.servicePath = servicePath;
 		}
 
-		@Transient
-		public boolean isActive() {
+		protected boolean isActive() {
 			return active;
-		}
-
-		public void setActive(boolean active) {
-			this.active = active;
 		}
 
 		public void activate(HTTPServer server) throws Exception {
@@ -179,6 +178,7 @@ public class HTTPServer extends Resource {
 				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
 					server.start();
 				}
+				active = true;
 				install(server);
 			}
 		}
@@ -189,6 +189,7 @@ public class HTTPServer extends Resource {
 					throw new UnexpectedError();
 				}
 				uninstall(server);
+				active = false;
 				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
 					server.stop();
 				}

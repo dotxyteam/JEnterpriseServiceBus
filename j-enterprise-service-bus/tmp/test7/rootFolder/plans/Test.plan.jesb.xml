@@ -836,8 +836,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>197</diagramX>
-      <diagramY>378</diagramY>
+      <diagramX>298</diagramX>
+      <diagramY>251</diagramY>
       <name>callRESTAPI</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
         <customBaseURL>http://localhost:8080/rest</customBaseURL>

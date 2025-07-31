@@ -220,15 +220,20 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			return activationHandlerByOperation;
 		}
 
+		private OpenAPIDescription expectOpenAPIDescription() {
+			OpenAPIDescription result = openAPIDescriptionReference.resolve();
+			if (result == null) {
+				throw new IllegalStateException("Failed to resolve the OpenAPI Description reference");
+			}
+			return result;
+		}
+
 		@Override
 		protected void install(HTTPServer server) throws Exception {
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
-			OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve();
-			if (openAPIDescription == null) {
-				throw new UnexpectedError();
-			}
+			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
 			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
 			factory.setAddress(servicePath);
 			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()
@@ -239,7 +244,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()
 									.get(operation);
 							if (registeredActivationHandler == null) {
-								throw new UnsupportedOperationException();
+								throw new UnsupportedOperationException(operation + " not implemented");
 							}
 							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()
 									.getConstructor(method.getParameterTypes()).newInstance(args);
@@ -271,7 +276,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath
 						+ ((webUISupport != null)
-								? ("(Web UI: " + server.getLocaBaseURL() + servicePath + webUISupport.getUrlSuffix()
+								? (" (Web UI: " + server.getLocaBaseURL() + servicePath + webUISupport.getUrlSuffix()
 										+ ")")
 								: ""));
 			}
@@ -283,9 +288,19 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				throw new UnexpectedError();
 			}
 			endpoint.destroy();
-			;
+			endpoint = null;
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+			}
+		}
+
+		@Override
+		public void validate(HTTPServer server) throws ValidationError {
+			super.validate(server);
+			try {
+				expectOpenAPIDescription();
+			} catch (IllegalStateException e) {
+				throw new ValidationError(e.getMessage(), e);
 			}
 		}
 
@@ -304,7 +319,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			private String version;
 			private String license;
 			private String termsOfServiceUrl;
-			private String urlSuffix = "/api-docs";
+			private String urlSuffix = "api-docs";
 
 			public String getTitle() {
 				return title;

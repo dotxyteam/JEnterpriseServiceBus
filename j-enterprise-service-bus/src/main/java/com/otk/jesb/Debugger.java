@@ -142,6 +142,9 @@ public class Debugger {
 				try {
 					plan.getActivator().initializeAutomaticTrigger(activationHandler);
 				} catch (Exception e) {
+					if (Preferences.INSTANCE.isLogVerbose()) {
+						e.printStackTrace();
+					}
 					planExecutors.add(new PlanActivationFailure(plan, e));
 					try {
 						plan.getActivator().finalizeAutomaticTrigger();
@@ -388,7 +391,7 @@ public class Debugger {
 			try {
 				planOutput = plan.execute(planInput, executionInspector, executionContext);
 			} catch (Throwable t) {
-				if (JESB.DEBUG) {
+				if (Preferences.INSTANCE.isLogVerbose()) {
 					t.printStackTrace();
 				}
 				executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
