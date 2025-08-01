@@ -36,8 +36,8 @@ public class XSD extends XMLBasedDocumentResource {
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory)
 			throws BadCommandLineException {
 		String[] xjcArgs = { "-d", outputDirectory.getPath(), "-p",
-				XSD.class.getName().toLowerCase() + InstantiationUtils
-						.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(XSD.this)),
+				InstantiationUtils.toRelativeTypeNameVariablePart(
+						XSD.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(XSD.this)),
 				mainFile.getPath() };
 
 		final StringBuilder logsBuffer = new StringBuilder();

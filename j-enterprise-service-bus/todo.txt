@@ -53,9 +53,12 @@ ExecutePlan.inputBuilder is filled
 	. connections are not straight and nice ???
 - plain/function mode as a toggle button ???
 - prevent or warn about multiply defined transitions
+- show error markers directly on duplicate assets 
 - manage renamings
 - what if 2 variables have the same name ?
 - replace "Edit..." by an icon ???
+- InstantiationUtils.extractRelativeTypeNameVariablePart() must never find multiple
+different parts
 - UnexpectedError is used for exceptions that are not really related to bugs
 (such as allowing to debug erroneous solution)
 - add support to Iterable for ListItemReplication.iterationListValue

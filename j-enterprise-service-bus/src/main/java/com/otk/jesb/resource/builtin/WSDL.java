@@ -43,8 +43,8 @@ public class WSDL extends XMLBasedDocumentResource {
 	@Override
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory) {
 		String[] wsImportArguments = new String[] { "-s", outputDirectory.getPath(), "-p",
-				WSDL.class.getName().toLowerCase() + InstantiationUtils
-						.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(WSDL.this)),
+				InstantiationUtils.toRelativeTypeNameVariablePart(
+						WSDL.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this)),
 				"-keep", "-Xnocompile", "-b", metaSchemaFile.toURI().toString(), "-verbose", mainFile.getPath() };
 		System.setProperty("javax.xml.accessExternalSchema", "all");
 		System.setProperty("javax.xml.accessExternalDTD", "all");

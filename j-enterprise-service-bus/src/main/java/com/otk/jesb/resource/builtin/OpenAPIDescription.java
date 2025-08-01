@@ -52,7 +52,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	private String text;
 
 	private UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
-	private Class<?> serviceImplementationClass;
+	private static WeakHashMap<Class<?>, Class<?>> serviceImplementationClassByInterface = new WeakHashMap<Class<?>, Class<?>>();
 
 	public OpenAPIDescription() {
 		this(OpenAPIDescription.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -109,16 +109,19 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 			return upToDateGeneratedClasses
 					.get().stream().filter(c -> c.getPackage().getName().equals(getServicePackageName())
 							&& c.isInterface() && c.getAnnotation(io.swagger.annotations.Api.class) != null)
-					.findFirst().get();
+					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
 		}
 	}
 
 	public Class<?> getAPIServiceImplementationClass() {
-		synchronized (this) {
-			if (serviceImplementationClass == null) {
-				Class<?> serviceInterface = getAPIServiceInterface();
+		Class<?> currentServiceInterface = getAPIServiceInterface();
+		if (currentServiceInterface == null) {
+			return null;
+		}
+		synchronized (serviceImplementationClassByInterface) {
+			serviceImplementationClassByInterface.computeIfAbsent(currentServiceInterface, serviceInterface -> {
 				String className = serviceInterface.getName() + "Impl";
 				StringBuilder javaSource = new StringBuilder();
 				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -177,14 +180,12 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				}
 				javaSource.append("}" + "\n");
 				try {
-					serviceImplementationClass = (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							javaSource.toString());
+					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
 				} catch (CompilationError e) {
 					throw new UnexpectedError(e);
 				}
-			}
-			;
-			return serviceImplementationClass;
+			});
+			return serviceImplementationClassByInterface.get(currentServiceInterface);
 		}
 	}
 
@@ -193,7 +194,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 			return upToDateGeneratedClasses.get().stream().filter(
 					c -> c.getPackage().getName().equals(getClientPackageName()) && Arrays.stream(c.getDeclaredFields())
 							.anyMatch(field -> field.getType().equals(getAPIClientConfigurationClass())))
-					.findFirst().get();
+					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
 		}
@@ -203,19 +204,27 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		try {
 			return upToDateGeneratedClasses.get().stream().filter(
 					c -> c.getPackage().getName().equals(getBasePackageName()) && c.getSimpleName().equals("ApiClient"))
-					.findFirst().get();
+					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
 		}
 	}
 
 	public List<APIOperationDescriptor> getServiceOperationDescriptors() {
-		return Arrays.asList(getAPIServiceInterface().getDeclaredMethods()).stream()
-				.map(m -> new APIOperationDescriptor(m)).collect(Collectors.toList());
+		Class<?> serviceInterface = getAPIServiceInterface();
+		if (serviceInterface == null) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(serviceInterface.getDeclaredMethods()).stream().map(m -> new APIOperationDescriptor(m))
+				.collect(Collectors.toList());
 	}
 
 	public List<APIOperationDescriptor> getClientOperationDescriptors() {
-		return Arrays.asList(getAPIClientClass().getDeclaredMethods()).stream()
+		Class<?> clientClass = getAPIClientClass();
+		if (clientClass == null) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(clientClass.getDeclaredMethods()).stream()
 				.filter(m -> (m.getReturnType() != ResponseEntity.class)
 						&& (m.getReturnType() != getAPIClientConfigurationClass())
 						&& !((m.getParameterCount() == 1)
@@ -242,14 +251,14 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	private String getBasePackageName() {
-		return OpenAPIDescription.class.getName().toLowerCase()
-				+ InstantiationUtils.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));
+		return InstantiationUtils.toRelativeTypeNameVariablePart(
+				OpenAPIDescription.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(this));
 	}
 
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		if (text == null) {
+		if ((text == null) || text.trim().isEmpty()) {
 			throw new ValidationError("Text not provided");
 		}
 		try {

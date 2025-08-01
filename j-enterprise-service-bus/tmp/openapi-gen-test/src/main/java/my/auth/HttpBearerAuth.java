@@ -3,7 +3,7 @@ package my.auth;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-08-01T19:38:38.903+02:00[Europe/Paris]")
 public class HttpBearerAuth implements Authentication {
     private final String scheme;
     private String bearerToken;

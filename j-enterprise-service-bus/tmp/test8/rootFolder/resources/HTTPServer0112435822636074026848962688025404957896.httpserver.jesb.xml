@@ -1,0 +1,70 @@
+<com.otk.jesb.resource.builtin.HTTPServer>
+  <hostNameVariant>
+    <valueClass>java.lang.String</valueClass>
+    <value class="string">localhost</value>
+  </hostNameVariant>
+  <name>HTTPServer0112435822636074026848962688025404957896</name>
+  <note class="null"/>
+  <portVariant>
+    <valueClass>java.lang.Integer</valueClass>
+    <value class="int">8080</value>
+  </portVariant>
+  <requestHandlers>
+    <com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+      <servicePath>/soap/</servicePath>
+      <active>false</active>
+      <wsdlReference>
+        <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; NumberConversion</path>
+      </wsdlReference>
+      <serviceName>NumberConversionSoapType</serviceName>
+      <activationHandlerByOperation class="concurrent-hash-map"/>
+    </com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+    <com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+      <servicePath>/rest/</servicePath>
+      <active>false</active>
+      <openAPIDescriptionReference>
+        <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; petstore</path>
+      </openAPIDescriptionReference>
+      <webUISupport>
+        <contactEmail class="null"/>
+        <contactName class="null"/>
+        <contactUrl class="null"/>
+        <description class="null"/>
+        <license class="null"/>
+        <termsOfServiceUrl class="null"/>
+        <title class="null"/>
+        <urlSuffix>api-docs</urlSuffix>
+        <version class="null"/>
+      </webUISupport>
+      <activationHandlerByOperation class="concurrent-hash-map"/>
+    </com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+    <com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+      <servicePath>/rest2/</servicePath>
+      <active>false</active>
+      <openAPIDescriptionReference>
+        <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; calculator</path>
+      </openAPIDescriptionReference>
+      <webUISupport>
+        <contactEmail class="null"/>
+        <contactName class="null"/>
+        <contactUrl class="null"/>
+        <description class="null"/>
+        <license class="null"/>
+        <termsOfServiceUrl class="null"/>
+        <title class="null"/>
+        <urlSuffix>api-docs</urlSuffix>
+        <version class="null"/>
+      </webUISupport>
+      <activationHandlerByOperation class="concurrent-hash-map"/>
+    </com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+  </requestHandlers>
+</com.otk.jesb.resource.builtin.HTTPServer>

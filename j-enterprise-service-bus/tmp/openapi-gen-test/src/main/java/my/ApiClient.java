@@ -52,7 +52,7 @@ import java.time.OffsetDateTime;
 
 import my.auth.Authentication;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-07-28T21:06:08.956+02:00[Europe/Paris]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-08-01T19:38:38.903+02:00[Europe/Paris]")
 @Component("my.ApiClient")
 public class ApiClient extends JavaTimeFormatter {
     public enum CollectionFormat {

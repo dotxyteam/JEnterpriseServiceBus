@@ -260,6 +260,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			if (webUISupport != null) {
 				OpenApiFeature openApiFeature = new OpenApiFeature();
 				openApiFeature.setSupportSwaggerUi(true);
+				openApiFeature.setUseContextBasedConfig(true); 
 				openApiFeature.setPrettyPrint(true);
 				openApiFeature.setTitle(webUISupport.getTitle());
 				openApiFeature.setContactName(webUISupport.getContactName());

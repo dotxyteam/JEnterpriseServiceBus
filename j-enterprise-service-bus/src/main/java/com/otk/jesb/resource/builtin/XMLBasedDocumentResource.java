@@ -135,7 +135,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 	@Override
 	public void validate(boolean recursively) throws ValidationError {
 		super.validate(recursively);
-		if (text == null) {
+		if ((text == null) || text.trim().isEmpty()) {
 			throw new ValidationError("Text not provided");
 		}
 		try {

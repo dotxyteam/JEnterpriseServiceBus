@@ -1837,7 +1837,9 @@ public class JESBReflectionUI extends CustomizedUI {
 	private RootInstanceBuilderFacade getCurrentRootInstanceBuilderFacade(ValidationSession session) {
 		Facade currentInstantiationFacade = getCurrentInstantiationFacade(session);
 		if (!(currentInstantiationFacade instanceof RootInstanceBuilderFacade)) {
-			return null;
+			return (RootInstanceBuilderFacade) MiscUtils
+					.getReverse(new ArrayList<Facade>(displayedInstantiationFacades)).stream()
+					.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
 		}
 		return (RootInstanceBuilderFacade) currentInstantiationFacade;
 	}
