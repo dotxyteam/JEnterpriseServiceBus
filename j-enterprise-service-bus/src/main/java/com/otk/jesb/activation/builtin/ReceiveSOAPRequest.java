@@ -308,6 +308,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			endpoint.publish(servicePath);
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
+				System.out.println("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
 			}
 		}
 

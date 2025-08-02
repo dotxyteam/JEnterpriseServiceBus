@@ -1,5 +1,6 @@
 <list>
   <string>Test</string>
+  <string>SubTest</string>
   <string>SOAPServiceTest</string>
   <string>SOAPServiceTest2</string>
   <string>SOAPRequestTest</string>

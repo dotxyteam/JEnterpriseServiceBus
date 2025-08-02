@@ -81,6 +81,27 @@
 			<artifactId>cxf-rt-rs-extension-providers</artifactId>
 			<version>3.5.11</version>
 		</dependency>
+		<!-- 
+		<dependency>
+		    <groupId>org.apache.cxf</groupId>
+		    <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
+		    <version>3.5.11</version>
+		</dependency>
+		 -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>swagger-ui</artifactId>
+			<version>5.27.0</version> 
+		</dependency>
+		<!-- 
+		 -->
+		<!-- 
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>swagger-ui</artifactId>
+			<version>4.15.5</version> 
+		</dependency>
+		 -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.jaxrs</groupId>
 			<artifactId>jackson-jaxrs-json-provider</artifactId>
@@ -90,11 +111,6 @@
 			<groupId>org.openapitools</groupId>
 			<artifactId>openapi-generator</artifactId>
 			<version>6.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>swagger-ui</artifactId>
-			<version>4.15.5</version> 
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

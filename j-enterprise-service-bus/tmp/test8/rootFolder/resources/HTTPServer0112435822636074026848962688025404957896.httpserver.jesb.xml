@@ -39,7 +39,6 @@
         <license class="null"/>
         <termsOfServiceUrl class="null"/>
         <title class="null"/>
-        <urlSuffix>api-docs</urlSuffix>
         <version class="null"/>
       </webUISupport>
       <activationHandlerByOperation class="concurrent-hash-map"/>
@@ -61,7 +60,6 @@
         <license class="null"/>
         <termsOfServiceUrl class="null"/>
         <title class="null"/>
-        <urlSuffix>api-docs</urlSuffix>
         <version class="null"/>
       </webUISupport>
       <activationHandlerByOperation class="concurrent-hash-map"/>

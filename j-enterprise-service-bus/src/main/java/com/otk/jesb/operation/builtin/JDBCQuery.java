@@ -67,7 +67,7 @@ public class JDBCQuery extends JDBCOperation {
 			List<Object> customResultRowStandardList = new ArrayList<Object>();
 			while (resultSet.next()) {
 				Object[] parameterValues = new Object[resultColumnDefinitions.size()];
-				for (int iColumn = 1; iColumn < resultColumnDefinitions.size(); iColumn++) {
+				for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
 					IParameterInfo parameterInfo = customResultRowConstructorParameterInfos.get(iColumn - 1);
 					ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);
 					if (!parameterInfo.getName().matches(resultColumnDefinition.getColumnName())) {
@@ -92,7 +92,7 @@ public class JDBCQuery extends JDBCOperation {
 			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			while (resultSet.next()) {
 				Map<String, Object> row = new HashMap<String, Object>();
-				for (int iColumn = 1; iColumn < resultColumnDefinitions.size(); iColumn++) {
+				for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
 					row.put(resultColumnDefinitions.get(iColumn - 1).getColumnName(), resultSet.getObject(iColumn));
 				}
 				rows.add(row);

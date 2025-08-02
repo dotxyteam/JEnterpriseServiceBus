@@ -104,11 +104,68 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
+	private void generateSwaggerInitializeResourceClass(File sourceDirectory) throws IOException {
+		StringBuilder swaggerInitializerResourceSourceCode = new StringBuilder();
+		swaggerInitializerResourceSourceCode.append("package " + getServicePackageName() + ";\n");
+		swaggerInitializerResourceSourceCode.append("\n");
+		swaggerInitializerResourceSourceCode.append("import javax.ws.rs.GET;\n");
+		swaggerInitializerResourceSourceCode.append("import javax.ws.rs.Path;\n");
+		swaggerInitializerResourceSourceCode.append("import javax.ws.rs.Produces;\n");
+		swaggerInitializerResourceSourceCode.append("import javax.ws.rs.core.Response;\n");
+		swaggerInitializerResourceSourceCode.append("\n");
+		swaggerInitializerResourceSourceCode.append("@Path(\"/swagger-initializer.js\")\n");
+		swaggerInitializerResourceSourceCode.append("public class SwaggerInitializerResource {\n");
+		swaggerInitializerResourceSourceCode.append("\n");
+		swaggerInitializerResourceSourceCode.append("    @GET\n");
+		swaggerInitializerResourceSourceCode.append("    @Produces(\"application/javascript\")\n");
+		swaggerInitializerResourceSourceCode.append("    public Response get() {\n");
+		swaggerInitializerResourceSourceCode.append("        String js = \" window.onload = function() {\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"          window.ui = SwaggerUIBundle({\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"            url: \\\"./openapi.json\\\",\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            dom_id: '#swagger-ui',\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            deepLinking: true,\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            presets: [\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"              SwaggerUIBundle.presets.apis,\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"              SwaggerUIStandalonePreset\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            ],\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            plugins: [\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"              SwaggerUIBundle.plugins.DownloadUrl\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"            ],\\n\" + \n");
+		swaggerInitializerResourceSourceCode
+				.append("        		\"            layout: \\\"StandaloneLayout\\\"\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"          });\\n\" + \n");
+		swaggerInitializerResourceSourceCode.append("        		\"        };\";\n");
+		swaggerInitializerResourceSourceCode.append("        return Response.ok(js).build();\n");
+		swaggerInitializerResourceSourceCode.append("    }\n");
+		swaggerInitializerResourceSourceCode.append("}\n");
+		swaggerInitializerResourceSourceCode.append("");
+		File swaggerInitializerResourceSourceFile = new File(sourceDirectory,
+				getServicePackageName().replace(".", "/") + "/SwaggerInitializerResource.java");
+		Files.write(swaggerInitializerResourceSourceFile.toPath(),
+				swaggerInitializerResourceSourceCode.toString().getBytes());
+	}
+
 	public Class<?> getAPIServiceInterface() {
 		try {
 			return upToDateGeneratedClasses
 					.get().stream().filter(c -> c.getPackage().getName().equals(getServicePackageName())
 							&& c.isInterface() && c.getAnnotation(io.swagger.annotations.Api.class) != null)
+					.findFirst().orElse(null);
+		} catch (VersionAccessException e) {
+			throw new UnexpectedError(e);
+		}
+	}
+
+	public Class<?> getSwaggerInitializerResourceClass() {
+		try {
+			return upToDateGeneratedClasses.get().stream()
+					.filter(c -> c.getPackage().getName().equals(getServicePackageName())
+							&& "SwaggerInitializerResource".equals(c.getSimpleName()))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
 			throw new UnexpectedError(e);
@@ -288,6 +345,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					File sourceDirectory = MiscUtils.createTemporaryDirectory();
 					try {
 						runClassesGenerationTool(mainFile, sourceDirectory);
+						generateSwaggerInitializeResourceClass(new File(sourceDirectory, "/src/gen/java"));
 						CodeGenerationPostProcessor.process(sourceDirectory);
 						List<Class<?>> result = new ArrayList<Class<?>>();
 						result.addAll(MiscUtils.IN_MEMORY_COMPILER

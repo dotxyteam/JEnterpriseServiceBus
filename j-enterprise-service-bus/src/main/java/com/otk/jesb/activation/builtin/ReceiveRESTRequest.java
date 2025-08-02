@@ -1,19 +1,36 @@
 package com.otk.jesb.activation.builtin;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Priority;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
-import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiConfig;
-
+import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
@@ -28,6 +45,8 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
+
+import io.swagger.v3.oas.models.OpenAPI;
 import xy.reflect.ui.info.ResourcePath;
 
 public class ReceiveRESTRequest extends HTTPRequestReceiver {
@@ -255,12 +274,12 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 							}
 							return operationOutputClass.getFields()[0].get(operationOutput);
 						}
-					})));
+					}), openAPIDescription.getSwaggerInitializerResourceClass().newInstance()));
 			factory.setProvider(new JacksonJsonProvider());
 			if (webUISupport != null) {
-				OpenApiFeature openApiFeature = new OpenApiFeature();
+				OpenApiFeature openApiFeature = new CustomOpenApiFeature();
 				openApiFeature.setSupportSwaggerUi(true);
-				openApiFeature.setUseContextBasedConfig(true); 
+				openApiFeature.setUseContextBasedConfig(true);
 				openApiFeature.setPrettyPrint(true);
 				openApiFeature.setTitle(webUISupport.getTitle());
 				openApiFeature.setContactName(webUISupport.getContactName());
@@ -270,16 +289,30 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				openApiFeature.setVersion(webUISupport.getVersion());
 				openApiFeature.setLicense(webUISupport.getLicense());
 				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrl());
-				openApiFeature.setSwaggerUiConfig(new SwaggerUiConfig().url(webUISupport.getUrlSuffix()));
+				openApiFeature.setScan(false);
+				openApiFeature.setResourceClasses(
+						new HashSet<String>(Arrays.asList(openAPIDescription.getAPIServiceInterface().getName())));
+				OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {					
+					@Override
+				    public void customize(OpenAPI openApi) {
+						io.swagger.v3.oas.models.servers.Server server = new io.swagger.v3.oas.models.servers.Server();
+				        server.setUrl(servicePath); 
+				        openApi.setServers(Collections.singletonList(server));
+				    }
+				};
+				{
+					openApiFeature.setCustomizer(openApiCustomizer);
+				}
 				factory.setFeatures(Arrays.asList(openApiFeature));
 			}
 			endpoint = factory.create();
 			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath
-						+ ((webUISupport != null)
-								? (" (Web UI: " + server.getLocaBaseURL() + servicePath + webUISupport.getUrlSuffix()
-										+ ")")
-								: ""));
+				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
+				if (webUISupport != null) {
+					System.out
+							.println("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
+					System.out.println("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
+				}
 			}
 		}
 
@@ -320,7 +353,6 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			private String version;
 			private String license;
 			private String termsOfServiceUrl;
-			private String urlSuffix = "api-docs";
 
 			public String getTitle() {
 				return title;
@@ -386,14 +418,146 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				this.termsOfServiceUrl = termsOfServiceUrl;
 			}
 
-			public String getUrlSuffix() {
-				return urlSuffix;
+		}
+
+		protected static class CustomOpenApiFeature extends OpenApiFeature {
+
+			public CustomOpenApiFeature() {
+				setDelegate(new Portable() {
+
+					@Override
+					public Registration getSwaggerUi(Bus bus, Properties swaggerProps, boolean runAsFilter) {
+						final Registration registration = new Registration();
+
+						if (checkSupportSwaggerUiProp(swaggerProps)) {
+							String swaggerUiRoot = findSwaggerUiRoot();
+
+							if (swaggerUiRoot != null) {
+								final SwaggerUiResourceLocator locator = new SwaggerUiResourceLocator(swaggerUiRoot);
+								SwaggerUiService swaggerUiService = new SwaggerUiService(locator,
+										getSwaggerUiMediaTypes());
+								swaggerUiService.setConfig(getSwaggerUiConfig());
+
+								if (!runAsFilter) {
+									registration.getResources().add(swaggerUiService);
+								} else {
+									registration.getProviders().add(new SwaggerUiServiceFilter(swaggerUiService));
+								}
+
+								registration.getProviders().add(new SwaggerUiResourceFilter(locator));
+								bus.setProperty("swagger.service.ui.available", "true");
+							}
+						}
+
+						return registration;
+					}
+
+				});
 			}
 
-			public void setUrlSuffix(String urlSuffix) {
-				this.urlSuffix = urlSuffix;
+			@PreMatching
+			@Priority(Priorities.USER + 1)
+			class SwaggerUiServiceFilter implements ContainerRequestFilter {
+				private final SwaggerUiService uiService;
+
+				SwaggerUiServiceFilter(SwaggerUiService uiService) {
+					this.uiService = uiService;
+				}
+
+				@Override
+				public void filter(ContainerRequestContext rc) throws IOException {
+					if (HttpMethod.GET.equals(rc.getRequest().getMethod())) {
+						UriInfo ui = rc.getUriInfo();
+						String path = ui.getPath();
+						int uiPathIndex = path.lastIndexOf("api-docs");
+						if (uiPathIndex >= 0) {
+							String resourcePath = uiPathIndex + 8 < path.length() ? path.substring(uiPathIndex + 8)
+									: "";
+							rc.abortWith(uiService.getResource(ui, resourcePath));
+						}
+					}
+				}
 			}
 
+			@PreMatching
+			@Priority(Priorities.USER)
+			class SwaggerUiResourceFilter implements ContainerRequestFilter {
+				private final Pattern PATTERN = Pattern
+						.compile(".*[.]js|.*[.]gz|.*[.]map|oauth2*[.]html|.*[.]png|.*[.]css|.*[.]ico|"
+								+ "/css/.*|/images/.*|/lib/.*|/fonts/.*");
+
+				private final SwaggerUiResourceLocator locator;
+
+				SwaggerUiResourceFilter(SwaggerUiResourceLocator locator) {
+					this.locator = locator;
+				}
+
+				@Override
+				public void filter(ContainerRequestContext rc) throws IOException {
+					if (HttpMethod.GET.equals(rc.getRequest().getMethod())) {
+						UriInfo ui = rc.getUriInfo();
+						String path = "/" + ui.getPath();
+						if (PATTERN.matcher(path).matches() && locator.exists(path)) {
+							rc.setRequestUri(URI.create("api-docs" + path));
+						}
+					}
+				}
+			}
+
+			class SwaggerUiResourceLocator extends org.apache.cxf.jaxrs.swagger.ui.SwaggerUiResourceLocator {
+				private String swaggerUiRoot;
+
+				public SwaggerUiResourceLocator(String swaggerUiRoot) {
+					super(swaggerUiRoot);
+					this.swaggerUiRoot = swaggerUiRoot;
+				}
+
+				/**
+				 * Locate Swagger UI resource corresponding to resource path
+				 * 
+				 * @param resourcePath resource path
+				 * @return Swagger UI resource URL
+				 * @throws MalformedURLException
+				 */
+				public URL locate(String resourcePath) throws MalformedURLException {
+					if ("/swagger-initializer.js".equals(resourcePath)) {
+						throw new MalformedURLException();
+					}
+					if (StringUtils.isEmpty(resourcePath) || "/".equals(resourcePath)) {
+						resourcePath = "index.html";
+					}
+
+					if (resourcePath.startsWith("/")) {
+						resourcePath = resourcePath.substring(1);
+					}
+					URL ret;
+
+					try {
+						ret = URI.create(swaggerUiRoot + resourcePath).toURL();
+					} catch (IllegalArgumentException ex) {
+						throw new MalformedURLException(ex.getMessage());
+					}
+					return ret;
+				}
+
+				/**
+				 * Checks the existence of the Swagger UI resource corresponding to resource
+				 * path
+				 * 
+				 * @param resourcePath resource path
+				 * @return "true" if Swagger UI resource exists, "false" otherwise
+				 */
+				public boolean exists(String resourcePath) {
+					try {
+						// The connect() will try to locate the entry (jar file, classpath resource)
+						// and fail with FileNotFoundException /IOException if there is none.
+						locate(resourcePath).openConnection().connect();
+						return true;
+					} catch (IOException ex) {
+						return false;
+					}
+				}
+			}
 		}
 
 	}

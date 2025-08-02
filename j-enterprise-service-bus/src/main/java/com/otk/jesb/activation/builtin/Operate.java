@@ -3,6 +3,7 @@ package com.otk.jesb.activation.builtin;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
@@ -158,7 +159,7 @@ public class Operate extends Activator {
 
 		@Override
 		public String getActivatorName() {
-			return "(Sub-Plan) Operate";
+			return "(Sub-Plan) Handle <" + new ExecutePlan.Metadata().getOperationTypeName() + "> Operation";
 		}
 
 	}
