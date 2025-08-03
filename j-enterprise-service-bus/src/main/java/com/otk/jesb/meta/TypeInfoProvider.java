@@ -1,6 +1,8 @@
 package com.otk.jesb.meta;
 
 import java.lang.reflect.Member;
+
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
@@ -30,7 +32,7 @@ public class TypeInfoProvider {
 			try {
 				return MiscUtils.IN_MEMORY_COMPILER.getClassLoader().loadClass(typeName);
 			} catch (ClassNotFoundException e1) {
-				throw new UnexpectedError(e1);
+				throw new PotentialError(e1);
 			}
 		}
 	}
@@ -38,16 +40,16 @@ public class TypeInfoProvider {
 	public static Class<?> getClassFromCanonicalName(String canonicalName) {
 		try {
 			return getClass(canonicalName);
-		} catch (UnexpectedError e1) {
+		} catch (PotentialError e1) {
 			try {
 				int lastDotIndex = canonicalName.lastIndexOf('.');
 				if (lastDotIndex == -1) {
-					throw new UnexpectedError();
+					throw new PotentialError(new UnexpectedError());
 				}
 				return getClassFromCanonicalName(
 						canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
-			} catch (UnexpectedError e2) {
-				throw new UnexpectedError(new ClassNotFoundException("Canonical name: " + canonicalName));
+			} catch (PotentialError e2) {
+				throw new PotentialError(new ClassNotFoundException("Canonical name: " + canonicalName));
 			}
 		}
 	}

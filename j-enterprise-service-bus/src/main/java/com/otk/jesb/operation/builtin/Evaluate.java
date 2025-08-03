@@ -3,8 +3,8 @@ package com.otk.jesb.operation.builtin;
 import java.io.IOException;
 import java.util.List;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.Structure.StructuredElement;
@@ -108,7 +108,7 @@ public class Evaluate implements Operation {
 			try {
 				return upToDateValueClass.get();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -159,7 +159,7 @@ public class Evaluate implements Operation {
 				try {
 					valueClass = upToDateValueClass.get();
 				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 				if (valueClass == null) {
 					return null;
@@ -226,7 +226,7 @@ public class Evaluate implements Operation {
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							getStructure().generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 

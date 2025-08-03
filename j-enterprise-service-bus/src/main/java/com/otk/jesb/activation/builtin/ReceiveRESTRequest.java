@@ -32,10 +32,12 @@ import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
@@ -161,7 +163,8 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		HTTPServer server = expectServer();
 		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
 		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
-		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		String servicePath = getServicePath();
+		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
 		if (!(requestHandler instanceof RESTRequestHandler)) {
 			throw new IllegalStateException(
 					"Cannot register " + operation + " on " + requestHandler + ": REST request handler required");
@@ -172,7 +175,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 					+ "' required");
 		}
 		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
-			throw new UnexpectedError(
+			throw new PotentialError(
 					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
 		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
@@ -185,7 +188,8 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
 		HTTPServer server = expectServer();
-		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		String servicePath = getServicePath();
+		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
 		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
 		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
@@ -213,14 +217,27 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
 		private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
 				OpenAPIDescription.class);
-		private WebUISupport webUISupport;
+		private Variant<Boolean> webUIEnabledVariant = new Variant<Boolean>(Boolean.class, false);
+		private WebUISupport webUISupport = new WebUISupport();
 
 		private Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<OpenAPIDescription.APIOperationDescriptor, ActivationHandler>();
 		private Server endpoint;
 
+		public RESTRequestHandler() {
+			super(null);
+		}
+
 		public RESTRequestHandler(String servicePath, Reference<OpenAPIDescription> openAPIDescriptionReference) {
 			super(servicePath);
 			this.openAPIDescriptionReference = openAPIDescriptionReference;
+		}
+
+		public Variant<Boolean> getWebUIEnabledVariant() {
+			return webUIEnabledVariant;
+		}
+
+		public void setWebUIEnabledVariant(Variant<Boolean> webUIEnabledVariant) {
+			this.webUIEnabledVariant = webUIEnabledVariant;
 		}
 
 		public WebUISupport getWebUISupport() {
@@ -235,7 +252,11 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			return openAPIDescriptionReference;
 		}
 
-		public Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
+		public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
+			this.openAPIDescriptionReference = openAPIDescriptionReference;
+		}
+
+		protected Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
 			return activationHandlerByOperation;
 		}
 
@@ -254,6 +275,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			}
 			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
 			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
+			String servicePath = getServicePathVariant().getValue();
 			factory.setAddress(servicePath);
 			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()
 					.getConstructor(InvocationHandler.class).newInstance(new InvocationHandler() {
@@ -276,29 +298,29 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 						}
 					}), openAPIDescription.getSwaggerInitializerResourceClass().newInstance()));
 			factory.setProvider(new JacksonJsonProvider());
-			if (webUISupport != null) {
+			if (webUIEnabledVariant.getValue()) {
 				OpenApiFeature openApiFeature = new CustomOpenApiFeature();
 				openApiFeature.setSupportSwaggerUi(true);
 				openApiFeature.setUseContextBasedConfig(true);
 				openApiFeature.setPrettyPrint(true);
-				openApiFeature.setTitle(webUISupport.getTitle());
-				openApiFeature.setContactName(webUISupport.getContactName());
-				openApiFeature.setContactEmail(webUISupport.getContactEmail());
-				openApiFeature.setContactUrl(webUISupport.getContactUrl());
-				openApiFeature.setDescription(webUISupport.getDescription());
-				openApiFeature.setVersion(webUISupport.getVersion());
-				openApiFeature.setLicense(webUISupport.getLicense());
-				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrl());
+				openApiFeature.setTitle(webUISupport.getTitleVariant().getValue());
+				openApiFeature.setContactName(webUISupport.getContactNameVariant().getValue());
+				openApiFeature.setContactEmail(webUISupport.getContactEmailVariant().getValue());
+				openApiFeature.setContactUrl(webUISupport.getContactUrlVariant().getValue());
+				openApiFeature.setDescription(webUISupport.getDescriptionVariant().getValue());
+				openApiFeature.setVersion(webUISupport.getVersionVariant().getValue());
+				openApiFeature.setLicense(webUISupport.getLicenseVariant().getValue());
+				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrlVariant().getValue());
 				openApiFeature.setScan(false);
 				openApiFeature.setResourceClasses(
 						new HashSet<String>(Arrays.asList(openAPIDescription.getAPIServiceInterface().getName())));
-				OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {					
+				OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {
 					@Override
-				    public void customize(OpenAPI openApi) {
+					public void customize(OpenAPI openApi) {
 						io.swagger.v3.oas.models.servers.Server server = new io.swagger.v3.oas.models.servers.Server();
-				        server.setUrl(servicePath); 
-				        openApi.setServers(Collections.singletonList(server));
-				    }
+						server.setUrl(servicePath);
+						openApi.setServers(Collections.singletonList(server));
+					}
 				};
 				{
 					openApiFeature.setCustomizer(openApiCustomizer);
@@ -308,7 +330,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			endpoint = factory.create();
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
-				if (webUISupport != null) {
+				if (webUIEnabledVariant.getValue()) {
 					System.out
 							.println("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
 					System.out.println("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
@@ -323,6 +345,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			}
 			endpoint.destroy();
 			endpoint = null;
+			String servicePath = getServicePathVariant().getValue();
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 			}
@@ -341,81 +364,81 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		@Override
 		public String toString() {
 			return "RESTRequestHandler [openAPIDescription=" + openAPIDescriptionReference.getPath() + ", servicePath="
-					+ servicePath + "]";
+					+ getServicePathVariant().getValue() + "]";
 		}
 
 		public static class WebUISupport {
-			private String title;
-			private String contactName;
-			private String contactEmail;
-			private String contactUrl;
-			private String description;
-			private String version;
-			private String license;
-			private String termsOfServiceUrl;
+			private Variant<String> titleVariant = new Variant<String>(String.class);
+			private Variant<String> contactNameVariant = new Variant<String>(String.class);
+			private Variant<String> contactEmailVariant = new Variant<String>(String.class);
+			private Variant<String> contactUrlVariant = new Variant<String>(String.class);
+			private Variant<String> descriptionVariant = new Variant<String>(String.class);
+			private Variant<String> versionVariant = new Variant<String>(String.class);
+			private Variant<String> licenseVariant = new Variant<String>(String.class);
+			private Variant<String> termsOfServiceUrlVariant = new Variant<String>(String.class);
 
-			public String getTitle() {
-				return title;
+			public Variant<String> getTitleVariant() {
+				return titleVariant;
 			}
 
-			public void setTitle(String title) {
-				this.title = title;
+			public void setTitleVariant(Variant<String> titleVariant) {
+				this.titleVariant = titleVariant;
 			}
 
-			public String getContactName() {
-				return contactName;
+			public Variant<String> getContactNameVariant() {
+				return contactNameVariant;
 			}
 
-			public void setContactName(String contactName) {
-				this.contactName = contactName;
+			public void setContactNameVariant(Variant<String> contactNameVariant) {
+				this.contactNameVariant = contactNameVariant;
 			}
 
-			public String getContactEmail() {
-				return contactEmail;
+			public Variant<String> getContactEmailVariant() {
+				return contactEmailVariant;
 			}
 
-			public void setContactEmail(String contactEmail) {
-				this.contactEmail = contactEmail;
+			public void setContactEmailVariant(Variant<String> contactEmailVariant) {
+				this.contactEmailVariant = contactEmailVariant;
 			}
 
-			public String getContactUrl() {
-				return contactUrl;
+			public Variant<String> getContactUrlVariant() {
+				return contactUrlVariant;
 			}
 
-			public void setContactUrl(String contactUrl) {
-				this.contactUrl = contactUrl;
+			public void setContactUrlVariant(Variant<String> contactUrlVariant) {
+				this.contactUrlVariant = contactUrlVariant;
 			}
 
-			public String getDescription() {
-				return description;
+			public Variant<String> getDescriptionVariant() {
+				return descriptionVariant;
 			}
 
-			public void setDescription(String description) {
-				this.description = description;
+			public void setDescriptionVariant(Variant<String> descriptionVariant) {
+				this.descriptionVariant = descriptionVariant;
 			}
 
-			public String getVersion() {
-				return version;
+			public Variant<String> getVersionVariant() {
+				return versionVariant;
 			}
 
-			public void setVersion(String version) {
-				this.version = version;
+			public void setVersionVariant(Variant<String> versionVariant) {
+				this.versionVariant = versionVariant;
 			}
 
-			public String getLicense() {
-				return license;
+			public Variant<String> getLicenseVariant() {
+				return licenseVariant;
 			}
 
-			public void setLicense(String license) {
-				this.license = license;
+			public void setLicenseVariant(Variant<String> licenseVariant) {
+				this.licenseVariant = licenseVariant;
 			}
 
-			public String getTermsOfServiceUrl() {
-				return termsOfServiceUrl;
+			public Variant<String> getTermsOfServiceUrlVariant() {
+				return termsOfServiceUrlVariant;
 			}
 
-			public void setTermsOfServiceUrl(String termsOfServiceUrl) {
-				this.termsOfServiceUrl = termsOfServiceUrl;
+			public void setTermsOfServiceUrlVariant(Variant<String> termsOfServiceUrlVariant) {
+				this.termsOfServiceUrlVariant = termsOfServiceUrlVariant;
 			}
 
 		}

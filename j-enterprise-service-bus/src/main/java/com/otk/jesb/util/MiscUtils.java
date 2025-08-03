@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Expression;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
@@ -45,6 +44,7 @@ import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;

@@ -19,6 +19,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Variant;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
@@ -140,7 +141,7 @@ public abstract class JDBCOperation implements Operation {
 				try {
 					return upToDateParameterDefinitions.get();
 				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			} else {
 				return parameterDefinitions;
@@ -170,7 +171,7 @@ public abstract class JDBCOperation implements Operation {
 			try {
 				this.parameterDefinitions = upToDateParameterDefinitions.get();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -234,7 +235,7 @@ public abstract class JDBCOperation implements Operation {
 				try {
 					return upToDateParameterValuesClass.get().getName();
 				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 		}

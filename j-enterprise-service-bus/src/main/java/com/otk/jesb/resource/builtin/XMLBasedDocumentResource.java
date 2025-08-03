@@ -21,7 +21,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.otk.jesb.JESB;
-import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
@@ -71,7 +71,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 				}
 			});
 		} catch (Exception e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -293,7 +293,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 					}
 				}
 			} catch (Exception e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 

@@ -3,6 +3,7 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
@@ -172,7 +173,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
 						rootInstanceWrapperClassSourceBuilder.toString());
 			} catch (CompilationError ce) {
-				throw new UnexpectedError(ce);
+				throw new PotentialError(ce);
 			}
 		}
 	};
@@ -183,7 +184,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			try {
 				return upToDateRootInstanceClass.get().getName();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 	}

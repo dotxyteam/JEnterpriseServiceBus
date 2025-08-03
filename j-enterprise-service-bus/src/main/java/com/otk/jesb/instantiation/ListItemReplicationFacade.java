@@ -3,7 +3,6 @@ package com.otk.jesb.instantiation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
@@ -159,7 +158,7 @@ public class ListItemReplicationFacade {
 							+ inferredItemClass.getName() + "'");
 				}
 			}
-		} catch (Exception | UnexpectedError e) {
+		} catch (Exception e) {
 			throw new ValidationError("Iteration variable type evaluation error", e);
 		}
 		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),

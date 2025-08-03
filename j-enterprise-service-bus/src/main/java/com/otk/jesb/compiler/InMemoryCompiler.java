@@ -203,7 +203,7 @@ public class InMemoryCompiler {
 					String source;
 					try (FileInputStream in = new FileInputStream(fileOrDirectory)) {
 						source = MiscUtils.read(in);
-					} catch (Exception e) {
+					} catch (IOException e) {
 						throw new UnexpectedError(e);
 					}
 					result.add(sourceFile(new ClassIdentifier(compilationIdentifier, className), source));

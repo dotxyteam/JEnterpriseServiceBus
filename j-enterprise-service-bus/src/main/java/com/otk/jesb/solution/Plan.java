@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.Reference;
 import com.otk.jesb.StandardError;

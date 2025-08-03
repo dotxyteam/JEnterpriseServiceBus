@@ -35,11 +35,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.PlanElement;
+import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Experiment;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Metadata;
@@ -731,7 +731,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	protected void refreshElementObjects() {
 		Plan plan = getPlan();
-		setDragIntent(JESBReflectionUI.diagramDragIntentByPlan.getOrDefault(plan, DragIntent.MOVE));
+		setDragIntent(JESBReflectionUI.getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));
 		Set<JDiagramObject> selection = getSelection();
 		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
 				.collect(Collectors.toList());

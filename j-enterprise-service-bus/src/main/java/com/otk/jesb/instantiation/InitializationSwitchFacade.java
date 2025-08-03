@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
@@ -234,7 +235,7 @@ public class InitializationSwitchFacade extends Facade {
 					caseConditionFullfilled = InstantiationUtils.isConditionFullfilled(caseFacade.getCondition(),
 							childContext);
 				} catch (Exception e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			} else {
 				if (children.indexOf(caseFacade) != (children.size() - 1)) {

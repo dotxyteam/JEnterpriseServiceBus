@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.Function;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
@@ -155,7 +155,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					} catch (Exception e) {
 						throw e;
 					} catch (Throwable t) {
-						throw new UnexpectedError(t);
+						throw new PotentialError(t);
 					}
 					context.setCutrrentStep(loopCompositeStep);
 					if (resultLists != null) {
@@ -314,7 +314,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,
 							structure.generateJavaTypeSourceCode(resultClassName));
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 
@@ -364,7 +364,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 				try {
 					return upToDateResultClass.get();
 				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 

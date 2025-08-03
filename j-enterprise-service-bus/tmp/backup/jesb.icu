@@ -64,7 +64,7 @@
     <enumerationCustomizations>
         <uniqueIdentifier>3c5a7523:19749b43388:3512</uniqueIdentifier>
         <dynamicEnumerationForced>false</dynamicEnumerationForced>
-        <enumerationTypeName>com.otk.jesb.Debugger$PlanActivatorsFilter</enumerationTypeName>
+        <enumerationTypeName>com.otk.jesb.PlanActivationFilter</enumerationTypeName>
         <itemCustomizations>
             <uniqueIdentifier>3c5a7523:19749b43388:3514</uniqueIdentifier>
             <specificProperties/>
@@ -13758,7 +13758,7 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <customFieldsOrder>commands</customFieldsOrder>
-        <customFieldsOrder>planActivators</customFieldsOrder>
+        <customFieldsOrder>planActivations</customFieldsOrder>
         <fieldsCustomizations>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7099</uniqueIdentifier>
             <specificProperties/>
@@ -13839,7 +13839,7 @@
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>planActivators</fieldName>
+            <fieldName>planActivations</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -13893,7 +13893,7 @@
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
-                    <itemTypeName>com.otk.jesb.Debugger$PlanActivator</itemTypeName>
+                    <itemTypeName>com.otk.jesb.PlanActivation</itemTypeName>
                     <listSorted>false</listSorted>
                     <listTypeName>java.util.List</listTypeName>
                     <positionColumnAdded>false</positionColumnAdded>
@@ -13944,7 +13944,7 @@
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>currentPlanActivatorsFilter</fieldName>
+            <fieldName>currentPlanActivationFilter</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -13981,7 +13981,7 @@
                     <menuModel>
                         <uniqueIdentifier>3c5a7523:19749b43388:3510</uniqueIdentifier>
                     </menuModel>
-                    <typeName>com.otk.jesb.Debugger$PlanActivatorsFilter</typeName>
+                    <typeName>com.otk.jesb.PlanActivationFilter</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
                 </typeCustomizations>
@@ -15498,7 +15498,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>com.otk.jesb.Debugger$PlanActivator</typeName>
+        <typeName>com.otk.jesb.PlanActivation</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -15544,7 +15544,7 @@
         <menuModel>
             <uniqueIdentifier>-1c47250a:1941cf21c42:-598b</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=planActivations, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -32236,7 +32236,7 @@
         <menuModel>
             <uniqueIdentifier>4c03f5d0:1968bea89c7:-451e</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor$SubPlanExecutor]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=planActivations, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor$SubPlanExecutor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -32337,7 +32337,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomizations>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=actionGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=actionGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36781,7 +36781,7 @@
         <menuModel>
             <uniqueIdentifier>-13f9f6a8:1974612c84c:3696</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=titleBox]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=titleBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36797,7 +36797,7 @@
         <menuModel>
             <uniqueIdentifier>-13f9f6a8:1974612c84c:3b88</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=titleBox]], fieldName=readyBox]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=titleBox]], fieldName=readyBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36895,7 +36895,7 @@
         <menuModel>
             <uniqueIdentifier>3c5a7523:19749b43388:5328</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=activationGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36911,7 +36911,7 @@
         <menuModel>
             <uniqueIdentifier>3c5a7523:19749b43388:5572</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.Activator]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=activationGroup]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.activation.Activator]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -36953,7 +36953,7 @@
         <menuModel>
             <uniqueIdentifier>3c5a7523:19749b43388:557d</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivator], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=activationStrategy, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PlanActivation], fieldName=activationGroup]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.Activator]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

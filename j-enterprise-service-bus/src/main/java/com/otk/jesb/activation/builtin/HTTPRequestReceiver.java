@@ -1,10 +1,12 @@
 package com.otk.jesb.activation.builtin;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.resource.builtin.HTTPServer;
@@ -18,7 +20,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 	protected abstract boolean isCompatibleWith(RequestHandler requestHandler);
 
 	private Reference<HTTPServer> serverReference = new Reference<HTTPServer>(HTTPServer.class);
-	private String servicePath = "/";
+	private int servicePathOptionIndex = -1;
 
 	public Reference<HTTPServer> getServerReference() {
 		return serverReference;
@@ -36,12 +38,37 @@ public abstract class HTTPRequestReceiver extends Activator {
 		return result;
 	}
 
+	public int getServicePathOptionIndex() {
+		return servicePathOptionIndex;
+	}
+
+	public void setServicePathOptionIndex(int servicePathOptionIndex) {
+		this.servicePathOptionIndex = servicePathOptionIndex;
+	}
+
+	@Transient
 	public String getServicePath() {
-		return servicePath;
+		if (servicePathOptionIndex == -1) {
+			return null;
+		}
+		List<String> options = getServicePathOptions();
+		if (servicePathOptionIndex >= options.size()) {
+			return null;
+		}
+		return options.get(servicePathOptionIndex);
 	}
 
 	public void setServicePath(String servicePath) {
-		this.servicePath = servicePath;
+		if (servicePath == null) {
+			this.servicePathOptionIndex = -1;
+			return;
+		}
+		List<String> options = getServicePathOptions();
+		if (!options.contains(servicePath)) {
+			this.servicePathOptionIndex = -1;
+			return;
+		}
+		this.servicePathOptionIndex = options.indexOf(servicePath);
 	}
 
 	public void addServicePathOption(String servicePath) throws Exception {
@@ -49,7 +76,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 		RequestHandler newRequestHandler = createRequestHandler(servicePath);
 		newRequestHandler.validate(server);
 		server.getRequestHandlers().add(newRequestHandler);
-		this.servicePath = servicePath;
+		setServicePath(servicePath);
 	}
 
 	public List<String> getServicePathOptions() {
@@ -60,7 +87,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 				if (!isCompatibleWith(requestHandler)) {
 					continue;
 				}
-				result.add(requestHandler.getServicePath());
+				result.add(requestHandler.getServicePathVariant().getValue());
 			}
 			return result;
 		} catch (IllegalStateException e) {
@@ -70,13 +97,17 @@ public abstract class HTTPRequestReceiver extends Activator {
 
 	public RequestHandler getRequestHandler() {
 		try {
-			HTTPServer server = expectServer();
-			RequestHandler result = server.expectRequestHandler(servicePath);
-			if (!isCompatibleWith(result)) {
+			String servicePath = getServicePath();
+			if(servicePath == null) {
 				return null;
 			}
+			HTTPServer server = expectServer();
+			RequestHandler result = server.expectRequestHandler(getServicePath());
+			if (!isCompatibleWith(result)) {
+				throw new UnexpectedError();
+			}
 			return result;
-		} catch (IllegalStateException|IllegalArgumentException e) {
+		} catch (IllegalStateException | IllegalArgumentException e) {
 			return null;
 		}
 	}

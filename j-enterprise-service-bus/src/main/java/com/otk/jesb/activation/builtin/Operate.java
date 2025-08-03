@@ -1,9 +1,9 @@
 package com.otk.jesb.activation.builtin;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
@@ -45,7 +45,7 @@ public class Operate extends Activator {
 		try {
 			return upToDateInputClass.get();
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class Operate extends Activator {
 		try {
 			return upToDateOutputClass.get();
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class Operate extends Activator {
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							inputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 		}
@@ -138,7 +138,7 @@ public class Operate extends Activator {
 					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							outputStructure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 		}

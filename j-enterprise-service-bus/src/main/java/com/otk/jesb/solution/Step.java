@@ -1,6 +1,5 @@
 package com.otk.jesb.solution;
 
-import com.otk.jesb.CompositeStep;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.operation.OperationBuilder;

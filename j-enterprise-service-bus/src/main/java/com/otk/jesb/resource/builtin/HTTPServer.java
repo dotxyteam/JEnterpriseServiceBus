@@ -74,7 +74,8 @@ public class HTTPServer extends Resource {
 
 	public RequestHandler expectRequestHandler(String servicePath) {
 		RequestHandler result = requestHandlers.stream()
-				.filter(requestHandler -> servicePath.equals(requestHandler.getServicePath())).findFirst().orElse(null);
+				.filter(requestHandler -> servicePath.equals(requestHandler.getServicePathVariant().getValue()))
+				.findFirst().orElse(null);
 		if (result == null) {
 			throw new IllegalArgumentException("No request handler found for service path '" + servicePath + "'");
 		}
@@ -151,19 +152,19 @@ public class HTTPServer extends Resource {
 
 		protected abstract void uninstall(HTTPServer server) throws Exception;
 
-		protected String servicePath;
+		private Variant<String> servicePathVariant = new Variant<String>(String.class);
 		protected boolean active = false;
 
 		public RequestHandler(String servicePath) {
-			this.servicePath = servicePath;
+			this.servicePathVariant.setValue(servicePath);
 		}
 
-		public String getServicePath() {
-			return servicePath;
+		public Variant<String> getServicePathVariant() {
+			return servicePathVariant;
 		}
 
-		public void setServicePath(String servicePath) {
-			this.servicePath = servicePath;
+		public void setServicePathVariant(Variant<String> servicePathVariant) {
+			this.servicePathVariant = servicePathVariant;
 		}
 
 		protected boolean isActive() {
@@ -197,11 +198,12 @@ public class HTTPServer extends Resource {
 		}
 
 		public void validate(HTTPServer server) throws ValidationError {
+			String servicePath = servicePathVariant.getValue();
 			if ((servicePath == null) || servicePath.isEmpty()) {
 				throw new ValidationError("Service path not provided");
 			}
 			if (server.requestHandlers.stream().filter(Predicate.isEqual(this).negate())
-					.map(RequestHandler::getServicePath).filter(Objects::nonNull)
+					.map(requestHandler -> requestHandler.getServicePathVariant().getValue()).filter(Objects::nonNull)
 					.anyMatch(Predicate.isEqual(servicePath))) {
 				throw new ValidationError("Duplicate service path: '" + servicePath + "'");
 			}

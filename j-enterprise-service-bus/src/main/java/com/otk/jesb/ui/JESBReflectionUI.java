@@ -12,10 +12,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.FunctionEditor;
+import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.Preferences;
@@ -30,7 +32,7 @@ import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
-import com.otk.jesb.Debugger.PlanActivator;
+import com.otk.jesb.Debugger.PlanActivation;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.EnvironmentSettings.EnvironmentVariable;
 import com.otk.jesb.Variant;
@@ -149,23 +151,57 @@ public class JESBReflectionUI extends CustomizedUI {
 			new HTTPServer.Metadata());
 	public static final List<ActivatorMetadata> ACTIVATOR__METADATAS = Arrays.asList(new LaunchAtStartup.Metadata(),
 			new Operate.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
-	private static final String CURRENT_VALIDATION_ASSET_KEY = JESBReflectionUI.class.getName()
-			+ ".CURRENT_VALIDATION_ASSET_KEY";
-	private static final String CURRENT_VALIDATION_PLAN_ELEMENT_KEY = JESBReflectionUI.class.getName()
+	private static final String CURRENT_ASSET_KEY = JESBReflectionUI.class.getName() + ".CURRENT_VALIDATION_ASSET_KEY";
+	private static final String CURRENT_PLAN_ELEMENT_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_ELEMENT_KEY";
-	private static final String CURRENT_VALIDATION_INSTANTIATION_FACADE_KEY = JESBReflectionUI.class.getName()
+	private static final String CURRENT_INSTANTIATION_FACADE_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_INSTANTIATION_FACADE_KEY";
-	private static final String CURRENT_VALIDATION_ACTIVATOR_KEY = JESBReflectionUI.class.getName()
+	private static final String CURRENT_ACTIVATOR_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_ACTIVATOR_KEY";
 
 	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
-	static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
+	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
+	private static WeakHashMap<String, Object> currentFormCreationObjects = new WeakHashMap<String, Object>();
 
 	private Deque<Asset> displayedAssets = new ArrayDeque<Asset>();
 	private Deque<PlanElement> displayedPlanElements = new ArrayDeque<PlanElement>();
 	private Deque<Facade> displayedInstantiationFacades = new ArrayDeque<Facade>();
 	private Deque<Activator> displayedActivators = new ArrayDeque<Activator>();
 	private SidePaneValueName sidePaneValueName;
+
+	public static void onFormCreationStart(Object object) {
+		if (object instanceof Asset) {
+			currentFormCreationObjects.put(CURRENT_ASSET_KEY, object);
+		}
+		if (object instanceof PlanElement) {
+			currentFormCreationObjects.put(CURRENT_PLAN_ELEMENT_KEY, object);
+		}
+		if (object instanceof Facade) {
+			currentFormCreationObjects.put(CURRENT_INSTANTIATION_FACADE_KEY, object);
+		}
+		if (object instanceof Activator) {
+			currentFormCreationObjects.put(CURRENT_ACTIVATOR_KEY, object);
+		}
+	}
+
+	public static void onFormCreationEnd(Object object) {
+		if (object instanceof Asset) {
+			currentFormCreationObjects.remove(CURRENT_ASSET_KEY);
+		}
+		if (object instanceof PlanElement) {
+			currentFormCreationObjects.remove(CURRENT_PLAN_ELEMENT_KEY);
+		}
+		if (object instanceof Facade) {
+			currentFormCreationObjects.remove(CURRENT_INSTANTIATION_FACADE_KEY);
+		}
+		if (object instanceof Activator) {
+			currentFormCreationObjects.remove(CURRENT_ACTIVATOR_KEY);
+		}
+	}
+
+	public static WeakHashMap<Plan, DragIntent> getDiagramDragIntentByPlan() {
+		return diagramDragIntentByPlan;
+	}
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
@@ -610,56 +646,80 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
 				if (visible) {
 					if (object instanceof Asset) {
+						if (displayedAssets.contains(object)) {
+							throw new UnexpectedError();
+						}
 						displayedAssets.push((Asset) object);
-						return true;
+						return false;
 					} else if (object instanceof PlanElement) {
+						if (displayedPlanElements.contains(object)) {
+							throw new UnexpectedError();
+						}
 						displayedPlanElements.push((PlanElement) object);
-						return true;
+						return false;
 					} else if (object instanceof Activator) {
+						if (displayedActivators.contains(object)) {
+							throw new UnexpectedError();
+						}
 						displayedActivators.push((Activator) object);
-						return true;
+						return false;
 					} else if (object instanceof Facade) {
+						if (displayedInstantiationFacades.contains(object)) {
+							throw new UnexpectedError();
+						}
 						displayedInstantiationFacades.push((Facade) object);
-						return true;
+						return false;
 					}
 				} else {
 					Object poped;
 					if (object instanceof Asset) {
-						if ((poped = displayedAssets.pop()) != object) {
+						if ((poped = displayedAssets.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						return true;
+						if (!displayedAssets.remove(object)) {
+							throw new UnexpectedError();
+						}
+						return false;
 					} else if (object instanceof PlanElement) {
-						if ((poped = displayedPlanElements.pop()) != object) {
+						if ((poped = displayedPlanElements.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						return true;
+						if (!displayedPlanElements.remove(object)) {
+							throw new UnexpectedError();
+						}
+						return false;
 					} else if (object instanceof Activator) {
-						if ((poped = displayedActivators.pop()) != object) {
+						if ((poped = displayedActivators.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						return true;
+						if (!displayedActivators.remove(object)) {
+							throw new UnexpectedError();
+						}
+						return false;
 					} else if (object instanceof Facade) {
-						if ((poped = displayedInstantiationFacades.pop()) != object) {
+						if ((poped = displayedInstantiationFacades.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						return true;
+						if (!displayedInstantiationFacades.remove(object)) {
+							throw new UnexpectedError();
+						}
+						return false;
 					} else if (object instanceof Debugger) {
 						((Debugger) object).deactivatePlans();
 						((Debugger) object).stopExecutions();
-						return true;
+						return false;
 					}
 				}
 				return super.onFormVisibilityChange(type, object, visible);
@@ -673,19 +733,14 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if ((objectClass != null) && (OperationBuilder.class.isAssignableFrom(objectClass)
-						|| Resource.class.isAssignableFrom(objectClass))) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
-					for (IFieldInfo field : super.getFields(type)) {
-						if (VariantCustomizations.isVariantField(field)) {
-							result.add(VariantCustomizations.adaptVariantField(field, type));
-						} else {
-							result.add(field);
-						}
+				List<IFieldInfo> baseResult = super.getFields(type);
+				for (int i = 0; i < baseResult.size(); i++) {
+					if (VariantCustomizations.isVariantField(baseResult.get(i))) {
+						baseResult.set(i, VariantCustomizations.adaptVariantField(baseResult.get(i), type));
 					}
-					return result;
-				} else if (type.getName().equals(Solution.class.getName())) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+				}
+				if (type.getName().equals(Solution.class.getName())) {
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
 						@Override
@@ -767,7 +822,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					return result;
 				} else if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>();
-					for (IFieldInfo field : super.getFields(type)) {
+					for (IFieldInfo field : baseResult) {
 						if (field.getName().equals("cause")) {
 							field = new ValueAsListFieldInfo(JESBReflectionUI.this, field, type) {
 
@@ -779,6 +834,16 @@ public class JESBReflectionUI extends CustomizedUI {
 								@Override
 								public boolean isRelevant(Object object) {
 									return getValue(object) != null;
+								}
+
+								@Override
+								public double getDisplayAreaVerticalWeight() {
+									return 1.0;
+								}
+
+								@Override
+								public boolean isDisplayAreaVerticallyFilled() {
+									return true;
 								}
 
 								@Override
@@ -833,7 +898,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					return result;
 				} else if (type.getName().equals(Plan.class.getName())) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
 						@Override
@@ -922,7 +987,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName()))
 
 				{
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
 						public String getName() {
@@ -947,7 +1012,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					});
 					return result;
 				} else if (type.getName().equals(RootInstanceBuilderFacade.class.getName())) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
 						public String getName() {
@@ -1010,7 +1075,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					});
 					return result;
 				} else if (type.getName().equals(ListItemReplicationFacade.class.getName())) {
-					List<IFieldInfo> result = new ArrayList<IFieldInfo>(super.getFields(type));
+					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 						@Override
 						public String getName() {
@@ -1059,7 +1124,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					});
 					return result;
 				} else {
-					return super.getFields(type);
+					return baseResult;
 				}
 			}
 
@@ -1363,9 +1428,9 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (object instanceof StepCrossing) {
 					return MiscUtils.getIconImagePath(((StepCrossing) object).getStep());
 				}
-				if (object instanceof PlanActivator) {
+				if (object instanceof PlanActivation) {
 					return ReflectionUIUtils.getIconImagePath(JESBReflectionUI.this,
-							((PlanActivator) object).getPlan());
+							((PlanActivation) object).getPlan());
 				}
 				if (object instanceof PlanExecutor) {
 					PlanExecutor executor = (PlanExecutor) object;
@@ -1551,16 +1616,16 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
 				if (object instanceof Asset) {
-					session.put(CURRENT_VALIDATION_ASSET_KEY, object);
+					session.put(CURRENT_ASSET_KEY, object);
 				}
 				if (object instanceof PlanElement) {
-					session.put(CURRENT_VALIDATION_PLAN_ELEMENT_KEY, object);
+					session.put(CURRENT_PLAN_ELEMENT_KEY, object);
 				}
 				if (object instanceof Facade) {
-					session.put(CURRENT_VALIDATION_INSTANTIATION_FACADE_KEY, object);
+					session.put(CURRENT_INSTANTIATION_FACADE_KEY, object);
 				}
 				if (object instanceof Activator) {
-					session.put(CURRENT_VALIDATION_ACTIVATOR_KEY, object);
+					session.put(CURRENT_ACTIVATOR_KEY, object);
 				}
 				Class<?> objectClass;
 				try {
@@ -1569,17 +1634,35 @@ public class JESBReflectionUI extends CustomizedUI {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+					}
 					((Asset) object).validate(false);
 				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					((Step) object).validate(false, getCurrentPlan(session));
 				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					((Transition) object).validate(false, getCurrentPlan(session));
 				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					((Transition.Condition) object).validate(getCurrentPlan(session)
 							.getTransitionContextVariableDeclarations(getCurrentTransition(session)));
 				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					((OperationBuilder<?>) object).validate(false, getCurrentPlan(session), getCurrentStep(session));
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					Step step = getCurrentStep(session);
 					Plan plan = getCurrentPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
@@ -1587,6 +1670,9 @@ public class JESBReflectionUI extends CustomizedUI {
 					step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 					((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					Step step = getCurrentStep(session);
 					Plan plan = getCurrentPlan(session);
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
@@ -1595,13 +1681,25 @@ public class JESBReflectionUI extends CustomizedUI {
 					((ListItemReplicationFacade) object)
 							.validate(plan.getValidationContext(step).getVariableDeclarations());
 				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+					}
 					((Structure) object).validate(false);
 				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+					}
 					((Structure.Element) object).validate(false);
 				} else if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					Plan plan = getCurrentPlan(session);
 					((Activator) object).validate(false, plan);
 				} else if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+					}
 					HTTPServer server = null;
 					{
 						Asset currentAsset = getCurrentAsset(session);
@@ -1616,7 +1714,17 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					((HTTPServer.RequestHandler) object).validate(server);
 				} else {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+					}
 					super.validate(type, object, session);
+				}
+			}
+
+			private void checkValidationErrorMapKeyIsCustomOrNot(Object object, ValidationSession session,
+					boolean custom) {
+				if (custom != (object != getValidationErrorRegistry().getValidationErrorMapKey(object, session))) {
+					throw new UnexpectedError();
 				}
 			}
 
@@ -1686,7 +1794,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		return new ValidationErrorRegistry() {
 
 			@Override
-			protected Object getValidationErrorMapKey(Object object, ValidationSession session) {
+			public Object getValidationErrorMapKey(Object object, ValidationSession session) {
 				if (object instanceof Step) {
 					Plan plan = getCurrentPlan(session);
 					if (plan == null) {
@@ -1710,7 +1818,15 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					return Arrays.asList(object, plan, transition);
 				} else if (object instanceof OperationBuilder) {
-					return Arrays.asList(object, getCurrentPlan(session), getCurrentStep(session));
+					Plan plan = getCurrentPlan(session);
+					if (plan == null) {
+						throw new UnexpectedError();
+					}
+					Step step = getCurrentStep(session);
+					if (step == null) {
+						throw new UnexpectedError();
+					}
+					return Arrays.asList(object, plan, step);
 				} else if (object instanceof Facade) {
 					Plan plan = getCurrentPlan(session);
 					if (plan == null) {
@@ -1728,6 +1844,9 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+					if (rootInstanceBuilderFacade == null) {
+						throw new UnexpectedError();
+					}
 					Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
 							: getCurrentStep(session);
 					return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
@@ -1737,6 +1856,21 @@ public class JESBReflectionUI extends CustomizedUI {
 						throw new UnexpectedError();
 					}
 					return Arrays.asList(object, plan);
+				} else if (object instanceof HTTPServer.RequestHandler) {
+					Asset asset = getCurrentAsset(session);
+					HTTPServer server = null;
+					if (asset instanceof HTTPServer) {
+						server = (HTTPServer) asset;
+					} else {
+						Activator activator = getCurrentActivator(session);
+						if (activator instanceof HTTPRequestReceiver) {
+							server = ((HTTPRequestReceiver) activator).getServerReference().resolve();
+						}
+					}
+					if (server == null) {
+						throw new UnexpectedError();
+					}
+					return Arrays.asList(object, server);
 				} else {
 					return super.getValidationErrorMapKey(object, session);
 				}
@@ -1754,7 +1888,7 @@ public class JESBReflectionUI extends CustomizedUI {
 					final List<? extends ItemPosition> selection,
 					Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
 				if (listType.getItemType() != null) {
-					if (listType.getItemType().getName().equals(PlanActivator.class.getName())) {
+					if (listType.getItemType().getName().equals(PlanActivation.class.getName())) {
 						List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
 								super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
 						for (int i = 0; i < result.size(); i++) {
@@ -1779,7 +1913,11 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private Asset getCurrentAsset(ValidationSession session) {
-		Asset result = (session == null) ? null : (Asset) session.get(CURRENT_VALIDATION_ASSET_KEY);
+		Asset result = (Asset) currentFormCreationObjects.get(CURRENT_ASSET_KEY);
+		if (result != null) {
+			return result;
+		}
+		result = (session == null) ? null : (Asset) session.get(CURRENT_ASSET_KEY);
 		if (result == null) {
 			result = displayedAssets.peek();
 		}
@@ -1787,7 +1925,11 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private PlanElement getCurrentPlanElement(ValidationSession session) {
-		PlanElement result = (session == null) ? null : (PlanElement) session.get(CURRENT_VALIDATION_PLAN_ELEMENT_KEY);
+		PlanElement result = (PlanElement) currentFormCreationObjects.get(CURRENT_PLAN_ELEMENT_KEY);
+		if (result != null) {
+			return result;
+		}
+		result = (session == null) ? null : (PlanElement) session.get(CURRENT_PLAN_ELEMENT_KEY);
 		if (result == null) {
 			result = displayedPlanElements.peek();
 		}
@@ -1795,7 +1937,11 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private Facade getCurrentInstantiationFacade(ValidationSession session) {
-		Facade result = (session == null) ? null : (Facade) session.get(CURRENT_VALIDATION_INSTANTIATION_FACADE_KEY);
+		Facade result = (Facade) currentFormCreationObjects.get(CURRENT_INSTANTIATION_FACADE_KEY);
+		if (result != null) {
+			return result;
+		}
+		result = (session == null) ? null : (Facade) session.get(CURRENT_INSTANTIATION_FACADE_KEY);
 		if (result == null) {
 			result = displayedInstantiationFacades.peek();
 		}
@@ -1803,7 +1949,11 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private Activator getCurrentActivator(ValidationSession session) {
-		Activator result = (session == null) ? null : (Activator) session.get(CURRENT_VALIDATION_ACTIVATOR_KEY);
+		Activator result = (Activator) currentFormCreationObjects.get(CURRENT_ACTIVATOR_KEY);
+		if (result != null) {
+			return result;
+		}
+		result = (session == null) ? null : (Activator) session.get(CURRENT_ACTIVATOR_KEY);
 		if (result == null) {
 			result = displayedActivators.peek();
 		}
@@ -1811,37 +1961,65 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private Plan getCurrentPlan(ValidationSession session) {
-		Asset currentAsset = getCurrentAsset(session);
-		if (!(currentAsset instanceof Plan)) {
-			return null;
+		Asset current = getCurrentAsset(session);
+		if (current instanceof Plan) {
+			return (Plan) current;
 		}
-		return (Plan) currentAsset;
+		Plan result = (Plan) displayedAssets.stream().filter(Plan.class::isInstance).findFirst().orElse(null);
+		if (result != null) {
+			if (Preferences.INSTANCE.isLogVerbose()) {
+				System.err.println("The user interface may become instable because " + current
+						+ " was abnormally displayed after " + result);
+			}
+		}
+		return result;
 	}
 
 	private Step getCurrentStep(ValidationSession session) {
-		PlanElement currentPlanElement = getCurrentPlanElement(session);
-		if (!(currentPlanElement instanceof Step)) {
-			return null;
+		PlanElement current = getCurrentPlanElement(session);
+		if (current instanceof Step) {
+			return (Step) current;
 		}
-		return (Step) currentPlanElement;
+		Step result = (Step) displayedPlanElements.stream().filter(Step.class::isInstance).findFirst().orElse(null);
+		if (result != null) {
+			if (Preferences.INSTANCE.isLogVerbose()) {
+				System.err.println("The user interface may become instable because " + current
+						+ " was abnormally displayed after " + result);
+			}
+		}
+		return result;
 	}
 
 	private Transition getCurrentTransition(ValidationSession session) {
-		PlanElement currentPlanElement = getCurrentPlanElement(session);
-		if (!(currentPlanElement instanceof Transition)) {
-			return null;
+		PlanElement current = getCurrentPlanElement(session);
+		if (current instanceof Transition) {
+			return (Transition) current;
 		}
-		return (Transition) currentPlanElement;
+		Transition result = (Transition) displayedPlanElements.stream().filter(Transition.class::isInstance).findFirst()
+				.orElse(null);
+		if (result != null) {
+			if (Preferences.INSTANCE.isLogVerbose()) {
+				System.err.println("The user interface may become instable because " + current
+						+ " was abnormally displayed after " + result);
+			}
+		}
+		return result;
 	}
 
 	private RootInstanceBuilderFacade getCurrentRootInstanceBuilderFacade(ValidationSession session) {
-		Facade currentInstantiationFacade = getCurrentInstantiationFacade(session);
-		if (!(currentInstantiationFacade instanceof RootInstanceBuilderFacade)) {
-			return (RootInstanceBuilderFacade) MiscUtils
-					.getReverse(new ArrayList<Facade>(displayedInstantiationFacades)).stream()
-					.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
+		Facade current = getCurrentInstantiationFacade(session);
+		if (current instanceof RootInstanceBuilderFacade) {
+			return (RootInstanceBuilderFacade) current;
 		}
-		return (RootInstanceBuilderFacade) currentInstantiationFacade;
+		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) displayedInstantiationFacades.stream()
+				.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
+		if (result != null) {
+			if (Preferences.INSTANCE.isLogVerbose()) {
+				System.err.println("The user interface may become instable because " + current
+						+ " was abnormally displayed after " + result);
+			}
+		}
+		return result;
 	}
 
 	private static class VariantCustomizations {
@@ -1852,6 +2030,20 @@ public class JESBReflectionUI extends CustomizedUI {
 
 		public static IFieldInfo adaptVariantField(IFieldInfo variantField, ITypeInfo objectType) {
 			return new FieldInfoProxy(variantField) {
+
+				String caption;
+				{
+					caption = super.getCaption();
+					if (caption.endsWith(" Variant")) {
+						caption = caption.substring(0, caption.length() - " Variant".length());
+					}
+
+				}
+
+				@Override
+				public String getCaption() {
+					return caption;
+				}
 
 				@Override
 				public boolean isControlValueValiditionEnabled() {
@@ -1881,7 +2073,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				ITypeInfo precomputeAdapterType() {
 					return new InfoProxyFactory() {
 
-						String adapterTypeName = variantField.getName().substring(0, 1).toUpperCase()
+						String adapterTypeName = objectType.getName() + "."
+								+ variantField.getName().substring(0, 1).toUpperCase()
 								+ variantField.getName().substring(1) + "AdapterType";
 						IFieldInfo variableStatusField = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
@@ -2067,6 +2260,17 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						protected List<IFieldInfo> getFields(ITypeInfo type) {
 							return Arrays.asList(variableStatusField, valueField, referenceField);
+						}
+
+						@Override
+						protected String toString(ITypeInfo type, Object object) {
+							return Objects.toString(object);
+						}
+
+						@Override
+						public String getIdentifier() {
+							return VariantCustomizations.class.getName() + "Factory [objectType=" + objectType.getName()
+									+ ", field=" + variantField.getName() + "]";
 						}
 
 					}.wrapTypeInfo(ITypeInfo.NULL_BASIC_TYPE_INFO);

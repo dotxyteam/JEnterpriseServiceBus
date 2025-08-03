@@ -13470,7 +13470,7 @@
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>planActivators</fieldName>
+            <fieldName>planActivations</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
@@ -14811,7 +14811,7 @@
         <menuModel>
             <uniqueIdentifier>-1c47250a:1941cf21c42:-598b</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=planActivations, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>
@@ -31207,7 +31207,7 @@
         <menuModel>
             <uniqueIdentifier>4c03f5d0:1968bea89c7:-451e</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=planActivators, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor$SubPlanExecutor]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=planActivations, objectType=com.otk.jesb.Debugger], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.Debugger$PlanExecutor$SubPlanExecutor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomizations>

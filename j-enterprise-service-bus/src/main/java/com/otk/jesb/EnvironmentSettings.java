@@ -69,7 +69,7 @@ public class EnvironmentSettings {
 		try {
 			return upToDateVariablesRoot.get();
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class EnvironmentSettings {
 		try {
 			return upToDateVariablesRootClass.get();
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -145,6 +145,14 @@ public class EnvironmentSettings {
 		}
 	}
 
+	public void validate() throws ValidationError {
+		try {
+			upToDateVariablesRoot.get();
+		} catch (VersionAccessException e) {
+			throw new ValidationError("Failed to validate environment variables", e);
+		}
+	}
+
 	private class VariableRootClassNameAccessor extends Accessor<String> {
 
 		@Override
@@ -152,7 +160,7 @@ public class EnvironmentSettings {
 			try {
 				return upToDateVariablesRootClass.get().getName();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -173,7 +181,7 @@ public class EnvironmentSettings {
 				return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 						getVariablesRootStructure().generateJavaTypeSourceCode(className));
 			} catch (CompilationError e) {
-				throw new UnexpectedError(e);
+				throw new VersionAccessException(e);
 			}
 		}
 
@@ -187,7 +195,7 @@ public class EnvironmentSettings {
 				return new Pair<Class<?>, String>(upToDateVariablesRootClass.get(),
 						MiscUtils.serialize(environmentVariableTreeElements));
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -197,7 +205,7 @@ public class EnvironmentSettings {
 				return getVariablesRootBuilder()
 						.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 			} catch (Exception e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 

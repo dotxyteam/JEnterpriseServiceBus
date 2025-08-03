@@ -9,7 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.resource.Resource;
 
 public abstract class WebDocumentBasedResource extends Resource {
@@ -83,9 +83,9 @@ public abstract class WebDocumentBasedResource extends Resource {
 			try {
 				return new File(new URL(urlSpecification).toURI().getPath()).getName();
 			} catch (MalformedURLException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			} catch (URISyntaxException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 	
@@ -94,9 +94,9 @@ public abstract class WebDocumentBasedResource extends Resource {
 			try {
 				return new URL(urlSpecification).toURI();
 			} catch (MalformedURLException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			} catch (URISyntaxException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 	

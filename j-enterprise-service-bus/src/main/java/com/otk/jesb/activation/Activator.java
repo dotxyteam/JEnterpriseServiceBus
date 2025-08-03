@@ -1,6 +1,7 @@
 package com.otk.jesb.activation;
 
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
 import com.otk.jesb.solution.Plan;
 
 public abstract class Activator {
@@ -19,14 +20,14 @@ public abstract class Activator {
 
 	public abstract boolean isAutomaticallyTriggerable();
 
-	private boolean enabled = true;
+	private Variant<Boolean> enabledVariant = new Variant<Boolean>(Boolean.class, true);
 
-	public boolean isEnabled() {
-		return enabled;
+	public Variant<Boolean> getEnabledVariant() {
+		return enabledVariant;
 	}
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+	public void setEnabledVariant(Variant<Boolean> enabledVariant) {
+		this.enabledVariant = enabledVariant;
 	}
 
 }

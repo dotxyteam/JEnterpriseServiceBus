@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -87,10 +88,10 @@ public class CallRESTAPI implements Operation {
 			}
 			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
-			if (e instanceof Exception) {
+			if (e.getTargetException() instanceof Exception) {
 				throw (Exception) e.getTargetException();
 			} else {
-				throw new UnexpectedError(e.getTargetException());
+				throw new PotentialError(e.getTargetException());
 			}
 		}
 	}
@@ -126,7 +127,7 @@ public class CallRESTAPI implements Operation {
 		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(
 				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());
 		private String operationSignature;
-		private String customBaseURL;
+		private Variant<String> customBaseURLVariant = new Variant<String>(String.class);
 
 		private OpenAPIDescription getOpenAPIDescription() {
 			return openAPIDescriptionReference.resolve();
@@ -157,12 +158,12 @@ public class CallRESTAPI implements Operation {
 			this.operationSignature = operationSignature;
 		}
 
-		public String getCustomBaseURL() {
-			return customBaseURL;
+		public Variant<String> getCustomBaseURLVariant() {
+			return customBaseURLVariant;
 		}
 
-		public void setCustomBaseURL(String customBaseURL) {
-			this.customBaseURL = customBaseURL;
+		public void setCustomBaseURLVariant(Variant<String> customBaseURLVariant) {
+			this.customBaseURLVariant = customBaseURLVariant;
 		}
 
 		private void tryToSelectValuesAutomatically() {
@@ -200,8 +201,8 @@ public class CallRESTAPI implements Operation {
 					context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			Class<?> operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();
-			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput, customBaseURL,
-					operationOutputClass);
+			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput,
+					customBaseURLVariant.getValue(), operationOutputClass);
 		}
 
 		@Override
@@ -229,6 +230,7 @@ public class CallRESTAPI implements Operation {
 			if (retrieveOperationDescriptor() == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
 			}
+			String customBaseURL = customBaseURLVariant.getValue();
 			if (customBaseURL != null) {
 				try {
 					new URL(customBaseURL);

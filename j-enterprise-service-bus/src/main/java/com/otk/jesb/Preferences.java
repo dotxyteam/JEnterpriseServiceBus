@@ -119,21 +119,23 @@ public class Preferences {
 					| UnsupportedLookAndFeelException e) {
 				throw new UnexpectedError(e);
 			}
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					for (Window window : Window.getWindows()) {
-						SwingUtilities.updateComponentTreeUI(window);
+			if (Window.getWindows().length > 0) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						for (Window window : Window.getWindows()) {
+							SwingUtilities.updateComponentTreeUI(window);
+						}
+						// force recreation of all controls to prevent some components painting issues
+						GUI.INSTANCE.getCustomizationOptions()
+								.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
+						SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
+						GUI.INSTANCE.getCustomizationOptions()
+								.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
+						SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
 					}
-					// force recreation of all controls to prevent some components painting issues
-					GUI.INSTANCE.getCustomizationOptions()
-							.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
-					SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
-					GUI.INSTANCE.getCustomizationOptions()
-							.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
-					SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
-				}
-			});
+				});
+			}
 		}
 	}
 

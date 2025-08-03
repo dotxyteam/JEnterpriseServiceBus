@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.cxf.jaxws.EndpointImpl;
+
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
@@ -183,7 +185,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 					+ wsdlReference.getPath() + "' required");
 		}
 		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {
-			throw new UnexpectedError(
+			throw new PotentialError(
 					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
 		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
@@ -228,6 +230,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		private Map<WSDL.OperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<WSDL.OperationDescriptor, ActivationHandler>();
 		private EndpointImpl endpoint;
 
+		public SOAPRequestHandler() {
+			super(null);
+		}
+
 		public SOAPRequestHandler(String servicePath, Reference<WSDL> wsdlReference) {
 			super(servicePath);
 			this.wsdlReference = wsdlReference;
@@ -258,7 +264,11 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			return wsdlReference;
 		}
 
-		public Map<WSDL.OperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
+		public void setWsdlReference(Reference<WSDL> wsdlReference) {
+			this.wsdlReference = wsdlReference;
+		}
+
+		protected Map<WSDL.OperationDescriptor, ActivationHandler> getActivationHandlerByOperation() {
 			return activationHandlerByOperation;
 		}
 
@@ -305,6 +315,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 							return operationOutputClass.getFields()[0].get(operationOutput);
 						}
 					}));
+			String servicePath = getServicePathVariant().getValue();
 			endpoint.publish(servicePath);
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
@@ -319,6 +330,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			}
 			endpoint.stop();
 			endpoint = null;
+			String servicePath = getServicePathVariant().getValue();
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
 			}
@@ -336,7 +348,8 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 		@Override
 		public String toString() {
-			return "SOAPRequestHandler [wsdl=" + wsdlReference.getPath() + ", servicePath=" + servicePath + "]";
+			return "SOAPRequestHandler [wsdl=" + wsdlReference.getPath() + ", servicePath="
+					+ getServicePathVariant().getValue() + "]";
 		}
 
 	}

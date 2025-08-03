@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
@@ -69,7 +70,7 @@ public class WSDL extends XMLBasedDocumentResource {
 			return upToDateGeneratedClasses.get().stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
 					.map(c -> new ServiceClientDescriptor(c)).collect(Collectors.toList());
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -79,7 +80,7 @@ public class WSDL extends XMLBasedDocumentResource {
 					.filter(c -> c.isInterface() && c.getAnnotation(javax.jws.WebService.class) != null)
 					.map(c -> new ServiceSpecificationDescriptor(c)).collect(Collectors.toList());
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -151,7 +152,7 @@ public class WSDL extends XMLBasedDocumentResource {
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
 												additionalMethodDeclarations.toString()));
 							} catch (CompilationError e) {
-								throw new UnexpectedError(e);
+								throw new PotentialError(e);
 							}
 						});
 				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
@@ -181,7 +182,7 @@ public class WSDL extends XMLBasedDocumentResource {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className));
 							} catch (CompilationError e) {
-								throw new UnexpectedError(e);
+								throw new PotentialError(e);
 							}
 						});
 				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())
@@ -440,7 +441,7 @@ public class WSDL extends XMLBasedDocumentResource {
 					try {
 						return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
 					} catch (CompilationError e) {
-						throw new UnexpectedError(e);
+						throw new PotentialError(e);
 					}
 				});
 				return implementationClassByInterface.get(serviceInterface);

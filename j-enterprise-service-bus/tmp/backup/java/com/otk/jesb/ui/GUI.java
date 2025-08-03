@@ -484,17 +484,17 @@ public class GUI extends SwingCustomizer {
 						private void postSelectNewPlanExecutor() {
 							Form debuggerForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
 									Debugger.class.getName(), swingRenderer);
-							ListControl planActivatorsControl = (ListControl) debuggerForm
-									.getFieldControlPlaceHolder("planActivators").getFieldControl();
-							planActivatorsControl.refreshUI(false);
+							ListControl planActivationsControl = (ListControl) debuggerForm
+									.getFieldControlPlaceHolder("planActivations").getFieldControl();
+							planActivationsControl.refreshUI(false);
 							Form currentPlanActivatorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
 									PlanActivator.class.getName(), swingRenderer);
 							PlanActivator currentPlanActivator = (PlanActivator) currentPlanActivatorForm.getObject();
-							BufferedItemPosition planActivatorPosition = planActivatorsControl
+							BufferedItemPosition planActivatorPosition = planActivationsControl
 									.findItemPositionByReference(currentPlanActivator);
 							BufferedItemPosition lastPlanExecutorPosition = planActivatorPosition.getSubItemPositions()
 									.get(planActivatorPosition.getSubItemPositions().size() - 1);
-							planActivatorsControl.setSingleSelection(lastPlanExecutorPosition);
+							planActivationsControl.setSingleSelection(lastPlanExecutorPosition);
 						}
 					};
 				}

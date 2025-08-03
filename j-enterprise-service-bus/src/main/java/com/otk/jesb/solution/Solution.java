@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
-import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.util.MiscUtils;
@@ -58,6 +58,7 @@ public class Solution {
 	}
 
 	public void validate() throws ValidationError {
+		environmentSettings.validate();
 		rootFolder.validate(true);
 	}
 
@@ -148,7 +149,7 @@ public class Solution {
 		} else {
 			File assetFile = new File(parentDirectory, asset.getFileSystemResourceName());
 			if (assetFile.exists()) {
-				throw new UnexpectedError("Duplicate file detected while saving: " + assetFile);
+				throw new PotentialError("Duplicate file detected while saving: " + assetFile);
 			}
 			try (FileOutputStream fileOutputStream = new FileOutputStream(assetFile)) {
 				MiscUtils.serialize(asset, fileOutputStream);

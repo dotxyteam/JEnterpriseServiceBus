@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.meta.TypeInfoProvider;
@@ -113,9 +114,9 @@ public class InstanceBuilder extends InitializationCase {
 			String actualTypeName = computeActualTypeName(
 					InstantiationUtils.getAncestorInstanceBuilders(context.getParentFacade()));
 			if (selectedConstructorSignature == null) {
-				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: No constructor available");
+				throw new PotentialError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
-				throw new UnexpectedError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
+				throw new PotentialError("Cannot create '" + actualTypeName + "' instance: Constructor not found: '"
 						+ selectedConstructorSignature + "'");
 			}
 		}

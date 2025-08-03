@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
 import com.otk.jesb.compiler.CompilationError;
@@ -165,7 +165,7 @@ public class JDBCQuery extends JDBCOperation {
 				try {
 					return upToDateResultColumnDefinitions.get();
 				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			} else {
 				return resultColumnDefinitions;
@@ -197,7 +197,7 @@ public class JDBCQuery extends JDBCOperation {
 				resultRowClass = MiscUtils.IN_MEMORY_COMPILER.compile(resultRowClassName,
 						createResultRowStructure().generateJavaTypeSourceCode(resultRowClassName));
 			} catch (CompilationError e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 			return MiscUtils.getArrayType(resultRowClass);
 		}
@@ -221,7 +221,7 @@ public class JDBCQuery extends JDBCOperation {
 			try {
 				this.resultColumnDefinitions = upToDateResultColumnDefinitions.get();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -243,7 +243,7 @@ public class JDBCQuery extends JDBCOperation {
 			try {
 				customResultClass = upToDateCustomResultClass.get();
 			} catch (VersionAccessException e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 			if (customResultClass != null) {
 				return customResultClass;
@@ -260,7 +260,7 @@ public class JDBCQuery extends JDBCOperation {
 				try {
 					resultColumnDefinitions = getResultColumnDefinitions();
 				} catch (Throwable t) {
-					throw new UnexpectedError("Failed to get result column definitions", t);
+					throw new PotentialError("Failed to get result column definitions", t);
 				}
 				if (resultColumnDefinitions != null) {
 					List<String> columnNames = new ArrayList<String>();

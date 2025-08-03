@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.xml.sax.SAXParseException;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.compiler.CompilationError;
@@ -127,7 +128,7 @@ public class XSD extends XMLBasedDocumentResource {
 						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
 								resultStructure.generateJavaTypeSourceCode(className));
 					} catch (CompilationError e) {
-						throw new UnexpectedError(e);
+						throw new PotentialError(e);
 					}
 				});
 			}

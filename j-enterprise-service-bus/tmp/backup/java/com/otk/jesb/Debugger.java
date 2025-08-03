@@ -23,19 +23,19 @@ import com.otk.jesb.solution.Transition;
 public class Debugger {
 
 	private Solution solution;
-	private List<PlanActivator> planActivators;
-	private PlanActivatorsFilter currentPlanActivatorsFilter = PlanActivatorsFilter.ACTIVABLE_PLANS;
+	private List<PlanActivator> planActivations;
+	private PlanActivationsFilter currentPlanActivationFilter = PlanActivationsFilter.ACTIVABLE_PLANS;
 
 	public Debugger(Solution solution) {
 		this.solution = solution;
-		planActivators = collectPlanActivators();
+		planActivations = collectPlanActivations();
 	}
 
-	public List<PlanActivator> getPlanActivators() {
-		return planActivators.stream().filter(currentPlanActivatorsFilter).collect(Collectors.toList());
+	public List<PlanActivator> getPlanActivations() {
+		return planActivations.stream().filter(currentPlanActivationFilter).collect(Collectors.toList());
 	}
 
-	private List<PlanActivator> collectPlanActivators() {
+	private List<PlanActivator> collectPlanActivations() {
 		final List<PlanActivator> result = new ArrayList<Debugger.PlanActivator>();
 		solution.visitContents(new AssetVisitor() {
 			@Override
@@ -49,16 +49,16 @@ public class Debugger {
 		return result;
 	}
 
-	public PlanActivatorsFilter getCurrentPlanActivatorsFilter() {
-		return currentPlanActivatorsFilter;
+	public PlanActivationsFilter getCurrentPlanActivationFilter() {
+		return currentPlanActivationFilter;
 	}
 
-	public void setCurrentPlanActivatorsFilter(PlanActivatorsFilter currentPlanActivatorsFilter) {
-		this.currentPlanActivatorsFilter = currentPlanActivatorsFilter;
+	public void setCurrentPlanActivationFilter(PlanActivationsFilter currentPlanActivationFilter) {
+		this.currentPlanActivationFilter = currentPlanActivationFilter;
 	}
 
 	public void activatePlans() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivator planActivator : planActivations) {
 			if (planActivator.isAutomaticallyTriggerable()) {
 				if (planActivator.isAutomaticTriggerReady()) {
 					planActivator.setAutomaticTriggerReady(false);
@@ -69,7 +69,7 @@ public class Debugger {
 	}
 
 	public void deactivatePlans() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivator planActivator : planActivations) {
 			if (planActivator.isAutomaticallyTriggerable()) {
 				if (planActivator.isAutomaticTriggerReady()) {
 					planActivator.setAutomaticTriggerReady(false);
@@ -79,7 +79,7 @@ public class Debugger {
 	}
 
 	public void stopExecutions() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivator planActivator : planActivations) {
 			planActivator.stopExecutions();
 		}
 	}
@@ -353,7 +353,7 @@ public class Debugger {
 
 	}
 
-	public enum PlanActivatorsFilter implements Predicate<PlanActivator> {
+	public enum PlanActivationsFilter implements Predicate<PlanActivator> {
 		ALL {
 			@Override
 			public boolean test(PlanActivator planActivator) {

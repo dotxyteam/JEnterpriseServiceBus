@@ -27,6 +27,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.otk.jesb.JESB;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
@@ -157,7 +158,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							&& c.isInterface() && c.getAnnotation(io.swagger.annotations.Api.class) != null)
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -168,7 +169,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							&& "SwaggerInitializerResource".equals(c.getSimpleName()))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -239,7 +240,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				try {
 					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			});
 			return serviceImplementationClassByInterface.get(currentServiceInterface);
@@ -253,7 +254,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							.anyMatch(field -> field.getType().equals(getAPIClientConfigurationClass())))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -263,7 +264,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					c -> c.getPackage().getName().equals(getBasePackageName()) && c.getSimpleName().equals("ApiClient"))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 
@@ -367,7 +368,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					}
 				}
 			} catch (Exception e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 		}
 
@@ -469,7 +470,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
 												additionalMethodDeclarations.toString()));
 							} catch (CompilationError e) {
-								throw new UnexpectedError(e);
+								throw new PotentialError(e);
 							}
 						});
 				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);
@@ -509,7 +510,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className));
 							} catch (CompilationError e) {
-								throw new UnexpectedError(e);
+								throw new PotentialError(e);
 							}
 						});
 				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())

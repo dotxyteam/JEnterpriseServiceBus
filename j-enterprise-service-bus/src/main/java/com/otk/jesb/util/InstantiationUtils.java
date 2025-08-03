@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
@@ -74,7 +75,7 @@ public class InstantiationUtils {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
 					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function));
 		} catch (CompilationError e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 		return compiledFunction.call(instantiationContext.getVariables());
 	}
@@ -121,7 +122,7 @@ public class InstantiationUtils {
 		Object conditionResult = interpretValue(condition, TypeInfoProvider.getTypeInfo(Boolean.class.getName()),
 				context);
 		if (!(conditionResult instanceof Boolean)) {
-			throw new UnexpectedError("Condition evaluation result is not boolean: '" + conditionResult + "'");
+			throw new PotentialError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
 		return (Boolean) conditionResult;
 	}

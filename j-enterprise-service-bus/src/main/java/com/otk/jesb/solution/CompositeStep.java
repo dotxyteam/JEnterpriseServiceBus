@@ -1,13 +1,12 @@
-package com.otk.jesb;
+package com.otk.jesb.solution;
 
 import java.awt.Rectangle;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
-import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Step;
 
 public abstract class CompositeStep<T extends Operation> extends Step {
 

@@ -3,7 +3,7 @@ package com.otk.jesb.solution;
 import java.util.List;
 
 import com.otk.jesb.Function;
-import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
@@ -96,7 +96,7 @@ public class Transition extends PlanElement {
 			try {
 				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
-				throw new UnexpectedError(e);
+				throw new PotentialError(e);
 			}
 			return (boolean) compiledFunction.call(variables);
 		}
@@ -139,7 +139,7 @@ public class Transition extends PlanElement {
 			try {
 				exceptionClass = TypeInfoProvider.getClass(exceptionTypeName);
 			} catch (Throwable t) {
-				throw new UnexpectedError(t);
+				throw new PotentialError(t);
 			}
 			return exceptionClass.isInstance(thrown);
 		}

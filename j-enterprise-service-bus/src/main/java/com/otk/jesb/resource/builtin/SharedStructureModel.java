@@ -7,6 +7,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
@@ -55,7 +56,7 @@ public class SharedStructureModel extends Resource {
 					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 							structure.generateJavaTypeSourceCode(className));
 				} catch (CompilationError e) {
-					throw new UnexpectedError(e);
+					throw new PotentialError(e);
 				}
 			}
 		}
@@ -81,7 +82,7 @@ public class SharedStructureModel extends Resource {
 		try {
 			return upToDateStructuredClass.get();
 		} catch (VersionAccessException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 

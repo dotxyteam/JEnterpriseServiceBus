@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import com.otk.jesb.PathExplorer.PathNode;
 
@@ -98,4 +99,14 @@ public class Variant<T> {
 	public void setVariable(boolean b) {
 		value = b ? new Expression<String>(String.class) : null;
 	}
+
+	@Override
+	public String toString() {
+		if (isVariable()) {
+			return "(" + ")";
+		} else {
+			return Objects.toString(value);
+		}
+	}
+
 }

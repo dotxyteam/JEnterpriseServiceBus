@@ -60,7 +60,7 @@ public class Expression<T> {
 			CompiledFunction compiledFunction = compile(variableDeclarations);
 			return valueClass.cast(compiledFunction.call(variables));
 		} catch (CompilationError | FunctionCallError e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError(e);
 		}
 	}
 

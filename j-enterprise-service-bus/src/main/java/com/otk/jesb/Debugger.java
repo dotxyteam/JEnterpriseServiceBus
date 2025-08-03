@@ -27,31 +27,34 @@ import com.otk.jesb.util.MiscUtils;
 public class Debugger {
 
 	private Solution solution;
-	private List<PlanActivator> planActivators;
-	private PlanActivatorsFilter currentPlanActivatorsFilter = PlanActivatorsFilter.ACTIVABLE_PLANS;
+	private List<PlanActivation> planActivations;
+	private PlanActivationFilter currentPlanActivationFilter = PlanActivationFilter.ACTIVABLE_PLANS;
 	private Console console = Console.INSTANCE;
 	private static boolean scrollLocked = false;
 
 	public Debugger(Solution solution) {
 		this.solution = solution;
-		planActivators = collectPlanActivators();
+		planActivations = collectPlanActivations();
 	}
 
 	public Console getConsole() {
 		return console;
 	}
 
-	public List<PlanActivator> getPlanActivators() {
-		return planActivators.stream().filter(currentPlanActivatorsFilter).collect(Collectors.toList());
+	public List<PlanActivation> getPlanActivations() {
+		return planActivations.stream().filter(currentPlanActivationFilter).collect(Collectors.toList());
 	}
 
-	private List<PlanActivator> collectPlanActivators() {
-		final List<PlanActivator> result = new ArrayList<Debugger.PlanActivator>();
+	private List<PlanActivation> collectPlanActivations() {
+		final List<PlanActivation> result = new ArrayList<Debugger.PlanActivation>();
 		solution.visitContents(new AssetVisitor() {
 			@Override
 			public boolean visitAsset(Asset asset) {
 				if (asset instanceof Plan) {
-					result.add(new PlanActivator((Plan) asset));
+					Plan plan = (Plan) asset;
+					if (plan.getActivator().getEnabledVariant().getValue()) {
+						result.add(new PlanActivation(plan));
+					}
 				}
 				return true;
 			}
@@ -59,16 +62,16 @@ public class Debugger {
 		return result;
 	}
 
-	public PlanActivatorsFilter getCurrentPlanActivatorsFilter() {
-		return currentPlanActivatorsFilter;
+	public PlanActivationFilter getCurrentPlanActivationFilter() {
+		return currentPlanActivationFilter;
 	}
 
-	public void setCurrentPlanActivatorsFilter(PlanActivatorsFilter currentPlanActivatorsFilter) {
-		this.currentPlanActivatorsFilter = currentPlanActivatorsFilter;
+	public void setCurrentPlanActivationFilter(PlanActivationFilter currentPlanActivationFilter) {
+		this.currentPlanActivationFilter = currentPlanActivationFilter;
 	}
 
 	public void activatePlans() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivation planActivator : planActivations) {
 			if (planActivator.isAutomaticallyTriggerable()) {
 				if (planActivator.isAutomaticTriggerReady()) {
 					planActivator.setAutomaticTriggerReady(false);
@@ -79,7 +82,7 @@ public class Debugger {
 	}
 
 	public void deactivatePlans() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivation planActivator : planActivations) {
 			if (planActivator.isAutomaticallyTriggerable()) {
 				if (planActivator.isAutomaticTriggerReady()) {
 					planActivator.setAutomaticTriggerReady(false);
@@ -89,18 +92,18 @@ public class Debugger {
 	}
 
 	public void stopExecutions() {
-		for (PlanActivator planActivator : planActivators) {
+		for (PlanActivation planActivator : planActivations) {
 			planActivator.stopExecutions();
 		}
 	}
 
-	public class PlanActivator {
+	public class PlanActivation {
 
 		private Plan plan;
 		private RootInstanceBuilder planInputBuilder;
 		private List<PlanExecutor> planExecutors = new ArrayList<Debugger.PlanExecutor>();
 
-		public PlanActivator(Plan plan) {
+		public PlanActivation(Plan plan) {
 			this.plan = plan;
 			if (plan.getActivator().getInputClass() != null) {
 				planInputBuilder = new RootInstanceBuilder("Input",
@@ -436,28 +439,28 @@ public class Debugger {
 
 	}
 
-	public enum PlanActivatorsFilter implements Predicate<PlanActivator> {
+	public enum PlanActivationFilter implements Predicate<PlanActivation> {
 		ALL {
 			@Override
-			public boolean test(PlanActivator planActivator) {
+			public boolean test(PlanActivation planActivator) {
 				return true;
 			}
 		},
 		ACTIVABLE_PLANS {
 			@Override
-			public boolean test(PlanActivator planActivator) {
+			public boolean test(PlanActivation planActivator) {
 				return planActivator.isAutomaticallyTriggerable();
 			}
 		},
 		ACTIVATED_PLANS {
 			@Override
-			public boolean test(PlanActivator planActivator) {
+			public boolean test(PlanActivation planActivator) {
 				return planActivator.isAutomaticallyTriggerable() && planActivator.isAutomaticTriggerReady();
 			}
 		},
 		DEACTIVATED_PLANS {
 			@Override
-			public boolean test(PlanActivator planActivator) {
+			public boolean test(PlanActivation planActivator) {
 				return planActivator.isAutomaticallyTriggerable() && !planActivator.isAutomaticTriggerReady();
 			}
 		}
