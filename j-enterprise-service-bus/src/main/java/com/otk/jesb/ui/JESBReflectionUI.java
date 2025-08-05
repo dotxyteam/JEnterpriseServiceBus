@@ -161,43 +161,12 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
-	private static WeakHashMap<String, Object> currentFormCreationObjects = new WeakHashMap<String, Object>();
 
-	private Deque<Asset> displayedAssets = new ArrayDeque<Asset>();
-	private Deque<PlanElement> displayedPlanElements = new ArrayDeque<PlanElement>();
-	private Deque<Facade> displayedInstantiationFacades = new ArrayDeque<Facade>();
-	private Deque<Activator> displayedActivators = new ArrayDeque<Activator>();
+	private Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
+	private Deque<PlanElement> stackOfCurrentPlanElements = new ArrayDeque<PlanElement>();
+	private Deque<Facade> stackOfCurrentInstantiationFacades = new ArrayDeque<Facade>();
+	private Deque<Activator> stackOfCurrentActivators = new ArrayDeque<Activator>();
 	private SidePaneValueName sidePaneValueName;
-
-	public static void onFormCreationStart(Object object) {
-		if (object instanceof Asset) {
-			currentFormCreationObjects.put(CURRENT_ASSET_KEY, object);
-		}
-		if (object instanceof PlanElement) {
-			currentFormCreationObjects.put(CURRENT_PLAN_ELEMENT_KEY, object);
-		}
-		if (object instanceof Facade) {
-			currentFormCreationObjects.put(CURRENT_INSTANTIATION_FACADE_KEY, object);
-		}
-		if (object instanceof Activator) {
-			currentFormCreationObjects.put(CURRENT_ACTIVATOR_KEY, object);
-		}
-	}
-
-	public static void onFormCreationEnd(Object object) {
-		if (object instanceof Asset) {
-			currentFormCreationObjects.remove(CURRENT_ASSET_KEY);
-		}
-		if (object instanceof PlanElement) {
-			currentFormCreationObjects.remove(CURRENT_PLAN_ELEMENT_KEY);
-		}
-		if (object instanceof Facade) {
-			currentFormCreationObjects.remove(CURRENT_INSTANTIATION_FACADE_KEY);
-		}
-		if (object instanceof Activator) {
-			currentFormCreationObjects.remove(CURRENT_ACTIVATOR_KEY);
-		}
-	}
 
 	public static WeakHashMap<Plan, DragIntent> getDiagramDragIntentByPlan() {
 		return diagramDragIntentByPlan;
@@ -643,86 +612,87 @@ public class JESBReflectionUI extends CustomizedUI {
 			}
 
 			@Override
-			protected boolean onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
-				if (visible) {
+			protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
+				if (!handleFormEvent(type, object, visible)) {
+					super.onFormVisibilityChange(type, object, visible);
+				}
+			}
+
+			@Override
+			protected void onFormCreation(ITypeInfo type, Object object, boolean beforeOrAfter) {
+				if (!handleFormEvent(type, object, beforeOrAfter)) {
+					super.onFormCreation(type, object, beforeOrAfter);
+				}
+			}
+
+			protected boolean handleFormEvent(ITypeInfo type, Object object, boolean focus) {
+				if (focus) {
 					if (object instanceof Asset) {
-						if (displayedAssets.contains(object)) {
-							throw new UnexpectedError();
-						}
-						displayedAssets.push((Asset) object);
-						return false;
+						stackOfCurrentAssets.push((Asset) object);
+						return true;
 					} else if (object instanceof PlanElement) {
-						if (displayedPlanElements.contains(object)) {
-							throw new UnexpectedError();
-						}
-						displayedPlanElements.push((PlanElement) object);
-						return false;
+						stackOfCurrentPlanElements.push((PlanElement) object);
+						return true;
 					} else if (object instanceof Activator) {
-						if (displayedActivators.contains(object)) {
-							throw new UnexpectedError();
-						}
-						displayedActivators.push((Activator) object);
-						return false;
+						stackOfCurrentActivators.push((Activator) object);
+						return true;
 					} else if (object instanceof Facade) {
-						if (displayedInstantiationFacades.contains(object)) {
-							throw new UnexpectedError();
-						}
-						displayedInstantiationFacades.push((Facade) object);
-						return false;
+						stackOfCurrentInstantiationFacades.push((Facade) object);
+						return true;
 					}
 				} else {
 					Object poped;
 					if (object instanceof Asset) {
-						if ((poped = displayedAssets.peek()) != object) {
+						if ((poped = stackOfCurrentAssets.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						if (!displayedAssets.remove(object)) {
+						if (!stackOfCurrentAssets.remove(object)) {
 							throw new UnexpectedError();
 						}
-						return false;
+						return true;
 					} else if (object instanceof PlanElement) {
-						if ((poped = displayedPlanElements.peek()) != object) {
+						if ((poped = stackOfCurrentPlanElements.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						if (!displayedPlanElements.remove(object)) {
+						if (!stackOfCurrentPlanElements.remove(object)) {
 							throw new UnexpectedError();
 						}
-						return false;
+						return true;
 					} else if (object instanceof Activator) {
-						if ((poped = displayedActivators.peek()) != object) {
+						if ((poped = stackOfCurrentActivators.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						if (!displayedActivators.remove(object)) {
+						if (!stackOfCurrentActivators.remove(object)) {
 							throw new UnexpectedError();
 						}
-						return false;
+						return true;
 					} else if (object instanceof Facade) {
-						if ((poped = displayedInstantiationFacades.peek()) != object) {
+						if ((poped = stackOfCurrentInstantiationFacades.peek()) != object) {
 							if (Preferences.INSTANCE.isLogVerbose()) {
 								System.err.println("The user interface may become instable because " + object
 										+ " was abnormally hidden before " + poped);
 							}
 						}
-						if (!displayedInstantiationFacades.remove(object)) {
+						if (!stackOfCurrentInstantiationFacades.remove(object)) {
 							throw new UnexpectedError();
 						}
-						return false;
+						return true;
 					} else if (object instanceof Debugger) {
 						((Debugger) object).deactivatePlans();
 						((Debugger) object).stopExecutions();
-						return false;
+						return true;
 					}
 				}
-				return super.onFormVisibilityChange(type, object, visible);
+				return false;
 			}
 
 			@Override
@@ -1913,49 +1883,33 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	private Asset getCurrentAsset(ValidationSession session) {
-		Asset result = (Asset) currentFormCreationObjects.get(CURRENT_ASSET_KEY);
-		if (result != null) {
-			return result;
-		}
-		result = (session == null) ? null : (Asset) session.get(CURRENT_ASSET_KEY);
+		Asset result = (session == null) ? null : (Asset) session.get(CURRENT_ASSET_KEY);
 		if (result == null) {
-			result = displayedAssets.peek();
+			result = stackOfCurrentAssets.peek();
 		}
 		return result;
 	}
 
 	private PlanElement getCurrentPlanElement(ValidationSession session) {
-		PlanElement result = (PlanElement) currentFormCreationObjects.get(CURRENT_PLAN_ELEMENT_KEY);
-		if (result != null) {
-			return result;
-		}
-		result = (session == null) ? null : (PlanElement) session.get(CURRENT_PLAN_ELEMENT_KEY);
+		PlanElement result = (session == null) ? null : (PlanElement) session.get(CURRENT_PLAN_ELEMENT_KEY);
 		if (result == null) {
-			result = displayedPlanElements.peek();
+			result = stackOfCurrentPlanElements.peek();
 		}
 		return result;
 	}
 
 	private Facade getCurrentInstantiationFacade(ValidationSession session) {
-		Facade result = (Facade) currentFormCreationObjects.get(CURRENT_INSTANTIATION_FACADE_KEY);
-		if (result != null) {
-			return result;
-		}
-		result = (session == null) ? null : (Facade) session.get(CURRENT_INSTANTIATION_FACADE_KEY);
+		Facade result = (session == null) ? null : (Facade) session.get(CURRENT_INSTANTIATION_FACADE_KEY);
 		if (result == null) {
-			result = displayedInstantiationFacades.peek();
+			result = stackOfCurrentInstantiationFacades.peek();
 		}
 		return result;
 	}
 
 	private Activator getCurrentActivator(ValidationSession session) {
-		Activator result = (Activator) currentFormCreationObjects.get(CURRENT_ACTIVATOR_KEY);
-		if (result != null) {
-			return result;
-		}
-		result = (session == null) ? null : (Activator) session.get(CURRENT_ACTIVATOR_KEY);
+		Activator result = (session == null) ? null : (Activator) session.get(CURRENT_ACTIVATOR_KEY);
 		if (result == null) {
-			result = displayedActivators.peek();
+			result = stackOfCurrentActivators.peek();
 		}
 		return result;
 	}
@@ -1965,7 +1919,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof Plan) {
 			return (Plan) current;
 		}
-		Plan result = (Plan) displayedAssets.stream().filter(Plan.class::isInstance).findFirst().orElse(null);
+		Plan result = (Plan) stackOfCurrentAssets.stream().filter(Plan.class::isInstance).findFirst().orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.err.println("The user interface may become instable because " + current
@@ -1980,7 +1934,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof Step) {
 			return (Step) current;
 		}
-		Step result = (Step) displayedPlanElements.stream().filter(Step.class::isInstance).findFirst().orElse(null);
+		Step result = (Step) stackOfCurrentPlanElements.stream().filter(Step.class::isInstance).findFirst().orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.err.println("The user interface may become instable because " + current
@@ -1995,7 +1949,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof Transition) {
 			return (Transition) current;
 		}
-		Transition result = (Transition) displayedPlanElements.stream().filter(Transition.class::isInstance).findFirst()
+		Transition result = (Transition) stackOfCurrentPlanElements.stream().filter(Transition.class::isInstance).findFirst()
 				.orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
@@ -2011,7 +1965,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof RootInstanceBuilderFacade) {
 			return (RootInstanceBuilderFacade) current;
 		}
-		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) displayedInstantiationFacades.stream()
+		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) stackOfCurrentInstantiationFacades.stream()
 				.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
