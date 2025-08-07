@@ -47,6 +47,8 @@ import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
 import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
 import xy.reflect.ui.control.swing.customizer.CustomizationController;
+import xy.reflect.ui.control.swing.customizer.CustomizationTools;
+import xy.reflect.ui.control.swing.customizer.CustomizationToolsUI;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
@@ -67,6 +69,8 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.SystemProperties;
 
@@ -99,6 +103,7 @@ public class GUI extends SwingCustomizer {
 			}
 		}
 	}
+
 	@Override
 	protected CustomizationController createCustomizationController() {
 		return new CustomizationController(this) {
@@ -114,7 +119,6 @@ public class GUI extends SwingCustomizer {
 			}
 		};
 	}
-	/*
 
 	@Override
 	protected CustomizationTools createCustomizationTools() {
@@ -126,21 +130,34 @@ public class GUI extends SwingCustomizer {
 
 					@Override
 					public ITypeInfo getTypeInfo(ITypeInfoSource typeSource) {
-						if (typeSource instanceof JavaTypeInfoSource) {
-							JavaTypeInfoSource javaTypeInfoSource = (JavaTypeInfoSource) typeSource;
-							if (CustomizationController.class.isAssignableFrom(javaTypeInfoSource.getJavaType())) {
-								typeSource = new JavaTypeInfoSource(CustomizationController.class,
-										javaTypeInfoSource.getSpecificitiesIdentifier());
-							}
-						}
+						typeSource = adaptTypeInfoSource(typeSource);
 						return super.getTypeInfo(typeSource);
 					}
 
+					@Override
+					public ITypeInfoSource getTypeInfoSource(Object object) {
+						ITypeInfoSource result = super.getTypeInfoSource(object);
+						result = adaptTypeInfoSource(result);
+						return result;
+					}
+
+					ITypeInfoSource adaptTypeInfoSource(ITypeInfoSource typeSource) {
+						if (typeSource instanceof JavaTypeInfoSource) {
+							JavaTypeInfoSource javaTypeInfoSource = (JavaTypeInfoSource) typeSource;
+							if (CustomizationController.class.isAssignableFrom(javaTypeInfoSource.getJavaType())) {
+								if (CustomizationController.class != javaTypeInfoSource.getJavaType()) {
+									typeSource = new JavaTypeInfoSource(CustomizationController.class,
+											javaTypeInfoSource.getSpecificitiesIdentifier());
+								}
+							}
+						}
+						return typeSource;
+					}
 				};
 			}
 		};
 	}
-*/
+
 	@Override
 	public CustomizingForm createForm(final Object object, IInfoFilter infoFilter) {
 		return new CustomizingForm(this, object, infoFilter) {

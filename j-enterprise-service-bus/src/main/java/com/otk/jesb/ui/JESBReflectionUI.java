@@ -178,7 +178,8 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	public void setFocusTrackingDisabled(boolean focusTrackingDisabled) {
-		if (!focusTrackingDisabled && this.focusTrackingDisabled) {
+		this.focusTrackingDisabled = focusTrackingDisabled;
+		if (!focusTrackingDisabled) {
 			while (gainedFocusWhileTrackingDisabled.size() > 0) {
 				Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
 				handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
@@ -188,7 +189,6 @@ public class JESBReflectionUI extends CustomizedUI {
 				handleFocusEvent(pair.getFirst(), pair.getSecond(), false);
 			}
 		}
-		this.focusTrackingDisabled = focusTrackingDisabled;
 	}
 
 	private boolean handleFocusEvent(ITypeInfo type, Object object, boolean focusGainedOrLost) {
