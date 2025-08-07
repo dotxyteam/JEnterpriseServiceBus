@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.FunctionEditor;
@@ -94,6 +95,7 @@ import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
@@ -167,6 +169,92 @@ public class JESBReflectionUI extends CustomizedUI {
 	private Deque<Facade> stackOfCurrentInstantiationFacades = new ArrayDeque<Facade>();
 	private Deque<Activator> stackOfCurrentActivators = new ArrayDeque<Activator>();
 	private SidePaneValueName sidePaneValueName;
+	private boolean focusTrackingDisabled = false;
+	private List<Pair<ITypeInfo, Object>> lostFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+	private List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+
+	public boolean isFocusTrackingDisabled() {
+		return focusTrackingDisabled;
+	}
+
+	public void setFocusTrackingDisabled(boolean focusTrackingDisabled) {
+		if (!focusTrackingDisabled && this.focusTrackingDisabled) {
+			while (gainedFocusWhileTrackingDisabled.size() > 0) {
+				Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
+				handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
+			}
+			while (lostFocusWhileTrackingDisabled.size() > 0) {
+				Pair<ITypeInfo, Object> pair = lostFocusWhileTrackingDisabled.remove(0);
+				handleFocusEvent(pair.getFirst(), pair.getSecond(), false);
+			}
+		}
+		this.focusTrackingDisabled = focusTrackingDisabled;
+	}
+
+	private boolean handleFocusEvent(ITypeInfo type, Object object, boolean focusGainedOrLost) {
+		if (focusTrackingDisabled) {
+			Pair<ITypeInfo, Object> pair = new Pair<ITypeInfo, Object>(type, object);
+			if (focusGainedOrLost) {
+				if (!lostFocusWhileTrackingDisabled.remove(pair)) {
+					gainedFocusWhileTrackingDisabled.add(pair);
+				}
+			} else {
+				if (!gainedFocusWhileTrackingDisabled.remove(pair)) {
+					lostFocusWhileTrackingDisabled.add(pair);
+				}
+			}
+			return false;
+		}
+		if (focusGainedOrLost) {
+			if (object instanceof Asset) {
+				stackOfCurrentAssets.push((Asset) object);
+				return true;
+			} else if (object instanceof PlanElement) {
+				stackOfCurrentPlanElements.push((PlanElement) object);
+				return true;
+			} else if (object instanceof Activator) {
+				stackOfCurrentActivators.push((Activator) object);
+				return true;
+			} else if (object instanceof Facade) {
+				stackOfCurrentInstantiationFacades.push((Facade) object);
+				return true;
+			}
+		} else {
+			Consumer<Deque<?>> handler = new Consumer<Deque<?>>() {
+				@Override
+				public void accept(Deque<?> stack) {
+					Object peeked;
+					if ((peeked = stack.peek()) != object) {
+						if (Preferences.INSTANCE.isLogVerbose()) {
+							throw new UnexpectedError("The user interface may become instable because " + object
+									+ " was abnormally hidden before " + peeked);
+						}
+					}
+					if (!stack.remove(object)) {
+						throw new UnexpectedError();
+					}
+				}
+			};
+			if (object instanceof Asset) {
+				handler.accept(stackOfCurrentAssets);
+				return true;
+			} else if (object instanceof PlanElement) {
+				handler.accept(stackOfCurrentPlanElements);
+				return true;
+			} else if (object instanceof Activator) {
+				handler.accept(stackOfCurrentActivators);
+				return true;
+			} else if (object instanceof Facade) {
+				handler.accept(stackOfCurrentInstantiationFacades);
+				return true;
+			} else if (object instanceof Debugger) {
+				((Debugger) object).deactivatePlans();
+				((Debugger) object).stopExecutions();
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static WeakHashMap<Plan, DragIntent> getDiagramDragIntentByPlan() {
 		return diagramDragIntentByPlan;
@@ -613,86 +701,16 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
-				if (!handleFormEvent(type, object, visible)) {
+				if (!handleFocusEvent(type, object, visible)) {
 					super.onFormVisibilityChange(type, object, visible);
 				}
 			}
 
 			@Override
 			protected void onFormCreation(ITypeInfo type, Object object, boolean beforeOrAfter) {
-				if (!handleFormEvent(type, object, beforeOrAfter)) {
+				if (!handleFocusEvent(type, object, beforeOrAfter)) {
 					super.onFormCreation(type, object, beforeOrAfter);
 				}
-			}
-
-			protected boolean handleFormEvent(ITypeInfo type, Object object, boolean focus) {
-				if (focus) {
-					if (object instanceof Asset) {
-						stackOfCurrentAssets.push((Asset) object);
-						return true;
-					} else if (object instanceof PlanElement) {
-						stackOfCurrentPlanElements.push((PlanElement) object);
-						return true;
-					} else if (object instanceof Activator) {
-						stackOfCurrentActivators.push((Activator) object);
-						return true;
-					} else if (object instanceof Facade) {
-						stackOfCurrentInstantiationFacades.push((Facade) object);
-						return true;
-					}
-				} else {
-					Object poped;
-					if (object instanceof Asset) {
-						if ((poped = stackOfCurrentAssets.peek()) != object) {
-							if (Preferences.INSTANCE.isLogVerbose()) {
-								System.err.println("The user interface may become instable because " + object
-										+ " was abnormally hidden before " + poped);
-							}
-						}
-						if (!stackOfCurrentAssets.remove(object)) {
-							throw new UnexpectedError();
-						}
-						return true;
-					} else if (object instanceof PlanElement) {
-						if ((poped = stackOfCurrentPlanElements.peek()) != object) {
-							if (Preferences.INSTANCE.isLogVerbose()) {
-								System.err.println("The user interface may become instable because " + object
-										+ " was abnormally hidden before " + poped);
-							}
-						}
-						if (!stackOfCurrentPlanElements.remove(object)) {
-							throw new UnexpectedError();
-						}
-						return true;
-					} else if (object instanceof Activator) {
-						if ((poped = stackOfCurrentActivators.peek()) != object) {
-							if (Preferences.INSTANCE.isLogVerbose()) {
-								System.err.println("The user interface may become instable because " + object
-										+ " was abnormally hidden before " + poped);
-							}
-						}
-						if (!stackOfCurrentActivators.remove(object)) {
-							throw new UnexpectedError();
-						}
-						return true;
-					} else if (object instanceof Facade) {
-						if ((poped = stackOfCurrentInstantiationFacades.peek()) != object) {
-							if (Preferences.INSTANCE.isLogVerbose()) {
-								System.err.println("The user interface may become instable because " + object
-										+ " was abnormally hidden before " + poped);
-							}
-						}
-						if (!stackOfCurrentInstantiationFacades.remove(object)) {
-							throw new UnexpectedError();
-						}
-						return true;
-					} else if (object instanceof Debugger) {
-						((Debugger) object).deactivatePlans();
-						((Debugger) object).stopExecutions();
-						return true;
-					}
-				}
-				return false;
 			}
 
 			@Override
@@ -1934,7 +1952,8 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof Step) {
 			return (Step) current;
 		}
-		Step result = (Step) stackOfCurrentPlanElements.stream().filter(Step.class::isInstance).findFirst().orElse(null);
+		Step result = (Step) stackOfCurrentPlanElements.stream().filter(Step.class::isInstance).findFirst()
+				.orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.err.println("The user interface may become instable because " + current
@@ -1949,8 +1968,8 @@ public class JESBReflectionUI extends CustomizedUI {
 		if (current instanceof Transition) {
 			return (Transition) current;
 		}
-		Transition result = (Transition) stackOfCurrentPlanElements.stream().filter(Transition.class::isInstance).findFirst()
-				.orElse(null);
+		Transition result = (Transition) stackOfCurrentPlanElements.stream().filter(Transition.class::isInstance)
+				.findFirst().orElse(null);
 		if (result != null) {
 			if (Preferences.INSTANCE.isLogVerbose()) {
 				System.err.println("The user interface may become instable because " + current
@@ -2267,4 +2286,5 @@ public class JESBReflectionUI extends CustomizedUI {
 	public enum SidePaneValueName {
 		ENVIRONMENT_SETTINGS
 	}
+
 }

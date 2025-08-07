@@ -46,6 +46,7 @@ import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
 import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
+import xy.reflect.ui.control.swing.customizer.CustomizationController;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
@@ -98,7 +99,48 @@ public class GUI extends SwingCustomizer {
 			}
 		}
 	}
+	@Override
+	protected CustomizationController createCustomizationController() {
+		return new CustomizationController(this) {
 
+			@Override
+			protected void recustomizeAllForms() {
+				((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(true);
+				try {
+					super.recustomizeAllForms();
+				} finally {
+					((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(false);
+				}
+			}
+		};
+	}
+	/*
+
+	@Override
+	protected CustomizationTools createCustomizationTools() {
+		return new CustomizationTools(this) {
+
+			@Override
+			protected CustomizationToolsUI createToolsUI() {
+				return new CustomizationToolsUI(super.createToolsUI().getInfoCustomizations(), swingCustomizer) {
+
+					@Override
+					public ITypeInfo getTypeInfo(ITypeInfoSource typeSource) {
+						if (typeSource instanceof JavaTypeInfoSource) {
+							JavaTypeInfoSource javaTypeInfoSource = (JavaTypeInfoSource) typeSource;
+							if (CustomizationController.class.isAssignableFrom(javaTypeInfoSource.getJavaType())) {
+								typeSource = new JavaTypeInfoSource(CustomizationController.class,
+										javaTypeInfoSource.getSpecificitiesIdentifier());
+							}
+						}
+						return super.getTypeInfo(typeSource);
+					}
+
+				};
+			}
+		};
+	}
+*/
 	@Override
 	public CustomizingForm createForm(final Object object, IInfoFilter infoFilter) {
 		return new CustomizingForm(this, object, infoFilter) {
