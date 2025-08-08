@@ -3,29 +3,20 @@ package com.otk.jesb.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Insets;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DropMode;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicTableHeaderUI;
-import javax.swing.table.JTableHeader;
 import javax.swing.text.JTextComponent;
 
-import com.formdev.flatlaf.ui.FlatTableHeaderUI;
-import com.formdev.flatlaf.util.UIScale;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
-import com.otk.jesb.Preferences;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Debugger.PlanActivation;
 import com.otk.jesb.compiler.CompilationError;
@@ -546,29 +537,5 @@ public class GUI extends SwingCustomizer {
 		openObjectDialog(activatorComponent, error);
 	}
 
-	public static class BetterFlatTableHeaderUI extends FlatTableHeaderUI {
-
-		@Override
-		public Dimension getPreferredSize(JComponent c) {
-			// replace Dimension size = super.getPreferredSize( c );
-			BasicTableHeaderUI superObject = new BasicTableHeaderUI() {
-				{
-					header = (JTableHeader) c;
-				}
-			};
-			Dimension size = superObject.getPreferredSize(c);
-			if (size.height > 0) {
-				Insets insets = c.getInsets();
-				if ((insets == null) || (size.height > (insets.top + insets.bottom))) {
-					// replace UIScale.scale(height) by UIScale.scale(size.height)
-					size.height = Math.max(size.height, UIScale.scale(size.height));
-				}
-			}
-			return size;
-		}
-
-		public static ComponentUI createUI(JComponent c) {
-			return new BetterFlatTableHeaderUI();
-		}
-	}
+	
 }

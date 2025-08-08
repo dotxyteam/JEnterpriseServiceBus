@@ -33,7 +33,6 @@ import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.otk.jesb.PotentialError;
-import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -47,7 +46,6 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import xy.reflect.ui.info.ResourcePath;
 
@@ -328,13 +326,10 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				factory.setFeatures(Arrays.asList(openApiFeature));
 			}
 			endpoint = factory.create();
-			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
-				if (webUIEnabledVariant.getValue()) {
-					System.out
-							.println("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
-					System.out.println("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
-				}
+			System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
+			if (webUIEnabledVariant.getValue()) {
+				System.out.println("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
+				System.out.println("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
 			}
 		}
 
@@ -346,9 +341,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			endpoint.destroy();
 			endpoint = null;
 			String servicePath = getServicePathVariant().getValue();
-			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
-			}
+			System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 		}
 
 		@Override

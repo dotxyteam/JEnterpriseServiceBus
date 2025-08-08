@@ -21,7 +21,6 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
-import com.otk.jesb.Preferences;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.Activator;

@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import org.apache.cxf.jaxws.EndpointImpl;
 
 import com.otk.jesb.PotentialError;
-import com.otk.jesb.Preferences;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -317,10 +316,8 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 					}));
 			String servicePath = getServicePathVariant().getValue();
 			endpoint.publish(servicePath);
-			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
-				System.out.println("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
-			}
+			System.out.println("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
+			System.out.println("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
 		}
 
 		@Override
@@ -331,9 +328,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			endpoint.stop();
 			endpoint = null;
 			String servicePath = getServicePathVariant().getValue();
-			if (Preferences.INSTANCE.isLogVerbose()) {
-				System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
-			}
+			System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
 		}
 
 		@Override

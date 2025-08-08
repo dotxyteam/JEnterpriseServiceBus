@@ -28,8 +28,9 @@ public class Debugger {
 
 	private Solution solution;
 	private List<PlanActivation> planActivations;
+	private List<PlanExecutor> activePlanExecutors = new ArrayList<Debugger.PlanExecutor>();
 	private PlanActivationFilter currentPlanActivationFilter = PlanActivationFilter.ACTIVABLE_PLANS;
-	private Console console = Console.INSTANCE;
+	private Console console = Console.DEFAULT;
 	private static boolean scrollLocked = false;
 
 	public Debugger(Solution solution) {
@@ -53,13 +54,17 @@ public class Debugger {
 				if (asset instanceof Plan) {
 					Plan plan = (Plan) asset;
 					if (plan.getActivator().getEnabledVariant().getValue()) {
-						result.add(new PlanActivation(plan));
+						result.add(createPlanActivation(plan));
 					}
 				}
 				return true;
 			}
 		});
 		return result;
+	}
+
+	protected PlanActivation createPlanActivation(Plan plan) {
+		return new PlanActivation(plan);
 	}
 
 	public PlanActivationFilter getCurrentPlanActivationFilter() {
@@ -97,6 +102,14 @@ public class Debugger {
 		}
 	}
 
+	protected synchronized void onExecutionStart(PlanExecutor planExecutor) {
+		activePlanExecutors.add(planExecutor);
+	}
+
+	protected synchronized void onExecutionEnd(PlanExecutor planExecutor) {
+		activePlanExecutors.remove(planExecutor);
+	}
+
 	public class PlanActivation {
 
 		private Plan plan;
@@ -132,7 +145,7 @@ public class Debugger {
 				ActivationHandler activationHandler = new ActivationHandler() {
 					@Override
 					public Object trigger(Object planInput) {
-						PlanExecutor planExecutor = new PlanExecutor(plan, planInput);
+						PlanExecutor planExecutor = createPlanExecutor(planInput);
 						planExecutors.add(planExecutor);
 						try {
 							planExecutor.join();
@@ -145,10 +158,7 @@ public class Debugger {
 				try {
 					plan.getActivator().initializeAutomaticTrigger(activationHandler);
 				} catch (Exception e) {
-					if (Preferences.INSTANCE.isLogVerbose()) {
-						e.printStackTrace();
-					}
-					planExecutors.add(new PlanActivationFailure(plan, e));
+					handleActivationError(e);
 					try {
 						plan.getActivator().finalizeAutomaticTrigger();
 					} catch (Throwable ignore) {
@@ -161,6 +171,15 @@ public class Debugger {
 					throw new UnexpectedError(e);
 				}
 			}
+		}
+
+		protected PlanExecutor createPlanExecutor(Object planInput) {
+			return new PlanExecutor(plan, planInput);
+		}
+
+		protected void handleActivationError(Exception e) {
+			e.printStackTrace();
+			planExecutors.add(new PlanActivationFailure(plan, e));
 		}
 
 		public boolean isAutomaticTriggerReady() {
@@ -219,7 +238,17 @@ public class Debugger {
 		public PlanExecutor(Plan plan, Object planInput) {
 			this.plan = plan;
 			this.planInput = planInput;
-			this.executionInspector = new Plan.ExecutionInspector() {
+			this.executionInspector = createExecutionInspector();
+			this.executionContext = new ExecutionContext(plan);
+			start();
+		}
+
+		protected SubPlanExecutor createSubPlanExecutor(Plan subPlan) {
+			return new SubPlanExecutor(subPlan);
+		}
+
+		protected ExecutionInspector createExecutionInspector() {
+			return new Plan.ExecutionInspector() {
 				@Override
 				public void beforeOperation(StepCrossing stepCrossing) {
 					getTopPlanExecutor().currentStepCrossing = stepCrossing;
@@ -227,7 +256,7 @@ public class Debugger {
 					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
 						Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
 								.getPlanReference().resolve();
-						SubPlanExecutor subPlanExecutor = new SubPlanExecutor(subPlan);
+						SubPlanExecutor subPlanExecutor = createSubPlanExecutor(subPlan);
 						getTopPlanExecutor().children.add(subPlanExecutor);
 						subPlanExecutionStack.add(subPlanExecutor);
 					}
@@ -253,22 +282,20 @@ public class Debugger {
 
 				@Override
 				public void logInformation(String message) {
-					console.log(message, "INFORMATION", "#FFFFFF", "#AAAAAA");
+					console.log(message, Console.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA");
 				}
 
 				@Override
 				public void logWarning(String message) {
-					console.log(message, "WARNING", "#FFFFFF", "#FFC13B");
+					console.log(message, Console.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B");
 				}
 
 				@Override
 				public void logError(String message) {
-					console.log(message, "ERROR", "#FFFFFF", "#FF6E40");
+					console.log(message, Console.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40");
 				}
 
 			};
-			this.executionContext = new ExecutionContext(plan);
-			start();
 		}
 
 		public Plan getPlan() {
@@ -371,7 +398,15 @@ public class Debugger {
 			if (!isActive()) {
 				return;
 			}
-			thread.interrupt();
+			while (thread.isAlive()) {
+				thread.interrupt();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					throw new UnexpectedError(e);
+				}
+				thread = null;
+			}
 		}
 
 		public synchronized boolean isActive() {
@@ -391,15 +426,19 @@ public class Debugger {
 		}
 
 		protected void execute() {
+			onExecutionStart(this);
 			try {
 				planOutput = plan.execute(planInput, executionInspector, executionContext);
 			} catch (Throwable t) {
-				if (Preferences.INSTANCE.isLogVerbose()) {
-					t.printStackTrace();
-				}
-				executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
-				executionError = t;
+				handleExecutionError(t);
+			} finally {
+				onExecutionEnd(this);
 			}
+		}
+
+		protected void handleExecutionError(Throwable t) {
+			executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
+			executionError = t;
 		}
 
 		@Override

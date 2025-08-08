@@ -1,5 +1,5 @@
-<com.otk.jesb.Preferences>
+<com.otk.jesb.ui.Preferences>
   <fadingTransitioningEnabled>false</fadingTransitioningEnabled>
   <logVerbose>true</logVerbose>
   <theme>FLAT</theme>
-</com.otk.jesb.Preferences>
+</com.otk.jesb.ui.Preferences>

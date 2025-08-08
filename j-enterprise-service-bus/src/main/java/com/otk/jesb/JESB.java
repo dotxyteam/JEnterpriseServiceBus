@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.io.File;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.instantiation.InstanceBuilder;
@@ -15,13 +16,48 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.ui.Preferences;
 
 public class JESB {
 
 	public static final boolean DEBUG = Boolean
-			.valueOf(System.getProperty(JESB.class.getPackage().getName() + ".DEBUG", Boolean.FALSE.toString()));
+			.valueOf(System.getProperty(JESB.class.getPackage().getName() + ".debug", Boolean.FALSE.toString()));
+	private static final boolean RUNNER_LOG_VERBOSE = Boolean.valueOf(
+			System.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
 
 	public static void main(String[] args) throws Exception {
+		if ((args.length == 2) && args[0].equals("--run")) {
+			System.setOut(Log.INSTANCE.getLoggingPrintStream(Console.VERBOSE_LEVEL_NAME, () -> RUNNER_LOG_VERBOSE,
+					System.out));
+			System.setErr(Log.INSTANCE.getLoggingPrintStream(Console.VERBOSE_LEVEL_NAME, () -> RUNNER_LOG_VERBOSE,
+					System.err));
+			Solution.INSTANCE.loadFromDirectory(new File(args[1]));
+			Runner runner = new Runner(Solution.INSTANCE);
+			runner.activatePlans();
+		} else if (args.length <= 1) {
+			System.setOut(Console.DEFAULT.getPrintStream(Console.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
+					() -> Preferences.INSTANCE.isLogVerbose(), System.out));
+			System.setErr(Console.DEFAULT.getPrintStream(Console.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
+					() -> Preferences.INSTANCE.isLogVerbose(), System.err));
+			if (args.length == 1) {
+				Solution.INSTANCE.loadFromDirectory(new File(args[0]));
+			} else {
+				if (DEBUG) {
+					setupSampleSolution();
+				}
+			}
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
+				}
+			});
+		} else {
+			throw new IllegalArgumentException("Expected: [--run] [FILE_PATH]");
+		}
+	}
+
+	private static void setupSampleSolution() {
 		Folder plansFolder = new Folder("plans");
 		Solution.INSTANCE.getContents().add(plansFolder);
 
@@ -72,13 +108,6 @@ public class JESB {
 		t1.setStartStep(s1);
 		t1.setEndStep(ls);
 		plan.getTransitions().add(t1);
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
-			}
-		});
 	}
 
 }

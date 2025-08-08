@@ -4,6 +4,15 @@
 	. release a first version
 	. advertise
 	. improve the features
+	. mandatory:
+		* allow to deploy and run outside the debugger
+		* allow to extend easily by:
+			# creating new operations
+			# extending existing operations
+	. REMARK: it is impossible for only 1 person to provide an enterprise-ready
+	and bug-free set of features (operations, activators, ...). The goal must 
+	then be to provide extensibility capabilities as a core feature and address
+	very specific (niche) needs like mainframe interactions, mq, etc.    
 - add general activities:
 	. Log
 	. ...
@@ -11,6 +20,7 @@
 - add other built-in activities (fail, file, jdbc, jms, data format, ...)
 - allow to create profiles for each env
 - it is difficult to find appropriate names for steps and structure elements 
+- allow to store and view executions
 - Limit console size
 - create a basic WSDL generator
 - allow to view APIs (SOAP/REST) documentation
@@ -28,7 +38,7 @@ find a solution (merge files and folders ???)..
 	. add a banner ???
 	. get inspiration from TIBCO Flogo
 - allow to add debug breakpoints
-- add advanced HTTP server options (see https://docs.tibco.com/pub/activematrix_businessworks/6.7.0/doc/html/GUID-E7A7A6BD-20C7-496D-9F75-868B6F82FD1E.html)
+- add security & advanced HTTP server options (see https://docs.tibco.com/pub/activematrix_businessworks/6.7.0/doc/html/GUID-E7A7A6BD-20C7-496D-9F75-868B6F82FD1E.html)
 - allow to add comments to plan diagrams
 - allow to optimize a debug session by:
 	. disabling animations
