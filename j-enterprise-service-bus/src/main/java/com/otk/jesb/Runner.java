@@ -7,14 +7,12 @@ import com.otk.jesb.solution.StepCrossing;
 
 public class Runner extends Debugger {
 
-	
-	public Runner(Solution solution) {
+	private LogManager log;
+
+	public Runner(Solution solution, LogManager log) {
 		super(solution);
+		this.log = log;
 	}
-
-	
-
-	
 
 	@Override
 	protected PlanActivation createPlanActivation(Plan plan) {
@@ -65,24 +63,22 @@ public class Runner extends Debugger {
 
 				@Override
 				public void logInformation(String message) {
-					Log.INSTANCE.info(message);
+					log.info(message);
 				}
 
 				@Override
 				public void logWarning(String message) {
-					Log.INSTANCE.warn(message);
+					log.warn(message);
 				}
 
 				@Override
 				public void logError(String message) {
-					Log.INSTANCE.error(message);
+					log.error(message);
 				}
 
 			};
 		}
 
 	}
-
-	
 
 }

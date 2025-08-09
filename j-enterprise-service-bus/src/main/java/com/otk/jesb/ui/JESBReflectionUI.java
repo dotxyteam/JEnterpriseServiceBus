@@ -225,8 +225,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					Object peeked;
 					if ((peeked = stack.peek()) != object) {
 						if (Preferences.INSTANCE.isLogVerbose()) {
-							throw new UnexpectedError("The user interface may become instable because " + object
-									+ " was abnormally hidden before " + peeked);
+							new UnexpectedError("The user interface may become instable because " + object
+									+ " was abnormally hidden before " + peeked).printStackTrace();;
 						}
 					}
 					if (!stack.remove(object)) {

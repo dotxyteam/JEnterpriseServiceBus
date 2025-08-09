@@ -28,12 +28,6 @@ public class JESB {
 	public static void main(String[] args) throws Exception {
 		String RUNNER_SWITCH_ARGUMENT = "--run-solution";
 		if ((args.length == 2) && args[0].equals(RUNNER_SWITCH_ARGUMENT)) {
-			System.setOut(Log.INSTANCE.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
-			System.setErr(Log.INSTANCE.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
-			System.out.println("Starting up...");
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
 			File fileOrFolder = new File(args[1]);
 			if (fileOrFolder.isDirectory()) {
 				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
@@ -43,7 +37,14 @@ public class JESB {
 				throw new IllegalArgumentException(
 						"Invalid solution directory or archive file: '" + fileOrFolder + "'");
 			}
-			Runner runner = new Runner(Solution.INSTANCE);
+			LogManager log = new LogManager(new File(fileOrFolder.getName() + ".log"));
+			System.setOut(log.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.setErr(log.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.out.println("Starting up...");
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
+			Runner runner = new Runner(Solution.INSTANCE, log);
 			runner.activatePlans();
 		} else if (args.length <= 1) {
 			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",

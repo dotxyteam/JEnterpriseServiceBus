@@ -118,10 +118,17 @@ public class Debugger {
 
 		public PlanActivation(Plan plan) {
 			this.plan = plan;
-			if (plan.getActivator().getInputClass() != null) {
-				planInputBuilder = new RootInstanceBuilder("Input",
-						Accessor.returning(plan.getActivator().getInputClass().getName()));
-			}
+			planInputBuilder = new RootInstanceBuilder("Input", new Accessor<String>() {
+
+				@Override
+				public String get() {
+					Class<?> inputClass = plan.getActivator().getInputClass();
+					if (inputClass == null) {
+						return null;
+					}
+					return inputClass.getName();
+				}
+			});
 		}
 
 		public Plan getPlan() {
@@ -133,6 +140,9 @@ public class Debugger {
 		}
 
 		public RootInstanceBuilder getPlanInputBuilder() {
+			if (plan.getActivator().getInputClass() == null) {
+				return null;
+			}
 			return planInputBuilder;
 		}
 
@@ -201,9 +211,8 @@ public class Debugger {
 		}
 
 		public void executePlan() throws Exception {
-			Object planInput = (planInputBuilder != null)
-					? planInputBuilder.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()))
-					: null;
+			Object planInput = planInputBuilder
+					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 			planExecutors.add(new PlanExecutor(plan, planInput));
 		}
 

@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
@@ -11,16 +12,22 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-public class Log {
+public class LogManager {
 
-	public static final Log INSTANCE = new Log();
+	static {
+		// More information here:
+		// https://stackoverflow.com/questions/5969321/hsqldb-messing-up-with-my-server%C2%B4s-logs
+		System.setProperty("hsqldb.reconfig_logging", "false");
+	}
 
-	private Logger logger = createLogger();
-	private PrintStream informationStream = interceptPrintStreamData(System.out, Console.INFORMATION_LEVEL_NAME, () -> true);
+	private Logger logger;
+	private PrintStream informationStream = interceptPrintStreamData(System.out, Console.INFORMATION_LEVEL_NAME,
+			() -> true);
 	private PrintStream warningStream = interceptPrintStreamData(System.err, Console.WARNING_LEVEL_NAME, () -> true);
 	private PrintStream errorStream = interceptPrintStreamData(System.err, Console.ERROR_LEVEL_NAME, () -> true);
 
-	private Log() {
+	public LogManager(File file) {
+		logger = createLogger(file);
 	}
 
 	public void info(String message) {
@@ -35,10 +42,10 @@ public class Log {
 		errorStream.println(message);
 	}
 
-	protected Logger createLogger() {
+	protected Logger createLogger(File file) {
 		Logger logger = Logger.getLogger(JESB.class.getName());
 		logger.setUseParentHandlers(false);
-		String logFileNamePattern = JESB.class.getSimpleName() + "-%g.log";
+		String logFileNamePattern = file.getPath() + "-%g.log";
 		FileHandler logFileHandler;
 		try {
 			logFileHandler = new FileHandler(logFileNamePattern, 1_000_000, 5, true);
@@ -48,11 +55,11 @@ public class Log {
 			throw new UnexpectedError();
 		}
 		logFileHandler.setFormatter(new Formatter() {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 			@Override
 			public String format(LogRecord record) {
-				String date = sdf.format(new Date(record.getMillis()));
+				String date = dateFormat.format(new Date(record.getMillis()));
 				String level = record.getLevel().getName();
 				String message = formatMessage(record);
 				return String.format("[%s][%s] %s%n", date, level, message);
