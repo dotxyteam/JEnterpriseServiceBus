@@ -26,6 +26,7 @@
 - allow to view APIs (SOAP/REST) documentation
 - manage JDBC connection pools
 - need to generate OperationOutput class for web services ???
+- add basic HTTP operation/activators 
 - add a static test that checks that most values are Variant
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts for common actions (delete, copy/cut/paste, ...)

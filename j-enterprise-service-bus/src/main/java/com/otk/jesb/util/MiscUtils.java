@@ -51,6 +51,7 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
@@ -432,10 +433,11 @@ public class MiscUtils {
 		}
 		return null;
 	}
+
 	public static boolean isArrayTypeName(String className) {
 		return getArrayComponentTypeName(className) != null;
 	}
-		
+
 	public static Class<?> getArrayType(Class<?> componentType) {
 		return Array.newInstance(componentType, 0).getClass();
 	}
@@ -595,11 +597,19 @@ public class MiscUtils {
 	}
 
 	public static void serialize(Object object, OutputStream output) throws IOException {
-		XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
+		try {
+			XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
+		} catch (XStreamException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public static Object deserialize(InputStream input) throws IOException {
-		return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+		try {
+			return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+		} catch (XStreamException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public static String serialize(Object object) {
@@ -778,7 +788,8 @@ public class MiscUtils {
 		return true;
 	}
 
-	public static int positionAfterReplacement(int positionBefore, String inputString, String target, String replacement) {
+	public static int positionAfterReplacement(int positionBefore, String inputString, String target,
+			String replacement) {
 		if (target.isEmpty() || positionBefore < 0 || positionBefore > inputString.length()) {
 			return positionBefore;
 		}

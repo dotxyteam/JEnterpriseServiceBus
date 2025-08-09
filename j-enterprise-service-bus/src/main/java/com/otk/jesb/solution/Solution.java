@@ -106,10 +106,16 @@ public class Solution {
 		Folder folder = new Folder(folderName);
 		try (Stream<Path> pathStream = Files.walk(folderPath, 1).skip(1)) {
 			for (Path path : pathStream.collect(Collectors.toList())) {
-				if (path.getFileName().toString().equals(SORTED_NAMES_FILE_NAME)) {
+				String name = path.getFileName().toString();
+				{
+					if (name.endsWith("/")) {
+						name = name.substring(0, name.length() - 1);
+					}
+				}
+				if (name.equals(SORTED_NAMES_FILE_NAME)) {
 					continue;
 				}
-				folder.getContents().add(loadAsset(folderPath, path.getFileName().toString()));
+				folder.getContents().add(loadAsset(folderPath, name));
 			}
 		}
 		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
@@ -123,7 +129,6 @@ public class Solution {
 							.compareTo(new Integer(sortedNames.indexOf(asset2.getName())));
 				}
 			});
-		} catch (IOException ignore) {
 		}
 		return folder;
 	}
@@ -174,10 +179,10 @@ public class Solution {
 			saveAsset(folderPath, asset);
 		}
 		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
-			Files.write(folderPath.resolve(SORTED_NAMES_FILE_NAME), fileOutputStream.toByteArray());
 			List<String> sortedNames = folder.getContents().stream().map(asset -> asset.getName())
 					.collect(Collectors.toList());
 			MiscUtils.serialize(sortedNames, fileOutputStream);
+			Files.write(folderPath.resolve(SORTED_NAMES_FILE_NAME), fileOutputStream.toByteArray());
 		}
 	}
 
@@ -190,8 +195,8 @@ public class Solution {
 				throw new PotentialError("Duplicate file detected while saving: " + assetPath);
 			}
 			try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
-				Files.write(assetPath, fileOutputStream.toByteArray());
 				MiscUtils.serialize(asset, fileOutputStream);
+				Files.write(assetPath, fileOutputStream.toByteArray());
 			}
 		}
 	}
