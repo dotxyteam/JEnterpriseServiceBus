@@ -26,19 +26,30 @@ public class JESB {
 			System.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
 
 	public static void main(String[] args) throws Exception {
-		if ((args.length == 2) && args[0].equals("--run")) {
-			System.setOut(Log.INSTANCE.getLoggingPrintStream(Console.VERBOSE_LEVEL_NAME, () -> RUNNER_LOG_VERBOSE,
-					System.out));
-			System.setErr(Log.INSTANCE.getLoggingPrintStream(Console.VERBOSE_LEVEL_NAME, () -> RUNNER_LOG_VERBOSE,
-					System.err));
-			Solution.INSTANCE.loadFromDirectory(new File(args[1]));
+		String RUNNER_SWITCH_ARGUMENT = "--run-solution";
+		if ((args.length == 2) && args[0].equals(RUNNER_SWITCH_ARGUMENT)) {
+			System.setOut(Log.INSTANCE.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.setErr(Log.INSTANCE.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.out.println("Starting up...");
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
+			File fileOrFolder = new File(args[1]);
+			if (fileOrFolder.isDirectory()) {
+				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
+			} else if (fileOrFolder.isFile()) {
+				Solution.INSTANCE.loadFromArchiveFile(fileOrFolder);
+			} else {
+				throw new IllegalArgumentException(
+						"Invalid solution directory or archive file: '" + fileOrFolder + "'");
+			}
 			Runner runner = new Runner(Solution.INSTANCE);
 			runner.activatePlans();
 		} else if (args.length <= 1) {
-			System.setOut(Console.DEFAULT.getPrintStream(Console.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
-					() -> Preferences.INSTANCE.isLogVerbose(), System.out));
-			System.setErr(Console.DEFAULT.getPrintStream(Console.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
-					() -> Preferences.INSTANCE.isLogVerbose(), System.err));
+			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
+			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
 			if (args.length == 1) {
 				Solution.INSTANCE.loadFromDirectory(new File(args[0]));
 			} else {
@@ -53,7 +64,8 @@ public class JESB {
 				}
 			});
 		} else {
-			throw new IllegalArgumentException("Expected: [--run] [FILE_PATH]");
+			throw new IllegalArgumentException(
+					"Expected: [" + RUNNER_SWITCH_ARGUMENT + "] [DIRECTORY_PATH | ARCHIVE_FILE_PATH]");
 		}
 	}
 

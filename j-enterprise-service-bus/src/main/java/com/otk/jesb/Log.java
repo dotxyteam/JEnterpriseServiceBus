@@ -16,15 +16,15 @@ public class Log {
 	public static final Log INSTANCE = new Log();
 
 	private Logger logger = createLogger();
-	private PrintStream infoStream = getLoggingPrintStream(Console.INFORMATION_LEVEL_NAME, () -> true, System.out);
-	private PrintStream warningStream = getLoggingPrintStream(Console.WARNING_LEVEL_NAME, () -> true, System.err);
-	private PrintStream errorStream = getLoggingPrintStream(Console.ERROR_LEVEL_NAME, () -> true, System.out);
+	private PrintStream informationStream = interceptPrintStreamData(System.out, Console.INFORMATION_LEVEL_NAME, () -> true);
+	private PrintStream warningStream = interceptPrintStreamData(System.err, Console.WARNING_LEVEL_NAME, () -> true);
+	private PrintStream errorStream = interceptPrintStreamData(System.err, Console.ERROR_LEVEL_NAME, () -> true);
 
 	private Log() {
 	}
 
 	public void info(String message) {
-		infoStream.println(message);
+		informationStream.println(message);
 	}
 
 	public void warn(String message) {
@@ -63,8 +63,8 @@ public class Log {
 		return logger;
 	}
 
-	public PrintStream getLoggingPrintStream(String levelName, Supplier<Boolean> enablementStatusSupplier,
-			PrintStream rawMessagePrintStream) {
+	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName,
+			Supplier<Boolean> enablementStatusSupplier) {
 		return new Console() {
 
 			@Override
@@ -82,7 +82,7 @@ public class Log {
 				}
 			}
 
-		}.getPrintStream(levelName, null, null, enablementStatusSupplier, rawMessagePrintStream);
+		}.interceptPrintStreamData(basePrintStream, levelName, null, null, enablementStatusSupplier);
 	};
 
 }

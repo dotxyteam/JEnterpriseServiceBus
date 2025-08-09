@@ -1,7 +1,6 @@
 package com.otk.jesb;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.function.Supplier;
@@ -24,12 +23,12 @@ public class Console {
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
-	private PrintStream infoStream = new PrintStream(
-			getOutputStream(INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true, System.out));
-	private PrintStream warningStream = new PrintStream(
-			getOutputStream(WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true, System.err));
-	private PrintStream errorStream = new PrintStream(
-			getOutputStream(ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true, System.out));
+	private PrintStream informationStream = interceptPrintStreamData(System.out, INFORMATION_LEVEL_NAME, "#FFFFFF",
+			"#AAAAAA", () -> true);
+	private PrintStream warningStream = interceptPrintStreamData(System.err, WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B",
+			() -> true);
+	private PrintStream errorStream = interceptPrintStreamData(System.err, ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40",
+			() -> true);
 
 	public int getSize() {
 		return size;
@@ -43,7 +42,7 @@ public class Console {
 	}
 
 	public void info(String message) {
-		infoStream.println(message);
+		informationStream.println(message);
 	}
 
 	public void warn(String message) {
@@ -80,9 +79,9 @@ public class Console {
 		buffer.delete(0, buffer.length());
 	}
 
-	public OutputStream getOutputStream(final String levelName, final String prefixColor, final String messageColor,
-			final Supplier<Boolean> enablementStatusSupplier, PrintStream rawMessagePrintStream) {
-		return new WriterOutputStream(new Writer() {
+	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName, final String prefixColor,
+			final String messageColor, final Supplier<Boolean> enablementStatusSupplier) {
+		return new PrintStream(new WriterOutputStream(new Writer() {
 			private final StringBuilder lineBuffer = new StringBuilder();
 
 			@Override
@@ -116,17 +115,11 @@ public class Console {
 
 			private void flushLine() throws IOException {
 				String line = lineBuffer.toString();
-				rawMessagePrintStream.println(line);
+				basePrintStream.println(line);
 				log(line, levelName, prefixColor, messageColor);
 				lineBuffer.setLength(0);
 			}
-		}, Charset.defaultCharset());
-	}
-
-	public PrintStream getPrintStream(final String levelName, final String prefixColor, final String messageColor,
-			final Supplier<Boolean> enablementStatusSupplier, PrintStream rawMessagePrintStream) {
-		return new PrintStream(
-				getOutputStream(levelName, prefixColor, messageColor, enablementStatusSupplier, rawMessagePrintStream)) {
+		}, Charset.defaultCharset())) {
 
 			@Override
 			public void println() {

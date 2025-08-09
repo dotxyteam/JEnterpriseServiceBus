@@ -1,14 +1,20 @@
 package com.otk.jesb.solution;
 
 import java.beans.Transient;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
@@ -66,31 +72,48 @@ public class Solution {
 		return new Debugger(this);
 	}
 
+	public void loadFromArchiveFile(File archiveFile) throws IOException {
+		if (!archiveFile.isFile()) {
+			throw new IllegalArgumentException("'" + archiveFile + "' is not a valid file");
+		}
+		URI uri = URI.create("jar:" + archiveFile.toURI());
+		try (FileSystem zipFs = FileSystems.newFileSystem(uri, Collections.singletonMap("create", "false"))) {
+			load(zipFs.getPath("/"));
+		}
+	}
+
 	public void loadFromDirectory(File directory) throws IOException {
 		if (!directory.isDirectory()) {
 			throw new IllegalArgumentException("'" + directory + "' is not a valid directory");
 		}
-		try (FileInputStream fileInputStream = new FileInputStream(
-				new File(directory, "." + environmentSettings.getClass().getSimpleName().toLowerCase()
-						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
-			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
-		}
-		rootFolder = loadFolder(directory, rootFolder.getName());
+		load(directory.toPath());
 	}
 
-	private Folder loadFolder(File parentDirectory, String folderName) throws IOException {
-		File folderDirectory = new File(parentDirectory, folderName);
-		if (!folderDirectory.isDirectory()) {
-			throw new IllegalArgumentException("'" + folderDirectory + "' is not a valid directory");
+	private void load(Path rootPath) throws IOException {
+		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
+				Files.readAllBytes(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
+						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX)))) {
+			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
+		}
+		rootFolder = loadFolder(rootPath, rootFolder.getName());
+	}
+
+	private Folder loadFolder(Path parentPath, String folderName) throws IOException {
+		Path folderPath = parentPath.resolve(folderName);
+		if (!Files.isDirectory(folderPath)) {
+			throw new IllegalArgumentException("'" + folderPath + "' is not a valid directory");
 		}
 		Folder folder = new Folder(folderName);
-		for (String name : folderDirectory.list()) {
-			if (name.equals(SORTED_NAMES_FILE_NAME)) {
-				continue;
+		try (Stream<Path> pathStream = Files.walk(folderPath, 1).skip(1)) {
+			for (Path path : pathStream.collect(Collectors.toList())) {
+				if (path.getFileName().toString().equals(SORTED_NAMES_FILE_NAME)) {
+					continue;
+				}
+				folder.getContents().add(loadAsset(folderPath, path.getFileName().toString()));
 			}
-			folder.getContents().add(loadAsset(folderDirectory, name));
 		}
-		try (FileInputStream fileInputStream = new FileInputStream(new File(folderDirectory, SORTED_NAMES_FILE_NAME))) {
+		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
+				Files.readAllBytes(folderPath.resolve(SORTED_NAMES_FILE_NAME)))) {
 			@SuppressWarnings("unchecked")
 			final List<String> sortedNames = (List<String>) MiscUtils.deserialize(fileInputStream);
 			Collections.sort(folder.getContents(), new Comparator<Asset>() {
@@ -105,14 +128,25 @@ public class Solution {
 		return folder;
 	}
 
-	private Asset loadAsset(File parentDirectory, String name) throws IOException {
-		File fileOrDirectory = new File(parentDirectory, name);
-		if (fileOrDirectory.isDirectory()) {
-			return loadFolder(parentDirectory, name);
+	private Asset loadAsset(Path parentPath, String name) throws IOException {
+		Path fileOrDirectoryPath = parentPath.resolve(name);
+		if (Files.isDirectory(fileOrDirectoryPath)) {
+			return loadFolder(parentPath, name);
 		} else {
-			try (FileInputStream fileInputStream = new FileInputStream(fileOrDirectory)) {
+			try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
+					Files.readAllBytes(fileOrDirectoryPath))) {
 				return (Asset) MiscUtils.deserialize(fileInputStream);
 			}
+		}
+	}
+
+	public void saveToArchiveFile(File archiveFile) throws IOException {
+		if (archiveFile.exists()) {
+			MiscUtils.delete(archiveFile);
+		}
+		URI uri = URI.create("jar:" + archiveFile.toURI());
+		try (FileSystem zipFs = FileSystems.newFileSystem(uri, Collections.singletonMap("create", "true"))) {
+			save(zipFs.getPath("/"));
 		}
 	}
 
@@ -121,37 +155,42 @@ public class Solution {
 			MiscUtils.delete(directory);
 		}
 		MiscUtils.createDirectory(directory);
-		try (FileOutputStream fileOutputStream = new FileOutputStream(
-				new File(directory, "." + environmentSettings.getClass().getSimpleName().toLowerCase()
-						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX))) {
-			MiscUtils.serialize(environmentSettings, fileOutputStream);
-		}
-		saveFolder(directory, rootFolder);
+		save(directory.toPath());
 	}
 
-	private void saveFolder(File parentDirectory, Folder folder) throws IOException {
-		File folderDirectory = new File(parentDirectory, folder.getName());
-		MiscUtils.createDirectory(folderDirectory);
-		for (Asset asset : folder.getContents()) {
-			saveAsset(folderDirectory, asset);
+	private void save(Path rootPath) throws IOException {
+		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
+			MiscUtils.serialize(environmentSettings, fileOutputStream);
+			Files.write(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
+					+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX), fileOutputStream.toByteArray());
 		}
-		try (FileOutputStream fileOutputStream = new FileOutputStream(
-				new File(folderDirectory, SORTED_NAMES_FILE_NAME))) {
+		saveFolder(rootPath, rootFolder);
+	}
+
+	private void saveFolder(Path parentPath, Folder folder) throws IOException {
+		Path folderPath = parentPath.resolve(folder.getName());
+		Files.createDirectories(folderPath);
+		for (Asset asset : folder.getContents()) {
+			saveAsset(folderPath, asset);
+		}
+		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
+			Files.write(folderPath.resolve(SORTED_NAMES_FILE_NAME), fileOutputStream.toByteArray());
 			List<String> sortedNames = folder.getContents().stream().map(asset -> asset.getName())
 					.collect(Collectors.toList());
 			MiscUtils.serialize(sortedNames, fileOutputStream);
 		}
 	}
 
-	private void saveAsset(File parentDirectory, Asset asset) throws IOException {
+	private void saveAsset(Path parentPath, Asset asset) throws IOException {
 		if (asset instanceof Folder) {
-			saveFolder(parentDirectory, (Folder) asset);
+			saveFolder(parentPath, (Folder) asset);
 		} else {
-			File assetFile = new File(parentDirectory, asset.getFileSystemResourceName());
-			if (assetFile.exists()) {
-				throw new PotentialError("Duplicate file detected while saving: " + assetFile);
+			Path assetPath = parentPath.resolve(asset.getFileSystemResourceName());
+			if (Files.exists(assetPath)) {
+				throw new PotentialError("Duplicate file detected while saving: " + assetPath);
 			}
-			try (FileOutputStream fileOutputStream = new FileOutputStream(assetFile)) {
+			try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
+				Files.write(assetPath, fileOutputStream.toByteArray());
 				MiscUtils.serialize(asset, fileOutputStream);
 			}
 		}
