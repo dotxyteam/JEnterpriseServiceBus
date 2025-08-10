@@ -2,17 +2,17 @@
   <environmentVariableTreeElements>
     <com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
       <name>var</name>
-      <valueString class="null"/>
+      <valueString>var value</valueString>
     </com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
     <com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
       <elements>
         <com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
           <name>var</name>
-          <valueString class="null"/>
+          <valueString>var value</valueString>
         </com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
         <com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
           <elements/>
-          <name>group2</name>
+          <name>group</name>
         </com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
       </elements>
       <name>group</name>

@@ -24,10 +24,12 @@
 - Limit console size
 - create a basic WSDL generator
 - allow to view APIs (SOAP/REST) documentation
+- allow to have encrypted (password) environment settings
 - manage JDBC connection pools
 - need to generate OperationOutput class for web services ???
 - add basic HTTP operation/activators 
 - add a static test that checks that most values are Variant
+- allow to share assets between solutions
 - allow to deploy and execute a project outside of the designer in a production environment
 - keyboard shortcuts for common actions (delete, copy/cut/paste, ...)
 - allow to have a feedback of current validation job in progress

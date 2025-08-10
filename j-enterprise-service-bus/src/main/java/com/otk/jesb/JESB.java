@@ -1,7 +1,18 @@
 package com.otk.jesb;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+
 import javax.swing.SwingUtilities;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
 
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
@@ -25,17 +36,44 @@ public class JESB {
 	private static final boolean RUNNER_LOG_VERBOSE = Boolean.valueOf(
 			System.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
 
+	public static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
+	public static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
+
 	public static void main(String[] args) throws Exception {
-		String RUNNER_SWITCH_ARGUMENT = "--run-solution";
-		if ((args.length == 2) && args[0].equals(RUNNER_SWITCH_ARGUMENT)) {
-			File fileOrFolder = new File(args[1]);
+		Options options = new Options();
+		options.addOption(Option.builder().longOpt(RUNNER_SWITCH_ARGUMENT).desc("Only execute the solution").get());
+		options.addOption(Option.builder().longOpt(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT).hasArg()
+				.argName("ENVIRONMENT_SETTINGS_FILE_PATH").desc("Specify the solution environment settings file")
+				.get());
+		CommandLine commandLine = null;
+		try {
+			CommandLineParser CommandLineParser = new DefaultParser();
+			commandLine = CommandLineParser.parse(options, args);
+		} catch (ParseException e) {
+			throw newIllegalArgumentException(e, args, options);
+		}
+		String[] remainingArgs = commandLine.getArgs();
+		File fileOrFolder;
+		if (remainingArgs.length == 1) {
+			fileOrFolder = new File(remainingArgs[0]);
 			if (fileOrFolder.isDirectory()) {
 				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
 			} else if (fileOrFolder.isFile()) {
 				Solution.INSTANCE.loadFromArchiveFile(fileOrFolder);
 			} else {
-				throw new IllegalArgumentException(
-						"Invalid solution directory or archive file: '" + fileOrFolder + "'");
+				throw newIllegalArgumentException(
+						new IOException("Invalid solution directory or archive file: '" + fileOrFolder + "'"), args,
+						options);
+			}
+		} else if (remainingArgs.length == 0) {
+			fileOrFolder = null;
+		} else {
+			throw newIllegalArgumentException(null, args, options);
+		}
+		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
+			if (fileOrFolder == null) {
+				throw newIllegalArgumentException(new Exception("Missing <DIRECTORY_PATH> or <ARCHIVE_FILE_PATH>"),
+						args, options);
 			}
 			LogManager logManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
 			System.setOut(logManager.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
@@ -43,17 +81,19 @@ public class JESB {
 			System.setErr(logManager.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
 					() -> RUNNER_LOG_VERBOSE));
 			System.out.println("Starting up...");
+			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
+				Solution.INSTANCE.getEnvironmentSettings()
+						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
+			}
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
 			Runner runner = new Runner(Solution.INSTANCE, logManager);
 			runner.activatePlans();
-		} else if (args.length <= 1) {
+		} else {
 			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
 			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
-			if (args.length == 1) {
-				Solution.INSTANCE.loadFromDirectory(new File(args[0]));
-			} else {
+			if (fileOrFolder == null) {
 				if (DEBUG) {
 					setupSampleSolution();
 				}
@@ -64,10 +104,15 @@ public class JESB {
 					GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
 				}
 			});
-		} else {
-			throw new IllegalArgumentException(
-					"Expected: [" + RUNNER_SWITCH_ARGUMENT + "] [DIRECTORY_PATH | ARCHIVE_FILE_PATH]");
 		}
+
+	}
+
+	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {
+		HelpFormatter helpFormatter = HelpFormatter.builder().get();
+		return new IllegalArgumentException("Found: " + Arrays.toString(args) + ".\n"
+				+ "Expected: [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] " + helpFormatter.toSyntaxOptions(options) + "]",
+				e);
 	}
 
 	private static void setupSampleSolution() {

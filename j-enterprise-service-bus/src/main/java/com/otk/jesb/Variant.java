@@ -37,6 +37,13 @@ public class Variant<T> {
 			String valueString = ((Expression<String>) value).evaluate(
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT));
+			if (valueString == null) {
+				if (valueClass.isPrimitive()) {
+					throw new PotentialError("Unexpected <null> environment variable value. <" + valueClass.getName()
+							+ "> value expected from: " + ((Expression<String>) value).get());
+				}
+				return null;
+			}
 			if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {
 				return valueClass.cast(ReflectionUIUtils.primitiveFromString(valueString, valueClass));
 			} else if (valueClass == String.class) {
