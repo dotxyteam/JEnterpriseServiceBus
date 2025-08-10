@@ -37,14 +37,14 @@ public class JESB {
 				throw new IllegalArgumentException(
 						"Invalid solution directory or archive file: '" + fileOrFolder + "'");
 			}
-			LogManager log = new LogManager(new File(fileOrFolder.getName() + ".log"));
-			System.setOut(log.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
+			LogManager logManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
+			System.setOut(logManager.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
 					() -> RUNNER_LOG_VERBOSE));
-			System.setErr(log.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
+			System.setErr(logManager.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
 					() -> RUNNER_LOG_VERBOSE));
 			System.out.println("Starting up...");
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
-			Runner runner = new Runner(Solution.INSTANCE, log);
+			Runner runner = new Runner(Solution.INSTANCE, logManager);
 			runner.activatePlans();
 		} else if (args.length <= 1) {
 			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",

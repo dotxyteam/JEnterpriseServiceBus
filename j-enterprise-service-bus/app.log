@@ -1,0 +1,185 @@
+2025-08-10 10:32:25,104 [main] DEBUG Starting up...
+2025-08-10 10:32:40,151 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generating with dryRun=false
+2025-08-10 10:32:40,158 [main] DEBUG [main] INFO org.openapitools.codegen.ignore.CodegenIgnoreProcessor - No .openapi-generator-ignore file found.
+2025-08-10 10:32:40,158 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - OpenAPI Generator: java (client)
+2025-08-10 10:32:40,158 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generator 'java' is considered stable.
+2025-08-10 10:32:40,158 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Environment variable JAVA_POST_PROCESS_FILE not defined so the Java code may not be properly formatted. To define it, try 'export JAVA_POST_PROCESS_FILE="/usr/local/bin/clang-format -i"' (Linux/Mac)
+2025-08-10 10:32:40,159 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).
+2025-08-10 10:32:40,160 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Invoker Package Name, originally not set, is now derived from api package name: a7374617274com.otk.jesb.resource.builtin.openapidescription0014643619325653373232363299448451919059z656e64
+2025-08-10 10:32:40,226 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation listPets
+2025-08-10 10:32:40,232 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation createPets
+2025-08-10 10:32:40,234 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation showPetById
+2025-08-10 10:32:40,632 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Model Pets not generated since it's an alias to array (without property) and `generateAliasAsModel` is set to false (default)
+2025-08-10 10:32:40,849 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/Error.java
+2025-08-10 10:32:40,858 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/ErrorTest.java
+2025-08-10 10:32:40,865 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/docs/Error.md
+2025-08-10 10:32:40,951 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/Pet.java
+2025-08-10 10:32:40,972 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/PetTest.java
+2025-08-10 10:32:40,983 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/docs/Pet.md
+2025-08-10 10:32:41,153 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/PetsApi.java
+2025-08-10 10:32:41,158 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/client/PetsApiTest.java
+2025-08-10 10:32:41,167 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/docs/PetsApi.md
+2025-08-10 10:32:41,320 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/pom.xml
+2025-08-10 10:32:41,327 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/README.md
+2025-08-10 10:32:41,329 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/build.gradle
+2025-08-10 10:32:41,331 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/build.sbt
+2025-08-10 10:32:41,334 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/settings.gradle
+2025-08-10 10:32:41,337 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/gradle.properties
+2025-08-10 10:32:41,340 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/AndroidManifest.xml
+2025-08-10 10:32:41,343 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.travis.yml
+2025-08-10 10:32:41,352 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/ApiClient.java
+2025-08-10 10:32:41,355 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/ServerConfiguration.java
+2025-08-10 10:32:41,358 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/ServerVariable.java
+2025-08-10 10:32:41,361 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.github/workflows/maven.yml
+2025-08-10 10:32:41,365 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/api/openapi.yaml
+2025-08-10 10:32:41,395 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/JavaTimeFormatter.java
+2025-08-10 10:32:41,400 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/auth/HttpBasicAuth.java
+2025-08-10 10:32:41,405 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/auth/HttpBearerAuth.java
+2025-08-10 10:32:41,409 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/auth/ApiKeyAuth.java
+2025-08-10 10:32:41,413 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/gradlew
+2025-08-10 10:32:41,416 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/gradlew.bat
+2025-08-10 10:32:41,420 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/gradle/wrapper/gradle-wrapper.properties
+2025-08-10 10:32:41,437 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/gradle/wrapper/gradle-wrapper.jar
+2025-08-10 10:32:41,441 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/git_push.sh
+2025-08-10 10:32:41,461 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.gitignore
+2025-08-10 10:32:41,467 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/auth/Authentication.java
+2025-08-10 10:32:41,471 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/RFC3339DateFormat.java
+2025-08-10 10:32:41,474 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator-ignore
+2025-08-10 10:32:41,475 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator/VERSION
+2025-08-10 10:32:41,500 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator/FILES
+2025-08-10 10:32:41,500 [main] DEBUG ################################################################################
+2025-08-10 10:32:41,501 [main] DEBUG # Thanks for using OpenAPI Generator.                                          #
+2025-08-10 10:32:41,501 [main] DEBUG # Please consider donation to help us maintain this project 🙏                 #
+2025-08-10 10:32:41,501 [main] DEBUG # https://opencollective.com/openapi_generator/donate                          #
+2025-08-10 10:32:41,501 [main] DEBUG ################################################################################
+2025-08-10 10:32:41,679 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generating with dryRun=false
+2025-08-10 10:32:41,700 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - OpenAPI Generator: jaxrs-cxf (server)
+2025-08-10 10:32:41,700 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generator 'jaxrs-cxf' is considered stable.
+2025-08-10 10:32:41,700 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Environment variable JAVA_POST_PROCESS_FILE not defined so the Java code may not be properly formatted. To define it, try 'export JAVA_POST_PROCESS_FILE="/usr/local/bin/clang-format -i"' (Linux/Mac)
+2025-08-10 10:32:41,700 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).
+2025-08-10 10:32:41,701 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Invoker Package Name, originally not set, is now derived from api package name: a7374617274com.otk.jesb.resource.builtin.openapidescription0014643619325653373232363299448451919059z656e64
+2025-08-10 10:32:41,701 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation listPets
+2025-08-10 10:32:41,702 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation createPets
+2025-08-10 10:32:41,702 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation showPetById
+2025-08-10 10:32:41,705 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Model Pets not generated since it's an alias to array (without property) and `generateAliasAsModel` is set to false (default)
+2025-08-10 10:32:41,754 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/service/Error.java
+2025-08-10 10:32:41,811 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/service/Pet.java
+2025-08-10 10:32:41,912 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/service/impl/PetsApiServiceImpl.java
+2025-08-10 10:32:41,955 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/service/PetsApi.java
+2025-08-10 10:32:41,978 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0014643619325653373232363299448451919059z656e64/service/PetsApiTest.java
+2025-08-10 10:32:41,982 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/pom.xml
+2025-08-10 10:32:41,984 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator-ignore
+2025-08-10 10:32:41,985 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - Skipped /tmp/directory-5150598928918664490.tmp/.openapi-generator-ignore (Skipped by supportingFiles options supplied by user.)
+2025-08-10 10:32:41,986 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator/VERSION
+2025-08-10 10:32:41,986 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-5150598928918664490.tmp/.openapi-generator/FILES
+2025-08-10 10:32:41,987 [main] DEBUG ################################################################################
+2025-08-10 10:32:41,987 [main] DEBUG # Thanks for using OpenAPI Generator.                                          #
+2025-08-10 10:32:41,987 [main] DEBUG # Please consider donation to help us maintain this project 🙏                 #
+2025-08-10 10:32:41,987 [main] DEBUG # https://opencollective.com/openapi_generator/donate                          #
+2025-08-10 10:32:41,988 [main] DEBUG ################################################################################
+2025-08-10 10:32:48,939 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generating with dryRun=false
+2025-08-10 10:32:48,940 [main] DEBUG [main] INFO org.openapitools.codegen.ignore.CodegenIgnoreProcessor - No .openapi-generator-ignore file found.
+2025-08-10 10:32:48,940 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - OpenAPI Generator: java (client)
+2025-08-10 10:32:48,940 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generator 'java' is considered stable.
+2025-08-10 10:32:48,940 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Environment variable JAVA_POST_PROCESS_FILE not defined so the Java code may not be properly formatted. To define it, try 'export JAVA_POST_PROCESS_FILE="/usr/local/bin/clang-format -i"' (Linux/Mac)
+2025-08-10 10:32:48,940 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).
+2025-08-10 10:32:48,941 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Invoker Package Name, originally not set, is now derived from api package name: a7374617274com.otk.jesb.resource.builtin.openapidescription0078041735615235895757690673781767970750z656e64
+2025-08-10 10:32:48,945 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:48,947 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:48,947 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:49,023 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/Input.java
+2025-08-10 10:32:49,034 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/InputTest.java
+2025-08-10 10:32:49,048 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/docs/Input.md
+2025-08-10 10:32:49,105 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/Output.java
+2025-08-10 10:32:49,117 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/OutputTest.java
+2025-08-10 10:32:49,130 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/docs/Output.md
+2025-08-10 10:32:49,196 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/Result.java
+2025-08-10 10:32:49,203 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/ResultTest.java
+2025-08-10 10:32:49,215 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/docs/Result.md
+2025-08-10 10:32:49,217 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: get /{a}/{b}/{op}. Renamed to auto-generated operationId: aBOpGet
+2025-08-10 10:32:49,223 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: get /. Renamed to auto-generated operationId: rootGet
+2025-08-10 10:32:49,231 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: post /. Renamed to auto-generated operationId: rootPost
+2025-08-10 10:32:49,252 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/DefaultApi.java
+2025-08-10 10:32:49,256 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/client/DefaultApiTest.java
+2025-08-10 10:32:49,276 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/docs/DefaultApi.md
+2025-08-10 10:32:49,367 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/pom.xml
+2025-08-10 10:32:49,380 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/README.md
+2025-08-10 10:32:49,384 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/build.gradle
+2025-08-10 10:32:49,390 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/build.sbt
+2025-08-10 10:32:49,395 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/settings.gradle
+2025-08-10 10:32:49,397 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/gradle.properties
+2025-08-10 10:32:49,399 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/AndroidManifest.xml
+2025-08-10 10:32:49,401 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.travis.yml
+2025-08-10 10:32:49,406 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/ApiClient.java
+2025-08-10 10:32:49,413 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/ServerConfiguration.java
+2025-08-10 10:32:49,417 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/ServerVariable.java
+2025-08-10 10:32:49,420 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.github/workflows/maven.yml
+2025-08-10 10:32:49,426 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/api/openapi.yaml
+2025-08-10 10:32:49,432 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/JavaTimeFormatter.java
+2025-08-10 10:32:49,436 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/auth/HttpBasicAuth.java
+2025-08-10 10:32:49,438 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/auth/HttpBearerAuth.java
+2025-08-10 10:32:49,445 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/auth/ApiKeyAuth.java
+2025-08-10 10:32:49,451 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/gradlew
+2025-08-10 10:32:49,458 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/gradlew.bat
+2025-08-10 10:32:49,462 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/gradle/wrapper/gradle-wrapper.properties
+2025-08-10 10:32:49,465 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/gradle/wrapper/gradle-wrapper.jar
+2025-08-10 10:32:49,468 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/git_push.sh
+2025-08-10 10:32:49,471 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.gitignore
+2025-08-10 10:32:49,472 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/auth/Authentication.java
+2025-08-10 10:32:49,483 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/RFC3339DateFormat.java
+2025-08-10 10:32:49,489 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator-ignore
+2025-08-10 10:32:49,490 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator/VERSION
+2025-08-10 10:32:49,492 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator/FILES
+2025-08-10 10:32:49,493 [main] DEBUG ################################################################################
+2025-08-10 10:32:49,493 [main] DEBUG # Thanks for using OpenAPI Generator.                                          #
+2025-08-10 10:32:49,493 [main] DEBUG # Please consider donation to help us maintain this project 🙏                 #
+2025-08-10 10:32:49,494 [main] DEBUG # https://opencollective.com/openapi_generator/donate                          #
+2025-08-10 10:32:49,494 [main] DEBUG ################################################################################
+2025-08-10 10:32:49,532 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generating with dryRun=false
+2025-08-10 10:32:49,532 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - OpenAPI Generator: jaxrs-cxf (server)
+2025-08-10 10:32:49,533 [main] DEBUG [main] INFO org.openapitools.codegen.DefaultGenerator - Generator 'jaxrs-cxf' is considered stable.
+2025-08-10 10:32:49,533 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Environment variable JAVA_POST_PROCESS_FILE not defined so the Java code may not be properly formatted. To define it, try 'export JAVA_POST_PROCESS_FILE="/usr/local/bin/clang-format -i"' (Linux/Mac)
+2025-08-10 10:32:49,533 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).
+2025-08-10 10:32:49,533 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Invoker Package Name, originally not set, is now derived from api package name: a7374617274com.otk.jesb.resource.builtin.openapidescription0078041735615235895757690673781767970750z656e64
+2025-08-10 10:32:49,533 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:49,534 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:49,534 [main] DEBUG [main] INFO org.openapitools.codegen.languages.AbstractJavaCodegen - Processing operation null
+2025-08-10 10:32:49,564 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/Input.java
+2025-08-10 10:32:49,589 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/Output.java
+2025-08-10 10:32:49,614 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/Result.java
+2025-08-10 10:32:49,616 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: get /{a}/{b}/{op}. Renamed to auto-generated operationId: aBOpGet
+2025-08-10 10:32:49,629 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: get /. Renamed to auto-generated operationId: rootGet
+2025-08-10 10:32:49,632 [main] DEBUG [main] WARN org.openapitools.codegen.DefaultCodegen - Empty operationId found for path: post /. Renamed to auto-generated operationId: rootPost
+2025-08-10 10:32:49,651 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/main/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/impl/DefaultApiServiceImpl.java
+2025-08-10 10:32:49,691 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/gen/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/DefaultApi.java
+2025-08-10 10:32:49,699 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/src/test/java/a7374617274com/otk/jesb/resource/builtin/openapidescription0078041735615235895757690673781767970750z656e64/service/DefaultApiTest.java
+2025-08-10 10:32:49,702 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/pom.xml
+2025-08-10 10:32:49,703 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator-ignore
+2025-08-10 10:32:49,704 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - Skipped /tmp/directory-3783444302615988329.tmp/.openapi-generator-ignore (Skipped by supportingFiles options supplied by user.)
+2025-08-10 10:32:49,704 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator/VERSION
+2025-08-10 10:32:49,705 [main] DEBUG [main] INFO org.openapitools.codegen.TemplateManager - writing file /tmp/directory-3783444302615988329.tmp/.openapi-generator/FILES
+2025-08-10 10:32:49,705 [main] DEBUG ################################################################################
+2025-08-10 10:32:49,705 [main] DEBUG # Thanks for using OpenAPI Generator.                                          #
+2025-08-10 10:32:49,705 [main] DEBUG # Please consider donation to help us maintain this project 🙏                 #
+2025-08-10 10:32:49,705 [main] DEBUG # https://opencollective.com/openapi_generator/donate                          #
+2025-08-10 10:32:49,705 [main] DEBUG ################################################################################
+2025-08-10 10:32:54,924 [main] DEBUG [main] INFO org.eclipse.jetty.util.log - Logging initialized @52390ms to org.eclipse.jetty.util.log.Slf4jLog
+2025-08-10 10:32:55,465 [main] DEBUG [main] INFO org.eclipse.jetty.server.Server - jetty-9.4.57.v20241219; built: 2025-01-08T21:24:30.412Z; git: df524e6b29271c2e09ba9aea83c18dc9db464a31; jvm 1.8.0_172-b11
+2025-08-10 10:32:56,355 [main] DEBUG [main] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@6a004c5e{/,null,AVAILABLE}
+2025-08-10 10:32:56,397 [main] DEBUG [main] INFO org.eclipse.jetty.server.AbstractConnector - Started ServerConnector@6d153165{HTTP/1.1, (http/1.1)}{localhost:8080}
+2025-08-10 10:32:56,398 [main] DEBUG [main] INFO org.eclipse.jetty.server.Server - Started @53865ms
+2025-08-10 10:32:57,170 [main] DEBUG [main] INFO org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean - Creating Service {http://wsdl0226853051646289406629366744475555296903z656e64.builtin.resource.jesb.otk.a7374617274com/}NumberConversionSoapTypeImplService from class a7374617274com.otk.jesb.resource.builtin.wsdl0226853051646289406629366744475555296903z656e64.NumberConversionSoapType
+2025-08-10 10:32:58,107 [main] DEBUG [main] INFO org.apache.cxf.endpoint.ServerImpl - Setting the server's publish address to be /soap/
+2025-08-10 10:32:58,123 [main] DEBUG Published SOAP service at: http://localhost:8080/soap/
+2025-08-10 10:32:58,123 [main] DEBUG WSDL: http://localhost:8080/soap/?wsdl
+2025-08-10 10:32:59,365 [main] DEBUG [main] INFO org.apache.cxf.endpoint.ServerImpl - Setting the server's publish address to be /rest/
+2025-08-10 10:32:59,742 [main] DEBUG Published REST service at: http://localhost:8080/rest/
+2025-08-10 10:32:59,742 [main] DEBUG OpenAPI Description: http://localhost:8080/rest/openapi.json
+2025-08-10 10:32:59,742 [main] DEBUG Web UI: http://localhost:8080/rest/api-docs
+2025-08-10 10:33:00,466 [main] DEBUG [main] INFO org.apache.cxf.endpoint.ServerImpl - Setting the server's publish address to be /rest2/
+2025-08-10 10:33:00,489 [main] DEBUG Published REST service at: http://localhost:8080/rest2/
+2025-08-10 10:33:00,489 [main] DEBUG OpenAPI Description: http://localhost:8080/rest2/openapi.json
+2025-08-10 10:33:00,489 [main] DEBUG Web UI: http://localhost:8080/rest2/api-docs
+2025-08-10 10:33:12,484 [PlanExecutor [plan=SOAPServiceTest]] INFO  Input=2
+2025-08-10 10:33:17,706 [PlanExecutor [plan=Test]] INFO  The number of rows is input was 2.
+2025-08-10 10:42:46,917 [Thread-1] DEBUG Shutting down...

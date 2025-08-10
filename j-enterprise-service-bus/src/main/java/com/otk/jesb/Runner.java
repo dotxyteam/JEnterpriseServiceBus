@@ -7,11 +7,11 @@ import com.otk.jesb.solution.StepCrossing;
 
 public class Runner extends Debugger {
 
-	private LogManager log;
+	private LogManager logManager;
 
-	public Runner(Solution solution, LogManager log) {
+	public Runner(Solution solution, LogManager logManager) {
 		super(solution);
-		this.log = log;
+		this.logManager = logManager;
 	}
 
 	@Override
@@ -63,17 +63,17 @@ public class Runner extends Debugger {
 
 				@Override
 				public void logInformation(String message) {
-					log.info(message);
+					logManager.info(message);
 				}
 
 				@Override
 				public void logWarning(String message) {
-					log.warn(message);
+					logManager.warn(message);
 				}
 
 				@Override
 				public void logError(String message) {
-					log.error(message);
+					logManager.error(message);
 				}
 
 			};
