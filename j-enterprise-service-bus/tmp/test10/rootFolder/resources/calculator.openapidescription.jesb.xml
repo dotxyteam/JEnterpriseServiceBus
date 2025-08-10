@@ -1,0 +1,279 @@
+<com.otk.jesb.resource.builtin.OpenAPIDescription>
+  <name>calculator</name>
+  <note class="null"/>
+  <text>{
+  &quot;openapi&quot; : &quot;3.0.1&quot;,
+  &quot;info&quot; : {
+    &quot;title&quot; : &quot;SimpleCalc&quot;,
+    &quot;version&quot; : &quot;2016-09-29T20:27:30Z&quot;
+  },
+  &quot;servers&quot; : [ {
+    &quot;url&quot; : &quot;https://t6dve4zn25.execute-api.us-west-2.amazonaws.com/{basePath}&quot;,
+    &quot;variables&quot; : {
+      &quot;basePath&quot; : {
+        &quot;default&quot; : &quot;demo&quot;
+      }
+    }
+  } ],
+  &quot;paths&quot; : {
+    &quot;/{a}/{b}&quot; : {
+      &quot;x-amazon-apigateway-any-method&quot; : {
+        &quot;parameters&quot; : [ {
+          &quot;name&quot; : &quot;a&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }, {
+          &quot;name&quot; : &quot;b&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        } ],
+        &quot;responses&quot; : {
+          &quot;404&quot; : {
+            &quot;description&quot; : &quot;404 response&quot;,
+            &quot;content&quot; : { }
+          }
+        },
+        &quot;x-amazon-apigateway-integration&quot; : {
+          &quot;type&quot; : &quot;mock&quot;,
+          &quot;responses&quot; : {
+            &quot;default&quot; : {
+              &quot;statusCode&quot; : &quot;404&quot;,
+              &quot;responseTemplates&quot; : {
+                &quot;application/json&quot; : &quot;{ \&quot;Message\&quot; : \&quot;Can&apos;t $context.httpMethod $context.resourcePath\&quot; }&quot;
+              }
+            }
+          },
+          &quot;requestTemplates&quot; : {
+            &quot;application/json&quot; : &quot;{\&quot;statusCode\&quot;: 200}&quot;
+          },
+          &quot;passthroughBehavior&quot; : &quot;when_no_match&quot;
+        }
+      }
+    },
+    &quot;/{a}/{b}/{op}&quot; : {
+      &quot;get&quot; : {
+        &quot;parameters&quot; : [ {
+          &quot;name&quot; : &quot;a&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }, {
+          &quot;name&quot; : &quot;b&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }, {
+          &quot;name&quot; : &quot;op&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        } ],
+        &quot;responses&quot; : {
+          &quot;200&quot; : {
+            &quot;description&quot; : &quot;200 response&quot;,
+            &quot;content&quot; : {
+              &quot;application/json&quot; : {
+                &quot;schema&quot; : {
+                  &quot;$ref&quot; : &quot;#/components/schemas/Result&quot;
+                }
+              }
+            }
+          }
+        },
+        &quot;x-amazon-apigateway-integration&quot; : {
+          &quot;type&quot; : &quot;aws&quot;,
+          &quot;httpMethod&quot; : &quot;POST&quot;,
+          &quot;uri&quot; : &quot;arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:111122223333:function:Calc/invocations&quot;,
+          &quot;responses&quot; : {
+            &quot;default&quot; : {
+              &quot;statusCode&quot; : &quot;200&quot;,
+              &quot;responseTemplates&quot; : {
+                &quot;application/json&quot; : &quot;#set($inputRoot = $input.path(&apos;$&apos;))\n{\n  \&quot;input\&quot; : {\n    \&quot;a\&quot; : $inputRoot.a,\n    \&quot;b\&quot; : $inputRoot.b,\n    \&quot;op\&quot; : \&quot;$inputRoot.op\&quot;\n  },\n  \&quot;output\&quot; : {\n    \&quot;c\&quot; : $inputRoot.c\n  }\n}&quot;
+              }
+            }
+          },
+          &quot;requestTemplates&quot; : {
+            &quot;application/json&quot; : &quot;#set($inputRoot = $input.path(&apos;$&apos;))\n{\n  \&quot;a\&quot; : $input.params(&apos;a&apos;),\n  \&quot;b\&quot; : $input.params(&apos;b&apos;),\n  \&quot;op\&quot; : \&quot;$input.params(&apos;op&apos;)\&quot;\n}&quot;
+          },
+          &quot;passthroughBehavior&quot; : &quot;when_no_templates&quot;
+        }
+      }
+    },
+    &quot;/&quot; : {
+      &quot;get&quot; : {
+        &quot;parameters&quot; : [ {
+          &quot;name&quot; : &quot;op&quot;,
+          &quot;in&quot; : &quot;query&quot;,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }, {
+          &quot;name&quot; : &quot;a&quot;,
+          &quot;in&quot; : &quot;query&quot;,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }, {
+          &quot;name&quot; : &quot;b&quot;,
+          &quot;in&quot; : &quot;query&quot;,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        } ],
+        &quot;responses&quot; : {
+          &quot;200&quot; : {
+            &quot;description&quot; : &quot;200 response&quot;,
+            &quot;content&quot; : {
+              &quot;application/json&quot; : {
+                &quot;schema&quot; : {
+                  &quot;$ref&quot; : &quot;#/components/schemas/Result&quot;
+                }
+              }
+            }
+          }
+        },
+        &quot;x-amazon-apigateway-integration&quot; : {
+          &quot;type&quot; : &quot;aws&quot;,
+          &quot;httpMethod&quot; : &quot;POST&quot;,
+          &quot;uri&quot; : &quot;arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:111122223333:function:Calc/invocations&quot;,
+          &quot;responses&quot; : {
+            &quot;default&quot; : {
+              &quot;statusCode&quot; : &quot;200&quot;,
+              &quot;responseTemplates&quot; : {
+                &quot;application/json&quot; : &quot;#set($inputRoot = $input.path(&apos;$&apos;))\n{\n  \&quot;input\&quot; : {\n    \&quot;a\&quot; : $inputRoot.a,\n    \&quot;b\&quot; : $inputRoot.b,\n    \&quot;op\&quot; : \&quot;$inputRoot.op\&quot;\n  },\n  \&quot;output\&quot; : {\n    \&quot;c\&quot; : $inputRoot.c\n  }\n}&quot;
+              }
+            }
+          },
+          &quot;requestTemplates&quot; : {
+            &quot;application/json&quot; : &quot;#set($inputRoot = $input.path(&apos;$&apos;))\n{\n  \&quot;a\&quot; : $input.params(&apos;a&apos;),\n  \&quot;b\&quot; : $input.params(&apos;b&apos;),\n  \&quot;op\&quot; : \&quot;$input.params(&apos;op&apos;)\&quot;\n}&quot;
+          },
+          &quot;passthroughBehavior&quot; : &quot;when_no_templates&quot;
+        }
+      },
+      &quot;post&quot; : {
+        &quot;requestBody&quot; : {
+          &quot;content&quot; : {
+            &quot;application/json&quot; : {
+              &quot;schema&quot; : {
+                &quot;$ref&quot; : &quot;#/components/schemas/Input&quot;
+              }
+            }
+          },
+          &quot;required&quot; : true
+        },
+        &quot;responses&quot; : {
+          &quot;200&quot; : {
+            &quot;description&quot; : &quot;200 response&quot;,
+            &quot;content&quot; : {
+              &quot;application/json&quot; : {
+                &quot;schema&quot; : {
+                  &quot;$ref&quot; : &quot;#/components/schemas/Result&quot;
+                }
+              }
+            }
+          }
+        },
+        &quot;x-amazon-apigateway-integration&quot; : {
+          &quot;type&quot; : &quot;aws&quot;,
+          &quot;httpMethod&quot; : &quot;POST&quot;,
+          &quot;uri&quot; : &quot;arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:111122223333:function:Calc/invocations&quot;,
+          &quot;responses&quot; : {
+            &quot;default&quot; : {
+              &quot;statusCode&quot; : &quot;200&quot;,
+              &quot;responseTemplates&quot; : {
+                &quot;application/json&quot; : &quot;#set($inputRoot = $input.path(&apos;$&apos;))\n{\n  \&quot;input\&quot; : {\n    \&quot;a\&quot; : $inputRoot.a,\n    \&quot;b\&quot; : $inputRoot.b,\n    \&quot;op\&quot; : \&quot;$inputRoot.op\&quot;\n  },\n  \&quot;output\&quot; : {\n    \&quot;c\&quot; : $inputRoot.c\n  }\n}&quot;
+              }
+            }
+          },
+          &quot;passthroughBehavior&quot; : &quot;when_no_match&quot;
+        }
+      }
+    },
+    &quot;/{a}&quot; : {
+      &quot;x-amazon-apigateway-any-method&quot; : {
+        &quot;parameters&quot; : [ {
+          &quot;name&quot; : &quot;a&quot;,
+          &quot;in&quot; : &quot;path&quot;,
+          &quot;required&quot; : true,
+          &quot;schema&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        } ],
+        &quot;responses&quot; : {
+          &quot;404&quot; : {
+            &quot;description&quot; : &quot;404 response&quot;,
+            &quot;content&quot; : { }
+          }
+        },
+        &quot;x-amazon-apigateway-integration&quot; : {
+          &quot;type&quot; : &quot;mock&quot;,
+          &quot;responses&quot; : {
+            &quot;default&quot; : {
+              &quot;statusCode&quot; : &quot;404&quot;,
+              &quot;responseTemplates&quot; : {
+                &quot;application/json&quot; : &quot;{ \&quot;Message\&quot; : \&quot;Can&apos;t $context.httpMethod $context.resourcePath\&quot; }&quot;
+              }
+            }
+          },
+          &quot;requestTemplates&quot; : {
+            &quot;application/json&quot; : &quot;{\&quot;statusCode\&quot;: 200}&quot;
+          },
+          &quot;passthroughBehavior&quot; : &quot;when_no_match&quot;
+        }
+      }
+    }
+  },
+  &quot;components&quot; : {
+    &quot;schemas&quot; : {
+      &quot;Input&quot; : {
+        &quot;title&quot; : &quot;Input&quot;,
+        &quot;type&quot; : &quot;object&quot;,
+        &quot;properties&quot; : {
+          &quot;a&quot; : {
+            &quot;type&quot; : &quot;number&quot;
+          },
+          &quot;b&quot; : {
+            &quot;type&quot; : &quot;number&quot;
+          },
+          &quot;op&quot; : {
+            &quot;type&quot; : &quot;string&quot;
+          }
+        }
+      },
+      &quot;Output&quot; : {
+        &quot;title&quot; : &quot;Output&quot;,
+        &quot;type&quot; : &quot;object&quot;,
+        &quot;properties&quot; : {
+          &quot;c&quot; : {
+            &quot;type&quot; : &quot;number&quot;
+          }
+        }
+      },
+      &quot;Result&quot; : {
+        &quot;title&quot; : &quot;Result&quot;,
+        &quot;type&quot; : &quot;object&quot;,
+        &quot;properties&quot; : {
+          &quot;input&quot; : {
+            &quot;$ref&quot; : &quot;#/components/schemas/Input&quot;
+          },
+          &quot;output&quot; : {
+            &quot;$ref&quot; : &quot;#/components/schemas/Output&quot;
+          }
+        }
+      }
+    }
+  }
+}</text>
+</com.otk.jesb.resource.builtin.OpenAPIDescription>

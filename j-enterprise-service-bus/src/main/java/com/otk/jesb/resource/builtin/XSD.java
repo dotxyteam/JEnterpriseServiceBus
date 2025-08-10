@@ -120,7 +120,7 @@ public class XSD extends XMLBasedDocumentResource {
 					{
 						SimpleElement rootElement = new SimpleElement();
 						rootElement.setName(getName());
-						rootElement.setTypeName(elementClass.getName());
+						rootElement.setTypeNameOrAlias(elementClass.getName());
 						resultStructure.getElements().add(rootElement);
 					}
 					String className = elementClass.getName() + "DocumentObject";

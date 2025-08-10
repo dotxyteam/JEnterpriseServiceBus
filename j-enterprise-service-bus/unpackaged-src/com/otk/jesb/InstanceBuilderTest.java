@@ -35,7 +35,7 @@ public class InstanceBuilderTest {
 		{
 			SimpleElement element = new Structure.SimpleElement();
 			element.setName("tree");
-			element.setTypeName(Tree.class.getName());
+			element.setTypeNameOrAlias(Tree.class.getName());
 			planInputStructure.getElements().add(element);
 			activator.setInputStructure(planInputStructure);
 		}
@@ -45,7 +45,7 @@ public class InstanceBuilderTest {
 		{
 			SimpleElement element = new Structure.SimpleElement();
 			element.setName("tree");
-			element.setTypeName(Tree.class.getName());
+			element.setTypeNameOrAlias(Tree.class.getName());
 			planOutputStructure.getElements().add(element);
 			activator.setOutputStructure(planOutputStructure);
 		}

@@ -453,7 +453,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 												.collect(Collectors.joining(", ")) + ">";
 									}
 								}
-								element.setTypeName(typeName);
+								element.setTypeNameOrAlias(typeName);
 								stucture.getElements().add(element);
 							}
 							StringBuilder additionalMethodDeclarations = new StringBuilder();
@@ -503,7 +503,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 												.collect(Collectors.joining(", ")) + ">";
 									}
 								}
-								resultElement.setTypeName(typeName);
+								resultElement.setTypeNameOrAlias(typeName);
 								stucture.getElements().add(resultElement);
 							}
 							try {

@@ -15,10 +15,10 @@ import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 
 public class LogManager {
 
-	private static final int LOGGING_HISTORY_DAYS = Integer
-			.valueOf(System.getProperty(LogManager.class.getName() + ".historyDays", "7"));
-	private static final int MAX_LOG_FILE_SIZE_MB = Integer
-			.valueOf(System.getProperty(LogManager.class.getName() + ".maxLogFileSizeMB", "10"));
+	private static final int DEFAULT_LOGGING_HISTORY_DAYS = Integer
+			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultHistoryDays", "7"));
+	private static final int DEFAULT_MAX_LOG_FILE_SIZE_MB = Integer
+			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultMaxLogFileSizeMB", "10"));
 
 	private PrintStream informationStream = interceptPrintStreamData(System.out, Console.INFORMATION_LEVEL_NAME,
 			() -> true);
@@ -28,12 +28,16 @@ public class LogManager {
 	private RollingFileAppender appender;
 
 	public LogManager(File file) {
+		this(file, DEFAULT_MAX_LOG_FILE_SIZE_MB, DEFAULT_LOGGING_HISTORY_DAYS);
+	}
+
+	public LogManager(File file, int maxLogFileSizeMB, int historyDays) {
 		NullConfiguration config = new NullConfiguration();
 		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %-5level %msg%n")
 				.withConfiguration(config).build();
-		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(MAX_LOG_FILE_SIZE_MB + "MB");
-		DefaultRolloverStrategy strategy = DefaultRolloverStrategy.newBuilder()
-				.withMax(Integer.toString(LOGGING_HISTORY_DAYS)).withConfig(config).build();
+		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(maxLogFileSizeMB + "MB");
+		DefaultRolloverStrategy strategy = DefaultRolloverStrategy.newBuilder().withMax(Integer.toString(historyDays))
+				.withConfig(config).build();
 		appender = RollingFileAppender.newBuilder().setName("StandaloneRolling").withFileName(file.getPath())
 				.withFilePattern(file.getPath() + "-%d{yyyy-MM-dd}-%i.zip").withPolicy(policy).withStrategy(strategy)
 				.setLayout(layout).setConfiguration(config).build();

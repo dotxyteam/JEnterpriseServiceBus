@@ -1,6 +1,5 @@
 package com.otk.jesb;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,19 +47,20 @@ public abstract class Structure {
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
-			result.append("public class " + MiscUtils.extractSimpleNameFromClassName(className)
+			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
+			result.append("public class " + classSimpleName
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
-			result.append(MiscUtils.stringJoin(elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode())
-					.collect(Collectors.toList()), "\n") + "\n");
-			result.append(
-					"public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
-							+ MiscUtils.stringJoin(elements.stream()
-									.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode())
-									.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
-							+ "){" + "\n");
+			result.append(MiscUtils.stringJoin(elements.stream()
+					.map((e) -> e.generateJavaFieldDeclarationSourceCode(className)).collect(Collectors.toList()), "\n")
+					+ "\n");
+			result.append("public " + classSimpleName + "("
+					+ MiscUtils.stringJoin(elements.stream()
+							.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className))
+							.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
+					+ "){" + "\n");
 			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode()))
+					elements.stream().map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className)))
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
 			result.append("}" + "\n");
@@ -69,13 +69,14 @@ public abstract class Structure {
 			}
 			result.append("@Override\n");
 			result.append("public String toString() {\n");
-			result.append("return \"" + MiscUtils.extractSimpleNameFromClassName(className) + " [" + elements.stream()
+			result.append("return \"" + classSimpleName + " [" + elements.stream()
 					.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
 					+ "]\";\n");
 			result.append("}\n");
-			result.append(
-					MiscUtils.stringJoin(elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode())
-							.filter(Objects::nonNull).collect(Collectors.toList()), "\n") + "\n");
+			result.append(MiscUtils
+					.stringJoin(elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className))
+							.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
+					+ "\n");
 			result.append("}");
 			return result.toString();
 		}
@@ -286,9 +287,9 @@ public abstract class Structure {
 		private Optionality optionality;
 		private boolean multiple = false;
 
-		protected abstract String getTypeName();
+		protected abstract String getTypeName(String parentClassName);
 
-		protected abstract String generateRequiredInnerJavaTypesSourceCode();
+		protected abstract String generateRequiredInnerJavaTypesSourceCode(String parentClassName);
 
 		public String getName() {
 			return name;
@@ -314,20 +315,20 @@ public abstract class Structure {
 			this.multiple = multiple;
 		}
 
-		private String getFinalTypeNameAdaptedToSourceCode() {
+		private String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
 			if (multiple) {
-				return MiscUtils.adaptClassNameToSourceCode(getTypeName()) + "[]";
+				return MiscUtils.adaptClassNameToSourceCode(getTypeName(parentClassName)) + "[]";
 			} else {
-				return MiscUtils.adaptClassNameToSourceCode(getTypeName());
+				return MiscUtils.adaptClassNameToSourceCode(getTypeName(parentClassName));
 			}
 		}
 
-		protected String generateJavaFieldDeclarationSourceCode() {
+		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
 			String result = "public ";
 			if (getOptionality() == null) {
 				result += "final ";
 			}
-			result += getFinalTypeNameAdaptedToSourceCode() + " " + getName();
+			result += getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + getName();
 			if ((getOptionality() != null) && (getOptionality().getDefaultValueExpression() != null)) {
 				result += "=" + getOptionality().getDefaultValueExpression();
 			}
@@ -335,14 +336,14 @@ public abstract class Structure {
 			return result;
 		}
 
-		protected String generateJavaConstructorParameterDeclarationSourceCode() {
+		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName) {
 			if (getOptionality() != null) {
 				return null;
 			}
-			return getFinalTypeNameAdaptedToSourceCode() + " " + getName();
+			return getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + getName();
 		}
 
-		protected String generateJavaFieldInitializationInConstructorSourceCode() {
+		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName) {
 			if (getOptionality() != null) {
 				return null;
 			}
@@ -401,17 +402,9 @@ public abstract class Structure {
 			this.typeNameOrAlias = typeNameOrAlias;
 		}
 
-		@Transient
 		@Override
-		public String getTypeName() {
+		public String getTypeName(String parentClassName) {
 			return TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias);
-		}
-
-		public void setTypeName(String typeName) {
-			if (TYPE_NAME_BY_ALIAS.containsValue(typeName)) {
-				typeName = MiscUtils.getFirstKeyFromValue(TYPE_NAME_BY_ALIAS, typeName);
-			}
-			this.typeNameOrAlias = typeName;
 		}
 
 		public List<String> getTypeNameOrAliasOptions() {
@@ -426,7 +419,7 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateRequiredInnerJavaTypesSourceCode() {
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
 			return null;
 		}
 
@@ -445,24 +438,31 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateRequiredInnerJavaTypesSourceCode() {
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
 			if (structure instanceof SharedStructureReference) {
 				return "";
 			}
-			return "static " + structure.generateJavaTypeSourceCode(getStructuredClassName());
+			return "static " + structure.generateJavaTypeSourceCode(getStructuredClassName(parentClassName));
 		}
 
 		@Override
-		protected String getTypeName() {
-			return getStructuredClassName();
+		protected String getTypeName(String parentClassName) {
+			return getStructuredClassName(parentClassName);
 		}
 
-		private String getStructuredClassName() {
+		private String getStructuredClassName(String parentClassName) {
 			if (structure instanceof SharedStructureReference) {
 				Class<?> structuredClass = ((SharedStructureReference) structure).getStructuredClass();
 				return structuredClass.getName();
 			}
-			return getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
+			boolean parentClassInner = !MiscUtils.isPackageNameInClassName(parentClassName);
+			/*
+			 * The Java language requires nested classes to have a name different from that
+			 * of all enclosing classes, regardless of the depth of the nesting. This code
+			 * detects nesting and adds a prefix to comply with this constraint.
+			 */
+			String prefix = (parentClassInner ? parentClassName : "");
+			return prefix + getName().substring(0, 1).toUpperCase() + getName().substring(1) + "Structure";
 		}
 
 		public List<Element> getSubElements() {

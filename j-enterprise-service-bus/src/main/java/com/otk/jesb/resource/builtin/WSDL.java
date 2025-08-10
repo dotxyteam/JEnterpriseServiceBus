@@ -135,7 +135,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							for (Parameter parameter : operationMethod.getParameters()) {
 								SimpleElement element = new SimpleElement();
 								element.setName(parameter.getName());
-								element.setTypeName(parameter.getType().getName());
+								element.setTypeNameOrAlias(parameter.getType().getName());
 								stucture.getElements().add(element);
 							}
 							StringBuilder additionalMethodDeclarations = new StringBuilder();
@@ -175,7 +175,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							{
 								SimpleElement resultElement = new SimpleElement();
 								resultElement.setName("result");
-								resultElement.setTypeName(operationMethod.getReturnType().getName());
+								resultElement.setTypeNameOrAlias(operationMethod.getReturnType().getName());
 								stucture.getElements().add(resultElement);
 							}
 							try {

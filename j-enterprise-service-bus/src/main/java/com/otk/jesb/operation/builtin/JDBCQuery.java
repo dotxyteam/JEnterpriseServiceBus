@@ -211,7 +211,7 @@ public class JDBCQuery extends JDBCOperation {
 					SimpleElement columnElement = new SimpleElement();
 					rowStructure.getElements().add(columnElement);
 					columnElement.setName(columnDefinition.getColumnName());
-					columnElement.setTypeName(columnDefinition.getColumnTypeName());
+					columnElement.setTypeNameOrAlias(columnDefinition.getColumnTypeName());
 				}
 			}
 			return rowStructure;

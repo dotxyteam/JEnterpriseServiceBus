@@ -194,7 +194,7 @@ public class Evaluate implements Operation {
 
 			@Override
 			public Class<?> obtainClass() {
-				return TypeInfoProvider.getClass(internalElement.getTypeName());
+				return TypeInfoProvider.getClass(internalElement.getTypeName(null));
 			}
 
 			public void validate(boolean recursively) throws ValidationError {

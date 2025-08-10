@@ -110,7 +110,7 @@ public class EnvironmentSettings {
 		if (element instanceof EnvironmentVariable) {
 			SimpleElement result = new SimpleElement();
 			result.setName(element.getName());
-			result.setTypeName(String.class.getName());
+			result.setTypeNameOrAlias(String.class.getName());
 			return result;
 		} else if (element instanceof EnvironmentVariableGroup) {
 			StructuredElement result = new StructuredElement();
