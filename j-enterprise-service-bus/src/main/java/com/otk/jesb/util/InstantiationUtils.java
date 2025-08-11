@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,17 +37,16 @@ import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 
-import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
-import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
-import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.Pair;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class InstantiationUtils {
@@ -58,22 +58,23 @@ public class InstantiationUtils {
 			".*(" + RELATIVE_TYPE_NAME_VARIABLE_PART_START + ".+" + RELATIVE_TYPE_NAME_VARIABLE_PART_END + ").*");
 
 	public static Object cloneInitializer(Object initializer) {
-		ReflectionUI cloningReflection = new ReflectionUI() {
-			@Override
-			public ITypeInfo getTypeInfo(ITypeInfoSource typeInfoSource) {
-				return new InfoProxyFactory() {
-					@Override
-					protected boolean isImmutable(ITypeInfo type) {
-						Class<?> objectClass = TypeInfoProvider.getClass(type.getName());
-						if (Accessor.class.isAssignableFrom(objectClass)) {
-							return true;
-						}
-						return super.isImmutable(type);
-					}
-				}.wrapTypeInfo(super.getTypeInfo(typeInfoSource));
+		Function<Pair<ITypeInfo, IFieldInfo>, Function<Object, Object>> customCopierByContext = context -> {
+			ITypeInfo objectType = context.getFirst();
+			IFieldInfo field = context.getSecond();
+			Class<?> objectClass = TypeInfoProvider.getClass(objectType.getName());
+			if (InstanceBuilder.class.isAssignableFrom(objectClass)) {
+				if (field.getName().equals("dynamicTypeNameAccessor")) {
+					return Function.identity();
+				}
 			}
+			if (RootInstanceBuilder.class.isAssignableFrom(objectClass)) {
+				if (field.getName().equals("rootInstanceDynamicTypeNameAccessor")) {
+					return Function.identity();
+				}
+			}
+			return null;
 		};
-		return ReflectionUIUtils.copyAccordingInfos(cloningReflection, initializer);
+		return ReflectionUIUtils.copyAccordingInfos(TypeInfoProvider.INTROSPECTOR, initializer, customCopierByContext);
 	}
 
 	public static Object executeFunction(InstantiationFunction function, InstantiationContext instantiationContext)
