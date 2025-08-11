@@ -36,12 +36,15 @@ import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 
+import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -53,6 +56,25 @@ public class InstantiationUtils {
 	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_END = "z656e64";
 	private static final Pattern RELATIVE_TYPE_NAME_PATTERN = Pattern.compile(
 			".*(" + RELATIVE_TYPE_NAME_VARIABLE_PART_START + ".+" + RELATIVE_TYPE_NAME_VARIABLE_PART_END + ").*");
+
+	public static Object cloneInitializer(Object initializer) {
+		ReflectionUI cloningReflection = new ReflectionUI() {
+			@Override
+			public ITypeInfo getTypeInfo(ITypeInfoSource typeInfoSource) {
+				return new InfoProxyFactory() {
+					@Override
+					protected boolean isImmutable(ITypeInfo type) {
+						Class<?> objectClass = TypeInfoProvider.getClass(type.getName());
+						if (Accessor.class.isAssignableFrom(objectClass)) {
+							return true;
+						}
+						return super.isImmutable(type);
+					}
+				}.wrapTypeInfo(super.getTypeInfo(typeInfoSource));
+			}
+		};
+		return ReflectionUIUtils.copyAccordingInfos(cloningReflection, initializer);
+	}
 
 	public static Object executeFunction(InstantiationFunction function, InstantiationContext instantiationContext)
 			throws FunctionCallError {

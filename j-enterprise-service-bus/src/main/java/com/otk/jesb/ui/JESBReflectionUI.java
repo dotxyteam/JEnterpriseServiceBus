@@ -1,8 +1,5 @@
 package com.otk.jesb.ui;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +90,7 @@ import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.ui.diagram.DragIntent;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 
@@ -160,7 +158,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	private static final String CURRENT_ACTIVATOR_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_ACTIVATOR_KEY";
 
-	private static WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream> rootInitializerStoreByBuilder = new WeakHashMap<RootInstanceBuilder, ByteArrayOutputStream>();
+	private static WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 
 	private Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
@@ -226,7 +224,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					if ((peeked = stack.peek()) != object) {
 						if (Preferences.INSTANCE.isLogVerbose()) {
 							new UnexpectedError("The user interface may become instable because " + object
-									+ " was abnormally hidden before " + peeked).printStackTrace();;
+									+ " was abnormally hidden before " + peeked).printStackTrace();
+							;
 						}
 					}
 					if (!stack.remove(object)) {
@@ -261,37 +260,25 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
-		ByteArrayOutputStream rootInitializerStore;
+		Object rootInitializerBackup;
 		if (rootInitializer != null) {
-			rootInitializerStore = new ByteArrayOutputStream();
-			try {
-				MiscUtils.serialize(rootInitializer, rootInitializerStore);
-			} catch (IOException e) {
-				throw new UnexpectedError(e);
-			}
+			rootInitializerBackup = InstantiationUtils.cloneInitializer(rootInitializer);
 		} else {
-			rootInitializerStore = null;
+			rootInitializerBackup = null;
 		}
-		rootInitializerStoreByBuilder.put(rootInstanceBuilder, rootInitializerStore);
+		rootInitializerBackupByBuilder.put(rootInstanceBuilder, rootInitializerBackup);
 	}
 
 	public static Runnable getRootInstanceBuilderStateRestorationJob(RootInstanceBuilder rootInstanceBuilder) {
-		if (!rootInitializerStoreByBuilder.containsKey(rootInstanceBuilder)) {
+		if (!rootInitializerBackupByBuilder.containsKey(rootInstanceBuilder)) {
 			throw new UnexpectedError();
 		}
-		final ByteArrayOutputStream rootInitializerStore = rootInitializerStoreByBuilder.get(rootInstanceBuilder);
+		final Object rootInitializerBackup = rootInitializerBackupByBuilder.get(rootInstanceBuilder);
 		return new Runnable() {
 			@Override
 			public void run() {
-				Object rootInitializerCopy;
-				try {
-					rootInitializerCopy = (rootInitializerStore == null) ? null
-							: MiscUtils.deserialize(new ByteArrayInputStream(rootInitializerStore.toByteArray()));
-				} catch (IOException e) {
-					throw new UnexpectedError(e);
-				}
-				rootInstanceBuilder
-						.setRootInitializer((rootInitializerCopy == null) ? null : MiscUtils.copy(rootInitializerCopy));
+				rootInstanceBuilder.setRootInitializer((rootInitializerBackup == null) ? null
+						: InstantiationUtils.cloneInitializer(rootInitializerBackup));
 			}
 		};
 	}
