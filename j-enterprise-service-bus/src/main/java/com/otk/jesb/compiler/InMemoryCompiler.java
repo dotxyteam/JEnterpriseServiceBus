@@ -35,18 +35,37 @@ import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryCompiler {
 
+	private static final Class<?> CLASS_NOT_FOUND = (new Object() {
+		@Override
+		public String toString() {
+			return "CLASS_NOT_FOUND";
+		}
+	}).getClass();
+
 	private final Map<ClassIdentifier, byte[]> classes = new HashMap<>();
 	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
-
 	private Iterable<String> options;
-	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader(
+			InMemoryCompiler.class.getClassLoader());
 	private final Object compilationMutex = new Object();
 	private final Object classResourcesMutex = new Object();
+	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
 
-	public ClassLoader getClassLoader() {
+	public ClassLoader getCompiledClassesLoader() {
 		return compositeClassLoader;
+	}
+
+	public ClassLoader getDefaultClassLoader() {
+		return compositeClassLoader.getDefaultClassLoader();
+	}
+
+	public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
+		compositeClassLoader.setDefaultClassLoader(defaultClassLoader);
+		synchronized (compilationMutex) {
+			classCache.clear();
+		}
 	}
 
 	public Iterable<String> getOptions() {
@@ -55,6 +74,24 @@ public class InMemoryCompiler {
 
 	public void setOptions(Iterable<String> options) {
 		this.options = options;
+	}
+
+	public Class<?> getClassThroughCache(String className) throws ClassNotFoundException {
+		synchronized (compilationMutex) {
+			Class<?> c = classCache.get(className);
+			if (c == null) {
+				try {
+					c = compositeClassLoader.loadClass(className);
+				} catch (ClassNotFoundException e) {
+					c = CLASS_NOT_FOUND;
+				}
+				classCache.put(className, c);
+			}
+			if (c == CLASS_NOT_FOUND) {
+				throw new ClassNotFoundException(className);
+			}
+			return c;
+		}
 	}
 
 	public List<Class<?>> compile(File sourceDirectory) throws CompilationError {
@@ -93,6 +130,7 @@ public class InMemoryCompiler {
 		if (files.isEmpty())
 			throw new CompilationError(-1, -1, "No input files", null, null);
 		try (JavaFileManager manager = createJavaFileManager()) {
+			classCache.clear();
 			DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 			boolean success;
 			CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);

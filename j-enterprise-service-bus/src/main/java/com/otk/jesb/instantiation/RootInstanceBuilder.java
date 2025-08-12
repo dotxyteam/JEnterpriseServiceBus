@@ -6,7 +6,6 @@ import java.util.List;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -118,7 +117,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
 					? rootInstanceDynamicTypeNameAccessor.get()
 					: rootInstanceTypeName;
-			return (actualRootInstanceTypeName == null) ? null : TypeInfoProvider.getClass(actualRootInstanceTypeName);
+			return (actualRootInstanceTypeName == null) ? null : MiscUtils.getJESBClass(actualRootInstanceTypeName);
 		}
 
 		@Override

@@ -1,0 +1,111 @@
+<com.otk.jesb.resource.builtin.HTTPServer>
+  <hostNameVariant>
+    <valueClass>java.lang.String</valueClass>
+    <value class="string">localhost</value>
+  </hostNameVariant>
+  <name>HTTPServer0112435822636074026848962688025404957896</name>
+  <note class="null"/>
+  <portVariant>
+    <valueClass>java.lang.Integer</valueClass>
+    <value class="int">8080</value>
+  </portVariant>
+  <requestHandlers>
+    <com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+      <serviceName>NumberConversionSoapType</serviceName>
+      <servicePathVariant>
+        <valueClass>java.lang.String</valueClass>
+        <value class="string">/soap/</value>
+      </servicePathVariant>
+      <wsdlReference>
+        <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; NumberConversion</path>
+      </wsdlReference>
+    </com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+    <com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+      <openAPIDescriptionReference>
+        <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; petstore</path>
+      </openAPIDescriptionReference>
+      <servicePathVariant>
+        <valueClass>java.lang.String</valueClass>
+        <value class="string">/rest/</value>
+      </servicePathVariant>
+      <webUIEnabledVariant>
+        <valueClass>java.lang.Boolean</valueClass>
+        <value class="boolean">true</value>
+      </webUIEnabledVariant>
+      <webUISupport>
+        <contactEmailVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactEmailVariant>
+        <contactNameVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactNameVariant>
+        <contactUrlVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactUrlVariant>
+        <descriptionVariant>
+          <valueClass>java.lang.String</valueClass>
+        </descriptionVariant>
+        <licenseVariant>
+          <valueClass>java.lang.String</valueClass>
+        </licenseVariant>
+        <termsOfServiceUrlVariant>
+          <valueClass>java.lang.String</valueClass>
+        </termsOfServiceUrlVariant>
+        <titleVariant>
+          <valueClass>java.lang.String</valueClass>
+        </titleVariant>
+        <versionVariant>
+          <valueClass>java.lang.String</valueClass>
+        </versionVariant>
+      </webUISupport>
+    </com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+    <com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+      <openAPIDescriptionReference>
+        <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>resources &gt; calculator</path>
+      </openAPIDescriptionReference>
+      <servicePathVariant>
+        <valueClass>java.lang.String</valueClass>
+        <value class="string">/rest2/</value>
+      </servicePathVariant>
+      <webUIEnabledVariant>
+        <valueClass>java.lang.Boolean</valueClass>
+        <value class="boolean">true</value>
+      </webUIEnabledVariant>
+      <webUISupport>
+        <contactEmailVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactEmailVariant>
+        <contactNameVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactNameVariant>
+        <contactUrlVariant>
+          <valueClass>java.lang.String</valueClass>
+        </contactUrlVariant>
+        <descriptionVariant>
+          <valueClass>java.lang.String</valueClass>
+        </descriptionVariant>
+        <licenseVariant>
+          <valueClass>java.lang.String</valueClass>
+        </licenseVariant>
+        <termsOfServiceUrlVariant>
+          <valueClass>java.lang.String</valueClass>
+        </termsOfServiceUrlVariant>
+        <titleVariant>
+          <valueClass>java.lang.String</valueClass>
+        </titleVariant>
+        <versionVariant>
+          <valueClass>java.lang.String</valueClass>
+        </versionVariant>
+      </webUISupport>
+    </com.otk.jesb.activation.builtin.ReceiveRESTRequest_-RESTRequestHandler>
+  </requestHandlers>
+</com.otk.jesb.resource.builtin.HTTPServer>

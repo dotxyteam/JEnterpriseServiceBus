@@ -1,8 +1,8 @@
 package com.otk.jesb.resource.builtin;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.Driver;
+import java.util.Properties;
 
 import javax.swing.SwingUtilities;
 
@@ -14,7 +14,6 @@ import com.otk.jesb.ui.GUI;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.util.ClassUtils;
 
 public class JDBCConnection extends Resource {
 
@@ -72,23 +71,26 @@ public class JDBCConnection extends Resource {
 		this.passwordVariant = passwordVariant;
 	}
 
-	public String test() throws ClassNotFoundException, SQLException {
-		String driverClassName = getDriverClassNameVariant().getValue();
-		String url = getUrlVariant().getValue();
-		String userName = getUserNameVariant().getValue();
-		String password = getPasswordVariant().getValue();
-		ClassUtils.getCachedClassForName(driverClassName);
-		DriverManager.getConnection(url, userName, password);
+	public String test() throws Exception {
+		build();
 		return "Connection successful!";
 	}
 
-	public Connection build() throws ClassNotFoundException, SQLException {
+	public Connection build() throws Exception {
 		String driverClassName = getDriverClassNameVariant().getValue();
 		String url = getUrlVariant().getValue();
 		String userName = getUserNameVariant().getValue();
 		String password = getPasswordVariant().getValue();
-		ClassUtils.getCachedClassForName(driverClassName);
-		return DriverManager.getConnection(url, userName, password);
+		Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
+		Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
+		Properties properties = new Properties();
+		if (userName != null) {
+			properties.setProperty("user", userName);
+		}
+		if (password != null) {
+			properties.setProperty("password", password);
+		}
+		return driverInstance.connect(url, properties);
 	}
 
 	@Override
@@ -96,8 +98,6 @@ public class JDBCConnection extends Resource {
 		super.validate(recursively);
 		String driverClassName = getDriverClassNameVariant().getValue();
 		String url = getUrlVariant().getValue();
-		String userName = getUserNameVariant().getValue();
-		String password = getPasswordVariant().getValue();
 		if ((driverClassName == null) || (driverClassName.trim().length() == 0)) {
 			throw new ValidationError("Driver class name not provided");
 		}
@@ -105,14 +105,9 @@ public class JDBCConnection extends Resource {
 			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			ClassUtils.getCachedClassForName(driverClassName);
-		} catch (ClassNotFoundException t) {
-			throw new ValidationError("Failed to load the driver class '" + driverClassName + "'", t);
-		}
-		try {
-			DriverManager.getConnection(url, userName, password);
-		} catch (SQLException t) {
-			throw new ValidationError("Failed to create the connection", t);
+			build();
+		} catch (Exception e) {
+			throw new ValidationError("Failed to create the connection", e);
 		}
 	}
 

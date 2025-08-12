@@ -1,6 +1,8 @@
 package com.otk.jesb.operation.builtin;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +22,6 @@ import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -34,10 +35,6 @@ import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.info.method.IMethodInfo;
-import xy.reflect.ui.info.method.InvocationData;
-import xy.reflect.ui.info.parameter.IParameterInfo;
-import xy.reflect.ui.info.type.ITypeInfo;
 
 public class JDBCQuery extends JDBCOperation {
 
@@ -56,30 +53,26 @@ public class JDBCQuery extends JDBCOperation {
 		List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(preparedStatement);
 		if (customResultClass != null) {
 			Class<?> customResultRowClass = customResultClass.getComponentType();
-			ITypeInfo customResultRowTypeInfo = TypeInfoProvider.getTypeInfo(customResultRowClass);
-			IMethodInfo customResultRowConstructorInfo = customResultRowTypeInfo.getConstructors().get(0);
-			List<IParameterInfo> customResultRowConstructorParameterInfos = customResultRowConstructorInfo
-					.getParameters();
-			if (resultColumnDefinitions.size() != customResultRowConstructorParameterInfos.size()) {
+			Constructor<?> customResultRowConstructor = customResultRowClass.getConstructors()[0];
+			Parameter[] customResultRowConstructorParameters = customResultRowConstructor.getParameters();
+			if (resultColumnDefinitions.size() != customResultRowConstructorParameters.length) {
 				throw new ValidationError("Unexpected result row column count: " + resultColumnDefinitions.size()
-						+ ". Expected " + customResultRowConstructorParameterInfos.size() + " column(s).");
+						+ ". Expected " + customResultRowConstructorParameters.length + " column(s).");
 			}
 			List<Object> customResultRowStandardList = new ArrayList<Object>();
 			while (resultSet.next()) {
 				Object[] parameterValues = new Object[resultColumnDefinitions.size()];
 				for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
-					IParameterInfo parameterInfo = customResultRowConstructorParameterInfos.get(iColumn - 1);
+					Parameter parameter = customResultRowConstructorParameters[iColumn - 1];
 					ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);
-					if (!parameterInfo.getName().matches(resultColumnDefinition.getColumnName())) {
+					if (!parameter.getName().matches(resultColumnDefinition.getColumnName())) {
 						throw new ValidationError("Unexpected result row column name: '"
 								+ resultColumnDefinition.getColumnName() + "' at the " + iColumn
-								+ "th position. Expected '" + parameterInfo.getName() + "'");
+								+ "th position. Expected '" + parameter.getName() + "'");
 					}
 					parameterValues[iColumn - 1] = resultSet.getObject(iColumn);
 				}
-				InvocationData invocationData = new InvocationData(null, customResultRowConstructorInfo,
-						parameterValues);
-				Object row = customResultRowConstructorInfo.invoke(null, invocationData);
+				Object row = customResultRowConstructor.newInstance(parameterValues);
 				customResultRowStandardList.add(row);
 			}
 			Object customResult = Array.newInstance(customResultRowClass, customResultRowStandardList.size());
@@ -357,7 +350,7 @@ public class JDBCQuery extends JDBCOperation {
 								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
 			}
 			try {
-				TypeInfoProvider.getClass(columnTypeName);
+				MiscUtils.getJESBClass(columnTypeName);
 			} catch (Throwable t) {
 				throw new ValidationError("Invalid column type name: '" + columnTypeName + "'");
 			}

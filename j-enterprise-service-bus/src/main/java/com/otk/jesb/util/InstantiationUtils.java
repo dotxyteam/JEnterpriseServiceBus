@@ -61,7 +61,7 @@ public class InstantiationUtils {
 		Function<Pair<ITypeInfo, IFieldInfo>, Function<Object, Object>> customCopierByContext = context -> {
 			ITypeInfo objectType = context.getFirst();
 			IFieldInfo field = context.getSecond();
-			Class<?> objectClass = TypeInfoProvider.getClass(objectType.getName());
+			Class<?> objectClass = MiscUtils.getJESBClass(objectType.getName());
 			if (InstanceBuilder.class.isAssignableFrom(objectClass)) {
 				if (field.getName().equals("dynamicTypeNameAccessor")) {
 					return Function.identity();
@@ -188,7 +188,7 @@ public class InstantiationUtils {
 			try {
 				Class<?> instanceBuilderJavaType;
 				try {
-					instanceBuilderJavaType = TypeInfoProvider.getClass(
+					instanceBuilderJavaType = MiscUtils.getJESBClass(
 							((InstanceBuilder) value).computeActualTypeName(getAncestorInstanceBuilders(parentFacade)));
 				} catch (Throwable t) {
 					instanceBuilderJavaType = null;

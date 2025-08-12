@@ -291,7 +291,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
 				Class<?> fieldClass;
 				try {
-					fieldClass = ClassUtils.getCachedClassForName(field.getType().getName());
+					fieldClass = ClassUtils.getClassThroughCache(field.getType().getName());
 				} catch (ClassNotFoundException e) {
 					fieldClass = null;
 				}
@@ -305,7 +305,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean canCopy(ITypeInfo type, Object object) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
+					objectClass = ClassUtils.getClassThroughCache(type.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -319,7 +319,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected Object copy(ITypeInfo type, Object object) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
+					objectClass = ClassUtils.getClassThroughCache(type.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -703,7 +703,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<IFieldInfo> getFields(ITypeInfo type) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
+					objectClass = ClassUtils.getClassThroughCache(type.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -1106,7 +1106,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<IMethodInfo> getMethods(ITypeInfo type) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
+					objectClass = ClassUtils.getClassThroughCache(type.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -1437,7 +1437,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+					objectClass = ClassUtils.getClassThroughCache(objectType.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -1472,7 +1472,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(objectType.getName());
+					objectClass = ClassUtils.getClassThroughCache(objectType.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
@@ -1578,7 +1578,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected boolean isModificationStackAccessible(ITypeInfo type) {
 				try {
-					Class<?> objectClass = ClassUtils.getCachedClassForName(type.getName());
+					Class<?> objectClass = ClassUtils.getClassThroughCache(type.getName());
 					if (Throwable.class.isAssignableFrom(objectClass)) {
 						return false;
 					}
@@ -1603,7 +1603,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				}
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getCachedClassForName(type.getName());
+					objectClass = ClassUtils.getClassThroughCache(type.getName());
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}

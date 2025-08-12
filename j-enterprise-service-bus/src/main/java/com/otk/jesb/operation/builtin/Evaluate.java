@@ -11,7 +11,6 @@ import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
@@ -194,7 +193,7 @@ public class Evaluate implements Operation {
 
 			@Override
 			public Class<?> obtainClass() {
-				return TypeInfoProvider.getClass(internalElement.getTypeName(null));
+				return MiscUtils.getJESBClass(internalElement.getTypeName(null));
 			}
 
 			public void validate(boolean recursively) throws ValidationError {

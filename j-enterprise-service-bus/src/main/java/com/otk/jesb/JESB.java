@@ -56,6 +56,32 @@ public class JESB {
 		File fileOrFolder;
 		if (remainingArgs.length == 1) {
 			fileOrFolder = new File(remainingArgs[0]);
+		} else if (remainingArgs.length == 0) {
+			fileOrFolder = null;
+		} else {
+			throw newIllegalArgumentException(null, args, options);
+		}
+		LogManager runnerlogManager;
+		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
+			if (fileOrFolder == null) {
+				throw newIllegalArgumentException(new Exception("Missing <DIRECTORY_PATH> or <ARCHIVE_FILE_PATH>"),
+						args, options);
+			}
+			runnerlogManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
+			System.setOut(runnerlogManager.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.setErr(runnerlogManager.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
+					() -> RUNNER_LOG_VERBOSE));
+			System.out.println("Starting up...");
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
+		} else {
+			runnerlogManager = null;
+			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
+			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
+		}
+		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
 				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
 			} else if (fileOrFolder.isFile()) {
@@ -65,39 +91,19 @@ public class JESB {
 						new IOException("Invalid solution directory or archive file: '" + fileOrFolder + "'"), args,
 						options);
 			}
-		} else if (remainingArgs.length == 0) {
-			fileOrFolder = null;
 		} else {
-			throw newIllegalArgumentException(null, args, options);
-		}
-		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
-			if (fileOrFolder == null) {
-				throw newIllegalArgumentException(new Exception("Missing <DIRECTORY_PATH> or <ARCHIVE_FILE_PATH>"),
-						args, options);
+			if (DEBUG) {
+				setupSampleSolution();
 			}
-			LogManager logManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
-			System.setOut(logManager.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
-			System.setErr(logManager.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
-			System.out.println("Starting up...");
+		}
+		if (runnerlogManager != null) {
+			Runner runner = new Runner(Solution.INSTANCE, runnerlogManager);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
 			}
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
-			Runner runner = new Runner(Solution.INSTANCE, logManager);
 			runner.activatePlans();
 		} else {
-			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
-			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
-			if (fileOrFolder == null) {
-				if (DEBUG) {
-					setupSampleSolution();
-				}
-			}
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
@@ -105,7 +111,6 @@ public class JESB {
 				}
 			});
 		}
-
 	}
 
 	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {

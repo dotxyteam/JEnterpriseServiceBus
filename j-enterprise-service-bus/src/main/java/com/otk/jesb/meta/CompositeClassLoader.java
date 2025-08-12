@@ -24,55 +24,32 @@ import java.util.stream.Collectors;
 
 /**
  * ClassLoader that is composed of other classloaders. Each loader will be used
- * to try to load the particular class, until one of them succeeds. <b>Note:</b>
- * The loaders will always be called in the REVERSE order they were added in.
+ * to try to load each required class, until one of them succeeds. Otherwise the
+ * eventual {@link #defaultClassLoader} will be used. <b>Note:</b> The loaders
+ * will always be called in the REVERSE order they were added in.
  *
- * <p>
- * The Composite class loader also has registered the classloader that loaded
- * xstream.jar and (if available) the thread's context classloader.
- * </p>
- *
- * <h1>Example</h1>
- * 
- * <pre>
- * <code>CompositeClassLoader loader = new CompositeClassLoader();
- * loader.add(MyClass.class.getClassLoader());
- * loader.add(new AnotherClassLoader());
- * &nbsp;
- * loader.loadClass("com.blah.ChickenPlucker");
- * </code>
- * </pre>
- *
- * <p>
- * The above code will attempt to load a class from the following classloaders
- * (in order):
- * </p>
- *
- * <ul>
- * <li>AnotherClassLoader (and all its parents)</li>
- * <li>The classloader for MyClas (and all its parents)</li>
- * <li>The thread's context classloader (and all its parents)</li>
- * <li>The classloader for XStream (and all its parents)</li>
- * </ul>
- * 
  * <p>
  * The added classloaders are kept with weak references to allow an application
  * container to reload classes.
  * </p>
- *
- * @author Joe Walnes
- * @author J&ouml;rg Schaible
- * @since 1.0.3
  */
 @SuppressWarnings("all")
 public class CompositeClassLoader extends ClassLoader {
 
-	private final ReferenceQueue queue = new ReferenceQueue();
+	private ClassLoader defaultClassLoader;
 	private final List<WeakReference> classLoaders = new CopyOnWriteArrayList<WeakReference>();
+	private final ReferenceQueue queue = new ReferenceQueue();
 
-	public CompositeClassLoader() {
-		addInternal(Object.class.getClassLoader()); // bootstrap loader.
-		addInternal(getClass().getClassLoader()); // whichever classloader loaded this jar.
+	public CompositeClassLoader(ClassLoader defaultClassLoader) {
+		this.defaultClassLoader = defaultClassLoader;
+	}
+
+	public ClassLoader getDefaultClassLoader() {
+		return defaultClassLoader;
+	}
+
+	public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
+		this.defaultClassLoader = defaultClassLoader;
 	}
 
 	public List<ClassLoader> getClassLoaders() {
@@ -149,20 +126,15 @@ public class CompositeClassLoader extends ClassLoader {
 			}
 		}
 
-		// One last try - the context class loader associated with the current thread.
-		// Often used in j2ee servers.
-		// Note: The contextClassLoader cannot be added to the classLoaders list up
-		// front as the thread that constructs
-		// XStream is potentially different to thread that uses it.
-		if (contextClassLoader != null) {
-			Class<?> result = contextClassLoader.loadClass(name);
+		if (defaultClassLoader != null) {
+			Class<?> result = defaultClassLoader.loadClass(name);
 			if (resolve) {
 				resolveClass(result);
 			}
 			return result;
-		} else {
-			throw new ClassNotFoundException(name);
 		}
+
+		throw new ClassNotFoundException(name);
 	}
 
 	private void cleanup() {

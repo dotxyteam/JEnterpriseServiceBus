@@ -10,7 +10,7 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
-import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.MiscUtils;
 
 public class Transition extends PlanElement {
 
@@ -137,7 +137,7 @@ public class Transition extends PlanElement {
 		public boolean isFullfilled(Throwable thrown) {
 			Class<?> exceptionClass;
 			try {
-				exceptionClass = TypeInfoProvider.getClass(exceptionTypeName);
+				exceptionClass = MiscUtils.getJESBClass(exceptionTypeName);
 			} catch (Throwable t) {
 				throw new PotentialError(t);
 			}
@@ -146,7 +146,7 @@ public class Transition extends PlanElement {
 
 		@Override
 		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
-			TypeInfoProvider.getClass(exceptionTypeName);
+			MiscUtils.getJESBClass(exceptionTypeName);
 		}
 
 		@Override

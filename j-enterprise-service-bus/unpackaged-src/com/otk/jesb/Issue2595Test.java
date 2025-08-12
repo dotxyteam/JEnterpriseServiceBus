@@ -66,7 +66,7 @@ public class Issue2595Test {
 		// TypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver(),
 		// new JavaParserTypeSolver(new File("tmp/src/")));
 		TypeSolver typeSolver = new CombinedTypeSolver(new ClassLoaderTypeSolver(ClassLoader.getSystemClassLoader()),
-				new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getClassLoader()));
+				new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader()));
 		ParserConfiguration configuration = new ParserConfiguration()
 				.setSymbolResolver(new JavaSymbolSolver(typeSolver));
 		JavaParser javaParser = new JavaParser(configuration);

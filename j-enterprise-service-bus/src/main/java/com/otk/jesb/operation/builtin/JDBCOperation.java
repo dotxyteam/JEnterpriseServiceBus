@@ -199,7 +199,7 @@ public abstract class JDBCOperation implements Operation {
 					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
 							+ ". Expected " + expectedParameterCount + " parameter(s).");
 				}
-			} catch (ClassNotFoundException | SQLException e) {
+			} catch (Exception e) {
 				throw new ValidationError("Failed to validate the JDBC opertation", e);
 			}
 			if (recursively) {

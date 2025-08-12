@@ -18,6 +18,7 @@ import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
 
 public class InstanceBuilder extends InitializationCase {
 
@@ -56,7 +57,7 @@ public class InstanceBuilder extends InitializationCase {
 				if (!typeName.contains(InstantiationUtils.RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE)) {
 					Class<?> clazz;
 					try {
-						clazz = TypeInfoProvider.getClass(typeName);
+						clazz = MiscUtils.getJESBClass(typeName);
 					} catch (Throwable t) {
 						return;
 					}

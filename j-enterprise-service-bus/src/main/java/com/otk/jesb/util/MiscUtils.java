@@ -8,6 +8,7 @@ import java.beans.Transient;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -32,15 +33,13 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
-import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.Expression;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
-import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Asset;
@@ -58,8 +57,6 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import xy.reflect.ui.info.ResourcePath;
-import xy.reflect.ui.info.type.DefaultTypeInfo;
-import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
@@ -67,7 +64,7 @@ public class MiscUtils {
 	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
 	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
 	static {
-		MiscUtils.IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
+		IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
 	}
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
@@ -461,6 +458,12 @@ public class MiscUtils {
 		}
 	}
 
+	public static byte[] readBinary(File file) throws IOException {
+		try (FileInputStream in = new FileInputStream(file)) {
+			return readBinary(in);
+		}
+	}
+
 	public static void write(File file, String text, boolean append) throws IOException {
 		writeBinary(file, text.getBytes(), append);
 	}
@@ -482,7 +485,6 @@ public class MiscUtils {
 				}
 			}
 		}
-
 	}
 
 	public static File createTemporaryFile(String extension) throws IOException {
@@ -742,40 +744,6 @@ public class MiscUtils {
 		return expression.compile(variableDeclarations);
 	}
 
-	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
-		if (resolvedType.isPrimitive()) {
-			return TypeInfoProvider.getTypeInfo(ClassUtils
-					.wrapperToPrimitiveClass(TypeInfoProvider.getClass(resolvedType.asPrimitive().getBoxTypeQName())));
-		} else if (resolvedType.isReferenceType()) {
-			ResolvedReferenceType referenceType = resolvedType.asReferenceType();
-			String qualifiedName = referenceType.getQualifiedName();
-			Class<?> javaType = TypeInfoProvider.getClassFromCanonicalName(qualifiedName);
-			List<ResolvedType> typeParameters = referenceType.typeParametersValues();
-			if (typeParameters.size() > 0) {
-				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
-				for (ResolvedType resolvedTypeParameter : typeParameters) {
-					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter);
-					if (typeParameterInfo == null) {
-						return TypeInfoProvider.getTypeInfo(javaType);
-					}
-					typeParameterClasses.add(((DefaultTypeInfo) typeParameterInfo).getJavaType());
-				}
-				return TypeInfoProvider.getTypeInfo(javaType,
-						typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]));
-			} else {
-				return TypeInfoProvider.getTypeInfo(javaType);
-			}
-		} else if (resolvedType.isArray()) {
-			Class<?> componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(
-					resolvedType.asArrayType().getComponentType())).getJavaType();
-			return TypeInfoProvider.getTypeInfo(Array.newInstance(componentClass, 0).getClass());
-		} else if (resolvedType.isWildcard() && resolvedType.asWildcard().isBounded()) {
-			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType());
-		} else {
-			return null;
-		}
-	}
-
 	public static boolean areIncompatible(Class<?> class1, Class<?> class2) {
 		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2)
 				.isAssignableFrom((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1))) {
@@ -864,6 +832,38 @@ public class MiscUtils {
 			s = s.substring(0, length - 3) + "...";
 		}
 		return s;
+	}
+
+	public static Class<?> getJESBClass(String typeName) {
+		String arrayComponentTypeName = getArrayComponentTypeName(typeName);
+		if (arrayComponentTypeName != null) {
+			return getArrayType(getJESBClass(arrayComponentTypeName));
+		}
+		if (ClassUtils.PRIMITIVE_CLASS_BY_NAME.containsKey(typeName)) {
+			return ClassUtils.PRIMITIVE_CLASS_BY_NAME.get(typeName);
+		}
+		try {
+			return IN_MEMORY_COMPILER.getClassThroughCache(typeName);
+		} catch (ClassNotFoundException e1) {
+			throw new PotentialError(e1);
+		}
+	}
+
+	public static Class<?> getJESBClassFromCanonicalName(String canonicalName) {
+		try {
+			return getJESBClass(canonicalName);
+		} catch (PotentialError e1) {
+			try {
+				int lastDotIndex = canonicalName.lastIndexOf('.');
+				if (lastDotIndex == -1) {
+					throw new PotentialError(new UnexpectedError());
+				}
+				return getJESBClassFromCanonicalName(
+						canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
+			} catch (PotentialError e2) {
+				throw new PotentialError(new ClassNotFoundException("Canonical name: " + canonicalName));
+			}
+		}
 	}
 
 }

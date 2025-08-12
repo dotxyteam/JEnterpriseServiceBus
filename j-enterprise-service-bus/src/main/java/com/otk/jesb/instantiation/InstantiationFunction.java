@@ -19,6 +19,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -40,8 +41,7 @@ public class InstantiationFunction extends Function {
 		protected ITypeInfo obtainLatest(Object versionIdentifier) throws VersionAccessException {
 			CompiledFunction compiledFunction = (CompiledFunction) getCustomValue();
 			TypeSolver typeSolver = new CombinedTypeSolver(
-					new ClassLoaderTypeSolver(ClassLoader.getSystemClassLoader()),
-					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getClassLoader()));
+					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader()));
 			ParserConfiguration configuration = new ParserConfiguration()
 					.setSymbolResolver(new JavaSymbolSolver(typeSolver));
 			JavaParser javaParser = new JavaParser(configuration);
@@ -57,7 +57,7 @@ public class InstantiationFunction extends Function {
 			List<ReturnStmt> returnStatements = compilationUnit.findAll(ReturnStmt.class);
 			ResolvedType resolvedType = returnStatements.get(returnStatements.size() - 1).getExpression().get()
 					.calculateResolvedType();
-			return MiscUtils.getInfoFromResolvedType(resolvedType);
+			return TypeInfoProvider.getInfoFromResolvedType(resolvedType);
 		}
 
 	};

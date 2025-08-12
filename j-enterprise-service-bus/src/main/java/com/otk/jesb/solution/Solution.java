@@ -5,11 +5,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -26,13 +30,40 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Solution {
 
-	public static Solution INSTANCE = new Solution();
+	public static Solution INSTANCE = new Solution() {
+
+		{
+			setupRequiredJARsLoading(getRequiredJARs());
+		}
+
+		@Override
+		public void setRequiredJARs(List<JAR> jars) {
+			super.setRequiredJARs(jars);
+			setupRequiredJARsLoading(jars);
+		}
+
+		void setupRequiredJARsLoading(List<JAR> jars) {
+			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
+					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
+							Solution.class.getClassLoader()));
+		}
+	};
 
 	private static final String SORTED_NAMES_FILE_NAME = ".sortedNames" + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
+	private static final String REQUIRED_JARS_DIRECTORY_NAME = "lib";
 
 	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
 	private Experiment defualtExperiment = new Experiment(new Evaluate.Builder());
+	private List<JAR> requiredJARs = new ArrayList<JAR>();
+
+	public List<JAR> getRequiredJARs() {
+		return requiredJARs;
+	}
+
+	public void setRequiredJARs(List<JAR> requiredJARs) {
+		this.requiredJARs = requiredJARs;
+	}
 
 	public EnvironmentSettings getEnvironmentSettings() {
 		return environmentSettings;
@@ -90,12 +121,18 @@ public class Solution {
 	}
 
 	private void load(Path rootPath) throws IOException {
+		loadRequiredJARs(rootPath);
 		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
 				Files.readAllBytes(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
 						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX)))) {
 			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);
 		}
 		rootFolder = loadFolder(rootPath, rootFolder.getName());
+	}
+
+	private void loadRequiredJARs(Path parentPath) throws IOException {
+		Folder jarFolder = loadFolder(parentPath, REQUIRED_JARS_DIRECTORY_NAME);
+		requiredJARs = jarFolder.getContents().stream().map(JAR.class::cast).collect(Collectors.toList());
 	}
 
 	private Folder loadFolder(Path parentPath, String folderName) throws IOException {
@@ -140,7 +177,11 @@ public class Solution {
 		} else {
 			try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
 					Files.readAllBytes(fileOrDirectoryPath))) {
-				return (Asset) MiscUtils.deserialize(fileInputStream);
+				if (name.endsWith(".jar")) {
+					return new JAR(name, MiscUtils.readBinary(fileInputStream));
+				} else {
+					return (Asset) MiscUtils.deserialize(fileInputStream);
+				}
 			}
 		}
 	}
@@ -164,12 +205,19 @@ public class Solution {
 	}
 
 	private void save(Path rootPath) throws IOException {
+		saveRequiredJARs(rootPath);
 		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
 			MiscUtils.serialize(environmentSettings, fileOutputStream);
 			Files.write(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
 					+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX), fileOutputStream.toByteArray());
 		}
 		saveFolder(rootPath, rootFolder);
+	}
+
+	private void saveRequiredJARs(Path parentPath) throws IOException {
+		Folder jarFolder = new Folder(REQUIRED_JARS_DIRECTORY_NAME);
+		jarFolder.getContents().addAll(requiredJARs);
+		saveFolder(parentPath, jarFolder);
 	}
 
 	private void saveFolder(Path parentPath, Folder folder) throws IOException {
@@ -195,7 +243,13 @@ public class Solution {
 				throw new PotentialError("Duplicate file detected while saving: " + assetPath);
 			}
 			try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
-				MiscUtils.serialize(asset, fileOutputStream);
+				if (asset.getName().endsWith(".jar")) {
+					try (InputStream inputStream = ((JAR) asset).getURL().openStream()) {
+						fileOutputStream.write(MiscUtils.readBinary(inputStream));
+					}
+				} else {
+					MiscUtils.serialize(asset, fileOutputStream);
+				}
 				Files.write(assetPath, fileOutputStream.toByteArray());
 			}
 		}
