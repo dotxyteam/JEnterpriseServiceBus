@@ -105,6 +105,7 @@ import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.field.ValueAsListFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
 import xy.reflect.ui.info.filter.InfoFilterProxy;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
@@ -700,6 +701,25 @@ public class JESBReflectionUI extends CustomizedUI {
 			}
 
 			@Override
+			protected List<IMethodInfo> getConstructors(ITypeInfo type) {
+				if (type.getName().equals(Solution.Singleton.class.getName())) {
+					return Collections.singletonList(new AbstractConstructorInfo() {
+						
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							return new Solution();
+						}
+						
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return type;
+						}
+					});
+				}					
+				return super.getConstructors(type);
+			}
+
+			@Override
 			protected List<IFieldInfo> getFields(ITypeInfo type) {
 				Class<?> objectClass;
 				try {
@@ -871,7 +891,8 @@ public class JESBReflectionUI extends CustomizedUI {
 						result.add(field);
 					}
 					return result;
-				} else if (type.getName().equals(Plan.class.getName())) {
+				} else if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
+					
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
