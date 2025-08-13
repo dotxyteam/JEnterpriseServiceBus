@@ -20,10 +20,16 @@ public class JAR extends Asset {
 		super(fileName);
 		try {
 			temporaryFile = MiscUtils.createTemporaryFile("jar");
+			temporaryFile.deleteOnExit();
 			MiscUtils.writeBinary(temporaryFile, binaryData, false);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
+	}
+
+	@Override
+	public String getFileSystemResourceName() {
+		return getName();
 	}
 
 	public URL getURL() {
@@ -32,6 +38,12 @@ public class JAR extends Asset {
 		} catch (MalformedURLException e) {
 			throw new UnexpectedError(e);
 		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		temporaryFile.delete();
 	}
 
 }

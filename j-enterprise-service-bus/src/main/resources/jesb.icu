@@ -2371,7 +2371,7 @@
             <uniqueIdentifier>-7637751e:19809ec588c:66f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a08</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:685e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -4119,7 +4119,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a09</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:685f</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -4225,7 +4225,7 @@
         <menuModel>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:-15d4</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Folder]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Folder]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -4372,7 +4372,7 @@
         <menuModel>
             <uniqueIdentifier>769d7d8e:19765567757:3735</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=sidePaneValue, objectType=com.otk.jesb.solution.Solution], subContext=MutableInstance, encapsulatedObjectType=java.lang.String]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=sidePaneValue, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=MutableInstance, encapsulatedObjectType=java.lang.String]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -4970,7 +4970,7 @@
         <menuModel>
             <uniqueIdentifier>-1c5011de:193f4fa8f43:-5fe0</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Solution]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Solution$Singleton]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -6535,7 +6535,7 @@
         <menuModel>
             <uniqueIdentifier>743360f6:197a3523619:3c43</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void preferences.set(com.otk.jesb.ui.Preferences), objectType=com.otk.jesb.solution.Solution]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void preferences.set(com.otk.jesb.ui.Preferences), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -7551,6 +7551,33 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-572c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>requiredJARs</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-572a</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>true</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-572b</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <formBackgroundImagePath>
             <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/window-background.png</specification>
         </formBackgroundImagePath>
@@ -8241,8 +8268,41 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:4d6c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customMethodCaption>Dependencies</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <menuItemCategory>
+                <uniqueIdentifier>743360f6:197a3523619:6eb0</uniqueIdentifier>
+                <name>global</name>
+            </menuItemCategory>
+            <methodName>requiredJARs.set</methodName>
+            <methodSignature>void requiredJARs.set(java.util.List)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:4d6d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:4d6e</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>requiredJARs</parameterName>
+            </parametersCustomization>
+            <parametersValidationCustomCaption>OK</parametersValidationCustomCaption>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <savingMethodName>saveToDirectory</savingMethodName>
-        <typeName>com.otk.jesb.solution.Solution</typeName>
+        <typeName>com.otk.jesb.solution.Solution$Singleton</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -8412,7 +8472,7 @@
         <menuModel>
             <uniqueIdentifier>57e08c1b:1981a61bbbf:-7402</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Console console.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution], fieldName=sideToolBar]], fieldName=methodsGroup]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Console]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Console console.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideToolBar]], fieldName=methodsGroup]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Console]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -9300,7 +9360,7 @@
         <menuModel>
             <uniqueIdentifier>-fb30529:196df383614:-56b5</uniqueIdentifier>
         </menuModel>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Solution]], fieldName=solutionBox]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=Encapsulation [encapsulatedObjectType=com.otk.jesb.solution.Solution$Singleton]], fieldName=solutionBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -9364,7 +9424,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a0a</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:6860</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -10419,7 +10479,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a0b</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:6861</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -11693,7 +11753,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a0c</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:6862</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -14483,7 +14543,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a0d</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6863</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -14625,7 +14685,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a0e</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6864</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -15603,7 +15663,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a0f</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:6865</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -17491,7 +17551,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a10</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6866</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -17553,7 +17613,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a11</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6867</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -17644,7 +17704,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a12</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6868</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -17728,7 +17788,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a13</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6869</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -17787,7 +17847,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a14</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:686a</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -18744,7 +18804,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:7219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a15</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:686b</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -18859,7 +18919,7 @@
             <uniqueIdentifier>-d88499a:197e166c2ba:-3cf6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a16</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:686c</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -19961,7 +20021,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a17</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:686d</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -20252,7 +20312,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:518d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a18</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:686e</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -20608,7 +20668,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution], fieldName=sideToolBar]], fieldName=methodsGroup]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideToolBar]], fieldName=methodsGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -21433,7 +21493,7 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsLayout>VERTICAL_FLOW</methodsLayout>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution], fieldName=sideTools]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideTools]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -21607,7 +21667,7 @@
         <menuModel>
             <uniqueIdentifier>769d7d8e:19765567757:3939</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=sidePaneValue, objectType=com.otk.jesb.solution.Solution], subContext=MutableInstance, encapsulatedObjectType=java.util.Collections$UnmodifiableMap]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=sidePaneValue, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=MutableInstance, encapsulatedObjectType=java.util.Collections$UnmodifiableMap]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -23378,7 +23438,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a19</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:686f</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -23440,7 +23500,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1a</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6870</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -23501,7 +23561,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1b</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6871</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -23780,7 +23840,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:4a42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1c</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6872</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -24921,7 +24981,7 @@
         <menuModel>
             <uniqueIdentifier>5400872:197a419336a:-73fe</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void preferences.set(com.otk.jesb.ui.Preferences), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution], fieldName=sideToolBar]], fieldName=methodsGroup]]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void preferences.set(com.otk.jesb.ui.Preferences), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideToolBar]], fieldName=methodsGroup]]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -26733,7 +26793,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1d</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6873</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -26773,7 +26833,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1e</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6874</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -26835,7 +26895,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a1f</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6875</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -27471,7 +27531,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:3a7e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a20</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6876</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -27680,7 +27740,7 @@
         <menuModel>
             <uniqueIdentifier>-5bbf4e4f:1981a461c01:4472</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Console console.get(), objectType=com.otk.jesb.solution.Solution], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Console]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Console console.get(), objectType=com.otk.jesb.solution.Solution$Singleton], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Console]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -28503,7 +28563,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a21</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6877</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -28538,7 +28598,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a22</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6878</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -29394,7 +29454,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a23</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6879</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -29985,7 +30045,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a24</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687a</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -30047,7 +30107,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a25</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687b</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -30082,7 +30142,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a26</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687c</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -30587,7 +30647,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a27</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687d</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -30776,7 +30836,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18de</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a28</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687e</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -30838,7 +30898,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:5188</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a29</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:687f</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -31473,7 +31533,7 @@
             <uniqueIdentifier>-18464e28:1959c217a77:-5313</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2a</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6880</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -31534,7 +31594,7 @@
             <uniqueIdentifier>-7e3c01d6:19680a0ac94:-4647</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2b</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6881</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -31597,7 +31657,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63b8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2c</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6882</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -31634,7 +31694,7 @@
             <uniqueIdentifier>-56dd94c9:1968bf985ca:-4038</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2d</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6883</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -31786,7 +31846,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63bb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2e</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6884</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -31883,7 +31943,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-2e33</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a2f</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6885</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -31917,7 +31977,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-27a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a30</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6886</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -31981,7 +32041,7 @@
             <uniqueIdentifier>-332f65a0:1947f7efd62:-757a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a31</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6887</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -32598,7 +32658,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a32</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6888</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -33080,7 +33140,7 @@
         <menuModel>
             <uniqueIdentifier>-2d33b5a0:193f3e37e65:1a15</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Plan]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Plan]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -33452,7 +33512,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a33</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6889</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -33514,7 +33574,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a34</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688a</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -33576,7 +33636,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a35</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688b</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -33611,7 +33671,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a36</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688c</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -33726,7 +33786,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a37</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688d</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -34044,7 +34104,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a38</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688e</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -34450,7 +34510,7 @@
         <menuModel>
             <uniqueIdentifier>-6da69155:197dbc63243:4823</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void saveToDirectory(java.io.File, java.lang.String), objectType=com.otk.jesb.solution.Solution]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void saveToDirectory(java.io.File, java.lang.String), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -35838,7 +35898,7 @@
             <uniqueIdentifier>-53aac6:1980480734d:-65e3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a39</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:688f</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -35927,7 +35987,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:447f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3a</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6890</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -37305,7 +37365,7 @@
         <menuModel>
             <uniqueIdentifier>-4504c6db:1983dc42488:4626</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=defualtExperiment, objectType=com.otk.jesb.solution.Solution], encapsulatedObjectType=com.otk.jesb.solution.Experiment]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=defualtExperiment, objectType=com.otk.jesb.solution.Solution$Singleton], encapsulatedObjectType=com.otk.jesb.solution.Experiment]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -37994,7 +38054,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:49</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3b</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6891</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -38035,7 +38095,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:4e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3c</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6892</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -38069,7 +38129,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:57</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3d</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6893</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -38103,7 +38163,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3e</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6894</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -38138,7 +38198,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:3d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a3f</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6895</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -38502,7 +38562,7 @@
         <menuModel>
             <uniqueIdentifier>-5963fba:1983ddd1ecb:471a</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.solution.Experiment defualtExperiment.get(), objectType=com.otk.jesb.solution.Solution], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.solution.Experiment]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.solution.Experiment defualtExperiment.get(), objectType=com.otk.jesb.solution.Solution$Singleton], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.solution.Experiment]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -38788,7 +38848,7 @@
         <menuModel>
             <uniqueIdentifier>4f438af2:197420eb040:-1b15</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Asset]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.solution.Asset]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -39369,7 +39429,7 @@
             <uniqueIdentifier>68d9c596:198282cf253:4405</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a40</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6896</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -40062,7 +40122,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4761</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a41</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6897</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -40096,7 +40156,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4772</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a42</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6898</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -40137,7 +40197,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4777</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a43</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:6899</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -40171,7 +40231,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:476b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a44</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:689a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -40206,7 +40266,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4766</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a45</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:689b</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -40343,7 +40403,7 @@
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7098</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Debugger createDebugger(), objectType=com.otk.jesb.solution.Solution], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Debugger]</typeName>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Debugger createDebugger(), objectType=com.otk.jesb.solution.Solution$Singleton], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Debugger]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -40525,7 +40585,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-3f072f94:198a0228b02:6a46</uniqueIdentifier>
+                        <uniqueIdentifier>-557efb3b:198a467f748:689c</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -43944,7 +44004,7 @@
         <menuModel>
             <uniqueIdentifier>-6da69155:197dbc63243:56bc</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void loadFromDirectory(java.io.File), objectType=com.otk.jesb.solution.Solution]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void loadFromDirectory(java.io.File), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -44197,7 +44257,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:49f9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a47</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:689d</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -44231,7 +44291,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:470f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a48</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:689e</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -44290,7 +44350,7 @@
             <uniqueIdentifier>-1ccf00b9:19838dcf645:-5f70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a49</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:689f</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -44378,7 +44438,7 @@
             <uniqueIdentifier>-67c7e284:1983933ccaf:461c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4a</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a0</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -44539,7 +44599,7 @@
         <menuModel>
             <uniqueIdentifier>-e239d82:193f3d2e88e:6824</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -44913,7 +44973,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution], fieldName=sideToolBar]</typeName>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideToolBar]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
         <virtualFieldDeclaration>
@@ -45002,7 +45062,7 @@
         <menuModel>
             <uniqueIdentifier>107a67fe:196da684408:-1ff8</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Asset]]</typeName>
+        <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=contents, objectType=com.otk.jesb.solution.Solution$Singleton], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.solution.Asset]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.solution.Asset]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -46525,7 +46585,7 @@
             <uniqueIdentifier>-56551cd1:1984253b993:4a45</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4b</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a1</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -46559,7 +46619,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4c</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a2</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -46594,7 +46654,7 @@
             <uniqueIdentifier>-51c5c0a6:19842c5cd8e:4939</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4d</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a3</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -47876,7 +47936,7 @@
             <uniqueIdentifier>7562931c:19839434459:47ee</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4e</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a4</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -49410,7 +49470,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a4f</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a5</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -49499,7 +49559,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a50</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a6</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51039,7 +51099,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a51</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a7</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51100,7 +51160,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a52</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a8</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51162,7 +51222,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a53</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68a9</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51330,7 +51390,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a54</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68aa</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51391,7 +51451,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a55</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68ab</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51453,7 +51513,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a56</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68ac</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51509,7 +51569,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a57</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68ad</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -51560,7 +51620,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-3f072f94:198a0228b02:6a58</uniqueIdentifier>
+                <uniqueIdentifier>-557efb3b:198a467f748:68ae</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -55086,7 +55146,7 @@
         <menuModel>
             <uniqueIdentifier>-4bc47be9:198900a8b51:6dde</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void loadFromArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void loadFromArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -55101,7 +55161,7 @@
         <menuModel>
             <uniqueIdentifier>-4bc47be9:198900a8b51:6de0</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void loadFromArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution]]]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void loadFromArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution$Singleton]]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -55167,7 +55227,7 @@
         <menuModel>
             <uniqueIdentifier>-4bc47be9:198900a8b51:6f9f</uniqueIdentifier>
         </menuModel>
-        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void saveToArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution]]</typeName>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void saveToArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -55182,7 +55242,7 @@
         <menuModel>
             <uniqueIdentifier>-4bc47be9:198900a8b51:6fa1</uniqueIdentifier>
         </menuModel>
-        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void saveToArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution]]]</typeName>
+        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void saveToArchiveFile(java.io.File), objectType=com.otk.jesb.solution.Solution$Singleton]]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
@@ -55477,13 +55537,337 @@
         <abstractForced>false</abstractForced>
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
-        <baseTypeName>com.otk.jesb.solution.Solution</baseTypeName>
+        <baseTypeName>com.otk.jesb.solution.Solution$Singleton</baseTypeName>
         <copyForbidden>false</copyForbidden>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-3f072f94:198a0228b02:-5742</uniqueIdentifier>
         </menuModel>
-        <typeName>com.otk.jesb.solution.Solution$1</typeName>
+        <typeName>com.otk.jesb.solution.Solution$Singleton$1</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-2f4e8f3a:198a45e4533:-5730</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6d0</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>fileSystemResourceName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6ce</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6cf</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6c6</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>note</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6c4</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6c5</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6bf</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>uRL</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6bd</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6be</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-572f</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6b7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Import JAR</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.solution.JAR (java.io.File)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6b6</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6b5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>file</parameterName>
+            </parametersCustomization>
+            <parametersValidationCustomCaption>Import</parametersValidationCustomCaption>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6ae</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <methodName></methodName>
+            <methodSignature>com.otk.jesb.solution.JAR (java.lang.String, [B)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6ad</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6ac</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>fileName</parameterName>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6ab</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:-6aa</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>binaryData</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <typeName>com.otk.jesb.solution.JAR</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-2f4e8f3a:198a45e4533:7241</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:724a</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>JARs</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>requiredJARs</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:724c</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:724b</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <listCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:724f</uniqueIdentifier>
+                    <editOptions>
+                        <uniqueIdentifier>-2f4e8f3a:198a45e4533:7250</uniqueIdentifier>
+                        <itemCreationEnabled>true</itemCreationEnabled>
+                        <itemDeletionEnabled>true</itemDeletionEnabled>
+                        <itemMoveEnabled>true</itemMoveEnabled>
+                    </editOptions>
+                    <fieldColumnsAdded>false</fieldColumnsAdded>
+                    <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
+                    <itemCreationMode>CUSTOM_UNVERIFIED_INSTANCE</itemCreationMode>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
+                    <itemNullValueAllowed>false</itemNullValueAllowed>
+                    <itemTypeColumnAdded>false</itemTypeColumnAdded>
+                    <itemTypeName>com.otk.jesb.solution.JAR</itemTypeName>
+                    <listSorted>false</listSorted>
+                    <listTypeName>java.util.List</listTypeName>
+                    <positionColumnAdded>false</positionColumnAdded>
+                    <stringValueColumnAdded>false</stringValueColumnAdded>
+                </listCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:7242</uniqueIdentifier>
+        </menuModel>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void requiredJARs.set(java.util.List), objectType=com.otk.jesb.solution.Solution$Singleton]]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-2f4e8f3a:198a45e4533:7243</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <customTypeCaption>Dependencies</customTypeCaption>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:7244</uniqueIdentifier>
+        </menuModel>
+        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void requiredJARs.set(java.util.List), objectType=com.otk.jesb.solution.Solution$Singleton]]]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-2f4e8f3a:198a45e4533:7519</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:7522</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>file</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-2f4e8f3a:198a45e4533:7524</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:7523</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomization>
+                    <uniqueIdentifier>-2f4e8f3a:198a45e4533:7525</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.FileBrowserPlugin</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.swing.plugin.FileBrowserPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAE14eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLkZpbGVCcm93c2VyUGx1Z2luJEZpbGVCcm93c2VyQ29uZmlndXJhdGlvbgAAAAAAAAABAgADTAALYWN0aW9uVGl0bGV0ABJMamF2YS9sYW5nL1N0cmluZztMAA9maWxlTmFtZUZpbHRlcnN0ABBMamF2YS91dGlsL0xpc3Q7TAANc2VsZWN0aW9uTW9kZXQAUUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL0ZpbGVCcm93c2VyUGx1Z2luJFNlbGVjdGlvbk1vZGVDb25maWd1cmF0aW9uO3hyAF94eS5yZWZsZWN0LnVpLmNvbnRyb2wucGx1Z2luLkFic3RyYWN0U2ltcGxlQ3VzdG9taXphYmxlRmllbGRDb250cm9sUGx1Z2luJEFic3RyYWN0Q29uZmlndXJhdGlvbgAAAAAAAAABAgAAeHB0AAZTZWxlY3RzcgATamF2YS51dGlsLkFycmF5TGlzdHiB0h2Zx2GdAwABSQAEc2l6ZXhwAAAAAXcEAAAAAXNyAFB4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLkZpbGVCcm93c2VyUGx1Z2luJEZpbGVOYW1lRmlsdGVyQ29uZmlndXJhdGlvbgAAAAAAAAABAgACTAALZGVzY3JpcHRpb25xAH4AAUwACmV4dGVuc2lvbnNxAH4AAnhxAH4ABHQACEpBUiBGaWxlc3EAfgAHAAAAAXcEAAAAAXQAA2phcnh4fnIAT3h5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uRmlsZUJyb3dzZXJQbHVnaW4kU2VsZWN0aW9uTW9kZUNvbmZpZ3VyYXRpb24AAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AApGSUxFU19PTkxZ</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-2f4e8f3a:198a45e4533:7526</uniqueIdentifier>
+                    </menuModel>
+                    <typeName>java.io.File</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-2f4e8f3a:198a45e4533:751a</uniqueIdentifier>
+        </menuModel>
+        <typeName>MethodSetupObject [context=ContructorContext [type=com.otk.jesb.solution.JAR, signature=com.otk.jesb.solution.JAR (java.io.File)]]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-557efb3b:198a467f748:4b4a</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <customTypeCaption>Preferences</customTypeCaption>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-557efb3b:198a467f748:4b4b</uniqueIdentifier>
+        </menuModel>
+        <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void preferences.set(com.otk.jesb.ui.Preferences), objectType=com.otk.jesb.solution.Solution$Singleton]]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

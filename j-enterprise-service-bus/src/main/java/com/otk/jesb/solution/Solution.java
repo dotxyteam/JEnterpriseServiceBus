@@ -30,24 +30,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Solution {
 
-	public static Solution INSTANCE = new Solution() {
-
-		{
-			setupRequiredJARsLoading(getRequiredJARs());
-		}
-
-		@Override
-		public void setRequiredJARs(List<JAR> jars) {
-			super.setRequiredJARs(jars);
-			setupRequiredJARsLoading(jars);
-		}
-
-		void setupRequiredJARsLoading(List<JAR> jars) {
-			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
-					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
-							Solution.class.getClassLoader()));
-		}
-	};
+	public static Solution INSTANCE = new Singleton();
 
 	private static final String SORTED_NAMES_FILE_NAME = ".sortedNames" + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
 	private static final String REQUIRED_JARS_DIRECTORY_NAME = "lib";
@@ -132,7 +115,7 @@ public class Solution {
 
 	private void loadRequiredJARs(Path parentPath) throws IOException {
 		Folder jarFolder = loadFolder(parentPath, REQUIRED_JARS_DIRECTORY_NAME);
-		requiredJARs = jarFolder.getContents().stream().map(JAR.class::cast).collect(Collectors.toList());
+		setRequiredJARs(jarFolder.getContents().stream().map(JAR.class::cast).collect(Collectors.toList()));
 	}
 
 	private Folder loadFolder(Path parentPath, String folderName) throws IOException {
@@ -252,6 +235,25 @@ public class Solution {
 				}
 				Files.write(assetPath, fileOutputStream.toByteArray());
 			}
+		}
+	}
+
+	public static class Singleton extends Solution {
+
+		private Singleton() {
+			setupRequiredJARsLoading(getRequiredJARs());
+		}
+
+		@Override
+		public void setRequiredJARs(List<JAR> jars) {
+			super.setRequiredJARs(jars);
+			setupRequiredJARsLoading(jars);
+		}
+
+		void setupRequiredJARsLoading(List<JAR> jars) {
+			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
+					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
+							Solution.class.getClassLoader()));
 		}
 	}
 

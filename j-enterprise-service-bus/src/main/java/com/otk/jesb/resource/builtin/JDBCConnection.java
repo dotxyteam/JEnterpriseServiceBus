@@ -17,6 +17,9 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCConnection extends Resource {
 
+	private static final int VALIDITY_CHECK_TIMEOUT_SECONDS = Integer
+			.valueOf(System.getProperty(JDBCConnection.class.getName() + ".validityCheckTimeoutSeconds", "10"));
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -30,6 +33,7 @@ public class JDBCConnection extends Resource {
 	private Variant<String> urlVariant = new Variant<String>(String.class);
 	private Variant<String> userNameVariant = new Variant<String>(String.class);
 	private Variant<String> passwordVariant = new Variant<String>(String.class);
+	private Connection internalConnection;
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -71,26 +75,24 @@ public class JDBCConnection extends Resource {
 		this.passwordVariant = passwordVariant;
 	}
 
-	public String test() throws Exception {
-		build();
-		return "Connection successful!";
-	}
-
 	public Connection build() throws Exception {
-		String driverClassName = getDriverClassNameVariant().getValue();
-		String url = getUrlVariant().getValue();
-		String userName = getUserNameVariant().getValue();
-		String password = getPasswordVariant().getValue();
-		Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
-		Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
-		Properties properties = new Properties();
-		if (userName != null) {
-			properties.setProperty("user", userName);
+		if ((internalConnection == null) || internalConnection.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
+			String driverClassName = getDriverClassNameVariant().getValue();
+			String url = getUrlVariant().getValue();
+			String userName = getUserNameVariant().getValue();
+			String password = getPasswordVariant().getValue();
+			Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
+			Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
+			Properties properties = new Properties();
+			if (userName != null) {
+				properties.setProperty("user", userName);
+			}
+			if (password != null) {
+				properties.setProperty("password", password);
+			}
+			internalConnection = driverInstance.connect(url, properties);
 		}
-		if (password != null) {
-			properties.setProperty("password", password);
-		}
-		return driverInstance.connect(url, properties);
+		return internalConnection;
 	}
 
 	@Override

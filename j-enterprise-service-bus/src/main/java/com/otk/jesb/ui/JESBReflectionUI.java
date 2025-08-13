@@ -713,7 +713,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						baseResult.set(i, VariantCustomizations.adaptVariantField(baseResult.get(i), type));
 					}
 				}
-				if (type.getName().equals(Solution.class.getName())) {
+				if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
@@ -1110,7 +1110,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (ClassNotFoundException e) {
 					objectClass = null;
 				}
-				if (type.getName().equals(Solution.class.getName())) {
+				if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
 					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
