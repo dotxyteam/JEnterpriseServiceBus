@@ -7,17 +7,16 @@ import java.util.Properties;
 
 public class Profile {
 
-	private static final String SYSTEM_INITIALIZATION_FILE_PATH = "system.ini";
+	private static final String SYSTEM_INITIALIZATION_FILE_NAME = "system.ini";
 	public static final Profile INSTANCE = new Profile();
 	static {
 		try {
 			Properties initializationProperties = new Properties();
-			initializationProperties.load(new FileReader(SYSTEM_INITIALIZATION_FILE_PATH));
-			String profileDirectoryPath = initializationProperties.getProperty("profileDirectoryPath");
-			if (profileDirectoryPath == null) {
-				throw new IllegalStateException("'profileDirectoryPath' property value not found in '"
-						+ SYSTEM_INITIALIZATION_FILE_PATH + "' file");
+			File systemIniFile = new File(SYSTEM_INITIALIZATION_FILE_NAME);
+			if (systemIniFile.exists()) {
+				initializationProperties.load(new FileReader(SYSTEM_INITIALIZATION_FILE_NAME));
 			}
+			String profileDirectoryPath = initializationProperties.getProperty("profileDirectoryPath", ".jesb");
 			INSTANCE.profileDirectory = new File(profileDirectoryPath);
 			if (!INSTANCE.profileDirectory.exists()) {
 				if (!INSTANCE.profileDirectory.mkdir()) {

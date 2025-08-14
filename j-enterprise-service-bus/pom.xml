@@ -146,6 +146,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
 					<compilerArgs>
 						<arg>-parameters</arg>
 					</compilerArgs>
@@ -165,15 +167,129 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>attach-javadocs</id>
+						<id>assembly-jar-with-dependencies</id>
+						<phase>package</phase>
 						<goals>
-							<goal>jar</goal>
+							<goal>attached</goal>
 						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>com.otk.jesb.JESB</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<echo file="${basedir}/target/${project.artifactId}.tmp" append="yes"><![CDATA[#!/bin/bash
+#set -x
+
+
+JAVA_EXE=`which java`
+if [ "$$JAVA_EXE" == "" ]; then
+	echo "java command not found in the path"
+	echo "searching for JAVA_HOME..."
+	if [ "$$JAVA_HOME" != "" ]; then
+		JAVA_EXE=$$JAVA_HOME/bin/java
+	else
+		echo "JAVA_HOME environment variable is not set"
+	fi
+fi
+if [ "$$JAVA_EXE" == "" ]; then
+	echo "JAVA_EXE could not be set"
+	exit 1
+fi
+echo "Using $$JAVA_EXE..."
+
+
+cd `dirname $0`
+
+$$JAVA_EXE \
+"-Dcom.otk.jesb.exeFile=$$0" \
+"-Dcom.otk.jesb.defaultExeFile=${project.artifactId}" \
+-jar "$$0" "$@"
+
+exit $$?]]></echo>
+								<fixcrlf srcdir="${basedir}/target"
+									includes="${project.artifactId}.tmp" eol="lf" eof="remove" />
+								<concat destfile="${basedir}/target/${project.artifactId}"
+									binary="true">
+									<filelist>
+										<file name="${basedir}/target/${project.artifactId}.tmp" />
+										<file
+											name="${basedir}/target/${project.artifactId}-${project.version}-jar-with-dependencies.jar" />
+									</filelist>
+								</concat>
+								<delete file="${basedir}/target/${project.artifactId}.tmp" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>2.1.0</version>
+				<executions>
+					<execution>
+						<id>l4j-gui</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>gui</headerType>
+							<outfile>target/${project.artifactId}.exe</outfile>
+							<icon>${project.artifactId}.ico</icon>
+							<jar>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
+							<errTitle>${project.artifactId}</errTitle>
+							<classPath>
+								<mainClass>com.otk.jesb.JESB</mainClass>
+							</classPath>
+							<jre>
+								<minVersion>1.8.0</minVersion>
+								<maxVersion>1.17.9</maxVersion>
+								<opts>
+									<opt>-Dcom.otk.jesb.exeFile="%EXEFILE%"</opt>
+									<opt>-Dcom.otk.jesb.defaultExeFile=${project.artifactId}.exe</opt>
+								</opts>
+							</jre>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>assembly-zip</id>
+						<phase>install</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

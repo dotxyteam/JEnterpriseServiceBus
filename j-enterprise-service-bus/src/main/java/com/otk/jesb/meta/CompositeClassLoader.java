@@ -57,9 +57,9 @@ public class CompositeClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * Add a loader to the n
+	 * Add a loader to this
 	 * 
-	 * @param classLoader
+	 * @param classLoader A loader
 	 */
 	public synchronized void add(ClassLoader classLoader) {
 		cleanup();

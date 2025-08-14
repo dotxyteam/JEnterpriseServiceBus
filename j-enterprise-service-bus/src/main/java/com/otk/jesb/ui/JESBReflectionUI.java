@@ -123,8 +123,10 @@ import xy.reflect.ui.info.type.iterable.item.ItemPosition;
 import xy.reflect.ui.info.type.iterable.structure.DefaultListStructuralInfo;
 import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
 import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListProperty;
 import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
 import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
@@ -704,18 +706,18 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<IMethodInfo> getConstructors(ITypeInfo type) {
 				if (type.getName().equals(Solution.Singleton.class.getName())) {
 					return Collections.singletonList(new AbstractConstructorInfo() {
-						
+
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
 							return new Solution();
 						}
-						
+
 						@Override
 						public ITypeInfo getReturnValueType() {
 							return type;
 						}
 					});
-				}					
+				}
 				return super.getConstructors(type);
 			}
 
@@ -849,6 +851,54 @@ public class JESBReflectionUI extends CustomizedUI {
 										}
 
 										@Override
+										public List<IDynamicListProperty> getDynamicProperties(
+												List<? extends ItemPosition> selection,
+												Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
+											List<IDynamicListProperty> result = new ArrayList<IDynamicListProperty>(
+													super.getDynamicProperties(selection,
+															listModificationFactoryAccessor));
+											result.add(new AbstractDynamicListProperty() {
+
+												@Override
+												public String getName() {
+													return "stackTrace";
+												}
+
+												@Override
+												public String getCaption() {
+													return ReflectionUIUtils.identifierToCaption(getName());
+												}
+
+												@Override
+												public void setValue(Object object, Object value) {
+													throw new UnsupportedOperationException();
+												}
+
+												@Override
+												public boolean isGetOnly() {
+													return true;
+												}
+
+												@Override
+												public Object getValue(Object object) {
+													return ((Throwable) selection.get(0).getItem()).getStackTrace();
+												}
+
+												@Override
+												public ITypeInfo getType() {
+													return JESBReflectionUI.this.getTypeInfo(
+															new JavaTypeInfoSource(StackTraceElement[].class, null));
+												}
+
+												@Override
+												public DisplayMode getDisplayMode() {
+													return DisplayMode.CONTEXT_MENU;
+												}
+											});
+											return result;
+										}
+
+										@Override
 										public IListStructuralInfo getStructuralInfo() {
 											return new DefaultListStructuralInfo(reflectionUI) {
 
@@ -873,6 +923,14 @@ public class JESBReflectionUI extends CustomizedUI {
 															return field;
 														}
 
+														@Override
+														public IMethodInfo apply(IMethodInfo method) {
+															if (method.getName().equals("showStackTrace")) {
+																method = null;
+															}
+															return method;
+														}
+
 													};
 												}
 
@@ -891,8 +949,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						result.add(field);
 					}
 					return result;
-				} else if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
-					
+				} else if (type.getName().equals(Plan.class.getName())) {
 					List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 					result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
@@ -1346,6 +1403,36 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
+				} else if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "showStackTrace";
+						}
+
+						@Override
+						public String getCaption() {
+							return "Stack Trace";
+						}
+
+						@Override
+						public ITypeInfo getReturnValueType() {
+							return getTypeInfo(new JavaTypeInfoSource(StackTraceElement[].class, null));
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							return ((Throwable) object).getStackTrace();
+						}
+					});
+					return result;
 				} else {
 					return super.getMethods(type);
 				}
@@ -1498,11 +1585,10 @@ public class JESBReflectionUI extends CustomizedUI {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
-					for (IMethodInfo throwableMethod : getTypeInfo(new JavaTypeInfoSource(Throwable.class, null))
-							.getMethods()) {
-						if (method.getSignature().equals(throwableMethod.getSignature())) {
-							return true;
-						}
+					if (getTypeInfo(new JavaTypeInfoSource(Throwable.class, null)).getMethods().stream()
+							.anyMatch(throwableMethod -> !method.getName().equals("showStackTrace")
+									&& method.getSignature().equals(throwableMethod.getSignature()))) {
+						return true;
 					}
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
