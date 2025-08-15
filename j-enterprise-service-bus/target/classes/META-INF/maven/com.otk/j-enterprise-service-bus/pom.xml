@@ -224,7 +224,8 @@
 								<path>./windows-jdk</path>
 								<minVersion>1.8.0</minVersion>
 								<maxVersion>1.17.9</maxVersion>
-								<opts>
+								<opts>								
+									<opt>-splash:splash.gif</opt>
 									<opt>-Dcom.otk.jesb.exeFile="%EXEFILE%"</opt>
 									<opt>-Dcom.otk.jesb.defaultExeFile=${project.artifactId}.exe</opt>
 									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
@@ -271,6 +272,7 @@ echo "Using $$JAVA_EXE..."
 cd `dirname $0`
 
 $$JAVA_EXE \
+"-splash:splash.gif" \
 "-Dcom.otk.jesb.exeFile=$$0" \
 "-Dcom.otk.jesb.defaultExeFile=${project.artifactId}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \

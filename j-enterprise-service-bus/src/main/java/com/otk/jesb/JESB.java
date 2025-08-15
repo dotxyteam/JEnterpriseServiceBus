@@ -119,7 +119,7 @@ public class JESB {
 	}
 
 	private static void setupSampleSolution() {
-		Plan plan = new Plan("Plan1");
+		Plan plan = new Plan("Sample");
 		Solution.INSTANCE.getContents().add(plan);
 		if (DEBUG) {
 			JDBCConnection c = new JDBCConnection("db");

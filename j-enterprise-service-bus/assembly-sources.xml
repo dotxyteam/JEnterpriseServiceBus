@@ -19,6 +19,7 @@
 				<include>LICENSE</include>
 				<include>*.ico</include>
 				<include>*.png</include>
+				<include>*.gif</include>
 			</includes>
 		</fileSet>
 		<fileSet>
