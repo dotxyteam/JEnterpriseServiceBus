@@ -18,6 +18,7 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.Activator;
@@ -228,7 +229,6 @@ public class JESBReflectionUI extends CustomizedUI {
 						if (Preferences.INSTANCE.isLogVerbose()) {
 							new UnexpectedError("The user interface may become instable because " + object
 									+ " was abnormally hidden before " + peeked).printStackTrace();
-							;
 						}
 					}
 					if (!stack.remove(object)) {
@@ -249,8 +249,11 @@ public class JESBReflectionUI extends CustomizedUI {
 				handler.accept(stackOfCurrentInstantiationFacades);
 				return true;
 			} else if (object instanceof Debugger) {
-				((Debugger) object).deactivatePlans();
-				((Debugger) object).stopExecutions();
+				try {
+					((Debugger) object).close();
+				} catch (Exception e) {
+					throw new PotentialError(e);
+				}
 				return true;
 			}
 		}
@@ -1429,6 +1432,9 @@ public class JESBReflectionUI extends CustomizedUI {
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
+							if (JESB.DEBUG) {
+								((Throwable) object).printStackTrace();
+							}
 							return ((Throwable) object).getStackTrace();
 						}
 					});

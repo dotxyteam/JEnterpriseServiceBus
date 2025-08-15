@@ -20,7 +20,6 @@ import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.builtin.JDBCConnection;
-import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
@@ -92,17 +91,16 @@ public class JESB {
 						options);
 			}
 		} else {
-			if (DEBUG) {
-				setupSampleSolution();
-			}
+			setupSampleSolution();
 		}
 		if (runnerlogManager != null) {
+			@SuppressWarnings("resource")
 			Runner runner = new Runner(Solution.INSTANCE, runnerlogManager);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
 			}
-			runner.activatePlans();
+			runner.initiate();
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -121,56 +119,51 @@ public class JESB {
 	}
 
 	private static void setupSampleSolution() {
-		Folder plansFolder = new Folder("plans");
-		Solution.INSTANCE.getContents().add(plansFolder);
+		Plan plan = new Plan("Plan1");
+		Solution.INSTANCE.getContents().add(plan);
+		if (DEBUG) {
+			JDBCConnection c = new JDBCConnection("db");
+			c.getDriverClassNameVariant().setValue("org.hsqldb.jdbcDriver");
+			c.getUrlVariant().setValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
+			Solution.INSTANCE.getContents().add(c);
 
-		Folder otheResourcesFolder = new Folder("resources");
-		Solution.INSTANCE.getContents().add(otheResourcesFolder);
+			Step s1 = new Step();
+			plan.getSteps().add(s1);
+			s1.setName("a");
+			s1.setDiagramX(100);
+			s1.setDiagramY(100);
+			JDBCQuery.Builder ab1 = new JDBCQuery.Builder();
+			s1.setOperationBuilder(ab1);
+			ab1.setConnectionReference(Reference.get(c));
+			ab1.getStatementVariant().setValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
-		Plan plan = new Plan("test");
-		plansFolder.getContents().add(plan);
+			LoopCompositeStep ls = new LoopCompositeStep();
+			plan.getSteps().add(ls);
+			ls.setName("loop");
+			ls.setDiagramX(200);
+			ls.setDiagramY(100);
+			ls.getOperationBuilder().setIterationIndexVariableName("index");
+			ls.getOperationBuilder().setLoopEndCondition(new Function("return index==3;"));
 
-		JDBCConnection c = new JDBCConnection("db");
-		c.getDriverClassNameVariant().setValue("org.hsqldb.jdbcDriver");
-		c.getUrlVariant().setValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
-		otheResourcesFolder.getContents().add(c);
+			Step s2 = new Step();
+			plan.getSteps().add(s2);
+			s2.setName("w");
+			s2.setDiagramX(300);
+			s2.setDiagramY(100);
+			s2.setParent(ls);
+			WriteFile.Builder ab2 = new WriteFile.Builder();
+			s2.setOperationBuilder(ab2);
+			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer())
+					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
+			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer())
+					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(1,
+							new InstantiationFunction("return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
 
-		Step s1 = new Step();
-		plan.getSteps().add(s1);
-		s1.setName("a");
-		s1.setDiagramX(100);
-		s1.setDiagramY(100);
-		JDBCQuery.Builder ab1 = new JDBCQuery.Builder();
-		s1.setOperationBuilder(ab1);
-		ab1.setConnectionReference(Reference.get(c));
-		ab1.getStatementVariant().setValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
-
-		LoopCompositeStep ls = new LoopCompositeStep();
-		plan.getSteps().add(ls);
-		ls.setName("loop");
-		ls.setDiagramX(200);
-		ls.setDiagramY(100);
-		ls.getOperationBuilder().setIterationIndexVariableName("index");
-		ls.getOperationBuilder().setLoopEndCondition(new Function("return index==3;"));
-
-		Step s2 = new Step();
-		plan.getSteps().add(s2);
-		s2.setName("w");
-		s2.setDiagramX(300);
-		s2.setDiagramY(100);
-		s2.setParent(ls);
-		WriteFile.Builder ab2 = new WriteFile.Builder();
-		s2.setOperationBuilder(ab2);
-		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
-		((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer()).getParameterValue())
-				.getParameterInitializers().add(new ParameterInitializer(1,
-						new InstantiationFunction("return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
-
-		Transition t1 = new Transition();
-		t1.setStartStep(s1);
-		t1.setEndStep(ls);
-		plan.getTransitions().add(t1);
+			Transition t1 = new Transition();
+			t1.setStartStep(s1);
+			t1.setEndStep(ls);
+			plan.getTransitions().add(t1);
+		}
 	}
 
 }

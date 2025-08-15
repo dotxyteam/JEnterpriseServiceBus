@@ -531,9 +531,6 @@ public class GUI extends SwingCustomizer {
 
 	@Override
 	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
-		if (JESB.DEBUG) {
-			error.printStackTrace();
-		}
 		openObjectDialog(activatorComponent, error);
 	}
 

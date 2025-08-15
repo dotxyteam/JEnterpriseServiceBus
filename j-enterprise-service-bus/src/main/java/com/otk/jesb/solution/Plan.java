@@ -1,8 +1,6 @@
 package com.otk.jesb.solution;
 
 import java.beans.Transient;
-import java.io.PrintStream;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
@@ -179,47 +178,6 @@ public class Plan extends Asset {
 			result.remove(t.getEndStep());
 		}
 		return result;
-	}
-
-	public Object execute(Object input) throws ExecutionError {
-		return execute(input, new ExecutionInspector() {
-
-			@Override
-			public void beforeOperation(StepCrossing stepCrossing) {
-			}
-
-			@Override
-			public void afterOperation(StepCrossing stepCrossing) {
-			}
-
-			@Override
-			public boolean isExecutionInterrupted() {
-				return false;
-			}
-
-			@Override
-			public void logInformation(String message) {
-				log(message, "INFORMATION", System.out);
-			}
-
-			@Override
-			public void logError(String message) {
-				log(message, "ERROR", System.err);
-			}
-
-			@Override
-			public void logWarning(String message) {
-				log(message, "WARNING", System.err);
-			}
-
-			private void log(String message, String levelName, PrintStream printStream) {
-				String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
-						.format(MiscUtils.now());
-				String formattedMessage = String.format("%1$s [%2$s] %3$s - %4$s", date,
-						Thread.currentThread().getName(), levelName, message);
-				printStream.println(formattedMessage);
-			}
-		}, new ExecutionContext(this));
 	}
 
 	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
@@ -582,12 +540,18 @@ public class Plan extends Asset {
 
 	public static class ExecutionContext {
 
+		private Session session;
 		private Plan plan;
 		private Step currentStep;
 		private List<Variable> variables = new ArrayList<Variable>();
 
-		public ExecutionContext(Plan plan) {
+		public ExecutionContext(Session session, Plan plan) {
+			this.session = session;
 			this.plan = plan;
+		}
+
+		public Session getSession() {
+			return session;
 		}
 
 		public Plan getPlan() {

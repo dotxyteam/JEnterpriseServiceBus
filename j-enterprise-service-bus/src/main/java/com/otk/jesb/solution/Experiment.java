@@ -2,6 +2,7 @@ package com.otk.jesb.solution;
 
 import javax.swing.SwingUtilities;
 
+import com.otk.jesb.Session;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.builtin.Evaluate;
@@ -30,7 +31,7 @@ public class Experiment extends Plan {
 
 	public Object carryOut() throws Throwable {
 		OperationBuilder<?> operationBuilder = experimentalStep.getOperationBuilder();
-		Operation operation = operationBuilder.build(new Plan.ExecutionContext(this), new Plan.ExecutionInspector() {
+		Operation operation = operationBuilder.build(new Plan.ExecutionContext(Session.NO_SESSION, this), new Plan.ExecutionInspector() {
 
 			@Override
 			public void logWarning(String message) {

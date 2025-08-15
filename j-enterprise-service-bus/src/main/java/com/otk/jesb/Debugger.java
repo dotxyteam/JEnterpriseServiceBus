@@ -24,7 +24,7 @@ import com.otk.jesb.solution.Transition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
-public class Debugger {
+public class Debugger extends Session {
 
 	private Solution solution;
 	private List<PlanActivation> planActivations;
@@ -73,6 +73,17 @@ public class Debugger {
 
 	public void setCurrentPlanActivationFilter(PlanActivationFilter currentPlanActivationFilter) {
 		this.currentPlanActivationFilter = currentPlanActivationFilter;
+	}
+
+	@Override
+	public void initiate() {
+		activatePlans();
+	}
+
+	@Override
+	public void terminate() {
+		deactivatePlans();
+		stopExecutions();
 	}
 
 	public void activatePlans() {
@@ -248,7 +259,7 @@ public class Debugger {
 			this.plan = plan;
 			this.planInput = planInput;
 			this.executionInspector = createExecutionInspector();
-			this.executionContext = new ExecutionContext(plan);
+			this.executionContext = new ExecutionContext(Debugger.this, plan);
 			start();
 		}
 

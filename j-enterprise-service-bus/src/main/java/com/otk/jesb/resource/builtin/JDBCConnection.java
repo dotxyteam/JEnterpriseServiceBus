@@ -3,10 +3,12 @@ package com.otk.jesb.resource.builtin;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.util.Properties;
-
+import java.util.WeakHashMap;
+import java.util.function.Function;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Variant;
+import com.otk.jesb.Session;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -33,7 +35,7 @@ public class JDBCConnection extends Resource {
 	private Variant<String> urlVariant = new Variant<String>(String.class);
 	private Variant<String> userNameVariant = new Variant<String>(String.class);
 	private Variant<String> passwordVariant = new Variant<String>(String.class);
-	private Connection internalConnection;
+	private WeakHashMap<Session, Connection> instanceBySession = new WeakHashMap<Session, Connection>();
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -75,24 +77,52 @@ public class JDBCConnection extends Resource {
 		this.passwordVariant = passwordVariant;
 	}
 
-	public Connection build() throws Exception {
-		if ((internalConnection == null) || internalConnection.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
-			String driverClassName = getDriverClassNameVariant().getValue();
-			String url = getUrlVariant().getValue();
-			String userName = getUserNameVariant().getValue();
-			String password = getPasswordVariant().getValue();
-			Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
-			Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
-			Properties properties = new Properties();
-			if (userName != null) {
-				properties.setProperty("user", userName);
-			}
-			if (password != null) {
-				properties.setProperty("password", password);
-			}
-			internalConnection = driverInstance.connect(url, properties);
+	private Connection open() throws Exception {
+		String driverClassName = getDriverClassNameVariant().getValue();
+		String url = getUrlVariant().getValue();
+		String userName = getUserNameVariant().getValue();
+		String password = getPasswordVariant().getValue();
+		Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
+		Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
+		Properties properties = new Properties();
+		if (userName != null) {
+			properties.setProperty("user", userName);
 		}
-		return internalConnection;
+		if (password != null) {
+			properties.setProperty("password", password);
+		}
+		return driverInstance.connect(url, properties);
+	}
+
+	public <T> T during(Function<Connection, T> callable) throws Exception {
+		Connection instance = open();
+		try {
+			return callable.apply(instance);
+		} finally {
+			instance.close();
+		}
+	}
+
+	public Connection during(Session session) throws Exception {
+		synchronized (session) {
+			synchronized (instanceBySession) {
+				Connection instance = instanceBySession.get(session);
+				if ((instance != null) && !instance.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
+					session.getClosables().remove(instance);
+					try {
+						instance.close();
+					} catch (Throwable ignore) {
+					}
+					session = null;
+				}
+				if (instance == null) {
+					instance = open();
+					session.getClosables().add(instance);
+					instanceBySession.put(session, instance);
+				}
+				return instance;
+			}
+		}
 	}
 
 	@Override
@@ -107,7 +137,7 @@ public class JDBCConnection extends Resource {
 			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			build();
+			open().close();
 		} catch (Exception e) {
 			throw new ValidationError("Failed to create the connection", e);
 		}
@@ -132,4 +162,5 @@ public class JDBCConnection extends Resource {
 		}
 
 	}
+
 }

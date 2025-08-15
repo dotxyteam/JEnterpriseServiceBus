@@ -21,6 +21,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Variant;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.util.Accessor;
@@ -31,11 +32,13 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public abstract class JDBCOperation implements Operation {
 
+	private Session session;
 	private JDBCConnection connection;
 	private String statement;
 	private ParameterValues parameterValues;
 
-	public JDBCOperation(JDBCConnection connection) {
+	public JDBCOperation(Session session, JDBCConnection connection) {
+		this.session = session;
 		this.connection = connection;
 	}
 
@@ -60,8 +63,8 @@ public abstract class JDBCOperation implements Operation {
 	}
 
 	protected PreparedStatement prepare() throws Exception {
-		Connection conn = connection.build();
-		PreparedStatement preparedStatement = conn.prepareStatement(statement);
+		Connection connectionInstance = connection.during(session);
+		PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
 		ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
 		if (parameterMetaData != null) {
 			int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
@@ -192,9 +195,15 @@ public abstract class JDBCOperation implements Operation {
 				throw new ValidationError("Failed to get parameter definitions", t);
 			}
 			try {
-				Connection sqlConnection = getConnection().build();
-				PreparedStatement preparedStatement = sqlConnection.prepareStatement(getStatementVariant().getValue());
-				int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();
+				int expectedParameterCount = getConnection().during(connectionInstance -> {
+					try {
+						PreparedStatement preparedStatement = connectionInstance
+								.prepareStatement(getStatementVariant().getValue());
+						return preparedStatement.getParameterMetaData().getParameterCount();
+					} catch (SQLException e) {
+						throw new PotentialError(e);
+					}
+				});
 				if (expectedParameterCount != parameterDefinitions.size()) {
 					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
 							+ ". Expected " + expectedParameterCount + " parameter(s).");
@@ -244,7 +253,9 @@ public abstract class JDBCOperation implements Operation {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return new Pair<JDBCConnection, String>(getConnection(), getStatementVariant().getValue());
+				JDBCConnection connection = getConnection();
+				return new Pair<String, String>((connection != null) ? MiscUtils.serialize(connection) : null,
+						getStatementVariant().getValue());
 			}
 
 			@Override
@@ -254,13 +265,18 @@ public abstract class JDBCOperation implements Operation {
 					if (connection == null) {
 						return null;
 					}
-					Connection conn = connection.build();
 					String statement = getStatementVariant().getValue();
 					if ((statement == null) || statement.trim().isEmpty()) {
 						return null;
 					}
-					PreparedStatement preparedStatement = conn.prepareStatement(statement);
-					return JDBCOperation.retrieveParameterDefinitions(preparedStatement);
+					return connection.during(connectionInstance -> {
+						try {
+							PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
+							return JDBCOperation.retrieveParameterDefinitions(preparedStatement);
+						} catch (SQLException e) {
+							throw new PotentialError(e);
+						}
+					});
 				} catch (Exception e) {
 					throw new VersionAccessException(e);
 				}

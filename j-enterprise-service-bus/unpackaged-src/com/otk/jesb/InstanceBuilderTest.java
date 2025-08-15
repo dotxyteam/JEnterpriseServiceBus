@@ -1,5 +1,7 @@
 package com.otk.jesb;
 
+import java.io.PrintStream;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.SwingUtilities;
@@ -10,6 +12,7 @@ import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.InstanceBuilderTest.Tree.Builder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.ParameterInitializer;
@@ -19,6 +22,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 
@@ -67,7 +71,44 @@ public class InstanceBuilderTest {
 				try {
 					Object input = plan.getActivator().getInputClass().getConstructor(Tree.class)
 							.newInstance(inputTree);
-					output = plan.execute(input);
+					output = plan.execute(input, new ExecutionInspector() {
+
+						@Override
+						public void beforeOperation(StepCrossing stepCrossing) {
+						}
+
+						@Override
+						public void afterOperation(StepCrossing stepCrossing) {
+						}
+
+						@Override
+						public boolean isExecutionInterrupted() {
+							return false;
+						}
+
+						@Override
+						public void logInformation(String message) {
+							log(message, "INFORMATION", System.out);
+						}
+
+						@Override
+						public void logError(String message) {
+							log(message, "ERROR", System.err);
+						}
+
+						@Override
+						public void logWarning(String message) {
+							log(message, "WARNING", System.err);
+						}
+
+						private void log(String message, String levelName, PrintStream printStream) {
+							String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
+									.format(MiscUtils.now());
+							String formattedMessage = String.format("%1$s [%2$s] %3$s - %4$s", date,
+									Thread.currentThread().getName(), levelName, message);
+							printStream.println(formattedMessage);
+						}
+					}, new ExecutionContext(Session.NO_SESSION, plan));
 				} catch (Throwable t) {
 					GUI.INSTANCE.handleException(null, t);
 					return;

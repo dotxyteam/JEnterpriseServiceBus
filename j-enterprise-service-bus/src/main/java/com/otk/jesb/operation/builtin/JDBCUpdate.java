@@ -2,6 +2,7 @@ package com.otk.jesb.operation.builtin;
 
 import java.sql.PreparedStatement;
 
+import com.otk.jesb.Session;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
@@ -13,8 +14,8 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCUpdate extends JDBCOperation {
 
-	public JDBCUpdate(JDBCConnection connection) {
-		super(connection);
+	public JDBCUpdate(Session session, JDBCConnection connection) {
+		super(session, connection);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class JDBCUpdate extends JDBCOperation {
 
 		@Override
 		public JDBCUpdate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCUpdate result = new JDBCUpdate(getConnection());
+			JDBCUpdate result = new JDBCUpdate(context.getSession(), getConnection());
 			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
 			return result;

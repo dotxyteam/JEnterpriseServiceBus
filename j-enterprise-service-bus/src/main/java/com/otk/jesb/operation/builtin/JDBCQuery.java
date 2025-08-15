@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
 import com.otk.jesb.Structure;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
@@ -40,8 +42,8 @@ public class JDBCQuery extends JDBCOperation {
 
 	private Class<?> customResultClass;
 
-	public JDBCQuery(JDBCConnection connection, Class<?> customResultClass) {
-		super(connection);
+	public JDBCQuery(Session session, JDBCConnection connection, Class<?> customResultClass) {
+		super(session, connection);
 		this.customResultClass = customResultClass;
 	}
 
@@ -224,7 +226,7 @@ public class JDBCQuery extends JDBCOperation {
 
 		@Override
 		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQuery result = new JDBCQuery(getConnection(), upToDateCustomResultClass.get());
+			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(), upToDateCustomResultClass.get());
 			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
@@ -292,7 +294,9 @@ public class JDBCQuery extends JDBCOperation {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return new Pair<JDBCConnection, String>(getConnection(), getStatementVariant().getValue());
+				JDBCConnection connection = getConnection();
+				return new Pair<String, String>((connection != null) ? MiscUtils.serialize(connection) : null,
+						getStatementVariant().getValue());
 			}
 
 			@Override
@@ -302,13 +306,21 @@ public class JDBCQuery extends JDBCOperation {
 					if (connection == null) {
 						return null;
 					}
-					Connection conn = connection.build();
-					String statement = getStatementVariant().getValue();
-					if ((statement == null) || statement.trim().isEmpty()) {
-						return null;
-					}
-					PreparedStatement preparedStatement = conn.prepareStatement(statement);
-					return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement);
+					return connection.during(new Function<Connection, List<ColumnDefinition>>() {
+						@Override
+						public List<ColumnDefinition> apply(Connection connectionInstance) {
+							String statement = getStatementVariant().getValue();
+							if ((statement == null) || statement.trim().isEmpty()) {
+								return null;
+							}
+							try {
+								PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
+								return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement);
+							} catch (SQLException e) {
+								throw new PotentialError(e);
+							}
+						}
+					});
 				} catch (Exception e) {
 					throw new VersionAccessException(e);
 				}

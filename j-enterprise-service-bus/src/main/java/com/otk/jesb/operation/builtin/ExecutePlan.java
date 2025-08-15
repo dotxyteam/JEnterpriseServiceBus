@@ -2,6 +2,7 @@ package com.otk.jesb.operation.builtin;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.instantiation.InstantiationContext;
@@ -18,11 +19,13 @@ import com.otk.jesb.util.Accessor;
 
 public class ExecutePlan implements Operation {
 
+	private Session session;
 	private Plan plan;
 	private Object planInput;
 	private ExecutionInspector executionInspector;
 
-	public ExecutePlan(Plan plan, Object planInput, ExecutionInspector executionInspector) {
+	public ExecutePlan(Session session, Plan plan, Object planInput, ExecutionInspector executionInspector) {
+		this.session = session;
 		this.plan = plan;
 		this.planInput = planInput;
 		this.executionInspector = executionInspector;
@@ -38,7 +41,7 @@ public class ExecutePlan implements Operation {
 
 	@Override
 	public Object execute() throws Throwable {
-		return plan.execute(planInput, executionInspector, new ExecutionContext(plan));
+		return plan.execute(planInput, executionInspector, new ExecutionContext(session, plan));
 	}
 
 	public static class Metadata implements OperationMetadata<ExecutePlan> {
@@ -96,7 +99,7 @@ public class ExecutePlan implements Operation {
 		public ExecutePlan build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new ExecutePlan(getPlan(), planInput, executionInspector);
+			return new ExecutePlan(context.getSession(), getPlan(), planInput, executionInspector);
 		}
 
 		@Override

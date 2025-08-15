@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,12 +31,25 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
+import org.apache.commons.io.input.ReaderInputStream;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryCompiler {
 
+	private static final String SOURCE_VERSION = System
+			.getProperty(InMemoryCompiler.class.getName() + ".sourceVersion");
+	private static final String TARGET_VERSION = System
+			.getProperty(InMemoryCompiler.class.getName() + ".targetVersion");
+	static {
+		if (SOURCE_VERSION == null) {
+			throw new UnexpectedError();
+		}
+		if (TARGET_VERSION == null) {
+			throw new UnexpectedError();
+		}
+	}
 	private static final Class<?> CLASS_NOT_FOUND = (new Object() {
 		@Override
 		public String toString() {
@@ -46,7 +61,8 @@ public class InMemoryCompiler {
 	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
-	private Iterable<String> options;
+	private Iterable<String> options = Arrays.asList("-parameters", "-source", SOURCE_VERSION, "-target",
+			TARGET_VERSION);
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader(
 			InMemoryCompiler.class.getClassLoader());
 	private final Object compilationMutex = new Object();
@@ -113,7 +129,7 @@ public class InMemoryCompiler {
 	public Class<?> compile(String className, String source) throws CompilationError {
 		synchronized (compilationMutex) {
 			ClassIdentifier classIdentifier = new ClassIdentifier(new UID(), className);
-			compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source));
+			compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source, null));
 			try {
 				return new MemoryClassLoader(classIdentifier).loadClass(className);
 			} catch (ClassNotFoundException e) {
@@ -159,13 +175,15 @@ public class InMemoryCompiler {
 	}
 
 	private JavaFileManager createJavaFileManager() {
-		return new ForwardingJavaFileManager<JavaFileManager>(compiler.getStandardFileManager(null, null, null)) {
+		return new ForwardingJavaFileManager<JavaFileManager>(
+				compiler.getStandardFileManager(null, null, Charset.defaultCharset())) {
 			@Override
 			public JavaFileObject getJavaFileForOutput(Location loc, String className, Kind kind, FileObject obj) {
 				if (currentCompilationIdentifier == null) {
 					throw new UnexpectedError();
 				}
-				return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind);
+				return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind,
+						null);
 			}
 
 			@Override
@@ -197,10 +215,10 @@ public class InMemoryCompiler {
 	}
 
 	private String extractSourceFilePath(Diagnostic<?> diagnostic) {
-		if (!(diagnostic.getSource() instanceof NamedJavaFileObject)) {
+		if (!(diagnostic.getSource() instanceof SimpleJavaFileObject)) {
 			return null;
 		}
-		NamedJavaFileObject javaFileObject = (NamedJavaFileObject) diagnostic.getSource();
+		SimpleJavaFileObject javaFileObject = (SimpleJavaFileObject) diagnostic.getSource();
 		if (javaFileObject.getKind() != Kind.SOURCE) {
 			return null;
 		}
@@ -208,23 +226,18 @@ public class InMemoryCompiler {
 	}
 
 	private String extractSourceCode(Diagnostic<?> diagnostic) {
-		if (!(diagnostic.getSource() instanceof NamedJavaFileObject)) {
+		if (!(diagnostic.getSource() instanceof SimpleJavaFileObject)) {
 			return null;
 		}
-		NamedJavaFileObject javaFileObject = (NamedJavaFileObject) diagnostic.getSource();
+		SimpleJavaFileObject javaFileObject = (SimpleJavaFileObject) diagnostic.getSource();
 		if (javaFileObject.getKind() != Kind.SOURCE) {
 			return null;
 		}
-		CharSequence charSequence;
-		try {
-			charSequence = javaFileObject.getCharContent(true);
+		try (Reader reader = javaFileObject.openReader(true)) {
+			return MiscUtils.read(new ReaderInputStream(reader, Charset.defaultCharset()));
 		} catch (IOException e) {
 			return null;
 		}
-		if (charSequence == null) {
-			return null;
-		}
-		return charSequence.toString();
 	}
 
 	private List<JavaFileObject> collectSourceFiles(UID compilationIdentifier, File sourceDirectory,
@@ -244,7 +257,8 @@ public class InMemoryCompiler {
 					} catch (IOException e) {
 						throw new UnexpectedError(e);
 					}
-					result.add(sourceFile(new ClassIdentifier(compilationIdentifier, className), source));
+					result.add(sourceFile(new ClassIdentifier(compilationIdentifier, className), source,
+							fileOrDirectory.toURI()));
 				}
 			} else if (fileOrDirectory.isDirectory()) {
 				String subPackageName = ((currentPackageName != null) ? (currentPackageName + ".") : "")
@@ -257,12 +271,12 @@ public class InMemoryCompiler {
 		return result;
 	}
 
-	private static JavaFileObject sourceFile(ClassIdentifier classIdentifier, String source) {
-		return inputFile(classIdentifier, Kind.SOURCE, source);
+	private static JavaFileObject sourceFile(ClassIdentifier classIdentifier, String source, URI uri) {
+		return inputFile(classIdentifier, Kind.SOURCE, source, uri);
 	}
 
-	private static JavaFileObject inputFile(ClassIdentifier classIdentifier, Kind kind, String content) {
-		return new NamedJavaFileObject(classIdentifier, kind) {
+	private static JavaFileObject inputFile(ClassIdentifier classIdentifier, Kind kind, String content, URI uri) {
+		return new NamedJavaFileObject(classIdentifier, kind, uri) {
 			@Override
 			public CharSequence getCharContent(boolean b) {
 				return content;
@@ -270,8 +284,8 @@ public class InMemoryCompiler {
 		};
 	}
 
-	private static NamedJavaFileObject inputFile(ClassIdentifier classIdentifier, Kind kind, byte[] content) {
-		return new NamedJavaFileObject(classIdentifier, kind) {
+	private static NamedJavaFileObject inputFile(ClassIdentifier classIdentifier, Kind kind, byte[] content, URI uri) {
+		return new NamedJavaFileObject(classIdentifier, kind, uri) {
 			@Override
 			public InputStream openInputStream() {
 				return new ByteArrayInputStream(content);
@@ -279,8 +293,8 @@ public class InMemoryCompiler {
 		};
 	}
 
-	private JavaFileObject outputFile(ClassIdentifier classIdentifier, Kind kind) {
-		return new NamedJavaFileObject(classIdentifier, kind) {
+	private JavaFileObject outputFile(ClassIdentifier classIdentifier, Kind kind, URI uri) {
+		return new NamedJavaFileObject(classIdentifier, kind, uri) {
 			@Override
 			public OutputStream openOutputStream() {
 				return outputStream(getClassIdentifier());
@@ -290,9 +304,15 @@ public class InMemoryCompiler {
 
 	private OutputStream outputStream(ClassIdentifier classIdentifier) {
 		return new ByteArrayOutputStream() {
+			boolean closed = false;
+
 			@Override
 			public void close() {
+				if (closed) {
+					return;
+				}
 				storeClass(classIdentifier, toByteArray());
+				closed = true;
 			}
 		};
 	}
@@ -303,7 +323,7 @@ public class InMemoryCompiler {
 				throw new UnexpectedError();
 			}
 			classes.put(classIdentifier, bytes);
-			NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes);
+			NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes, null);
 			int dot = classIdentifier.getClassName().lastIndexOf('.');
 			String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
 			packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
@@ -379,8 +399,9 @@ public class InMemoryCompiler {
 	private static class NamedJavaFileObject extends SimpleJavaFileObject {
 		private final ClassIdentifier classIdentifier;
 
-		protected NamedJavaFileObject(ClassIdentifier classIdentifier, Kind kind) {
-			super(URI.create(classIdentifier.getClassName().replace('.', '/') + kind.extension), kind);
+		protected NamedJavaFileObject(ClassIdentifier classIdentifier, Kind kind, URI uri) {
+			super((uri != null) ? uri : URI.create(classIdentifier.getClassName().replace('.', '/') + kind.extension),
+					kind);
 			this.classIdentifier = classIdentifier;
 		}
 

@@ -16,6 +16,7 @@
 - add general activities:
 	. Log
 	. ...
+- add a welcome image
 - maybe change the project name since ESBs are not popular anymore
 - add other built-in activities (fail, file, jdbc, jms, data format, ...)
 - allow to create profiles for each env

@@ -63,9 +63,6 @@ public class MiscUtils {
 
 	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
 	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
-	static {
-		IN_MEMORY_COMPILER.setOptions(Arrays.asList("-parameters"));
-	}
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
@@ -491,7 +488,7 @@ public class MiscUtils {
 		return File.createTempFile("file-", "." + extension);
 	}
 
-	public static File createTemporaryDirectory() throws Exception {
+	public static File createTemporaryDirectory() throws IOException {
 		File result = File.createTempFile("directory-", ".tmp");
 		delete(result);
 		createDirectory(result);
@@ -499,11 +496,15 @@ public class MiscUtils {
 	}
 
 	public static void createDirectory(File dir) throws IOException {
+		createDirectory(dir, false);
+	}
+
+	public static void createDirectory(File dir, boolean createNonExistingAncestors) throws IOException {
 		if (dir.isDirectory()) {
 			throw new IOException("Cannot create directory: '" + dir + "': It already exists");
 		}
 		try {
-			if (!dir.mkdir()) {
+			if (!(createNonExistingAncestors ? dir.mkdirs() : dir.mkdir())) {
 				throw new IOException("System error");
 			}
 		} catch (Exception e) {
