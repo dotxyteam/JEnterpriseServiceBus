@@ -33,11 +33,19 @@ public abstract class Asset {
 		this.note = note;
 	}
 
-	public String getFileSystemResourceName() {
+	public String getFullName() {
 		if (this instanceof Folder) {
 			return name;
 		} else {
-			return name + "." + getClass().getSimpleName().toLowerCase() + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
+			return name + "." + getClass().getSimpleName().toLowerCase();
+		}
+	}
+
+	public String getFileSystemResourceName() {
+		if (this instanceof Folder) {
+			return getFullName();
+		} else {
+			return getFullName() + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
 		}
 	}
 

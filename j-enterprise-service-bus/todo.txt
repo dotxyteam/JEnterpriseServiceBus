@@ -13,27 +13,30 @@
 	and bug-free set of features (operations, activators, ...). The goal must 
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
-- add general activities:
-	. Log
-	. ...
-- add a welcome image
+- add essential built-in activities:
+	. fail
+	. file (delete, move, poll)
+	. jdbc (stored procedure)
+- allow to create custom operations/activators/resources by coding directly in the designer
+- documentation:
+	. manual
+	. readme.md (extensibility, ...)
+	. javadoc
+- allow to create template operations (ex: for dynamic jdbc suery statement) ???
+- add a welcome image ???
 - maybe change the project name since ESBs are not popular anymore
-- add other built-in activities (fail, file, jdbc, jms, data format, ...)
-- allow to create profiles for each env
-- it is difficult to find appropriate names for steps and structure elements 
-- allow to store and view executions
-- Limit console size
 - create a basic WSDL generator
-- allow to view APIs (SOAP/REST) documentation
+- allow to view APIs (SOAP/REST) documentation URL
 - allow to have encrypted (password) environment settings
+- add other built-in activities (jms, data format, ...)
+- allow to use a custom profile to debug (must be able to view the changed variable 
+values)
+- allow to run (not debug) from the designer
+- allow to store and view plan executions in deployed mode
 - manage JDBC connection pools
-- need to generate OperationOutput class for web services ???
 - add basic HTTP operation/activators 
 - add a static test that checks that most values are Variant
 - allow to share assets between solutions
-- allow to deploy and execute a project outside of the designer in a production environment
-- keyboard shortcuts for common actions (delete, copy/cut/paste, ...)
-- allow to have a feedback of current validation job in progress
 - find a better icon for 'connect' drag intent
 - allow to process REST XML message payloads 
 - deleting the whole solution folder before saving is risky. 
