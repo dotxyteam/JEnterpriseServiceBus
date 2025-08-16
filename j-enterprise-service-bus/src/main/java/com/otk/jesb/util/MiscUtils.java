@@ -97,6 +97,14 @@ public class MiscUtils {
 
 				return !isTransient;
 			}
+
+			@Override
+			public void writeProperty(Object object, String propertyName, Object value) {
+				if(!propertyWriteable(propertyName, object.getClass())) {
+					return;
+				}
+				super.writeProperty(object, propertyName, value);
+			}
 		}), -20);
 		XSTREAM.addPermission(AnyTypePermission.ANY);
 		XSTREAM.ignoreUnknownElements();

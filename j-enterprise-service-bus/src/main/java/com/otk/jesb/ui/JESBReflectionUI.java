@@ -28,6 +28,7 @@ import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.Debugger.PlanActivation;
@@ -60,6 +61,8 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.operation.builtin.CallRESTAPI;
 import com.otk.jesb.operation.builtin.CallSOAPWebService;
+import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
+import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
 import com.otk.jesb.operation.builtin.DoNothing;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.operation.builtin.ExecutePlan;
@@ -68,6 +71,7 @@ import com.otk.jesb.operation.builtin.GenerateXML;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.Log;
+import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
 import com.otk.jesb.operation.builtin.ParseXML;
 import com.otk.jesb.operation.builtin.ReadFile;
 import com.otk.jesb.operation.builtin.Sleep;
@@ -146,15 +150,18 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<OperationMetadata<?>> OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
 			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
 			new ExecutePlan.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(), new WriteFile.Metadata(),
-			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
-			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());
+			new CopyFileOrDirectory.Metadata(), new MoveFileOrDirectory.Metadata(),
+			new DeleteFileOrDirectory.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
+			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+			new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
 			new JDBCConnection.Metadata(), new XSD.Metadata(), new OpenAPIDescription.Metadata(), new WSDL.Metadata(),
 			new HTTPServer.Metadata());
 	public static final List<ActivatorMetadata> ACTIVATOR__METADATAS = Arrays.asList(new LaunchAtStartup.Metadata(),
-			new Operate.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
+			new Operate.Metadata(), new WatchFileSystem.Metadata(), new ReceiveRESTRequest.Metadata(),
+			new ReceiveSOAPRequest.Metadata());
 	private static final String CURRENT_ASSET_KEY = JESBReflectionUI.class.getName() + ".CURRENT_VALIDATION_ASSET_KEY";
 	private static final String CURRENT_PLAN_ELEMENT_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_ELEMENT_KEY";
@@ -2239,10 +2246,10 @@ public class JESBReflectionUI extends CustomizedUI {
 								return ((Variant) object).getValue();
 							}
 
-							@SuppressWarnings({ "unchecked", "rawtypes" })
+							@SuppressWarnings({ "rawtypes" })
 							@Override
 							public void setValue(Object object, Object value) {
-								((Variant) object).setValue(value);
+								((Variant) object).setConstantValue(value);
 							}
 
 							@Override

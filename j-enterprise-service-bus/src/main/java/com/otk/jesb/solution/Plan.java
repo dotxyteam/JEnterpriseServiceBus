@@ -184,7 +184,9 @@ public class Plan extends Asset {
 			throws ExecutionError {
 		try {
 			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
-				context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
+				synchronized (context) {
+					context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
+				}
 			}
 			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
@@ -245,7 +247,9 @@ public class Plan extends Asset {
 			} catch (ExecutionError e) {
 				executionError = e;
 			} finally {
-				context.getVariables().add(stepCrossing);
+				synchronized (context) {
+					context.getVariables().add(stepCrossing);
+				}
 				stepCrossing.capturePostVariables(context.getVariables());
 			}
 			if (currentStepTransitions.size() == 0) {

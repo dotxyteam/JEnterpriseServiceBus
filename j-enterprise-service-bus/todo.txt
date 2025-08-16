@@ -14,7 +14,6 @@
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
 - add essential built-in activities:
-	. fail
 	. file (delete, move, poll)
 	. jdbc (stored procedure)
 - allow to create custom operations/activators/resources by coding directly in the designer
@@ -22,6 +21,7 @@
 	. manual
 	. readme.md (extensibility, ...)
 	. javadoc
+- allow to access step error variables
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - add a welcome image ???
 - maybe change the project name since ESBs are not popular anymore
@@ -60,7 +60,6 @@ find a solution (merge files and folders ???)..
 - allow to monitor the execution of deployed projects
 - allow to extend the framework by adding custom activities
 - allow to specify custom activity builder UI details through the code
-- allow to access step error variables
 - error marker do not disappear when deselecting and selecting a plan while
 ExecutePlan.inputBuilder is filled
 - allow to copy/cut/paste assets

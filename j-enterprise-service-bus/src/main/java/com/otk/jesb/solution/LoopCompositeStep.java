@@ -131,7 +131,9 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return currentIndex;
 				}
 			};
-			context.getVariables().add(iterationIndexVariable);
+			synchronized (context) {
+				context.getVariables().add(iterationIndexVariable);
+			}
 			try {
 				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())
@@ -306,7 +308,8 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 						SimpleElement element = new SimpleElement();
 						structure.getElements().add(element);
 						element.setName(resultsCollectionEntry.getStepName());
-						element.setTypeNameOrAlias(resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
+						element.setTypeNameOrAlias(
+								resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
 						element.setMultiple(true);
 					}
 				}

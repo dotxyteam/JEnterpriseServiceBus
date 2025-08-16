@@ -139,7 +139,7 @@ public abstract class JDBCOperation implements Operation {
 			this.statementVariant = statementVariant;
 		}
 
-		public List<ParameterDefinition> getParameterDefinitions() {
+		private List<ParameterDefinition> computeParameterDefinitions() {
 			if (parameterDefinitionAutomatic) {
 				try {
 					return upToDateParameterDefinitions.get();
@@ -149,6 +149,10 @@ public abstract class JDBCOperation implements Operation {
 			} else {
 				return parameterDefinitions;
 			}
+		}
+
+		public List<ParameterDefinition> getParameterDefinitions() {
+			return parameterDefinitions;
 		}
 
 		public void setParameterDefinitions(List<ParameterDefinition> parameterDefinitions) {
@@ -190,7 +194,7 @@ public abstract class JDBCOperation implements Operation {
 			}
 			List<ParameterDefinition> parameterDefinitions;
 			try {
-				parameterDefinitions = getParameterDefinitions();
+				parameterDefinitions = computeParameterDefinitions();
 			} catch (Throwable t) {
 				throw new ValidationError("Failed to get parameter definitions", t);
 			}
@@ -287,13 +291,13 @@ public abstract class JDBCOperation implements Operation {
 		private class UpToDateParameterValuesClass extends UpToDate<Class<? extends ParameterValues>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return MiscUtils.serialize(getParameterDefinitions());
+				return computeParameterDefinitions();
 			}
 
 			@SuppressWarnings("unchecked")
 			@Override
 			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
-				List<ParameterDefinition> parameterDefinitions = getParameterDefinitions();
+				List<ParameterDefinition> parameterDefinitions = computeParameterDefinitions();
 				String className = JDBCQuery.class.getName() + "ParameterValues"
 						+ MiscUtils.toDigitalUniqueIdentifier(this);
 				StringBuilder javaSource = new StringBuilder();
@@ -394,6 +398,43 @@ public abstract class JDBCOperation implements Operation {
 				throw new ValidationError("Illegal parameter type name: '" + parameterTypeName + "': Expected one of "
 						+ getParameterTypeNameOptions());
 			}
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
+			result = prime * result + ((parameterTypeName == null) ? 0 : parameterTypeName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ParameterDefinition other = (ParameterDefinition) obj;
+			if (parameterName == null) {
+				if (other.parameterName != null)
+					return false;
+			} else if (!parameterName.equals(other.parameterName))
+				return false;
+			if (parameterTypeName == null) {
+				if (other.parameterTypeName != null)
+					return false;
+			} else if (!parameterTypeName.equals(other.parameterTypeName))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ParameterDefinition [parameterName=" + parameterName + ", parameterTypeName=" + parameterTypeName
+					+ "]";
 		}
 
 	}

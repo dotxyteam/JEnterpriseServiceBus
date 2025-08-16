@@ -16,31 +16,67 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class Variant<T> {
 
 	private Class<T> valueClass;
-	private Object value;
+	private Object constantValue;
+	private Expression<String> expression;
+	private boolean variable = false;
 
 	public Variant(Class<T> valueClass, T value) {
 		this.valueClass = valueClass;
-		this.value = value;
+		this.constantValue = value;
 	}
 
 	public Variant(Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
+	public Variant() {
+		this(null);
+	}
+
 	public Class<T> getValueClass() {
 		return valueClass;
 	}
 
-	@SuppressWarnings("unchecked")
+	public void setValueClass(Class<T> valueClass) {
+		this.valueClass = valueClass;
+	}
+
+	public Object getConstantValue() {
+		return constantValue;
+	}
+
+	public void setConstantValue(Object constantValue) {
+		this.constantValue = constantValue;
+	}
+
+	public Expression<String> getVariableReferenceExpression() {
+		return expression;
+	}
+
+	public void setVariableReferenceExpression(Expression<String> expression) {
+		this.expression = expression;
+	}
+
+	public boolean isVariable() {
+		return variable;
+	}
+
+	public void setVariable(boolean variable) {
+		this.variable = variable;
+	}
+
 	public T getValue() {
-		if (value instanceof Expression) {
-			String valueString = ((Expression<String>) value).evaluate(
+		if (variable) {
+			if (expression == null) {
+				return null;
+			}
+			String valueString = expression.evaluate(
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT));
 			if (valueString == null) {
 				if (valueClass.isPrimitive()) {
 					throw new PotentialError("Unexpected <null> environment variable value. <" + valueClass.getName()
-							+ "> value expected from: " + ((Expression<String>) value).get());
+							+ "> value expected from: " + expression.get());
 				}
 				return null;
 			}
@@ -58,24 +94,9 @@ public class Variant<T> {
 			} else {
 				throw new UnexpectedError();
 			}
+		} else {
+			return valueClass.cast(constantValue);
 		}
-		return valueClass.cast(value);
-	}
-
-	public void setValue(T t) {
-		this.value = t;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Expression<String> getVariableReferenceExpression() {
-		if (!(value instanceof Expression)) {
-			return null;
-		}
-		return (Expression<String>) value;
-	}
-
-	public void setVariableReferenceExpression(Expression<String> expression) {
-		value = expression;
 	}
 
 	public List<Expression<String>> getVariableReferenceExpressionOptions() {
@@ -99,20 +120,12 @@ public class Variant<T> {
 		return result;
 	}
 
-	public boolean isVariable() {
-		return value instanceof Expression;
-	}
-
-	public void setVariable(boolean b) {
-		value = b ? new Expression<String>(String.class) : null;
-	}
-
 	@Override
 	public String toString() {
-		if (isVariable()) {
-			return "(" + ")";
+		if (variable) {
+			return "(" + expression + ")";
 		} else {
-			return Objects.toString(value);
+			return Objects.toString(constantValue);
 		}
 	}
 

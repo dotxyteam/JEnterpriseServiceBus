@@ -1,11 +1,13 @@
 package com.otk.jesb.operation.builtin;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -78,10 +80,16 @@ public class WriteFile implements Operation {
 
 		@Override
 		protected Object execute() throws IOException {
-			try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, append),
-					(charsetName != null) ? charsetName : Charset.defaultCharset().name()))) {
-				bw.write(text);
+			Set<StandardOpenOption> options = new HashSet<StandardOpenOption>();
+			options.add(StandardOpenOption.WRITE);
+			options.add(StandardOpenOption.CREATE);
+			options.add(StandardOpenOption.TRUNCATE_EXISTING);
+			if (append) {
+				options.add(StandardOpenOption.APPEND);
 			}
+			Files.write(Paths.get(filePath),
+					text.getBytes((charsetName != null) ? charsetName : Charset.defaultCharset().name()),
+					options.toArray(new StandardOpenOption[options.size()]));
 			return null;
 		}
 	}
@@ -112,9 +120,14 @@ public class WriteFile implements Operation {
 
 		@Override
 		protected Object execute() throws IOException {
-			try (FileOutputStream fos = new FileOutputStream(filePath, append)) {
-				fos.write(data);
+			Set<StandardOpenOption> options = new HashSet<StandardOpenOption>();
+			options.add(StandardOpenOption.WRITE);
+			options.add(StandardOpenOption.CREATE);
+			options.add(StandardOpenOption.TRUNCATE_EXISTING);
+			if (append) {
+				options.add(StandardOpenOption.APPEND);
 			}
+			Files.write(Paths.get(filePath), data, options.toArray(new StandardOpenOption[options.size()]));
 			return null;
 		}
 	}

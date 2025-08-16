@@ -25,7 +25,7 @@ public class LaunchAtStartup extends Activator {
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		this.activationHandler = activationHandler;
-		new Thread(LaunchAtStartup.class.getName() + "Executor[of=" + activationHandler + "]") {
+		new Thread("Worker[of=" + LaunchAtStartup.this + "]") {
 
 			@Override
 			public void run() {

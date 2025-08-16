@@ -385,20 +385,22 @@ public class Debugger extends Session {
 		}
 
 		public List<Variable> getVariables() {
-			return executionContext.getVariables().stream()
-					.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE)
-					.map(variable -> new Variable() {
+			synchronized (executionContext) {
+				return executionContext.getVariables().stream()
+						.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE)
+						.map(variable -> new Variable() {
 
-						@Override
-						public Object getValue() {
-							return variable.getValue();
-						}
+							@Override
+							public Object getValue() {
+								return variable.getValue();
+							}
 
-						@Override
-						public String getName() {
-							return variable.getName();
-						}
-					}).collect(Collectors.toList());
+							@Override
+							public String getName() {
+								return variable.getName();
+							}
+						}).collect(Collectors.toList());
+			}
 		}
 
 		protected synchronized void start() {

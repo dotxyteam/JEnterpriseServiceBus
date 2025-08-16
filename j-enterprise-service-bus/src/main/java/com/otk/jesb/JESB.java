@@ -123,8 +123,8 @@ public class JESB {
 		Solution.INSTANCE.getContents().add(plan);
 		if (DEBUG) {
 			JDBCConnection c = new JDBCConnection("db");
-			c.getDriverClassNameVariant().setValue("org.hsqldb.jdbcDriver");
-			c.getUrlVariant().setValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
+			c.getDriverClassNameVariant().setConstantValue("org.hsqldb.jdbcDriver");
+			c.getUrlVariant().setConstantValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
 			Solution.INSTANCE.getContents().add(c);
 
 			Step s1 = new Step();
@@ -135,7 +135,7 @@ public class JESB {
 			JDBCQuery.Builder ab1 = new JDBCQuery.Builder();
 			s1.setOperationBuilder(ab1);
 			ab1.setConnectionReference(Reference.get(c));
-			ab1.getStatementVariant().setValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
+			ab1.getStatementVariant().setConstantValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
 
 			LoopCompositeStep ls = new LoopCompositeStep();
 			plan.getSteps().add(ls);

@@ -155,7 +155,7 @@ public class JDBCQuery extends JDBCOperation {
 			this.resultColumnDefinitionAutomatic = resultColumnDefinitionAutomatic;
 		}
 
-		public List<ColumnDefinition> getResultColumnDefinitions() {
+		private List<ColumnDefinition> computeResultColumnDefinitions() {
 			if (resultColumnDefinitionAutomatic) {
 				try {
 					return upToDateResultColumnDefinitions.get();
@@ -165,6 +165,10 @@ public class JDBCQuery extends JDBCOperation {
 			} else {
 				return resultColumnDefinitions;
 			}
+		}
+
+		public List<ColumnDefinition> getResultColumnDefinitions() {
+			return resultColumnDefinitions;
 		}
 
 		public void setResultColumnDefinitions(List<ColumnDefinition> resultColumnDefinitions) {
@@ -182,7 +186,8 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 		private Class<?> createCustomResultClass() {
-			if (getResultColumnDefinitions() == null) {
+			Structure resultRowStructure = createResultRowStructure();
+			if (resultRowStructure == null) {
 				return null;
 			}
 			String resultRowClassName = JDBCQuery.class.getName() + "ResultRow"
@@ -190,7 +195,7 @@ public class JDBCQuery extends JDBCOperation {
 			Class<?> resultRowClass;
 			try {
 				resultRowClass = MiscUtils.IN_MEMORY_COMPILER.compile(resultRowClassName,
-						createResultRowStructure().generateJavaTypeSourceCode(resultRowClassName));
+						resultRowStructure.generateJavaTypeSourceCode(resultRowClassName));
 			} catch (CompilationError e) {
 				throw new PotentialError(e);
 			}
@@ -198,9 +203,12 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 		private Structure createResultRowStructure() {
+			List<ColumnDefinition> resultColumnDefinitions = computeResultColumnDefinitions();
+			if (resultColumnDefinitions == null) {
+				return null;
+			}
 			ClassicStructure rowStructure = new ClassicStructure();
 			{
-				List<ColumnDefinition> resultColumnDefinitions = getResultColumnDefinitions();
 				for (int i = 0; i < resultColumnDefinitions.size(); i++) {
 					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);
 					SimpleElement columnElement = new SimpleElement();
@@ -253,7 +261,7 @@ public class JDBCQuery extends JDBCOperation {
 			if (recursively) {
 				List<ColumnDefinition> resultColumnDefinitions;
 				try {
-					resultColumnDefinitions = getResultColumnDefinitions();
+					resultColumnDefinitions = computeResultColumnDefinitions();
 				} catch (Throwable t) {
 					throw new PotentialError("Failed to get result column definitions", t);
 				}
@@ -280,8 +288,7 @@ public class JDBCQuery extends JDBCOperation {
 		private class UpToDateCustomResultClass extends UpToDate<Class<?>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				List<ColumnDefinition> resultColumnDefinitions = getResultColumnDefinitions();
-				return (resultColumnDefinitions == null) ? null : MiscUtils.serialize(resultColumnDefinitions);
+				return computeResultColumnDefinitions();
 			}
 
 			@Override
@@ -366,6 +373,42 @@ public class JDBCQuery extends JDBCOperation {
 			} catch (Throwable t) {
 				throw new ValidationError("Invalid column type name: '" + columnTypeName + "'");
 			}
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((columnName == null) ? 0 : columnName.hashCode());
+			result = prime * result + ((columnTypeName == null) ? 0 : columnTypeName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ColumnDefinition other = (ColumnDefinition) obj;
+			if (columnName == null) {
+				if (other.columnName != null)
+					return false;
+			} else if (!columnName.equals(other.columnName))
+				return false;
+			if (columnTypeName == null) {
+				if (other.columnTypeName != null)
+					return false;
+			} else if (!columnTypeName.equals(other.columnTypeName))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ColumnDefinition [columnName=" + columnName + ", columnTypeName=" + columnTypeName + "]";
 		}
 
 	}

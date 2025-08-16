@@ -156,7 +156,7 @@ public class HTTPServer extends Resource {
 		protected boolean active = false;
 
 		public RequestHandler(String servicePath) {
-			this.servicePathVariant.setValue(servicePath);
+			this.servicePathVariant.setConstantValue(servicePath);
 		}
 
 		public Variant<String> getServicePathVariant() {

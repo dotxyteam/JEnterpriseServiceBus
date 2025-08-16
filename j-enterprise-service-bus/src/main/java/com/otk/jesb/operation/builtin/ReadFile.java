@@ -1,10 +1,9 @@
 package com.otk.jesb.operation.builtin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import com.otk.jesb.UnexpectedError;
@@ -66,15 +65,7 @@ public class ReadFile implements Operation {
 
 		@Override
 		protected Object execute() throws IOException {
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-			try (FileInputStream in = new FileInputStream(new File(filePath))) {
-				int bytesRead;
-				byte[] data = new byte[1024];
-				while ((bytesRead = in.read(data, 0, data.length)) != -1) {
-					buffer.write(data, 0, bytesRead);
-				}
-			}
-			return new TextResult(new String(buffer.toByteArray(),
+			return new TextResult(new String(Files.readAllBytes(Paths.get(filePath)),
 					(charsetName != null) ? charsetName : Charset.defaultCharset().name()));
 		}
 	}
@@ -93,15 +84,7 @@ public class ReadFile implements Operation {
 
 		@Override
 		protected Object execute() throws IOException {
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-			try (FileInputStream in = new FileInputStream(new File(filePath))) {
-				int bytesRead;
-				byte[] data = new byte[1024];
-				while ((bytesRead = in.read(data, 0, data.length)) != -1) {
-					buffer.write(data, 0, bytesRead);
-				}
-			}
-			return new BinaryResult(buffer.toByteArray());
+			return Files.readAllBytes(Paths.get(filePath));
 		}
 	}
 
