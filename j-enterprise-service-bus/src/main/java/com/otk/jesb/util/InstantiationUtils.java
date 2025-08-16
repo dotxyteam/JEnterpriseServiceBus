@@ -30,9 +30,7 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.MapEntryBuilder;
-import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
-import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
@@ -293,9 +291,9 @@ public class InstantiationUtils {
 					return ReflectionUIUtils.createDefaultInstance(type);
 				}
 			} else {
-				if (RootInstanceBuilderFacade.isRootInitializerFacade(currentFacade)) {
-					RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) currentFacade)
-							.getCurrentInstanceBuilderFacade()).getUnderlying();
+				RootInstanceBuilder rootInstanceBuilder = RootInstanceBuilder
+						.getFromRootInstanceInitializerFacade(currentFacade);
+				if (rootInstanceBuilder != null) {
 					InstanceBuilder result = new InstanceBuilder();
 					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());

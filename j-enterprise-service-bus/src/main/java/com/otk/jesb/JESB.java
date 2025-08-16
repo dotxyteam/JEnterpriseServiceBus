@@ -153,9 +153,9 @@ public class JESB {
 			s2.setParent(ls);
 			WriteFile.Builder ab2 = new WriteFile.Builder();
 			s2.setOperationBuilder(ab2);
-			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer())
+			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInstantiationNode())
 					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
-			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInitializer())
+			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInstantiationNode())
 					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(1,
 							new InstantiationFunction("return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
 

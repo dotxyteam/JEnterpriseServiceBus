@@ -233,15 +233,20 @@ public class InitializationCaseFacade extends Facade {
 				if (!mustHaveParameterFacadeLocally(parameterInfo)) {
 					continue;
 				}
+				if (!shouldParameterBeUsedForInstantiation(typeInfo, parameterInfo)) {
+					continue;
+				}
 				result.add(createParameterInitializerFacade(parameterInfo.getPosition()));
 			}
 		}
 		if (typeInfo instanceof IListTypeInfo) {
 			if (mustHaveListItemFacadesLocally()) {
-				for (ListItemInitializer initializer : underlying.getListItemInitializers()) {
-					result.add(createListItemInitializerFacade(initializer.getIndex()));
+				if (shouldListItemBeUsedForInstantiation((IListTypeInfo) typeInfo)) {
+					for (ListItemInitializer initializer : underlying.getListItemInitializers()) {
+						result.add(createListItemInitializerFacade(initializer.getIndex()));
+					}
+					result.add(createListItemInitializerFacade(getGreatestListItemInitializerIndex() + 1));
 				}
-				result.add(createListItemInitializerFacade(getGreatestListItemInitializerIndex() + 1));
 			}
 		} else {
 			for (IFieldInfo fieldInfo : typeInfo.getFields()) {
@@ -256,6 +261,9 @@ public class InitializationCaseFacade extends Facade {
 					}
 				}
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
+					continue;
+				}
+				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo)) {
 					continue;
 				}
 				result.add(createFieldInitializerFacade(fieldInfo.getName()));
@@ -305,6 +313,21 @@ public class InitializationCaseFacade extends Facade {
 			}
 		});
 		return result;
+	}
+
+	private boolean shouldParameterBeUsedForInstantiation(ITypeInfo typeInfo, IParameterInfo parameterInfo) {
+		return true;
+	}
+
+	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo) {
+		if (Throwable.class.isAssignableFrom(MiscUtils.getJESBClass(typeInfo.getName()))) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean shouldListItemBeUsedForInstantiation(IListTypeInfo listTypeInfo) {
+		return true;
 	}
 
 	protected int getGreatestListItemInitializerIndex() {

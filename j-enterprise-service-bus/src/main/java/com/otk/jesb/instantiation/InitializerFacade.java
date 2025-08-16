@@ -18,7 +18,7 @@ public abstract class InitializerFacade extends Facade {
 	};
 
 	private Facade parent;
-	private Object abstractValue = UNDEFINED_ABSTRACT_VALUE;
+	private Object cachedValue = UNDEFINED_ABSTRACT_VALUE;
 
 	protected abstract Object retrieveInitializerValue(Object initializer);
 
@@ -37,6 +37,10 @@ public abstract class InitializerFacade extends Facade {
 	@Override
 	public Facade getParent() {
 		return parent;
+	}
+
+	protected Object getCachedValue() {
+		return cachedValue;
 	}
 
 	protected String getValueTypeName() {
@@ -68,15 +72,15 @@ public abstract class InitializerFacade extends Facade {
 				parent.setConcrete(true);
 			}
 			if (getUnderlying() == null) {
-				if (abstractValue == UNDEFINED_ABSTRACT_VALUE) {
-					abstractValue = createDefaultValue();
+				if (cachedValue == UNDEFINED_ABSTRACT_VALUE) {
+					cachedValue = createDefaultValue();
 				}
-				createUnderlying(abstractValue);
+				createUnderlying(cachedValue);
 			}
 		} else {
 			if (getUnderlying() != null) {
 				deleteUnderlying();
-				abstractValue = createDefaultValue();
+				cachedValue = createDefaultValue();
 			}
 		}
 	}
@@ -122,22 +126,22 @@ public abstract class InitializerFacade extends Facade {
 		if ((value == null) && (getValueType().isPrimitive())) {
 			throw new PotentialError("Cannot set null to a primitive field");
 		}
-		updateInitializerValue(initializer, abstractValue = value);
+		updateInitializerValue(initializer, cachedValue = value);
 	}
 
 	@Override
 	public List<Facade> getChildren() {
 		List<Facade> result = new ArrayList<Facade>();
-		if (abstractValue == UNDEFINED_ABSTRACT_VALUE) {
+		if (cachedValue == UNDEFINED_ABSTRACT_VALUE) {
 			Object initializer = getUnderlying();
 			if (initializer == null) {
-				this.abstractValue = createDefaultValue();
+				this.cachedValue = createDefaultValue();
 			} else {
-				this.abstractValue = retrieveInitializerValue(initializer);
+				this.cachedValue = retrieveInitializerValue(initializer);
 			}
 		}
-		if (abstractValue instanceof InstanceBuilder) {
-			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) abstractValue).getChildren());
+		if (cachedValue instanceof InstanceBuilder) {
+			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) cachedValue).getChildren());
 		}
 		return result;
 	}

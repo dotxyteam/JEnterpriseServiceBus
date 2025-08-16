@@ -266,7 +266,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
-		Object rootInitializer = rootInstanceBuilder.getRootInitializer();
+		Object rootInitializer = rootInstanceBuilder.getRootInstantiationNode();
 		Object rootInitializerBackup;
 		if (rootInitializer != null) {
 			rootInitializerBackup = InstantiationUtils.cloneInitializer(rootInitializer);
@@ -284,7 +284,7 @@ public class JESBReflectionUI extends CustomizedUI {
 		return new Runnable() {
 			@Override
 			public void run() {
-				rootInstanceBuilder.setRootInitializer((rootInitializerBackup == null) ? null
+				rootInstanceBuilder.setRootInstantiationNode((rootInitializerBackup == null) ? null
 						: InstantiationUtils.cloneInitializer(rootInitializerBackup));
 			}
 		};

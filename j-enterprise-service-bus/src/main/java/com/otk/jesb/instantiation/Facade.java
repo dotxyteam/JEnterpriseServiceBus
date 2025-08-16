@@ -7,6 +7,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
 
 public abstract class Facade {
 
@@ -33,6 +34,10 @@ public abstract class Facade {
 
 	public boolean isValidable() {
 		return isConcrete();
+	}
+
+	public TreeVisitor.VisitStatus visit(TreeVisitor<Facade> visitor) {
+		return TreeVisitor.visitTreeFrom(this, visitor, Facade::getChildren);
 	}
 
 	public static List<Facade> getAncestors(Facade facade) {

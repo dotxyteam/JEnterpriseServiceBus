@@ -38,18 +38,6 @@ import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryCompiler {
 
-	private static final String SOURCE_VERSION = System
-			.getProperty(InMemoryCompiler.class.getName() + ".sourceVersion");
-	private static final String TARGET_VERSION = System
-			.getProperty(InMemoryCompiler.class.getName() + ".targetVersion");
-	static {
-		if (SOURCE_VERSION == null) {
-			throw new UnexpectedError();
-		}
-		if (TARGET_VERSION == null) {
-			throw new UnexpectedError();
-		}
-	}
 	private static final Class<?> CLASS_NOT_FOUND = (new Object() {
 		@Override
 		public String toString() {
@@ -61,8 +49,7 @@ public class InMemoryCompiler {
 	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
-	private Iterable<String> options = Arrays.asList("-parameters", "-source", SOURCE_VERSION, "-target",
-			TARGET_VERSION);
+	private Iterable<String> options = Arrays.asList("-parameters");
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader(
 			InMemoryCompiler.class.getClassLoader());
 	private final Object compilationMutex = new Object();
@@ -182,8 +169,7 @@ public class InMemoryCompiler {
 				if (currentCompilationIdentifier == null) {
 					throw new UnexpectedError();
 				}
-				return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind,
-						null);
+				return outputFile(new ClassIdentifier(currentCompilationIdentifier, className), kind, null);
 			}
 
 			@Override

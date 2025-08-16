@@ -8,6 +8,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
@@ -80,7 +81,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return new FacadeOutline(getFacade()).getChildren();
 	}
 
-	public Object getRootInitializer() {
+	public Object getRootInstantiationNode() {
 		List<Facade> children = getFacade().getChildren();
 		if (children.size() == 0) {
 			return null;
@@ -88,18 +89,42 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return children.get(0).getUnderlying();
 	}
 
-	public void setRootInitializer(Object initializer) {
+	public void setRootInstantiationNode(Object instantiationNode) {
 		List<ParameterInitializer> newParameterInitializers = new ArrayList<ParameterInitializer>();
 		List<InitializationSwitch> newInitializationSwitches = new ArrayList<InitializationSwitch>();
-		if (initializer instanceof ParameterInitializer) {
-			newParameterInitializers.add((ParameterInitializer) initializer);
-		} else if (initializer instanceof InitializationSwitch) {
-			newInitializationSwitches.add((InitializationSwitch) initializer);
-		} else if (initializer != null) {
+		if (instantiationNode instanceof ParameterInitializer) {
+			newParameterInitializers.add((ParameterInitializer) instantiationNode);
+		} else if (instantiationNode instanceof InitializationSwitch) {
+			newInitializationSwitches.add((InitializationSwitch) instantiationNode);
+		} else if (instantiationNode != null) {
 			throw new UnexpectedError();
 		}
 		setParameterInitializers(newParameterInitializers);
 		setInitializationSwitches(newInitializationSwitches);
+	}
+
+	public List<InstanceBuilderFacade> getWrappedInstanceBuilderFacades() {
+		List<InstanceBuilderFacade> result = new ArrayList<InstanceBuilderFacade>();
+		RootInstanceBuilderFacade rootInstanceBuilderFacade = getFacade();
+		rootInstanceBuilderFacade.visit(new TreeVisitor<Facade>() {
+			@Override
+			public VisitStatus visitNode(Facade facade) {
+				if (facade == rootInstanceBuilderFacade) {
+					return VisitStatus.VISIT_NOT_INTERRUPTED;
+				}
+				if (RootInstanceBuilder.getFromRootInstanceInitializerFacade(facade) != null) {
+					ParameterInitializerFacade initializerFacade = (ParameterInitializerFacade) facade;
+					initializerFacade.getChildren();
+					Object initializerValue = initializerFacade.getCachedValue();
+					if(initializerValue instanceof InstanceBuilder) {
+						result.add(new InstanceBuilderFacade(facade, (InstanceBuilder) initializerValue));
+					}
+					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
+				}
+				return VisitStatus.VISIT_NOT_INTERRUPTED;
+			}
+		});
+		return result;
 	}
 
 	@Override
@@ -109,6 +134,18 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			return null;
 		}
 		return wrapper.getRootInstance();
+	}
+
+	public static RootInstanceBuilder getFromRootInstanceInitializerFacade(Facade facade) {
+		if ((facade instanceof ParameterInitializerFacade) && (((ParameterInitializerFacade) facade)
+				.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade)) {
+			return ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) facade).getCurrentInstanceBuilderFacade())
+					.getUnderlying();
+
+		} else {
+			return null;
+		}
+
 	}
 
 	private class UpToDateRootInstanceClass extends UpToDate<Class<?>> {

@@ -53,7 +53,7 @@ public class InstanceBuilderTest {
 			planOutputStructure.getElements().add(element);
 			activator.setOutputStructure(planOutputStructure);
 		}
-		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInitializer()).getParameterValue())
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInstantiationNode()).getParameterValue())
 				.getParameterInitializers()
 				.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
