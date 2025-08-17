@@ -67,9 +67,7 @@ public class Variant<T> {
 
 	public T getValue() {
 		if (variable) {
-			if (expression == null) {
-				return null;
-			}
+			requireExpression();
 			String valueString = expression.evaluate(
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
 					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT));
@@ -118,6 +116,22 @@ public class Variant<T> {
 			result.addAll(getVariableReferenceExpressionOptions(pathNode.getChildren()));
 		}
 		return result;
+	}
+
+	private void requireExpression() {
+		if (expression == null) {
+			throw new PotentialError("Environment variable reference not provided");
+		}
+	}
+
+	public void validate() throws ValidationError {
+		if (variable) {
+			try {
+				requireExpression();
+			} catch (PotentialError e) {
+				throw new ValidationError(e.getMessage());
+			}
+		}
 	}
 
 	@Override

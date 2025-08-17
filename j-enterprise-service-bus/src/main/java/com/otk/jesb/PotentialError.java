@@ -16,4 +16,9 @@ public class PotentialError extends RuntimeException {
 		super(cause);
 	}
 
+	@Override
+	public String toString() {
+		return getMessage();
+	}
+
 }
