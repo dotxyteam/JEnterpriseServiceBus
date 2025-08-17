@@ -1,6 +1,7 @@
 package com.otk.jesb.operation.builtin;
 
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.otk.jesb.ValidationError;
@@ -19,7 +20,8 @@ import xy.reflect.ui.info.ResourcePath;
 public class CreateDirectory implements Operation {
 
 	private String path;
-	private boolean preExistingParentDirectoryOptional = false;
+	private boolean preExistingHierarchyRequired = true;
+	private boolean nonExistingTargetRequired = false;
 
 	public CreateDirectory(String path) {
 		this.path = path;
@@ -29,21 +31,32 @@ public class CreateDirectory implements Operation {
 		return path;
 	}
 
-	public boolean isPreExistingParentDirectoryOptional() {
-		return preExistingParentDirectoryOptional;
+	public boolean isPreExistingHierarchyRequired() {
+		return preExistingHierarchyRequired;
 	}
 
-	public void setPreExistingParentDirectoryOptional(boolean preExistingParentDirectoryOptional) {
-		this.preExistingParentDirectoryOptional = preExistingParentDirectoryOptional;
+	public void setPreExistingHierarchyRequired(boolean preExistingHierarchyRequired) {
+		this.preExistingHierarchyRequired = preExistingHierarchyRequired;
+	}
+
+	public boolean isNonExistingTargetRequired() {
+		return nonExistingTargetRequired;
+	}
+
+	public void setNonExistingTargetRequired(boolean nonExistingTargetRequired) {
+		this.nonExistingTargetRequired = nonExistingTargetRequired;
 	}
 
 	@Override
 	public Object execute() throws Throwable {
 		Path nioPath = Paths.get(path);
-		if (preExistingParentDirectoryOptional) {
-			Files.createDirectories(nioPath);
-		} else {
+		if (!nonExistingTargetRequired && Files.isDirectory(nioPath, LinkOption.NOFOLLOW_LINKS)) {
+			return null;
+		}
+		if (preExistingHierarchyRequired) {
 			Files.createDirectory(nioPath);
+		} else {
+			Files.createDirectories(nioPath);
 		}
 		return null;
 	}

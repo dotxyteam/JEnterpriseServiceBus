@@ -89,7 +89,7 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>738</diagramX>
+      <diagramX>739</diagramX>
       <diagramY>343</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">

@@ -27,7 +27,7 @@ public class MoveFileOrDirectory implements Operation {
 
 	private String sourceFilePath;
 	private String targetFilePath;
-	private boolean existingReplaced = false;
+	private boolean overwriting = false;
 
 	public MoveFileOrDirectory(String sourceFilePath, String destinationFilePath) {
 		this.sourceFilePath = sourceFilePath;
@@ -42,12 +42,12 @@ public class MoveFileOrDirectory implements Operation {
 		return targetFilePath;
 	}
 
-	public boolean isExistingReplaced() {
-		return existingReplaced;
+	public boolean isOverwriting() {
+		return overwriting;
 	}
 
-	public void setExistingReplaced(boolean existingReplaced) {
-		this.existingReplaced = existingReplaced;
+	public void setOverwriting(boolean overwriting) {
+		this.overwriting = overwriting;
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class MoveFileOrDirectory implements Operation {
 		Path source = Paths.get(sourceFilePath);
 		Path target = Paths.get(targetFilePath);
 		try {
-			move(source, target, existingReplaced ? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
+			move(source, target, overwriting ? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 					: new StandardCopyOption[] {});
 			return null;
 		} catch (AtomicMoveNotSupportedException | DirectoryNotEmptyException ignore) {
@@ -78,7 +78,7 @@ public class MoveFileOrDirectory implements Operation {
 					Path relativeFile = source.relativize(file);
 					Path targetFile = target.resolve(relativeFile);
 					move(file, targetFile,
-							existingReplaced ? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
+							overwriting ? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 									: new StandardCopyOption[] {});
 					return FileVisitResult.CONTINUE;
 				}
@@ -92,7 +92,7 @@ public class MoveFileOrDirectory implements Operation {
 			});
 		} else {
 			copy(source, target,
-					existingReplaced
+					overwriting
 							? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING,
 									StandardCopyOption.COPY_ATTRIBUTES }
 							: new StandardCopyOption[] { StandardCopyOption.COPY_ATTRIBUTES });
