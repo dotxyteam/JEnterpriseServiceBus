@@ -1,9 +1,8 @@
 package com.otk.jesb.operation.builtin;
 
-import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-
+import java.nio.file.Paths;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
@@ -17,32 +16,42 @@ import com.otk.jesb.solution.Step;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class DeleteFileOrDirectory implements Operation {
+public class CreateDirectory implements Operation {
 
-	private MoveFileOrDirectory util;
+	private String path;
+	private boolean preExistingParentDirectoryOptional = false;
 
-	public DeleteFileOrDirectory(String path) {
-		util = new MoveFileOrDirectory(path, path) {
-			@Override
-			protected void move(Path source, Path target, StandardCopyOption... options) throws IOException {
-				super.delete(source);
-			}
+	public CreateDirectory(String path) {
+		this.path = path;
+	}
 
-			@Override
-			protected void copy(Path source, Path target, StandardCopyOption... options) throws IOException {
-			}
-		};
+	public String getPath() {
+		return path;
+	}
+
+	public boolean isPreExistingParentDirectoryOptional() {
+		return preExistingParentDirectoryOptional;
+	}
+
+	public void setPreExistingParentDirectoryOptional(boolean preExistingParentDirectoryOptional) {
+		this.preExistingParentDirectoryOptional = preExistingParentDirectoryOptional;
 	}
 
 	@Override
 	public Object execute() throws Throwable {
-		return util.execute();
+		Path nioPath = Paths.get(path);
+		if (preExistingParentDirectoryOptional) {
+			Files.createDirectories(nioPath);
+		} else {
+			Files.createDirectory(nioPath);
+		}
+		return null;
 	}
 
-	public static class Builder implements OperationBuilder<DeleteFileOrDirectory> {
+	public static class Builder implements OperationBuilder<CreateDirectory> {
 
 		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				DeleteFileOrDirectory.class.getSimpleName() + "Input", DeleteFileOrDirectory.class.getName());
+				CreateDirectory.class.getSimpleName() + "Input", CreateDirectory.class.getName());
 
 		public RootInstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
@@ -53,9 +62,8 @@ public class DeleteFileOrDirectory implements Operation {
 		}
 
 		@Override
-		public DeleteFileOrDirectory build(ExecutionContext context, ExecutionInspector executionInspector)
-				throws Exception {
-			return (DeleteFileOrDirectory) instanceBuilder.build(new InstantiationContext(context.getVariables(),
+		public CreateDirectory build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			return (CreateDirectory) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 		}
 
@@ -80,11 +88,11 @@ public class DeleteFileOrDirectory implements Operation {
 
 	}
 
-	public static class Metadata implements OperationMetadata<DeleteFileOrDirectory> {
+	public static class Metadata implements OperationMetadata<CreateDirectory> {
 
 		@Override
 		public String getOperationTypeName() {
-			return "Delete File/Directory";
+			return "Create Directory";
 		}
 
 		@Override
@@ -93,14 +101,14 @@ public class DeleteFileOrDirectory implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder<DeleteFileOrDirectory>> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<CreateDirectory>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-					DeleteFileOrDirectory.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(CreateDirectory.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 

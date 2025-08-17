@@ -12,12 +12,15 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
 import com.otk.jesb.activation.ActivationHandler;
@@ -35,8 +38,9 @@ public class WatchFileSystem extends Activator {
 	private Variant<ResourceKind> watchedResourceKindVariant = new Variant<ResourceKind>(ResourceKind.class,
 			ResourceKind.ANY);
 	private Variant<Boolean> creationWatchedVariant = new Variant<Boolean>(Boolean.class, true);
-	private Variant<Boolean> deletionWatchedVariant = new Variant<Boolean>(Boolean.class, true);
 	private Variant<Boolean> modificationWatchedVariant = new Variant<Boolean>(Boolean.class, true);
+	private Variant<Boolean> deletionWatchedVariant = new Variant<Boolean>(Boolean.class, false);
+	private Variant<Boolean> preExistingResourcesConsideredVariant = new Variant<Boolean>(Boolean.class, false);
 
 	private ActivationHandler activationHandler;
 	private WatchService watchService;
@@ -98,6 +102,14 @@ public class WatchFileSystem extends Activator {
 		this.modificationWatchedVariant = modificationWatchedVariant;
 	}
 
+	public Variant<Boolean> getPreExistingResourcesConsideredVariant() {
+		return preExistingResourcesConsideredVariant;
+	}
+
+	public void setPreExistingResourcesConsideredVariant(Variant<Boolean> preExistingResourcesConsideredVariant) {
+		this.preExistingResourcesConsideredVariant = preExistingResourcesConsideredVariant;
+	}
+
 	@Override
 	public Class<?> getInputClass() {
 		return FileSystemEvent.class;
@@ -113,6 +125,18 @@ public class WatchFileSystem extends Activator {
 		this.activationHandler = activationHandler;
 		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
 		watchService = FileSystems.getDefault().newWatchService();
+		if (preExistingResourcesConsideredVariant.getValue()) {
+			try (Stream<Path> stream = Files.walk(nioBaseDircetoryPath)) {
+				stream.skip(1).forEach(nioPath -> {
+					try {
+						eventOccured(StandardWatchEventKinds.ENTRY_CREATE, nioBaseDircetoryPath.relativize(nioPath),
+								false);
+					} catch (IOException e) {
+						throw new PotentialError(e);
+					}
+				});
+			}
+		}
 		boolean subDirectoriesWatchedRecursively = subDirectoriesWatchedRecursivelyVariant.getValue();
 		if (subDirectoriesWatchedRecursively) {
 			registerDirectoriesRecursively(nioBaseDircetoryPath, watchService, creationWatchedVariant.getValue(),
@@ -125,8 +149,6 @@ public class WatchFileSystem extends Activator {
 
 			@Override
 			public void run() {
-				PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + patternVariant.getValue());
-				ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();
 				while (true) {
 					try {
 						if (isInterrupted()) {
@@ -141,37 +163,7 @@ public class WatchFileSystem extends Activator {
 						for (WatchEvent<?> event : key.pollEvents()) {
 							WatchEvent.Kind<?> eventKind = event.kind();
 							Path nioPath = (Path) event.context();
-							Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);
-							System.out.println(eventKind + ": " + resolvedNioPath);
-							if (subDirectoriesWatchedRecursively) {
-								if (eventKind == StandardWatchEventKinds.ENTRY_CREATE) {
-									if (Files.isDirectory(resolvedNioPath, LinkOption.NOFOLLOW_LINKS)) {
-										try {
-											registerDirectoriesRecursively(resolvedNioPath, watchService,
-													creationWatchedVariant.getValue(),
-													deletionWatchedVariant.getValue(),
-													modificationWatchedVariant.getValue());
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-								}
-							}
-							if (pathMatcher.matches(nioPath)) {
-								ResourceKind eventResourceKind = Files.isDirectory(resolvedNioPath)
-										? ResourceKind.DIRECTORY
-										: ResourceKind.FILE;
-								if ((eventResourceKind == watchedResourceKind)
-										|| (watchedResourceKind == ResourceKind.ANY)) {
-
-									String path = resolvedNioPath.toString();
-									boolean creationEvent = eventKind == StandardWatchEventKinds.ENTRY_CREATE;
-									boolean deletionEvent = eventKind == StandardWatchEventKinds.ENTRY_DELETE;
-									boolean modificationEvent = eventKind == StandardWatchEventKinds.ENTRY_MODIFY;
-									activationHandler.trigger(new FileSystemEvent(path, eventResourceKind,
-											creationEvent, deletionEvent, modificationEvent));
-								}
-							}
+							eventOccured(eventKind, nioPath, subDirectoriesWatchedRecursively);
 						}
 						if (!key.reset()) {
 							break;
@@ -212,7 +204,7 @@ public class WatchFileSystem extends Activator {
 
 	private void registerDirectory(WatchService watchService, Path nioDircetoryPath, boolean creationWatched,
 			boolean deletionWatched, boolean modificationWatched) throws IOException {
-		List<WatchEvent.Kind<Path>> eventKinds = new ArrayList<WatchEvent.Kind<Path>>();
+		List<WatchEvent.Kind<?>> eventKinds = new ArrayList<WatchEvent.Kind<?>>();
 		if (creationWatched) {
 			eventKinds.add(StandardWatchEventKinds.ENTRY_CREATE);
 		}
@@ -222,6 +214,7 @@ public class WatchFileSystem extends Activator {
 		if (modificationWatched) {
 			eventKinds.add(StandardWatchEventKinds.ENTRY_MODIFY);
 		}
+		eventKinds.add(StandardWatchEventKinds.OVERFLOW);
 		nioDircetoryPath.register(watchService, eventKinds.toArray(new WatchEvent.Kind[eventKinds.size()]));
 	}
 
@@ -234,6 +227,35 @@ public class WatchFileSystem extends Activator {
 				return FileVisitResult.CONTINUE;
 			}
 		});
+	}
+
+	private void eventOccured(Kind<?> eventKind, Path nioPath, boolean registerNewDirectory) throws IOException {
+		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
+		Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);
+		System.out.println(eventKind + ": " + resolvedNioPath);
+		PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + patternVariant.getValue());
+		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();
+		if (pathMatcher.matches(nioPath)) {
+			ResourceKind eventResourceKind = ResourceKind.get(resolvedNioPath);
+			if ((eventResourceKind == watchedResourceKind) || (watchedResourceKind == ResourceKind.ANY)) {
+
+				String path = resolvedNioPath.toString();
+				boolean creationEvent = eventKind == StandardWatchEventKinds.ENTRY_CREATE;
+				boolean deletionEvent = eventKind == StandardWatchEventKinds.ENTRY_DELETE;
+				boolean modificationEvent = eventKind == StandardWatchEventKinds.ENTRY_MODIFY;
+				boolean overflowEvent = eventKind == StandardWatchEventKinds.OVERFLOW;
+				activationHandler.trigger(new FileSystemEvent(path, eventResourceKind, creationEvent, deletionEvent,
+						modificationEvent, overflowEvent));
+			}
+		}
+		if (registerNewDirectory) {
+			if (eventKind == StandardWatchEventKinds.ENTRY_CREATE) {
+				if (Files.isDirectory(resolvedNioPath, LinkOption.NOFOLLOW_LINKS)) {
+					registerDirectoriesRecursively(resolvedNioPath, watchService, creationWatchedVariant.getValue(),
+							deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -255,7 +277,17 @@ public class WatchFileSystem extends Activator {
 	}
 
 	public static enum ResourceKind {
-		FILE, DIRECTORY, ANY
+		FILE, DIRECTORY, ANY;
+
+		public static ResourceKind get(Path nioPath) {
+			if (Files.isDirectory(nioPath)) {
+				return ResourceKind.DIRECTORY;
+			} else if (Files.isRegularFile(nioPath, LinkOption.NOFOLLOW_LINKS)) {
+				return ResourceKind.FILE;
+			} else {
+				return null;
+			}
+		}
 	}
 
 	public static class FileSystemEvent {
@@ -265,14 +297,16 @@ public class WatchFileSystem extends Activator {
 		private boolean creationEvent;
 		private boolean deletionEvent;
 		private boolean modificationEvent;
+		private boolean overflowEvent;
 
 		public FileSystemEvent(String path, ResourceKind resourceKind, boolean creationEvent, boolean deletionEvent,
-				boolean modificationEvent) {
+				boolean modificationEvent, boolean overflowEvent) {
 			this.path = path;
 			this.resourceKind = resourceKind;
 			this.creationEvent = creationEvent;
 			this.deletionEvent = deletionEvent;
 			this.modificationEvent = modificationEvent;
+			this.overflowEvent = overflowEvent;
 		}
 
 		public String getPath() {
@@ -293,6 +327,10 @@ public class WatchFileSystem extends Activator {
 
 		public boolean isModificationEvent() {
 			return modificationEvent;
+		}
+
+		public boolean isOverflowEvent() {
+			return overflowEvent;
 		}
 
 	}

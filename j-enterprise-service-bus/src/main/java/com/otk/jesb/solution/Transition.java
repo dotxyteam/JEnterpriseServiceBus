@@ -71,7 +71,19 @@ public class Transition extends PlanElement {
 
 	@Override
 	public String toString() {
-		return (label != null) ? label : ((condition != null) ? "?" : "");
+		StringBuilder result = new StringBuilder();
+		if (label != null) {
+			result.append(label);
+		} else {
+			if (condition instanceof IfCondition) {
+				result.append("?");
+			} else if (condition instanceof ElseCondition) {
+				result.append("x");
+			} else if (condition instanceof ExceptionCondition) {
+				result.append("!");
+			}
+		}
+		return result.toString();
 	}
 
 	public static interface Condition {

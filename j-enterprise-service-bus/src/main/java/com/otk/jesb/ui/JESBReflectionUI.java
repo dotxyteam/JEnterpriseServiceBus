@@ -62,12 +62,14 @@ import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.operation.builtin.CallRESTAPI;
 import com.otk.jesb.operation.builtin.CallSOAPWebService;
 import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
+import com.otk.jesb.operation.builtin.CreateDirectory;
 import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
 import com.otk.jesb.operation.builtin.DoNothing;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.operation.builtin.Fail;
 import com.otk.jesb.operation.builtin.GenerateXML;
+import com.otk.jesb.operation.builtin.InspectResource;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.Log;
@@ -150,9 +152,9 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static final List<OperationMetadata<?>> OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
 			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
 			new ExecutePlan.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(), new WriteFile.Metadata(),
-			new CopyFileOrDirectory.Metadata(), new MoveFileOrDirectory.Metadata(),
-			new DeleteFileOrDirectory.Metadata(), new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(),
-			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+			new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(), new MoveFileOrDirectory.Metadata(),
+			new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(), new JDBCQuery.Metadata(),
+			new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
 			new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
@@ -2523,7 +2525,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						@Override
 						protected void validate(ITypeInfo type, Object object, ValidationSession session)
 								throws Exception {
-							((Variant<?>)object).validate();
+							((Variant<?>) object).validate();
 						}
 
 						@Override

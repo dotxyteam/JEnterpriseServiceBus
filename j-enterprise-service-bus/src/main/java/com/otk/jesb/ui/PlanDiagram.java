@@ -249,10 +249,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected void updateSelection() {
 		Plan plan = getPlan();
 		if (plan.getFocusedElementSelectedSurrounding() != null) {
-			setSelection(Collections.singleton(findDiagramObject(plan.getFocusedElementSelectedSurrounding())));
+			setSelection(Collections.singleton(findDiagramObject(plan.getFocusedElementSelectedSurrounding())), false);
 		} else {
 			setSelection(plan.getSelectedElements().stream().map(element -> findDiagramObject(element))
-					.collect(Collectors.toSet()));
+					.collect(Collectors.toSet()), false);
 		}
 		if (getSelection().size() == 1) {
 			scrollTo(getSelection().iterator().next());
@@ -804,7 +804,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				} else {
 					throw new UnexpectedError();
 				}
-			}).collect(Collectors.toSet()));
+			}).collect(Collectors.toSet()), false);
 		} finally {
 			selectionListeningEnabled = true;
 		}
@@ -1155,7 +1155,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							planDiagram.refreshUI(false);
 							planDiagram.setSelection(new HashSet<JDiagramObject>(
 									allStepsToPaste.stream().map(step -> (JDiagramObject) planDiagram.findNode(step))
-											.collect(Collectors.toSet())));
+											.collect(Collectors.toSet())),
+									false);
 							planDiagram.getFocusedPlanElementsControl().refreshUI(false);
 							return true;
 						}

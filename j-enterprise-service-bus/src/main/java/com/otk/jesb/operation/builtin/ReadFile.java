@@ -97,7 +97,7 @@ public class ReadFile implements Operation {
 
 		@Override
 		public String getCategoryName() {
-			return "File";
+			return "File System";
 		}
 
 		@Override

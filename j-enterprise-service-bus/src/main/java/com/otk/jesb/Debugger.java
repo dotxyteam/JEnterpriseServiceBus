@@ -427,8 +427,8 @@ public class Debugger extends Session {
 				} catch (InterruptedException e) {
 					throw new UnexpectedError(e);
 				}
-				thread = null;
 			}
+			thread = null;
 		}
 
 		public synchronized boolean isActive() {

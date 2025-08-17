@@ -68,7 +68,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 							@Override
 							public void run() {
 								JNode node = findNode(currentStepCrossing.getStep());
-								setSelection(Collections.singleton(node));
+								setSelection(Collections.singleton(node), false);
 								scrollTo(node);
 							}
 						});
@@ -176,7 +176,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 	protected void updateSelection() {
 		setSelection(getStepCrossingsControl().getSelection().stream()
 				.map(itemPosition -> (JDiagramObject) findNode(((StepCrossing) itemPosition.getItem()).getStep()))
-				.collect(Collectors.toSet()));
+				.collect(Collectors.toSet()), false);
 	}
 
 	@Override

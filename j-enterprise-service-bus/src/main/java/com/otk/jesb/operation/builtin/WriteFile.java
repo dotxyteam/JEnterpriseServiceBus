@@ -83,9 +83,10 @@ public class WriteFile implements Operation {
 			Set<StandardOpenOption> options = new HashSet<StandardOpenOption>();
 			options.add(StandardOpenOption.WRITE);
 			options.add(StandardOpenOption.CREATE);
-			options.add(StandardOpenOption.TRUNCATE_EXISTING);
 			if (append) {
 				options.add(StandardOpenOption.APPEND);
+			} else {
+				options.add(StandardOpenOption.TRUNCATE_EXISTING);
 			}
 			Files.write(Paths.get(filePath),
 					text.getBytes((charsetName != null) ? charsetName : Charset.defaultCharset().name()),
@@ -123,9 +124,10 @@ public class WriteFile implements Operation {
 			Set<StandardOpenOption> options = new HashSet<StandardOpenOption>();
 			options.add(StandardOpenOption.WRITE);
 			options.add(StandardOpenOption.CREATE);
-			options.add(StandardOpenOption.TRUNCATE_EXISTING);
 			if (append) {
 				options.add(StandardOpenOption.APPEND);
+			} else {
+				options.add(StandardOpenOption.TRUNCATE_EXISTING);
 			}
 			Files.write(Paths.get(filePath), data, options.toArray(new StandardOpenOption[options.size()]));
 			return null;
@@ -141,7 +143,7 @@ public class WriteFile implements Operation {
 
 		@Override
 		public String getCategoryName() {
-			return "File";
+			return "File System";
 		}
 
 		@Override

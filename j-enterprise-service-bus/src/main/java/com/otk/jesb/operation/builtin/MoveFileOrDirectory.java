@@ -27,12 +27,11 @@ public class MoveFileOrDirectory implements Operation {
 
 	private String sourceFilePath;
 	private String targetFilePath;
-	private boolean existingReplaced;
+	private boolean existingReplaced = false;
 
-	public MoveFileOrDirectory(String sourceFilePath, String destinationFilePath, boolean existingReplaced) {
+	public MoveFileOrDirectory(String sourceFilePath, String destinationFilePath) {
 		this.sourceFilePath = sourceFilePath;
 		this.targetFilePath = destinationFilePath;
-		this.existingReplaced = existingReplaced;
 	}
 
 	public String getSourceFilePath() {
@@ -45,6 +44,10 @@ public class MoveFileOrDirectory implements Operation {
 
 	public boolean isExistingReplaced() {
 		return existingReplaced;
+	}
+
+	public void setExistingReplaced(boolean existingReplaced) {
+		this.existingReplaced = existingReplaced;
 	}
 
 	@Override
@@ -160,7 +163,7 @@ public class MoveFileOrDirectory implements Operation {
 
 		@Override
 		public String getCategoryName() {
-			return "File";
+			return "File System";
 		}
 
 		@Override

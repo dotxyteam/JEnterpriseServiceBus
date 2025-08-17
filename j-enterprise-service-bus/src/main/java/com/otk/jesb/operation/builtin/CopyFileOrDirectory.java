@@ -18,8 +18,8 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class CopyFileOrDirectory extends MoveFileOrDirectory {
 
-	public CopyFileOrDirectory(String sourceFilePath, String destinationFilePath, boolean existingReplaced) {
-		super(sourceFilePath, destinationFilePath, existingReplaced);
+	public CopyFileOrDirectory(String sourceFilePath, String destinationFilePath) {
+		super(sourceFilePath, destinationFilePath);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class CopyFileOrDirectory extends MoveFileOrDirectory {
 
 		@Override
 		public String getCategoryName() {
-			return "File";
+			return "File System";
 		}
 
 		@Override

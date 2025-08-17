@@ -240,6 +240,7 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
+		requestFocus();
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
 			if (pointedDiagramObject instanceof JNode) {
@@ -257,14 +258,14 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 				} else {
 					newSelection.add(pointedDiagramObject);
 				}
-				setSelection(newSelection, true);
+				setSelection(newSelection);
 			} else {
-				if (!(SwingUtilities.isRightMouseButton(mouseEvent) && getSelection().contains(pointedDiagramObject))) {
-					setSelection(Collections.singleton(pointedDiagramObject), true);
+				if (!getSelection().contains(pointedDiagramObject)) {
+					setSelection(Collections.singleton(pointedDiagramObject));
 				}
 			}
 		} else {
-			setSelection(Collections.emptySet(), true);
+			setSelection(Collections.emptySet());
 		}
 		if (SwingUtilities.isRightMouseButton(mouseEvent)) {
 			JPopupMenu popupMenu = createContextMenu(mouseEvent);
@@ -315,6 +316,14 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 								l.nodesMoved(nodesToMove);
 							}
 							return;
+						}
+					}
+				}
+				JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
+				if (pointedDiagramObject != null) {
+					if (!((mouseEvent.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)) {
+						if (getSelection().contains(pointedDiagramObject)) {
+							setSelection(Collections.singleton(pointedDiagramObject));
 						}
 					}
 				}
@@ -392,23 +401,23 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 		return result;
 	}
 
-	public void setSelection(Set<JDiagramObject> selection) {
-		setSelection(selection, false);
-	}
-
-	private void setSelection(Set<JDiagramObject> selection, boolean paintBeforeNotifications) {
+	protected void setSelection(Set<JDiagramObject> selection, boolean repaintBeforeNotifications) {
 		for (JNode eachNode : nodes) {
 			eachNode.setSelected(selection.contains(eachNode));
 		}
 		for (JConnection eachConnection : connections) {
 			eachConnection.setSelected(selection.contains(eachConnection));
 		}
-		if (paintBeforeNotifications) {
+		if (repaintBeforeNotifications) {
 			paintImmediately(getBounds());
 		}
 		for (JDiagramListener l : listeners) {
 			l.selectionChanged();
 		}
+	}
+
+	public void setSelection(Set<JDiagramObject> selection) {
+		setSelection(selection, true);
 	}
 
 	@Override
