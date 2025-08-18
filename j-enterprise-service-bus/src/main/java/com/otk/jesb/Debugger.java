@@ -422,11 +422,7 @@ public class Debugger extends Session {
 			}
 			while (thread.isAlive()) {
 				thread.interrupt();
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					throw new UnexpectedError(e);
-				}
+				MiscUtils.relieveCPU();
 			}
 			thread = null;
 		}

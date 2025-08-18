@@ -9,6 +9,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 
@@ -28,11 +29,7 @@ public class Sleep implements Operation {
 
 	@Override
 	public Object execute() throws IOException {
-		try {
-			Thread.sleep(milliseconds);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		MiscUtils.sleepSafely(milliseconds);
 		return null;
 	}
 

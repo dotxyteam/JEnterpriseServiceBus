@@ -100,7 +100,7 @@ public class MiscUtils {
 
 			@Override
 			public void writeProperty(Object object, String propertyName, Object value) {
-				if(!propertyWriteable(propertyName, object.getClass())) {
+				if (!propertyWriteable(propertyName, object.getClass())) {
 					return;
 				}
 				super.writeProperty(object, propertyName, value);
@@ -873,6 +873,39 @@ public class MiscUtils {
 				throw new PotentialError(new ClassNotFoundException("Canonical name: " + canonicalName));
 			}
 		}
+	}
+
+	public static void relieveCPU() {
+		sleepSafely(100);
+	}
+
+	public static Thread redirectStream(final InputStream src, final OutputStream dst, String reason) {
+		Thread thread = new Thread("StreamRedirector (" + reason + ")") {
+			public void run() {
+				try {
+					while (true) {
+						if (src.available() > 0) {
+							int b = src.read();
+							if (b == -1) {
+								break;
+							}
+							dst.write(b);
+						} else {
+							if (isInterrupted()) {
+								break;
+							} else {
+								MiscUtils.relieveCPU();
+							}
+						}
+					}
+				} catch (IOException e) {
+					return;
+				}
+			}
+		};
+		thread.setPriority(Thread.MIN_PRIORITY);
+		thread.start();
+		return thread;
 	}
 
 }

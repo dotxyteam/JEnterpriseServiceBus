@@ -66,6 +66,7 @@ import com.otk.jesb.operation.builtin.CreateDirectory;
 import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
 import com.otk.jesb.operation.builtin.DoNothing;
 import com.otk.jesb.operation.builtin.Evaluate;
+import com.otk.jesb.operation.builtin.ExecuteCommand;
 import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.operation.builtin.Fail;
 import com.otk.jesb.operation.builtin.GenerateXML;
@@ -151,11 +152,11 @@ public class JESBReflectionUI extends CustomizedUI {
 
 	public static final List<OperationMetadata<?>> OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
 			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
-			new ExecutePlan.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(), new WriteFile.Metadata(),
-			new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(), new MoveFileOrDirectory.Metadata(),
-			new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(), new JDBCQuery.Metadata(),
-			new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
-			new CallSOAPWebService.Metadata());
+			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
+			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
+			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
+			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
+			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),

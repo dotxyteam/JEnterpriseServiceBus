@@ -27,6 +27,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -187,7 +188,7 @@ public class WatchFileSystem extends Activator {
 		watchService.close();
 		while (thread.isAlive()) {
 			thread.interrupt();
-			Thread.sleep(100);
+			MiscUtils.relieveCPU();
 		}
 		this.activationHandler = null;
 	}
