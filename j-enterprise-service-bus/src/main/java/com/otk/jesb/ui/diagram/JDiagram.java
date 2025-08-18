@@ -240,7 +240,6 @@ public class JDiagram extends ImagePanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mousePressed(final MouseEvent mouseEvent) {
-		requestFocus();
 		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 			JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
 			if (pointedDiagramObject instanceof JNode) {

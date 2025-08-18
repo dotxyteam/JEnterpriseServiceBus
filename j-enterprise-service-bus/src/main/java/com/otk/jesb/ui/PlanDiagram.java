@@ -912,8 +912,11 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				return;
 			}
 			try {
-				swingRenderer.getReflectionUI().getValidationErrorRegistry().attributing(toValidate.getSecond(),
-						(sessionArg) -> toValidate.getSecond().validate(true, plan)).validate(session);
+				swingRenderer.getReflectionUI().getValidationErrorRegistry()
+						.attributing(toValidate.getSecond(),
+								(sessionArg) -> toValidate.getSecond().validate(true, plan),
+								validationError -> swingRenderer.getReflectionUI().logDebug(validationError))
+						.validate(session);
 			} catch (Exception e) {
 				validitionErrorMap.put(toValidate, e);
 			}
@@ -935,6 +938,12 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			throw new ValidationErrorWrapper("Failed to validate the " + titleAndObjectPair.getFirst(),
 					validationError);
 		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent mouseEvent) {
+		requestFocus();
+		super.mousePressed(mouseEvent);
 	}
 
 	@Override

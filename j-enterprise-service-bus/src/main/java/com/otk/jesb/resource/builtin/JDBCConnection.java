@@ -95,11 +95,13 @@ public class JDBCConnection extends Resource {
 	}
 
 	public <T> T during(Function<Connection, T> callable) throws Exception {
-		Connection instance = open();
-		try {
-			return callable.apply(instance);
-		} finally {
-			instance.close();
+		synchronized (this) {
+			Connection instance = open();
+			try {
+				return callable.apply(instance);
+			} finally {
+				instance.close();
+			}
 		}
 	}
 
@@ -137,7 +139,9 @@ public class JDBCConnection extends Resource {
 			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			open().close();
+			synchronized (this) {
+				open().close();
+			}
 		} catch (Exception e) {
 			throw new ValidationError("Failed to create the connection", e);
 		}

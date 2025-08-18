@@ -20,6 +20,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();
 	private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDateRootInstanceClass();
+	private RootInstanceBuilderFacade facade;
 
 	public RootInstanceBuilder() {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
@@ -29,7 +30,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
-		getFacade().getChildren().get(0).setConcrete(true);
 	}
 
 	public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {
@@ -37,7 +37,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()
 				: rootInstanceTypeName;
-		getFacade().getChildren().get(0).setConcrete(true);
 	}
 
 	@Override
@@ -72,9 +71,12 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceTypeName = rootInstanceTypeName;
 	}
 
-	public RootInstanceBuilderFacade getFacade() {
-		RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) Facade.get(this, null);
-		return result;
+	public synchronized RootInstanceBuilderFacade getFacade() {
+		if (facade == null) {
+			facade = (RootInstanceBuilderFacade) Facade.get(this, null);
+			facade.getChildren().get(0).setConcrete(true);
+		}
+		return facade;
 	}
 
 	public List<FacadeOutline> getFacadeOutlineChildren() {
@@ -116,7 +118,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					ParameterInitializerFacade initializerFacade = (ParameterInitializerFacade) facade;
 					initializerFacade.getChildren();
 					Object initializerValue = initializerFacade.getCachedValue();
-					if(initializerValue instanceof InstanceBuilder) {
+					if (initializerValue instanceof InstanceBuilder) {
 						result.add(new InstanceBuilderFacade(facade, (InstanceBuilder) initializerValue));
 					}
 					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;

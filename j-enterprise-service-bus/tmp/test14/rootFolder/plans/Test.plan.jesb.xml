@@ -41,8 +41,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>516</diagramX>
-      <diagramY>170</diagramY>
+      <diagramX>583</diagramX>
+      <diagramY>204</diagramY>
       <name>allTables</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
         <connectionReference>
@@ -148,8 +148,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>409</diagramX>
-      <diagramY>44</diagramY>
+      <diagramX>484</diagramX>
+      <diagramY>45</diagramY>
       <name>parseXML</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ParseXML$Builder">
         <rootElementName>postals</rootElementName>
@@ -322,8 +322,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>528</diagramX>
-      <diagramY>46</diagramY>
+      <diagramX>626</diagramX>
+      <diagramY>47</diagramY>
       <name>rowCountToWords</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
         <customServiceEndpointURLVariant>
@@ -395,8 +395,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>633</diagramX>
-      <diagramY>46</diagramY>
+      <diagramX>731</diagramX>
+      <diagramY>47</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -438,8 +438,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>633</diagramX>
-      <diagramY>168</diagramY>
+      <diagramX>731</diagramX>
+      <diagramY>205</diagramY>
       <name>sleep</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
         <instanceBuilder>
@@ -479,8 +479,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>366</diagramX>
-      <diagramY>137</diagramY>
+      <diagramX>417</diagramX>
+      <diagramY>149</diagramY>
       <name>createPetTable</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -536,8 +536,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>130</diagramX>
-      <diagramY>184</diagramY>
+      <diagramX>109</diagramX>
+      <diagramY>202</diagramY>
       <name>addPet</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -636,8 +636,8 @@ values
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[8]/parent"/>
     <com.otk.jesb.solution.Step>
-      <diagramX>259</diagramX>
-      <diagramY>138</diagramY>
+      <diagramX>291</diagramX>
+      <diagramY>151</diagramY>
       <name>Pets</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Evaluate$Builder">
         <multiple>true</multiple>
@@ -840,8 +840,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>299</diagramX>
-      <diagramY>47</diagramY>
+      <diagramX>353</diagramX>
+      <diagramY>48</diagramY>
       <name>readFile</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ReadFile$Builder">
         <instanceBuilder>
@@ -884,8 +884,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>197</diagramX>
-      <diagramY>49</diagramY>
+      <diagramX>225</diagramX>
+      <diagramY>48</diagramY>
       <name>writeFile</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.WriteFile$Builder">
         <instanceBuilder>
@@ -938,8 +938,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>298</diagramX>
-      <diagramY>251</diagramY>
+      <diagramX>348</diagramX>
+      <diagramY>264</diagramY>
       <name>callRESTAPI</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallRESTAPI$Builder">
         <customBaseURLVariant>
