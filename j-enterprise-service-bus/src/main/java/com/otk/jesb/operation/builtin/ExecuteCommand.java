@@ -75,20 +75,23 @@ public class ExecuteCommand implements Operation {
 				+ Arrays.stream(arguments).map(CommandExecutor::quoteArgument).collect(Collectors.joining(" "));
 		Process process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
 				new File(workingDirectoryPath), timeoutMilliseconds, TimeUnit.MILLISECONDS);
+		boolean timeOut = (process == null);
 		return runAsynchronously ? null
-				: new CommandResult(runAsynchronously ? 0 : process.exitValue(), outReceiver.toString(),
-						errReceiver.toString());
+				: new CommandResult(timeOut ? null : process.exitValue(), outReceiver.toString(),
+						errReceiver.toString(), timeOut);
 	}
 
 	public static class CommandResult {
 		private Integer exitCode;
 		private String output;
 		private String error;
+		private boolean timeOut;
 
-		public CommandResult(Integer exitCode, String output, String error) {
+		public CommandResult(Integer exitCode, String output, String error, boolean timeOut) {
 			this.exitCode = exitCode;
 			this.output = output;
 			this.error = error;
+			this.timeOut = timeOut;
 		}
 
 		public Integer getExitCode() {
@@ -101,6 +104,10 @@ public class ExecuteCommand implements Operation {
 
 		public String getError() {
 			return error;
+		}
+
+		public boolean isTimeOut() {
+			return timeOut;
 		}
 
 	}

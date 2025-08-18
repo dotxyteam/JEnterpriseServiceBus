@@ -120,8 +120,8 @@ public class CommandExecutor {
 
 			@Override
 			public void run() {
-				if (process.isAlive()) {
-					process.destroy();
+				if (isProcessAlive()) {
+					killProcess();
 				}
 			}
 		});
@@ -136,11 +136,12 @@ public class CommandExecutor {
 		return false;
 	}
 
-	public void waitForProcessEnd(long timeout, TimeUnit unit) throws InterruptedException {
+	public boolean waitForProcessEnd(long timeout, TimeUnit unit) throws InterruptedException {
 		if (timeout <= 0) {
 			process.waitFor();
+			return true;
 		} else {
-			process.waitFor(timeout, unit);
+			return process.waitFor(timeout, unit);
 		}
 	}
 
@@ -198,13 +199,18 @@ public class CommandExecutor {
 		commandExecutor.setProcessErrorRedirectedTo(errReceiver);
 		commandExecutor.setWorkingDir(workingDir);
 		commandExecutor.startProcess();
+		boolean timedOut = false;
 		if (wait) {
 			try {
-				commandExecutor.waitForProcessEnd(timeout, timeoutUnit);
+				if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {
+					timedOut = true;
+					commandExecutor.killProcess();
+				}
 			} catch (InterruptedException e) {
 				commandExecutor.killProcess();
+			} finally {
+				commandExecutor.disconnectProcess();
 			}
-			commandExecutor.disconnectProcess();
 		} else {
 			new Thread("ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
 				{
@@ -217,12 +223,13 @@ public class CommandExecutor {
 						commandExecutor.waitForProcessEnd(timeout, timeoutUnit);
 					} catch (InterruptedException e) {
 						throw new UnexpectedError(e);
+					} finally {
+						commandExecutor.disconnectProcess();
 					}
-					commandExecutor.disconnectProcess();
 				}
 			}.start();
 		}
-		return commandExecutor.getLaunchedProcess();
+		return timedOut ? null : commandExecutor.getLaunchedProcess();
 	}
 
 	public static Process run(final String command, boolean wait, final OutputStream outReceiver,
