@@ -96,7 +96,7 @@ public class JDBCQuery extends JDBCOperation {
 		}
 	}
 
-	private static List<ColumnDefinition> retrieveResultColumnDefinitions(PreparedStatement preparedStatement)
+	protected static List<ColumnDefinition> retrieveResultColumnDefinitions(PreparedStatement preparedStatement)
 			throws SQLException {
 		ResultSetMetaData metaData = preparedStatement.getMetaData();
 		if (metaData == null) {
@@ -145,7 +145,7 @@ public class JDBCQuery extends JDBCOperation {
 		private boolean resultColumnDefinitionAutomatic = true;
 
 		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDateCustomResultClass();
-		private UpToDateResultColumnDefinitions upToDateResultColumnDefinitions = new UpToDateResultColumnDefinitions();
+		private UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();
 
 		public boolean isResultColumnDefinitionAutomatic() {
 			return resultColumnDefinitionAutomatic;
@@ -158,7 +158,7 @@ public class JDBCQuery extends JDBCOperation {
 		private List<ColumnDefinition> computeResultColumnDefinitions() {
 			if (resultColumnDefinitionAutomatic) {
 				try {
-					return upToDateResultColumnDefinitions.get();
+					return upToDateMetaResultColumnDefinitions.get();
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -222,7 +222,7 @@ public class JDBCQuery extends JDBCOperation {
 
 		public void retrieveResultColumnDefinitions() throws SQLException, ClassNotFoundException {
 			try {
-				this.resultColumnDefinitions = upToDateResultColumnDefinitions.get();
+				this.resultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
@@ -253,6 +253,28 @@ public class JDBCQuery extends JDBCOperation {
 			} else {
 				return GenericResult.class;
 			}
+		}
+
+		protected List<ColumnDefinition> obtainMetaResultColumnDefinitions() throws Exception {
+			JDBCConnection connection = getConnection();
+			if (connection == null) {
+				return null;
+			}
+			return connection.during(new Function<Connection, List<ColumnDefinition>>() {
+				@Override
+				public List<ColumnDefinition> apply(Connection connectionInstance) {
+					String statement = getStatementVariant().getValue();
+					if ((statement == null) || statement.trim().isEmpty()) {
+						return null;
+					}
+					try {
+						PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
+						return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement);
+					} catch (SQLException e) {
+						throw new PotentialError(e);
+					}
+				}
+			});
 		}
 
 		@Override
@@ -297,7 +319,7 @@ public class JDBCQuery extends JDBCOperation {
 			}
 		}
 
-		private class UpToDateResultColumnDefinitions extends UpToDate<List<ColumnDefinition>> {
+		private class UpToDateMetaResultColumnDefinitions extends UpToDate<List<ColumnDefinition>> {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
@@ -309,31 +331,14 @@ public class JDBCQuery extends JDBCOperation {
 			@Override
 			protected List<ColumnDefinition> obtainLatest(Object versionIdentifier) throws VersionAccessException {
 				try {
-					JDBCConnection connection = getConnection();
-					if (connection == null) {
-						return null;
-					}
-					return connection.during(new Function<Connection, List<ColumnDefinition>>() {
-						@Override
-						public List<ColumnDefinition> apply(Connection connectionInstance) {
-							String statement = getStatementVariant().getValue();
-							if ((statement == null) || statement.trim().isEmpty()) {
-								return null;
-							}
-							try {
-								PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
-								return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement);
-							} catch (SQLException e) {
-								throw new PotentialError(e);
-							}
-						}
-					});
+					return obtainMetaResultColumnDefinitions();
 				} catch (Exception e) {
 					throw new VersionAccessException(e);
 				}
 			}
 
 		}
+
 	}
 
 	public static class ColumnDefinition {

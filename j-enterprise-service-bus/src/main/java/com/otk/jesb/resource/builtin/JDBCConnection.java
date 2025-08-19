@@ -3,12 +3,13 @@ package com.otk.jesb.resource.builtin;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.util.Properties;
-import java.util.WeakHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.function.Function;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Variant;
 import com.otk.jesb.Session;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
@@ -35,7 +36,11 @@ public class JDBCConnection extends Resource {
 	private Variant<String> urlVariant = new Variant<String>(String.class);
 	private Variant<String> userNameVariant = new Variant<String>(String.class);
 	private Variant<String> passwordVariant = new Variant<String>(String.class);
-	private WeakHashMap<Session, Connection> instanceBySession = new WeakHashMap<Session, Connection>();
+
+	private Semaphore instanceMutex = new Semaphore(1);
+	private Connection currentSessionInstance;
+	private Session currentSession;
+	private AutoCloseable currentSessionInstanceClosableWrapper;
 
 	public JDBCConnection() {
 		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
@@ -95,35 +100,49 @@ public class JDBCConnection extends Resource {
 	}
 
 	public <T> T during(Function<Connection, T> callable) throws Exception {
-		synchronized (this) {
+		instanceMutex.acquire();
+		try {
 			Connection instance = open();
 			try {
 				return callable.apply(instance);
 			} finally {
 				instance.close();
 			}
+		} finally {
+			instanceMutex.release();
 		}
 	}
 
 	public Connection during(Session session) throws Exception {
-		synchronized (session) {
-			synchronized (instanceBySession) {
-				Connection instance = instanceBySession.get(session);
-				if ((instance != null) && !instance.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
-					session.getClosables().remove(instance);
-					try {
-						instance.close();
-					} catch (Throwable ignore) {
+		synchronized (this) {
+			if (currentSessionInstance == null) {
+				instanceMutex.acquire();
+				currentSession = session;
+				currentSessionInstance = open();
+				session.getClosables().add(currentSessionInstanceClosableWrapper = new AutoCloseable() {
+					@Override
+					public void close() throws Exception {
+						currentSessionInstanceClosableWrapper = null;
+						currentSessionInstance.close();
+						currentSessionInstance = null;
+						currentSession = null;
+						instanceMutex.release();
 					}
-					session = null;
+				});
+			} else {
+				if (currentSession != session) {
+					throw new IllegalArgumentException(
+							"Unable to share " + this + " instance between " + currentSession + " and " + session);
 				}
-				if (instance == null) {
-					instance = open();
-					session.getClosables().add(instance);
-					instanceBySession.put(session, instance);
+				if (!currentSessionInstance.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
+					if(!session.getClosables().remove(currentSessionInstanceClosableWrapper)) {
+						throw new UnexpectedError();
+					}					
+					currentSessionInstanceClosableWrapper.close();
+					return during(session);
 				}
-				return instance;
 			}
+			return currentSessionInstance;
 		}
 	}
 
@@ -139,11 +158,16 @@ public class JDBCConnection extends Resource {
 			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			synchronized (this) {
-				open().close();
-			}
+			instanceMutex.acquire();
+		} catch (InterruptedException e) {
+			throw new UnexpectedError(e);
+		}
+		try {
+			open().close();
 		} catch (Exception e) {
 			throw new ValidationError("Failed to create the connection", e);
+		} finally {
+			instanceMutex.release();
 		}
 	}
 

@@ -42,8 +42,12 @@ public abstract class JDBCOperation implements Operation {
 		this.connection = connection;
 	}
 
-	public JDBCConnection getConnection() {
+	protected JDBCConnection getConnection() {
 		return connection;
+	}
+
+	protected Session getSession() {
+		return session;
 	}
 
 	public String getStatement() {
@@ -80,29 +84,6 @@ public abstract class JDBCOperation implements Operation {
 		return preparedStatement;
 	}
 
-	private static List<ParameterDefinition> retrieveParameterDefinitions(PreparedStatement preparedStatement)
-			throws SQLException {
-		ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
-		if (parameterMetaData == null) {
-			throw new SQLException("No SQL statement paramater meta data found");
-		}
-		List<ParameterDefinition> result = new ArrayList<JDBCOperation.ParameterDefinition>();
-		for (int i = 0; i < parameterMetaData.getParameterCount(); i++) {
-			ParameterDefinition parameterDefinition = new ParameterDefinition();
-			String parameterTypeName = parameterMetaData.getParameterClassName(i + 1);
-			String parameterName = MiscUtils.extractSimpleNameFromClassName(parameterTypeName);
-			parameterName = parameterName.substring(0, 1).toLowerCase() + parameterName.substring(1);
-			while (result.stream().map(ParameterDefinition::getParameterName)
-					.anyMatch(Predicate.isEqual(parameterName))) {
-				parameterName = MiscUtils.nextNumbreredName(parameterName);
-			}
-			parameterDefinition.setParameterName(parameterName);
-			parameterDefinition.setParameterTypeName(parameterTypeName);
-			result.add(parameterDefinition);
-		}
-		return result;
-	}
-
 	public static abstract class Builder<T extends JDBCOperation> implements OperationBuilder<T> {
 
 		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
@@ -113,7 +94,7 @@ public abstract class JDBCOperation implements Operation {
 		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
 		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
 				new ParameterValuesClassNameAccessor());
-		private UpToDateParameterDefinitions upToDateParameterDefinitions = new UpToDateParameterDefinitions();
+		private UpToDateMetaParameterDefinitions upToDateMetaParameterDefinitions = new UpToDateMetaParameterDefinitions();
 
 		public boolean isParameterDefinitionAutomatic() {
 			return parameterDefinitionAutomatic;
@@ -142,7 +123,7 @@ public abstract class JDBCOperation implements Operation {
 		private List<ParameterDefinition> computeParameterDefinitions() {
 			if (parameterDefinitionAutomatic) {
 				try {
-					return upToDateParameterDefinitions.get();
+					return upToDateMetaParameterDefinitions.get();
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -176,10 +157,47 @@ public abstract class JDBCOperation implements Operation {
 
 		public void retrieveParameterDefinitions() {
 			try {
-				this.parameterDefinitions = upToDateParameterDefinitions.get();
+				this.parameterDefinitions = upToDateMetaParameterDefinitions.get();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
+		}
+
+		protected List<ParameterDefinition> obtainMetaParameterDefinitions() throws Exception {
+			String statement = getStatementVariant().getValue();
+			if ((statement == null) || statement.trim().isEmpty()) {
+				return null;
+			}
+			JDBCConnection connection = getConnection();
+			if (connection == null) {
+				return null;
+			}
+			return connection.during(connectionInstance -> {
+				try {
+					PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
+					ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
+					if (parameterMetaData == null) {
+						throw new SQLException("No SQL statement paramater meta data found");
+					}
+					List<ParameterDefinition> result = new ArrayList<JDBCOperation.ParameterDefinition>();
+					for (int i = 0; i < parameterMetaData.getParameterCount(); i++) {
+						ParameterDefinition parameterDefinition = new ParameterDefinition();
+						String parameterTypeName = parameterMetaData.getParameterClassName(i + 1);
+						String parameterName = MiscUtils.extractSimpleNameFromClassName(parameterTypeName);
+						parameterName = parameterName.substring(0, 1).toLowerCase() + parameterName.substring(1);
+						while (result.stream().map(ParameterDefinition::getParameterName)
+								.anyMatch(Predicate.isEqual(parameterName))) {
+							parameterName = MiscUtils.nextNumbreredName(parameterName);
+						}
+						parameterDefinition.setParameterName(parameterName);
+						parameterDefinition.setParameterTypeName(parameterTypeName);
+						result.add(parameterDefinition);
+					}
+					return result;
+				} catch (SQLException e) {
+					throw new PotentialError(e);
+				}
+			});
 		}
 
 		protected ParameterValues buildParameterValues(ExecutionContext context) throws Exception {
@@ -253,7 +271,7 @@ public abstract class JDBCOperation implements Operation {
 			}
 		}
 
-		private class UpToDateParameterDefinitions extends UpToDate<List<ParameterDefinition>> {
+		private class UpToDateMetaParameterDefinitions extends UpToDate<List<ParameterDefinition>> {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
@@ -265,22 +283,7 @@ public abstract class JDBCOperation implements Operation {
 			@Override
 			protected List<ParameterDefinition> obtainLatest(Object versionIdentifier) throws VersionAccessException {
 				try {
-					JDBCConnection connection = getConnection();
-					if (connection == null) {
-						return null;
-					}
-					String statement = getStatementVariant().getValue();
-					if ((statement == null) || statement.trim().isEmpty()) {
-						return null;
-					}
-					return connection.during(connectionInstance -> {
-						try {
-							PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
-							return JDBCOperation.retrieveParameterDefinitions(preparedStatement);
-						} catch (SQLException e) {
-							throw new PotentialError(e);
-						}
-					});
+					return obtainMetaParameterDefinitions();
 				} catch (Exception e) {
 					throw new VersionAccessException(e);
 				}
