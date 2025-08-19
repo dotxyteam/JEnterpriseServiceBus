@@ -93,12 +93,14 @@ public class CommandExecutor {
 		}
 		String[] envArray = getEnvAsArray();
 		process = Runtime.getRuntime().exec(args, envArray, workingDir);
-		destroyOnExit(process);
 		outputRedirector = getProcessStreamRedirector(process.getInputStream(), processOutputRedirectedTo, "Output");
 		errorRedirector = getProcessStreamRedirector(process.getErrorStream(), processErrorRedirectedTo, "Error");
 	}
 
-	protected void destroyOnExit(final Process process) {
+	protected void destroyProcessOnExit() {
+		if (process == null) {
+			throw new IllegalStateException("Cannot schedule process destruction on exit: Process not started");
+		}
 		Runtime.getRuntime().addShutdownHook(new Thread(CommandExecutor.this + " shutdown hook") {
 			Thread hook = this;
 			{
@@ -137,7 +139,7 @@ public class CommandExecutor {
 	}
 
 	public boolean waitForProcessEnd(long timeout, TimeUnit unit) throws InterruptedException {
-		if (timeout <= 0) {
+		if (timeout < 0) {
 			process.waitFor();
 			return true;
 		} else {
@@ -192,7 +194,7 @@ public class CommandExecutor {
 		return "CommandExecutor [commandLine=" + commandLine + "]";
 	}
 
-	public static Process run(final String commandLine, boolean wait, final OutputStream outReceiver,
+	public static Process run(final String commandLine, boolean synchronous, final OutputStream outReceiver,
 			final OutputStream errReceiver, File workingDir, long timeout, TimeUnit timeoutUnit) throws IOException {
 		CommandExecutor commandExecutor = new CommandExecutor(commandLine);
 		commandExecutor.setProcessOutputRedirectedTo(outReceiver);
@@ -200,7 +202,8 @@ public class CommandExecutor {
 		commandExecutor.setWorkingDir(workingDir);
 		commandExecutor.startProcess();
 		boolean timedOut = false;
-		if (wait) {
+		if (synchronous) {
+			commandExecutor.destroyProcessOnExit();
 			try {
 				if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {
 					timedOut = true;
@@ -212,22 +215,26 @@ public class CommandExecutor {
 				commandExecutor.disconnectProcess();
 			}
 		} else {
-			new Thread("ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
-				{
-					setDaemon(true);
-				}
-
-				@Override
-				public void run() {
-					try {
-						commandExecutor.waitForProcessEnd(timeout, timeoutUnit);
-					} catch (InterruptedException e) {
-						throw new UnexpectedError(e);
-					} finally {
-						commandExecutor.disconnectProcess();
+			if (timeout != 0) {
+				new Thread("ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
+					{
+						setDaemon(true);
 					}
-				}
-			}.start();
+
+					@Override
+					public void run() {
+						try {
+							commandExecutor.waitForProcessEnd(timeout, timeoutUnit);
+						} catch (InterruptedException e) {
+							throw new UnexpectedError(e);
+						} finally {
+							commandExecutor.disconnectProcess();
+						}
+					}
+				}.start();
+			} else {
+				commandExecutor.disconnectProcess();
+			}
 		}
 		return timedOut ? null : commandExecutor.getLaunchedProcess();
 	}

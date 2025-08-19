@@ -24,7 +24,7 @@ public class ExecuteCommand implements Operation {
 	private String executable;
 	private String[] arguments = new String[0];
 	private String workingDirectoryPath = ".";
-	private int timeoutMilliseconds = 0;
+	private Integer timeoutMilliseconds;
 	private boolean runAsynchronously = false;
 
 	public ExecuteCommand(String executable) {
@@ -51,11 +51,11 @@ public class ExecuteCommand implements Operation {
 		this.workingDirectoryPath = workingDirectoryPath;
 	}
 
-	public int getTimeoutMilliseconds() {
+	public Integer getTimeoutMilliseconds() {
 		return timeoutMilliseconds;
 	}
 
-	public void setTimeoutMilliseconds(int timeoutMilliseconds) {
+	public void setTimeoutMilliseconds(Integer timeoutMilliseconds) {
 		this.timeoutMilliseconds = timeoutMilliseconds;
 	}
 
@@ -74,24 +74,26 @@ public class ExecuteCommand implements Operation {
 		String commandLine = CommandExecutor.quoteArgument(executable) + " "
 				+ Arrays.stream(arguments).map(CommandExecutor::quoteArgument).collect(Collectors.joining(" "));
 		Process process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
-				new File(workingDirectoryPath), timeoutMilliseconds, TimeUnit.MILLISECONDS);
-		boolean timeOut = (process == null);
+				new File(workingDirectoryPath),
+				(timeoutMilliseconds != null) ? timeoutMilliseconds : (runAsynchronously ? 0 : -1),
+				TimeUnit.MILLISECONDS);
+		boolean timedOut = (process == null);
 		return runAsynchronously ? null
-				: new CommandResult(timeOut ? null : process.exitValue(), outReceiver.toString(),
-						errReceiver.toString(), timeOut);
+				: new CommandResult(timedOut ? null : process.exitValue(), outReceiver.toString(),
+						errReceiver.toString(), timedOut);
 	}
 
 	public static class CommandResult {
 		private Integer exitCode;
 		private String output;
 		private String error;
-		private boolean timeOut;
+		private boolean timedOut;
 
-		public CommandResult(Integer exitCode, String output, String error, boolean timeOut) {
+		public CommandResult(Integer exitCode, String output, String error, boolean timedOut) {
 			this.exitCode = exitCode;
 			this.output = output;
 			this.error = error;
-			this.timeOut = timeOut;
+			this.timedOut = timedOut;
 		}
 
 		public Integer getExitCode() {
@@ -106,8 +108,8 @@ public class ExecuteCommand implements Operation {
 			return error;
 		}
 
-		public boolean isTimeOut() {
-			return timeOut;
+		public boolean isTimedOut() {
+			return timedOut;
 		}
 
 	}
