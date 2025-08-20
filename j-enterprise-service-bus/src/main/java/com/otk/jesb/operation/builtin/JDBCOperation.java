@@ -32,10 +32,10 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 public abstract class JDBCOperation implements Operation {
 
-	private Session session;
-	private JDBCConnection connection;
-	private String statement;
-	private ParameterValues parameterValues;
+	protected Session session;
+	protected JDBCConnection connection;
+	protected String statement;
+	protected ParameterValues parameterValues;
 
 	public JDBCOperation(Session session, JDBCConnection connection) {
 		this.session = session;
@@ -86,15 +86,15 @@ public abstract class JDBCOperation implements Operation {
 
 	public static abstract class Builder<T extends JDBCOperation> implements OperationBuilder<T> {
 
-		private Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
-		private Variant<String> statementVariant = new Variant<String>(String.class);
-		private List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
-		private boolean parameterDefinitionAutomatic = false;
+		protected Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
+		protected Variant<String> statementVariant = new Variant<String>(String.class);
+		protected List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
+		protected boolean parameterDefinitionAutomatic = false;
 
-		private UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
-		private RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
+		protected UpToDate<Class<? extends ParameterValues>> upToDateParameterValuesClass = new UpToDateParameterValuesClass();
+		protected RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder("Parameters",
 				new ParameterValuesClassNameAccessor());
-		private UpToDateMetaParameterDefinitions upToDateMetaParameterDefinitions = new UpToDateMetaParameterDefinitions();
+		protected UpToDateMetaParameterDefinitions upToDateMetaParameterDefinitions = new UpToDateMetaParameterDefinitions();
 
 		public boolean isParameterDefinitionAutomatic() {
 			return parameterDefinitionAutomatic;
@@ -120,7 +120,7 @@ public abstract class JDBCOperation implements Operation {
 			this.statementVariant = statementVariant;
 		}
 
-		private List<ParameterDefinition> computeParameterDefinitions() {
+		protected List<ParameterDefinition> computeParameterDefinitions() {
 			if (parameterDefinitionAutomatic) {
 				try {
 					return upToDateMetaParameterDefinitions.get();
@@ -264,7 +264,11 @@ public abstract class JDBCOperation implements Operation {
 			@Override
 			public String get() {
 				try {
-					return upToDateParameterValuesClass.get().getName();
+					Class<? extends ParameterValues> parameterValuesClass = upToDateParameterValuesClass.get();
+					if (parameterValuesClass == null) {
+						return null;
+					}
+					return parameterValuesClass.getName();
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -301,6 +305,9 @@ public abstract class JDBCOperation implements Operation {
 			@Override
 			protected Class<? extends ParameterValues> obtainLatest(Object versionIdentifier) {
 				List<ParameterDefinition> parameterDefinitions = computeParameterDefinitions();
+				if (parameterDefinitions == null) {
+					return null;
+				}
 				String className = JDBCQuery.class.getName() + "ParameterValues"
 						+ MiscUtils.toDigitalUniqueIdentifier(this);
 				StringBuilder javaSource = new StringBuilder();

@@ -40,7 +40,7 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCQuery extends JDBCOperation {
 
-	private Class<?> customResultClass;
+	protected Class<?> customResultClass;
 
 	public JDBCQuery(Session session, JDBCConnection connection, Class<?> customResultClass) {
 		super(session, connection);
@@ -141,11 +141,11 @@ public class JDBCQuery extends JDBCOperation {
 
 	public static class Builder extends JDBCOperation.Builder<JDBCQuery> {
 
-		private List<ColumnDefinition> resultColumnDefinitions;
-		private boolean resultColumnDefinitionAutomatic = true;
+		protected List<ColumnDefinition> resultColumnDefinitions;
+		protected boolean resultColumnDefinitionAutomatic = true;
 
-		private UpToDate<Class<?>> upToDateCustomResultClass = new UpToDateCustomResultClass();
-		private UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();
+		protected UpToDate<Class<?>> upToDateCustomResultClass = new UpToDateCustomResultClass();
+		protected UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();
 
 		public boolean isResultColumnDefinitionAutomatic() {
 			return resultColumnDefinitionAutomatic;
@@ -155,7 +155,7 @@ public class JDBCQuery extends JDBCOperation {
 			this.resultColumnDefinitionAutomatic = resultColumnDefinitionAutomatic;
 		}
 
-		private List<ColumnDefinition> computeResultColumnDefinitions() {
+		protected List<ColumnDefinition> computeResultColumnDefinitions() {
 			if (resultColumnDefinitionAutomatic) {
 				try {
 					return upToDateMetaResultColumnDefinitions.get();
@@ -185,7 +185,7 @@ public class JDBCQuery extends JDBCOperation {
 			super.setConnectionReference(connectionReference);
 		}
 
-		private Class<?> createCustomResultClass() {
+		protected Class<?> createCustomResultClass() {
 			Structure resultRowStructure = createResultRowStructure();
 			if (resultRowStructure == null) {
 				return null;
@@ -202,7 +202,7 @@ public class JDBCQuery extends JDBCOperation {
 			return MiscUtils.getArrayType(resultRowClass);
 		}
 
-		private Structure createResultRowStructure() {
+		protected Structure createResultRowStructure() {
 			List<ColumnDefinition> resultColumnDefinitions = computeResultColumnDefinitions();
 			if (resultColumnDefinitions == null) {
 				return null;

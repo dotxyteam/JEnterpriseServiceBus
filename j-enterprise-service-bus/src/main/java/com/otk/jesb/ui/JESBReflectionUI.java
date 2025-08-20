@@ -72,6 +72,7 @@ import com.otk.jesb.operation.builtin.Fail;
 import com.otk.jesb.operation.builtin.GenerateXML;
 import com.otk.jesb.operation.builtin.InspectResource;
 import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.JDBCStoredProcedureCall;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.Log;
 import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
@@ -155,8 +156,9 @@ public class JESBReflectionUI extends CustomizedUI {
 			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
 			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
 			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
-			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
-			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());
+			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
+			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+			new CallSOAPWebService.Metadata());
 	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
