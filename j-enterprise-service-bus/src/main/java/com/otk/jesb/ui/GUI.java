@@ -355,8 +355,9 @@ public class GUI extends SwingCustomizer {
 									protected Object getNewValue() {
 										FieldInitializerFacade facade = (FieldInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 												.getInstance()).getObject()).getInstance()).getObject();
-										if ((facade.getFieldValueMode() == null)
-												|| (facade.getFieldValueMode() == ValueMode.PLAIN)) {
+										if (((facade.getFieldValueMode() == null)
+												|| (facade.getFieldValueMode() == ValueMode.PLAIN))
+												&& !Object.class.getName().equals(facade.getFieldTypeName())) {
 											return facade.createDefaultFieldValue();
 										} else {
 											return super.getNewValue();
@@ -379,7 +380,8 @@ public class GUI extends SwingCustomizer {
 									protected Object getNewValue() {
 										ParameterInitializerFacade facade = (ParameterInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 												.getInstance()).getObject()).getInstance()).getObject();
-										if (facade.getParameterValueMode() == ValueMode.PLAIN) {
+										if ((facade.getParameterValueMode() == ValueMode.PLAIN)
+												&& !Object.class.getName().equals(facade.getParameterTypeName())) {
 											return facade.createDefaultParameterValue();
 										} else {
 											return super.getNewValue();
@@ -402,8 +404,9 @@ public class GUI extends SwingCustomizer {
 									protected Object getNewValue() {
 										ListItemInitializerFacade facade = (ListItemInitializerFacade) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) ((MembersCapsuleFieldInfo.Value) ((PrecomputedTypeInstanceWrapper) getObject())
 												.getInstance()).getObject()).getInstance()).getObject();
-										if ((facade.getItemValueMode() == null)
-												|| (facade.getItemValueMode() == ValueMode.PLAIN)) {
+										if (((facade.getItemValueMode() == null)
+												|| (facade.getItemValueMode() == ValueMode.PLAIN))
+												&& !Object.class.getName().equals(facade.getItemTypeName())) {
 											return facade.createDefaultItemValue();
 										} else {
 											return super.getNewValue();
@@ -534,5 +537,4 @@ public class GUI extends SwingCustomizer {
 		openObjectDialog(activatorComponent, error);
 	}
 
-	
 }

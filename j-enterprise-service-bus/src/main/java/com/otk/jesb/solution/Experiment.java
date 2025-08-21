@@ -31,34 +31,37 @@ public class Experiment extends Plan {
 
 	public Object carryOut() throws Throwable {
 		OperationBuilder<?> operationBuilder = experimentalStep.getOperationBuilder();
-		Operation operation = operationBuilder.build(new Plan.ExecutionContext(Session.NO_SESSION, this), new Plan.ExecutionInspector() {
+		try (Session session = Session.createDummySession()) {
+			Operation operation = operationBuilder.build(new Plan.ExecutionContext(session, this),
+					new Plan.ExecutionInspector() {
 
-			@Override
-			public void logWarning(String message) {
-			}
+						@Override
+						public void logWarning(String message) {
+						}
 
-			@Override
-			public void logInformation(String message) {
-			}
+						@Override
+						public void logInformation(String message) {
+						}
 
-			@Override
-			public void logError(String message) {
-			}
+						@Override
+						public void logError(String message) {
+						}
 
-			@Override
-			public boolean isExecutionInterrupted() {
-				return false;
-			}
+						@Override
+						public boolean isExecutionInterrupted() {
+							return false;
+						}
 
-			@Override
-			public void beforeOperation(StepCrossing stepCrossing) {
-			}
+						@Override
+						public void beforeOperation(StepCrossing stepCrossing) {
+						}
 
-			@Override
-			public void afterOperation(StepCrossing stepCrossing) {
-			}
-		});
-		return operation.execute();
+						@Override
+						public void afterOperation(StepCrossing stepCrossing) {
+						}
+					});
+			return operation.execute();
+		}
 	}
 
 	public static class ExperimentalStep extends Step {

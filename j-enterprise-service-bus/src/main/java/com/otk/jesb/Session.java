@@ -5,16 +5,23 @@ import java.util.List;
 
 public abstract class Session implements AutoCloseable {
 
-	public static final Session NO_SESSION = new Session() {
+	public static Session createDummySession() {
+		return new Session() {
 
-		@Override
-		public void terminate() {
-		}
+			@Override
+			public void terminate() {
+			}
 
-		@Override
-		public void initiate() {
-		}
-	};
+			@Override
+			public void initiate() {
+			}
+
+			@Override
+			public String toString() {
+				return super.toString().replace(getClass().getName(), Session.class.getName() + ".Dummy");
+			}
+		};
+	}
 
 	public abstract void initiate();
 
