@@ -53,9 +53,9 @@ public class InstanceBuilderTest {
 			planOutputStructure.getElements().add(element);
 			activator.setOutputStructure(planOutputStructure);
 		}
-		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInstantiationNode()).getParameterValue())
-				.getParameterInitializers()
-				.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInstantiationNode())
+				.getParameterValue()).getParameterInitializers()
+						.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
@@ -68,7 +68,7 @@ public class InstanceBuilderTest {
 				Tree.Builder builder = (Builder) step.getOperationBuilder();
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
-				try {
+				try (Session session = Session.createDummySession()) {
 					Object input = plan.getActivator().getInputClass().getConstructor(Tree.class)
 							.newInstance(inputTree);
 					output = plan.execute(input, new ExecutionInspector() {
@@ -108,7 +108,7 @@ public class InstanceBuilderTest {
 									Thread.currentThread().getName(), levelName, message);
 							printStream.println(formattedMessage);
 						}
-					}, new ExecutionContext(Session.NO_SESSION, plan));
+					}, new ExecutionContext(session, plan));
 				} catch (Throwable t) {
 					GUI.INSTANCE.handleException(null, t);
 					return;

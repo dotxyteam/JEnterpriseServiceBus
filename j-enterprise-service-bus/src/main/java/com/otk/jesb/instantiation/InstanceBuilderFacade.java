@@ -31,7 +31,6 @@ public class InstanceBuilderFacade extends Facade {
 	private InstanceBuilder underlying;
 
 	private InitializationCaseFacade util;
-	private ITypeInfo typeInfo;
 
 	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {
 		this.parent = parent;
@@ -177,36 +176,33 @@ public class InstanceBuilderFacade extends Facade {
 	}
 
 	public ITypeInfo getTypeInfo() {
-		if (typeInfo == null) {
-			String actualTypeName = underlying
-					.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent));
-			ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
-			if (result instanceof IListTypeInfo) {
-				if (parent instanceof FieldInitializerFacade) {
-					FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
-					IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
-					result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
-				}
-				if (parent instanceof ParameterInitializerFacade) {
-					ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
-					InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
-							.getCurrentInstanceBuilderFacade();
-					AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
-							parentInstanceBuilderFacade.getTypeInfo(),
-							parentInstanceBuilderFacade.getSelectedConstructorSignature());
-					result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
-							listParameterInitializerFacade.getParameterPosition());
-				}
+		String actualTypeName = underlying
+				.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent));
+		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
+		if (result instanceof IListTypeInfo) {
+			if (parent instanceof FieldInitializerFacade) {
+				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
+				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
+				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
 			}
-			if (result instanceof IMapEntryTypeInfo) {
-				if (parent instanceof ListItemInitializerFacade) {
-					ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;
-					result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemTypeInfo();
-				}
+			if (parent instanceof ParameterInitializerFacade) {
+				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
+				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
+						.getCurrentInstanceBuilderFacade();
+				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
+						parentInstanceBuilderFacade.getTypeInfo(),
+						parentInstanceBuilderFacade.getSelectedConstructorSignature());
+				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
+						listParameterInitializerFacade.getParameterPosition());
 			}
-			typeInfo = result;
 		}
-		return typeInfo;
+		if (result instanceof IMapEntryTypeInfo) {
+			if (parent instanceof ListItemInitializerFacade) {
+				ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;
+				result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemTypeInfo();
+			}
+		}
+		return result;
 	}
 
 	@Override

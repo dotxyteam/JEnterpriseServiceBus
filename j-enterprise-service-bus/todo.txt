@@ -14,8 +14,7 @@
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
 - add essential built-in activities:
-	. file (delete, move, poll)
-	. jdbc (stored procedure)
+	. jdbc (direct)
 - allow to create custom operations/activators/resources by coding directly in the designer
 - documentation:
 	. manual
@@ -29,6 +28,8 @@
 - allow to view APIs (SOAP/REST) documentation URL
 - allow to have encrypted (password) environment settings
 - add other built-in activities (jms, data format, ...)
+- add JDBC connection/operation timeout options
+- allow to ignore errors ???
 - allow to use a custom profile to debug (must be able to view the changed variable 
 values)
 - allow to run (not debug) from the designer
@@ -36,6 +37,7 @@ values)
 - manage JDBC connection pools
 - add basic HTTP operation/activators 
 - add a static test that checks that most values are Variant
+- optimize console by formatting messages (to HTML) on demand
 - allow to share assets between solutions
 - find a better icon for 'connect' drag intent
 - allow to process REST XML message payloads 

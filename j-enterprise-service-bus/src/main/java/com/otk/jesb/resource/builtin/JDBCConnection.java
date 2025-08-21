@@ -122,11 +122,13 @@ public class JDBCConnection extends Resource {
 				session.getClosables().add(currentSessionInstanceClosableWrapper = new AutoCloseable() {
 					@Override
 					public void close() throws Exception {
-						currentSessionInstanceClosableWrapper = null;
-						currentSessionInstance.close();
-						currentSessionInstance = null;
-						currentSession = null;
-						instanceMutex.release();
+						synchronized (JDBCConnection.this) {
+							currentSessionInstanceClosableWrapper = null;
+							currentSessionInstance.close();
+							currentSessionInstance = null;
+							currentSession = null;
+							instanceMutex.release();
+						}
 					}
 				});
 			} else {
@@ -135,9 +137,9 @@ public class JDBCConnection extends Resource {
 							"Unable to share " + this + " instance between " + currentSession + " and " + session);
 				}
 				if (!currentSessionInstance.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {
-					if(!session.getClosables().remove(currentSessionInstanceClosableWrapper)) {
+					if (!session.getClosables().remove(currentSessionInstanceClosableWrapper)) {
 						throw new UnexpectedError();
-					}					
+					}
 					currentSessionInstanceClosableWrapper.close();
 					return during(session);
 				}

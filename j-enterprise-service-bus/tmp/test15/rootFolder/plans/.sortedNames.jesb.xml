@@ -10,4 +10,5 @@
   <string>RESTClientTest</string>
   <string>FolderWatchTest</string>
   <string>JDBCStoredProcedureTest</string>
+  <string>GeneralOpertionsTest</string>
 </list>

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -177,7 +178,7 @@ public abstract class JDBCOperation implements Operation {
 					PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
 					ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
 					if (parameterMetaData == null) {
-						throw new SQLException("No SQL statement paramater meta data found");
+						throw new SQLException("No SQL statement parameter meta data found");
 					}
 					List<ParameterDefinition> result = new ArrayList<JDBCOperation.ParameterDefinition>();
 					for (int i = 0; i < parameterMetaData.getParameterCount(); i++) {
@@ -207,48 +208,27 @@ public abstract class JDBCOperation implements Operation {
 
 		@Override
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getConnection() == null) {
+			JDBCConnection connection = getConnection();
+			if (connection == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
 			}
-			List<ParameterDefinition> parameterDefinitions;
-			try {
-				parameterDefinitions = computeParameterDefinitions();
-			} catch (Throwable t) {
-				throw new ValidationError("Failed to get parameter definitions", t);
+			String statement = getStatementVariant().getValue();
+			if ((statement == null) || statement.trim().isEmpty()) {
+				throw new ValidationError("Statement not provided");
 			}
 			try {
-				int expectedParameterCount = getConnection().during(connectionInstance -> {
+				connection.during(connectionInstance -> {
 					try {
-						PreparedStatement preparedStatement = connectionInstance
-								.prepareStatement(getStatementVariant().getValue());
-						return preparedStatement.getParameterMetaData().getParameterCount();
+						return connectionInstance.prepareStatement(statement);
 					} catch (SQLException e) {
 						throw new PotentialError(e);
 					}
 				});
-				if (expectedParameterCount != parameterDefinitions.size()) {
-					throw new ValidationError("Unexpected defined parameter count: " + parameterDefinitions.size()
-							+ ". Expected " + expectedParameterCount + " parameter(s).");
-				}
 			} catch (Exception e) {
-				throw new ValidationError("Failed to validate the JDBC opertation", e);
+				throw new ValidationError(e.getMessage(), e);
 			}
 			if (recursively) {
-				List<String> parameterNames = new ArrayList<String>();
-				for (ParameterDefinition parameterDefinition : parameterDefinitions) {
-					if (parameterNames.contains(parameterDefinition.getParameterName())) {
-						throw new ValidationError(
-								"Duplicate parameter name detected: '" + parameterDefinition.getParameterName() + "'");
-					} else {
-						parameterNames.add(parameterDefinition.getParameterName());
-					}
-					try {
-						parameterDefinition.validate();
-					} catch (ValidationError e) {
-						throw new ValidationError(
-								"Failed to validate the parameter '" + parameterDefinition.getParameterName() + "'", e);
-					}
-				}
+				validateParameterDefinitions();
 				if (parameterValuesBuilder != null) {
 					try {
 						parameterValuesBuilder.getFacade().validate(recursively,
@@ -258,6 +238,51 @@ public abstract class JDBCOperation implements Operation {
 					}
 				}
 			}
+		}
+
+		public void validateParameterDefinitions() throws ValidationError {
+			List<ParameterDefinition> parameterDefinitions;
+			try {
+				parameterDefinitions = computeParameterDefinitions();
+			} catch (Throwable t) {
+				throw new ValidationError("Failed to get parameter definitions", t);
+			}
+			if (parameterDefinitions != null) {
+				if (!parameterDefinitionAutomatic) {
+					List<ParameterDefinition> metaParameterDefinitions;
+					try {
+						metaParameterDefinitions = upToDateMetaParameterDefinitions.get();
+					} catch (VersionAccessException e) {
+						metaParameterDefinitions = null;
+					}
+					if (metaParameterDefinitions != null) {
+						List<String> metaParameterTypeNames = metaParameterDefinitions.stream()
+								.map(ParameterDefinition::getParameterTypeName).collect(Collectors.toList());
+						List<String> parameterTypeNames = parameterDefinitions.stream()
+								.map(ParameterDefinition::getParameterTypeName).collect(Collectors.toList());
+						if (!metaParameterTypeNames.equals(parameterTypeNames)) {
+							throw new ValidationError("Parameter types are not valid. Unexpected: " + parameterTypeNames
+									+ ". Expected: " + metaParameterTypeNames);
+						}
+					}
+				}
+			}
+			List<String> parameterNames = new ArrayList<String>();
+			for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+				if (parameterNames.contains(parameterDefinition.getParameterName())) {
+					throw new ValidationError(
+							"Duplicate parameter name detected: '" + parameterDefinition.getParameterName() + "'");
+				} else {
+					parameterNames.add(parameterDefinition.getParameterName());
+				}
+				try {
+					parameterDefinition.validate();
+				} catch (ValidationError e) {
+					throw new ValidationError(
+							"Failed to validate the parameter '" + parameterDefinition.getParameterName() + "'", e);
+				}
+			}
+
 		}
 
 		private class ParameterValuesClassNameAccessor extends Accessor<String> {

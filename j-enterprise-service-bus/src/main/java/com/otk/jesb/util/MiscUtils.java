@@ -74,7 +74,8 @@ public class MiscUtils {
 				@Override
 				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
 					if (type.isAnonymousClass()) {
-						throw new UnexpectedError("Cannot serialize instance of forbidden anonymous class " + type);
+						throw new UnexpectedError("Cannot serialize instance of class " + type
+								+ ": Anonymous class instance serialization forbidden");
 					}
 					return super.serializedClass(type);
 				}

@@ -9,9 +9,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -40,60 +39,46 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCQuery extends JDBCOperation {
 
-	protected Class<?> customResultClass;
+	protected Class<?> resultClass;
 
-	public JDBCQuery(Session session, JDBCConnection connection, Class<?> customResultClass) {
+	public JDBCQuery(Session session, JDBCConnection connection, Class<?> resultClass) {
 		super(session, connection);
-		this.customResultClass = customResultClass;
+		this.resultClass = resultClass;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object execute() throws Exception {
 		PreparedStatement preparedStatement = prepare();
 		ResultSet resultSet = preparedStatement.executeQuery();
 		List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(preparedStatement);
-		if (customResultClass != null) {
-			Class<?> customResultRowClass = customResultClass.getComponentType();
-			Constructor<?> customResultRowConstructor = customResultRowClass.getConstructors()[0];
-			Parameter[] customResultRowConstructorParameters = customResultRowConstructor.getParameters();
-			if (resultColumnDefinitions.size() != customResultRowConstructorParameters.length) {
-				throw new ValidationError("Unexpected result row column count: " + resultColumnDefinitions.size()
-						+ ". Expected " + customResultRowConstructorParameters.length + " column(s).");
-			}
-			List<Object> customResultRowStandardList = new ArrayList<Object>();
-			while (resultSet.next()) {
-				Object[] parameterValues = new Object[resultColumnDefinitions.size()];
-				for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
-					Parameter parameter = customResultRowConstructorParameters[iColumn - 1];
-					ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);
-					if (!parameter.getName().matches(resultColumnDefinition.getColumnName())) {
-						throw new ValidationError("Unexpected result row column name: '"
-								+ resultColumnDefinition.getColumnName() + "' at the " + iColumn
-								+ "th position. Expected '" + parameter.getName() + "'");
-					}
-					parameterValues[iColumn - 1] = resultSet.getObject(iColumn);
-				}
-				Object row = customResultRowConstructor.newInstance(parameterValues);
-				customResultRowStandardList.add(row);
-			}
-			Object customResult = Array.newInstance(customResultRowClass, customResultRowStandardList.size());
-			for (int i = 0; i < customResultRowStandardList.size(); i++) {
-				Array.set(customResult, i, customResultRowStandardList.get(i));
-			}
-			return customResult;
-		} else {
-			List<ColumnDefinition> columns = retrieveResultColumnDefinitions(preparedStatement);
-			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-			while (resultSet.next()) {
-				Map<String, Object> row = new HashMap<String, Object>();
-				for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
-					row.put(resultColumnDefinitions.get(iColumn - 1).getColumnName(), resultSet.getObject(iColumn));
-				}
-				rows.add(row);
-			}
-			return new GenericResult(columns.toArray(new String[columns.size()]), rows.toArray(new Map[rows.size()]));
+		Class<?> resultRowClass = resultClass.getComponentType();
+		Constructor<?> resultRowConstructor = resultRowClass.getConstructors()[0];
+		Parameter[] resultRowConstructorParameters = resultRowConstructor.getParameters();
+		if (resultColumnDefinitions.size() != resultRowConstructorParameters.length) {
+			throw new ValidationError("Unexpected result row column count: " + resultColumnDefinitions.size()
+					+ ". Expected " + resultRowConstructorParameters.length + " column(s).");
 		}
+		List<Object> resultRowStandardList = new ArrayList<Object>();
+		while (resultSet.next()) {
+			Object[] parameterValues = new Object[resultColumnDefinitions.size()];
+			for (int iColumn = 1; iColumn <= resultColumnDefinitions.size(); iColumn++) {
+				Parameter parameter = resultRowConstructorParameters[iColumn - 1];
+				ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);
+				if (!parameter.getName().equals(resultColumnDefinition.getColumnName())) {
+					throw new ValidationError(
+							"Unexpected result column name: '" + resultColumnDefinition.getColumnName() + "' at the "
+									+ iColumn + "th position. Expected '" + parameter.getName() + "'");
+				}
+				parameterValues[iColumn - 1] = resultSet.getObject(iColumn);
+			}
+			Object row = resultRowConstructor.newInstance(parameterValues);
+			resultRowStandardList.add(row);
+		}
+		Object result = Array.newInstance(resultRowClass, resultRowStandardList.size());
+		for (int i = 0; i < resultRowStandardList.size(); i++) {
+			Array.set(result, i, resultRowStandardList.get(i));
+		}
+		return result;
 	}
 
 	protected static List<ColumnDefinition> retrieveResultColumnDefinitions(PreparedStatement preparedStatement)
@@ -141,10 +126,10 @@ public class JDBCQuery extends JDBCOperation {
 
 	public static class Builder extends JDBCOperation.Builder<JDBCQuery> {
 
-		protected List<ColumnDefinition> resultColumnDefinitions;
+		protected List<ColumnDefinition> resultColumnDefinitions = new ArrayList<JDBCQuery.ColumnDefinition>();
 		protected boolean resultColumnDefinitionAutomatic = true;
 
-		protected UpToDate<Class<?>> upToDateCustomResultClass = new UpToDateCustomResultClass();
+		protected UpToDate<Class<?>> upToDateResultClass = new UpToDateResultClass();
 		protected UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();
 
 		public boolean isResultColumnDefinitionAutomatic() {
@@ -168,11 +153,7 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 		public List<ColumnDefinition> getResultColumnDefinitions() {
-			return resultColumnDefinitions;
-		}
-
-		public void setResultColumnDefinitions(List<ColumnDefinition> resultColumnDefinitions) {
-			this.resultColumnDefinitions = resultColumnDefinitions;
+			return (resultColumnDefinitions != null) ? Collections.unmodifiableList(resultColumnDefinitions) : null;
 		}
 
 		@Override
@@ -185,7 +166,7 @@ public class JDBCQuery extends JDBCOperation {
 			super.setConnectionReference(connectionReference);
 		}
 
-		protected Class<?> createCustomResultClass() {
+		protected Class<?> createResultClass() {
 			Structure resultRowStructure = createResultRowStructure();
 			if (resultRowStructure == null) {
 				return null;
@@ -228,13 +209,9 @@ public class JDBCQuery extends JDBCOperation {
 			}
 		}
 
-		public void clearResultColumnDefinitions() throws SQLException {
-			this.resultColumnDefinitions = null;
-		}
-
 		@Override
 		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(), upToDateCustomResultClass.get());
+			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(), upToDateResultClass.get());
 			result.setStatement(getStatementVariant().getValue());
 			result.setParameterValues(buildParameterValues(context));
 			return result;
@@ -242,16 +219,10 @@ public class JDBCQuery extends JDBCOperation {
 
 		@Override
 		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			Class<?> customResultClass;
 			try {
-				customResultClass = upToDateCustomResultClass.get();
+				return upToDateResultClass.get();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
-			}
-			if (customResultClass != null) {
-				return customResultClass;
-			} else {
-				return GenericResult.class;
 			}
 		}
 
@@ -281,33 +252,34 @@ public class JDBCQuery extends JDBCOperation {
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
 			super.validate(recursively, plan, step);
 			if (recursively) {
-				List<ColumnDefinition> resultColumnDefinitions;
+				validateResultColumnDefinitions();
+			}
+		}
+
+		public void validateResultColumnDefinitions() throws ValidationError {
+			List<ColumnDefinition> resultColumnDefinitions;
+			try {
+				resultColumnDefinitions = computeResultColumnDefinitions();
+			} catch (Throwable t) {
+				throw new PotentialError(t.getMessage(), t);
+			}
+			if (!resultColumnDefinitionAutomatic) {
+				List<ColumnDefinition> metaResultColumnDefinitions;
 				try {
-					resultColumnDefinitions = computeResultColumnDefinitions();
-				} catch (Throwable t) {
-					throw new PotentialError("Failed to get result column definitions", t);
+					metaResultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();
+				} catch (VersionAccessException e) {
+					metaResultColumnDefinitions = null;
 				}
-				if (resultColumnDefinitions != null) {
-					List<String> columnNames = new ArrayList<String>();
-					for (ColumnDefinition columnDefinition : resultColumnDefinitions) {
-						if (columnNames.contains(columnDefinition.getColumnName())) {
-							throw new ValidationError(
-									"Duplicate column name detected: '" + columnDefinition.getColumnName() + "'");
-						} else {
-							columnNames.add(columnDefinition.getColumnName());
-						}
-						try {
-							columnDefinition.validate();
-						} catch (ValidationError e) {
-							throw new ValidationError("Failed to validate the column '"
-									+ columnDefinition.getColumnName() + "' definition", e);
-						}
+				if (metaResultColumnDefinitions != null) {
+					if (!metaResultColumnDefinitions.equals(resultColumnDefinitions)) {
+						throw new ValidationError("Result column definitions are not up to date. Unexpected: "
+								+ resultColumnDefinitions + ". Expected: " + metaResultColumnDefinitions);
 					}
 				}
 			}
 		}
 
-		private class UpToDateCustomResultClass extends UpToDate<Class<?>> {
+		private class UpToDateResultClass extends UpToDate<Class<?>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
 				return computeResultColumnDefinitions();
@@ -315,7 +287,7 @@ public class JDBCQuery extends JDBCOperation {
 
 			@Override
 			protected Class<?> obtainLatest(Object versionIdentifier) {
-				return createCustomResultClass();
+				return createResultClass();
 			}
 		}
 
@@ -417,16 +389,4 @@ public class JDBCQuery extends JDBCOperation {
 		}
 
 	}
-
-	public static class GenericResult {
-		public final Map<String, Object>[] rows;
-		public final String[] columnNames;
-
-		public GenericResult(String[] columnNames, Map<String, Object>[] rows) {
-			this.columnNames = columnNames;
-			this.rows = rows;
-		}
-
-	}
-
 }

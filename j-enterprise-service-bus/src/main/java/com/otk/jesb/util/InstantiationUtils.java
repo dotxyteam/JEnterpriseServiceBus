@@ -267,8 +267,9 @@ public class InstantiationUtils {
 				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
-							+ makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)) + "."
-							+ defaultValue.toString() + ";";
+							+ MiscUtils.adaptClassNameToSourceCode(
+									makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)))
+							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
 				} else {
