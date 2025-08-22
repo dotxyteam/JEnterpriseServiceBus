@@ -189,7 +189,7 @@ public class Debugger extends Session {
 				try {
 					plan.getActivator().finalizeAutomaticTrigger();
 				} catch (Exception e) {
-					throw new UnexpectedError(e);
+					handleDeactivationError(e);
 				}
 			}
 		}
@@ -201,6 +201,10 @@ public class Debugger extends Session {
 		protected void handleActivationError(Exception e) {
 			e.printStackTrace();
 			planExecutors.add(new PlanActivationFailure(plan, e));
+		}
+
+		protected void handleDeactivationError(Exception e) {
+			e.printStackTrace();			
 		}
 
 		public boolean isAutomaticTriggerReady() {

@@ -199,10 +199,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		HTTPServer server = expectServer();
 		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
 		WSDL.OperationDescriptor operation = expectOperationDescriptor();
-		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
 			requestHandler.deactivate(server);
 		}
+		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 		this.activationHandler = null;
 	}
 

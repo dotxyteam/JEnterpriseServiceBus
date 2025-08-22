@@ -35,6 +35,7 @@ values)
 - allow to run (not debug) from the designer
 - allow to store and view plan executions in deployed mode
 - manage JDBC connection pools
+- RetryOnErrorCompositeStep(attemps, delay, delayGrowth)
 - add basic HTTP operation/activators 
 - add a static test that checks that most values are Variant
 - optimize console by formatting messages (to HTML) on demand

@@ -33,7 +33,6 @@ public class Runner extends Debugger {
 		@Override
 		protected void handleActivationError(Exception e) {
 			e.printStackTrace();
-			System.exit(-1);
 		}
 
 	}

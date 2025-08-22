@@ -189,10 +189,10 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		String servicePath = getServicePath();
 		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
 		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
-		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
 			requestHandler.deactivate(server);
 		}
+		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 		this.activationHandler = null;
 	}
 
