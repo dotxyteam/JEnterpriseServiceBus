@@ -42,7 +42,7 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalMethodDeclarations) {
+				String additionalyExtended, String additionalDeclarations) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -64,8 +64,8 @@ public abstract class Structure {
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
 			result.append("}" + "\n");
-			if (additionalMethodDeclarations != null) {
-				result.append(additionalMethodDeclarations + "\n");
+			if (additionalDeclarations != null) {
+				result.append(additionalDeclarations + "\n");
 			}
 			result.append("@Override\n");
 			result.append("public String toString() {\n");
@@ -381,6 +381,73 @@ public abstract class Structure {
 				result = result + "?";
 			}
 			return result;
+		}
+
+	}
+
+	public static class ElementProxy extends Element {
+		private Element base;
+
+		public ElementProxy(Element base) {
+			this.base = base;
+		}
+
+		public String getName() {
+			return base.getName();
+		}
+
+		public void setName(String name) {
+			base.setName(name);
+		}
+
+		public Optionality getOptionality() {
+			return base.getOptionality();
+		}
+
+		public void setOptionality(Optionality optionality) {
+			base.setOptionality(optionality);
+		}
+
+		public boolean isMultiple() {
+			return base.isMultiple();
+		}
+
+		public void setMultiple(boolean multiple) {
+			base.setMultiple(multiple);
+		}
+
+		@Override
+		protected String getTypeName(String parentClassName) {
+			return base.getTypeName(parentClassName);
+		}
+
+		@Override
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
+			return base.generateRequiredInnerJavaTypesSourceCode(parentClassName);
+		}
+
+		@Override
+		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
+			return base.generateJavaFieldDeclarationSourceCode(parentClassName);
+		}
+
+		@Override
+		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName) {
+			return base.generateJavaConstructorParameterDeclarationSourceCode(parentClassName);
+		}
+
+		@Override
+		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName) {
+			return base.generateJavaFieldInitializationInConstructorSourceCode(parentClassName);
+		}
+
+		public void validate(boolean recursively) throws ValidationError {
+			base.validate(recursively);
+		}
+
+		@Override
+		public String toString() {
+			return "ElementProxy [base=" + base + "]";
 		}
 
 	}

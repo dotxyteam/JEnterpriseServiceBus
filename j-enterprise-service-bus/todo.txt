@@ -29,6 +29,7 @@
 - allow to have encrypted (password) environment settings
 - add other built-in activities (jms, data format, ...)
 - add JDBC connection/operation timeout options
+- rename JDBC* operations to DB* or Database* or SQL*
 - allow to ignore errors ???
 - allow to use a custom profile to debug (must be able to view the changed variable 
 values)
