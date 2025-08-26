@@ -14,6 +14,7 @@
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
 - add essential built-in activities:
+	. schedule (activator)
 	. jdbc (direct)
 - allow to create custom operations/activators/resources by coding directly in the designer
 - documentation:

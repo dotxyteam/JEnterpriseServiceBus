@@ -64,6 +64,9 @@ public abstract class Structure {
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
 			result.append("}" + "\n");
+			result.append(MiscUtils.stringJoin(elements.stream()
+					.map((e) -> e.generateJavaMethodsDeclarationSourceCode(className)).collect(Collectors.toList()),
+					"\n") + "\n");
 			if (additionalDeclarations != null) {
 				result.append(additionalDeclarations + "\n");
 			}
@@ -315,7 +318,7 @@ public abstract class Structure {
 			this.multiple = multiple;
 		}
 
-		private String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
+		protected String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
 			if (multiple) {
 				return MiscUtils.adaptClassNameToSourceCode(getTypeName(parentClassName)) + "[]";
 			} else {
@@ -334,6 +337,10 @@ public abstract class Structure {
 			}
 			result += ";";
 			return result;
+		}
+
+		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName) {
+			return null;
 		}
 
 		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName) {
@@ -448,6 +455,40 @@ public abstract class Structure {
 		@Override
 		public String toString() {
 			return "ElementProxy [base=" + base + "]";
+		}
+
+	}
+
+	public static class AccessorBasedElementProxy extends ElementProxy {
+
+		public AccessorBasedElementProxy(Element base) {
+			super(base);
+		}
+
+		@Override
+		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
+			return super.generateJavaFieldDeclarationSourceCode(parentClassName).replace("public ", "private ");
+		}
+
+		@Override
+		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName) {
+			StringBuilder result = new StringBuilder();
+			String superResult = super.generateJavaMethodsDeclarationSourceCode(parentClassName);
+			if (superResult != null) {
+				result.append(superResult);
+			}
+			result.append("public " + super.getFinalTypeNameAdaptedToSourceCode(parentClassName) + " get"
+					+ super.getName().substring(0, 1).toUpperCase() + super.getName().substring(1) + "() {\n");
+			result.append("return " + super.getName() + ";\n");
+			result.append("}\n");
+			if (getOptionality() != null) {
+				result.append("public void set" + super.getName().substring(0, 1).toUpperCase()
+						+ super.getName().substring(1) + "("
+						+ super.getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + super.getName() + ") {\n");
+				result.append("this." + super.getName() + " = " + super.getName() + ";\n");
+				result.append("}\n");
+			}
+			return result.toString();
 		}
 
 	}

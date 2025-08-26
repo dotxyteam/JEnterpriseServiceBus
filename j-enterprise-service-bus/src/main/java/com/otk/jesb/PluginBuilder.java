@@ -1,31 +1,69 @@
 package com.otk.jesb;
 
+import java.awt.Image;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.Structure.StructuredElement;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.operation.builtin.CallRESTAPI;
-import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.ui.GUI;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
 
 public class PluginBuilder {
 
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				GUI.INSTANCE.openObjectDialog(null, new PluginBuilder());
+			}
+		});
+	}
+
 	private String packageName;
 	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
+
+	public String getPackageName() {
+		return packageName;
+	}
+
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
+
+	public List<OperationDescriptor> getOperations() {
+		return operations;
+	}
+
+	public void setOperations(List<OperationDescriptor> operations) {
+		this.operations = operations;
+	}
+
+	public void save(File file) throws IOException {
+		try (FileOutputStream output = new FileOutputStream(file)) {
+			MiscUtils.serialize(this, output);
+		}
+	}
+
+	public static PluginBuilder load(File file) throws IOException {
+		try (FileInputStream input = new FileInputStream(file)) {
+			return (PluginBuilder) MiscUtils.deserialize(input);
+		}
+	}
 
 	public class OperationDescriptor {
 
@@ -37,6 +75,77 @@ public class PluginBuilder {
 		private ResultDescriptor result;
 		private String executionMethodBody;
 		private String buildMethodBody;
+
+		public String getOpertionTypeName() {
+			return opertionTypeName;
+		}
+
+		public void setOpertionTypeName(String opertionTypeName) {
+			this.opertionTypeName = opertionTypeName;
+		}
+
+		public String getOpertionTypeCaption() {
+			return opertionTypeCaption;
+		}
+
+		public void setOpertionTypeCaption(String opertionTypeCaption) {
+			this.opertionTypeCaption = opertionTypeCaption;
+		}
+
+		public String getCategoryName() {
+			return categoryName;
+		}
+
+		public void setCategoryName(String categoryName) {
+			this.categoryName = categoryName;
+		}
+
+		public List<ParameterDescriptor> getParameters() {
+			return parameters;
+		}
+
+		public void setParameters(List<ParameterDescriptor> parameters) {
+			this.parameters = parameters;
+		}
+
+		public ResultDescriptor getResult() {
+			return result;
+		}
+
+		public void setResult(ResultDescriptor result) {
+			this.result = result;
+		}
+
+		public String getExecutionMethodBody() {
+			return executionMethodBody;
+		}
+
+		public void setExecutionMethodBody(String executionMethodBody) {
+			this.executionMethodBody = executionMethodBody;
+		}
+
+		public String getBuildMethodBody() {
+			return buildMethodBody;
+		}
+
+		public void setBuildMethodBody(String buildMethodBody) {
+			this.buildMethodBody = buildMethodBody;
+		}
+
+		public void loadIconImage(File file) throws IOException {
+			operationIconImageData = MiscUtils.readBinary(file);
+		}
+
+		public Image getIconImage() {
+			if (operationIconImageData == null) {
+				return null;
+			}
+			try {
+				return ImageIO.read(new ByteArrayInputStream(operationIconImageData));
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			}
+		}
 
 		public File generateJavaSourceCode(File sourceDirectroy) {
 			String className = packageName + "." + opertionTypeName;
@@ -132,6 +241,7 @@ public class PluginBuilder {
 		}
 
 		private String generateResultClassMethodBody() {
+			return "return null;";
 		}
 
 		public class ParameterDescriptor {
@@ -142,19 +252,57 @@ public class PluginBuilder {
 			private Nature nature = new SimpleNature();
 			private String defaultValueExpression;
 
+			public String getName() {
+				return name;
+			}
+
+			public void setName(String name) {
+				this.name = name;
+			}
+
+			public String getCaption() {
+				return caption;
+			}
+
+			public void setCaption(String caption) {
+				this.caption = caption;
+			}
+
+			public Variability getVariability() {
+				return variability;
+			}
+
+			public void setVariability(Variability variability) {
+				this.variability = variability;
+			}
+
+			public Nature getNature() {
+				return nature;
+			}
+
+			public void setNature(Nature nature) {
+				this.nature = nature;
+			}
+
+			public String getDefaultValueExpression() {
+				return defaultValueExpression;
+			}
+
+			public void setDefaultValueExpression(String defaultValueExpression) {
+				this.defaultValueExpression = defaultValueExpression;
+			}
+
 			public Element createOperationElement(String parentClassName) {
 				Element result = nature.createOperationElement(parentClassName, name, defaultValueExpression);
+				result = new Structure.AccessorBasedElementProxy(result);
 				return result;
 			}
 
 			public Element createOperationBuilderElement(String parentClassName) {
-				Element result = new Structure.ElementProxy(
-						nature.createOperationElement(parentClassName, name, defaultValueExpression)) {
-
-					@Override
-					protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
-						return super.generateJavaFieldDeclarationSourceCode(parentClassName).replace("final ", "");
-					}
+				Element result = nature.createOperationElement(parentClassName, name, defaultValueExpression);
+				result.setOptionality(null);
+				result = new Structure.AccessorBasedElementProxy(result);
+				result = new Structure.ElementProxy(result) {
 
 					@Override
 					protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
@@ -172,6 +320,14 @@ public class PluginBuilder {
 
 	public static class ResultDescriptor {
 		private Nature nature = new SimpleNature();
+
+		public Nature getNature() {
+			return nature;
+		}
+
+		public void setNature(Nature nature) {
+			this.nature = nature;
+		}
 
 	}
 
@@ -252,6 +408,22 @@ public class PluginBuilder {
 		private StructuredNature baseNature = new StructuredNature();
 		private List<NatureAlternative> alternatives = new ArrayList<NatureAlternative>();
 
+		public StructuredNature getBaseNature() {
+			return baseNature;
+		}
+
+		public void setBaseNature(StructuredNature baseNature) {
+			this.baseNature = baseNature;
+		}
+
+		public List<NatureAlternative> getAlternatives() {
+			return alternatives;
+		}
+
+		public void setAlternatives(List<NatureAlternative> alternatives) {
+			this.alternatives = alternatives;
+		}
+
 		@Override
 		public Element createOperationElement(String parentClassName, String name, String defaultValueExpression) {
 			return new Structure.ElementProxy(
@@ -274,6 +446,30 @@ public class PluginBuilder {
 			private String alternativeName;
 			private String condition;
 			private StructuredNature nature = new StructuredNature();
+
+			public String getAlternativeName() {
+				return alternativeName;
+			}
+
+			public void setAlternativeName(String alternativeName) {
+				this.alternativeName = alternativeName;
+			}
+
+			public String getCondition() {
+				return condition;
+			}
+
+			public void setCondition(String condition) {
+				this.condition = condition;
+			}
+
+			public StructuredNature getNature() {
+				return nature;
+			}
+
+			public void setNature(StructuredNature nature) {
+				this.nature = nature;
+			}
 
 			public String generateRequiredInnerJavaTypesSourceCode(String parentClassName, String elementName,
 					String baseStructureTypeName) {
@@ -317,7 +513,27 @@ public class PluginBuilder {
 	}
 
 	public static class DynamicVariability extends Variability {
+		@Override
+		public Element adaptOperationElement(String parentClassName, Element element) {
+			return new Structure.SimpleElement() {
+				{
+					setName(element.getName() + "Builder");
+					setTypeNameOrAlias(RootInstanceBuilder.class.getName());
+					Structure.Optionality optionality = new Structure.Optionality();
+					{
+						optionality.setDefaultValueExpression(
+								"new " + RootInstanceBuilder.class.getName() + "(\"" + element.getName() + "Input\", "
+										+ element.getFinalTypeNameAdaptedToSourceCode(parentClassName) + ".class)");
+						setOptionality(optionality);
+					}
+				}
 
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
+					return element.generateRequiredInnerJavaTypesSourceCode(parentClassName);
+				}
+			};
+		}
 	}
 
 }
