@@ -270,9 +270,7 @@ public class PluginBuilder {
 
 			private String name;
 			private String caption;
-			private Variability variability = new StaticVariability();
 			private Nature nature = new SimpleNature();
-			private String defaultValueExpression;
 
 			public String getName() {
 				return name;
@@ -290,14 +288,6 @@ public class PluginBuilder {
 				this.caption = caption;
 			}
 
-			public Variability getVariability() {
-				return variability;
-			}
-
-			public void setVariability(Variability variability) {
-				this.variability = variability;
-			}
-
 			public Nature getNature() {
 				return nature;
 			}
@@ -306,22 +296,13 @@ public class PluginBuilder {
 				this.nature = nature;
 			}
 
-			public String getDefaultValueExpression() {
-				return defaultValueExpression;
-			}
-
-			public void setDefaultValueExpression(String defaultValueExpression) {
-				this.defaultValueExpression = defaultValueExpression;
-			}
-
 			public Element createOperationElement(String parentClassName) {
-				Element result = nature.createOperationElement(parentClassName, name, defaultValueExpression);
+				Element result = nature.createOperationElement(parentClassName, name);
 				return result;
 			}
 
 			public Element createOperationBuilderElement(String parentClassName) {
-				Element result = nature.createOperationElement(parentClassName, name, defaultValueExpression);
-				result = variability.adaptOperationElement(parentClassName, result);
+				Element result = nature.createOperationBuilderElement(parentClassName, name);
 				result = new Structure.ElementProxy(result) {
 
 					@Override
@@ -397,22 +378,17 @@ public class PluginBuilder {
 
 	public static abstract class Nature {
 
-		public abstract Element createOperationElement(String parentClassName, String name,
-				String defaultValueExpression);
+		public abstract Element createOperationElement(String parentClassName, String name);
 
-		protected void configureOptionality(Structure.Element element, String defaultValueExpression) {
-			if (defaultValueExpression != null) {
-				Structure.Optionality optionality = new Structure.Optionality();
-				optionality.setDefaultValueExpression(defaultValueExpression);
-				element.setOptionality(optionality);
-			}
+		protected abstract Element createOperationBuilderElement(String parentClassName, String name);
 
-		}
 	}
 
 	public static class SimpleNature extends Nature {
 
 		private SimpleElement internalElement = new SimpleElement();
+		private String defaultValueExpression;
+		private boolean variant = false;
 
 		public String getTypeNameOrAlias() {
 			return internalElement.getTypeNameOrAlias();
@@ -426,13 +402,54 @@ public class PluginBuilder {
 			return internalElement.getTypeNameOrAliasOptions();
 		}
 
+		public String getDefaultValueExpression() {
+			return defaultValueExpression;
+		}
+
+		public void setDefaultValueExpression(String defaultValueExpression) {
+			this.defaultValueExpression = defaultValueExpression;
+		}
+
+		public boolean isVariant() {
+			return variant;
+		}
+
+		public void setVariant(boolean variant) {
+			this.variant = variant;
+		}
+
 		@Override
-		public Element createOperationElement(String parentClassName, String name, String defaultValueExpression) {
+		public Element createOperationElement(String parentClassName, String name) {
 			Structure.SimpleElement result = new Structure.SimpleElement();
 			result.setName(name);
 			result.setTypeNameOrAlias(getTypeNameOrAlias());
-			configureOptionality(result, defaultValueExpression);
+			if (defaultValueExpression != null) {
+				Structure.Optionality optionality = new Structure.Optionality();
+				optionality.setDefaultValueExpression(defaultValueExpression);
+				result.setOptionality(optionality);
+			}
 			return result;
+		}
+
+		@Override
+		protected Element createOperationBuilderElement(String parentClassName, String name) {
+			if (variant) {
+				return new Structure.SimpleElement() {
+					Element base = createOperationElement(parentClassName, name);
+					{
+						setName(base.getName() + "Variant");
+						setTypeNameOrAlias(Variant.class.getName() + "<" + base.getTypeName("") + ">");
+					}
+
+					@Override
+					protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+							Map<Object, Object> options) {
+						return base.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
+					}
+				};
+			} else {
+				return createOperationElement(parentClassName, name);
+			}
 		}
 
 		public void validate(boolean recursively) throws ValidationError {
@@ -443,6 +460,8 @@ public class PluginBuilder {
 	public static class StructuredNature extends Nature {
 
 		private StructuredElement internalElement = new StructuredElement();
+		private boolean dynamic = false;
+		private List<PolymorphicNatureAlternative> alternatives;
 
 		public Structure getStructure() {
 			return internalElement.getStructure();
@@ -452,13 +471,66 @@ public class PluginBuilder {
 			internalElement.setStructure(structure);
 		}
 
+		public List<PolymorphicNatureAlternative> getAlternatives() {
+			return alternatives;
+		}
+
+		public void setAlternatives(List<PolymorphicNatureAlternative> alternatives) {
+			this.alternatives = alternatives;
+		}
+
 		@Override
-		public Structure.StructuredElement createOperationElement(String parentClassName, String name,
-				String defaultValueExpression) {
+		public Structure.StructuredElement createOperationElement(String parentClassName, String name) {
 			Structure.StructuredElement result = new Structure.StructuredElement();
 			result.setName(name);
 			result.setStructure(getStructure());
-			configureOptionality(result, defaultValueExpression);
+			return result;
+		}
+
+		@Override
+		protected Element createOperationBuilderElement(String parentClassName, String name) {
+			Element result;
+			if (dynamic) {
+				result = new Structure.SimpleElement() {
+					Element base = createOperationElement(parentClassName, name);
+					{
+						setName(base.getName() + "Builder");
+						setTypeNameOrAlias(RootInstanceBuilder.class.getName());
+						Structure.Optionality optionality = new Structure.Optionality();
+						{
+							optionality.setDefaultValueExpression(
+									"new " + RootInstanceBuilder.class.getName() + "(\"" + base.getName() + "Input\", "
+											+ base.getFinalTypeNameAdaptedToSourceCode("") + ".class.getName())");
+							setOptionality(optionality);
+						}
+					}
+
+					@Override
+					protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+							Map<Object, Object> options) {
+						return base.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
+					}
+				};
+			} else {
+				result = createOperationElement(parentClassName, name);
+			}
+			if (alternatives != null) {
+				result = new Structure.ElementProxy(result) {
+
+					@Override
+					protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+							Map<Object, Object> options) {
+						StringBuilder result = new StringBuilder();
+						result.append(
+								"abstract " + super.generateRequiredInnerJavaTypesSourceCode(parentClassName, options));
+						for (PolymorphicNatureAlternative alternative : alternatives) {
+							result.append("\n" + alternative.generateRequiredInnerJavaTypesSourceCode(parentClassName,
+									name, super.getTypeName(parentClassName), options));
+						}
+						return result.toString();
+					}
+				};
+			}
 			return result;
 		}
 
@@ -467,140 +539,41 @@ public class PluginBuilder {
 		}
 	}
 
-	public static class PolymorphicNature extends Nature {
+	public static class PolymorphicNatureAlternative {
+		private String alternativeName;
+		private String condition;
+		private StructuredNature nature = new StructuredNature();
 
-		private StructuredNature baseNature = new StructuredNature();
-		private List<NatureAlternative> alternatives = new ArrayList<NatureAlternative>();
-
-		public StructuredNature getBaseNature() {
-			return baseNature;
+		public String getAlternativeName() {
+			return alternativeName;
 		}
 
-		public void setBaseNature(StructuredNature baseNature) {
-			this.baseNature = baseNature;
+		public void setAlternativeName(String alternativeName) {
+			this.alternativeName = alternativeName;
 		}
 
-		public List<NatureAlternative> getAlternatives() {
-			return alternatives;
+		public String getCondition() {
+			return condition;
 		}
 
-		public void setAlternatives(List<NatureAlternative> alternatives) {
-			this.alternatives = alternatives;
+		public void setCondition(String condition) {
+			this.condition = condition;
 		}
 
-		@Override
-		public Element createOperationElement(String parentClassName, String name, String defaultValueExpression) {
-			return new Structure.ElementProxy(
-					baseNature.createOperationElement(parentClassName, name, defaultValueExpression)) {
-
-				@Override
-				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
-						Map<Object, Object> options) {
-					StringBuilder result = new StringBuilder();
-					result.append(
-							"abstract " + super.generateRequiredInnerJavaTypesSourceCode(parentClassName, options));
-					for (NatureAlternative alternative : alternatives) {
-						result.append("\n" + alternative.generateRequiredInnerJavaTypesSourceCode(parentClassName, name,
-								super.getTypeName(parentClassName), options));
-					}
-					return result.toString();
-				}
-			};
+		public StructuredNature getNature() {
+			return nature;
 		}
 
-		public static class NatureAlternative {
-			private String alternativeName;
-			private String condition;
-			private StructuredNature nature = new StructuredNature();
-
-			public String getAlternativeName() {
-				return alternativeName;
-			}
-
-			public void setAlternativeName(String alternativeName) {
-				this.alternativeName = alternativeName;
-			}
-
-			public String getCondition() {
-				return condition;
-			}
-
-			public void setCondition(String condition) {
-				this.condition = condition;
-			}
-
-			public StructuredNature getNature() {
-				return nature;
-			}
-
-			public void setNature(StructuredNature nature) {
-				this.nature = nature;
-			}
-
-			public String generateRequiredInnerJavaTypesSourceCode(String parentClassName, String elementName,
-					String baseStructureTypeName, Map<Object, Object> options) {
-				return nature.createOperationElement(parentClassName,
-						alternativeName + elementName.substring(0, 1).toUpperCase() + elementName.substring(1), null)
-						.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
-			}
-		}
-	}
-
-	public static abstract class Variability {
-
-		public abstract Element adaptOperationElement(String parentClassName, Element element);
-
-	}
-
-	public static class StaticVariability extends Variability {
-
-		@Override
-		public Element adaptOperationElement(String parentClassName, Element element) {
-			return element;
+		public void setNature(StructuredNature nature) {
+			this.nature = nature;
 		}
 
-	}
-
-	public static class EnvironmentVariability extends Variability {
-		@Override
-		public Element adaptOperationElement(String parentClassName, Element element) {
-			return new Structure.SimpleElement() {
-				{
-					setName(element.getName() + "Variant");
-					setTypeNameOrAlias(Variant.class.getName() + "<" + element.getTypeName("") + ">");
-				}
-
-				@Override
-				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
-						Map<Object, Object> options) {
-					return element.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
-				}
-			};
-		}
-	}
-
-	public static class DynamicVariability extends Variability {
-		@Override
-		public Element adaptOperationElement(String parentClassName, Element element) {
-			return new Structure.SimpleElement() {
-				{
-					setName(element.getName() + "Builder");
-					setTypeNameOrAlias(RootInstanceBuilder.class.getName());
-					Structure.Optionality optionality = new Structure.Optionality();
-					{
-						optionality.setDefaultValueExpression(
-								"new " + RootInstanceBuilder.class.getName() + "(\"" + element.getName() + "Input\", "
-										+ element.getFinalTypeNameAdaptedToSourceCode("") + ".class.getName())");
-						setOptionality(optionality);
-					}
-				}
-
-				@Override
-				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
-						Map<Object, Object> options) {
-					return element.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
-				}
-			};
+		public String generateRequiredInnerJavaTypesSourceCode(String parentClassName, String elementName,
+				String baseStructureTypeName, Map<Object, Object> options) {
+			return nature
+					.createOperationElement(parentClassName,
+							alternativeName + elementName.substring(0, 1).toUpperCase() + elementName.substring(1))
+					.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
 		}
 	}
 
