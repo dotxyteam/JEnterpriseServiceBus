@@ -1,1 +1,0 @@
-package test; public class Test{ public long i = 0; }

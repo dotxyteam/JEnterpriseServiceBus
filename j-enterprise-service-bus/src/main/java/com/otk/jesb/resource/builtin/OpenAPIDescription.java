@@ -468,7 +468,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 							try {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
-												additionalMethodDeclarations.toString()));
+												additionalMethodDeclarations.toString(), Collections.emptyMap()));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}

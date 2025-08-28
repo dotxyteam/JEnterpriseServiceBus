@@ -18,14 +18,14 @@ import xy.reflect.ui.util.ClassUtils;
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
-			String additionalMethodDeclarations);
+			String additionalMethodDeclarations, Map<Object, Object> options);
 
 	public abstract void validate(boolean recursively) throws ValidationError;
 
 	public abstract String toString();
 
 	public String generateJavaTypeSourceCode(String className) {
-		return generateJavaTypeSourceCode(className, null, null, null);
+		return generateJavaTypeSourceCode(className, null, null, null, Collections.emptyMap());
 	}
 
 	public static class ClassicStructure extends Structure {
@@ -42,7 +42,7 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalDeclarations) {
+				String additionalyExtended, String additionalDeclarations, Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -51,21 +51,26 @@ public abstract class Structure {
 			result.append("public class " + classSimpleName
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
-			result.append(MiscUtils.stringJoin(elements.stream()
-					.map((e) -> e.generateJavaFieldDeclarationSourceCode(className)).collect(Collectors.toList()), "\n")
-					+ "\n");
+			result.append(MiscUtils.stringJoin(
+					elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode(className, options))
+							.collect(Collectors.toList()),
+					"\n") + "\n");
 			result.append("public " + classSimpleName + "("
 					+ MiscUtils.stringJoin(elements.stream()
-							.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className))
+							.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className, options))
 							.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
 					+ "){" + "\n");
-			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className)))
-							.filter(Objects::nonNull).collect(Collectors.toList()),
-					"\n") + "\n");
+			result.append(
+					MiscUtils
+							.stringJoin(elements.stream()
+									.map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className,
+											options)))
+									.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
+							+ "\n");
 			result.append("}" + "\n");
-			result.append(MiscUtils.stringJoin(elements.stream()
-					.map((e) -> e.generateJavaMethodsDeclarationSourceCode(className)).collect(Collectors.toList()),
+			result.append(MiscUtils.stringJoin(
+					elements.stream().map((e) -> e.generateJavaMethodsDeclarationSourceCode(className, options))
+							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
 			if (additionalDeclarations != null) {
 				result.append(additionalDeclarations + "\n");
@@ -76,10 +81,10 @@ public abstract class Structure {
 					.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
 					+ "]\";\n");
 			result.append("}\n");
-			result.append(MiscUtils
-					.stringJoin(elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className))
-							.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
-					+ "\n");
+			result.append(MiscUtils.stringJoin(
+					elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className, options))
+							.filter(Objects::nonNull).collect(Collectors.toList()),
+					"\n") + "\n");
 			result.append("}");
 			return result.toString();
 		}
@@ -125,7 +130,7 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalMethodDeclarations) {
+				String additionalyExtended, String additionalMethodDeclarations, Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -247,7 +252,7 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalMethodDeclarations) {
+				String additionalyExtended, String additionalMethodDeclarations, Map<Object, Object> options) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -292,7 +297,8 @@ public abstract class Structure {
 
 		protected abstract String getTypeName(String parentClassName);
 
-		protected abstract String generateRequiredInnerJavaTypesSourceCode(String parentClassName);
+		protected abstract String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+				Map<Object, Object> options);
 
 		public String getName() {
 			return name;
@@ -326,8 +332,9 @@ public abstract class Structure {
 			}
 		}
 
-		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
-			String result = "public ";
+		protected String generateJavaFieldDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+			String result = (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) ? "private "
+					: "public ";
 			if (getOptionality() == null) {
 				result += "final ";
 			}
@@ -339,18 +346,36 @@ public abstract class Structure {
 			return result;
 		}
 
-		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName) {
-			return null;
+		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+			if (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) {
+				StringBuilder result = new StringBuilder();
+				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);
+				result.append("public " + finalTypeName + " get" + name.substring(0, 1).toUpperCase()
+						+ name.substring(1) + "() {\n");
+				result.append("return " + name + ";\n");
+				result.append("}\n");
+				if (getOptionality() != null) {
+					result.append("public void set" + name.substring(0, 1).toUpperCase() + name.substring(1) + "("
+							+ finalTypeName + " " + name + ") {\n");
+					result.append("this." + name + " = " + name + ";\n");
+					result.append("}\n");
+				}
+				return result.toString();
+			} else {
+				return null;
+			}
 		}
 
-		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName) {
+		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName,
+				Map<Object, Object> options) {
 			if (getOptionality() != null) {
 				return null;
 			}
 			return getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + getName();
 		}
 
-		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName) {
+		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName,
+				Map<Object, Object> options) {
 			if (getOptionality() != null) {
 				return null;
 			}
@@ -429,23 +454,35 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
-			return base.generateRequiredInnerJavaTypesSourceCode(parentClassName);
+		protected String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
+			return base.getFinalTypeNameAdaptedToSourceCode(parentClassName);
 		}
 
 		@Override
-		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
-			return base.generateJavaFieldDeclarationSourceCode(parentClassName);
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map<Object, Object> options) {
+			return base.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
 		}
 
 		@Override
-		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName) {
-			return base.generateJavaConstructorParameterDeclarationSourceCode(parentClassName);
+		protected String generateJavaFieldDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaFieldDeclarationSourceCode(parentClassName, options);
 		}
 
 		@Override
-		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName) {
-			return base.generateJavaFieldInitializationInConstructorSourceCode(parentClassName);
+		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaMethodsDeclarationSourceCode(parentClassName, options);
+		}
+
+		@Override
+		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName,
+				Map<Object, Object> options) {
+			return base.generateJavaConstructorParameterDeclarationSourceCode(parentClassName, options);
+		}
+
+		@Override
+		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName,
+				Map<Object, Object> options) {
+			return base.generateJavaFieldInitializationInConstructorSourceCode(parentClassName, options);
 		}
 
 		public void validate(boolean recursively) throws ValidationError {
@@ -455,40 +492,6 @@ public abstract class Structure {
 		@Override
 		public String toString() {
 			return "ElementProxy [base=" + base + "]";
-		}
-
-	}
-
-	public static class AccessorBasedElementProxy extends ElementProxy {
-
-		public AccessorBasedElementProxy(Element base) {
-			super(base);
-		}
-
-		@Override
-		protected String generateJavaFieldDeclarationSourceCode(String parentClassName) {
-			return super.generateJavaFieldDeclarationSourceCode(parentClassName).replace("public ", "private ");
-		}
-
-		@Override
-		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName) {
-			StringBuilder result = new StringBuilder();
-			String superResult = super.generateJavaMethodsDeclarationSourceCode(parentClassName);
-			if (superResult != null) {
-				result.append(superResult);
-			}
-			result.append("public " + super.getFinalTypeNameAdaptedToSourceCode(parentClassName) + " get"
-					+ super.getName().substring(0, 1).toUpperCase() + super.getName().substring(1) + "() {\n");
-			result.append("return " + super.getName() + ";\n");
-			result.append("}\n");
-			if (getOptionality() != null) {
-				result.append("public void set" + super.getName().substring(0, 1).toUpperCase()
-						+ super.getName().substring(1) + "("
-						+ super.getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + super.getName() + ") {\n");
-				result.append("this." + super.getName() + " = " + super.getName() + ";\n");
-				result.append("}\n");
-			}
-			return result.toString();
 		}
 
 	}
@@ -527,7 +530,7 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map<Object, Object> options) {
 			return null;
 		}
 
@@ -546,11 +549,13 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName) {
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map<Object, Object> options) {
 			if (structure instanceof SharedStructureReference) {
 				return "";
 			}
-			return "static " + structure.generateJavaTypeSourceCode(getStructuredClassName(parentClassName));
+			String className = getStructuredClassName(parentClassName);
+			return structure.generateJavaTypeSourceCode(className, null, null, null, options)
+					.replace("class " + className, "static class " + className);
 		}
 
 		@Override
@@ -608,6 +613,10 @@ public abstract class Structure {
 		public void setDefaultValueExpression(String defaultValueExpression) {
 			this.defaultValueExpression = defaultValueExpression;
 		}
+	}
+
+	public enum ElementAccessMode {
+		PUBLIC_FIELD, ACCESSORS
 	}
 
 }

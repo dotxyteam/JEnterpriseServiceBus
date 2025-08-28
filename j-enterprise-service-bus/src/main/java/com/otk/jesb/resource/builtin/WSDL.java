@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							try {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
-												additionalMethodDeclarations.toString()));
+												additionalMethodDeclarations.toString(), Collections.emptyMap()));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}

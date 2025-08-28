@@ -1,4 +1,69 @@
 <com.otk.jesb.PluginBuilder>
-  <operations/>
-  <packageName class="null"/>
+  <operations>
+    <com.otk.jesb.PluginBuilder_-OperationDescriptor>
+      <opertionTypeName>TestOp</opertionTypeName>
+      <opertionTypeCaption>Test Op</opertionTypeCaption>
+      <categoryName>General</categoryName>
+      <operationIconImageData>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</operationIconImageData>
+      <parameters>
+        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+          <name>param1</name>
+          <caption>Param 1</caption>
+          <variability class="com.otk.jesb.PluginBuilder$DynamicVariability"/>
+          <nature class="com.otk.jesb.PluginBuilder$StructuredNature">
+            <structure class="com.otk.jesb.Structure$ClassicStructure">
+              <elements>
+                <com.otk.jesb.Structure_-SimpleElement>
+                  <multiple>false</multiple>
+                  <name>element</name>
+                  <optionality class="null"/>
+                  <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+                </com.otk.jesb.Structure_-SimpleElement>
+                <com.otk.jesb.Structure_-StructuredElement>
+                  <multiple>false</multiple>
+                  <name>element2</name>
+                  <optionality class="null"/>
+                  <structure class="com.otk.jesb.Structure$EnumerationStructure">
+                    <items>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>ITEM1</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>ITEM2</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                    </items>
+                  </structure>
+                  <subElements class="null"/>
+                </com.otk.jesb.Structure_-StructuredElement>
+              </elements>
+            </structure>
+          </nature>
+          <outer-class reference="../../.."/>
+        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+          <name>param2</name>
+          <caption>Param 2</caption>
+          <variability class="com.otk.jesb.PluginBuilder$EnvironmentVariability"/>
+          <nature class="com.otk.jesb.PluginBuilder$SimpleNature">
+            <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+          </nature>
+          <defaultValueExpression>&quot;bla bla bla&quot;</defaultValueExpression>
+          <outer-class reference="../../.."/>
+        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+          <name>param3</name>
+          <caption>Param 3</caption>
+          <variability class="com.otk.jesb.PluginBuilder$StaticVariability"/>
+          <nature class="com.otk.jesb.PluginBuilder$SimpleNature">
+            <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+          </nature>
+          <outer-class reference="../../.."/>
+        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+      </parameters>
+      <executionMethodBody>return null;</executionMethodBody>
+      <buildMethodBody>return null;</buildMethodBody>
+      <outer-class reference="../../.."/>
+    </com.otk.jesb.PluginBuilder_-OperationDescriptor>
+  </operations>
+  <packageName>com.otk</packageName>
 </com.otk.jesb.PluginBuilder>
