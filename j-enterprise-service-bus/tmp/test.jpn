@@ -9,8 +9,9 @@
         <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
           <name>param1</name>
           <caption>Param 1</caption>
-          <variability class="com.otk.jesb.PluginBuilder$DynamicVariability"/>
           <nature class="com.otk.jesb.PluginBuilder$StructuredNature">
+            <concreteStructureAlternatives class="null"/>
+            <dynamic>false</dynamic>
             <structure class="com.otk.jesb.Structure$ClassicStructure">
               <elements>
                 <com.otk.jesb.Structure_-SimpleElement>
@@ -43,25 +44,71 @@
         <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
           <name>param2</name>
           <caption>Param 2</caption>
-          <variability class="com.otk.jesb.PluginBuilder$EnvironmentVariability"/>
           <nature class="com.otk.jesb.PluginBuilder$SimpleNature">
+            <defaultValueExpression>&quot;bla bla bla&quot;</defaultValueExpression>
             <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+            <variant>false</variant>
           </nature>
-          <defaultValueExpression>&quot;bla bla bla&quot;</defaultValueExpression>
           <outer-class reference="../../.."/>
         </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
         <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
           <name>param3</name>
           <caption>Param 3</caption>
-          <variability class="com.otk.jesb.PluginBuilder$StaticVariability"/>
           <nature class="com.otk.jesb.PluginBuilder$SimpleNature">
-            <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+            <defaultValueExpression class="null"/>
+            <typeNameOrAlias>int</typeNameOrAlias>
+            <variant>true</variant>
+          </nature>
+          <outer-class reference="../../.."/>
+        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+          <name>param4</name>
+          <caption>Param 4</caption>
+          <nature class="com.otk.jesb.PluginBuilder$StructuredNature">
+            <concreteStructureAlternatives class="null"/>
+            <dynamic>true</dynamic>
+            <structure class="com.otk.jesb.Structure$ClassicStructure">
+              <elements>
+                <com.otk.jesb.Structure_-SimpleElement>
+                  <multiple>false</multiple>
+                  <name>element</name>
+                  <optionality class="null"/>
+                  <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+                </com.otk.jesb.Structure_-SimpleElement>
+              </elements>
+            </structure>
+          </nature>
+          <outer-class reference="../../.."/>
+        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+          <name>param5</name>
+          <caption>Param 5</caption>
+          <nature class="com.otk.jesb.PluginBuilder$StructuredNature">
+            <concreteStructureAlternatives>
+              <com.otk.jesb.PluginBuilder_-StructureDerivationAlternative>
+                <alternativeName>a1</alternativeName>
+                <condition>param1 != null</condition>
+                <structureDerivation>
+                  <elements/>
+                </structureDerivation>
+              </com.otk.jesb.PluginBuilder_-StructureDerivationAlternative>
+              <com.otk.jesb.PluginBuilder_-StructureDerivationAlternative>
+                <alternativeName>a2</alternativeName>
+                <condition>param1 == null</condition>
+                <structureDerivation>
+                  <elements/>
+                </structureDerivation>
+              </com.otk.jesb.PluginBuilder_-StructureDerivationAlternative>
+            </concreteStructureAlternatives>
+            <dynamic>false</dynamic>
+            <structure class="com.otk.jesb.Structure$ClassicStructure">
+              <elements/>
+            </structure>
           </nature>
           <outer-class reference="../../.."/>
         </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
       </parameters>
       <executionMethodBody>return null;</executionMethodBody>
-      <buildMethodBody>return null;</buildMethodBody>
       <outer-class reference="../../.."/>
     </com.otk.jesb.PluginBuilder_-OperationDescriptor>
   </operations>

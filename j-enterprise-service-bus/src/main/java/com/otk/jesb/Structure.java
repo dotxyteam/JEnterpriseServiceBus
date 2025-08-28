@@ -55,32 +55,36 @@ public abstract class Structure {
 					elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode(className, options))
 							.collect(Collectors.toList()),
 					"\n") + "\n");
-			result.append("public " + classSimpleName + "("
-					+ MiscUtils.stringJoin(elements.stream()
-							.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className, options))
-							.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
-					+ "){" + "\n");
-			result.append(
-					MiscUtils
-							.stringJoin(elements.stream()
-									.map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className,
-											options)))
-									.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
-							+ "\n");
-			result.append("}" + "\n");
+			{
+				result.append("public " + classSimpleName + "("
+						+ MiscUtils.stringJoin(elements.stream()
+								.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className, options))
+								.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
+						+ "){" + "\n");
+				result.append(
+						MiscUtils
+								.stringJoin(elements.stream()
+										.map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className,
+												options)))
+										.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
+								+ "\n");
+				result.append("}" + "\n");
+			}
 			result.append(MiscUtils.stringJoin(
 					elements.stream().map((e) -> e.generateJavaMethodsDeclarationSourceCode(className, options))
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n") + "\n");
+			{
+				result.append("@Override\n");
+				result.append("public String toString() {\n");
+				result.append("return \"" + classSimpleName + " [" + elements.stream()
+						.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
+						+ "]\";\n");
+				result.append("}\n");
+			}
 			if (additionalDeclarations != null) {
 				result.append(additionalDeclarations + "\n");
 			}
-			result.append("@Override\n");
-			result.append("public String toString() {\n");
-			result.append("return \"" + classSimpleName + " [" + elements.stream()
-					.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
-					+ "]\";\n");
-			result.append("}\n");
 			result.append(MiscUtils.stringJoin(
 					elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className, options))
 							.filter(Objects::nonNull).collect(Collectors.toList()),

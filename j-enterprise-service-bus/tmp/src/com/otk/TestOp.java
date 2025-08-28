@@ -1,31 +1,25 @@
 package com.otk;
 
-import com.otk.jesb.instantiation.InstantiationContext;
-
 public class TestOp implements com.otk.jesb.operation.Operation {
-	private final Param1Structure param1;
-	private java.lang.String param2 = "bla bla bla";
-	private final java.lang.String param3;
+	public final Param1Structure param1;
+	public final java.lang.String param2;
+	public final int param3;
+	public final Param4Structure param4;
+	public final Param5Structure param5;
 
-	public TestOp(Param1Structure param1, java.lang.String param3) {
+	public TestOp(Param1Structure param1, java.lang.String param2, int param3, Param4Structure param4,
+			Param5Structure param5) {
 		this.param1 = param1;
-		this.param3 = param3;
-	}
-
-	public Param1Structure getParam1() {
-		return param1;
-	}
-
-	public java.lang.String getParam2() {
-		return param2;
-	}
-
-	public void setParam2(java.lang.String param2) {
 		this.param2 = param2;
+		this.param3 = param3;
+		this.param4 = param4;
+		this.param5 = param5;
 	}
 
-	public java.lang.String getParam3() {
-		return param3;
+	@Override
+	public String toString() {
+		return "TestOp [param1=" + param1 + ", param2=" + param2 + ", param3=" + param3 + ", param4=" + param4
+				+ ", param5=" + param5 + "]";
 	}
 
 	@Override
@@ -34,49 +28,35 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 	}
 
 	public class Builder implements com.otk.jesb.operation.OperationBuilder<TestOp> {
-		private com.otk.jesb.instantiation.RootInstanceBuilder param1Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
-				"param1Input", Param1Structure.class.getName());
-		private com.otk.jesb.Variant<java.lang.String> param2Variant;
-		private java.lang.String param3;
+		public Param1Structure param1;
+		public java.lang.String param2 = "bla bla bla";
+		public com.otk.jesb.Variant<java.lang.Integer> param3Variant = new com.otk.jesb.Variant<java.lang.Integer>(
+				java.lang.Integer.class);
+		public com.otk.jesb.instantiation.RootInstanceBuilder param4Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
+				"param4Input", Param4Structure.class.getName());
+		public Param5Structure param5;
 
 		public Builder() {
 
 		}
 
-		public com.otk.jesb.instantiation.RootInstanceBuilder getParam1Builder() {
-			return param1Builder;
-		}
-
-		public void setParam1Builder(com.otk.jesb.instantiation.RootInstanceBuilder param1Builder) {
-			this.param1Builder = param1Builder;
-		}
-
-		public com.otk.jesb.Variant<java.lang.String> getParam2Variant() {
-			return param2Variant;
-		}
-
-		public void setParam2Variant(com.otk.jesb.Variant<java.lang.String> param2Variant) {
-			this.param2Variant = param2Variant;
-		}
-
-		public java.lang.String getParam3() {
-			return param3;
-		}
-
-		public void setParam3(java.lang.String param3) {
-			this.param3 = param3;
+		@Override
+		public String toString() {
+			return "Builder [param1=" + param1 + ", param2=" + param2 + ", param3Variant=" + param3Variant
+					+ ", param4Builder=" + param4Builder + ", param5=" + param5 + "]";
 		}
 
 		@Override
 		public TestOp build(com.otk.jesb.solution.Plan.ExecutionContext context,
 				com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
-			Param1Structure param1 =  (Param1Structure) this.param1Builder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			String param2 = this.param2Variant.getValue();
-			String param3 = this.param3;
-			TestOp result = new TestOp(param1, param3);
-			result.setParam2(param2);
-			return result;
+			Param1Structure param1 = this.param1;
+			java.lang.String param2 = this.param2;
+			int param3 = this.param3Variant.getValue();
+			Param4Structure param4 = (Param4Structure) this.param4Builder
+					.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Param5Structure param5 = this.param5;
+			return new TestOp(param1, param2, param3, param4, param5);
 		}
 
 		@Override
@@ -89,12 +69,6 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		public void validate(boolean recursively, com.otk.jesb.solution.Plan currentPlan,
 				com.otk.jesb.solution.Step currentStep) {
 
-		}
-
-		@Override
-		public String toString() {
-			return "Builder [param1Builder=" + param1Builder + ", param2Variant=" + param2Variant + ", param3=" + param3
-					+ "]";
 		}
 
 	}
@@ -122,26 +96,13 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return "TestOp [param1=" + param1 + ", param2=" + param2 + ", param3=" + param3 + "]";
-	}
-
 	public static class Param1Structure {
-		private final java.lang.String element;
-		private final Param1StructureElement2Structure element2;
+		public final java.lang.String element;
+		public final Param1StructureElement2Structure element2;
 
 		public Param1Structure(java.lang.String element, Param1StructureElement2Structure element2) {
 			this.element = element;
 			this.element2 = element2;
-		}
-
-		public java.lang.String getElement() {
-			return element;
-		}
-
-		public Param1StructureElement2Structure getElement2() {
-			return element2;
 		}
 
 		@Override
@@ -152,5 +113,58 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		public enum Param1StructureElement2Structure {
 			ITEM1, ITEM2;
 		}
+	}
+
+	public static class Param4Structure {
+		public final java.lang.String element;
+
+		public Param4Structure(java.lang.String element) {
+			this.element = element;
+		}
+
+		@Override
+		public String toString() {
+			return "Param4Structure [element=" + element + "]";
+		}
+
+	}
+
+	abstract public static class Param5Structure {
+
+		public Param5Structure() {
+
+		}
+
+		@Override
+		public String toString() {
+			return "Param5Structure []";
+		}
+
+	}
+
+	public static class A1Param5Structure extends Param5Structure {
+
+		public A1Param5Structure() {
+
+		}
+
+		@Override
+		public String toString() {
+			return "A1Param5Structure []";
+		}
+
+	}
+
+	public static class A2Param5Structure extends Param5Structure {
+
+		public A2Param5Structure() {
+
+		}
+
+		@Override
+		public String toString() {
+			return "A2Param5Structure []";
+		}
+
 	}
 }

@@ -17,6 +17,12 @@
 	. schedule (activator)
 	. jdbc (direct)
 - allow to create custom operations/activators/resources by coding directly in the designer
+	. add common operation options:
+		* non null structured parameters by default
+		* nullable structured parameter option name [+ value name]
+		* polymorphic parameter type selection
+		* dynamic conditioned parameter class
+		* reference nature parameters
 - documentation:
 	. manual
 	. readme.md (extensibility, ...)
