@@ -26,7 +26,6 @@ import xy.reflect.ui.info.ResourcePath;
 public class XSD extends XMLBasedDocumentResource {
 
 	public XSD() {
-		this(XSD.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public XSD(String name) {

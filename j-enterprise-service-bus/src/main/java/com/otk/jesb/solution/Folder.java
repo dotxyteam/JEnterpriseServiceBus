@@ -11,7 +11,6 @@ public class Folder extends Asset {
 	private List<Asset> contents = new ArrayList<Asset>();
 
 	public Folder() {
-		this(Folder.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public Folder(String name) {

@@ -56,7 +56,6 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	private static WeakHashMap<Class<?>, Class<?>> serviceImplementationClassByInterface = new WeakHashMap<Class<?>, Class<?>>();
 
 	public OpenAPIDescription() {
-		this(OpenAPIDescription.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public OpenAPIDescription(String name) {

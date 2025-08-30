@@ -41,7 +41,6 @@ public class HTTPServer extends Resource {
 	private Server jettyServer;
 
 	public HTTPServer() {
-		this(HTTPServer.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public HTTPServer(String name) {

@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.Date;
+import com.otk.jesb.meta.DateTime;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.MiscUtils;
@@ -630,6 +632,8 @@ public abstract class Structure {
 					.collect(Collectors.toList()));
 			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_WRAPPER_CLASSES).stream().map(cls -> cls.getName())
 					.collect(Collectors.toList()));
+			result.add(Date.class.getName());
+			result.add(DateTime.class.getName());
 			result.addAll(TYPE_NAME_BY_ALIAS.keySet());
 			return result;
 		}

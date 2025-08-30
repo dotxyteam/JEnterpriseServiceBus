@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.meta.Date;
+import com.otk.jesb.meta.DateTime;
 
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -80,6 +82,10 @@ public class Variant<T> {
 			}
 			if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {
 				return valueClass.cast(ReflectionUIUtils.primitiveFromString(valueString, valueClass));
+			} else if (valueClass == Date.class) {
+				return valueClass.cast(new Date(valueString));
+			} else if (valueClass == DateTime.class) {
+				return valueClass.cast(new DateTime(valueString));
 			} else if (valueClass == String.class) {
 				return valueClass.cast(valueString);
 			} else if (valueClass.isEnum()) {

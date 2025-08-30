@@ -63,7 +63,6 @@ public class SharedStructureModel extends Resource {
 	};
 
 	public SharedStructureModel() {
-		this(SharedStructureModel.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public SharedStructureModel(String name) {

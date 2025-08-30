@@ -35,7 +35,6 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class WSDL extends XMLBasedDocumentResource {
 
 	public WSDL() {
-		this(WSDL.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public WSDL(String name) {

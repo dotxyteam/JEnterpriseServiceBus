@@ -4,6 +4,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.util.MiscUtils;
 
 public abstract class Asset {
@@ -12,6 +13,10 @@ public abstract class Asset {
 			'>', '|', '\"', ':' };
 	private String name;
 	private String note;
+
+	public Asset() {
+		this.name = getClass().getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
+	}
 
 	public Asset(String name) {
 		this.name = name;

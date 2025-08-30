@@ -14,61 +14,64 @@ import com.otk.jesb.resource.Resource;
 
 public abstract class WebDocumentBasedResource extends Resource {
 
+	public WebDocumentBasedResource() {
+	}
+
 	public WebDocumentBasedResource(String name) {
 		super(name);
 	}
-	
+
 	public interface Source {
-	
+
 		InputStream getInputStream() throws IOException;
-	
+
 		String extractFileName();
-	
+
 		URI toURI();
-	
+
 	}
 
 	public static class FileSource implements Source {
-	
+
 		private File file;
-	
+
 		public File getFile() {
 			return file;
 		}
-	
+
 		public void setFile(File file) {
 			this.file = file;
 		}
-	
+
 		@Override
 		public InputStream getInputStream() throws IOException {
 			return new FileInputStream(file);
 		}
-	
+
 		@Override
 		public String extractFileName() {
 			return file.getName();
 		}
-	
+
 		@Override
 		public URI toURI() {
 			return file.toURI();
 		}
-	
+
 	}
 
 	public static class URLSource implements Source {
-	
+
 		private String urlSpecification;
-	
+
 		public String getUrlSpecification() {
 			return urlSpecification;
 		}
-	
+
 		public void setUrlSpecification(String urlSpecification) {
 			this.urlSpecification = urlSpecification;
 		}
-	
+
 		@Override
 		public InputStream getInputStream() throws IOException {
 			try {
@@ -77,7 +80,7 @@ public abstract class WebDocumentBasedResource extends Resource {
 				throw new IOException(e);
 			}
 		}
-	
+
 		@Override
 		public String extractFileName() {
 			try {
@@ -88,7 +91,7 @@ public abstract class WebDocumentBasedResource extends Resource {
 				throw new PotentialError(e);
 			}
 		}
-	
+
 		@Override
 		public URI toURI() {
 			try {
@@ -99,9 +102,7 @@ public abstract class WebDocumentBasedResource extends Resource {
 				throw new PotentialError(e);
 			}
 		}
-	
-	}
 
-	
+	}
 
 }

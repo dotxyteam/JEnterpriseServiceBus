@@ -30,6 +30,10 @@
 - allow to access step error variables
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - add a welcome image ???
+- allow to have environment variables having array type
+- add date/datetime support
+- anticipate date/datetime timezone issues 
+- allow to generate operation types having array typed parameters 
 - maybe change the project name since ESBs are not popular anymore
 - create a basic WSDL generator
 - allow to view APIs (SOAP/REST) documentation URL

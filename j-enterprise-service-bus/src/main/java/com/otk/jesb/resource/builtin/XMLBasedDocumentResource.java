@@ -41,6 +41,9 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 
 	protected UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
 
+	public XMLBasedDocumentResource() {
+	}
+
 	public XMLBasedDocumentResource(String name) {
 		super(name);
 	}

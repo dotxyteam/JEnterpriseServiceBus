@@ -36,7 +36,6 @@ public class Plan extends Asset {
 	private static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
 
 	public Plan() {
-		this(Plan.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public Plan(String name) {

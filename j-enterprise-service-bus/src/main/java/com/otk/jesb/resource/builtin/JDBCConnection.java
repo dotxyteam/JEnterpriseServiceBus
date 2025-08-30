@@ -43,7 +43,6 @@ public class JDBCConnection extends Resource {
 	private AutoCloseable currentSessionInstanceClosableWrapper;
 
 	public JDBCConnection() {
-		this(JDBCConnection.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier());
 	}
 
 	public JDBCConnection(String name) {
