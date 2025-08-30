@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.util.MiscUtils;
 
 public class Folder extends Asset {
 

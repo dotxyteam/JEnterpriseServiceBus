@@ -1,34 +1,32 @@
 <com.otk.jesb.PluginBuilder>
   <operations>
     <com.otk.jesb.PluginBuilder_-OperationDescriptor>
-      <opertionTypeName>TestOp</opertionTypeName>
-      <opertionTypeCaption>Test Op</opertionTypeCaption>
       <categoryName>General</categoryName>
-      <operationIconImageData>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</operationIconImageData>
+      <executionMethodBody>return null;</executionMethodBody>
+      <opertionTypeCaption>Test Op</opertionTypeCaption>
+      <opertionTypeName>TestOp</opertionTypeName>
       <parameters>
-        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-          <name>param2</name>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
           <caption>Param 2</caption>
+          <name>param2</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
             <defaultValueExpression class="null"/>
             <typeNameOrAlias>java.lang.String</typeNameOrAlias>
             <variant>false</variant>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-          <name>param3</name>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
           <caption>Param 3</caption>
+          <name>param3</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
             <defaultValueExpression class="null"/>
             <typeNameOrAlias>int</typeNameOrAlias>
             <variant>true</variant>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-          <name>param4</name>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
           <caption>Param 4</caption>
+          <name>param4</name>
           <nature class="com.otk.jesb.PluginBuilder$DynamicParameterNature">
             <concreteStructureAlternatives class="null"/>
             <structure class="com.otk.jesb.Structure$ClassicStructure">
@@ -58,11 +56,10 @@
               </elements>
             </structure>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-          <name>param5</name>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
           <caption>Param 5</caption>
+          <name>param5</name>
           <nature class="com.otk.jesb.PluginBuilder$DynamicParameterNature">
             <concreteStructureAlternatives>
               <com.otk.jesb.PluginBuilder_-StructureDerivationAlternative>
@@ -105,36 +102,33 @@
               </elements>
             </structure>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-        <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-          <name>param6</name>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
           <caption>Param 6</caption>
+          <name>param6</name>
           <nature class="com.otk.jesb.PluginBuilder$GroupParameterNature">
             <parameters>
-              <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                <name>subParam1</name>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Sub Param 1</caption>
+                <name>subParam1</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                   <defaultValueExpression class="null"/>
                   <typeNameOrAlias>java.lang.Byte</typeNameOrAlias>
                   <variant>false</variant>
                 </nature>
-                <outer-class reference="../../../../../.."/>
-              </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-              <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                <name>subParam2</name>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Sub Param 2</caption>
+                <name>subParam2</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                   <defaultValueExpression class="null"/>
                   <typeNameOrAlias>com.otk.jesb.meta.Date</typeNameOrAlias>
                   <variant>true</variant>
                 </nature>
-                <outer-class reference="../../../../../.."/>
-              </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-              <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                <name>subParam3</name>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Sub Param 3</caption>
+                <name>subParam3</name>
                 <nature class="com.otk.jesb.PluginBuilder$DynamicParameterNature">
                   <concreteStructureAlternatives class="null"/>
                   <structure class="com.otk.jesb.Structure$ClassicStructure">
@@ -148,41 +142,54 @@
                     </elements>
                   </structure>
                 </nature>
-                <outer-class reference="../../../../../.."/>
-              </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-              <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                <name>subParam4</name>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Sub Param 4</caption>
+                <name>subParam4</name>
                 <nature class="com.otk.jesb.PluginBuilder$GroupParameterNature">
                   <parameters>
-                    <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                      <name>subSubParam1</name>
+                    <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                       <caption>Sub Sub Param 1</caption>
+                      <name>subSubParam1</name>
                       <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                         <defaultValueExpression class="null"/>
                         <typeNameOrAlias>java.lang.String</typeNameOrAlias>
                         <variant>false</variant>
                       </nature>
-                      <outer-class reference="../../../../../../../../.."/>
-                    </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                    <com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
-                      <name>subSubParam2</name>
+                    </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+                    <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                       <caption>Sub Sub Param 2</caption>
+                      <name>subSubParam2</name>
                       <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                         <defaultValueExpression class="null"/>
                         <typeNameOrAlias>java.lang.String</typeNameOrAlias>
                         <variant>false</variant>
                       </nature>
-                      <outer-class reference="../../../../../../../../.."/>
-                    </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+                    </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                   </parameters>
                 </nature>
-                <outer-class reference="../../../../../.."/>
-              </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
             </parameters>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-OperationDescriptor_-ParameterDescriptor>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+          <caption>Param 7</caption>
+          <name>param7</name>
+          <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
+            <defaultValueExpression>Param7Structure.ITEM1</defaultValueExpression>
+            <structure>
+              <items>
+                <com.otk.jesb.Structure_-EnumerationItem>
+                  <name>ITEM1</name>
+                </com.otk.jesb.Structure_-EnumerationItem>
+                <com.otk.jesb.Structure_-EnumerationItem>
+                  <name>ITEM2</name>
+                </com.otk.jesb.Structure_-EnumerationItem>
+              </items>
+            </structure>
+            <variant>true</variant>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
       </parameters>
       <result>
         <concreteStructureAlternatives>
@@ -226,47 +233,84 @@
           </elements>
         </structure>
       </result>
-      <executionMethodBody>return null;</executionMethodBody>
-      <outer-class reference="../../.."/>
     </com.otk.jesb.PluginBuilder_-OperationDescriptor>
   </operations>
   <packageName>com.otk</packageName>
   <resources>
     <com.otk.jesb.PluginBuilder_-ResourceDescriptor>
-      <resourceTypeName>Schedule</resourceTypeName>
-      <resourceTypeCaption>Schedule</resourceTypeCaption>
-      <resourceIconImageData>iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAC1ElEQVR4Xu2c0U4TQQBFZ/pC9Av0l4gPAs8WQRL6SRWhSfVZE0n4JvgCfDDpuE0kGhO6d6dznWn39JHcuTN7zk6z7MLGwKcqgVh1diYPCKh8EiAAAZUJVJ6eHYCAygQqT88OQEBlApWnZwcgoDKBytOzAxBQmUDl6dkBCKhMoPL07IBdEvD+4vIwpfitW/NB5XW3Ov3PEFZHy5urO3WB8g44PZ/ddzevX6nFo86l8LBczF8rDCQBwFdQ/pMRJfQKeHdxeTxJ8WvGEkY/ZBXTyZfrj+uv7Gc/vQKm57PHGMOL0dPMAJBS+PF5MX+5lYDTD7OUMTdDfhNY3sw3nuS9O+A5AX3FYzOQywkBhc4UBBQCmVuDgFxyhcYhoBDI3BoE5JIrNA4BhUDm1jQloNXfHZyXzggQTl0ECJCcEQQ46QrdCBAgOSMIcNIVukcjQGCxd5GmroL2jq5wQAgQIDkjCHDSFboRIEByRhDgpCt0I0CA5IwgwElX6EaAAMkZQYCTrtDdlIBWnwcIHDdGNt3KQMC2dIXxCBAgOSMIcNIVuhEgQHJGEOCkK3TvjADhWPYu0tRV0N7RFQ4IAQIkZwQBTrpCNwIESM4IApx0hW4ECJCcEQQ46QrdCBAgOSMIcNIVupsSwPOAP8b6/hzS8m+qCECA8KUxPLIzN+PYAeyA4ae3MIIdIEByRnZGgBNCq91NXYa2Csm5LgQ46QrdCBAgOSMIcNIVuhEgQHJGEOCkK3T/dwHCmoh0BLa+GcdrK/PPoyKvreTFrfkCiry4dT09ry7OkFDq1cVPUyNhgAQR/rqx94HM39NOz2Zv4iR87342GbCc0URT94lh9Xa5+HSrHvQgAWopOZ0AAnRWliQCLFj1UgTorCxJBFiw6qUI0FlZkgiwYNVLEaCzsiQRYMGqlyJAZ2VJIsCCVS9FgM7KkkSABateigCdlSWJAAtWvRQBOitL8heCRjl/BzAzZAAAAABJRU5ErkJggg==</resourceIconImageData>
       <properties>
-        <com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
-          <name>moment</name>
+        <com.otk.jesb.PluginBuilder_-PropertyDescriptor>
           <caption>moment</caption>
+          <name>moment</name>
           <nature class="com.otk.jesb.PluginBuilder$SimplePropertyNature">
             <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
             <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
             <variant>true</variant>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
-        <com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
-          <name>repeating</name>
+        </com.otk.jesb.PluginBuilder_-PropertyDescriptor>
+        <com.otk.jesb.PluginBuilder_-PropertyDescriptor>
           <caption>Repeat</caption>
+          <name>repeating</name>
           <nature class="com.otk.jesb.PluginBuilder$SimplePropertyNature">
             <defaultValueExpression>false</defaultValueExpression>
             <typeNameOrAlias>boolean</typeNameOrAlias>
             <variant>true</variant>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
-        <com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
-          <name>repetitionSettings</name>
+        </com.otk.jesb.PluginBuilder_-PropertyDescriptor>
+        <com.otk.jesb.PluginBuilder_-PropertyDescriptor>
           <caption>Repetition Settings</caption>
+          <name>repetitionSettings</name>
           <nature class="com.otk.jesb.PluginBuilder$GroupPropertyNature">
-            <parameters/>
+            <parameters>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+                <caption>Period Unit</caption>
+                <name>periodUnit</name>
+                <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
+                  <defaultValueExpression>RepetitionSettingsStructurePeriodUnitStructure.MINUTES</defaultValueExpression>
+                  <structure>
+                    <items>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MILLISECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>SECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MINUTES</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>HOURS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>DAYS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MONTHS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>YEARS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                    </items>
+                  </structure>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+                <caption>Period</caption>
+                <name>period</name>
+                <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
+                  <defaultValueExpression>1l</defaultValueExpression>
+                  <typeNameOrAlias>long</typeNameOrAlias>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+            </parameters>
           </nature>
-          <outer-class reference="../../.."/>
-        </com.otk.jesb.PluginBuilder_-ResourceDescriptor_-PropertyDescriptor>
+        </com.otk.jesb.PluginBuilder_-PropertyDescriptor>
       </properties>
-      <outer-class reference="../../.."/>
+      <resourceTypeCaption>Schedule</resourceTypeCaption>
+      <resourceTypeName>Schedule</resourceTypeName>
+      <validationMethodBody class="null"/>
     </com.otk.jesb.PluginBuilder_-ResourceDescriptor>
   </resources>
 </com.otk.jesb.PluginBuilder>

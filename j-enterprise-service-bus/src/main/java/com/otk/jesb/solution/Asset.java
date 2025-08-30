@@ -4,7 +4,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.util.MiscUtils;
 
 public abstract class Asset {

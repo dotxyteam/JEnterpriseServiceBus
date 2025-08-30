@@ -19,8 +19,6 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.ui.GUI;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class HTTPServer extends Resource {

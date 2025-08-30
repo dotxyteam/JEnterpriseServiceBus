@@ -663,8 +663,7 @@ public abstract class Structure {
 				return "";
 			}
 			String className = getStructuredClassName(parentClassName);
-			return structure.generateJavaTypeSourceCode(className, null, null, null, options)
-					.replace("class " + className, "static class " + className);
+			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, options);
 		}
 
 		@Override
@@ -672,7 +671,7 @@ public abstract class Structure {
 			return getStructuredClassName(parentClassName);
 		}
 
-		private String getStructuredClassName(String parentClassName) {
+		protected String getStructuredClassName(String parentClassName) {
 			if (structure instanceof SharedStructureReference) {
 				Class<?> structuredClass = ((SharedStructureReference) structure).getStructuredClass();
 				return structuredClass.getName();
