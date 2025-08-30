@@ -45,7 +45,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		@Override
 		public String toString() {
 			return "Builder [param2=" + param2 + ", param3Variant=" + param3Variant + ", param4Builder=" + param4Builder
-					+ ", param5Builder=" + param5Builder + ", param6=" + param6 + "]";
+					+ ", param5Builder=" + param5Builder + ", param6GroupBuilder=" + param6GroupBuilder + "]";
 		}
 
 		@Override
@@ -78,7 +78,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		@Override
 		public void validate(boolean recursively, com.otk.jesb.solution.Plan currentPlan,
 				com.otk.jesb.solution.Step currentStep) {
-			param6GroupBuilder.param3Variant.getValue();
+
 		}
 
 		private class Param5InputClassNameAccessor extends com.otk.jesb.util.Accessor<String> {
@@ -118,7 +118,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		}
 	}
 
-	abstract public static class ResultStructure {
+	abstract static public class ResultStructure {
 		public final java.lang.String element;
 
 		public ResultStructure(java.lang.String element) {
@@ -132,7 +132,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class R1ResultStructure extends ResultStructure {
+	static public class R1ResultStructure extends ResultStructure {
 		public final java.lang.String r1Element;
 
 		public R1ResultStructure(java.lang.String element, java.lang.String r1Element) {
@@ -147,7 +147,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class R2ResultStructure extends ResultStructure {
+	static public class R2ResultStructure extends ResultStructure {
 		public final java.lang.String r2Element;
 
 		public R2ResultStructure(java.lang.String element, java.lang.String r2Element) {
@@ -162,7 +162,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class Param4Structure {
+	static public class Param4Structure {
 		public final java.lang.String element;
 		public final Param4StructureElement2Structure element2;
 
@@ -176,12 +176,12 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 			return "Param4Structure [element=" + element + ", element2=" + element2 + "]";
 		}
 
-		public enum Param4StructureElement2Structure {
+		static public enum Param4StructureElement2Structure {
 			ITEM1, ITEM2;
 		}
 	}
 
-	abstract public static class Param5Structure {
+	abstract static public class Param5Structure {
 		public final java.lang.String element;
 
 		public Param5Structure(java.lang.String element) {
@@ -195,7 +195,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class A1Param5Structure extends Param5Structure {
+	static public class A1Param5Structure extends Param5Structure {
 		public final java.lang.String a1Element;
 
 		public A1Param5Structure(java.lang.String element, java.lang.String a1Element) {
@@ -210,7 +210,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class A2Param5Structure extends Param5Structure {
+	static public class A2Param5Structure extends Param5Structure {
 		public final java.lang.String a2Element;
 
 		public A2Param5Structure(java.lang.String element, java.lang.String a2Element) {
@@ -225,7 +225,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 	}
 
-	public static class Param6Structure {
+	static public class Param6Structure {
 		public final java.lang.Byte subParam1;
 		public final com.otk.jesb.meta.Date subParam2;
 		public final Param6StructureSubParam3Structure subParam3;
@@ -245,7 +245,45 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 					+ ", subParam4=" + subParam4 + "]";
 		}
 
-		public  static class Param6StructureSubParam3Structure {
+		static public class GroupBuilder {
+			public java.lang.Byte subParam1;
+			public com.otk.jesb.Variant<com.otk.jesb.meta.Date> subParam2Variant = new com.otk.jesb.Variant<com.otk.jesb.meta.Date>(
+					com.otk.jesb.meta.Date.class);
+			public com.otk.jesb.instantiation.RootInstanceBuilder subParam3Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
+					"subParam3Input", Param6StructureSubParam3Structure.class.getName());
+			public Param6StructureSubParam4Structure.GroupBuilder subParam4GroupBuilder = new Param6StructureSubParam4Structure.GroupBuilder();
+
+			public GroupBuilder() {
+
+			}
+
+			@Override
+			public String toString() {
+				return "GroupBuilder [subParam1=" + subParam1 + ", subParam2Variant=" + subParam2Variant
+						+ ", subParam3Builder=" + subParam3Builder + ", subParam4GroupBuilder=" + subParam4GroupBuilder
+						+ "]";
+			}
+
+			public Param6Structure build(com.otk.jesb.solution.Plan.ExecutionContext context,
+					com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
+				java.lang.Byte subParam1 = this.subParam1;
+				com.otk.jesb.meta.Date subParam2 = this.subParam2Variant.getValue();
+				Param6StructureSubParam3Structure subParam3 = (Param6StructureSubParam3Structure) this.subParam3Builder
+						.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context
+								.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+				Param6StructureSubParam4Structure subParam4 = this.subParam4GroupBuilder.build(context,
+						executionInspector);
+				return new Param6Structure(subParam1, subParam2, subParam3, subParam4);
+			}
+
+			public void validate(boolean recursively, com.otk.jesb.solution.Plan currentPlan,
+					com.otk.jesb.solution.Step currentStep) {
+
+			}
+
+		}
+
+		static public class Param6StructureSubParam3Structure {
 			public final byte[] element;
 
 			public Param6StructureSubParam3Structure(byte[] element) {
@@ -259,7 +297,7 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 
 		}
 
-		public  static class Param6StructureSubParam4Structure {
+		static public class Param6StructureSubParam4Structure {
 			public final java.lang.String subSubParam1;
 			public final java.lang.String subSubParam2;
 
@@ -274,49 +312,33 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 						+ subSubParam2 + "]";
 			}
 
-		}
-		
-		public static class GroupBuilder  {
-			public java.lang.String param2;
-			public com.otk.jesb.Variant<java.lang.Integer> param3Variant = new com.otk.jesb.Variant<java.lang.Integer>(
-					java.lang.Integer.class);
-			public com.otk.jesb.instantiation.RootInstanceBuilder param4Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
-					"param4Input", Param4Structure.class.getName());
-			
-			public GroupBuilder() {
+			static public class GroupBuilder {
+				public java.lang.String subSubParam1;
+				public java.lang.String subSubParam2;
 
-			}
+				public GroupBuilder() {
 
-			@Override
-			public String toString() {
-				return "Builder [param2=" + param2 + ", param3Variant=" + param3Variant + ", param4Builder=" + param4Builder
-						+ ", param5Builder=" + param5Builder + ", param6=" + param6 + "]";
-			}
-
-			public Param6Structure build(com.otk.jesb.solution.Plan.ExecutionContext context,
-					com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
-				java.lang.String param2 = this.param2;
-				int param3 = this.param3Variant.getValue();
-				Param4Structure param4 = (Param4Structure) this.param4Builder
-						.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context.getPlan()
-								.getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-				return new Param6Structure(param2, param3, param4);
-			}
-
-			
-
-			private class Param5InputClassNameAccessor extends com.otk.jesb.util.Accessor<String> {
-				@Override
-				public String get() {
-					if (param2 != null) {
-						return A1Param5Structure.class.getName();
-					}
-					if (param2 == null) {
-						return A2Param5Structure.class.getName();
-					}
-					return null;
 				}
+
+				@Override
+				public String toString() {
+					return "GroupBuilder [subSubParam1=" + subSubParam1 + ", subSubParam2=" + subSubParam2 + "]";
+				}
+
+				public Param6StructureSubParam4Structure build(com.otk.jesb.solution.Plan.ExecutionContext context,
+						com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
+					java.lang.String subSubParam1 = this.subSubParam1;
+					java.lang.String subSubParam2 = this.subSubParam2;
+					return new Param6StructureSubParam4Structure(subSubParam1, subSubParam2);
+				}
+
+				public void validate(boolean recursively, com.otk.jesb.solution.Plan currentPlan,
+						com.otk.jesb.solution.Step currentStep) {
+
+				}
+
 			}
+
 		}
 	}
 }

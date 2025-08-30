@@ -5,8 +5,7 @@ public class Schedule extends com.otk.jesb.resource.Resource {
 			com.otk.jesb.meta.DateTime.class, com.otk.jesb.meta.DateTime.NOW);
 	private com.otk.jesb.Variant<java.lang.Boolean> repeatingVariant = new com.otk.jesb.Variant<java.lang.Boolean>(
 			java.lang.Boolean.class, false);
-	private com.otk.jesb.Variant<java.lang.Long> periodVariant = new com.otk.jesb.Variant<java.lang.Long>(
-			java.lang.Long.class, 1l);
+	private RepetitionSettingsStructure.GroupBuilder repetitionSettingsGroupBuilder = new RepetitionSettingsStructure.GroupBuilder();
 
 	public Schedule() {
 
@@ -28,18 +27,19 @@ public class Schedule extends com.otk.jesb.resource.Resource {
 		this.repeatingVariant = repeatingVariant;
 	}
 
-	public com.otk.jesb.Variant<java.lang.Long> getPeriodVariant() {
-		return periodVariant;
+	public RepetitionSettingsStructure.GroupBuilder getRepetitionSettingsGroupBuilder() {
+		return repetitionSettingsGroupBuilder;
 	}
 
-	public void setPeriodVariant(com.otk.jesb.Variant<java.lang.Long> periodVariant) {
-		this.periodVariant = periodVariant;
+	public void setRepetitionSettingsGroupBuilder(
+			RepetitionSettingsStructure.GroupBuilder repetitionSettingsGroupBuilder) {
+		this.repetitionSettingsGroupBuilder = repetitionSettingsGroupBuilder;
 	}
 
 	@Override
 	public String toString() {
 		return "Schedule [momentVariant=" + momentVariant + ", repeatingVariant=" + repeatingVariant
-				+ ", periodVariant=" + periodVariant + "]";
+				+ ", repetitionSettingsGroupBuilder=" + repetitionSettingsGroupBuilder + "]";
 	}
 
 	@Override
@@ -64,4 +64,39 @@ public class Schedule extends com.otk.jesb.resource.Resource {
 		}
 	}
 
+	static public class RepetitionSettingsStructure {
+
+		public RepetitionSettingsStructure() {
+
+		}
+
+		@Override
+		public String toString() {
+			return "RepetitionSettingsStructure []";
+		}
+
+		static public class GroupBuilder {
+
+			public GroupBuilder() {
+
+			}
+
+			@Override
+			public String toString() {
+				return "GroupBuilder []";
+			}
+
+			public RepetitionSettingsStructure build(com.otk.jesb.solution.Plan.ExecutionContext context,
+					com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
+				return new RepetitionSettingsStructure();
+			}
+
+			public void validate(boolean recursively, com.otk.jesb.solution.Plan currentPlan,
+					com.otk.jesb.solution.Step currentStep) {
+
+			}
+
+		}
+
+	}
 }

@@ -663,8 +663,7 @@ public abstract class Structure {
 				return "";
 			}
 			String className = getStructuredClassName(parentClassName);
-			return structure.generateJavaTypeSourceCode(className, null, null, null, options)
-					.replace("class " + className, "static class " + className);
+			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, options);
 		}
 
 		@Override
