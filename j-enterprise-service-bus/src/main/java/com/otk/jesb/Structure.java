@@ -51,37 +51,15 @@ public abstract class Structure {
 			result.append("public class " + classSimpleName
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
-			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> e.generateJavaFieldDeclarationSourceCode(className, options))
-							.collect(Collectors.toList()),
-					"\n") + "\n");
-			{
-				result.append("public " + classSimpleName + "("
-						+ MiscUtils.stringJoin(elements.stream()
-								.map((e) -> e.generateJavaConstructorParameterDeclarationSourceCode(className, options))
-								.filter(Objects::nonNull).collect(Collectors.toList()), ", ")
-						+ "){" + "\n");
-				result.append(
-						MiscUtils
-								.stringJoin(elements.stream()
-										.map((e) -> (e.generateJavaFieldInitializationInConstructorSourceCode(className,
-												options)))
-										.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
-								+ "\n");
-				result.append("}" + "\n");
-			}
-			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> e.generateJavaMethodsDeclarationSourceCode(className, options))
-							.filter(Objects::nonNull).collect(Collectors.toList()),
-					"\n") + "\n");
-			{
-				result.append("@Override\n");
-				result.append("public String toString() {\n");
-				result.append("return \"" + classSimpleName + " [" + elements.stream()
-						.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
-						+ "]\";\n");
-				result.append("}\n");
-			}
+			result.append(MiscUtils.stringJoin(elements.stream()
+					.map((e) -> e.generateJavaFieldDeclaration(className, options)).collect(Collectors.toList()), "\n")
+					+ "\n");
+			result.append(generateJavaConstructorSourceCode(className, options) + "\n");
+			result.append(MiscUtils
+					.stringJoin(elements.stream().map((e) -> e.generateJavaMethodsDeclaration(className, options))
+							.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
+					+ "\n");
+			result.append(generateJavaToStringMethodSourceCode(className, options) + "\n");
 			if (additionalDeclarations != null) {
 				result.append(additionalDeclarations + "\n");
 			}
@@ -91,6 +69,46 @@ public abstract class Structure {
 					"\n") + "\n");
 			result.append("}");
 			return result.toString();
+		}
+
+		protected String generateJavaToStringMethodSourceCode(String className, Map<Object, Object> options) {
+			StringBuilder result = new StringBuilder();
+			result.append("@Override\n");
+			result.append("public String toString() {\n");
+			result.append(generateJavaToStringMethodBody(className, options) + "\n");
+			result.append("}");
+			return result.toString();
+		}
+
+		protected String generateJavaToStringMethodBody(String className, Map<Object, Object> options) {
+			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
+			return "return \"" + classSimpleName + " [" + elements.stream()
+					.map((e) -> (e.getName() + "=\" + " + e.getName() + " + \"")).collect(Collectors.joining(", "))
+					+ "]\";";
+		}
+
+		protected String generateJavaConstructorSourceCode(String className, Map<Object, Object> options) {
+			StringBuilder result = new StringBuilder();
+			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
+			result.append(
+					"public " + classSimpleName + "("
+							+ MiscUtils.stringJoin(
+									elements.stream()
+											.map((e) -> e.generateJavaConstructorParameterDeclaration(className,
+													options))
+											.filter(Objects::nonNull).collect(Collectors.toList()),
+									", ")
+							+ "){" + "\n");
+			result.append(generateJavaConstructorBody(className, options) + "\n");
+			result.append("}");
+			return result.toString();
+		}
+
+		protected String generateJavaConstructorBody(String className, Map<Object, Object> options) {
+			return MiscUtils.stringJoin(
+					elements.stream().map((e) -> (e.generateJavaFieldConstructorStatement(className, options)))
+							.filter(Objects::nonNull).collect(Collectors.toList()),
+					"\n");
 		}
 
 		@Override
@@ -117,6 +135,79 @@ public abstract class Structure {
 		@Override
 		public String toString() {
 			return "<ClassicStructure>";
+		}
+
+	}
+
+	public static class DerivedClassicStructure extends ClassicStructure {
+
+		private String baseStructureTypeName;
+		private Structure baseStructure;
+
+		public DerivedClassicStructure(String baseStructureTypeName, Structure baseStructure) {
+			this.baseStructureTypeName = baseStructureTypeName;
+			this.baseStructure = baseStructure;
+		}
+
+		public Structure getBaseStructure() {
+			return baseStructure;
+		}
+
+		public String getBaseStructureTypeName() {
+			return baseStructureTypeName;
+		}
+
+		private List<Element> collectRecursivelyBaseStructureElements(Structure baseStructure) {
+			if (baseStructure instanceof DerivedClassicStructure) {
+				DerivedClassicStructure derivedStructure = (DerivedClassicStructure) baseStructure;
+				List<Element> result = new ArrayList<Structure.Element>();
+				result.addAll(collectRecursivelyBaseStructureElements(derivedStructure.getBaseStructure()));
+				result.addAll(derivedStructure.getElements());
+				return result;
+			}
+			if (baseStructure instanceof ClassicStructure) {
+				ClassicStructure baseClassicStructure = (ClassicStructure) baseStructure;
+				return baseClassicStructure.getElements();
+			}
+			if (baseStructure instanceof SharedStructureReference) {
+				return collectRecursivelyBaseStructureElements(((SharedStructureReference) baseStructure).resolve());
+			}
+			return Collections.emptyList();
+		}
+
+		@Override
+		protected String generateJavaConstructorSourceCode(String className, Map<Object, Object> options) {
+			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
+			String result = super.generateJavaConstructorSourceCode(className, options);
+			List<Element> baseStructureElements = collectRecursivelyBaseStructureElements(baseStructure);
+			if (baseStructureElements.size() > 0) {
+				result = result.replace(classSimpleName + "(",
+						classSimpleName + "(" + baseStructureElements.stream()
+								.map(element -> element.generateJavaConstructorParameterDeclaration(className, options))
+								.collect(Collectors.joining(", ")) + ", ");
+			}
+			return result;
+		}
+
+		@Override
+		protected String generateJavaConstructorBody(String className, Map<Object, Object> options) {
+			String result = super.generateJavaConstructorBody(className, options);
+			List<Element> baseStructureElements = collectRecursivelyBaseStructureElements(baseStructure);
+			if (baseStructureElements.size() > 0) {
+				result = "super("
+						+ baseStructureElements.stream().map(Element::getName).collect(Collectors.joining(", "))
+						+ ");\n" + result;
+			}
+			return result;
+		}
+
+		@Override
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String additionalDeclarations, Map<Object, Object> options) {
+			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
+			return super.generateJavaTypeSourceCode(className, additionalyImplemented, additionalyExtended,
+					additionalDeclarations, options).replace("class " + classSimpleName,
+							"class " + classSimpleName + " extends " + baseStructureTypeName);
 		}
 
 	}
@@ -185,23 +276,19 @@ public abstract class Structure {
 				SharedStructureModel.class, model -> {
 					Reference<SharedStructureModel> newModelReference = Reference.get(model);
 					try {
-						checkNoReferenceCycle(newModelReference, false);
+						checkNoReferenceCycleAndResolve(newModelReference, false);
 						return true;
 					} catch (IllegalArgumentException e) {
 						return false;
 					}
-				}, newPath ->
-
-				{
+				}, newPath -> {
 					if (newPath != null) {
 						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
 								SharedStructureModel.class);
 						newModelReference.setPath(newPath);
-						checkNoReferenceCycle(newModelReference, true);
+						checkNoReferenceCycleAndResolve(newModelReference, true);
 					}
-				}
-
-		);
+				});
 
 		public Reference<SharedStructureModel> getModelReference() {
 			return modelReference;
@@ -211,16 +298,32 @@ public abstract class Structure {
 			this.modelReference = modelReference;
 		}
 
-		private void checkNoReferenceCycle(Reference<SharedStructureModel> modelReference, boolean recursiveCheck) {
+		public Structure resolve() {
+			return checkNoReferenceCycleAndResolve(modelReference, true);
+		}
+
+		private Structure checkNoReferenceCycleAndResolve(Reference<SharedStructureModel> modelReference,
+				boolean recursiveCheck) {
 			if (modelReference != null) {
 				SharedStructureModel model = modelReference.resolve();
 				if (model != null) {
-					Structure structure = model.getStructure();
-					if (structure instanceof ClassicStructure) {
-						checkNoReferenceCycle((ClassicStructure) structure, recursiveCheck);
+					Structure modelStructure = model.getStructure();
+					if (modelStructure instanceof SharedStructureReference) {
+						if (modelStructure == SharedStructureReference.this) {
+							throw new IllegalArgumentException("Shared structure reference cycle detected");
+						}
+						if (recursiveCheck) {
+							return checkNoReferenceCycleAndResolve(
+									((SharedStructureReference) modelStructure).getModelReference(), recursiveCheck);
+						}
 					}
+					if (modelStructure instanceof ClassicStructure) {
+						checkNoReferenceCycle((ClassicStructure) modelStructure, recursiveCheck);
+					}
+					return modelStructure;
 				}
 			}
+			return null;
 		}
 
 		private void checkNoReferenceCycle(ClassicStructure classicStructure, boolean recursiveCheck) {
@@ -232,8 +335,8 @@ public abstract class Structure {
 							throw new IllegalArgumentException("Shared structure reference cycle detected");
 						}
 						if (recursiveCheck) {
-							checkNoReferenceCycle(((SharedStructureReference) subStructure).getModelReference(),
-									recursiveCheck);
+							checkNoReferenceCycleAndResolve(
+									((SharedStructureReference) subStructure).getModelReference(), recursiveCheck);
 						}
 					}
 					if (subStructure instanceof ClassicStructure) {
@@ -336,7 +439,7 @@ public abstract class Structure {
 			}
 		}
 
-		protected String generateJavaFieldDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+		protected String generateJavaFieldDeclaration(String parentClassName, Map<Object, Object> options) {
 			String result = (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) ? "private "
 					: "public ";
 			if (getOptionality() == null) {
@@ -350,7 +453,7 @@ public abstract class Structure {
 			return result;
 		}
 
-		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
+		protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
 			if (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) {
 				StringBuilder result = new StringBuilder();
 				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);
@@ -370,7 +473,7 @@ public abstract class Structure {
 			}
 		}
 
-		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName,
+		protected String generateJavaConstructorParameterDeclaration(String parentClassName,
 				Map<Object, Object> options) {
 			if (getOptionality() != null) {
 				return null;
@@ -378,8 +481,7 @@ public abstract class Structure {
 			return getFinalTypeNameAdaptedToSourceCode(parentClassName) + " " + getName();
 		}
 
-		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName,
-				Map<Object, Object> options) {
+		protected String generateJavaFieldConstructorStatement(String parentClassName, Map<Object, Object> options) {
 			if (getOptionality() != null) {
 				return null;
 			}
@@ -468,25 +570,24 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateJavaFieldDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
-			return base.generateJavaFieldDeclarationSourceCode(parentClassName, options);
+		protected String generateJavaFieldDeclaration(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaFieldDeclaration(parentClassName, options);
 		}
 
 		@Override
-		protected String generateJavaMethodsDeclarationSourceCode(String parentClassName, Map<Object, Object> options) {
-			return base.generateJavaMethodsDeclarationSourceCode(parentClassName, options);
+		protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaMethodsDeclaration(parentClassName, options);
 		}
 
 		@Override
-		protected String generateJavaConstructorParameterDeclarationSourceCode(String parentClassName,
+		protected String generateJavaConstructorParameterDeclaration(String parentClassName,
 				Map<Object, Object> options) {
-			return base.generateJavaConstructorParameterDeclarationSourceCode(parentClassName, options);
+			return base.generateJavaConstructorParameterDeclaration(parentClassName, options);
 		}
 
 		@Override
-		protected String generateJavaFieldInitializationInConstructorSourceCode(String parentClassName,
-				Map<Object, Object> options) {
-			return base.generateJavaFieldInitializationInConstructorSourceCode(parentClassName, options);
+		protected String generateJavaFieldConstructorStatement(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaFieldConstructorStatement(parentClassName, options);
 		}
 
 		public void validate(boolean recursively) throws ValidationError {
