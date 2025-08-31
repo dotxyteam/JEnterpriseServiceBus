@@ -20,6 +20,9 @@ import com.otk.jesb.Structure.ElementProxy;
 import com.otk.jesb.Structure.EnumerationStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.Structure.StructuredElement;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -53,8 +56,9 @@ public class PluginBuilder {
 	}
 
 	private String packageName;
-	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
 	private List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();
+	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
+	private List<ActivatorDescriptor> activators = new ArrayList<ActivatorDescriptor>();
 
 	public String getPackageName() {
 		return packageName;
@@ -80,6 +84,14 @@ public class PluginBuilder {
 		this.resources = resources;
 	}
 
+	public List<ActivatorDescriptor> getActivators() {
+		return activators;
+	}
+
+	public void setActivators(List<ActivatorDescriptor> activators) {
+		this.activators = activators;
+	}
+
 	public void save(File file) throws IOException {
 		try (FileOutputStream output = new FileOutputStream(file)) {
 			MiscUtils.serialize(this, output);
@@ -91,18 +103,21 @@ public class PluginBuilder {
 			PluginBuilder loaded = (PluginBuilder) MiscUtils.deserialize(input);
 			this.packageName = loaded.packageName;
 			this.operations = loaded.operations;
+			this.activators = loaded.activators;
 			this.resources = loaded.resources;
 		}
 	}
 
 	public static class OperationDescriptor {
 
+		private static final String RESULT_OPTION_NAME = "result";
+
 		private String opertionTypeName;
 		private String opertionTypeCaption;
 		private String categoryName;
 		private byte[] operationIconImageData;
 		private List<ParameterDescriptor> parameters = new ArrayList<ParameterDescriptor>();
-		private ResultDescriptor result;
+		private ClassOptionDescriptor result;
 		private String executionMethodBody;
 
 		public String getOpertionTypeName() {
@@ -137,11 +152,11 @@ public class PluginBuilder {
 			this.parameters = parameters;
 		}
 
-		public ResultDescriptor getResult() {
+		public ClassOptionDescriptor getResult() {
 			return result;
 		}
 
-		public void setResult(ResultDescriptor result) {
+		public void setResult(ClassOptionDescriptor result) {
 			this.result = result;
 		}
 
@@ -174,7 +189,7 @@ public class PluginBuilder {
 			Structure.ClassicStructure operationStructure = new Structure.ClassicStructure();
 			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
 			for (ParameterDescriptor parameter : parameters) {
-				operationStructure.getElements().add(parameter.createOperationElement(operationClassName));
+				operationStructure.getElements().add(parameter.getOperationClassElement(operationClassName));
 			}
 			StringBuilder additionalDeclarations = new StringBuilder();
 			additionalDeclarations
@@ -185,7 +200,8 @@ public class PluginBuilder {
 					.append(generateMetadataClassSourceCode(operationClassName, codeGenerationOptions) + "\n");
 			if (result != null) {
 				additionalDeclarations.append(
-						result.generateResultClassesSourceCode(operationClassName, codeGenerationOptions) + "\n");
+						result.generateClassesSourceCode(operationClassName, RESULT_OPTION_NAME, codeGenerationOptions)
+								+ "\n");
 			}
 			File javaFile = new File(sourceDirectroy, operationClassName.replace(".", "/") + ".java");
 			try {
@@ -217,7 +233,7 @@ public class PluginBuilder {
 			Structure.ClassicStructure operationBuilderStructure = new Structure.ClassicStructure();
 			for (ParameterDescriptor parameter : parameters) {
 				operationBuilderStructure.getElements()
-						.add(parameter.createOperationBuilderElement(operationClassName));
+						.add(parameter.getOperationBuilderClassElement(operationClassName));
 			}
 			StringBuilder additionalDeclarations = new StringBuilder();
 			additionalDeclarations.append(generateOperationBuildMethodSourceCode(operationClassName, options));
@@ -271,7 +287,7 @@ public class PluginBuilder {
 		protected String generateBuildMethodBody(String operationClassName, Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			for (ParameterDescriptor parameter : parameters) {
-				String buildStatementTarget = parameter.createOperationElement(operationClassName)
+				String buildStatementTarget = parameter.getOperationClassElement(operationClassName)
 						.getFinalTypeNameAdaptedToSourceCode(operationClassName) + " " + parameter.getName();
 				result.append(
 						parameter.generateBuildStatement(buildStatementTarget, operationClassName, options) + "\n");
@@ -322,7 +338,7 @@ public class PluginBuilder {
 			if (result == null) {
 				return "return null;";
 			}
-			return result.generateResultClassMethodBody(operationClassName, options);
+			return result.generateClassOptionMethodBody(operationClassName, RESULT_OPTION_NAME, options);
 		}
 
 		protected String generateValidationMethodBody(String operationClassName, Map<Object, Object> options) {
@@ -361,13 +377,13 @@ public class PluginBuilder {
 			this.nature = nature;
 		}
 
-		public Element createOperationElement(String operationClassName) {
-			Element result = nature.createOperationElement(operationClassName, name);
+		public Element getOperationClassElement(String operationClassName) {
+			Element result = nature.getOperationClassElement(operationClassName, name);
 			return result;
 		}
 
-		public Element createOperationBuilderElement(String operationClassName) {
-			Element result = nature.createOperationBuilderElement(operationClassName, name);
+		public Element getOperationBuilderClassElement(String operationClassName) {
+			Element result = nature.getOperationBuilderClassElement(operationClassName, name);
 			result = new Structure.ElementProxy(result) {
 
 				@Override
@@ -411,9 +427,8 @@ public class PluginBuilder {
 
 	}
 
-	public static class ResultDescriptor {
+	public static class ClassOptionDescriptor {
 
-		private static final String RESULT_AS_PARAMETER_NAME = "result";
 		private Structure structure = new Structure.ClassicStructure();
 		private List<StructureDerivationAlternative> concreteStructureAlternatives;
 
@@ -434,32 +449,33 @@ public class PluginBuilder {
 			this.concreteStructureAlternatives = concreteStructureAlternatives;
 		}
 
-		public String generateResultClassesSourceCode(String operationClassName, Map<Object, Object> options) {
-			return getResultElementUtility(operationClassName)
-					.generateRequiredInnerJavaTypesSourceCode(operationClassName, options);
+		public String generateClassesSourceCode(String parentClassName, String optionName,
+				Map<Object, Object> options) {
+			return getOptionElementUtility(parentClassName, optionName)
+					.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
 		}
 
-		protected String generateResultClassMethodBody(String operationClassName, Map<Object, Object> options) {
+		protected String generateClassOptionMethodBody(String parentClassName, String optionName,
+				Map<Object, Object> options) {
 			if (concreteStructureAlternatives != null) {
-				return getResultNatureUtility(operationClassName)
-						.generateConcreteTypeNameGetterBody(operationClassName, RESULT_AS_PARAMETER_NAME, options)
+				return getOptionNatureUtility(parentClassName)
+						.generateConcreteTypeNameGetterBody(parentClassName, optionName, options)
 						.replace("class.getName()", "class");
 			} else {
-				return "return " + getResultElementUtility(operationClassName)
-						.getFinalTypeNameAdaptedToSourceCode(operationClassName) + ".class;";
+				return "return " + getOptionElementUtility(parentClassName, optionName)
+						.getFinalTypeNameAdaptedToSourceCode(parentClassName) + ".class;";
 			}
 		}
 
-		private Structure.Element getResultElementUtility(String operationClassName) {
-			return getResultNatureUtility(operationClassName).createOperationElement(operationClassName,
-					RESULT_AS_PARAMETER_NAME);
+		private Structure.Element getOptionElementUtility(String parentClassName, String optionName) {
+			return getOptionNatureUtility(parentClassName).getOperationClassElement(parentClassName, optionName);
 		}
 
-		private DynamicParameterNature getResultNatureUtility(String operationClassName) {
+		private DynamicParameterNature getOptionNatureUtility(String parentClassName) {
 			return new DynamicParameterNature() {
 				{
-					setStructure(ResultDescriptor.this.structure);
-					setConcreteStructureAlternatives(ResultDescriptor.this.concreteStructureAlternatives);
+					setStructure(ClassOptionDescriptor.this.structure);
+					setConcreteStructureAlternatives(ClassOptionDescriptor.this.concreteStructureAlternatives);
 				}
 			};
 		}
@@ -468,9 +484,9 @@ public class PluginBuilder {
 
 	public static abstract class ParameterNature {
 
-		protected abstract Element createOperationElement(String operationClassName, String parameterName);
+		protected abstract Element getOperationClassElement(String operationClassName, String parameterName);
 
-		protected abstract Element createOperationBuilderElement(String operationClassName, String parameterName);
+		protected abstract Element getOperationBuilderClassElement(String operationClassName, String parameterName);
 
 		protected abstract String generateBuilderRequiredInnerJavaTypesSourceCode(String operationClassName,
 				String parameterName, Map<Object, Object> options);
@@ -516,7 +532,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		public Element createOperationElement(String operationClassName, String parameterName) {
+		public Element getOperationClassElement(String operationClassName, String parameterName) {
 			Structure.SimpleElement result = new Structure.SimpleElement();
 			result.setName(parameterName);
 			result.setTypeNameOrAlias(getTypeNameOrAlias());
@@ -524,10 +540,10 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
 			if (variant) {
 				return new Structure.SimpleElement() {
-					Element base = createOperationElement(operationClassName, parameterName);
+					Element base = getOperationClassElement(operationClassName, parameterName);
 					{
 						setName(base.getName() + "Variant");
 						String variantGenericParameterTypeName = adaptVariantGenericParameterTypeName(
@@ -549,7 +565,7 @@ public class PluginBuilder {
 					}
 				};
 			} else {
-				Element result = createOperationElement(operationClassName, parameterName);
+				Element result = getOperationClassElement(operationClassName, parameterName);
 				if (defaultValueExpression != null) {
 					Structure.Optionality optionality = new Structure.Optionality();
 					optionality.setDefaultValueExpression(defaultValueExpression);
@@ -570,7 +586,7 @@ public class PluginBuilder {
 		@Override
 		protected String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			Element operationBuilderElement = createOperationBuilderElement(operationClassName, parameterName);
+			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName);
 			if (variant) {
 				return "this." + operationBuilderElement.getName() + ".getValue()";
 			} else {
@@ -612,7 +628,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		public Element createOperationElement(String operationClassName, String parameterName) {
+		public Element getOperationClassElement(String operationClassName, String parameterName) {
 			Structure.SimpleElement result = new Structure.SimpleElement();
 			result.setName(parameterName);
 			result.setTypeNameOrAlias(assetClassName);
@@ -620,9 +636,9 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
 			Structure.SimpleElement result = new Structure.SimpleElement();
-			result.setName(parameterName);
+			result.setName(parameterName + "Reference");
 			result.setTypeNameOrAlias(Reference.class.getName() + "<" + assetClassName + ">");
 			return result;
 		}
@@ -630,7 +646,7 @@ public class PluginBuilder {
 		@Override
 		protected String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			Element operationBuilderElement = createOperationBuilderElement(operationClassName, parameterName);
+			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName);
 			return "this." + operationBuilderElement.getName() + ".resolve()";
 		}
 
@@ -701,9 +717,9 @@ public class PluginBuilder {
 			return result;
 		}
 
-		public Element createOperationElement(String operationClassName, String parameterName) {
+		public Element getOperationClassElement(String operationClassName, String parameterName) {
 			return new ElementProxy(createSimpleParameterNatureUtility(operationClassName, parameterName)
-					.createOperationElement(operationClassName, parameterName)) {
+					.getOperationClassElement(operationClassName, parameterName)) {
 				StructuredElement enumerationElement = createEnumerationElementUtility(operationClassName,
 						parameterName);
 
@@ -716,9 +732,9 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
 			return createSimpleParameterNatureUtility(operationClassName, parameterName)
-					.createOperationBuilderElement(operationClassName, parameterName);
+					.getOperationBuilderClassElement(operationClassName, parameterName);
 		}
 
 		@Override
@@ -795,7 +811,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		public Element createOperationElement(String operationClassName, String parameterName) {
+		public Element getOperationClassElement(String operationClassName, String parameterName) {
 			Structure.StructuredElement result = new Structure.StructuredElement() {
 				{
 					setName(parameterName);
@@ -803,7 +819,7 @@ public class PluginBuilder {
 						{
 							String groupStructureTypeName = getTypeName(operationClassName);
 							for (ParameterDescriptor parameter : getParameters()) {
-								getElements().add(parameter.createOperationElement(groupStructureTypeName));
+								getElements().add(parameter.getOperationClassElement(groupStructureTypeName));
 							}
 						}
 
@@ -827,16 +843,16 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
 			return new Structure.StructuredElement() {
 				{
 					setName(parameterName + "GroupBuilder");
 					setStructure(new Structure.ClassicStructure() {
 						{
-							String groupStructureTypeName = createOperationElement(operationClassName, parameterName)
+							String groupStructureTypeName = getOperationClassElement(operationClassName, parameterName)
 									.getTypeName(operationClassName);
 							for (ParameterDescriptor parameter : getParameters()) {
-								getElements().add(parameter.createOperationBuilderElement(groupStructureTypeName));
+								getElements().add(parameter.getOperationBuilderClassElement(groupStructureTypeName));
 							}
 						}
 					});
@@ -851,7 +867,7 @@ public class PluginBuilder {
 
 				@Override
 				protected String getTypeName(String parentClassName) {
-					return createOperationElement(operationClassName, parameterName).getTypeName(operationClassName)
+					return getOperationClassElement(operationClassName, parameterName).getTypeName(operationClassName)
 							+ "$" + internalOperation.getOperationBuilderClassSimpleName();
 				}
 
@@ -861,7 +877,7 @@ public class PluginBuilder {
 		@Override
 		protected String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			Element operationBuilderElement = createOperationBuilderElement(operationClassName, parameterName);
+			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName);
 			return "this." + operationBuilderElement.getName() + ".build(context, executionInspector)";
 		}
 
@@ -902,7 +918,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		public Structure.Element createOperationElement(String operationClassName, String parameterName) {
+		public Structure.Element getOperationClassElement(String operationClassName, String parameterName) {
 			Structure.StructuredElement result = new Structure.StructuredElement();
 			result.setName(parameterName);
 			result.setStructure(getStructure());
@@ -930,9 +946,9 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
 			return new Structure.SimpleElement() {
-				Element base = createOperationElement(operationClassName, parameterName);
+				Element base = getOperationClassElement(operationClassName, parameterName);
 				{
 					setName(base.getName() + "DynamicBuilder");
 					setTypeNameOrAlias(RootInstanceBuilder.class.getName());
@@ -956,7 +972,7 @@ public class PluginBuilder {
 		}
 
 		private String getBaseStructureTypeName(String operationClassName, String parameterName) {
-			return createOperationElement(operationClassName, parameterName).getTypeName(operationClassName);
+			return getOperationClassElement(operationClassName, parameterName).getTypeName(operationClassName);
 		}
 
 		private String getConcreteTypeNameAccessorClassName(String parameterName) {
@@ -994,8 +1010,8 @@ public class PluginBuilder {
 		@Override
 		protected String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			Element operationElement = createOperationElement(operationClassName, parameterName);
-			Element operationBuilderElement = createOperationBuilderElement(operationClassName, parameterName);
+			Element operationElement = getOperationClassElement(operationClassName, parameterName);
+			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName);
 			return "(" + operationElement.getFinalTypeNameAdaptedToSourceCode(operationClassName) + ") this."
 					+ operationBuilderElement.getName() + ".build(new " + InstantiationContext.class.getName()
 					+ "(context.getVariables(), context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()))";
@@ -1137,7 +1153,7 @@ public class PluginBuilder {
 			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
 			for (PropertyDescriptor property : properties) {
 				resourceStructure.getElements()
-						.add(property.createResourceElement(resourceClassName, property.getName()));
+						.add(property.getResourceClassElement(resourceClassName, property.getName()));
 			}
 			StringBuilder additionalDeclarations = new StringBuilder();
 			{
@@ -1225,8 +1241,8 @@ public class PluginBuilder {
 			this.nature = nature;
 		}
 
-		public Element createResourceElement(String resourceClassName, String propertyName) {
-			return nature.createResourceElement(resourceClassName, propertyName);
+		public Element getResourceClassElement(String resourceClassName, String propertyName) {
+			return nature.getResourceClassElement(resourceClassName, propertyName);
 		}
 
 		public void validate(boolean recursively) throws ValidationError {
@@ -1239,7 +1255,7 @@ public class PluginBuilder {
 
 		protected abstract void validate(boolean recursively) throws ValidationError;
 
-		protected abstract Element createResourceElement(String resourceClassName, String propertyName);
+		protected abstract Element getResourceClassElement(String resourceClassName, String propertyName);
 
 	}
 
@@ -1276,8 +1292,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createResourceElement(String resourceClassName, String propertyName) {
-			return internalParameterNature.createOperationBuilderElement(resourceClassName, propertyName);
+		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
+			return internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName);
 		}
 
 		@Override
@@ -1316,10 +1332,49 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createResourceElement(String resourceClassName, String propertyName) {
+		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
 			return new ElementProxy(
-					internalParameterNature.createOperationBuilderElement(resourceClassName, propertyName)) {
-				Element operationElement = internalParameterNature.createOperationElement(resourceClassName,
+					internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(resourceClassName,
+						propertyName);
+
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+						Map<Object, Object> options) {
+					return operationElement.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
+				}
+
+			};
+		}
+
+		@Override
+		protected void validate(boolean recursively) throws ValidationError {
+			internalParameterNature.validate(recursively);
+		}
+
+	}
+
+	public static class ReferencePropertyNature extends PropertyNature {
+
+		private ReferenceParameterNature internalParameterNature = new ReferenceParameterNature();
+
+		public String getAssetClassName() {
+			return internalParameterNature.getAssetClassName();
+		}
+
+		public void setAssetClassName(String assetClassName) {
+			internalParameterNature.setAssetClassName(assetClassName);
+		}
+
+		public List<String> getAssetClassNameOptions() {
+			return internalParameterNature.getAssetClassNameOptions();
+		}
+
+		@Override
+		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
+			return new ElementProxy(
+					internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(resourceClassName,
 						propertyName);
 
 				@Override
@@ -1351,16 +1406,461 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected Element createResourceElement(String resourceClassName, String propertyName) {
+		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
 			return new ElementProxy(
-					internalParameterNature.createOperationBuilderElement(resourceClassName, propertyName)) {
-				Element operationElement = internalParameterNature.createOperationElement(resourceClassName,
+					internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(resourceClassName,
 						propertyName);
 
 				@Override
 				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
 						Map<Object, Object> options) {
 					return operationElement.generateRequiredInnerJavaTypesSourceCode(resourceClassName, options);
+				}
+
+			};
+		}
+
+		@Override
+		protected void validate(boolean recursively) throws ValidationError {
+			internalParameterNature.validate(recursively);
+		}
+	}
+
+	public static class ActivatorDescriptor {
+
+		private String activatorTypeName;
+		private String activatorTypeCaption;
+		private byte[] activatorIconImageData;
+		private List<AttributeDescriptor> attributes = new ArrayList<AttributeDescriptor>();
+		private ClassOptionDescriptor inputClassOption;
+		private ClassOptionDescriptor outputClassOption;
+		private String validationMethodBody;
+		private boolean activationAutomaticallyTriggerable = true;
+		private String handlerInitializationStatements;
+		private String handlerFinalizationStatements;
+
+		public String getActivatorTypeName() {
+			return activatorTypeName;
+		}
+
+		public void setActivatorTypeName(String activatorTypeName) {
+			this.activatorTypeName = activatorTypeName;
+		}
+
+		public String getActivatorTypeCaption() {
+			return activatorTypeCaption;
+		}
+
+		public void setActivatorTypeCaption(String activatorTypeCaption) {
+			this.activatorTypeCaption = activatorTypeCaption;
+		}
+
+		public boolean isActivationAutomaticallyTriggerable() {
+			return activationAutomaticallyTriggerable;
+		}
+
+		public void setActivationAutomaticallyTriggerable(boolean activationAutomaticallyTriggerable) {
+			this.activationAutomaticallyTriggerable = activationAutomaticallyTriggerable;
+		}
+
+		public String getHandlerInitializationStatements() {
+			return handlerInitializationStatements;
+		}
+
+		public void setHandlerInitializationStatements(String handlerInitializationStatements) {
+			this.handlerInitializationStatements = handlerInitializationStatements;
+		}
+
+		public String getHandlerFinalizationStatements() {
+			return handlerFinalizationStatements;
+		}
+
+		public void setHandlerFinalizationStatements(String handlerFinalizationStatements) {
+			this.handlerFinalizationStatements = handlerFinalizationStatements;
+		}
+
+		public List<AttributeDescriptor> getAttributes() {
+			return attributes;
+		}
+
+		public void setAttributes(List<AttributeDescriptor> attributes) {
+			this.attributes = attributes;
+		}
+
+		public ClassOptionDescriptor getInputClassOption() {
+			return inputClassOption;
+		}
+
+		public void setInputClassOption(ClassOptionDescriptor inputClassOption) {
+			this.inputClassOption = inputClassOption;
+		}
+
+		public ClassOptionDescriptor getOutputClassOption() {
+			return outputClassOption;
+		}
+
+		public void setOutputClassOption(ClassOptionDescriptor outputClassOption) {
+			this.outputClassOption = outputClassOption;
+		}
+
+		public String getValidationMethodBody() {
+			return validationMethodBody;
+		}
+
+		public void setValidationMethodBody(String validationMethodBody) {
+			this.validationMethodBody = validationMethodBody;
+		}
+
+		public void loadIconImage(File file) throws IOException {
+			activatorIconImageData = MiscUtils.readBinary(file);
+		}
+
+		public Image getIconImage() {
+			if (activatorIconImageData == null) {
+				return null;
+			}
+			try {
+				return ImageIO.read(new ByteArrayInputStream(activatorIconImageData));
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			}
+		}
+
+		public File generateJavaSourceCode(File sourceDirectroy, String packageName) {
+			String activatorClassName = packageName + "." + activatorTypeName;
+			String extended = Activator.class.getName();
+			Structure.ClassicStructure activatorStructure = new Structure.ClassicStructure();
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
+			for (AttributeDescriptor attribute : attributes) {
+				activatorStructure.getElements()
+						.add(attribute.getActivatorClassElement(activatorClassName, attribute.getName()));
+			}
+			StringBuilder additionalMethodDeclarations = new StringBuilder();
+			StringBuilder additionalInnerClassesDeclarations = new StringBuilder();
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public Class<?> getInputClass() {\n");
+				if (inputClassOption == null) {
+					additionalMethodDeclarations.append("return null;\n");
+				} else {
+					additionalInnerClassesDeclarations.append(inputClassOption
+							.generateClassesSourceCode(activatorClassName, "inputClass", codeGenerationOptions) + "\n");
+					additionalMethodDeclarations
+							.append(inputClassOption.generateClassOptionMethodBody(activatorClassName, "inputClass",
+									codeGenerationOptions) + "\n");
+				}
+				additionalMethodDeclarations.append("}\n");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public Class<?> getOutputClass() {\n");
+				if (outputClassOption == null) {
+					additionalMethodDeclarations.append("return null;\n");
+				} else {
+					additionalInnerClassesDeclarations
+							.append(outputClassOption.generateClassesSourceCode(activatorClassName, "outputClass",
+									codeGenerationOptions) + "\n");
+					additionalMethodDeclarations
+							.append(outputClassOption.generateClassOptionMethodBody(activatorClassName, "outputClass",
+									codeGenerationOptions) + "\n");
+				}
+				additionalMethodDeclarations.append("}\n");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public boolean isAutomaticallyTriggerable() {\n");
+				additionalMethodDeclarations.append("return " + activationAutomaticallyTriggerable + ";\n");
+				additionalMethodDeclarations.append("}");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public void initializeAutomaticTrigger("
+						+ ActivationHandler.class.getName() + " activationHandler) throws Exception {\n");
+				if (handlerInitializationStatements != null) {
+					additionalMethodDeclarations.append(handlerInitializationStatements + "\n");
+				}
+				additionalMethodDeclarations.append("}\n");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public void finalizeAutomaticTrigger() throws Exception {\n");
+				if (handlerFinalizationStatements != null) {
+					additionalMethodDeclarations.append(handlerFinalizationStatements + "\n");
+				}
+				additionalMethodDeclarations.append("}\n");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations.append("public boolean isAutomaticTriggerReady() {\n");
+				additionalMethodDeclarations.append("return false;\n");
+				additionalMethodDeclarations.append("}\n");
+			}
+			{
+				additionalMethodDeclarations.append("@Override\n");
+				additionalMethodDeclarations
+						.append("public void validate(boolean recursively, " + Plan.class.getName() + " plan) {\n");
+				if (validationMethodBody != null) {
+					additionalMethodDeclarations.append(validationMethodBody + "\n");
+				}
+				additionalMethodDeclarations.append("}\n");
+			}
+			additionalInnerClassesDeclarations
+					.append(generateMetadataClassSourceCode(activatorClassName, codeGenerationOptions) + "\n");
+			File javaFile = new File(sourceDirectroy, activatorClassName.replace(".", "/") + ".java");
+			try {
+				if (!javaFile.getParentFile().exists()) {
+					MiscUtils.createDirectory(javaFile.getParentFile(), true);
+				}
+				MiscUtils
+						.write(javaFile,
+								activatorStructure.generateJavaTypeSourceCode(activatorClassName, null, extended,
+										additionalMethodDeclarations.toString() + "\n"
+												+ additionalInnerClassesDeclarations.toString(),
+										codeGenerationOptions),
+								false);
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			}
+			return javaFile;
+		}
+
+		private String generateMetadataClassSourceCode(String resourceClassName, Map<Object, Object> options) {
+			String className = "Metadata";
+			String activatorClassSimpleName = MiscUtils.extractSimpleNameFromClassName(resourceClassName);
+			String implemented = ActivatorMetadata.class.getName();
+			StringBuilder result = new StringBuilder();
+			result.append("public class " + className + " implements " + implemented + "{" + "\n");
+			{
+				result.append("@Override\n");
+				result.append("public String getActivatorName() {\n");
+				result.append("return \"" + activatorTypeCaption + "\";" + "\n");
+				result.append("}\n");
+			}
+			{
+				result.append("@Override\n");
+				result.append("public Class<? extends " + Activator.class.getName() + "> getActivatorClass() {\n");
+				result.append("return " + activatorClassSimpleName + ".class;" + "\n");
+				result.append("}\n");
+			}
+			{
+				result.append("@Override\n");
+				result.append("public " + ResourcePath.class.getName() + " getActivatorIconImagePath() {\n");
+				result.append("return new " + ResourcePath.class.getName() + "(" + ResourcePath.class.getName()
+						+ ".specifyClassPathResourceLocation(" + activatorClassSimpleName
+						+ ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
+				result.append("}\n");
+			}
+			result.append("}");
+			return result.toString();
+		}
+
+	}
+
+	public static class AttributeDescriptor {
+
+		private String name;
+		private String caption;
+		private AttributeNature nature = new SimpleAttributeNature();
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getCaption() {
+			return caption;
+		}
+
+		public void setCaption(String caption) {
+			this.caption = caption;
+		}
+
+		public AttributeNature getNature() {
+			return nature;
+		}
+
+		public void setNature(AttributeNature nature) {
+			this.nature = nature;
+		}
+
+		public Element getActivatorClassElement(String activatorClassName, String attributeName) {
+			return nature.getActivatorClassElement(activatorClassName, attributeName);
+		}
+
+		public void validate(boolean recursively) throws ValidationError {
+			nature.validate(recursively);
+		}
+
+	}
+
+	public abstract static class AttributeNature {
+
+		protected abstract void validate(boolean recursively) throws ValidationError;
+
+		protected abstract Element getActivatorClassElement(String activatorClassName, String attributeName);
+	}
+
+	public static class SimpleAttributeNature extends AttributeNature {
+
+		private SimpleParameterNature internalParameterNature = new SimpleParameterNature();
+
+		public String getTypeNameOrAlias() {
+			return internalParameterNature.getTypeNameOrAlias();
+		}
+
+		public void setTypeNameOrAlias(String typeNameOrAlias) {
+			internalParameterNature.setTypeNameOrAlias(typeNameOrAlias);
+		}
+
+		public List<String> getTypeNameOrAliasOptions() {
+			return internalParameterNature.getTypeNameOrAliasOptions();
+		}
+
+		public String getDefaultValueExpression() {
+			return internalParameterNature.getDefaultValueExpression();
+		}
+
+		public void setDefaultValueExpression(String defaultValueExpression) {
+			internalParameterNature.setDefaultValueExpression(defaultValueExpression);
+		}
+
+		public boolean isVariant() {
+			return internalParameterNature.isVariant();
+		}
+
+		public void setVariant(boolean variant) {
+			internalParameterNature.setVariant(variant);
+		}
+
+		@Override
+		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
+			return internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName);
+		}
+
+		@Override
+		protected void validate(boolean recursively) throws ValidationError {
+			internalParameterNature.validate(recursively);
+		}
+
+	}
+
+	public static class EnumerationAttributeNature extends AttributeNature {
+
+		private EnumerationParameterNature internalParameterNature = new EnumerationParameterNature();
+
+		public EnumerationStructure getStructure() {
+			return internalParameterNature.getStructure();
+		}
+
+		public void setStructure(EnumerationStructure structure) {
+			internalParameterNature.setStructure(structure);
+		}
+
+		public String getDefaultValueExpression() {
+			return internalParameterNature.getDefaultValueExpression();
+		}
+
+		public void setDefaultValueExpression(String defaultValueExpression) {
+			internalParameterNature.setDefaultValueExpression(defaultValueExpression);
+		}
+
+		public boolean isVariant() {
+			return internalParameterNature.isVariant();
+		}
+
+		public void setVariant(boolean variant) {
+			internalParameterNature.setVariant(variant);
+		}
+
+		@Override
+		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
+			return new ElementProxy(
+					internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(activatorClassName,
+						attributeName);
+
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+						Map<Object, Object> options) {
+					return operationElement.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
+				}
+
+			};
+		}
+
+		@Override
+		protected void validate(boolean recursively) throws ValidationError {
+			internalParameterNature.validate(recursively);
+		}
+
+	}
+
+	public static class ReferenceAttributeNature extends AttributeNature {
+
+		private ReferenceParameterNature internalParameterNature = new ReferenceParameterNature();
+
+		public String getAssetClassName() {
+			return internalParameterNature.getAssetClassName();
+		}
+
+		public void setAssetClassName(String assetClassName) {
+			internalParameterNature.setAssetClassName(assetClassName);
+		}
+
+		public List<String> getAssetClassNameOptions() {
+			return internalParameterNature.getAssetClassNameOptions();
+		}
+
+		@Override
+		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
+			return new ElementProxy(
+					internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(activatorClassName,
+						attributeName);
+
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+						Map<Object, Object> options) {
+					return operationElement.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);
+				}
+
+			};
+		}
+
+		@Override
+		protected void validate(boolean recursively) throws ValidationError {
+			internalParameterNature.validate(recursively);
+		}
+
+	}
+
+	public static class GroupAttributeNature extends AttributeNature {
+
+		private GroupParameterNature internalParameterNature = new GroupParameterNature();
+
+		public List<ParameterDescriptor> getParameters() {
+			return internalParameterNature.getParameters();
+		}
+
+		public void setParameters(List<ParameterDescriptor> parameters) {
+			internalParameterNature.setParameters(parameters);
+		}
+
+		@Override
+		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
+			return new ElementProxy(
+					internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName)) {
+				Element operationElement = internalParameterNature.getOperationClassElement(activatorClassName,
+						attributeName);
+
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+						Map<Object, Object> options) {
+					return operationElement.generateRequiredInnerJavaTypesSourceCode(activatorClassName, options);
 				}
 
 			};

@@ -34,6 +34,11 @@
 - add date/datetime support
 - anticipate date/datetime timezone issues 
 - allow to generate operation types having array typed parameters 
+- improve code generation:
+	. add "import"s (maybe declare imported classes that will be searched/replaced
+	during the code generation)
+	. indent the generated code
+	. check if things can be done by using javaparser
 - maybe change the project name since ESBs are not popular anymore
 - create a basic WSDL generator
 - allow to view APIs (SOAP/REST) documentation URL

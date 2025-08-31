@@ -1,14 +1,15 @@
 package com.otk;
 
-public class Schedule extends com.otk.jesb.resource.Resource {
+public class Schedule extends com.otk.jesb.activation.Activator {
 	private com.otk.jesb.Variant<com.otk.jesb.meta.DateTime> momentVariant = new com.otk.jesb.Variant<com.otk.jesb.meta.DateTime>(
 			com.otk.jesb.meta.DateTime.class, com.otk.jesb.meta.DateTime.NOW);
 	private com.otk.jesb.Variant<java.lang.Boolean> repeatingVariant = new com.otk.jesb.Variant<java.lang.Boolean>(
 			java.lang.Boolean.class, false);
 	private RepetitionSettingsStructure.GroupBuilder repetitionSettingsGroupBuilder = new RepetitionSettingsStructure.GroupBuilder();
+	private final com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference;
 
-	public Schedule() {
-
+	public Schedule(com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference) {
+		this.referenceReference = referenceReference;
 	}
 
 	public com.otk.jesb.Variant<com.otk.jesb.meta.DateTime> getMomentVariant() {
@@ -36,29 +37,77 @@ public class Schedule extends com.otk.jesb.resource.Resource {
 		this.repetitionSettingsGroupBuilder = repetitionSettingsGroupBuilder;
 	}
 
+	public com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> getReferenceReference() {
+		return referenceReference;
+	}
+
 	@Override
 	public String toString() {
 		return "Schedule [momentVariant=" + momentVariant + ", repeatingVariant=" + repeatingVariant
-				+ ", repetitionSettingsGroupBuilder=" + repetitionSettingsGroupBuilder + "]";
+				+ ", repetitionSettingsGroupBuilder=" + repetitionSettingsGroupBuilder + ", referenceReference="
+				+ referenceReference + "]";
 	}
 
 	@Override
-	public void validate(boolean recursively) {
+	public Class<?> getInputClass() {
+		return InputClassStructure.class;
 	}
 
-	public class Metadata implements com.otk.jesb.resource.ResourceMetadata {
+	@Override
+	public Class<?> getOutputClass() {
+		return null;
+	}
+
+	@Override
+	public boolean isAutomaticallyTriggerable() {
+		return true;
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(com.otk.jesb.activation.ActivationHandler activationHandler)
+			throws Exception {
+	}
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+	}
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+		return false;
+	}
+
+	@Override
+	public void validate(boolean recursively, com.otk.jesb.solution.Plan plan) {
+	}
+
+	static public class InputClassStructure {
+		public final com.otk.jesb.meta.DateTime activationMoment;
+
+		public InputClassStructure(com.otk.jesb.meta.DateTime activationMoment) {
+			this.activationMoment = activationMoment;
+		}
+
 		@Override
-		public String getResourceTypeName() {
+		public String toString() {
+			return "InputClassStructure [activationMoment=" + activationMoment + "]";
+		}
+
+	}
+
+	public class Metadata implements com.otk.jesb.activation.ActivatorMetadata {
+		@Override
+		public String getActivatorName() {
 			return "Schedule";
 		}
 
 		@Override
-		public Class<? extends com.otk.jesb.resource.Resource> getResourceClass() {
+		public Class<? extends com.otk.jesb.activation.Activator> getActivatorClass() {
 			return Schedule.class;
 		}
 
 		@Override
-		public xy.reflect.ui.info.ResourcePath getResourceIconImagePath() {
+		public xy.reflect.ui.info.ResourcePath getActivatorIconImagePath() {
 			return new xy.reflect.ui.info.ResourcePath(xy.reflect.ui.info.ResourcePath
 					.specifyClassPathResourceLocation(Schedule.class.getName().replace(".", "/") + ".png"));
 		}
