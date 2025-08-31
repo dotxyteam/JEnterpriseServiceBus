@@ -283,7 +283,9 @@ public abstract class Structure {
 					} catch (IllegalArgumentException e) {
 						return false;
 					}
-				}, newPath -> {
+				}, newPath ->
+
+				{
 					if (newPath != null) {
 						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
 								SharedStructureModel.class);
@@ -442,8 +444,7 @@ public abstract class Structure {
 		}
 
 		protected String generateJavaFieldDeclaration(String parentClassName, Map<Object, Object> options) {
-			String result = (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) ? "private "
-					: "public ";
+			String result = ElementAccessMode.ACCESSORS.isSet(options) ? "private " : "public ";
 			if (getOptionality() == null) {
 				result += "final ";
 			}
@@ -456,7 +457,7 @@ public abstract class Structure {
 		}
 
 		protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
-			if (options.get(ElementAccessMode.class) == ElementAccessMode.ACCESSORS) {
+			if (ElementAccessMode.ACCESSORS.isSet(options)) {
 				StringBuilder result = new StringBuilder();
 				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);
 				result.append("public " + finalTypeName + " get" + name.substring(0, 1).toUpperCase()
@@ -723,8 +724,35 @@ public abstract class Structure {
 		}
 	}
 
-	public enum ElementAccessMode {
-		PUBLIC_FIELD, ACCESSORS
+	private interface CodeGenerationOption {
+
+		public static boolean isSet(CodeGenerationOption option, Map<Object, Object> options) {
+			return option.equals(options.get(option.getClass()));
+		}
+
+		public static void set(CodeGenerationOption option, Map<Object, Object> options) {
+			options.put(option.getClass(), option);
+		}
+
+		public static Map<Object, Object> singleton(CodeGenerationOption option) {
+			return Collections.singletonMap(option.getClass(), option);
+		}
+	}
+
+	public enum ElementAccessMode implements CodeGenerationOption {
+		PUBLIC_FIELD, ACCESSORS;
+
+		public boolean isSet(Map<Object, Object> options) {
+			return CodeGenerationOption.isSet(this, options);
+		}
+
+		public void set(Map<Object, Object> options) {
+			CodeGenerationOption.set(this, options);
+		}
+
+		public Map<Object, Object> singleton() {
+			return CodeGenerationOption.singleton(this);
+		}
 	}
 
 }

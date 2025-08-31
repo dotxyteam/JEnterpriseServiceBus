@@ -7,7 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,11 +27,14 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.ui.JESBReflectionUI;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
@@ -169,8 +172,7 @@ public class PluginBuilder {
 			String operationClassName = packageName + "." + opertionTypeName;
 			String implemented = Operation.class.getName();
 			Structure.ClassicStructure operationStructure = new Structure.ClassicStructure();
-			Map<Object, Object> codeGenerationOptions = Collections.singletonMap(Structure.ElementAccessMode.class,
-					Structure.ElementAccessMode.PUBLIC_FIELD);
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
 			for (ParameterDescriptor parameter : parameters) {
 				operationStructure.getElements().add(parameter.createOperationElement(operationClassName));
 			}
@@ -528,13 +530,13 @@ public class PluginBuilder {
 					Element base = createOperationElement(operationClassName, parameterName);
 					{
 						setName(base.getName() + "Variant");
-						String variantGenericTypeName = adaptVariantGenericTypeName(
+						String variantGenericParameterTypeName = adaptVariantGenericParameterTypeName(
 								base.getTypeName(operationClassName));
-						setTypeNameOrAlias(Variant.class.getName() + "<" + variantGenericTypeName + ">");
+						setTypeNameOrAlias(Variant.class.getName() + "<" + variantGenericParameterTypeName + ">");
 						Structure.Optionality optionality = new Structure.Optionality();
 						{
 							optionality.setDefaultValueExpression("new " + getTypeNameOrAlias() + "("
-									+ variantGenericTypeName + ".class"
+									+ variantGenericParameterTypeName + ".class"
 									+ ((defaultValueExpression != null) ? (", " + defaultValueExpression) : "") + ")");
 							setOptionality(optionality);
 						}
@@ -557,7 +559,7 @@ public class PluginBuilder {
 			}
 		}
 
-		protected String adaptVariantGenericTypeName(String typeName) {
+		protected String adaptVariantGenericParameterTypeName(String typeName) {
 			Class<?> simpleClass = MiscUtils.getJESBClass(typeName);
 			if (simpleClass.isPrimitive()) {
 				simpleClass = ClassUtils.primitiveToWrapperClass(simpleClass);
@@ -585,6 +587,66 @@ public class PluginBuilder {
 		public void validate(boolean recursively) throws ValidationError {
 			internalElement.validate(recursively);
 		}
+	}
+
+	public static class ReferenceParameterNature extends ParameterNature {
+
+		private String assetClassName;
+
+		public String getAssetClassName() {
+			return assetClassName;
+		}
+
+		public void setAssetClassName(String assetClassName) {
+			this.assetClassName = assetClassName;
+		}
+
+		public List<String> getAssetClassNameOptions() {
+			List<String> result = new ArrayList<String>();
+			result.addAll(JESBReflectionUI.RESOURCE_METADATAS.stream()
+					.map(metadata -> metadata.getResourceClass().getName()).collect(Collectors.toList()));
+			result.add(Plan.class.getName());
+			result.add(Folder.class.getName());
+			result.add(JAR.class.getName());
+			return result;
+		}
+
+		@Override
+		public Element createOperationElement(String operationClassName, String parameterName) {
+			Structure.SimpleElement result = new Structure.SimpleElement();
+			result.setName(parameterName);
+			result.setTypeNameOrAlias(assetClassName);
+			return result;
+		}
+
+		@Override
+		protected Element createOperationBuilderElement(String operationClassName, String parameterName) {
+			Structure.SimpleElement result = new Structure.SimpleElement();
+			result.setName(parameterName);
+			result.setTypeNameOrAlias(Reference.class.getName() + "<" + assetClassName + ">");
+			return result;
+		}
+
+		@Override
+		protected String generateBuildExpression(String operationClassName, String parameterName,
+				Map<Object, Object> options) {
+			Element operationBuilderElement = createOperationBuilderElement(operationClassName, parameterName);
+			return "this." + operationBuilderElement.getName() + ".resolve()";
+		}
+
+		@Override
+		protected String generateBuilderRequiredInnerJavaTypesSourceCode(String operationClassName,
+				String parameterName, Map<Object, Object> options) {
+			return null;
+		}
+
+		public void validate(boolean recursively) throws ValidationError {
+			if (!getAssetClassNameOptions().contains(assetClassName)) {
+				throw new ValidationError("Invalid referenced asset class name: '" + assetClassName
+						+ "'. Expected 1 of " + getAssetClassNameOptions());
+			}
+		}
+
 	}
 
 	public static class EnumerationParameterNature extends ParameterNature {
@@ -628,7 +690,7 @@ public class PluginBuilder {
 				String parameterName) {
 			SimpleParameterNature result = new SimpleParameterNature() {
 				@Override
-				protected String adaptVariantGenericTypeName(String typeName) {
+				protected String adaptVariantGenericParameterTypeName(String typeName) {
 					return typeName;
 				}
 			};
@@ -844,12 +906,13 @@ public class PluginBuilder {
 			Structure.StructuredElement result = new Structure.StructuredElement();
 			result.setName(parameterName);
 			result.setStructure(getStructure());
-			if (concreteStructureAlternatives != null) {
-				return new Structure.ElementProxy(result) {
-
-					@Override
-					protected String generateRequiredInnerJavaTypesSourceCode(String operationClassName,
-							Map<Object, Object> options) {
+			return new Structure.ElementProxy(result) {
+				@Override
+				protected String generateRequiredInnerJavaTypesSourceCode(String operationClassName,
+						Map<Object, Object> options) {
+					options = new HashMap<Object, Object>(options);
+					Structure.ElementAccessMode.PUBLIC_FIELD.set(options);
+					if (concreteStructureAlternatives != null) {
 						StringBuilder result = new StringBuilder();
 						result.append("abstract "
 								+ super.generateRequiredInnerJavaTypesSourceCode(operationClassName, options));
@@ -859,11 +922,11 @@ public class PluginBuilder {
 									structure, options));
 						}
 						return result.toString();
+					} else {
+						return super.generateRequiredInnerJavaTypesSourceCode(operationClassName, options);
 					}
-				};
-			} else {
-				return result;
-			}
+				}
+			};
 		}
 
 		@Override
@@ -871,7 +934,7 @@ public class PluginBuilder {
 			return new Structure.SimpleElement() {
 				Element base = createOperationElement(operationClassName, parameterName);
 				{
-					setName(base.getName() + "Builder");
+					setName(base.getName() + "DynamicBuilder");
 					setTypeNameOrAlias(RootInstanceBuilder.class.getName());
 					Structure.Optionality optionality = new Structure.Optionality();
 					{
@@ -887,12 +950,6 @@ public class PluginBuilder {
 								+ base.getName() + "Input\", " + classNameArgumentExpression + ")");
 						setOptionality(optionality);
 					}
-				}
-
-				@Override
-				protected String generateRequiredInnerJavaTypesSourceCode(String operationBuilderClassName,
-						Map<Object, Object> options) {
-					return base.generateRequiredInnerJavaTypesSourceCode(operationClassName, options);
 				}
 
 			};
@@ -1077,8 +1134,7 @@ public class PluginBuilder {
 			String resourceClassName = packageName + "." + resourceTypeName;
 			String extended = Resource.class.getName();
 			Structure.ClassicStructure resourceStructure = new Structure.ClassicStructure();
-			Map<Object, Object> codeGenerationOptions = Collections.singletonMap(Structure.ElementAccessMode.class,
-					Structure.ElementAccessMode.ACCESSORS);
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
 			for (PropertyDescriptor property : properties) {
 				resourceStructure.getElements()
 						.add(property.createResourceElement(resourceClassName, property.getName()));

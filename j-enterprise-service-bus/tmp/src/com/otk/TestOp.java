@@ -1,27 +1,57 @@
 package com.otk;
 
 public class TestOp implements com.otk.jesb.operation.Operation {
-	public final java.lang.String param2;
-	public final int param3;
-	public final Param4Structure param4;
-	public final Param5Structure param5;
-	public final Param6Structure param6;
-	public final Param7Structure param7;
+	private final java.lang.String param2;
+	private final int param3;
+	private final Param4Structure param4;
+	private final Param5Structure param5;
+	private final Param6Structure param6;
+	private final Param7Structure param7;
+	private final com.otk.jesb.resource.builtin.JDBCConnection param8;
 
 	public TestOp(java.lang.String param2, int param3, Param4Structure param4, Param5Structure param5,
-			Param6Structure param6, Param7Structure param7) {
+			Param6Structure param6, Param7Structure param7, com.otk.jesb.resource.builtin.JDBCConnection param8) {
 		this.param2 = param2;
 		this.param3 = param3;
 		this.param4 = param4;
 		this.param5 = param5;
 		this.param6 = param6;
 		this.param7 = param7;
+		this.param8 = param8;
+	}
+
+	public java.lang.String getParam2() {
+		return param2;
+	}
+
+	public int getParam3() {
+		return param3;
+	}
+
+	public Param4Structure getParam4() {
+		return param4;
+	}
+
+	public Param5Structure getParam5() {
+		return param5;
+	}
+
+	public Param6Structure getParam6() {
+		return param6;
+	}
+
+	public Param7Structure getParam7() {
+		return param7;
+	}
+
+	public com.otk.jesb.resource.builtin.JDBCConnection getParam8() {
+		return param8;
 	}
 
 	@Override
 	public String toString() {
 		return "TestOp [param2=" + param2 + ", param3=" + param3 + ", param4=" + param4 + ", param5=" + param5
-				+ ", param6=" + param6 + ", param7=" + param7 + "]";
+				+ ", param6=" + param6 + ", param7=" + param7 + ", param8=" + param8 + "]";
 	}
 
 	@Override
@@ -30,27 +60,84 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 	}
 
 	public class Builder implements com.otk.jesb.operation.OperationBuilder<TestOp> {
-		public java.lang.String param2;
-		public com.otk.jesb.Variant<java.lang.Integer> param3Variant = new com.otk.jesb.Variant<java.lang.Integer>(
+		private java.lang.String param2;
+		private com.otk.jesb.Variant<java.lang.Integer> param3Variant = new com.otk.jesb.Variant<java.lang.Integer>(
 				java.lang.Integer.class);
-		public com.otk.jesb.instantiation.RootInstanceBuilder param4Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
+		private com.otk.jesb.instantiation.RootInstanceBuilder param4DynamicBuilder = new com.otk.jesb.instantiation.RootInstanceBuilder(
 				"param4Input", Param4Structure.class.getName());
-		public com.otk.jesb.instantiation.RootInstanceBuilder param5Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
+		private com.otk.jesb.instantiation.RootInstanceBuilder param5DynamicBuilder = new com.otk.jesb.instantiation.RootInstanceBuilder(
 				"param5Input", new Param5InputClassNameAccessor() {
 				});
-		public Param6Structure.GroupBuilder param6GroupBuilder = new Param6Structure.GroupBuilder();
-		public com.otk.jesb.Variant<Param7Structure> param7Variant = new com.otk.jesb.Variant<Param7Structure>(
+		private Param6Structure.GroupBuilder param6GroupBuilder = new Param6Structure.GroupBuilder();
+		private com.otk.jesb.Variant<Param7Structure> param7Variant = new com.otk.jesb.Variant<Param7Structure>(
 				Param7Structure.class, Param7Structure.ITEM1);
+		private com.otk.jesb.Reference<com.otk.jesb.resource.builtin.JDBCConnection> param8;
 
 		public Builder() {
 
 		}
 
+		public java.lang.String getParam2() {
+			return param2;
+		}
+
+		public void setParam2(java.lang.String param2) {
+			this.param2 = param2;
+		}
+
+		public com.otk.jesb.Variant<java.lang.Integer> getParam3Variant() {
+			return param3Variant;
+		}
+
+		public void setParam3Variant(com.otk.jesb.Variant<java.lang.Integer> param3Variant) {
+			this.param3Variant = param3Variant;
+		}
+
+		public com.otk.jesb.instantiation.RootInstanceBuilder getParam4DynamicBuilder() {
+			return param4DynamicBuilder;
+		}
+
+		public void setParam4DynamicBuilder(com.otk.jesb.instantiation.RootInstanceBuilder param4DynamicBuilder) {
+			this.param4DynamicBuilder = param4DynamicBuilder;
+		}
+
+		public com.otk.jesb.instantiation.RootInstanceBuilder getParam5DynamicBuilder() {
+			return param5DynamicBuilder;
+		}
+
+		public void setParam5DynamicBuilder(com.otk.jesb.instantiation.RootInstanceBuilder param5DynamicBuilder) {
+			this.param5DynamicBuilder = param5DynamicBuilder;
+		}
+
+		public Param6Structure.GroupBuilder getParam6GroupBuilder() {
+			return param6GroupBuilder;
+		}
+
+		public void setParam6GroupBuilder(Param6Structure.GroupBuilder param6GroupBuilder) {
+			this.param6GroupBuilder = param6GroupBuilder;
+		}
+
+		public com.otk.jesb.Variant<Param7Structure> getParam7Variant() {
+			return param7Variant;
+		}
+
+		public void setParam7Variant(com.otk.jesb.Variant<Param7Structure> param7Variant) {
+			this.param7Variant = param7Variant;
+		}
+
+		public com.otk.jesb.Reference<com.otk.jesb.resource.builtin.JDBCConnection> getParam8() {
+			return param8;
+		}
+
+		public void setParam8(com.otk.jesb.Reference<com.otk.jesb.resource.builtin.JDBCConnection> param8) {
+			this.param8 = param8;
+		}
+
 		@Override
 		public String toString() {
-			return "Builder [param2=" + param2 + ", param3Variant=" + param3Variant + ", param4Builder=" + param4Builder
-					+ ", param5Builder=" + param5Builder + ", param6GroupBuilder=" + param6GroupBuilder
-					+ ", param7Variant=" + param7Variant + "]";
+			return "Builder [param2=" + param2 + ", param3Variant=" + param3Variant + ", param4DynamicBuilder="
+					+ param4DynamicBuilder + ", param5DynamicBuilder=" + param5DynamicBuilder + ", param6GroupBuilder="
+					+ param6GroupBuilder + ", param7Variant=" + param7Variant + ", param8=" + param8 + "]";
 		}
 
 		@Override
@@ -58,15 +145,16 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 				com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
 			java.lang.String param2 = this.param2;
 			int param3 = this.param3Variant.getValue();
-			Param4Structure param4 = (Param4Structure) this.param4Builder
+			Param4Structure param4 = (Param4Structure) this.param4DynamicBuilder
 					.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			Param5Structure param5 = (Param5Structure) this.param5Builder
+			Param5Structure param5 = (Param5Structure) this.param5DynamicBuilder
 					.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 			Param6Structure param6 = this.param6GroupBuilder.build(context, executionInspector);
 			Param7Structure param7 = this.param7Variant.getValue();
-			return new TestOp(param2, param3, param4, param5, param6, param7);
+			com.otk.jesb.resource.builtin.JDBCConnection param8 = this.param8.resolve();
+			return new TestOp(param2, param3, param4, param5, param6, param7, param8);
 		}
 
 		@Override
@@ -232,10 +320,10 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 	}
 
 	static public class Param6Structure {
-		public final java.lang.Byte subParam1;
-		public final com.otk.jesb.meta.Date subParam2;
-		public final Param6StructureSubParam3Structure subParam3;
-		public final Param6StructureSubParam4Structure subParam4;
+		private final java.lang.Byte subParam1;
+		private final com.otk.jesb.meta.Date subParam2;
+		private final Param6StructureSubParam3Structure subParam3;
+		private final Param6StructureSubParam4Structure subParam4;
 
 		public Param6Structure(java.lang.Byte subParam1, com.otk.jesb.meta.Date subParam2,
 				Param6StructureSubParam3Structure subParam3, Param6StructureSubParam4Structure subParam4) {
@@ -245,6 +333,22 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 			this.subParam4 = subParam4;
 		}
 
+		public java.lang.Byte getSubParam1() {
+			return subParam1;
+		}
+
+		public com.otk.jesb.meta.Date getSubParam2() {
+			return subParam2;
+		}
+
+		public Param6StructureSubParam3Structure getSubParam3() {
+			return subParam3;
+		}
+
+		public Param6StructureSubParam4Structure getSubParam4() {
+			return subParam4;
+		}
+
 		@Override
 		public String toString() {
 			return "Param6Structure [subParam1=" + subParam1 + ", subParam2=" + subParam2 + ", subParam3=" + subParam3
@@ -252,29 +356,62 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		}
 
 		static public class GroupBuilder {
-			public java.lang.Byte subParam1;
-			public com.otk.jesb.Variant<com.otk.jesb.meta.Date> subParam2Variant = new com.otk.jesb.Variant<com.otk.jesb.meta.Date>(
+			private java.lang.Byte subParam1;
+			private com.otk.jesb.Variant<com.otk.jesb.meta.Date> subParam2Variant = new com.otk.jesb.Variant<com.otk.jesb.meta.Date>(
 					com.otk.jesb.meta.Date.class);
-			public com.otk.jesb.instantiation.RootInstanceBuilder subParam3Builder = new com.otk.jesb.instantiation.RootInstanceBuilder(
+			private com.otk.jesb.instantiation.RootInstanceBuilder subParam3DynamicBuilder = new com.otk.jesb.instantiation.RootInstanceBuilder(
 					"subParam3Input", Param6StructureSubParam3Structure.class.getName());
-			public Param6StructureSubParam4Structure.GroupBuilder subParam4GroupBuilder = new Param6StructureSubParam4Structure.GroupBuilder();
+			private Param6StructureSubParam4Structure.GroupBuilder subParam4GroupBuilder = new Param6StructureSubParam4Structure.GroupBuilder();
 
 			public GroupBuilder() {
 
 			}
 
+			public java.lang.Byte getSubParam1() {
+				return subParam1;
+			}
+
+			public void setSubParam1(java.lang.Byte subParam1) {
+				this.subParam1 = subParam1;
+			}
+
+			public com.otk.jesb.Variant<com.otk.jesb.meta.Date> getSubParam2Variant() {
+				return subParam2Variant;
+			}
+
+			public void setSubParam2Variant(com.otk.jesb.Variant<com.otk.jesb.meta.Date> subParam2Variant) {
+				this.subParam2Variant = subParam2Variant;
+			}
+
+			public com.otk.jesb.instantiation.RootInstanceBuilder getSubParam3DynamicBuilder() {
+				return subParam3DynamicBuilder;
+			}
+
+			public void setSubParam3DynamicBuilder(
+					com.otk.jesb.instantiation.RootInstanceBuilder subParam3DynamicBuilder) {
+				this.subParam3DynamicBuilder = subParam3DynamicBuilder;
+			}
+
+			public Param6StructureSubParam4Structure.GroupBuilder getSubParam4GroupBuilder() {
+				return subParam4GroupBuilder;
+			}
+
+			public void setSubParam4GroupBuilder(Param6StructureSubParam4Structure.GroupBuilder subParam4GroupBuilder) {
+				this.subParam4GroupBuilder = subParam4GroupBuilder;
+			}
+
 			@Override
 			public String toString() {
 				return "GroupBuilder [subParam1=" + subParam1 + ", subParam2Variant=" + subParam2Variant
-						+ ", subParam3Builder=" + subParam3Builder + ", subParam4GroupBuilder=" + subParam4GroupBuilder
-						+ "]";
+						+ ", subParam3DynamicBuilder=" + subParam3DynamicBuilder + ", subParam4GroupBuilder="
+						+ subParam4GroupBuilder + "]";
 			}
 
 			public Param6Structure build(com.otk.jesb.solution.Plan.ExecutionContext context,
 					com.otk.jesb.solution.Plan.ExecutionInspector executionInspector) throws Exception {
 				java.lang.Byte subParam1 = this.subParam1;
 				com.otk.jesb.meta.Date subParam2 = this.subParam2Variant.getValue();
-				Param6StructureSubParam3Structure subParam3 = (Param6StructureSubParam3Structure) this.subParam3Builder
+				Param6StructureSubParam3Structure subParam3 = (Param6StructureSubParam3Structure) this.subParam3DynamicBuilder
 						.build(new com.otk.jesb.instantiation.InstantiationContext(context.getVariables(), context
 								.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
 				Param6StructureSubParam4Structure subParam4 = this.subParam4GroupBuilder.build(context,
@@ -304,12 +441,20 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 		}
 
 		static public class Param6StructureSubParam4Structure {
-			public final java.lang.String subSubParam1;
-			public final java.lang.String subSubParam2;
+			private final java.lang.String subSubParam1;
+			private final java.lang.String subSubParam2;
 
 			public Param6StructureSubParam4Structure(java.lang.String subSubParam1, java.lang.String subSubParam2) {
 				this.subSubParam1 = subSubParam1;
 				this.subSubParam2 = subSubParam2;
+			}
+
+			public java.lang.String getSubSubParam1() {
+				return subSubParam1;
+			}
+
+			public java.lang.String getSubSubParam2() {
+				return subSubParam2;
 			}
 
 			@Override
@@ -319,11 +464,27 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 			}
 
 			static public class GroupBuilder {
-				public java.lang.String subSubParam1;
-				public java.lang.String subSubParam2;
+				private java.lang.String subSubParam1;
+				private java.lang.String subSubParam2;
 
 				public GroupBuilder() {
 
+				}
+
+				public java.lang.String getSubSubParam1() {
+					return subSubParam1;
+				}
+
+				public void setSubSubParam1(java.lang.String subSubParam1) {
+					this.subSubParam1 = subSubParam1;
+				}
+
+				public java.lang.String getSubSubParam2() {
+					return subSubParam2;
+				}
+
+				public void setSubSubParam2(java.lang.String subSubParam2) {
+					this.subSubParam2 = subSubParam2;
 				}
 
 				@Override

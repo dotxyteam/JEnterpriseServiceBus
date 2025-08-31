@@ -190,6 +190,13 @@
             <variant>true</variant>
           </nature>
         </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+        <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+          <caption>Param 8</caption>
+          <name>param8</name>
+          <nature class="com.otk.jesb.PluginBuilder$ReferenceParameterNature">
+            <assetClassName>com.otk.jesb.resource.builtin.JDBCConnection</assetClassName>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
       </parameters>
       <result>
         <concreteStructureAlternatives>
