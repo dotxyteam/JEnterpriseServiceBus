@@ -56,26 +56,58 @@ public interface TreeVisitor<T> {
 	 *         {@link VisitStatus#SUBTREE_VISIT_INTERRUPTED} or
 	 *         {@link VisitStatus#TREE_VISIT_INTERRUPTED}.
 	 */
-	public static <T> TreeVisitor.VisitStatus visitTreeFrom(T t, TreeVisitor<T> visitor,
+	public static <T> VisitStatus visitTreeFrom(T t, TreeVisitor<T> visitor,
 			Function<T, Iterable<? extends T>> childrenAccessor) {
+
 		TreeVisitor.VisitStatus finalItemVisitStatus = visitor.visitNode(t);
 		if (finalItemVisitStatus == VisitStatus.TREE_VISIT_INTERRUPTED) {
 			return VisitStatus.TREE_VISIT_INTERRUPTED;
 		}
-		if (finalItemVisitStatus != VisitStatus.SUBTREE_VISIT_INTERRUPTED) {
-			for (T child : childrenAccessor.apply(t)) {
-				VisitStatus childItemVisitStatus = visitTreeFrom(child, visitor, childrenAccessor);
+		return visitTreesFrom(childrenAccessor.apply(t), child -> visitTreeFrom(child, visitor, childrenAccessor),
+				finalItemVisitStatus);
+	}
+
+	/**
+	 * Allows you to recursively visit the provided nodes. The visit can be
+	 * interrupted depending on the successive statuses of individual visits.
+	 *
+	 * @param <T>
+	 * @param ts               The nodes to visit.
+	 * @param recursiveVisitor A function performing a recursive visit.
+	 * @param initialStatus    The initial status of the visit on which the final
+	 *                         status of the visit depends.
+	 * @return A final combination of the initial status of the visit and the
+	 *         successive statuses of the node visits.
+	 */
+	public static <T> VisitStatus visitTreesFrom(Iterable<? extends T> ts, Function<T, VisitStatus> recursiveVisitor,
+			VisitStatus initialStatus) {
+		VisitStatus result = initialStatus;
+		if (result != VisitStatus.SUBTREE_VISIT_INTERRUPTED) {
+			for (T child : ts) {
+				VisitStatus childItemVisitStatus = recursiveVisitor.apply(child);
 				if (childItemVisitStatus == VisitStatus.TREE_VISIT_INTERRUPTED) {
 					return VisitStatus.TREE_VISIT_INTERRUPTED;
 				}
-				if (childItemVisitStatus == VisitStatus.SUBTREE_VISIT_INTERRUPTED) {
-					if (finalItemVisitStatus == VisitStatus.VISIT_NOT_INTERRUPTED) {
-						finalItemVisitStatus = VisitStatus.SUBTREE_VISIT_INTERRUPTED;
-					}
-				}
+				result = combine(result, childItemVisitStatus);
 			}
 		}
-		return finalItemVisitStatus;
+		return result;
+	}
+
+	/**
+	 * @param parentStatus The initial visit status.
+	 * @param childStatus  Another visit status.
+	 * @return A combination of the given visit statues. The result cannot be "less
+	 *         interrupted" than the initial parent status.
+	 */
+	public static VisitStatus combine(VisitStatus parentStatus, VisitStatus childStatus) {
+		VisitStatus result = parentStatus;
+		if (childStatus == VisitStatus.SUBTREE_VISIT_INTERRUPTED) {
+			if (result == VisitStatus.VISIT_NOT_INTERRUPTED) {
+				result = VisitStatus.SUBTREE_VISIT_INTERRUPTED;
+			}
+		}
+		return result;
 	}
 
 }

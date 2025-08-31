@@ -15,12 +15,17 @@ import com.otk.jesb.meta.DateTime;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
+import com.otk.jesb.util.TreeVisitor.VisitStatus;
+
 import xy.reflect.ui.util.ClassUtils;
 
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
 			String additionalMethodDeclarations, Map<Object, Object> options);
+
+	public abstract TreeVisitor.VisitStatus visitElements(TreeVisitor<Element> visitor);
 
 	public abstract void validate(boolean recursively) throws ValidationError;
 
@@ -111,6 +116,12 @@ public abstract class Structure {
 					elements.stream().map((e) -> (e.generateJavaFieldConstructorStatement(className, options)))
 							.filter(Objects::nonNull).collect(Collectors.toList()),
 					"\n");
+		}
+
+		@Override
+		public TreeVisitor.VisitStatus visitElements(TreeVisitor<Element> visitor) {
+			return TreeVisitor.visitTreesFrom(elements, element -> element.visit(visitor),
+					TreeVisitor.VisitStatus.VISIT_NOT_INTERRUPTED);
 		}
 
 		@Override
@@ -246,6 +257,11 @@ public abstract class Structure {
 		}
 
 		@Override
+		public VisitStatus visitElements(TreeVisitor<Element> visitor) {
+			return VisitStatus.VISIT_NOT_INTERRUPTED;
+		}
+
+		@Override
 		public void validate(boolean recursively) throws ValidationError {
 			if (items.size() == 0) {
 				throw new ValidationError("No declared item");
@@ -368,6 +384,15 @@ public abstract class Structure {
 		}
 
 		@Override
+		public VisitStatus visitElements(TreeVisitor<Element> visitor) {
+			Structure resolvedStructure = resolve();
+			if (resolvedStructure == null) {
+				return VisitStatus.VISIT_NOT_INTERRUPTED;
+			}
+			return resolvedStructure.visitElements(visitor);
+		}
+
+		@Override
 		public void validate(boolean recursively) throws ValidationError {
 			if (modelReference == null) {
 				throw new ValidationError("Shared structure model reference not set");
@@ -410,6 +435,8 @@ public abstract class Structure {
 
 		protected abstract String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
 				Map<Object, Object> options);
+
+		protected abstract TreeVisitor.VisitStatus visit(TreeVisitor<Element> visitor);
 
 		public String getName() {
 			return name;
@@ -593,6 +620,11 @@ public abstract class Structure {
 			return base.generateJavaFieldConstructorStatement(parentClassName, options);
 		}
 
+		@Override
+		protected VisitStatus visit(TreeVisitor<Element> visitor) {
+			return base.visit(visitor);
+		}
+
 		public void validate(boolean recursively) throws ValidationError {
 			base.validate(recursively);
 		}
@@ -642,6 +674,11 @@ public abstract class Structure {
 		@Override
 		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map<Object, Object> options) {
 			return null;
+		}
+
+		@Override
+		protected VisitStatus visit(TreeVisitor<Element> visitor) {
+			return visitor.visitNode(this);
 		}
 
 	}
@@ -699,6 +736,15 @@ public abstract class Structure {
 				return;
 			}
 			((ClassicStructure) structure).setElements(elements);
+		}
+
+		@Override
+		protected VisitStatus visit(TreeVisitor<Element> visitor) {
+			VisitStatus result = visitor.visitNode(this);
+			if (structure != null) {
+				result = TreeVisitor.combine(result, structure.visitElements(visitor));
+			}
+			return result;
 		}
 
 		@Override

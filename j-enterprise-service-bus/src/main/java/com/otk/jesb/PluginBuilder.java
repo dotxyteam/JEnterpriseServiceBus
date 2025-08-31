@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.Structure.Element;
 import com.otk.jesb.Structure.ElementProxy;
 import com.otk.jesb.Structure.EnumerationStructure;
+import com.otk.jesb.Structure.SharedStructureReference;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.Structure.StructuredElement;
 import com.otk.jesb.activation.ActivationHandler;
@@ -40,6 +41,7 @@ import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.JESBReflectionUI;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.util.ClassUtils;
@@ -50,7 +52,7 @@ public class PluginBuilder {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				GUI.INSTANCE.openObjectDialog(null, new PluginBuilder());
+				GUI.INSTANCE.openObjectFrame(new PluginBuilder());
 			}
 		});
 	}
@@ -92,6 +94,21 @@ public class PluginBuilder {
 		this.activators = activators;
 	}
 
+	public void generateProjectFiles(File outputDirectory) throws IOException {
+		MiscUtils.delete(outputDirectory);
+		File sourceDirectroy = new File(outputDirectory, "src/main/java");
+		MiscUtils.createDirectory(sourceDirectroy, true);
+		for (OperationDescriptor operation : operations) {
+			operation.generateJavaSourceCode(sourceDirectroy, packageName);
+		}
+		for (ActivatorDescriptor activator : activators) {
+			activator.generateJavaSourceCode(sourceDirectroy, packageName);
+		}
+		for (ResourceDescriptor resource : resources) {
+			resource.generateJavaSourceCode(sourceDirectroy, packageName);
+		}
+	}
+
 	public void save(File file) throws IOException {
 		try (FileOutputStream output = new FileOutputStream(file)) {
 			MiscUtils.serialize(this, output);
@@ -105,6 +122,39 @@ public class PluginBuilder {
 			this.operations = loaded.operations;
 			this.activators = loaded.activators;
 			this.resources = loaded.resources;
+		}
+	}
+
+	public void validate() throws ValidationError {
+		if ((packageName == null) || packageName.isEmpty()) {
+			throw new ValidationError("Package name not provided");
+		}
+		for (OperationDescriptor operation : operations) {
+			operation.validate();
+		}
+		for (ActivatorDescriptor activator : activators) {
+			activator.validate();
+		}
+		for (ResourceDescriptor resource : resources) {
+			resource.validate();
+		}
+	}
+
+	public static void validateStructure(Structure structure) throws ValidationError {
+		try {
+			structure.visitElements(new TreeVisitor<Structure.Element>() {
+				@Override
+				public VisitStatus visitNode(Element element) {
+					if (element instanceof StructuredElement) {
+						if (((StructuredElement) element).getStructure() instanceof SharedStructureReference) {
+							throw new IllegalStateException("Shared structure reference not allowed here");
+						}
+					}
+					return VisitStatus.VISIT_NOT_INTERRUPTED;
+				}
+			});
+		} catch (IllegalStateException e) {
+			throw new ValidationError(e.getMessage());
 		}
 	}
 
@@ -345,6 +395,15 @@ public class PluginBuilder {
 			return "";
 		}
 
+		public void validate() throws ValidationError {
+			if ((opertionTypeName == null) || opertionTypeName.isEmpty()) {
+				throw new ValidationError("Operation class name not provided");
+			}
+			for (ParameterDescriptor parameter : parameters) {
+				parameter.validate();
+			}
+		}
+
 	}
 
 	public static class ParameterDescriptor {
@@ -421,8 +480,11 @@ public class PluginBuilder {
 			return targetVariableName + " = " + nature.generateBuildExpression(operationClassName, name, options) + ";";
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			nature.validate(recursively);
+		public void validate() throws ValidationError {
+			if ((name == null) || name.isEmpty()) {
+				throw new ValidationError("Parameter name not provided");
+			}
+			nature.validate();
 		}
 
 	}
@@ -480,6 +542,15 @@ public class PluginBuilder {
 			};
 		}
 
+		public void validate() throws ValidationError {
+			structure.validate(true);
+			PluginBuilder.validateStructure(structure);
+			if (concreteStructureAlternatives != null) {
+				for (StructureDerivationAlternative alternative : concreteStructureAlternatives) {
+					alternative.validate();
+				}
+			}
+		}
 	}
 
 	public static abstract class ParameterNature {
@@ -494,7 +565,7 @@ public class PluginBuilder {
 		protected abstract String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options);
 
-		public abstract void validate(boolean recursively) throws ValidationError;
+		public abstract void validate() throws ValidationError;
 	}
 
 	public static class SimpleParameterNature extends ParameterNature {
@@ -600,8 +671,8 @@ public class PluginBuilder {
 			return null;
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			internalElement.validate(recursively);
+		public void validate() throws ValidationError {
+			internalElement.validate(true);
 		}
 	}
 
@@ -656,10 +727,9 @@ public class PluginBuilder {
 			return null;
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
+		public void validate() throws ValidationError {
 			if (!getAssetClassNameOptions().contains(assetClassName)) {
-				throw new ValidationError("Invalid referenced asset class name: '" + assetClassName
-						+ "'. Expected 1 of " + getAssetClassNameOptions());
+				throw new ValidationError("Invalid referenced asset class name: '" + assetClassName + "'");
 			}
 		}
 
@@ -751,8 +821,9 @@ public class PluginBuilder {
 					.generateBuildExpression(operationClassName, parameterName, options);
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			structure.validate(recursively);
+		public void validate() throws ValidationError {
+			structure.validate(true);
+			PluginBuilder.validateStructure(structure);
 		}
 
 	}
@@ -887,9 +958,9 @@ public class PluginBuilder {
 			return null;
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
+		public void validate() throws ValidationError {
 			for (ParameterDescriptor parameter : getParameters()) {
-				parameter.validate(recursively);
+				parameter.validate();
 			}
 
 		}
@@ -1026,8 +1097,9 @@ public class PluginBuilder {
 			return null;
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			structure.validate(recursively);
+		public void validate() throws ValidationError {
+			structure.validate(true);
+			PluginBuilder.validateStructure(structure);
 		}
 	}
 
@@ -1089,6 +1161,17 @@ public class PluginBuilder {
 
 			};
 		}
+
+		public void validate() throws ValidationError {
+			if ((alternativeName == null) || alternativeName.isEmpty()) {
+				throw new ValidationError("Structure alternative name not provided");
+			}
+			if ((condition == null) || condition.isEmpty()) {
+				throw new ValidationError("Structure alternative condition not provided");
+			}
+			structureDerivation.validate(true);
+		}
+
 	}
 
 	public static class ResourceDescriptor {
@@ -1209,6 +1292,14 @@ public class PluginBuilder {
 			return result.toString();
 		}
 
+		public void validate() throws ValidationError {
+			if ((resourceTypeName == null) || resourceTypeName.isEmpty()) {
+				throw new ValidationError("Resource class name not provided");
+			}
+			for (PropertyDescriptor property : properties) {
+				property.validate();
+			}
+		}
 	}
 
 	public static class PropertyDescriptor {
@@ -1245,15 +1336,18 @@ public class PluginBuilder {
 			return nature.getResourceClassElement(resourceClassName, propertyName);
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			nature.validate(recursively);
+		public void validate() throws ValidationError {
+			if ((name == null) || name.isEmpty()) {
+				throw new ValidationError("Property name not provided");
+			}
+			nature.validate();
 		}
 
 	}
 
 	public abstract static class PropertyNature {
 
-		protected abstract void validate(boolean recursively) throws ValidationError;
+		protected abstract void validate() throws ValidationError;
 
 		protected abstract Element getResourceClassElement(String resourceClassName, String propertyName);
 
@@ -1297,8 +1391,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1348,8 +1442,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1387,8 +1481,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1422,8 +1516,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 	}
 
@@ -1436,7 +1530,6 @@ public class PluginBuilder {
 		private ClassOptionDescriptor inputClassOption;
 		private ClassOptionDescriptor outputClassOption;
 		private String validationMethodBody;
-		private boolean activationAutomaticallyTriggerable = true;
 		private String handlerInitializationStatements;
 		private String handlerFinalizationStatements;
 
@@ -1454,14 +1547,6 @@ public class PluginBuilder {
 
 		public void setActivatorTypeCaption(String activatorTypeCaption) {
 			this.activatorTypeCaption = activatorTypeCaption;
-		}
-
-		public boolean isActivationAutomaticallyTriggerable() {
-			return activationAutomaticallyTriggerable;
-		}
-
-		public void setActivationAutomaticallyTriggerable(boolean activationAutomaticallyTriggerable) {
-			this.activationAutomaticallyTriggerable = activationAutomaticallyTriggerable;
 		}
 
 		public String getHandlerInitializationStatements() {
@@ -1570,7 +1655,7 @@ public class PluginBuilder {
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public boolean isAutomaticallyTriggerable() {\n");
-				additionalMethodDeclarations.append("return " + activationAutomaticallyTriggerable + ";\n");
+				additionalMethodDeclarations.append("return true;\n");
 				additionalMethodDeclarations.append("}");
 			}
 			{
@@ -1655,6 +1740,14 @@ public class PluginBuilder {
 			return result.toString();
 		}
 
+		public void validate() throws ValidationError {
+			if ((activatorTypeName == null) || activatorTypeName.isEmpty()) {
+				throw new ValidationError("Activator class name not provided");
+			}
+			for (AttributeDescriptor attribute : attributes) {
+				attribute.validate();
+			}
+		}
 	}
 
 	public static class AttributeDescriptor {
@@ -1691,15 +1784,18 @@ public class PluginBuilder {
 			return nature.getActivatorClassElement(activatorClassName, attributeName);
 		}
 
-		public void validate(boolean recursively) throws ValidationError {
-			nature.validate(recursively);
+		public void validate() throws ValidationError {
+			if ((name == null) || name.isEmpty()) {
+				throw new ValidationError("Attribute name not provided");
+			}
+			nature.validate();
 		}
 
 	}
 
 	public abstract static class AttributeNature {
 
-		protected abstract void validate(boolean recursively) throws ValidationError;
+		protected abstract void validate() throws ValidationError;
 
 		protected abstract Element getActivatorClassElement(String activatorClassName, String attributeName);
 	}
@@ -1742,8 +1838,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1793,8 +1889,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1832,8 +1928,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 
 	}
@@ -1867,8 +1963,8 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void validate(boolean recursively) throws ValidationError {
-			internalParameterNature.validate(recursively);
+		protected void validate() throws ValidationError {
+			internalParameterNature.validate();
 		}
 	}
 
