@@ -37,7 +37,10 @@ public class Solution {
 
 	private Folder rootFolder = new Folder("rootFolder");
 	private EnvironmentSettings environmentSettings = new EnvironmentSettings();
-	private Experiment defualtExperiment = new Experiment(new Evaluate.Builder());
+	private com.otk.jesb.operation.Experiment defualtOperationExperiment = new com.otk.jesb.operation.Experiment(
+			new Evaluate.Builder());
+	private com.otk.jesb.activation.Experiment defualtActivationExperiment = new com.otk.jesb.activation.Experiment(
+			com.otk.jesb.activation.Experiment.getActivatorOptions().get(0));
 	private List<JAR> requiredJARs = new ArrayList<JAR>();
 
 	public List<JAR> getRequiredJARs() {
@@ -65,12 +68,21 @@ public class Solution {
 	}
 
 	@Transient
-	public Experiment getDefualtExperiment() {
-		return defualtExperiment;
+	public com.otk.jesb.operation.Experiment getDefualtOperationExperiment() {
+		return defualtOperationExperiment;
 	}
 
-	public void setDefualtExperiment(Experiment defualtExperiment) {
-		this.defualtExperiment = defualtExperiment;
+	public void setDefualtOperationExperiment(com.otk.jesb.operation.Experiment defualtOperationExperiment) {
+		this.defualtOperationExperiment = defualtOperationExperiment;
+	}
+
+	@Transient
+	public com.otk.jesb.activation.Experiment getDefualtActivationExperiment() {
+		return defualtActivationExperiment;
+	}
+
+	public void setDefualtActivationExperiment(com.otk.jesb.activation.Experiment defualtActivationExperiment) {
+		this.defualtActivationExperiment = defualtActivationExperiment;
 	}
 
 	public void visitContents(AssetVisitor assetVisitor) {

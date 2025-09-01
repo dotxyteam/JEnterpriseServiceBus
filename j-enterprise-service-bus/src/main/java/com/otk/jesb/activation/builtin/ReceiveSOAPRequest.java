@@ -147,7 +147,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public Class<?> getInputClass() {
-		WSDL.OperationDescriptor operation = expectOperationDescriptor();
+		WSDL.OperationDescriptor operation;
+		try {
+			operation = expectOperationDescriptor();
+		} catch (IllegalStateException e) {
+			return null;
+		}
 		if (operation == null) {
 			return null;
 		}
@@ -156,7 +161,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public Class<?> getOutputClass() {
-		WSDL.OperationDescriptor operation = expectOperationDescriptor();
+		WSDL.OperationDescriptor operation;
+		try {
+			operation = expectOperationDescriptor();
+		} catch (IllegalStateException e) {
+			return null;
+		}
 		if (operation == null) {
 			return null;
 		}
