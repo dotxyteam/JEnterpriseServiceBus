@@ -103,9 +103,9 @@ public class InMemoryCompiler {
 			List<JavaFileObject> files = collectSourceFiles(compilationIdentifier, sourceDirectory, null);
 			compile(compilationIdentifier, files.toArray(new JavaFileObject[files.size()]));
 			return files.stream().map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).getClassIdentifier()))
-					.collect(Collectors.toList()).stream().map(l -> {
+					.collect(Collectors.toList()).stream().map(classLoader -> {
 						try {
-							return l.loadClass(l.getMainClassIdentifier().className);
+							return classLoader.loadClass(classLoader.getMainClassIdentifier().className);
 						} catch (ClassNotFoundException e) {
 							throw new UnexpectedError(e);
 						}

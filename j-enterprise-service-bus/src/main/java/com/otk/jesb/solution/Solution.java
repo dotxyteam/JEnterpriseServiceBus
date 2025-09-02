@@ -257,17 +257,18 @@ public class Solution {
 			setupRequiredJARsLoading(getRequiredJARs());
 		}
 
+		private void setupRequiredJARsLoading(List<JAR> jars) {
+			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
+					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
+							Solution.class.getClassLoader()));
+		}
+
 		@Override
 		public void setRequiredJARs(List<JAR> jars) {
 			super.setRequiredJARs(jars);
 			setupRequiredJARsLoading(jars);
 		}
 
-		void setupRequiredJARsLoading(List<JAR> jars) {
-			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
-					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
-							Solution.class.getClassLoader()));
-		}
 	}
 
 }

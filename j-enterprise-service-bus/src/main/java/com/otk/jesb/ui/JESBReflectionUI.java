@@ -18,6 +18,7 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
+import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
@@ -151,7 +152,7 @@ import xy.reflect.ui.util.ValidationErrorRegistry;
 
 public class JESBReflectionUI extends CustomizedUI {
 
-	public static final List<OperationMetadata<?>> OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
+	public static final List<OperationMetadata<?>> BUILTIN_OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
 			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
 			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
 			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
@@ -159,14 +160,15 @@ public class JESBReflectionUI extends CustomizedUI {
 			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
 			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
 			new CallSOAPWebService.Metadata());
-	public static final List<OperationMetadata<?>> COMPOSITE_METADATAS = Arrays
+	public static final List<OperationMetadata<?>> BUILTIN_COMPOSITE_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
-	public static final List<ResourceMetadata> RESOURCE_METADATAS = Arrays.asList(new SharedStructureModel.Metadata(),
-			new JDBCConnection.Metadata(), new XSD.Metadata(), new OpenAPIDescription.Metadata(), new WSDL.Metadata(),
-			new HTTPServer.Metadata());
-	public static final List<ActivatorMetadata> ACTIVATOR__METADATAS = Arrays.asList(new LaunchAtStartup.Metadata(),
-			new Operate.Metadata(), new WatchFileSystem.Metadata(), new ReceiveRESTRequest.Metadata(),
-			new ReceiveSOAPRequest.Metadata());
+	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
+			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),
+			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
+	public static final List<ActivatorMetadata> BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(
+			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new WatchFileSystem.Metadata(),
+			new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
+
 	private static final String CURRENT_ASSET_KEY = JESBReflectionUI.class.getName() + ".CURRENT_VALIDATION_ASSET_KEY";
 	private static final String CURRENT_PLAN_ELEMENT_KEY = JESBReflectionUI.class.getName()
 			+ ".CURRENT_VALIDATION_PLAN_ELEMENT_KEY";
@@ -186,6 +188,27 @@ public class JESBReflectionUI extends CustomizedUI {
 	private boolean focusTrackingDisabled = false;
 	private List<Pair<ITypeInfo, Object>> lostFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
 	private List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+
+	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
+		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
+		result.addAll(BUILTIN_OPERATION_METADATAS);
+		result.addAll(PluginBuilder.TEST_OPERATION_METADATAS);
+		return result;
+	}
+
+	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
+		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
+		result.addAll(BUILTIN_ACTIVATOR__METADATAS);
+		result.addAll(PluginBuilder.TEST_ACTIVATOR__METADATAS);
+		return result;
+	}
+
+	public static List<ResourceMetadata> getAllResourceMetadatas() {
+		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
+		result.addAll(BUILTIN_RESOURCE_METADATAS);
+		result.addAll(PluginBuilder.TEST_RESOURCE_METADATAS);
+		return result;
+	}
 
 	public boolean isFocusTrackingDisabled() {
 		return focusTrackingDisabled;
@@ -1478,20 +1501,20 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
 				if (type.getName().equals(OperationBuilder.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
+					for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
 						result.add(getTypeInfo(
 								new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 					}
 					return result;
 				} else if (type.getName().equals(Resource.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
+					for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
 						result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 					}
 					return result;
 				} else if (type.getName().equals(Activator.class.getName())) {
 					List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-					for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+					for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
 						result.add(getTypeInfo(new JavaTypeInfoSource(activatorMetadata.getActivatorClass(), null)));
 					}
 					return result;
@@ -1505,17 +1528,17 @@ public class JESBReflectionUI extends CustomizedUI {
 				if (type.getName().equals(ReflectionUIError.class.getName())) {
 					return "Error";
 				}
-				for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
+				for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
 					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 						return operationMetadata.getOperationTypeName();
 					}
 				}
-				for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
+				for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
 					if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 						return resourceMetadata.getResourceTypeName();
 					}
 				}
-				for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+				for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
 					if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 						return activatorMetadata.getActivatorName();
 					}
@@ -1525,17 +1548,17 @@ public class JESBReflectionUI extends CustomizedUI {
 
 			@Override
 			protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-				for (OperationMetadata<?> operationMetadata : OPERATION_METADATAS) {
+				for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
 					if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 						return operationMetadata.getOperationIconImagePath();
 					}
 				}
-				for (ResourceMetadata resourceMetadata : RESOURCE_METADATAS) {
+				for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
 					if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 						return resourceMetadata.getResourceIconImagePath();
 					}
 				}
-				for (ActivatorMetadata activatorMetadata : ACTIVATOR__METADATAS) {
+				for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
 					if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 						return activatorMetadata.getActivatorIconImagePath();
 					}

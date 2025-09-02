@@ -8,6 +8,8 @@ import com.otk.jesb.util.MiscUtils;
 
 public class DateTime {
 
+	private static SimpleDateFormat JAVA_UTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
 	public static final DateTime NOW;
 	static {
 		try {
@@ -16,8 +18,6 @@ public class DateTime {
 			throw new UnexpectedError(e);
 		}
 	};
-
-	private static SimpleDateFormat JAVA_UTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private final String stringRepresentation;
 

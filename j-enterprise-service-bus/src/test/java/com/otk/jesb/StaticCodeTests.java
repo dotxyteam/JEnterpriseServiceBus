@@ -25,13 +25,13 @@ public class StaticCodeTests {
 	@Test
 	public void checkFieldTypes() throws Exception{
 		List<Class<?>> classesToCheck = new ArrayList<Class<?>>();
-		classesToCheck.addAll(JESBReflectionUI.OPERATION_METADATAS.stream()
+		classesToCheck.addAll(JESBReflectionUI.BUILTIN_OPERATION_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.COMPOSITE_METADATAS.stream()
+		classesToCheck.addAll(JESBReflectionUI.BUILTIN_COMPOSITE_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
+		classesToCheck.addAll(JESBReflectionUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
 				.collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
+		classesToCheck.addAll(JESBReflectionUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
 				.collect(Collectors.toList()));
 		for (Class<?> classToCheck : classesToCheck) {
 			ITypeInfo typeInfo = ReflectionUI.getDefault().getTypeInfo(new JavaTypeInfoSource(classToCheck, null));

@@ -8,6 +8,8 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Date {
 
+	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
 	public static final Date TODAY;
 	static {
 		try {
@@ -16,8 +18,6 @@ public class Date {
 			throw new UnexpectedError(e);
 		}
 	};
-
-	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	private final String stringRepresentation;
 

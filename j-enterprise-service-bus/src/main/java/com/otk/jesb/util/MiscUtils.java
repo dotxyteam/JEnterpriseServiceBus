@@ -214,12 +214,12 @@ public class MiscUtils {
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.OPERATION_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.getAllOperationMetadatas()) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
 		}
-		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.COMPOSITE_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.BUILTIN_COMPOSITE_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}

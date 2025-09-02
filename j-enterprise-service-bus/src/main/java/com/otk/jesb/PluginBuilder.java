@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +53,24 @@ public class PluginBuilder {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				GUI.INSTANCE.openObjectFrame(new PluginBuilder());
+				GUI.INSTANCE.openObjectFrame(PluginBuilder.INSTANCE);
 			}
 		});
 	}
+
+	public static final PluginBuilder INSTANCE = new PluginBuilder();
+
+	public static final List<OperationMetadata<?>> TEST_OPERATION_METADATAS = new ArrayList<OperationMetadata<?>>();
+	public static final List<ResourceMetadata> TEST_RESOURCE_METADATAS = new ArrayList<ResourceMetadata>();
+	public static final List<ActivatorMetadata> TEST_ACTIVATOR__METADATAS = new ArrayList<ActivatorMetadata>();
 
 	private String packageName;
 	private List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();
 	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
 	private List<ActivatorDescriptor> activators = new ArrayList<ActivatorDescriptor>();
+
+	private PluginBuilder() {
+	}
 
 	public String getPackageName() {
 		return packageName;
@@ -94,10 +104,14 @@ public class PluginBuilder {
 		this.activators = activators;
 	}
 
-	public void generateProjectFiles(File outputDirectory) throws IOException {
+	public void generateProject(File outputDirectory) throws IOException {
 		MiscUtils.delete(outputDirectory);
 		File sourceDirectroy = new File(outputDirectory, "src/main/java");
 		MiscUtils.createDirectory(sourceDirectroy, true);
+		generateSources(sourceDirectroy);
+	}
+
+	private void generateSources(File sourceDirectroy) {
 		for (OperationDescriptor operation : operations) {
 			operation.generateJavaSourceCode(sourceDirectroy, packageName);
 		}
@@ -140,7 +154,42 @@ public class PluginBuilder {
 		}
 	}
 
-	public static void validateStructure(Structure structure) throws ValidationError {
+	private void prepareTesting() throws Exception {
+		File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+		generateSources(temporaryDirectory);
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		classes.addAll(MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory));
+		List<Class<?>> innerClasses = null;
+		{
+			while (true) {
+				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream()
+						.flatMap(clazz -> Arrays.stream(clazz.getClasses())).collect(Collectors.toList());
+				if (innerClasses.size() == 0) {
+					break;
+				}
+				classes.addAll(innerClasses);
+			}
+		}
+		TEST_OPERATION_METADATAS.clear();
+		TEST_ACTIVATOR__METADATAS.clear();
+		TEST_RESOURCE_METADATAS.clear();
+		for (Class<?> clazz : classes) {
+			if (OperationMetadata.class.isAssignableFrom(clazz)) {
+				TEST_OPERATION_METADATAS.add((OperationMetadata<?>) clazz.newInstance());
+				continue;
+			}
+			if (ActivatorMetadata.class.isAssignableFrom(clazz)) {
+				TEST_ACTIVATOR__METADATAS.add((ActivatorMetadata) clazz.newInstance());
+				continue;
+			}
+			if (ResourceMetadata.class.isAssignableFrom(clazz)) {
+				TEST_RESOURCE_METADATAS.add((ResourceMetadata) clazz.newInstance());
+				continue;
+			}
+		}
+	}
+
+	private static void validateStructure(Structure structure) throws ValidationError {
 		try {
 			structure.visitElements(new TreeVisitor<Structure.Element>() {
 				@Override
@@ -156,6 +205,29 @@ public class PluginBuilder {
 		} catch (IllegalStateException e) {
 			throw new ValidationError(e.getMessage());
 		}
+	}
+
+	private static Element ensureNotReadOnly(Element element) {
+		if (element.getOptionality() == null) {
+			element = new Structure.ElementProxy(element) {
+
+				String GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER = "<" + MiscUtils.getDigitalUniqueIdentifier()
+						+ ">";
+				{
+					Structure.Optionality optionality = new Structure.Optionality();
+					optionality.setDefaultValueExpression(GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER);
+					setOptionality(optionality);
+				}
+
+				@Override
+				protected String generateJavaFieldDeclaration(String parentClassName, Map<Object, Object> options) {
+					return super.generateJavaFieldDeclaration(parentClassName, options)
+							.replaceAll("\\s*=\\s*" + GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER, "");
+				}
+
+			};
+		}
+		return element;
 	}
 
 	public static class OperationDescriptor {
@@ -290,8 +362,9 @@ public class PluginBuilder {
 			additionalDeclarations.append(generateOperationResultClassMethodSourceCode(operationClassName, options));
 			additionalDeclarations
 					.append(generateOperationBuilderValidationMethodSourceCode(operationClassName, options));
-			return operationBuilderStructure.generateJavaTypeSourceCode(getOperationBuilderClassSimpleName(),
-					implemented, null, additionalDeclarations.toString(), options);
+			return "static "
+					+ operationBuilderStructure.generateJavaTypeSourceCode(getOperationBuilderClassSimpleName(),
+							implemented, null, additionalDeclarations.toString(), options);
 		}
 
 		protected String generateOperationBuilderValidationMethodSourceCode(String operationClassName,
@@ -352,7 +425,7 @@ public class PluginBuilder {
 			String operationClassSimpleName = MiscUtils.extractSimpleNameFromClassName(operationClassName);
 			String implemented = OperationMetadata.class.getName() + "<" + operationClassSimpleName + ">";
 			StringBuilder result = new StringBuilder();
-			result.append("public class " + className + " implements " + implemented + "{" + "\n");
+			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
 			{
 				result.append("@Override\n");
 				result.append("public String getOperationTypeName() {\n");
@@ -404,6 +477,14 @@ public class PluginBuilder {
 			}
 		}
 
+		public com.otk.jesb.operation.Experiment test() throws Exception {
+			PluginBuilder.INSTANCE.prepareTesting();
+			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + opertionTypeName;
+			OperationBuilder<?> operationBuilder = (OperationBuilder<?>) MiscUtils
+					.getJESBClass(fullClassName + "$Builder").newInstance();
+			return new com.otk.jesb.operation.Experiment(operationBuilder);
+		}
+
 	}
 
 	public static class ParameterDescriptor {
@@ -452,26 +533,7 @@ public class PluginBuilder {
 				}
 
 			};
-			if (result.getOptionality() == null) {
-				result = new Structure.ElementProxy(result) {
-
-					String GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER = "<"
-							+ MiscUtils.getDigitalUniqueIdentifier() + ">";
-					{
-						Structure.Optionality optionality = new Structure.Optionality();
-						optionality.setDefaultValueExpression(GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER);
-						setOptionality(optionality);
-					}
-
-					@Override
-					protected String generateJavaFieldDeclaration(String operationBuilderClassName,
-							Map<Object, Object> options) {
-						return super.generateJavaFieldDeclaration(operationClassName, options)
-								.replaceAll("\\s*=\\s*" + GHOST_DEFAULT_VALUE_EXPRESSION_TO_ENABLE_SETTER, "");
-					}
-
-				};
-			}
+			result = ensureNotReadOnly(result);
 			return result;
 		}
 
@@ -690,7 +752,7 @@ public class PluginBuilder {
 
 		public List<String> getAssetClassNameOptions() {
 			List<String> result = new ArrayList<String>();
-			result.addAll(JESBReflectionUI.RESOURCE_METADATAS.stream()
+			result.addAll(JESBReflectionUI.getAllResourceMetadatas().stream()
 					.map(metadata -> metadata.getResourceClass().getName()).collect(Collectors.toList()));
 			result.add(Plan.class.getName());
 			result.add(Folder.class.getName());
@@ -900,7 +962,7 @@ public class PluginBuilder {
 								String additionalDeclarations, Map<Object, Object> options) {
 							internalOperation.setOpertionTypeName(groupStructureClassName);
 							additionalDeclarations = ((additionalDeclarations != null) ? (additionalDeclarations + "\n")
-									: "") + "static "
+									: "")
 									+ internalOperation.generateOperationBuilderClassSourceCode(groupStructureClassName,
 											options);
 							return super.generateJavaTypeSourceCode(groupStructureClassName, additionalyImplemented,
@@ -1267,7 +1329,7 @@ public class PluginBuilder {
 			String resourceClassSimpleName = MiscUtils.extractSimpleNameFromClassName(resourceClassName);
 			String implemented = ResourceMetadata.class.getName();
 			StringBuilder result = new StringBuilder();
-			result.append("public class " + className + " implements " + implemented + "{" + "\n");
+			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
 			{
 				result.append("@Override\n");
 				result.append("public String getResourceTypeName() {\n");
@@ -1299,6 +1361,13 @@ public class PluginBuilder {
 			for (PropertyDescriptor property : properties) {
 				property.validate();
 			}
+		}
+
+		public Resource test() throws Exception {
+			PluginBuilder.INSTANCE.prepareTesting();
+			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + resourceTypeName;
+			Resource resource = (Resource) MiscUtils.getJESBClass(fullClassName).newInstance();
+			return resource;
 		}
 	}
 
@@ -1333,7 +1402,7 @@ public class PluginBuilder {
 		}
 
 		public Element getResourceClassElement(String resourceClassName, String propertyName) {
-			return nature.getResourceClassElement(resourceClassName, propertyName);
+			return ensureNotReadOnly(nature.getResourceClassElement(resourceClassName, propertyName));
 		}
 
 		public void validate() throws ValidationError {
@@ -1715,7 +1784,7 @@ public class PluginBuilder {
 			String activatorClassSimpleName = MiscUtils.extractSimpleNameFromClassName(resourceClassName);
 			String implemented = ActivatorMetadata.class.getName();
 			StringBuilder result = new StringBuilder();
-			result.append("public class " + className + " implements " + implemented + "{" + "\n");
+			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
 			{
 				result.append("@Override\n");
 				result.append("public String getActivatorName() {\n");
@@ -1747,6 +1816,13 @@ public class PluginBuilder {
 			for (AttributeDescriptor attribute : attributes) {
 				attribute.validate();
 			}
+		}
+
+		public com.otk.jesb.activation.Experiment test() throws Exception {
+			PluginBuilder.INSTANCE.prepareTesting();
+			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + activatorTypeName;
+			Activator activator = (Activator) MiscUtils.getJESBClass(fullClassName).newInstance();
+			return new com.otk.jesb.activation.Experiment(activator);
 		}
 	}
 
@@ -1781,7 +1857,7 @@ public class PluginBuilder {
 		}
 
 		public Element getActivatorClassElement(String activatorClassName, String attributeName) {
-			return nature.getActivatorClassElement(activatorClassName, attributeName);
+			return ensureNotReadOnly(nature.getActivatorClassElement(activatorClassName, attributeName));
 		}
 
 		public void validate() throws ValidationError {

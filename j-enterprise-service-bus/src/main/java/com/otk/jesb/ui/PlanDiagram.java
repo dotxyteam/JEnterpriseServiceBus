@@ -360,7 +360,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata<?> metadata : JESBReflectionUI.OPERATION_METADATAS) {
+				for (OperationMetadata<?> metadata : JESBReflectionUI.getAllOperationMetadatas()) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -377,7 +377,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (OperationMetadata<?> metadata : JESBReflectionUI.OPERATION_METADATAS) {
+							for (OperationMetadata<?> metadata : JESBReflectionUI.getAllOperationMetadatas()) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override

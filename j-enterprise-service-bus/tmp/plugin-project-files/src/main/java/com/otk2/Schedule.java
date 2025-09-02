@@ -1,11 +1,11 @@
-package com.otk;
+package com.otk2;
 public class Schedule extends com.otk.jesb.activation.Activator{
 private com.otk.jesb.Variant<com.otk.jesb.meta.DateTime> momentVariant=new com.otk.jesb.Variant<com.otk.jesb.meta.DateTime>(com.otk.jesb.meta.DateTime.class, com.otk.jesb.meta.DateTime.NOW);
 private com.otk.jesb.Variant<java.lang.Boolean> repeatingVariant=new com.otk.jesb.Variant<java.lang.Boolean>(java.lang.Boolean.class, false);
 private RepetitionSettingsStructure.GroupBuilder repetitionSettingsGroupBuilder=new RepetitionSettingsStructure.GroupBuilder();
-private final com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference;
-public Schedule(com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference){
-this.referenceReference=referenceReference;
+private com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference;
+public Schedule(){
+
 }
 public com.otk.jesb.Variant<com.otk.jesb.meta.DateTime> getMomentVariant() {
 return momentVariant;
@@ -30,6 +30,9 @@ this.repetitionSettingsGroupBuilder = repetitionSettingsGroupBuilder;
 
 public com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> getReferenceReference() {
 return referenceReference;
+}
+public void setReferenceReference(com.otk.jesb.Reference<com.otk.jesb.resource.builtin.SharedStructureModel> referenceReference) {
+this.referenceReference = referenceReference;
 }
 
 @Override
