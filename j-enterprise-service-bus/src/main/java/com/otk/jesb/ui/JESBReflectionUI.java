@@ -882,7 +882,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 												@Override
 												public String getCaption() {
-													return ReflectionUIUtils.identifierToCaption(getName());
+													return "Show Stack Trace";
 												}
 
 												@Override
@@ -893,6 +893,11 @@ public class JESBReflectionUI extends CustomizedUI {
 												@Override
 												public boolean isGetOnly() {
 													return true;
+												}
+
+												@Override
+												public boolean isEnabled() {
+													return selection.size() == 1;
 												}
 
 												@Override
@@ -909,6 +914,54 @@ public class JESBReflectionUI extends CustomizedUI {
 												@Override
 												public DisplayMode getDisplayMode() {
 													return DisplayMode.CONTEXT_MENU;
+												}
+											});
+											return result;
+										}
+
+										@Override
+										public List<IDynamicListAction> getDynamicActions(
+												List<? extends ItemPosition> selection,
+												Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
+											List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
+													super.getDynamicActions(selection,
+															listModificationFactoryAccessor));
+											result.add(new DynamicListActionProxy(
+													IDynamicListAction.NULL_DYNAMIC_LIST_ACTION) {
+												@Override
+												public String getSignature() {
+													return ReflectionUIUtils.buildMethodSignature(this);
+												}
+
+												@Override
+												public String getName() {
+													return "printStackTrace";
+												}
+
+												@Override
+												public String getCaption() {
+													return "Print Stack Trace";
+												}
+
+												@Override
+												public ITypeInfo getReturnValueType() {
+													return null;
+												}
+
+												@Override
+												public boolean isEnabled(Object object) {
+													return selection.size() == 1;
+												}
+
+												@Override
+												public DisplayMode getDisplayMode() {
+													return DisplayMode.CONTEXT_MENU;
+												}
+
+												@Override
+												public Object invoke(Object object, InvocationData invocationData) {
+													((Throwable) selection.get(0).getItem()).printStackTrace();
+													return null;
 												}
 											});
 											return result;
@@ -941,9 +994,6 @@ public class JESBReflectionUI extends CustomizedUI {
 
 														@Override
 														public IMethodInfo apply(IMethodInfo method) {
-															if (method.getName().equals("showStackTrace")) {
-																method = null;
-															}
 															return method;
 														}
 
@@ -1419,40 +1469,6 @@ public class JESBReflectionUI extends CustomizedUI {
 						}
 					});
 					return result;
-				} else if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
-					List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
-					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
-
-						@Override
-						public String getSignature() {
-							return ReflectionUIUtils.buildMethodSignature(this);
-						}
-
-						@Override
-						public String getName() {
-							return "showStackTrace";
-						}
-
-						@Override
-						public String getCaption() {
-							return "Stack Trace";
-						}
-
-						@Override
-						public ITypeInfo getReturnValueType() {
-							return getTypeInfo(new JavaTypeInfoSource(StackTraceElement[].class, null));
-						}
-
-						@Override
-						public Object invoke(Object object, InvocationData invocationData) {
-							if (JESB.DEBUG) {
-								((Throwable) object).printStackTrace();
-							}
-							return ((Throwable) object).getStackTrace();
-						}
-
-					});
-					return result;
 				} else {
 					return super.getMethods(type);
 				}
@@ -1605,9 +1621,8 @@ public class JESBReflectionUI extends CustomizedUI {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
-					if (getTypeInfo(new JavaTypeInfoSource(Throwable.class, null)).getMethods().stream()
-							.anyMatch(throwableMethod -> !method.getName().equals("showStackTrace")
-									&& method.getSignature().equals(throwableMethod.getSignature()))) {
+					if (getTypeInfo(new JavaTypeInfoSource(Throwable.class, null)).getMethods().stream().anyMatch(
+							throwableMethod -> method.getSignature().equals(throwableMethod.getSignature()))) {
 						return true;
 					}
 				}

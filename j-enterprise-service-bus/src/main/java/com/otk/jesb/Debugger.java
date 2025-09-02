@@ -204,7 +204,7 @@ public class Debugger extends Session {
 		}
 
 		protected void handleDeactivationError(Exception e) {
-			e.printStackTrace();			
+			e.printStackTrace();
 		}
 
 		public boolean isAutomaticTriggerReady() {
@@ -346,8 +346,22 @@ public class Debugger extends Session {
 			return currentStepCrossing;
 		}
 
+		public Object getPlanIntput() {
+			return planInput;
+		}
+
 		public Object getPlanOutput() {
 			return planOutput;
+		}
+
+		public boolean isPlanInputRelevant() {
+			if (!plan.isInputEnabled()) {
+				return false;
+			}
+			if (isActive()) {
+				return false;
+			}
+			return true;
 		}
 
 		public boolean isPlanOutputRelevant() {
@@ -391,7 +405,8 @@ public class Debugger extends Session {
 		public List<Variable> getVariables() {
 			synchronized (executionContext) {
 				return executionContext.getVariables().stream()
-						.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE)
+						.filter(variable -> !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)
+								&& (variable.getValue() != Variable.UNDEFINED_VALUE))
 						.map(variable -> new Variable() {
 
 							@Override

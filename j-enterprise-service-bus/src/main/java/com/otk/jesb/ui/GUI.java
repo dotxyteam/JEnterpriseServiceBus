@@ -534,7 +534,7 @@ public class GUI extends SwingCustomizer {
 
 	@Override
 	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
-		openObjectDialog(activatorComponent, error);
+		openObjectDialog(activatorComponent, new Throwable(null, error));
 	}
 
 }

@@ -5,20 +5,17 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Session;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.activation.builtin.LaunchAtStartup;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.ui.GUI;
-import com.otk.jesb.ui.JESBReflectionUI;
 
 public class Experiment extends Plan implements AutoCloseable {
 
@@ -26,7 +23,7 @@ public class Experiment extends Plan implements AutoCloseable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try (Experiment experiment = new Experiment(getActivatorOptions().get(0))) {
+				try (Experiment experiment = new Experiment(new WatchFileSystem())) {
 					GUI.INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
@@ -70,18 +67,6 @@ public class Experiment extends Plan implements AutoCloseable {
 
 	public Experiment(Activator activator) {
 		setActivator(activator);
-	}
-
-	public static List<Activator> getActivatorOptions() {
-		return JESBReflectionUI.ACTIVATOR__METADATAS.stream().map(metadata -> {
-			try {
-				return metadata.getActivatorClass().newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new UnexpectedError(e);
-			}
-		}).filter(
-				activator -> activator.isAutomaticallyTriggerable() && (activator.getClass() != LaunchAtStartup.class))
-				.collect(Collectors.toList());
 	}
 
 	public List<Resource> getTemporaryTestResources() {

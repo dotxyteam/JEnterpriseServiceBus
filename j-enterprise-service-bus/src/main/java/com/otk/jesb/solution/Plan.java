@@ -33,7 +33,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class Plan extends Asset {
 
-	private static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
+	public static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
 
 	public Plan() {
 	}
@@ -64,6 +64,10 @@ public class Plan extends Asset {
 
 	public void setOutputBuilder(RootInstanceBuilder outputBuilder) {
 		this.outputBuilder = outputBuilder;
+	}
+
+	public boolean isInputEnabled() {
+		return activator.getInputClass() != null;
 	}
 
 	public boolean isOutputEnabled() {

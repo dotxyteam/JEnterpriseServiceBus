@@ -25,6 +25,7 @@ import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.util.MiscUtils;
 
@@ -40,7 +41,7 @@ public class Solution {
 	private com.otk.jesb.operation.Experiment defualtOperationExperiment = new com.otk.jesb.operation.Experiment(
 			new Evaluate.Builder());
 	private com.otk.jesb.activation.Experiment defualtActivationExperiment = new com.otk.jesb.activation.Experiment(
-			com.otk.jesb.activation.Experiment.getActivatorOptions().get(0));
+			new WatchFileSystem());
 	private List<JAR> requiredJARs = new ArrayList<JAR>();
 
 	public List<JAR> getRequiredJARs() {
