@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -23,6 +21,7 @@ import java.util.stream.Stream;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
+import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
@@ -254,19 +253,17 @@ public class Solution {
 	public static class Singleton extends Solution {
 
 		private Singleton() {
-			setupRequiredJARsLoading(getRequiredJARs());
-		}
-
-		private void setupRequiredJARsLoading(List<JAR> jars) {
-			MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(
-					new URLClassLoader(jars.stream().map(JAR::getURL).toArray(length -> new URL[length]),
-							Solution.class.getClassLoader()));
+			JAR.configureSolutionDependencies(getRequiredJARs());
 		}
 
 		@Override
 		public void setRequiredJARs(List<JAR> jars) {
 			super.setRequiredJARs(jars);
-			setupRequiredJARsLoading(jars);
+			JAR.configureSolutionDependencies(jars);
+		}
+
+		public PluginBuilder accessPluginBuilder() {
+			return PluginBuilder.INSTANCE;
 		}
 
 	}

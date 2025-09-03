@@ -45,8 +45,8 @@ public class InMemoryCompiler {
 		}
 	}).getClass();
 
-	private final Map<ClassIdentifier, byte[]> classes = new HashMap<>();
-	private final Map<String, List<JavaFileObject>> packages = new HashMap<>();
+	private final Map<ClassIdentifier, byte[]> classBinaries = new HashMap<>();
+	private final Map<String, List<JavaFileObject>> packagingMap = new HashMap<>();
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
 	private Iterable<String> options = Arrays.asList("-parameters");
@@ -55,6 +55,13 @@ public class InMemoryCompiler {
 	private final Object compilationMutex = new Object();
 	private final Object classResourcesMutex = new Object();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
+
+	public byte[] getClassBinary(String className) {
+		synchronized (classResourcesMutex) {
+			return classBinaries.entrySet().stream().filter(entry -> entry.getKey().getClassName().equals(className))
+					.findFirst().map(Map.Entry::getValue).orElse(null);
+		}
+	}
 
 	public ClassLoader getCompiledClassesLoader() {
 		return compositeClassLoader;
@@ -178,7 +185,7 @@ public class InMemoryCompiler {
 				List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 				Iterable<JavaFileObject> files;
 				synchronized (classResourcesMutex) {
-					files = packages.get(pkg);
+					files = packagingMap.get(pkg);
 				}
 				if (files != null)
 					for (JavaFileObject file : files)
@@ -305,29 +312,29 @@ public class InMemoryCompiler {
 
 	private void storeClass(ClassIdentifier classIdentifier, byte[] bytes) {
 		synchronized (classResourcesMutex) {
-			if (classes.containsKey(classIdentifier)) {
+			if (classBinaries.containsKey(classIdentifier)) {
 				throw new UnexpectedError();
 			}
-			classes.put(classIdentifier, bytes);
+			classBinaries.put(classIdentifier, bytes);
 			NamedJavaFileObject file = inputFile(classIdentifier, Kind.CLASS, bytes, null);
 			int dot = classIdentifier.getClassName().lastIndexOf('.');
 			String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
-			packages.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
+			packagingMap.computeIfAbsent(pkg, k -> new ArrayList<>()).add(0, file);
 		}
 	}
 
 	private void unstoreClass(ClassIdentifier classIdentifier) {
 		synchronized (classResourcesMutex) {
-			if (!classes.containsKey(classIdentifier)) {
+			if (!classBinaries.containsKey(classIdentifier)) {
 				throw new UnexpectedError();
 			}
-			classes.remove(classIdentifier);
+			classBinaries.remove(classIdentifier);
 			int dot = classIdentifier.getClassName().lastIndexOf('.');
 			String pkg = dot == -1 ? "" : classIdentifier.getClassName().substring(0, dot);
-			packages.get(pkg)
+			packagingMap.get(pkg)
 					.removeIf(file -> ((NamedJavaFileObject) file).getClassIdentifier().equals(classIdentifier));
-			if (packages.get(pkg).size() == 0) {
-				packages.remove(pkg);
+			if (packagingMap.get(pkg).size() == 0) {
+				packagingMap.remove(pkg);
 			}
 		}
 	}
@@ -475,7 +482,8 @@ public class InMemoryCompiler {
 		protected Class<?> findClass(String className) throws ClassNotFoundException {
 			byte[] bytes;
 			synchronized (classResourcesMutex) {
-				bytes = classes.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
+				bytes = classBinaries
+						.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
 			}
 			if (bytes == null)
 				throw new ClassNotFoundException(className);

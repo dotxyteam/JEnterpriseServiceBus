@@ -2564,7 +2564,7 @@
             <uniqueIdentifier>-7637751e:19809ec588c:66f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4381</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fc7</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -3973,10 +3973,91 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-6223</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>ACTIVATOR_METADATA_CLASSES_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-6221</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:1991131be91:-6222</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-621e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>OPERATION_METADATA_CLASSES_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-621c</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:1991131be91:-621d</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-6219</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>RESOURCE_METADATA_CLASSES_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-6217</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:1991131be91:-6218</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <formWidth>
             <uniqueIdentifier>27ff0412:19901928c0d:540c</uniqueIdentifier>
             <unit>PIXELS</unit>
-            <value>800</value>
+            <value>1000</value>
         </formWidth>
         <immutableForced>false</immutableForced>
         <loadingMethodName>load</loadingMethodName>
@@ -4293,6 +4374,72 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>structure</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61fd</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>prepareTesting</methodName>
+            <methodSignature>void prepareTesting()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61fc</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>unprepareTesting</methodName>
+            <methodSignature>void unprepareTesting()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>true</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61fb</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <menuItemCategory>
+                <uniqueIdentifier>5053b6c7:19900d6d525:74bb</uniqueIdentifier>
+                <name>execution</name>
+            </menuItemCategory>
+            <methodName>generateJAR</methodName>
+            <methodSignature>void generateJAR(java.io.File)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-61fa</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-3a2815b4:1991131be91:-61f9</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>jarFile</parameterName>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -5581,7 +5728,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4380</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fc6</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -10332,7 +10479,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-437f</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7fc5</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -11455,6 +11602,276 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:199112ed6f4:76ea</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>ACTIVATOR_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:199112ed6f4:76ec</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:199112ed6f4:76eb</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:199112ed6f4:76f5</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>OPERATION_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:199112ed6f4:76f7</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:199112ed6f4:76f6</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:199112ed6f4:7700</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>RESOURCE_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:199112ed6f4:7702</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:199112ed6f4:7701</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3a2815b4:199112ed6f4:7709</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>fullName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3a2815b4:199112ed6f4:770b</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3a2815b4:199112ed6f4:770a</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:5539</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:553b</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:553a</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:553e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:5540</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:553f</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:5543</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:5545</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:5544</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:554c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_ACTIVATOR_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:554e</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:554d</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:5557</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_OPERATION_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:5559</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:5558</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:5562</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>PLUGIN_RESOURCE_METADATAS</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:5564</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:5563</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-2f4e8f3a:198a45e4533:-572f</uniqueIdentifier>
@@ -11528,6 +11945,34 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-7c5cc414:1991156b3b1:5579</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>configureSolutionDependencies</methodName>
+            <methodSignature>void configureSolutionDependencies(java.util.List)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-7c5cc414:1991156b3b1:557c</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-7c5cc414:1991156b3b1:557d</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>jars</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <typeName>com.otk.jesb.solution.JAR</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -11592,7 +12037,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-437e</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7fc4</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -13016,7 +13461,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-437d</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7fc3</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -16098,7 +16543,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-437c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fc2</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -16240,7 +16685,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-437b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fc1</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -17389,7 +17834,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-437a</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7fc0</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -19334,7 +19779,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4379</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fbf</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -19396,7 +19841,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4378</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fbe</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -19487,7 +19932,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4377</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fbd</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -19571,7 +20016,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4376</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fbc</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -19630,7 +20075,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4375</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fbb</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -20632,7 +21077,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:7219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4374</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fba</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -20747,7 +21192,7 @@
             <uniqueIdentifier>-d88499a:197e166c2ba:-3cf6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4373</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb9</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -22261,7 +22706,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-4372</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7fb8</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -22668,7 +23113,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:518d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4371</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb7</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -26370,7 +26815,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4370</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb6</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -26432,7 +26877,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436f</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb5</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -26493,7 +26938,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb4</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -27017,7 +27462,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:4a42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb3</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -30775,7 +31220,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d60</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb2</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30815,7 +31260,7 @@
             <uniqueIdentifier>-1f1a3321:1946b178a60:-7d70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb1</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -30877,7 +31322,7 @@
             <uniqueIdentifier>225bb544:1964dc172d7:9ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-436a</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fb0</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -31403,7 +31848,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:3a7e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4369</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7faf</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -31779,7 +32224,7 @@
             <uniqueIdentifier>38b55ecf:198c93dcb20:5194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4368</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fae</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -34329,7 +34774,7 @@
             <uniqueIdentifier>-2d3840e6:1941ecd0845:77c0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4367</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fad</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -34364,7 +34809,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-63a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4366</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fac</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -35182,7 +35627,7 @@
             <uniqueIdentifier>-26abd643:194b6e911ea:-7194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4365</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fab</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -36125,7 +36570,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4364</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7faa</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -36187,7 +36632,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4363</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa9</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -36222,7 +36667,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4362</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa8</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -36728,7 +37173,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4361</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa7</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -36920,7 +37365,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:-18de</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4360</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa6</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -36982,7 +37427,7 @@
             <uniqueIdentifier>-6664e96a:1974b8a7ddb:5188</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435f</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa5</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -37854,7 +38299,7 @@
             <uniqueIdentifier>-18464e28:1959c217a77:-5313</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa4</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -37915,7 +38360,7 @@
             <uniqueIdentifier>-7e3c01d6:19680a0ac94:-4647</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa3</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -37951,7 +38396,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-27a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa2</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -37985,7 +38430,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:7e7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa1</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38071,7 +38516,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:32c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-435a</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7fa0</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38106,7 +38551,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:339</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4359</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9f</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38141,7 +38586,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63b8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4358</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9e</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38179,7 +38624,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-2e33</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4357</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9d</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38214,7 +38659,7 @@
             <uniqueIdentifier>-56dd94c9:1968bf985ca:-4038</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4356</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9c</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -38366,7 +38811,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63bb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4355</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9b</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -38500,7 +38945,7 @@
             <uniqueIdentifier>-332f65a0:1947f7efd62:-757a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4354</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f9a</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -39122,7 +39567,7 @@
             <uniqueIdentifier>-6893d1df:1941efd615d:77e0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4353</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f99</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -40006,7 +40451,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4352</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f98</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -40068,7 +40513,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4351</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f97</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -40130,7 +40575,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4350</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f96</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -40165,7 +40610,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434f</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f95</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -40280,7 +40725,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f94</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -40599,7 +41044,7 @@
             <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f93</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -42391,7 +42836,7 @@
             <uniqueIdentifier>-53aac6:1980480734d:-65e3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f92</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -42480,7 +42925,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:447f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f91</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -44969,7 +45414,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:49</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-434a</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f90</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -45010,7 +45455,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:4e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4349</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8f</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -45044,7 +45489,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:57</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4348</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8e</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -45078,7 +45523,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4347</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -45113,7 +45558,7 @@
             <uniqueIdentifier>69a6204e:197e18b2500:3d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4346</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8c</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -46444,7 +46889,7 @@
             <uniqueIdentifier>68d9c596:198282cf253:4405</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4345</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -47089,7 +47534,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4761</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4344</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f8a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -47123,7 +47568,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4772</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4343</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f89</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -47164,7 +47609,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4777</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4342</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f88</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -47198,7 +47643,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:476b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4341</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f87</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -47233,7 +47678,7 @@
             <uniqueIdentifier>-4d22aa2c:197e6a580cb:4766</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4340</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f86</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -47684,7 +48129,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-7bd390d4:1990c42444a:-433f</uniqueIdentifier>
+                        <uniqueIdentifier>52f75e8b:199116cba43:-7f85</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -51456,6 +51901,28 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:199112ed6f4:-4de1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customMethodCaption>Plugin Builder</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <menu>
+                <uniqueIdentifier>57e08c1b:1981a5caebc:62b1</uniqueIdentifier>
+                <name>Tools</name>
+            </menu>
+            <methodName>accessPluginBuilder</methodName>
+            <methodSignature>com.otk.jesb.PluginBuilder accessPluginBuilder()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <savingMethodName>saveToDirectory</savingMethodName>
         <typeName>com.otk.jesb.solution.Solution$Singleton</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -54082,7 +54549,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:49f9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-433e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f84</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -54116,7 +54583,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:470f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-433d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f83</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -54175,7 +54642,7 @@
             <uniqueIdentifier>-1ccf00b9:19838dcf645:-5f70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-433c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f82</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -54263,7 +54730,7 @@
             <uniqueIdentifier>-67c7e284:1983933ccaf:461c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-433b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f81</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -55955,7 +56422,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-20f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-433a</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f80</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -56149,7 +56616,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-1fc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4339</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7f</uniqueIdentifier>
                 <caption>Parameters</caption>
                 <name>parameters</name>
             </category>
@@ -56218,7 +56685,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4338</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7e</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>result</name>
             </category>
@@ -56267,6 +56734,10 @@
         </memberCategory>
         <menuModel>
             <uniqueIdentifier>342fb1b3:198ece0f6aa:-5402</uniqueIdentifier>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-b88</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
         </menuModel>
         <methodsCustomization>
             <uniqueIdentifier>5053b6c7:19900d6d525:-1f5</uniqueIdentifier>
@@ -56346,6 +56817,28 @@
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>packageName</parameterName>
             </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61d4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customMethodCaption>Test Current Operation</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-b88</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
+            <methodName>test</methodName>
+            <methodSignature>com.otk.jesb.operation.Experiment test()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -56741,7 +57234,7 @@
             <uniqueIdentifier>-56551cd1:1984253b993:4a45</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4337</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7d</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -56775,7 +57268,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4336</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7c</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -56810,7 +57303,7 @@
             <uniqueIdentifier>-51c5c0a6:19842c5cd8e:4939</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4335</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7b</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -58357,7 +58850,7 @@
             <uniqueIdentifier>7562931c:19839434459:47ee</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4334</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f7a</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -60119,7 +60612,7 @@
             <uniqueIdentifier>5f36fd58:193939fc3b4:5cad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4333</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f79</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -60208,7 +60701,7 @@
             <uniqueIdentifier>41c06aa5:1960516d6c3:-26a0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4332</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f78</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -61793,7 +62286,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2936</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4331</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f77</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -61854,7 +62347,7 @@
             <uniqueIdentifier>-38ab5d3b:1963e0701fb:2940</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4330</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f76</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -61916,7 +62409,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3ca3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432f</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f75</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62087,7 +62580,7 @@
             <uniqueIdentifier>-66c25530:19658b1a74c:10aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f74</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62150,7 +62643,7 @@
             <uniqueIdentifier>49f00072:19658bc8a61:128b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f73</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62214,7 +62707,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f72</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62271,7 +62764,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:14b1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f71</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62324,7 +62817,7 @@
             <uniqueIdentifier>-1e8ee84e:196633a36c3:3e51</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-432a</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f70</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -62492,7 +62985,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-5d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4329</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6f</uniqueIdentifier>
                 <caption>Properties</caption>
                 <name>properties</name>
             </category>
@@ -62561,7 +63054,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-66</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4328</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6e</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -62712,53 +63205,11 @@
         </memberCategory>
         <menuModel>
             <uniqueIdentifier>3b378f63:198fbbe2855:-537c</uniqueIdentifier>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:1d6f</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
         </menuModel>
-        <methodsCustomization>
-            <uniqueIdentifier>27ff0412:19901928c0d:-56</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>validate</methodName>
-            <methodSignature>void validate()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>true</validating>
-        </methodsCustomization>
-        <methodsCustomization>
-            <uniqueIdentifier>27ff0412:19901928c0d:-55</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>iconBox</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>loadIconImage</methodName>
-            <methodSignature>void loadIconImage(java.io.File)</methodSignature>
-            <parametersCustomization>
-                <uniqueIdentifier>27ff0412:19901928c0d:-53</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>27ff0412:19901928c0d:-52</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>file</parameterName>
-            </parametersCustomization>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
         <methodsCustomization>
             <uniqueIdentifier>27ff0412:19901928c0d:-54</uniqueIdentifier>
             <specificProperties/>
@@ -62797,6 +63248,74 @@
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>27ff0412:19901928c0d:-55</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>iconBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>loadIconImage</methodName>
+            <methodSignature>void loadIconImage(java.io.File)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>27ff0412:19901928c0d:-53</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>27ff0412:19901928c0d:-52</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>file</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61b4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customMethodCaption>Test Current Resource</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:1d6f</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
+            <methodName>test</methodName>
+            <methodSignature>com.otk.jesb.resource.Resource test()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>27ff0412:19901928c0d:-56</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
         </methodsCustomization>
         <typeName>com.otk.jesb.PluginBuilder$ResourceDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -64035,7 +64554,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:5106</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4327</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6d</uniqueIdentifier>
                 <caption>Activators</caption>
                 <name>activators</name>
             </category>
@@ -64064,6 +64583,12 @@
                 </applicationCustomization>
                 <listCustomization>
                     <uniqueIdentifier>27ff0412:19901928c0d:-e1</uniqueIdentifier>
+                    <allowedItemMethodShortcut>
+                        <uniqueIdentifier>-3a2815b4:1991131be91:6f3f</uniqueIdentifier>
+                        <alwaysShown>true</alwaysShown>
+                        <displayMode>CONTEXT_MENU</displayMode>
+                        <methodSignature>com.otk.jesb.activation.Experiment test()</methodSignature>
+                    </allowedItemMethodShortcut>
                     <columnCustomization>
                         <uniqueIdentifier>27ff0412:1990199b89a:-6aa1</uniqueIdentifier>
                         <columnName>activationAutomaticallyTriggerable</columnName>
@@ -64160,7 +64685,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:51a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4326</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6c</uniqueIdentifier>
                 <caption>Operations</caption>
                 <name>operations</name>
             </category>
@@ -64189,6 +64714,12 @@
                 </applicationCustomization>
                 <listCustomization>
                     <uniqueIdentifier>5053b6c7:19900d6d525:-52ce</uniqueIdentifier>
+                    <allowedItemMethodShortcut>
+                        <uniqueIdentifier>-3a2815b4:199113991fa:-6815</uniqueIdentifier>
+                        <alwaysShown>true</alwaysShown>
+                        <displayMode>CONTEXT_MENU</displayMode>
+                        <methodSignature>com.otk.jesb.operation.Experiment test()</methodSignature>
+                    </allowedItemMethodShortcut>
                     <columnCustomization>
                         <uniqueIdentifier>5053b6c7:19900e1b21a:-6996</uniqueIdentifier>
                         <columnName>categoryName</columnName>
@@ -64265,7 +64796,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:5204</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4325</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6b</uniqueIdentifier>
                 <caption>Resources</caption>
                 <name>resources</name>
             </category>
@@ -64294,6 +64825,12 @@
                 </applicationCustomization>
                 <listCustomization>
                     <uniqueIdentifier>27ff0412:19901928c0d:-db</uniqueIdentifier>
+                    <allowedItemMethodShortcut>
+                        <uniqueIdentifier>-3a2815b4:1991131be91:46cc</uniqueIdentifier>
+                        <alwaysShown>true</alwaysShown>
+                        <displayMode>CONTEXT_MENU</displayMode>
+                        <methodSignature>com.otk.jesb.resource.Resource test()</methodSignature>
+                    </allowedItemMethodShortcut>
                     <columnCustomization>
                         <uniqueIdentifier>59851ac4:19901b9491c:99</uniqueIdentifier>
                         <columnName>iconBox</columnName>
@@ -65410,7 +65947,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-b4</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4324</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f6a</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -65444,7 +65981,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-83</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4323</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f69</uniqueIdentifier>
                 <caption>Attributes</caption>
                 <name>attributes</name>
             </category>
@@ -65513,7 +66050,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-96</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4322</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f68</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -65571,7 +66108,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4321</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f67</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -65685,7 +66222,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-af</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-4320</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f66</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -65721,7 +66258,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-431f</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f65</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -65757,7 +66294,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-8c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-431e</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f64</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -65815,7 +66352,7 @@
             <uniqueIdentifier>27ff0412:1990199b89a:33e5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-431d</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f63</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -65944,53 +66481,11 @@
         </memberCategory>
         <menuModel>
             <uniqueIdentifier>27ff0412:19901928c0d:-5148</uniqueIdentifier>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-b5f</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
         </menuModel>
-        <methodsCustomization>
-            <uniqueIdentifier>27ff0412:19901928c0d:-7c</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>validate</methodName>
-            <methodSignature>void validate()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>true</validating>
-        </methodsCustomization>
-        <methodsCustomization>
-            <uniqueIdentifier>27ff0412:19901928c0d:-7b</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>iconBox</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>loadIconImage</methodName>
-            <methodSignature>void loadIconImage(java.io.File)</methodSignature>
-            <parametersCustomization>
-                <uniqueIdentifier>27ff0412:19901928c0d:-79</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>27ff0412:19901928c0d:-78</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>file</parameterName>
-            </parametersCustomization>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
         <methodsCustomization>
             <uniqueIdentifier>27ff0412:19901928c0d:-7a</uniqueIdentifier>
             <specificProperties/>
@@ -66029,6 +66524,74 @@
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>27ff0412:19901928c0d:-7b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>iconBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>loadIconImage</methodName>
+            <methodSignature>void loadIconImage(java.io.File)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>27ff0412:19901928c0d:-79</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>27ff0412:19901928c0d:-78</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>file</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3a2815b4:1991131be91:-61c1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customMethodCaption>Test Current Activator</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <menu>
+                <uniqueIdentifier>-3a2815b4:1991131be91:-b5f</uniqueIdentifier>
+                <name>Test</name>
+            </menu>
+            <methodName>test</methodName>
+            <methodSignature>com.otk.jesb.activation.Experiment test()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>27ff0412:19901928c0d:-7c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
         </methodsCustomization>
         <typeName>com.otk.jesb.PluginBuilder$ActivatorDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -67628,7 +68191,7 @@
             <uniqueIdentifier>1de56e9d:19906e52549:-54b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-431c</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f62</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -67663,7 +68226,7 @@
             <uniqueIdentifier>1de56e9d:19906e52549:-495</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-7bd390d4:1990c42444a:-431b</uniqueIdentifier>
+                <uniqueIdentifier>52f75e8b:199116cba43:-7f61</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>

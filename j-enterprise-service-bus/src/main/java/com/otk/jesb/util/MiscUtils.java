@@ -29,9 +29,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.Expression;
 import com.otk.jesb.PotentialError;
@@ -742,6 +744,20 @@ public class MiscUtils {
 		return result;
 	}
 
+	public static <T> List<T> removed(List<T> ts, int index, T oldItem) {
+		List<T> result = new ArrayList<T>(ts);
+		if (index == -1) {
+			if (!result.remove(oldItem)) {
+				throw new NoSuchElementException();
+			}
+		} else {
+			if (!oldItem.equals(result.remove(index))) {
+				throw new NoSuchElementException();
+			}
+		}
+		return result;
+	}
+
 	public static void improveRenderingQuality(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -907,6 +923,22 @@ public class MiscUtils {
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
 		return thread;
+	}
+
+	public static List<Class<?>> expandWithEnclosedClasses(List<Class<?>> classes) {
+		classes = new ArrayList<Class<?>>(classes);
+		List<Class<?>> innerClasses = null;
+		{
+			while (true) {
+				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream()
+						.flatMap(clazz -> Arrays.stream(clazz.getDeclaredClasses())).collect(Collectors.toList());
+				if (innerClasses.size() == 0) {
+					break;
+				}
+				classes.addAll(innerClasses);
+			}
+		}
+		return classes;
 	}
 
 }

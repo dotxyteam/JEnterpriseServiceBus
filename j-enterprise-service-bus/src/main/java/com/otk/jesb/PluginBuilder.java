@@ -1,16 +1,24 @@
 package com.otk.jesb;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -37,6 +45,7 @@ import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.JESBReflectionUI;
@@ -60,14 +69,12 @@ public class PluginBuilder {
 
 	public static final PluginBuilder INSTANCE = new PluginBuilder();
 
-	public static final List<OperationMetadata<?>> TEST_OPERATION_METADATAS = new ArrayList<OperationMetadata<?>>();
-	public static final List<ResourceMetadata> TEST_RESOURCE_METADATAS = new ArrayList<ResourceMetadata>();
-	public static final List<ActivatorMetadata> TEST_ACTIVATOR__METADATAS = new ArrayList<ActivatorMetadata>();
-
 	private String packageName;
 	private List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();
 	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
 	private List<ActivatorDescriptor> activators = new ArrayList<ActivatorDescriptor>();
+
+	private JAR onlineJAR;
 
 	private PluginBuilder() {
 	}
@@ -106,9 +113,88 @@ public class PluginBuilder {
 
 	public void generateProject(File outputDirectory) throws IOException {
 		MiscUtils.delete(outputDirectory);
-		File sourceDirectroy = new File(outputDirectory, "src/main/java");
+		File sourceDirectroy = getSourceDirectory(outputDirectory);
 		MiscUtils.createDirectory(sourceDirectroy, true);
 		generateSources(sourceDirectroy);
+		File resourceDirectroy = getResourceDirectory(outputDirectory);
+		MiscUtils.createDirectory(resourceDirectroy, true);
+		generateResources(resourceDirectroy);
+	}
+
+	public void generateJAR(File jarFile) throws Exception {
+		File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+		try {
+			generateProject(temporaryDirectory);
+			List<Class<?>> classes = new ArrayList<Class<?>>();
+			classes.addAll(MiscUtils.IN_MEMORY_COMPILER.compile(getSourceDirectory(temporaryDirectory)));
+			classes = MiscUtils.expandWithEnclosedClasses(classes);
+			Manifest manifest = new Manifest();
+			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+			manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
+					classes.stream().filter(clazz -> OperationMetadata.class.isAssignableFrom(clazz))
+							.map(Class::getName).collect(Collectors.joining(",")));
+			manifest.getMainAttributes().put(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY,
+					classes.stream().filter(clazz -> ActivatorMetadata.class.isAssignableFrom(clazz))
+							.map(Class::getName).collect(Collectors.joining(",")));
+			manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY,
+					classes.stream().filter(clazz -> ResourceMetadata.class.isAssignableFrom(clazz)).map(Class::getName)
+							.collect(Collectors.joining(",")));
+			try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
+				for (Class<?> clazz : classes) {
+					String entryName = clazz.getName().replace(".", "/") + ".class";
+					JarEntry jarEntry = new JarEntry(entryName);
+					jarOutputStream.putNextEntry(jarEntry);
+					byte[] classBinary = MiscUtils.IN_MEMORY_COMPILER.getClassBinary(clazz.getName());
+					if (classBinary == null) {
+						throw new UnexpectedError();
+					}
+					jarOutputStream.write(classBinary);
+					jarOutputStream.closeEntry();
+				}
+				File resourceDirectory = getResourceDirectory(temporaryDirectory);
+				Files.walkFileTree(resourceDirectory.toPath(), new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+						String entryName = resourceDirectory.toPath().relativize(filePath).toString();
+						JarEntry jarEntry = new JarEntry(entryName);
+						jarOutputStream.putNextEntry(jarEntry);
+						jarOutputStream.write(MiscUtils.readBinary(filePath.toFile()));
+						jarOutputStream.closeEntry();
+						return super.visitFile(filePath, attrs);
+					}
+				});
+			}
+		} finally {
+			MiscUtils.delete(temporaryDirectory);
+		}
+	}
+
+	public void prepareTesting() throws Exception {
+		unprepareTesting();
+		File temporaryJarFile = MiscUtils.createTemporaryFile("jar");
+		try {
+			generateJAR(temporaryJarFile);
+			onlineJAR = new JAR(temporaryJarFile);
+			Solution.INSTANCE.setRequiredJARs(MiscUtils.added(Solution.INSTANCE.getRequiredJARs(),
+					Solution.INSTANCE.getRequiredJARs().size(), onlineJAR));
+		} finally {
+			MiscUtils.delete(temporaryJarFile);
+		}
+	}
+
+	public void unprepareTesting() throws Exception {
+		if (onlineJAR != null) {
+			Solution.INSTANCE.setRequiredJARs(MiscUtils.removed(Solution.INSTANCE.getRequiredJARs(), -1, onlineJAR));
+			onlineJAR = null;
+		}
+	}
+
+	private File getResourceDirectory(File projectDirectory) {
+		return new File(projectDirectory, "src/main/resources");
+	}
+
+	private File getSourceDirectory(File projectDirectory) {
+		return new File(projectDirectory, "src/main/java");
 	}
 
 	private void generateSources(File sourceDirectroy) {
@@ -120,6 +206,35 @@ public class PluginBuilder {
 		}
 		for (ResourceDescriptor resource : resources) {
 			resource.generateJavaSourceCode(sourceDirectroy, packageName);
+		}
+	}
+
+	private void generateResources(File resourceDirectroy) {
+		for (OperationDescriptor operation : operations) {
+			produceIcon(resourceDirectroy, operation.getOpertionTypeName(), operation.getIconImage());
+		}
+		for (ActivatorDescriptor activator : activators) {
+			produceIcon(resourceDirectroy, activator.getActivatorTypeName(), activator.getIconImage());
+		}
+		for (ResourceDescriptor resource : resources) {
+			produceIcon(resourceDirectroy, resource.getResourceTypeName(), resource.getIconImage());
+		}
+	}
+
+	private void produceIcon(File resourceDirectroy, String typeName, BufferedImage iconImage) {
+		try {
+			File iconFile = new File(resourceDirectroy, packageName.replace(".", "/") + "/" + typeName + ".png");
+			if (!iconFile.getParentFile().exists()) {
+				MiscUtils.createDirectory(iconFile.getParentFile(), true);
+			}
+			if (iconImage != null) {
+				ImageIO.write(iconImage, "png", iconFile);
+			} else {
+				MiscUtils.writeBinary(iconFile, MiscUtils.readBinary(JESB.class.getResourceAsStream("generic.png")),
+						false);
+			}
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -151,41 +266,6 @@ public class PluginBuilder {
 		}
 		for (ResourceDescriptor resource : resources) {
 			resource.validate();
-		}
-	}
-
-	private void prepareTesting() throws Exception {
-		File temporaryDirectory = MiscUtils.createTemporaryDirectory();
-		generateSources(temporaryDirectory);
-		List<Class<?>> classes = new ArrayList<Class<?>>();
-		classes.addAll(MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory));
-		List<Class<?>> innerClasses = null;
-		{
-			while (true) {
-				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream()
-						.flatMap(clazz -> Arrays.stream(clazz.getClasses())).collect(Collectors.toList());
-				if (innerClasses.size() == 0) {
-					break;
-				}
-				classes.addAll(innerClasses);
-			}
-		}
-		TEST_OPERATION_METADATAS.clear();
-		TEST_ACTIVATOR__METADATAS.clear();
-		TEST_RESOURCE_METADATAS.clear();
-		for (Class<?> clazz : classes) {
-			if (OperationMetadata.class.isAssignableFrom(clazz)) {
-				TEST_OPERATION_METADATAS.add((OperationMetadata<?>) clazz.newInstance());
-				continue;
-			}
-			if (ActivatorMetadata.class.isAssignableFrom(clazz)) {
-				TEST_ACTIVATOR__METADATAS.add((ActivatorMetadata) clazz.newInstance());
-				continue;
-			}
-			if (ResourceMetadata.class.isAssignableFrom(clazz)) {
-				TEST_RESOURCE_METADATAS.add((ResourceMetadata) clazz.newInstance());
-				continue;
-			}
 		}
 	}
 
@@ -294,7 +374,7 @@ public class PluginBuilder {
 			operationIconImageData = MiscUtils.readBinary(file);
 		}
 
-		public Image getIconImage() {
+		public BufferedImage getIconImage() {
 			if (operationIconImageData == null) {
 				return null;
 			}
@@ -1280,7 +1360,7 @@ public class PluginBuilder {
 			resourceIconImageData = MiscUtils.readBinary(file);
 		}
 
-		public Image getIconImage() {
+		public BufferedImage getIconImage() {
 			if (resourceIconImageData == null) {
 				return null;
 			}
@@ -1670,7 +1750,7 @@ public class PluginBuilder {
 			activatorIconImageData = MiscUtils.readBinary(file);
 		}
 
-		public Image getIconImage() {
+		public BufferedImage getIconImage() {
 			if (activatorIconImageData == null) {
 				return null;
 			}

@@ -1,106 +1,6 @@
 <com.otk.jesb.PluginBuilder>
-  <activators>
-    <com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
-      <activationAutomaticallyTriggerable>true</activationAutomaticallyTriggerable>
-      <activatorIconImageData class="null"/>
-      <activatorTypeCaption>Schedule</activatorTypeCaption>
-      <activatorTypeName>Schedule</activatorTypeName>
-      <attributes>
-        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>moment</caption>
-          <name>moment</name>
-          <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
-            <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
-            <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
-            <variant>true</variant>
-          </nature>
-        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>Repeat</caption>
-          <name>repeating</name>
-          <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
-            <defaultValueExpression>false</defaultValueExpression>
-            <typeNameOrAlias>boolean</typeNameOrAlias>
-            <variant>true</variant>
-          </nature>
-        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>Repetition Settings</caption>
-          <name>repetitionSettings</name>
-          <nature class="com.otk.jesb.PluginBuilder$GroupAttributeNature">
-            <parameters>
-              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
-                <caption>Period Unit</caption>
-                <name>periodUnit</name>
-                <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
-                  <defaultValueExpression>RepetitionSettingsStructurePeriodUnitStructure.MINUTES</defaultValueExpression>
-                  <structure>
-                    <items>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>MILLISECONDS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>SECONDS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>MINUTES</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>HOURS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>DAYS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>MONTHS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                      <com.otk.jesb.Structure_-EnumerationItem>
-                        <name>YEARS</name>
-                      </com.otk.jesb.Structure_-EnumerationItem>
-                    </items>
-                  </structure>
-                  <variant>true</variant>
-                </nature>
-              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
-              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
-                <caption>Period</caption>
-                <name>period</name>
-                <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
-                  <defaultValueExpression>1l</defaultValueExpression>
-                  <typeNameOrAlias>long</typeNameOrAlias>
-                  <variant>true</variant>
-                </nature>
-              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
-            </parameters>
-          </nature>
-        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>Referennce</caption>
-          <name>reference</name>
-          <nature class="com.otk.jesb.PluginBuilder$ReferenceAttributeNature">
-            <assetClassName>com.otk.jesb.resource.builtin.SharedStructureModel</assetClassName>
-          </nature>
-        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-      </attributes>
-      <handlerFinalizationStatements class="null"/>
-      <handlerInitializationStatements class="null"/>
-      <inputClassOption>
-        <concreteStructureAlternatives class="null"/>
-        <structure class="com.otk.jesb.Structure$ClassicStructure">
-          <elements>
-            <com.otk.jesb.Structure_-SimpleElement>
-              <multiple>false</multiple>
-              <name>activationMoment</name>
-              <optionality class="null"/>
-              <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
-            </com.otk.jesb.Structure_-SimpleElement>
-          </elements>
-        </structure>
-      </inputClassOption>
-      <outputClassOption class="null"/>
-      <validationMethodBody class="null"/>
-    </com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
-  </activators>
+  <packageName>com.otk3</packageName>
+  <resources/>
   <operations>
     <com.otk.jesb.PluginBuilder_-OperationDescriptor>
       <categoryName>General</categoryName>
@@ -344,6 +244,104 @@
       </result>
     </com.otk.jesb.PluginBuilder_-OperationDescriptor>
   </operations>
-  <packageName>com.otk</packageName>
-  <resources/>
+  <activators>
+    <com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
+      <activatorTypeCaption>Schedule</activatorTypeCaption>
+      <activatorTypeName>Schedule</activatorTypeName>
+      <attributes>
+        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+          <caption>moment</caption>
+          <name>moment</name>
+          <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+            <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
+            <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
+            <variant>true</variant>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+          <caption>Repeat</caption>
+          <name>repeating</name>
+          <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+            <defaultValueExpression>false</defaultValueExpression>
+            <typeNameOrAlias>boolean</typeNameOrAlias>
+            <variant>true</variant>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+          <caption>Repetition Settings</caption>
+          <name>repetitionSettings</name>
+          <nature class="com.otk.jesb.PluginBuilder$GroupAttributeNature">
+            <parameters>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+                <caption>Period Unit</caption>
+                <name>periodUnit</name>
+                <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
+                  <defaultValueExpression>RepetitionSettingsStructurePeriodUnitStructure.MINUTES</defaultValueExpression>
+                  <structure>
+                    <items>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MILLISECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>SECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MINUTES</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>HOURS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>DAYS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MONTHS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>YEARS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                    </items>
+                  </structure>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+              <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+                <caption>Period</caption>
+                <name>period</name>
+                <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
+                  <defaultValueExpression>1l</defaultValueExpression>
+                  <typeNameOrAlias>long</typeNameOrAlias>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-ParameterDescriptor>
+            </parameters>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+          <caption>Referennce</caption>
+          <name>reference</name>
+          <nature class="com.otk.jesb.PluginBuilder$ReferenceAttributeNature">
+            <assetClassName>com.otk.jesb.resource.builtin.SharedStructureModel</assetClassName>
+          </nature>
+        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+      </attributes>
+      <handlerFinalizationStatements class="null"/>
+      <handlerInitializationStatements class="null"/>
+      <inputClassOption>
+        <concreteStructureAlternatives class="null"/>
+        <structure class="com.otk.jesb.Structure$ClassicStructure">
+          <elements>
+            <com.otk.jesb.Structure_-SimpleElement>
+              <multiple>false</multiple>
+              <name>activationMoment</name>
+              <optionality class="null"/>
+              <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
+            </com.otk.jesb.Structure_-SimpleElement>
+          </elements>
+        </structure>
+      </inputClassOption>
+      <outputClassOption class="null"/>
+      <validationMethodBody class="null"/>
+    </com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
+  </activators>
 </com.otk.jesb.PluginBuilder>

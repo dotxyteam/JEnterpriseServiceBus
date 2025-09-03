@@ -18,7 +18,6 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.PathOptionsProvider;
-import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
@@ -97,6 +96,7 @@ import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
@@ -192,21 +192,21 @@ public class JESBReflectionUI extends CustomizedUI {
 	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
 		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
 		result.addAll(BUILTIN_OPERATION_METADATAS);
-		result.addAll(PluginBuilder.TEST_OPERATION_METADATAS);
+		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);
 		return result;
 	}
 
 	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
 		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
 		result.addAll(BUILTIN_ACTIVATOR__METADATAS);
-		result.addAll(PluginBuilder.TEST_ACTIVATOR__METADATAS);
+		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);
 		return result;
 	}
 
 	public static List<ResourceMetadata> getAllResourceMetadatas() {
 		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
 		result.addAll(BUILTIN_RESOURCE_METADATAS);
-		result.addAll(PluginBuilder.TEST_RESOURCE_METADATAS);
+		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
 		return result;
 	}
 
