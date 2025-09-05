@@ -11,22 +11,27 @@
  */
 package com.otk.jesb.meta;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * ClassLoader that is composed of other classloaders. Each loader will be used
- * to try to load each required class, until one of them succeeds. Otherwise the
- * eventual {@link #defaultClassLoader} will be used. <b>Note:</b> The loaders
- * will always be called in the REVERSE order they were added in.
+ * ClassLoader composed of other classloaders. Each loader will be used to load
+ * the required class or resource until one of them succeeds. Otherwise, the
+ * optional {@link #defaultClassLoader} will be used. <b>Note:</b> The loaders
+ * will always be called in the REVERSE order in which they were added.
  *
  * <p>
  * The added classloaders are kept with weak references to allow an application
@@ -84,7 +89,30 @@ public class CompositeClassLoader extends ClassLoader {
 	}
 
 	@Override
+	public URL getResource(String name) {
+		return compositively(classLoader -> classLoader.getResource(name));
+	}
+
+	@Override
 	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+		Class result = compositively(classLoader -> {
+			try {
+				Class<?> clazz = classLoader.loadClass(name);
+				if (resolve) {
+					resolveClass(clazz);
+				}
+				return clazz;
+			} catch (ClassNotFoundException notFound) {
+				return null;
+			}
+		});
+		if (result == null) {
+			throw new ClassNotFoundException(name);
+		}
+		return result;
+	}
+
+	private <T> T compositively(Function<ClassLoader, T> accessor) {
 		List copy = new ArrayList(classLoaders.size()) {
 
 			public boolean addAll(Collection c) {
@@ -115,26 +143,20 @@ public class CompositeClassLoader extends ClassLoader {
 			if (classLoader == contextClassLoader) {
 				contextClassLoader = null;
 			}
-			try {
-				Class<?> result = classLoader.loadClass(name);
-				if (resolve) {
-					resolveClass(result);
-				}
+			T result = accessor.apply(classLoader);
+			if (result != null) {
 				return result;
-			} catch (ClassNotFoundException notFound) {
-				// ok.. try another one
 			}
 		}
 
 		if (defaultClassLoader != null) {
-			Class<?> result = defaultClassLoader.loadClass(name);
-			if (resolve) {
-				resolveClass(result);
+			T result = accessor.apply(defaultClassLoader);
+			if (result != null) {
+				return result;
 			}
-			return result;
 		}
 
-		throw new ClassNotFoundException(name);
+		return null;
 	}
 
 	private void cleanup() {

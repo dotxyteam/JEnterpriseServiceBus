@@ -551,8 +551,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 								SwingRendererUtils
 										.scalePreservingRatio(
 												SwingRendererUtils.loadImageThroughCache(iconResourcePath,
-														ReflectionUIUtils
-																.getDebugLogListener(swingRenderer.getReflectionUI())),
+														ReflectionUIUtils.getDebugLogListener(
+																swingRenderer.getReflectionUI()),
+														swingRenderer),
 												32, 32, Image.SCALE_SMOOTH));
 			}
 		};
@@ -767,7 +768,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					Image iconImage = adaptedIconImageByPath.get(iconImagePath);
 					if (iconImage == null) {
 						iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,
-								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));
+								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()), swingRenderer);
 						iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH,
 								STEP_ICON_HEIGHT, Image.SCALE_SMOOTH);
 						adaptedIconImageByPath.put(iconImagePath, iconImage);

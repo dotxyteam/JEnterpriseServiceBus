@@ -143,7 +143,6 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
 import xy.reflect.ui.undo.ListModificationFactory;
-import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIError;
@@ -333,8 +332,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
 				Class<?> fieldClass;
 				try {
-					fieldClass = ClassUtils.getClassThroughCache(field.getType().getName());
-				} catch (ClassNotFoundException e) {
+					fieldClass = MiscUtils.getJESBClass(field.getType().getName());
+				} catch (Exception e) {
 					fieldClass = null;
 				}
 				if ((fieldClass != null) && OperationBuilder.class.isAssignableFrom(fieldClass)) {
@@ -347,8 +346,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean canCopy(ITypeInfo type, Object object) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(type.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(type.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
@@ -361,8 +360,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected Object copy(ITypeInfo type, Object object) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(type.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(type.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
@@ -764,8 +763,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<IFieldInfo> getFields(ITypeInfo type) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(type.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(type.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				List<IFieldInfo> baseResult = super.getFields(type);
@@ -1273,8 +1272,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected List<IMethodInfo> getMethods(ITypeInfo type) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(type.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(type.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
@@ -1604,8 +1603,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(objectType.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(objectType.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
@@ -1639,8 +1638,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(objectType.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(objectType.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
@@ -1743,11 +1742,11 @@ public class JESBReflectionUI extends CustomizedUI {
 			@Override
 			protected boolean isModificationStackAccessible(ITypeInfo type) {
 				try {
-					Class<?> objectClass = ClassUtils.getClassThroughCache(type.getName());
+					Class<?> objectClass = MiscUtils.getJESBClass(type.getName());
 					if (Throwable.class.isAssignableFrom(objectClass)) {
 						return false;
 					}
-				} catch (ClassNotFoundException e) {
+				} catch (Exception e) {
 				}
 				return super.isModificationStackAccessible(type);
 			}
@@ -1768,8 +1767,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				}
 				Class<?> objectClass;
 				try {
-					objectClass = ClassUtils.getClassThroughCache(type.getName());
-				} catch (ClassNotFoundException e) {
+					objectClass = MiscUtils.getJESBClass(type.getName());
+				} catch (Exception e) {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {

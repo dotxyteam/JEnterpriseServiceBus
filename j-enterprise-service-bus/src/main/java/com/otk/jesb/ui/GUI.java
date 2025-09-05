@@ -537,4 +537,9 @@ public class GUI extends SwingCustomizer {
 		openObjectDialog(activatorComponent, new Throwable(null, error));
 	}
 
+	@Override
+	public ClassLoader getClassPathLoader() {
+		return MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader();
+	}
+
 }
