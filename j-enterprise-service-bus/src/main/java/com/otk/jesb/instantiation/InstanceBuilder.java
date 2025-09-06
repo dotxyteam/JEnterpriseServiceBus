@@ -64,8 +64,8 @@ public class InstanceBuilder extends InitializationCase {
 					if (clazz.getClassLoader() != null) {
 						if (clazz.getClassLoader().getClass().getName().startsWith(InMemoryCompiler.class.getName())) {
 							throw new UnexpectedError(
-									"An instance builder absolute type name should not reference a dynamically generated class: "
-											+ clazz.getName());
+									"An instance builder static and absolute type name should not reference a dynamically generated class ("
+											+ clazz.getName() + ")");
 						}
 					}
 				}

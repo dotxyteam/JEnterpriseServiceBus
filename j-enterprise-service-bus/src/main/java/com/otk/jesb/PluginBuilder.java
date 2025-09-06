@@ -853,6 +853,12 @@ public class PluginBuilder {
 			Structure.SimpleElement result = new Structure.SimpleElement();
 			result.setName(parameterName + "Reference");
 			result.setTypeNameOrAlias(Reference.class.getName() + "<" + assetClassName + ">");
+			Structure.Optionality optionality = new Structure.Optionality();
+			{
+				optionality
+						.setDefaultValueExpression("new " + Reference.class.getName() + "(" + assetClassName + ".class)");
+				result.setOptionality(optionality);
+			}
 			return result;
 		}
 
@@ -907,15 +913,14 @@ public class PluginBuilder {
 			this.variant = variant;
 		}
 
-		private StructuredElement createEnumerationElementUtility(String operationClassName, String parameterName) {
+		private StructuredElement getEnumerationElementUtility(String operationClassName, String parameterName) {
 			StructuredElement result = new StructuredElement();
 			result.setName(parameterName);
 			result.setStructure(structure);
 			return result;
 		}
 
-		private SimpleParameterNature createSimpleParameterNatureUtility(String operationClassName,
-				String parameterName) {
+		private SimpleParameterNature getSimpleParameterNatureUtility(String operationClassName, String parameterName) {
 			SimpleParameterNature result = new SimpleParameterNature() {
 				@Override
 				protected String adaptVariantGenericParameterTypeName(String typeName) {
@@ -925,15 +930,14 @@ public class PluginBuilder {
 			result.setDefaultValueExpression(defaultValueExpression);
 			result.setVariant(variant);
 			result.setTypeNameOrAlias(
-					createEnumerationElementUtility(operationClassName, parameterName).getTypeName(operationClassName));
+					getEnumerationElementUtility(operationClassName, parameterName).getTypeName(operationClassName));
 			return result;
 		}
 
 		public Element getOperationClassElement(String operationClassName, String parameterName) {
-			return new ElementProxy(createSimpleParameterNatureUtility(operationClassName, parameterName)
+			return new ElementProxy(getSimpleParameterNatureUtility(operationClassName, parameterName)
 					.getOperationClassElement(operationClassName, parameterName)) {
-				StructuredElement enumerationElement = createEnumerationElementUtility(operationClassName,
-						parameterName);
+				StructuredElement enumerationElement = getEnumerationElementUtility(operationClassName, parameterName);
 
 				@Override
 				protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
@@ -945,21 +949,21 @@ public class PluginBuilder {
 
 		@Override
 		protected Element getOperationBuilderClassElement(String operationClassName, String parameterName) {
-			return createSimpleParameterNatureUtility(operationClassName, parameterName)
+			return getSimpleParameterNatureUtility(operationClassName, parameterName)
 					.getOperationBuilderClassElement(operationClassName, parameterName);
 		}
 
 		@Override
 		protected String generateBuilderRequiredInnerJavaTypesSourceCode(String operationClassName,
 				String parameterName, Map<Object, Object> options) {
-			return createSimpleParameterNatureUtility(operationClassName, parameterName)
+			return getSimpleParameterNatureUtility(operationClassName, parameterName)
 					.generateBuilderRequiredInnerJavaTypesSourceCode(operationClassName, parameterName, options);
 		}
 
 		@Override
 		protected String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			return createSimpleParameterNatureUtility(operationClassName, parameterName)
+			return getSimpleParameterNatureUtility(operationClassName, parameterName)
 					.generateBuildExpression(operationClassName, parameterName, options);
 		}
 
