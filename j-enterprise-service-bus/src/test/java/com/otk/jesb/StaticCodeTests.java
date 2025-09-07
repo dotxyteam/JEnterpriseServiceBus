@@ -27,7 +27,7 @@ public class StaticCodeTests {
 		List<Class<?>> classesToCheck = new ArrayList<Class<?>>();
 		classesToCheck.addAll(JESBReflectionUI.BUILTIN_OPERATION_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.BUILTIN_COMPOSITE_METADATAS.stream()
+		classesToCheck.addAll(JESBReflectionUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
 		classesToCheck.addAll(JESBReflectionUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
 				.collect(Collectors.toList()));

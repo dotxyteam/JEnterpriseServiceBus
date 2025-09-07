@@ -50,6 +50,8 @@ import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.ui.JESBReflectionUI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
@@ -221,7 +223,7 @@ public class MiscUtils {
 				return operationMetadata.getOperationIconImagePath();
 			}
 		}
-		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.BUILTIN_COMPOSITE_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
@@ -939,6 +941,15 @@ public class MiscUtils {
 			}
 		}
 		return classes;
+	}
+
+	public static Class<?> inferOperationClass(Class<?> operationBuilderClass) {
+		try {
+			return operationBuilderClass.getMethod("build", ExecutionContext.class, ExecutionInspector.class)
+					.getReturnType();
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
 }

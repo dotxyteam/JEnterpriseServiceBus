@@ -1,11 +1,8 @@
 package com.otk.jesb.solution;
 
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.util.MiscUtils;
 
 public class Step extends PlanElement {
@@ -27,12 +24,7 @@ public class Step extends PlanElement {
 	public Step(OperationBuilder<?> operationBuilder) {
 		this.operationBuilder = operationBuilder;
 		if (operationBuilder != null) {
-			try {
-				name = operationBuilder.getClass().getMethod("build", ExecutionContext.class, ExecutionInspector.class)
-						.getReturnType().getSimpleName();
-			} catch (NoSuchMethodException | SecurityException e) {
-				throw new UnexpectedError(e);
-			}
+			name = MiscUtils.inferOperationClass(operationBuilder.getClass()).getSimpleName();
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 	}

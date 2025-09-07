@@ -29,6 +29,7 @@ import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
+import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
 public class Preferences {
@@ -135,12 +136,14 @@ public class Preferences {
 							SwingUtilities.updateComponentTreeUI(window);
 						}
 						// force recreation of all controls to prevent some components painting issues
-						GUI.INSTANCE.getCustomizationOptions()
-								.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
-						SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
-						GUI.INSTANCE.getCustomizationOptions()
-								.setInEditMode(!GUI.INSTANCE.getCustomizationOptions().isInEditMode());
-						SwingRendererUtils.refreshAllDisplayedForms(GUI.INSTANCE, true);
+						for (SwingCustomizer customizer : GUI.INSTANCE.getSubCustomizerBySwitch().values()) {
+							customizer.getCustomizationOptions()
+									.setInEditMode(!customizer.getCustomizationOptions().isInEditMode());
+							SwingRendererUtils.refreshAllDisplayedForms(customizer, true);
+							customizer.getCustomizationOptions()
+									.setInEditMode(!customizer.getCustomizationOptions().isInEditMode());
+							SwingRendererUtils.refreshAllDisplayedForms(customizer, true);
+						}
 					}
 				});
 			}

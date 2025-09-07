@@ -159,7 +159,7 @@ public class JESBReflectionUI extends CustomizedUI {
 			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
 			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
 			new CallSOAPWebService.Metadata());
-	public static final List<OperationMetadata<?>> BUILTIN_COMPOSITE_METADATAS = Arrays
+	public static final List<OperationMetadata<?>> BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS = Arrays
 			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
 	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
 			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),
@@ -325,7 +325,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	@Override
-	protected ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
+	public ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
 		return new InfoProxyFactory() {
 
 			@Override
@@ -2018,7 +2018,7 @@ public class JESBReflectionUI extends CustomizedUI {
 	}
 
 	@Override
-	protected ITypeInfo getTypeInfoAfterCustomizations(ITypeInfo type) {
+	public ITypeInfo getTypeInfoAfterCustomizations(ITypeInfo type) {
 		return new InfoProxyFactory() {
 
 			@Override
