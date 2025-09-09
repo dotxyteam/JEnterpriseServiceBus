@@ -107,7 +107,7 @@ public class Evaluate implements Operation {
 			try {
 				return upToDateValueClass.get();
 			} catch (VersionAccessException e) {
-				throw new PotentialError(e);
+				return null;
 			}
 		}
 

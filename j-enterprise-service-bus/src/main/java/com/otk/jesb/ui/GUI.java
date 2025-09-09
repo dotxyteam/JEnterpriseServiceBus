@@ -136,7 +136,7 @@ public class GUI extends MultiSwingCustomizer {
 	@Override
 	protected SubSwingCustomizer createSubCustomizer(String switchIdentifier) {
 		SubSwingCustomizer result = new SubSwingCustomizer(switchIdentifier) {
-			
+
 			@Override
 			protected CustomizationController createCustomizationController() {
 				return new CustomizationController(this) {
@@ -201,25 +201,27 @@ public class GUI extends MultiSwingCustomizer {
 
 					{
 						if (object instanceof FacadeOutline) {
-							Form rootInstanceBuilderFacadeForm = SwingRendererUtils.findDescendantFormsOfType(this,
-									RootInstanceBuilderFacade.class.getName(), GUI.INSTANCE).get(1);
-							InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForm
-									.getFieldControlPlaceHolder("children").getFieldControl();
-							initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
-								@Override
-								public VisitStatus visitItem(BufferedItemPosition itemPosition) {
-									Facade targetFacade = ((FacadeOutline) object).getFacade();
-									Facade currentFacade = (Facade) itemPosition.getItem();
-									if (targetFacade.equals(currentFacade)) {
-										initializerTreeControl.setSingleSelection(itemPosition);
-										return VisitStatus.TREE_VISIT_INTERRUPTED;
+							List<Form> rootInstanceBuilderFacadeForms = SwingRendererUtils.findDescendantFormsOfType(
+									this, RootInstanceBuilderFacade.class.getName(), GUI.INSTANCE);
+							if (rootInstanceBuilderFacadeForms.size() >= 2) {
+								InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForms
+										.get(1).getFieldControlPlaceHolder("children").getFieldControl();
+								initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
+									@Override
+									public VisitStatus visitItem(BufferedItemPosition itemPosition) {
+										Facade targetFacade = ((FacadeOutline) object).getFacade();
+										Facade currentFacade = (Facade) itemPosition.getItem();
+										if (targetFacade.equals(currentFacade)) {
+											initializerTreeControl.setSingleSelection(itemPosition);
+											return VisitStatus.TREE_VISIT_INTERRUPTED;
+										}
+										if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
+											return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
+										}
+										return VisitStatus.VISIT_NOT_INTERRUPTED;
 									}
-									if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
-										return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
-									}
-									return VisitStatus.VISIT_NOT_INTERRUPTED;
-								}
-							});
+								});
+							}
 						}
 					}
 
@@ -590,13 +592,15 @@ public class GUI extends MultiSwingCustomizer {
 				return MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader();
 			}
 		};
+		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_MAIN_CUSTOMIZER) ? (switchIdentifier + "-")
+				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
 		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
-			result.setInfoCustomizationsOutputFilePath(GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + switchIdentifier
-					+ "-" + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME);
+			result.setInfoCustomizationsOutputFilePath(
+					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + customizationsResourceName);
 		} else {
 			try {
-				result.getInfoCustomizations().loadFromStream(getClass().getResourceAsStream(
-						"/" + switchIdentifier + "-" + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME), null);
+				result.getInfoCustomizations()
+						.loadFromStream(getClass().getResourceAsStream("/" + customizationsResourceName), null);
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}

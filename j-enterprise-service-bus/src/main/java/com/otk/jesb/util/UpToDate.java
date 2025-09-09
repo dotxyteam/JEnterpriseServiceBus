@@ -29,12 +29,18 @@ public abstract class UpToDate<T> {
 
 	public T get() throws VersionAccessException {
 		synchronized (this) {
-			Object versionIdentifier = retrieveLastVersionIdentifier();
-			if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
-				latest = obtainLatest(versionIdentifier);
-				lastVersionIdentifier = versionIdentifier;
+			try {
+				Object versionIdentifier = retrieveLastVersionIdentifier();
+				if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
+					latest = obtainLatest(versionIdentifier);
+					lastVersionIdentifier = versionIdentifier;
+				}
+				return latest;
+			} catch (VersionAccessException e) {
+				throw e;
+			} catch (Throwable t) {
+				throw new VersionAccessException(t);
 			}
-			return latest;
 		}
 	}
 

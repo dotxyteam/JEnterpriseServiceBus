@@ -222,7 +222,7 @@ public class JDBCQuery extends JDBCOperation {
 			try {
 				return upToDateResultClass.get();
 			} catch (VersionAccessException e) {
-				throw new PotentialError(e);
+				return null;
 			}
 		}
 
