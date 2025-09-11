@@ -203,25 +203,23 @@ public class GUI extends MultiSwingCustomizer {
 						if (object instanceof FacadeOutline) {
 							List<Form> rootInstanceBuilderFacadeForms = SwingRendererUtils.findDescendantFormsOfType(
 									this, RootInstanceBuilderFacade.class.getName(), GUI.INSTANCE);
-							if (rootInstanceBuilderFacadeForms.size() >= 2) {
-								InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForms
-										.get(1).getFieldControlPlaceHolder("children").getFieldControl();
-								initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
-									@Override
-									public VisitStatus visitItem(BufferedItemPosition itemPosition) {
-										Facade targetFacade = ((FacadeOutline) object).getFacade();
-										Facade currentFacade = (Facade) itemPosition.getItem();
-										if (targetFacade.equals(currentFacade)) {
-											initializerTreeControl.setSingleSelection(itemPosition);
-											return VisitStatus.TREE_VISIT_INTERRUPTED;
-										}
-										if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
-											return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
-										}
-										return VisitStatus.VISIT_NOT_INTERRUPTED;
+							InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForms
+									.get(1).getFieldControlPlaceHolder("children").getFieldControl();
+							initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
+								@Override
+								public VisitStatus visitItem(BufferedItemPosition itemPosition) {
+									Facade targetFacade = ((FacadeOutline) object).getFacade();
+									Facade currentFacade = (Facade) itemPosition.getItem();
+									if (targetFacade.equals(currentFacade)) {
+										initializerTreeControl.setSingleSelection(itemPosition);
+										return VisitStatus.TREE_VISIT_INTERRUPTED;
 									}
-								});
-							}
+									if (!Facade.getAncestors(targetFacade).contains(currentFacade)) {
+										return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
+									}
+									return VisitStatus.VISIT_NOT_INTERRUPTED;
+								}
+							});
 						}
 					}
 
@@ -342,20 +340,20 @@ public class GUI extends MultiSwingCustomizer {
 										&& (((IListTypeInfo) field.getType()).getItemType() != null)
 										&& ((IListTypeInfo) field.getType()).getItemType().getName()
 												.equals(Facade.class.getName())) {
-									return new InstanceBuilderInitializerTreeControl(GUI.this, this);
+									return new InstanceBuilderInitializerTreeControl(swingRenderer, this);
 								}
 								if (field.getName().equals("data") && (field.getType() instanceof IListTypeInfo)
 										&& (((IListTypeInfo) field.getType()).getItemType() != null)
 										&& ((IListTypeInfo) field.getType()).getItemType().getName()
 												.equals(PathNode.class.getName())) {
-									return new InstanceBuilderVariableTreeControl(GUI.this, this);
+									return new InstanceBuilderVariableTreeControl(swingRenderer, this);
 								}
 								if (field.getName().equals("rootPathNodes")
 										&& (field.getType() instanceof IListTypeInfo)
 										&& (((IListTypeInfo) field.getType()).getItemType() != null)
 										&& ((IListTypeInfo) field.getType()).getItemType().getName()
 												.equals(PathNode.class.getName())) {
-									return new FunctionEditorVariableTreeControl(GUI.this, this);
+									return new FunctionEditorVariableTreeControl(swingRenderer, this);
 								}
 								if (field.getName().equals("functionBody")
 										&& (field.getType().getName().equals(String.class.getName()))) {
@@ -383,7 +381,7 @@ public class GUI extends MultiSwingCustomizer {
 										&& (((IListTypeInfo) field.getType()).getItemType() != null)
 										&& ((IListTypeInfo) field.getType()).getItemType().getName()
 												.equals(FacadeOutline.class.getName())) {
-									return new InstanceBuilderOutlineTreeControl(GUI.this, this);
+									return new InstanceBuilderOutlineTreeControl(swingRenderer, this);
 								}
 								if (field.getType().getName().equals(MappingsControl.Source.class.getName())) {
 									return new MappingsControl(swingRenderer, this);
@@ -588,7 +586,7 @@ public class GUI extends MultiSwingCustomizer {
 			}
 
 			@Override
-			public ClassLoader getClassPathLoader() {
+			public ClassLoader getClassPathResourceLoader() {
 				return MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader();
 			}
 		};

@@ -1,10 +1,8 @@
 package com.otk.jesb.ui;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
-import java.awt.Insets;
 import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,19 +10,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicTableHeaderUI;
-import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
-import com.formdev.flatlaf.ui.FlatTableHeaderUI;
-import com.formdev.flatlaf.util.UIScale;
 import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
@@ -110,17 +101,8 @@ public class Preferences {
 					} catch (IOException | FontFormatException e) {
 						throw new UnexpectedError(e);
 					}
-					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public UIDefaults getDefaults() {
-							UIDefaults result = super.getDefaults();
-							result.put("TableHeaderUI", BetterFlatTableHeaderUI.class.getName());
-							return result;
-						}
-					});
+					UIManager.put( "TableHeader.height", 0 );
+					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() );
 				} else {
 					throw new UnexpectedError();
 				}
@@ -149,31 +131,6 @@ public class Preferences {
 			}
 		}
 
-		public static class BetterFlatTableHeaderUI extends FlatTableHeaderUI {
-
-			@Override
-			public Dimension getPreferredSize(JComponent c) {
-				// replace Dimension size = super.getPreferredSize( c );
-				BasicTableHeaderUI superObject = new BasicTableHeaderUI() {
-					{
-						header = (JTableHeader) c;
-					}
-				};
-				Dimension size = superObject.getPreferredSize(c);
-				if (size.height > 0) {
-					Insets insets = c.getInsets();
-					if ((insets == null) || (size.height > (insets.top + insets.bottom))) {
-						// replace UIScale.scale(height) by UIScale.scale(size.height)
-						size.height = Math.max(size.height, UIScale.scale(size.height));
-					}
-				}
-				return size;
-			}
-
-			public static ComponentUI createUI(JComponent c) {
-				return new BetterFlatTableHeaderUI();
-			}
-		}
 	}
 
 }
