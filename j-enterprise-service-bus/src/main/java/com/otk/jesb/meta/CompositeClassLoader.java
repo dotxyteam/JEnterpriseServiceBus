@@ -29,9 +29,10 @@ import java.util.stream.Collectors;
 
 /**
  * ClassLoader composed of other classloaders. Each loader will be used to load
- * the required class or resource until one of them succeeds. Otherwise, the
- * optional {@link #defaultClassLoader} will be used. <b>Note:</b> The loaders
- * will always be called in the REVERSE order in which they were added.
+ * the required class or resource until one of them succeeds. The
+ * {@link #firstClassLoader} and the {@link #firstClassLoader} will be used
+ * first and last respectively if provided. <b>Note:</b> The loaders will always
+ * be called in the REVERSE order in which they were added.
  *
  * <p>
  * The added classloaders are kept with weak references to allow an application
@@ -41,20 +42,25 @@ import java.util.stream.Collectors;
 @SuppressWarnings("all")
 public class CompositeClassLoader extends ClassLoader {
 
-	private ClassLoader defaultClassLoader;
+	private ClassLoader firstClassLoader;
+	private ClassLoader lastClassLoader;
 	private final List<WeakReference> classLoaders = new CopyOnWriteArrayList<WeakReference>();
 	private final ReferenceQueue queue = new ReferenceQueue();
 
-	public CompositeClassLoader(ClassLoader defaultClassLoader) {
-		this.defaultClassLoader = defaultClassLoader;
+	public ClassLoader getFirstClassLoader() {
+		return firstClassLoader;
 	}
 
-	public ClassLoader getDefaultClassLoader() {
-		return defaultClassLoader;
+	public void setFirstClassLoader(ClassLoader firstClassLoader) {
+		this.firstClassLoader = firstClassLoader;
 	}
 
-	public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
-		this.defaultClassLoader = defaultClassLoader;
+	public ClassLoader getLastClassLoader() {
+		return lastClassLoader;
+	}
+
+	public void setLastClassLoader(ClassLoader lastClassLoader) {
+		this.lastClassLoader = lastClassLoader;
 	}
 
 	public List<ClassLoader> getClassLoaders() {
@@ -136,21 +142,25 @@ public class CompositeClassLoader extends ClassLoader {
 			cleanup();
 			copy.addAll(classLoaders);
 		}
+		
+		if (firstClassLoader != null) {
+			T result = accessor.apply(firstClassLoader);
+			if (result != null) {
+				return result;
+			}
+		}
 
-		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
 		for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
 			ClassLoader classLoader = (ClassLoader) iterator.next();
-			if (classLoader == contextClassLoader) {
-				contextClassLoader = null;
-			}
 			T result = accessor.apply(classLoader);
 			if (result != null) {
 				return result;
 			}
 		}
 
-		if (defaultClassLoader != null) {
-			T result = accessor.apply(defaultClassLoader);
+		if (lastClassLoader != null) {
+			T result = accessor.apply(lastClassLoader);
 			if (result != null) {
 				return result;
 			}

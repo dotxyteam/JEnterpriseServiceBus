@@ -1174,7 +1174,7 @@ public class PluginBuilder {
 						String classNameArgumentExpression;
 						if (concreteStructureAlternatives != null) {
 							classNameArgumentExpression = "new " + getConcreteTypeNameAccessorClassName(parameterName)
-									+ "(){}";
+									+ "()";
 						} else {
 							classNameArgumentExpression = base.getFinalTypeNameAdaptedToSourceCode(operationClassName)
 									+ ".class.getName()";

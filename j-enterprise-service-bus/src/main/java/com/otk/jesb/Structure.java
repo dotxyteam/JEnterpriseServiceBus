@@ -195,9 +195,12 @@ public abstract class Structure {
 			List<Element> baseStructureElements = collectRecursivelyBaseStructureElements(baseStructure);
 			if (baseStructureElements.size() > 0) {
 				result = result.replace(classSimpleName + "(",
-						classSimpleName + "(" + baseStructureElements.stream()
-								.map(element -> element.generateJavaConstructorParameterDeclaration(className, options))
-								.collect(Collectors.joining(", ")) + ", ");
+						classSimpleName + "("
+								+ baseStructureElements.stream()
+										.map(element -> element.generateJavaConstructorParameterDeclaration(
+												baseStructureTypeName, options))
+										.collect(Collectors.joining(", "))
+								+ ", ");
 			}
 			return result;
 		}

@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -40,6 +42,7 @@ import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
+import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
@@ -57,6 +60,7 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
@@ -66,6 +70,9 @@ import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.source.ITypeInfoSource;
@@ -85,6 +92,7 @@ public class GUI extends MultiSwingCustomizer {
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
 			.getProperty(GUI.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
 	private static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
+	private static final String INFO_CUSTOMIZATIONS_METHOD_NAME = "getInfoCustomizations";
 
 	public static GUI INSTANCE = new GUI();
 
@@ -143,11 +151,11 @@ public class GUI extends MultiSwingCustomizer {
 
 					@Override
 					protected void recustomizeAllForms() {
-						((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(true);
+						((JESBReflectionUI) GUI.this.getReflectionUI()).setFocusTrackingDisabled(true);
 						try {
 							super.recustomizeAllForms();
 						} finally {
-							((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(false);
+							((JESBReflectionUI) GUI.this.getReflectionUI()).setFocusTrackingDisabled(false);
 						}
 					}
 				};
@@ -194,7 +202,7 @@ public class GUI extends MultiSwingCustomizer {
 			}
 
 			@Override
-			public CustomizingForm createForm(final Object object, IInfoFilter infoFilter) {
+			public CustomizingForm subCreateForm(final Object object, IInfoFilter infoFilter) {
 				return new CustomizingForm(this, object, infoFilter) {
 
 					private static final long serialVersionUID = 1L;
@@ -589,6 +597,7 @@ public class GUI extends MultiSwingCustomizer {
 			public ClassLoader getClassPathResourceLoader() {
 				return MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader();
 			}
+
 		};
 		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_MAIN_CUSTOMIZER) ? (switchIdentifier + "-")
 				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
@@ -606,4 +615,42 @@ public class GUI extends MultiSwingCustomizer {
 		return result;
 	}
 
+	@Override
+	protected SubCustomizedUI createSubCustomizedUI(String switchIdentifier) {
+		return new SubCustomizedUI(switchIdentifier) {
+			Method infoCustomizationsMethod;
+			{
+				try {
+					infoCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
+							.getMethod(INFO_CUSTOMIZATIONS_METHOD_NAME);
+				} catch (NoSuchMethodException e) {
+					infoCustomizationsMethod = null;
+				}
+			}
+
+			@Override
+			protected IInfoProxyFactory getSubInfoCustomizationsFactory() {
+				InfoProxyFactoryChain result = new InfoProxyFactoryChain(super.getSubInfoCustomizationsFactory());
+				if (infoCustomizationsMethod != null) {
+					InfoCustomizations infoCustomizations;
+					try {
+						infoCustomizations = (InfoCustomizations) infoCustomizationsMethod.invoke(null);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						throw new UnexpectedError(e);
+					}
+					result.accessFactories().add(0,
+							new InfoCustomizationsFactory(new CustomizedUI(infoCustomizations)) {
+
+								@Override
+								public String getIdentifier() {
+									return "SpecificCustomizationsFactory [of="
+											+ infoCustomizationsMethod.getDeclaringClass().getName() + "]";
+								}
+							});
+				}
+				return result;
+			}
+
+		};
+	}
 }

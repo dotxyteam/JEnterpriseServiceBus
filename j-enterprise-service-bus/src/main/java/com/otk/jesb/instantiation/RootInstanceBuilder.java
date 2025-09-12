@@ -183,6 +183,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + "."
 							+ finalRootInstanceName + "." + actualRootInstanceTypeName + "Wrapper";
 				}
+				rootInstanceWrapperClassName = rootInstanceWrapperClassName.replace("$", "_");
 			}
 			StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
 			{

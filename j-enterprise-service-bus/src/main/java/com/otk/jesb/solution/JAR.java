@@ -29,7 +29,7 @@ public class JAR extends Asset {
 	public static final List<OperationMetadata<?>> PLUGIN_OPERATION_METADATAS = new ArrayList<OperationMetadata<?>>();
 	public static final List<ResourceMetadata> PLUGIN_RESOURCE_METADATAS = new ArrayList<ResourceMetadata>();
 	public static final List<ActivatorMetadata> PLUGIN_ACTIVATOR_METADATAS = new ArrayList<ActivatorMetadata>();
-	
+
 	private File temporaryFile;
 
 	public JAR(File file) throws IOException {
@@ -69,7 +69,7 @@ public class JAR extends Asset {
 	public static void configureSolutionDependencies(List<JAR> jars) {
 		URLClassLoader jarsClassLoader = new URLClassLoader(
 				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), Solution.class.getClassLoader());
-		MiscUtils.IN_MEMORY_COMPILER.setDefaultClassLoader(jarsClassLoader);
+		MiscUtils.IN_MEMORY_COMPILER.setFirstClassLoader(jarsClassLoader);
 		for (JAR jar : jars) {
 			JarURLConnection connection;
 			try {
@@ -89,6 +89,7 @@ public class JAR extends Asset {
 			String activatorMetadataClassNames = attributes
 					.getValue(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY);
 			String resourceMetadataClassNames = attributes.getValue(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY);
+			PLUGIN_OPERATION_METADATAS.clear();
 			if (operationMetadataClassNames != null) {
 				for (String className : operationMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {
@@ -102,6 +103,7 @@ public class JAR extends Asset {
 					}
 				}
 			}
+			PLUGIN_ACTIVATOR_METADATAS.clear();
 			if (activatorMetadataClassNames != null) {
 				for (String className : activatorMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {
@@ -115,6 +117,7 @@ public class JAR extends Asset {
 					}
 				}
 			}
+			PLUGIN_RESOURCE_METADATAS.clear();
 			if (resourceMetadataClassNames != null) {
 				for (String className : resourceMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {

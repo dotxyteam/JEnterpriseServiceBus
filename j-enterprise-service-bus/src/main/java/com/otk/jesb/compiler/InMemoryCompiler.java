@@ -50,8 +50,7 @@ public class InMemoryCompiler {
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
 	private Iterable<String> options = Arrays.asList("-parameters");
-	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader(
-			InMemoryCompiler.class.getClassLoader());
+	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 	private final Object compilationMutex = new Object();
 	private final Object classResourcesMutex = new Object();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
@@ -67,12 +66,23 @@ public class InMemoryCompiler {
 		return compositeClassLoader;
 	}
 
-	public ClassLoader getDefaultClassLoader() {
-		return compositeClassLoader.getDefaultClassLoader();
+	public ClassLoader getFirstClassLoader() {
+		return compositeClassLoader.getFirstClassLoader();
 	}
 
-	public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
-		compositeClassLoader.setDefaultClassLoader(defaultClassLoader);
+	public void setFirstClassLoader(ClassLoader firstClassLoader) {
+		compositeClassLoader.setFirstClassLoader(firstClassLoader);
+		synchronized (compilationMutex) {
+			classCache.clear();
+		}
+	}
+
+	public ClassLoader getLastClassLoader() {
+		return compositeClassLoader.getLastClassLoader();
+	}
+
+	public void setLastClassLoader(ClassLoader lastClassLoader) {
+		compositeClassLoader.setLastClassLoader(lastClassLoader);
 		synchronized (compilationMutex) {
 			classCache.clear();
 		}
