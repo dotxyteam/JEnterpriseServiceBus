@@ -56,9 +56,9 @@ import com.otk.jesb.instantiation.ParameterInitializer;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
-import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.ParameterBuilder;
 import com.otk.jesb.operation.builtin.CallRESTAPI;
 import com.otk.jesb.operation.builtin.CallSOAPWebService;
 import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
@@ -336,7 +336,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				} catch (Exception e) {
 					fieldClass = null;
 				}
-				if ((fieldClass != null) && OperationBuilder.class.isAssignableFrom(fieldClass)) {
+				if ((fieldClass != null) && ParameterBuilder.class.isAssignableFrom(fieldClass)) {
 					return true;
 				}
 				return super.isFormControlEmbedded(field, objectType);
@@ -1670,13 +1670,13 @@ public class JESBReflectionUI extends CustomizedUI {
 						return true;
 					}
 				}
-				if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && ParameterBuilder.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature()
 							.matches(MiscUtils
-									.escapeRegex(ReflectionUIUtils.buildMethodSignature(Operation.class.getName(),
+									.escapeRegex(ReflectionUIUtils.buildMethodSignature("<TYPE>",
 											"build", Arrays.asList(Plan.ExecutionContext.class.getName(),
 													Plan.ExecutionInspector.class.getName())))
-									.replace(MiscUtils.escapeRegex(Operation.class.getName()), ".*"))) {
+									.replace("<TYPE>", ".*"))) {
 						return true;
 					}
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
@@ -1792,11 +1792,11 @@ public class JESBReflectionUI extends CustomizedUI {
 					}
 					((Transition.Condition) object).validate(getCurrentPlan(session)
 							.getTransitionContextVariableDeclarations(getCurrentTransition(session)));
-				} else if ((objectClass != null) && OperationBuilder.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && ParameterBuilder.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 					}
-					((OperationBuilder<?>) object).validate(false, getCurrentPlan(session), getCurrentStep(session));
+					((ParameterBuilder<?>) object).validate(false, getCurrentPlan(session), getCurrentStep(session));
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -1955,7 +1955,7 @@ public class JESBReflectionUI extends CustomizedUI {
 						throw new UnexpectedError();
 					}
 					return Arrays.asList(object, plan, transition);
-				} else if (object instanceof OperationBuilder) {
+				} else if (object instanceof ParameterBuilder) {
 					Plan plan = getCurrentPlan(session);
 					if (plan == null) {
 						throw new UnexpectedError();

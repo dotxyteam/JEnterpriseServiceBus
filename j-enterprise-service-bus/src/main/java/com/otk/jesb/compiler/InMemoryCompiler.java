@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.rmi.server.UID;
@@ -57,10 +58,19 @@ public class InMemoryCompiler {
 	private final Object classResourcesMutex = new Object();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
 
-	public byte[] getClassBinary(String className) {
+	public InMemoryCompiler() {
+		setBaseClassLoader(new URLClassLoader(new URL[0]));
+	}
+
+	public byte[] getClassBinary(Class<?> clazz) {
+		if (!(clazz.getClassLoader() instanceof MemoryClassLoader)) {
+			throw new IllegalArgumentException();
+		}
+		ClassIdentifier classIdentifier = new ClassIdentifier(
+				((MemoryClassLoader) clazz.getClassLoader()).getMainClassIdentifier().getCompilationIdentifier(),
+				clazz.getName());
 		synchronized (classResourcesMutex) {
-			return classBinaries.entrySet().stream().filter(entry -> entry.getKey().getClassName().equals(className))
-					.findFirst().map(Map.Entry::getValue).orElse(null);
+			return classBinaries.get(classIdentifier);
 		}
 	}
 
@@ -68,12 +78,15 @@ public class InMemoryCompiler {
 		return compositeClassLoader;
 	}
 
-	public URLClassLoader getCustomBaseClassLoader() {
+	public URLClassLoader getBaseClassLoader() {
 		return (URLClassLoader) compositeClassLoader.getFirstClassLoader();
 	}
 
-	public void setCustomBaseClassLoader(URLClassLoader firstClassLoader) {
-		compositeClassLoader.setFirstClassLoader(firstClassLoader);
+	public void setBaseClassLoader(URLClassLoader classLoader) {
+		compositeClassLoader.setFirstClassLoader(classLoader);
+		synchronized (compilationMutex) {
+			classCache.clear();
+		}
 	}
 
 	public Iterable<String> getOptions() {
@@ -150,9 +163,9 @@ public class InMemoryCompiler {
 				if (classpath == null) {
 					throw new UnexpectedError();
 				}
-				URLClassLoader parentClassLoader = getCustomBaseClassLoader();
-				if (parentClassLoader != null) {
-					String parentClasspapth = Arrays.stream(parentClassLoader.getURLs()).map(url -> {
+				URLClassLoader baseClassLoader = getBaseClassLoader();
+				if (baseClassLoader != null) {
+					String parentClasspapth = Arrays.stream(baseClassLoader.getURLs()).map(url -> {
 						try {
 							return new File(url.toURI()).getAbsolutePath();
 						} catch (URISyntaxException e) {
@@ -510,7 +523,14 @@ public class InMemoryCompiler {
 			try {
 				if (getParent().loadClass(className) != null) {
 					throw new UnexpectedError(
-							"Cannot define a class that is already defined by the parent class loader: " + className);
+							"Cannot define a class that is already defined by the system class loader: " + className);
+				}
+				URLClassLoader baseClassLoader = getBaseClassLoader();
+				if (baseClassLoader != null) {
+					if (baseClassLoader.loadClass(className) != null) {
+						throw new UnexpectedError(
+								"Cannot define a class that is already defined by the base class loader: " + className);
+					}
 				}
 			} catch (ClassNotFoundException e) {
 			}

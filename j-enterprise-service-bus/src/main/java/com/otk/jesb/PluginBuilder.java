@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.ParameterBuilder;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Folder;
@@ -49,12 +51,14 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.JESBReflectionUI;
+import com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
-
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class PluginBuilder {
 
@@ -144,7 +148,7 @@ public class PluginBuilder {
 					String entryName = clazz.getName().replace(".", "/") + ".class";
 					JarEntry jarEntry = new JarEntry(entryName);
 					jarOutputStream.putNextEntry(jarEntry);
-					byte[] classBinary = MiscUtils.IN_MEMORY_COMPILER.getClassBinary(clazz.getName());
+					byte[] classBinary = MiscUtils.IN_MEMORY_COMPILER.getClassBinary(clazz);
 					if (classBinary == null) {
 						throw new UnexpectedError();
 					}
@@ -442,9 +446,62 @@ public class PluginBuilder {
 			additionalDeclarations.append(generateOperationResultClassMethodSourceCode(operationClassName, options));
 			additionalDeclarations
 					.append(generateOperationBuilderValidationMethodSourceCode(operationClassName, options));
+			additionalDeclarations.append(generateUICustomizationsMethodSourceCode(operationClassName, options) + "\n");
 			return "static "
 					+ operationBuilderStructure.generateJavaTypeSourceCode(getOperationBuilderClassSimpleName(),
 							implemented, null, additionalDeclarations.toString(), options);
+		}
+
+		protected String generateUICustomizationsMethodSourceCode(String operationClassName,
+				Map<Object, Object> codeGenerationOptions) {
+			StringBuilder result = new StringBuilder();
+			String builderClassName = operationClassName + "." + getOperationBuilderClassSimpleName();
+			result.append("public static void " + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "("
+					+ InfoCustomizations.class.getName() + " infoCustomizations) {\n");
+			result.append("/* " + builderClassName + " form customization */\n");
+			{
+				result.append("{\n");
+				result.append("/* field control positions */\n");
+				result.append("" + InfoCustomizations.class.getName() + ".getTypeCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName()).setCustomFieldsOrder(" + Arrays.class.getName()
+						+ ".asList("
+						+ parameters.stream()
+								.map(parameter -> '"'
+										+ parameter.getOperationBuilderClassElement(operationClassName).getName() + '"')
+								.collect(Collectors.joining(", "))
+						+ "));\n");
+				for (ParameterDescriptor parameter : parameters) {
+					Element element = parameter.getOperationBuilderClassElement(operationClassName);
+					result.append("/* " + element.getName() + " control customization */\n");
+					result.append("{\n");
+					if (parameter.getCaption() != null) {
+						result.append("" + InfoCustomizations.class.getName()
+								+ ".getFieldCustomization(infoCustomizations, " + builderClassName
+								+ ".class.getName(), \"" + element.getName() + "\").setCustomFieldCaption(\""
+								+ MiscUtils.escapeJavaString(parameter.getCaption()) + "\");\n");
+					}
+					parameter.getNature().generateUICustomizationStatements(result, "infoCustomizations",
+							operationClassName, getOperationBuilderClassSimpleName(), parameter.getName());
+					result.append("}\n");
+				}
+				result.append("/* hide UI customization method */\n");
+				result.append(InfoCustomizations.class.getName() + ".getMethodCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName(), " + ReflectionUIUtils.class.getName()
+						+ ".buildMethodSignature(\"void\", \"" + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "\", "
+						+ Arrays.class.getName() + ".asList(" + InfoCustomizations.class.getName()
+						+ ".class.getName()))).setHidden(true);\n");
+				result.append("/* hide 'build(...)' method */\n");
+				result.append(InfoCustomizations.class.getName() + ".getMethodCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName(), " + ReflectionUIUtils.class.getName()
+						+ ".buildMethodSignature(" + operationClassName + ".class.getName(), \"build\", "
+						+ Arrays.class.getName() + ".asList("
+						+ MiscUtils.adaptClassNameToSourceCode(ExecutionContext.class.getName()) + ".class.getName(), "
+						+ MiscUtils.adaptClassNameToSourceCode(ExecutionInspector.class.getName())
+						+ ".class.getName()))).setHidden(true);\n");
+				result.append("}\n");
+			}
+			result.append("}");
+			return result.toString();
 		}
 
 		protected String generateOperationBuilderValidationMethodSourceCode(String operationClassName,
@@ -707,7 +764,12 @@ public class PluginBuilder {
 		protected abstract String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options);
 
+		protected abstract void generateUICustomizationStatements(StringBuilder result,
+				String uiCustomizationsVariableName, String operationClassName, String operationBuilderClassSimpleName,
+				String parameterName);
+
 		public abstract void validate() throws ValidationError;
+
 	}
 
 	public static class SimpleParameterNature extends ParameterNature {
@@ -715,6 +777,7 @@ public class PluginBuilder {
 		private SimpleElement internalElement = new SimpleElement();
 		private String defaultValueExpression;
 		private boolean variant = false;
+		private boolean nullable = false;
 
 		public String getTypeNameOrAlias() {
 			return internalElement.getTypeNameOrAlias();
@@ -742,6 +805,35 @@ public class PluginBuilder {
 
 		public void setVariant(boolean variant) {
 			this.variant = variant;
+		}
+
+		public boolean isNullable() {
+			return nullable;
+		}
+
+		public void setNullable(boolean nullable) {
+			this.nullable = nullable;
+		}
+
+		@Override
+		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
+			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
+			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			String customizedTypeNameExpression = variant
+					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
+							+ ".getAdapterTypeName(" + builderClassName + ".class.getName(),\"" + builderElementName
+							+ "\")")
+					: (builderClassName + ".class.getName()");
+			String customizedFieldNameExpression = variant
+					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
+							+ ".getConstantValueFieldName(\"" + builderElementName + "\")")
+					: ("\"" + builderElementName + "\"");
+			if (nullable) {
+				result.append("" + InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ customizedTypeNameExpression + ", " + customizedFieldNameExpression
+						+ ").setNullValueDistinctForced(true);\n");
+			}
 		}
 
 		@Override
@@ -830,6 +922,16 @@ public class PluginBuilder {
 			this.assetClassName = assetClassName;
 		}
 
+		@Override
+		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
+			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
+			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
+					+ ".setFormControlEmbeddingForced(true);\n");
+		}
+
 		public List<String> getAssetClassNameOptions() {
 			List<String> result = new ArrayList<String>();
 			result.addAll(JESBReflectionUI.getAllResourceMetadatas().stream()
@@ -888,6 +990,7 @@ public class PluginBuilder {
 		private Structure.EnumerationStructure structure = new Structure.EnumerationStructure();
 		private String defaultValueExpression;
 		private boolean variant = false;
+		private boolean nullable = false;
 
 		public Structure.EnumerationStructure getStructure() {
 			return structure;
@@ -911,6 +1014,35 @@ public class PluginBuilder {
 
 		public void setVariant(boolean variant) {
 			this.variant = variant;
+		}
+
+		public boolean isNullable() {
+			return nullable;
+		}
+
+		public void setNullable(boolean nullable) {
+			this.nullable = nullable;
+		}
+
+		@Override
+		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
+			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
+			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			String customizedTypeNameExpression = variant
+					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
+							+ ".getAdapterTypeName(" + builderClassName + ".class.getName(),\"" + builderElementName
+							+ "\")")
+					: (builderClassName + ".class.getName()");
+			String customizedFieldNameExpression = variant
+					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
+							+ ".getConstantValueFieldName(\"" + builderElementName + "\")")
+					: ("\"" + builderElementName + "\"");
+			if (nullable) {
+				result.append("" + InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ customizedTypeNameExpression + ", " + customizedFieldNameExpression
+						+ ").setNullValueDistinctForced(true);\n");
+			}
 		}
 
 		private StructuredElement getEnumerationElementUtility(String operationClassName, String parameterName) {
@@ -976,6 +1108,8 @@ public class PluginBuilder {
 
 	public static class GroupParameterNature extends ParameterNature {
 
+		private boolean nullable = false;
+
 		private OperationDescriptor internalOperation = new OperationDescriptor() {
 
 			@Override
@@ -992,29 +1126,15 @@ public class PluginBuilder {
 			@Override
 			protected String generateOperationBuilderClassSourceCode(String operationClassName,
 					Map<Object, Object> options) {
-				String operationClassSimpleName = MiscUtils.extractSimpleNameFromClassName(operationClassName);
 				return super.generateOperationBuilderClassSourceCode(operationClassName, options).replace(
-						"implements " + OperationBuilder.class.getName() + "<" + operationClassSimpleName + ">", "");
-			}
-
-			@Override
-			protected String generateOperationBuilderValidationMethodSourceCode(String operationClassName,
-					Map<Object, Object> options) {
-				return super.generateOperationBuilderValidationMethodSourceCode(operationClassName, options)
-						.replace("@Override", "");
+						"implements " + OperationBuilder.class.getName(),
+						"implements " + ParameterBuilder.class.getName());
 			}
 
 			@Override
 			protected String generateOperationResultClassMethodSourceCode(String operationClassName,
 					Map<Object, Object> options) {
 				return "";
-			}
-
-			@Override
-			protected String generateOperationBuildMethodSourceCode(String operationClassName,
-					Map<Object, Object> options) {
-				return super.generateOperationBuildMethodSourceCode(operationClassName, options).replace("@Override",
-						"");
 			}
 
 		};
@@ -1025,6 +1145,32 @@ public class PluginBuilder {
 
 		public void setParameters(List<ParameterDescriptor> parameters) {
 			internalOperation.setParameters(parameters);
+		}
+
+		public boolean isNullable() {
+			return nullable;
+		}
+
+		public void setNullable(boolean nullable) {
+			this.nullable = nullable;
+		}
+
+		@Override
+		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
+			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
+			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			if (nullable) {
+				result.append("" + InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName()" + ", \"" + builderElementName
+						+ "\").setNullValueDistinctForced(true);\n");
+			}
+			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
+					+ ".setFormControlEmbeddingForced(true);\n");
+			result.append(MiscUtils.adaptClassNameToSourceCode(
+					getOperationBuilderClassElement(operationClassName, parameterName).getTypeName(operationClassName))
+					+ "." + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
 		}
 
 		@Override
@@ -1132,6 +1278,16 @@ public class PluginBuilder {
 		public void setConcreteStructureAlternatives(
 				List<StructureDerivationAlternative> concreteStructureAlternatives) {
 			this.concreteStructureAlternatives = concreteStructureAlternatives;
+		}
+
+		@Override
+		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
+			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
+			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
+					+ ".setFormControlEmbeddingForced(true);\n");
 		}
 
 		@Override
@@ -1538,6 +1694,14 @@ public class PluginBuilder {
 			internalParameterNature.setVariant(variant);
 		}
 
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
+		}
+
 		@Override
 		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
 			return internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName);
@@ -1576,6 +1740,14 @@ public class PluginBuilder {
 
 		public void setVariant(boolean variant) {
 			internalParameterNature.setVariant(variant);
+		}
+
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
 		}
 
 		@Override
@@ -1650,6 +1822,14 @@ public class PluginBuilder {
 
 		public void setParameters(List<ParameterDescriptor> parameters) {
 			internalParameterNature.setParameters(parameters);
+		}
+
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
 		}
 
 		@Override
@@ -1992,6 +2172,14 @@ public class PluginBuilder {
 			internalParameterNature.setVariant(variant);
 		}
 
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
+		}
+
 		@Override
 		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
 			return internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName);
@@ -2030,6 +2218,14 @@ public class PluginBuilder {
 
 		public void setVariant(boolean variant) {
 			internalParameterNature.setVariant(variant);
+		}
+
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
 		}
 
 		@Override
@@ -2104,6 +2300,14 @@ public class PluginBuilder {
 
 		public void setParameters(List<ParameterDescriptor> parameters) {
 			internalParameterNature.setParameters(parameters);
+		}
+
+		public boolean isNullable() {
+			return internalParameterNature.isNullable();
+		}
+
+		public void setNullable(boolean nullable) {
+			internalParameterNature.setNullable(nullable);
 		}
 
 		@Override

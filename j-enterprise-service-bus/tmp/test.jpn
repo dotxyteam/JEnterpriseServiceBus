@@ -13,6 +13,7 @@
           <name>param2</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
             <defaultValueExpression class="null"/>
+            <nullable>false</nullable>
             <typeNameOrAlias>java.lang.String</typeNameOrAlias>
             <variant>false</variant>
           </nature>
@@ -22,6 +23,7 @@
           <name>param3</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
             <defaultValueExpression class="null"/>
+            <nullable>true</nullable>
             <typeNameOrAlias>int</typeNameOrAlias>
             <variant>true</variant>
           </nature>
@@ -109,12 +111,14 @@
           <caption>Param 6</caption>
           <name>param6</name>
           <nature class="com.otk.jesb.PluginBuilder$GroupParameterNature">
+            <nullable>true</nullable>
             <parameters>
               <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Sub Param 1</caption>
                 <name>subParam1</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                   <defaultValueExpression class="null"/>
+                  <nullable>false</nullable>
                   <typeNameOrAlias>java.lang.Byte</typeNameOrAlias>
                   <variant>false</variant>
                 </nature>
@@ -124,6 +128,7 @@
                 <name>subParam2</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                   <defaultValueExpression class="null"/>
+                  <nullable>false</nullable>
                   <typeNameOrAlias>com.otk.jesb.meta.Date</typeNameOrAlias>
                   <variant>true</variant>
                 </nature>
@@ -149,12 +154,14 @@
                 <caption>Sub Param 4</caption>
                 <name>subParam4</name>
                 <nature class="com.otk.jesb.PluginBuilder$GroupParameterNature">
+                  <nullable>false</nullable>
                   <parameters>
                     <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                       <caption>Sub Sub Param 1</caption>
                       <name>subSubParam1</name>
                       <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                         <defaultValueExpression class="null"/>
+                        <nullable>false</nullable>
                         <typeNameOrAlias>java.lang.String</typeNameOrAlias>
                         <variant>false</variant>
                       </nature>
@@ -164,6 +171,7 @@
                       <name>subSubParam2</name>
                       <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                         <defaultValueExpression class="null"/>
+                        <nullable>false</nullable>
                         <typeNameOrAlias>java.lang.String</typeNameOrAlias>
                         <variant>false</variant>
                       </nature>
@@ -179,6 +187,7 @@
           <name>param7</name>
           <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
             <defaultValueExpression>Param7Structure.ITEM1</defaultValueExpression>
+            <nullable>false</nullable>
             <structure>
               <items>
                 <com.otk.jesb.Structure_-EnumerationItem>
@@ -254,6 +263,7 @@
           <name>moment</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
             <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
+            <nullable>false</nullable>
             <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
             <variant>true</variant>
           </nature>
@@ -263,6 +273,7 @@
           <name>repeating</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
             <defaultValueExpression>false</defaultValueExpression>
+            <nullable>false</nullable>
             <typeNameOrAlias>boolean</typeNameOrAlias>
             <variant>true</variant>
           </nature>
@@ -271,12 +282,14 @@
           <caption>Repetition Settings</caption>
           <name>repetitionSettings</name>
           <nature class="com.otk.jesb.PluginBuilder$GroupAttributeNature">
+            <nullable>false</nullable>
             <parameters>
               <com.otk.jesb.PluginBuilder_-ParameterDescriptor>
                 <caption>Period Unit</caption>
                 <name>periodUnit</name>
                 <nature class="com.otk.jesb.PluginBuilder$EnumerationParameterNature">
                   <defaultValueExpression>RepetitionSettingsStructurePeriodUnitStructure.MINUTES</defaultValueExpression>
+                  <nullable>false</nullable>
                   <structure>
                     <items>
                       <com.otk.jesb.Structure_-EnumerationItem>
@@ -310,6 +323,7 @@
                 <name>period</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleParameterNature">
                   <defaultValueExpression>1l</defaultValueExpression>
+                  <nullable>false</nullable>
                   <typeNameOrAlias>long</typeNameOrAlias>
                   <variant>true</variant>
                 </nature>

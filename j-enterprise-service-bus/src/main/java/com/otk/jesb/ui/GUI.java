@@ -41,8 +41,10 @@ import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
-import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
@@ -72,6 +74,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
 import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
@@ -81,6 +84,8 @@ import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.SystemProperties;
 
 public class GUI extends MultiSwingCustomizer {
+
+	public static final String UI_CUSTOMIZATIONS_METHOD_NAME = "customizeUI";
 
 	static {
 		if (JESB.DEBUG) {
@@ -92,7 +97,6 @@ public class GUI extends MultiSwingCustomizer {
 	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
 			.getProperty(GUI.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
 	private static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
-	private static final String INFO_CUSTOMIZATIONS_METHOD_NAME = "getInfoCustomizations";
 
 	public static GUI INSTANCE = new GUI();
 
@@ -618,36 +622,62 @@ public class GUI extends MultiSwingCustomizer {
 	@Override
 	protected SubCustomizedUI createSubCustomizedUI(String switchIdentifier) {
 		return new SubCustomizedUI(switchIdentifier) {
-			Method infoCustomizationsMethod;
-			{
-				try {
-					infoCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
-							.getMethod(INFO_CUSTOMIZATIONS_METHOD_NAME);
-				} catch (NoSuchMethodException e) {
-					infoCustomizationsMethod = null;
+
+			UpToDate<InfoCustomizations> upToDateSubInfoCustomizations = new UpToDate<InfoCustomizations>() {
+
+				@Override
+				protected Object retrieveLastVersionIdentifier() {
+					return MiscUtils.getJESBClass(switchIdentifier);
 				}
-			}
+
+				@Override
+				protected InfoCustomizations obtainLatest(Object versionIdentifier) throws VersionAccessException {
+					InfoCustomizations result = new InfoCustomizations();
+					Method uiCustomizationsMethod;
+					try {
+						uiCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
+								.getMethod(UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
+					} catch (NoSuchMethodException e) {
+						uiCustomizationsMethod = null;
+					}
+					if (uiCustomizationsMethod != null) {
+						try {
+							uiCustomizationsMethod.invoke(null, result);
+						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+							throw new UnexpectedError(e);
+						}
+					}
+					getCustomizedTypeCache().clear();
+					return result;
+				}
+
+			};
 
 			@Override
 			protected IInfoProxyFactory getSubInfoCustomizationsFactory() {
-				InfoProxyFactoryChain result = new InfoProxyFactoryChain(super.getSubInfoCustomizationsFactory());
-				if (infoCustomizationsMethod != null) {
-					InfoCustomizations infoCustomizations;
-					try {
-						infoCustomizations = (InfoCustomizations) infoCustomizationsMethod.invoke(null);
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						throw new UnexpectedError(e);
-					}
-					result.accessFactories().add(0,
-							new InfoCustomizationsFactory(new CustomizedUI(infoCustomizations)) {
+				InfoProxyFactoryChain result = new InfoProxyFactoryChain();
+				result.accessFactories().add(new InfoCustomizationsFactory(this) {
 
-								@Override
-								public String getIdentifier() {
-									return "SpecificCustomizationsFactory [of="
-											+ infoCustomizationsMethod.getDeclaringClass().getName() + "]";
-								}
-							});
-				}
+					@Override
+					public String getIdentifier() {
+						return "SubCustomizationsFactory [of=" + switchIdentifier + "]";
+					}
+
+					@Override
+					protected InfoProxyFactory getInfoCustomizationsSetupFactory() {
+						return ((SubCustomizedUI) getReflectionUI()).getInfoCustomizationsSetupFactory();
+					}
+
+					@Override
+					public InfoCustomizations accessInfoCustomizations() {
+						try {
+							return upToDateSubInfoCustomizations.get();
+						} catch (VersionAccessException e) {
+							throw new UnexpectedError(e);
+						}
+					}
+				});
+				result.accessFactories().add(super.getSubInfoCustomizationsFactory());
 				return result;
 			}
 
