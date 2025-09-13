@@ -855,8 +855,8 @@ public class PluginBuilder {
 			result.setTypeNameOrAlias(Reference.class.getName() + "<" + assetClassName + ">");
 			Structure.Optionality optionality = new Structure.Optionality();
 			{
-				optionality
-						.setDefaultValueExpression("new " + Reference.class.getName() + "(" + assetClassName + ".class)");
+				optionality.setDefaultValueExpression("new " + Reference.class.getName() + "<" + assetClassName + ">"
+						+ "(" + assetClassName + ".class)");
 				result.setOptionality(optionality);
 			}
 			return result;

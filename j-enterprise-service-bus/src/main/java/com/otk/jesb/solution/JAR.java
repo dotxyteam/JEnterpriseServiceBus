@@ -69,7 +69,7 @@ public class JAR extends Asset {
 	public static void configureSolutionDependencies(List<JAR> jars) {
 		URLClassLoader jarsClassLoader = new URLClassLoader(
 				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), Solution.class.getClassLoader());
-		MiscUtils.IN_MEMORY_COMPILER.setFirstClassLoader(jarsClassLoader);
+		MiscUtils.IN_MEMORY_COMPILER.setCustomBaseClassLoader(jarsClassLoader);
 		for (JAR jar : jars) {
 			JarURLConnection connection;
 			try {

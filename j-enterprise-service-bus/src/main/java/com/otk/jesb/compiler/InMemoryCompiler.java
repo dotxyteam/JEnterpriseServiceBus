@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.rmi.server.UID;
 import java.util.ArrayList;
@@ -66,26 +68,12 @@ public class InMemoryCompiler {
 		return compositeClassLoader;
 	}
 
-	public ClassLoader getFirstClassLoader() {
-		return compositeClassLoader.getFirstClassLoader();
+	public URLClassLoader getCustomBaseClassLoader() {
+		return (URLClassLoader) compositeClassLoader.getFirstClassLoader();
 	}
 
-	public void setFirstClassLoader(ClassLoader firstClassLoader) {
+	public void setCustomBaseClassLoader(URLClassLoader firstClassLoader) {
 		compositeClassLoader.setFirstClassLoader(firstClassLoader);
-		synchronized (compilationMutex) {
-			classCache.clear();
-		}
-	}
-
-	public ClassLoader getLastClassLoader() {
-		return compositeClassLoader.getLastClassLoader();
-	}
-
-	public void setLastClassLoader(ClassLoader lastClassLoader) {
-		compositeClassLoader.setLastClassLoader(lastClassLoader);
-		synchronized (compilationMutex) {
-			classCache.clear();
-		}
 	}
 
 	public Iterable<String> getOptions() {
@@ -153,7 +141,29 @@ public class InMemoryCompiler {
 			classCache.clear();
 			DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 			boolean success;
-			CompilationTask task = compiler.getTask(null, manager, collector, options, null, files);
+			List<String> finalOptions = new ArrayList<String>();
+			{
+				if (options != null) {
+					options.forEach(finalOptions::add);
+				}
+				String classpath = System.getProperty("java.class.path");
+				if (classpath == null) {
+					throw new UnexpectedError();
+				}
+				URLClassLoader parentClassLoader = getCustomBaseClassLoader();
+				if (parentClassLoader != null) {
+					String parentClasspapth = Arrays.stream(parentClassLoader.getURLs()).map(url -> {
+						try {
+							return new File(url.toURI()).getAbsolutePath();
+						} catch (URISyntaxException e) {
+							throw new UnexpectedError(e);
+						}
+					}).collect(Collectors.joining(File.pathSeparator));
+					classpath += File.pathSeparator + parentClasspapth;
+				}
+				finalOptions.addAll(Arrays.asList("-classpath", classpath));
+			}
+			CompilationTask task = compiler.getTask(null, manager, collector, finalOptions, null, files);
 			currentCompilationIdentifier = compilationIdentifier;
 			try {
 				success = task.call();

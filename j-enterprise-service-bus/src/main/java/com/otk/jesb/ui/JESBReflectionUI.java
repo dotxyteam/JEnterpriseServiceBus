@@ -2145,10 +2145,28 @@ public class JESBReflectionUI extends CustomizedUI {
 		return result;
 	}
 
-	private static class VariantCustomizations {
+	public static class VariantCustomizations {
 
 		public static boolean isVariantField(IFieldInfo field) {
 			return field.getType().getName().equals(Variant.class.getName());
+		}
+
+		public static String getAdapterTypeName(String objectTypeName, String variantFieldName) {
+			return objectTypeName + "." + variantFieldName.substring(0, 1).toUpperCase() + variantFieldName.substring(1)
+					+ "AdapterType";
+		}
+
+		public static String getConstantValueFieldName(String variantFieldName) {
+			return variantFieldName + "Value";
+		}
+
+		public static String getVariableReferenceBoxTypeName(String objectTypeName, String variantFieldName) {
+			return objectTypeName + "." + variantFieldName.substring(0, 1).toUpperCase() + variantFieldName.substring(1)
+					+ "ReferenceBoxType";
+		}
+
+		public static String getVariableReferenceFieldName(String variantFieldName) {
+			return variantFieldName + "Reference";
 		}
 
 		public static IFieldInfo adaptVariantField(IFieldInfo variantField, ITypeInfo objectType) {
@@ -2262,7 +2280,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 								@Override
 								public String getName() {
-									return variantField.getName() + "Value";
+									return getConstantValueFieldName(variantField.getName());
 								}
 
 								@Override
@@ -2319,7 +2337,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 								@Override
 								public String getName() {
-									return variantField.getName() + "Reference";
+									return getVariableReferenceFieldName(variantField.getName());
 								}
 
 								@Override
@@ -2400,9 +2418,8 @@ public class JESBReflectionUI extends CustomizedUI {
 							ITypeInfo precomputeValuesType() {
 								return new InfoProxyFactory() {
 
-									String valuesTypeName = objectType.getName() + "."
-											+ variantField.getName().substring(0, 1).toUpperCase()
-											+ variantField.getName().substring(1) + "AdapterType";
+									String valuesTypeName = getAdapterTypeName(objectType.getName(),
+											variantField.getName());
 
 									private IFieldInfo constantValueField = getConstantValueField(valuesTypeName, "");
 									private IFieldInfo variableReferenceBoxField = new FieldInfoProxy(
@@ -2447,9 +2464,8 @@ public class JESBReflectionUI extends CustomizedUI {
 										ITypeInfo precomputeVariableReferenceBoxType() {
 											return new InfoProxyFactory() {
 
-												String variableReferenceBoxTypeName = objectType.getName() + "."
-														+ variantField.getName().substring(0, 1).toUpperCase()
-														+ variantField.getName().substring(1) + "ReferenceBoxType";
+												String variableReferenceBoxTypeName = getVariableReferenceBoxTypeName(
+														objectType.getName(), variantField.getName());
 
 												private IFieldInfo variableReferenceField = getVariableReferenceField(
 														variableReferenceBoxTypeName, "");
