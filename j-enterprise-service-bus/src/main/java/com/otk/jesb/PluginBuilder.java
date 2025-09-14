@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +56,19 @@ import com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
+
+import xy.reflect.ui.control.DefaultFieldControlInput;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.ICustomizableFieldControlPlugin;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
@@ -778,6 +790,8 @@ public class PluginBuilder {
 		private String defaultValueExpression;
 		private boolean variant = false;
 		private boolean nullable = false;
+		private String controlPluginIdentifier;
+		private Object controlPluginConfiguration;
 
 		public String getTypeNameOrAlias() {
 			return internalElement.getTypeNameOrAlias();
@@ -815,11 +829,63 @@ public class PluginBuilder {
 			this.nullable = nullable;
 		}
 
+		public String getControlPluginIdentifier() {
+			return controlPluginIdentifier;
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			this.controlPluginIdentifier = controlPluginIdentifier;
+			if (controlPluginIdentifier != null) {
+				IFieldControlPlugin selectedControlPlugin = GUI.INSTANCE.getFieldControlPlugins().stream()
+						.filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier))
+						.findFirst().get();
+				if (selectedControlPlugin instanceof ICustomizableFieldControlPlugin) {
+					controlPluginConfiguration = ((ICustomizableFieldControlPlugin) selectedControlPlugin)
+							.getDefaultControlCustomization();
+				} else {
+					controlPluginConfiguration = null;
+				}
+			} else {
+				controlPluginConfiguration = null;
+			}
+		}
+
+		public Object getControlPluginConfiguration() {
+			return controlPluginConfiguration;
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			String typeName = Structure.SimpleElement.TYPE_NAME_BY_ALIAS.getOrDefault(getTypeNameOrAlias(),
+					getTypeNameOrAlias());
+			final ITypeInfo typeInfo = GUI.INSTANCE.getReflectionUI()
+					.getTypeInfo(new JavaTypeInfoSource(MiscUtils.getJESBClass(typeName), null));
+			IFieldControlInput sampleControlInput = new FieldControlInputProxy(
+					new DefaultFieldControlInput(GUI.INSTANCE.getReflectionUI()) {
+
+						@Override
+						public IFieldControlData getControlData() {
+							return new FieldControlDataProxy(super.getControlData()) {
+
+								@Override
+								public ITypeInfo getType() {
+									return typeInfo;
+								}
+
+							};
+						}
+					});
+			return GUI.INSTANCE.getFieldControlPlugins().stream()
+					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
+		}
+
 		@Override
 		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
+			String builderElementTypeName = getOperationBuilderClassElement(operationClassName, parameterName)
+					.getFinalTypeNameAdaptedToSourceCode(builderClassName);
 			String customizedTypeNameExpression = variant
 					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
 							+ ".getAdapterTypeName(" + builderClassName + ".class.getName(),\"" + builderElementName
@@ -829,10 +895,35 @@ public class PluginBuilder {
 					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
 							+ ".getConstantValueFieldName(\"" + builderElementName + "\")")
 					: ("\"" + builderElementName + "\"");
+			String customizedFieldTypeNameExpression = variant
+					? (MiscUtils.adaptClassNameToSourceCode(adaptVariantGenericParameterTypeName(
+							getOperationClassElement(operationClassName, parameterName)
+									.getTypeName(operationClassName)))
+							+ ".class.getName()")
+					: (builderElementTypeName + ".class.getName()");
 			if (nullable) {
-				result.append("" + InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-						+ customizedTypeNameExpression + ", " + customizedFieldNameExpression
-						+ ").setNullValueDistinctForced(true);\n");
+				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization("
+						+ uiCustomizationsVariableName + ", " + customizedTypeNameExpression + ", "
+						+ customizedFieldNameExpression + ").setNullValueDistinctForced(true);\n");
+			}
+			if (controlPluginIdentifier != null) {
+				result.append(InfoCustomizations.class.getName() + "							.getTypeCustomization("
+						+ InfoCustomizations.class.getName() + ".getFieldCustomization(" + uiCustomizationsVariableName
+						+ ", " + customizedTypeNameExpression + ", " + customizedFieldNameExpression
+						+ ").getSpecificTypeCustomizations(), " + customizedFieldTypeNameExpression
+						+ ").setSpecificProperties(new " + HashMap.class.getName() + "<String, Object>() {\n");
+				result.append("private static final long serialVersionUID = 1L;\n");
+				result.append("{\n");
+				result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginIdentifier(this, \""
+						+ controlPluginIdentifier + "\");\n");
+				if (controlPluginConfiguration != null) {
+					result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginConfiguration(this, \""
+							+ controlPluginIdentifier + "\", (" + Serializable.class.getName() + ") "
+							+ MiscUtils.class.getName() + ".deserialize(\""
+							+ MiscUtils.escapeJavaString(MiscUtils.serialize(controlPluginConfiguration)) + "\"));\n");
+				}
+				result.append("}\n");
+				result.append("});");
 			}
 		}
 
@@ -907,6 +998,13 @@ public class PluginBuilder {
 
 		public void validate() throws ValidationError {
 			internalElement.validate(true);
+			if (controlPluginIdentifier != null) {
+				List<String> options = getControlPluginIdentifierOptions();
+				if (!options.contains(controlPluginIdentifier)) {
+					throw new ValidationError("Invalid control plugin identifier: '" + controlPluginIdentifier
+							+ "'. Expected " + options);
+				}
+			}
 		}
 	}
 
@@ -991,6 +1089,8 @@ public class PluginBuilder {
 		private String defaultValueExpression;
 		private boolean variant = false;
 		private boolean nullable = false;
+		private String controlPluginIdentifier;
+		private Object controlPluginConfiguration;
 
 		public Structure.EnumerationStructure getStructure() {
 			return structure;
@@ -1024,25 +1124,57 @@ public class PluginBuilder {
 			this.nullable = nullable;
 		}
 
+		public String getControlPluginIdentifier() {
+			return controlPluginIdentifier;
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			this.controlPluginIdentifier = controlPluginIdentifier;
+			if (controlPluginIdentifier != null) {
+				IFieldControlPlugin selectedControlPlugin = GUI.INSTANCE.getFieldControlPlugins().stream()
+						.filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier))
+						.findFirst().get();
+				if (selectedControlPlugin instanceof ICustomizableFieldControlPlugin) {
+					controlPluginConfiguration = ((ICustomizableFieldControlPlugin) selectedControlPlugin)
+							.getDefaultControlCustomization();
+				} else {
+					controlPluginConfiguration = null;
+				}
+			} else {
+				controlPluginConfiguration = null;
+			}
+		}
+
+		public Object getControlPluginConfiguration() {
+			return controlPluginConfiguration;
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			IFieldControlInput sampleControlInput = new FieldControlInputProxy(
+					new DefaultFieldControlInput(GUI.INSTANCE.getReflectionUI()) {
+
+						@Override
+						public IFieldControlData getControlData() {
+							return new FieldControlDataProxy(super.getControlData()) {
+
+								@Override
+								public ITypeInfo getType() {
+									return IEnumerationTypeInfo.NULL_ENUMERATION_TYPE_INFO;
+								}
+
+							};
+						}
+					});
+			return GUI.INSTANCE.getFieldControlPlugins().stream()
+					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
+		}
+
 		@Override
 		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
-			String builderClassName = operationClassName + "." + operationBuilderClassSimpleName;
-			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
-			String customizedTypeNameExpression = variant
-					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
-							+ ".getAdapterTypeName(" + builderClassName + ".class.getName(),\"" + builderElementName
-							+ "\")")
-					: (builderClassName + ".class.getName()");
-			String customizedFieldNameExpression = variant
-					? (MiscUtils.adaptClassNameToSourceCode(VariantCustomizations.class.getName())
-							+ ".getConstantValueFieldName(\"" + builderElementName + "\")")
-					: ("\"" + builderElementName + "\"");
-			if (nullable) {
-				result.append("" + InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-						+ customizedTypeNameExpression + ", " + customizedFieldNameExpression
-						+ ").setNullValueDistinctForced(true);\n");
-			}
+			getSimpleParameterNatureUtility(operationClassName, parameterName).generateUICustomizationStatements(result,
+					uiCustomizationsVariableName, operationClassName, operationBuilderClassSimpleName, parameterName);
 		}
 
 		private StructuredElement getEnumerationElementUtility(String operationClassName, String parameterName) {
@@ -1063,6 +1195,7 @@ public class PluginBuilder {
 			result.setVariant(variant);
 			result.setTypeNameOrAlias(
 					getEnumerationElementUtility(operationClassName, parameterName).getTypeName(operationClassName));
+			result.setControlPluginIdentifier(controlPluginIdentifier);
 			return result;
 		}
 
@@ -1168,9 +1301,9 @@ public class PluginBuilder {
 			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
 					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
 					+ ".setFormControlEmbeddingForced(true);\n");
-			result.append(MiscUtils.adaptClassNameToSourceCode(
-					getOperationBuilderClassElement(operationClassName, parameterName).getTypeName(operationClassName))
-					+ "." + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
+			result.append(getOperationBuilderClassElement(operationClassName, parameterName)
+					.getFinalTypeNameAdaptedToSourceCode(operationClassName) + "." + GUI.UI_CUSTOMIZATIONS_METHOD_NAME
+					+ "(" + uiCustomizationsVariableName + ")" + ";\n");
 		}
 
 		@Override
@@ -1702,6 +1835,22 @@ public class PluginBuilder {
 			internalParameterNature.setNullable(nullable);
 		}
 
+		public String getControlPluginIdentifier() {
+			return internalParameterNature.getControlPluginIdentifier();
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			internalParameterNature.setControlPluginIdentifier(controlPluginIdentifier);
+		}
+
+		public Object getControlPluginConfiguration() {
+			return internalParameterNature.getControlPluginConfiguration();
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			return internalParameterNature.getControlPluginIdentifierOptions();
+		}
+
 		@Override
 		protected Element getResourceClassElement(String resourceClassName, String propertyName) {
 			return internalParameterNature.getOperationBuilderClassElement(resourceClassName, propertyName);
@@ -1748,6 +1897,22 @@ public class PluginBuilder {
 
 		public void setNullable(boolean nullable) {
 			internalParameterNature.setNullable(nullable);
+		}
+
+		public String getControlPluginIdentifier() {
+			return internalParameterNature.getControlPluginIdentifier();
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			internalParameterNature.setControlPluginIdentifier(controlPluginIdentifier);
+		}
+
+		public Object getControlPluginConfiguration() {
+			return internalParameterNature.getControlPluginConfiguration();
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			return internalParameterNature.getControlPluginIdentifierOptions();
 		}
 
 		@Override
@@ -2180,6 +2345,22 @@ public class PluginBuilder {
 			internalParameterNature.setNullable(nullable);
 		}
 
+		public String getControlPluginIdentifier() {
+			return internalParameterNature.getControlPluginIdentifier();
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			internalParameterNature.setControlPluginIdentifier(controlPluginIdentifier);
+		}
+
+		public Object getControlPluginConfiguration() {
+			return internalParameterNature.getControlPluginConfiguration();
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			return internalParameterNature.getControlPluginIdentifierOptions();
+		}
+
 		@Override
 		protected Element getActivatorClassElement(String activatorClassName, String attributeName) {
 			return internalParameterNature.getOperationBuilderClassElement(activatorClassName, attributeName);
@@ -2226,6 +2407,22 @@ public class PluginBuilder {
 
 		public void setNullable(boolean nullable) {
 			internalParameterNature.setNullable(nullable);
+		}
+
+		public String getControlPluginIdentifier() {
+			return internalParameterNature.getControlPluginIdentifier();
+		}
+
+		public void setControlPluginIdentifier(String controlPluginIdentifier) {
+			internalParameterNature.setControlPluginIdentifier(controlPluginIdentifier);
+		}
+
+		public Object getControlPluginConfiguration() {
+			return internalParameterNature.getControlPluginConfiguration();
+		}
+
+		public List<String> getControlPluginIdentifierOptions() {
+			return internalParameterNature.getControlPluginIdentifierOptions();
 		}
 
 		@Override

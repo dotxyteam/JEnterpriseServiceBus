@@ -207,6 +207,9 @@ public class GUI extends MultiSwingCustomizer {
 
 			@Override
 			public CustomizingForm subCreateForm(final Object object, IInfoFilter infoFilter) {
+				if(object instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
+					return new CustomizingForm(getCustomizationTools().getToolsRenderer(), object, infoFilter);
+				}
 				return new CustomizingForm(this, object, infoFilter) {
 
 					private static final long serialVersionUID = 1L;

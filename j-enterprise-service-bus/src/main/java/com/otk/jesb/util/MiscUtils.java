@@ -932,8 +932,12 @@ public class MiscUtils {
 		List<Class<?>> innerClasses = null;
 		{
 			while (true) {
-				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream()
-						.flatMap(clazz -> Arrays.stream(clazz.getDeclaredClasses())).collect(Collectors.toList());
+				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream().flatMap(clazz -> {
+					List<Class<?>> result = new ArrayList<Class<?>>();
+					result.addAll(Arrays.asList(clazz.getDeclaredClasses()));
+					result.addAll(getDeclaredAnonymousClasses(clazz));
+					return result.stream();
+				}).collect(Collectors.toList());
 				if (innerClasses.size() == 0) {
 					break;
 				}
@@ -941,6 +945,20 @@ public class MiscUtils {
 			}
 		}
 		return classes;
+	}
+
+	public static List<Class<?>> getDeclaredAnonymousClasses(Class<?> clazz) {
+		List<Class<?>> result = new ArrayList<Class<?>>();
+		int i = 1;
+		while (true) {
+			try {
+				result.add(clazz.getClassLoader().loadClass(clazz.getName() + "$" + i));
+			} catch (ClassNotFoundException e) {
+				break;
+			}
+			i++;
+		}
+		return result;
 	}
 
 	public static Class<?> inferOperationClass(Class<?> operationBuilderClass) {

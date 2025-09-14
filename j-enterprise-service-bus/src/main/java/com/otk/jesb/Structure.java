@@ -641,10 +641,13 @@ public abstract class Structure {
 
 	public static class SimpleElement extends Element {
 
-		private static final Map<String, String> TYPE_NAME_BY_ALIAS = new HashMap<String, String>();
-		static {
-			TYPE_NAME_BY_ALIAS.put("<binary>", byte[].class.getName());
-		}
+		public static final Map<String, String> TYPE_NAME_BY_ALIAS = Collections
+				.unmodifiableMap(new HashMap<String, String>() {
+					private static final long serialVersionUID = 1L;
+					{
+						put("<binary>", byte[].class.getName());
+					}
+				});
 
 		private String typeNameOrAlias = getTypeNameOrAliasOptions().get(0);
 
