@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -41,9 +39,6 @@ import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
-import com.otk.jesb.util.UpToDate;
-import com.otk.jesb.util.UpToDate.VersionAccessException;
-
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
@@ -62,7 +57,6 @@ import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
-import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
@@ -72,10 +66,6 @@ import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
-import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
-import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
-import xy.reflect.ui.info.type.factory.InfoProxyFactory;
-import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
 import xy.reflect.ui.info.type.source.ITypeInfoSource;
@@ -101,7 +91,7 @@ public class GUI extends MultiSwingCustomizer {
 	public static GUI INSTANCE = new GUI();
 
 	private GUI() {
-		super(new JESBReflectionUI(), null, null);
+		super(new JESBReflectionUI(null, null), null, null);
 		this.subCustomizationsSwitchSelector = new Function<Object, String>() {
 			@Override
 			public String apply(Object object) {
@@ -155,11 +145,11 @@ public class GUI extends MultiSwingCustomizer {
 
 					@Override
 					protected void recustomizeAllForms() {
-						((JESBReflectionUI) GUI.this.getReflectionUI()).setFocusTrackingDisabled(true);
+						((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(true);
 						try {
 							super.recustomizeAllForms();
 						} finally {
-							((JESBReflectionUI) GUI.this.getReflectionUI()).setFocusTrackingDisabled(false);
+							((JESBReflectionUI) getReflectionUI()).setFocusTrackingDisabled(false);
 						}
 					}
 				};
@@ -207,7 +197,7 @@ public class GUI extends MultiSwingCustomizer {
 
 			@Override
 			public CustomizingForm subCreateForm(final Object object, IInfoFilter infoFilter) {
-				if(object instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
+				if (object instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
 					return new CustomizingForm(getCustomizationTools().getToolsRenderer(), object, infoFilter);
 				}
 				return new CustomizingForm(this, object, infoFilter) {
@@ -217,7 +207,7 @@ public class GUI extends MultiSwingCustomizer {
 					{
 						if (object instanceof FacadeOutline) {
 							List<Form> rootInstanceBuilderFacadeForms = SwingRendererUtils.findDescendantFormsOfType(
-									this, RootInstanceBuilderFacade.class.getName(), GUI.INSTANCE);
+									this, RootInstanceBuilderFacade.class.getName(), swingRenderer);
 							InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) rootInstanceBuilderFacadeForms
 									.get(1).getFieldControlPlaceHolder("children").getFieldControl();
 							initializerTreeControl.visitItems(new ListControl.IItemsVisitor() {
@@ -496,10 +486,10 @@ public class GUI extends MultiSwingCustomizer {
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
 									Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(thisForm,
-											FunctionEditor.class.getName(), GUI.INSTANCE);
+											FunctionEditor.class.getName(), swingRenderer);
 									TextControl textControl = (TextControl) SwingRendererUtils
 											.findDescendantFieldControlPlaceHolder(functionEditorForm, "functionBody",
-													GUI.INSTANCE)
+													swingRenderer)
 											.getFieldControl();
 									invocationData.getProvidedParameterValues().put(0,
 											textControl.getTextComponent().getSelectionStart());
@@ -562,7 +552,7 @@ public class GUI extends MultiSwingCustomizer {
 					public void validateForm(ValidationSession session) throws Exception {
 						if (object instanceof FunctionEditor) {
 							TextControl textControl = (TextControl) SwingRendererUtils
-									.findDescendantFieldControlPlaceHolder(this, "functionBody", GUI.INSTANCE)
+									.findDescendantFieldControlPlaceHolder(this, "functionBody", swingRenderer)
 									.getFieldControl();
 							JTextComponent textComponent = textControl.getTextComponent();
 							textComponent.getHighlighter().removeAllHighlights();
@@ -624,66 +614,6 @@ public class GUI extends MultiSwingCustomizer {
 
 	@Override
 	protected SubCustomizedUI createSubCustomizedUI(String switchIdentifier) {
-		return new SubCustomizedUI(switchIdentifier) {
-
-			UpToDate<InfoCustomizations> upToDateSubInfoCustomizations = new UpToDate<InfoCustomizations>() {
-
-				@Override
-				protected Object retrieveLastVersionIdentifier() {
-					return MiscUtils.getJESBClass(switchIdentifier);
-				}
-
-				@Override
-				protected InfoCustomizations obtainLatest(Object versionIdentifier) throws VersionAccessException {
-					InfoCustomizations result = new InfoCustomizations();
-					Method uiCustomizationsMethod;
-					try {
-						uiCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
-								.getMethod(UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
-					} catch (NoSuchMethodException e) {
-						uiCustomizationsMethod = null;
-					}
-					if (uiCustomizationsMethod != null) {
-						try {
-							uiCustomizationsMethod.invoke(null, result);
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-							throw new UnexpectedError(e);
-						}
-					}
-					getCustomizedTypeCache().clear();
-					return result;
-				}
-
-			};
-
-			@Override
-			protected IInfoProxyFactory getSubInfoCustomizationsFactory() {
-				InfoProxyFactoryChain result = new InfoProxyFactoryChain();
-				result.accessFactories().add(new InfoCustomizationsFactory(this) {
-
-					@Override
-					public String getIdentifier() {
-						return "SubCustomizationsFactory [of=" + switchIdentifier + "]";
-					}
-
-					@Override
-					protected InfoProxyFactory getInfoCustomizationsSetupFactory() {
-						return ((SubCustomizedUI) getReflectionUI()).getInfoCustomizationsSetupFactory();
-					}
-
-					@Override
-					public InfoCustomizations accessInfoCustomizations() {
-						try {
-							return upToDateSubInfoCustomizations.get();
-						} catch (VersionAccessException e) {
-							throw new UnexpectedError(e);
-						}
-					}
-				});
-				result.accessFactories().add(super.getSubInfoCustomizationsFactory());
-				return result;
-			}
-
-		};
+		return new JESBReflectionUI(this, switchIdentifier) ;
 	}
 }

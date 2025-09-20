@@ -1,5 +1,7 @@
 package com.otk.jesb.ui;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,13 +106,18 @@ import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
 
-import xy.reflect.ui.CustomizedUI;
 import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer;
+import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer.SubCustomizedUI;
 import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin;
 import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin.ToggleButtonConfiguration;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.field.ValueAsListFieldInfo;
@@ -126,7 +133,10 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
 import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
 import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
 import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.EmbeddedItemDetailsAccessMode;
 import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
@@ -149,7 +159,7 @@ import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
 import xy.reflect.ui.util.ValidationErrorRegistry;
 
-public class JESBReflectionUI extends CustomizedUI {
+public class JESBReflectionUI extends SubCustomizedUI {
 
 	public static final List<OperationMetadata<?>> BUILTIN_OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
 			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
@@ -179,14 +189,120 @@ public class JESBReflectionUI extends CustomizedUI {
 	private static WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 
-	private Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
-	private Deque<PlanElement> stackOfCurrentPlanElements = new ArrayDeque<PlanElement>();
-	private Deque<Facade> stackOfCurrentInstantiationFacades = new ArrayDeque<Facade>();
-	private Deque<Activator> stackOfCurrentActivators = new ArrayDeque<Activator>();
-	private SidePaneValueName sidePaneValueName;
-	private boolean focusTrackingDisabled = false;
-	private List<Pair<ITypeInfo, Object>> lostFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
-	private List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+	private static Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
+	private static Deque<PlanElement> stackOfCurrentPlanElements = new ArrayDeque<PlanElement>();
+	private static Deque<Facade> stackOfCurrentInstantiationFacades = new ArrayDeque<Facade>();
+	private static Deque<Activator> stackOfCurrentActivators = new ArrayDeque<Activator>();
+	private static SidePaneValueName sidePaneValueName;
+	private static boolean focusTrackingDisabled = false;
+	private static List<Pair<ITypeInfo, Object>> lostFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+	private static List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
+
+	private UpToDate<InfoCustomizations> upToDateSubInfoCustomizations = new UpToDate<InfoCustomizations>() {
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			if (switchIdentifier == null) {
+				return null;
+			}
+			return MiscUtils.getJESBClass(switchIdentifier);
+		}
+
+		@Override
+		protected InfoCustomizations obtainLatest(Object versionIdentifier) throws VersionAccessException {
+			InfoCustomizations result = new InfoCustomizations();
+			if (switchIdentifier != null) {
+				Method uiCustomizationsMethod;
+				try {
+					uiCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
+							.getMethod(GUI.UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
+				} catch (NoSuchMethodException e) {
+					uiCustomizationsMethod = null;
+				}
+				if (uiCustomizationsMethod != null) {
+					try {
+						uiCustomizationsMethod.invoke(null, result);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						throw new UnexpectedError(e);
+					}
+				}
+				getCustomizedTypeCache().clear();
+			}
+			return result;
+		}
+
+	};
+
+	public JESBReflectionUI(MultiSwingCustomizer parent, String switchIdentifier) {
+		super(parent, switchIdentifier);
+	}
+
+	@Override
+	public InfoProxyFactoryChain getInfoCustomizationsFactory() {
+		return new InfoProxyFactoryChain(getMainInfoCustomizationsFactory(), getSubInfoCustomizationsFactory());
+
+	}
+
+	@Override
+	protected IInfoProxyFactory getSubInfoCustomizationsFactory() {
+		InfoProxyFactoryChain result = new InfoProxyFactoryChain();
+		result.accessFactories().add(new InfoCustomizationsFactory(this) {
+
+			@Override
+			public String getIdentifier() {
+				return "SubCustomizationsFactory [of=" + switchIdentifier + "]";
+			}
+
+			@Override
+			protected InfoProxyFactory getInfoCustomizationsSetupFactory() {
+				return ((SubCustomizedUI) getReflectionUI()).getInfoCustomizationsSetupFactory();
+			}
+
+			@Override
+			public InfoCustomizations accessInfoCustomizations() {
+				try {
+					return upToDateSubInfoCustomizations.get();
+				} catch (VersionAccessException e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		});
+		result.accessFactories().add(super.getSubInfoCustomizationsFactory());
+		return result;
+	}
+
+	private IInfoProxyFactory getMainInfoCustomizationsFactory() {
+		if (getParent() == null) {
+			return IInfoProxyFactory.NULL_INFO_PROXY_FACTORY;
+		}
+		return new InfoCustomizationsFactory(this) {
+
+			@Override
+			protected InfoProxyFactory getInfoCustomizationsSetupFactory() {
+				return ((SubCustomizedUI) getReflectionUI()).getInfoCustomizationsSetupFactory();
+			}
+
+			@Override
+			public String getIdentifier() {
+				return "MainCustomizationsFactory [of=" + switchIdentifier + "]";
+			}
+
+			@Override
+			protected InfoCustomizations accessInfoCustomizations() {
+				return JESBReflectionUI.this.getParent().getReflectionUI().getInfoCustomizations();
+			}
+		};
+	}
+
+	@Override
+	public IApplicationInfo getApplicationInfoAfterCustomizations(IApplicationInfo appInfo) {
+		return appInfo;
+	}
+
+	@Override
+	public IApplicationInfo getApplicationInfoBeforeCustomizations(IApplicationInfo appInfo) {
+		return appInfo;
+	}
 
 	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
 		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
@@ -213,9 +329,9 @@ public class JESBReflectionUI extends CustomizedUI {
 		return focusTrackingDisabled;
 	}
 
-	public void setFocusTrackingDisabled(boolean focusTrackingDisabled) {
-		this.focusTrackingDisabled = focusTrackingDisabled;
-		if (!focusTrackingDisabled) {
+	public void setFocusTrackingDisabled(boolean b) {
+		focusTrackingDisabled = b;
+		if (!b) {
 			while (gainedFocusWhileTrackingDisabled.size() > 0) {
 				Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
 				handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
@@ -770,7 +886,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				List<IFieldInfo> baseResult = super.getFields(type);
 				for (int i = 0; i < baseResult.size(); i++) {
 					if (VariantCustomizations.isVariantField(baseResult.get(i))) {
-						baseResult.set(i, VariantCustomizations.adaptVariantField(baseResult.get(i), type));
+						baseResult.set(i, VariantCustomizations.adaptVariantField(JESBReflectionUI.this,
+								baseResult.get(i), type));
 					}
 				}
 				if ((objectClass != null) && Solution.class.isAssignableFrom(objectClass)) {
@@ -1673,8 +1790,8 @@ public class JESBReflectionUI extends CustomizedUI {
 				if ((objectClass != null) && ParameterBuilder.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature()
 							.matches(MiscUtils
-									.escapeRegex(ReflectionUIUtils.buildMethodSignature("<TYPE>",
-											"build", Arrays.asList(Plan.ExecutionContext.class.getName(),
+									.escapeRegex(ReflectionUIUtils.buildMethodSignature("<TYPE>", "build",
+											Arrays.asList(Plan.ExecutionContext.class.getName(),
 													Plan.ExecutionInspector.class.getName())))
 									.replace("<TYPE>", ".*"))) {
 						return true;
@@ -1924,7 +2041,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				return super.getListItemAbstractFormValidationJob(listType, itemPosition);
 			}
 
-		}.wrapTypeInfo(super.getTypeInfoBeforeCustomizations(type));
+		}.wrapTypeInfo(type);
 	}
 
 	@Override
@@ -2047,7 +2164,7 @@ public class JESBReflectionUI extends CustomizedUI {
 				}
 				return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
 			}
-		}.wrapTypeInfo(super.getTypeInfoAfterCustomizations(type));
+		}.wrapTypeInfo(type);
 	}
 
 	private Asset getCurrentAsset(ValidationSession session) {
@@ -2169,7 +2286,8 @@ public class JESBReflectionUI extends CustomizedUI {
 			return variantFieldName + "Reference";
 		}
 
-		public static IFieldInfo adaptVariantField(IFieldInfo variantField, ITypeInfo objectType) {
+		public static IFieldInfo adaptVariantField(ReflectionUI reflectionUI, IFieldInfo variantField,
+				ITypeInfo objectType) {
 			return new FieldInfoProxy(variantField) {
 				String valueCaption;
 				{
@@ -2207,7 +2325,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 				@Override
 				public ITypeInfo getType() {
-					return GUI.INSTANCE.getReflectionUI().getTypeInfo(precomputeAdapterType().getSource());
+					return reflectionUI.getTypeInfo(precomputeAdapterType().getSource());
 				}
 
 				ITypeInfo precomputeAdapterType() {
@@ -2269,8 +2387,8 @@ public class JESBReflectionUI extends CustomizedUI {
 												plugin.getIdentifier(), pluginConfiguration);
 										return result;
 									}
-								}.wrapTypeInfo(GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(
-										boolean.class, new SpecificitiesIdentifier(adapterTypeName, getName()))));
+								}.wrapTypeInfo(reflectionUI.getTypeInfo(new JavaTypeInfoSource(boolean.class,
+										new SpecificitiesIdentifier(adapterTypeName, getName()))));
 							}
 
 						};
@@ -2317,11 +2435,10 @@ public class JESBReflectionUI extends CustomizedUI {
 
 								@Override
 								public ITypeInfo getType() {
-									return GUI.INSTANCE.getReflectionUI()
-											.getTypeInfo(new JavaTypeInfoSource(
-													((JavaTypeInfoSource) variantField.getType().getSource())
-															.guessGenericTypeParameters(Variant.class, 0),
-													new SpecificitiesIdentifier(parentTypeName, getName())));
+									return reflectionUI.getTypeInfo(new JavaTypeInfoSource(
+											((JavaTypeInfoSource) variantField.getType().getSource())
+													.guessGenericTypeParameters(Variant.class, 0),
+											new SpecificitiesIdentifier(parentTypeName, getName())));
 								}
 
 							};
@@ -2330,8 +2447,8 @@ public class JESBReflectionUI extends CustomizedUI {
 						IFieldInfo getVariableReferenceField(String parentTypeName, String caption) {
 							return new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
-								GenericEnumerationFactory optionsFactory = new GenericEnumerationFactory(
-										GUI.INSTANCE.getReflectionUI(), new EnvironmentVariableOptionCollector(),
+								GenericEnumerationFactory optionsFactory = new GenericEnumerationFactory(reflectionUI,
+										new EnvironmentVariableOptionCollector(),
 										EnvironmentVariable.class.getName() + "Option", "Environment Variable Option",
 										true, false);
 
@@ -2375,9 +2492,8 @@ public class JESBReflectionUI extends CustomizedUI {
 
 								@Override
 								public ITypeInfo getType() {
-									return GUI.INSTANCE.getReflectionUI()
-											.getTypeInfo(optionsFactory.getInstanceTypeInfoSource(
-													new SpecificitiesIdentifier(parentTypeName, getName())));
+									return reflectionUI.getTypeInfo(optionsFactory.getInstanceTypeInfoSource(
+											new SpecificitiesIdentifier(parentTypeName, getName())));
 								}
 
 							};
@@ -2412,7 +2528,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 							@Override
 							public ITypeInfo getType() {
-								return GUI.INSTANCE.getReflectionUI().getTypeInfo(precomputeValuesType().getSource());
+								return reflectionUI.getTypeInfo(precomputeValuesType().getSource());
 							}
 
 							ITypeInfo precomputeValuesType() {
@@ -2457,7 +2573,7 @@ public class JESBReflectionUI extends CustomizedUI {
 
 										@Override
 										public ITypeInfo getType() {
-											return GUI.INSTANCE.getReflectionUI()
+											return reflectionUI
 													.getTypeInfo(precomputeVariableReferenceBoxType().getSource());
 										}
 

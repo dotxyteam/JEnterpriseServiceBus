@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +57,9 @@ import com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import xy.reflect.ui.control.DefaultFieldControlInput;
 import xy.reflect.ui.control.FieldControlDataProxy;
@@ -84,6 +88,12 @@ public class PluginBuilder {
 	}
 
 	public static final PluginBuilder INSTANCE = new PluginBuilder();
+
+	public static final XStream CONTROL_PLUGIN_CONFIGURATION_XSTREAM = new XStream();
+	static {
+		CONTROL_PLUGIN_CONFIGURATION_XSTREAM.addPermission(AnyTypePermission.ANY);
+		CONTROL_PLUGIN_CONFIGURATION_XSTREAM.ignoreUnknownElements();
+	}
 
 	private String packageName;
 	private List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();
@@ -907,7 +917,7 @@ public class PluginBuilder {
 						+ customizedFieldNameExpression + ").setNullValueDistinctForced(true);\n");
 			}
 			if (controlPluginIdentifier != null) {
-				result.append(InfoCustomizations.class.getName() + "							.getTypeCustomization("
+				result.append(InfoCustomizations.class.getName() + ".getTypeCustomization("
 						+ InfoCustomizations.class.getName() + ".getFieldCustomization(" + uiCustomizationsVariableName
 						+ ", " + customizedTypeNameExpression + ", " + customizedFieldNameExpression
 						+ ").getSpecificTypeCustomizations(), " + customizedFieldTypeNameExpression
@@ -917,13 +927,16 @@ public class PluginBuilder {
 				result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginIdentifier(this, \""
 						+ controlPluginIdentifier + "\");\n");
 				if (controlPluginConfiguration != null) {
+					StringWriter serializedConfigurationWriter = new StringWriter();
+					CONTROL_PLUGIN_CONFIGURATION_XSTREAM.marshal(controlPluginConfiguration,
+							new CompactWriter(serializedConfigurationWriter));
 					result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginConfiguration(this, \""
 							+ controlPluginIdentifier + "\", (" + Serializable.class.getName() + ") "
-							+ MiscUtils.class.getName() + ".deserialize(\""
-							+ MiscUtils.escapeJavaString(MiscUtils.serialize(controlPluginConfiguration)) + "\"));\n");
+							+ PluginBuilder.class.getName() + ".CONTROL_PLUGIN_CONFIGURATION_XSTREAM.fromXML(\""
+							+ MiscUtils.escapeJavaString(serializedConfigurationWriter.toString()) + "\"));\n");
 				}
 				result.append("}\n");
-				result.append("});");
+				result.append("});\n");
 			}
 		}
 

@@ -83,6 +83,7 @@ public class MiscUtils {
 					}
 					return super.serializedClass(type);
 				}
+
 			};
 		}
 	};
@@ -110,7 +111,7 @@ public class MiscUtils {
 				}
 				super.writeProperty(object, propertyName, value);
 			}
-		}), -20);
+		}), XStream.PRIORITY_VERY_LOW);
 		XSTREAM.addPermission(AnyTypePermission.ANY);
 		XSTREAM.ignoreUnknownElements();
 	}

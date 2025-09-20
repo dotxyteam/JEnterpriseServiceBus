@@ -213,13 +213,6 @@ public class TestOp implements com.otk.jesb.operation.Operation {
 					xy.reflect.ui.info.custom.InfoCustomizations.getFieldCustomization(infoCustomizations,
 							com.otk3.TestOp.Builder.class.getName(), "param3Variant").setCustomFieldCaption("Param 3");
 					xy.reflect.ui.info.custom.InfoCustomizations
-							.getFieldCustomization(infoCustomizations,
-									com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations.getAdapterTypeName(
-											com.otk3.TestOp.Builder.class.getName(), "param3Variant"),
-									com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations
-											.getConstantValueFieldName("param3Variant"))
-							.setNullValueDistinctForced(true);
-					xy.reflect.ui.info.custom.InfoCustomizations
 							.getTypeCustomization(xy.reflect.ui.info.custom.InfoCustomizations
 									.getFieldCustomization(infoCustomizations,
 											com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations.getAdapterTypeName(
