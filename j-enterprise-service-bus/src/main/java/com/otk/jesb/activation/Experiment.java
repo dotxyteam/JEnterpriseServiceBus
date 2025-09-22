@@ -1,7 +1,6 @@
 package com.otk.jesb.activation;
 
 import java.text.SimpleDateFormat;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,14 +9,13 @@ import javax.swing.SwingUtilities;
 import com.otk.jesb.Session;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.AbstractExperiment;
 import com.otk.jesb.PotentialError;
-import com.otk.jesb.resource.Resource;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.ui.GUI;
 
-public class Experiment extends Plan implements AutoCloseable {
+public class Experiment extends AbstractExperiment implements AutoCloseable {
 
 	public static void main(String... args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -32,58 +30,12 @@ public class Experiment extends Plan implements AutoCloseable {
 		});
 	}
 
-	private List<Resource> temporaryTestResources = new AbstractList<Resource>() {
-
-		int size = 0;
-
-		@Override
-		public Resource get(int index) {
-			return (Resource) Solution.INSTANCE.getContents().get(index);
-		}
-
-		@Override
-		public Resource set(int index, Resource element) {
-			return (Resource) Solution.INSTANCE.getContents().set(index, element);
-		}
-
-		@Override
-		public void add(int index, Resource element) {
-			Solution.INSTANCE.getContents().add(index, element);
-			size++;
-		}
-
-		@Override
-		public Resource remove(int index) {
-			Resource result = (Resource) Solution.INSTANCE.getContents().remove(index);
-			size--;
-			return result;
-		}
-
-		@Override
-		public int size() {
-			return size;
-		}
-	};
-
 	public Experiment(Activator activator) {
 		setActivator(activator);
 	}
 
-	public List<Resource> getTemporaryTestResources() {
-		return temporaryTestResources;
-	}
-
-	public void setTemporaryTestResources(List<Resource> temporaryTestResources) {
-		this.temporaryTestResources = temporaryTestResources;
-	}
-
 	public ActivationEventBasket carryOut() throws Throwable {
 		return new ActivationEventBasket();
-	}
-
-	@Override
-	public void close() throws Exception {
-		temporaryTestResources.clear();
 	}
 
 	public class ActivationEventBasket implements AutoCloseable {

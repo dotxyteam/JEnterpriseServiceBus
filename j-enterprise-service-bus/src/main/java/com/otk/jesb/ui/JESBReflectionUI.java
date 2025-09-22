@@ -25,6 +25,7 @@ import com.otk.jesb.Structure;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.activation.ActivatorStructure;
 import com.otk.jesb.activation.builtin.HTTPRequestReceiver;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
@@ -60,7 +61,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.operation.ParameterBuilder;
+import com.otk.jesb.operation.OperationStructureBuilder;
 import com.otk.jesb.operation.builtin.CallRESTAPI;
 import com.otk.jesb.operation.builtin.CallSOAPWebService;
 import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
@@ -84,6 +85,7 @@ import com.otk.jesb.operation.builtin.Sleep;
 import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.resource.ResourceStructure;
 import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.OpenAPIDescription;
@@ -452,7 +454,7 @@ public class JESBReflectionUI extends SubCustomizedUI {
 				} catch (Exception e) {
 					fieldClass = null;
 				}
-				if ((fieldClass != null) && ParameterBuilder.class.isAssignableFrom(fieldClass)) {
+				if ((fieldClass != null) && OperationStructureBuilder.class.isAssignableFrom(fieldClass)) {
 					return true;
 				}
 				return super.isFormControlEmbedded(field, objectType);
@@ -1734,6 +1736,14 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						}
 					}
 				}
+				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+					if (field.getName().equals("fullName")) {
+						return true;
+					}
+					if (field.getName().equals("fileSystemResourceName")) {
+						return true;
+					}
+				}
 				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 					if (field.getName().equals("inputClass")) {
 						return true;
@@ -1787,7 +1797,7 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						return true;
 					}
 				}
-				if ((objectClass != null) && ParameterBuilder.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && OperationStructureBuilder.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature()
 							.matches(MiscUtils
 									.escapeRegex(ReflectionUIUtils.buildMethodSignature("<TYPE>", "build",
@@ -1829,7 +1839,7 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						return true;
 					}
 				}
-				if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
+				if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
 						return true;
@@ -1850,6 +1860,12 @@ public class JESBReflectionUI extends SubCustomizedUI {
 				if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(HTTPServer.class.getName())))) {
+						return true;
+					}
+				}
+				if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
+					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+							Arrays.asList(boolean.class.getName())))) {
 						return true;
 					}
 				}
@@ -1909,11 +1925,12 @@ public class JESBReflectionUI extends SubCustomizedUI {
 					}
 					((Transition.Condition) object).validate(getCurrentPlan(session)
 							.getTransitionContextVariableDeclarations(getCurrentTransition(session)));
-				} else if ((objectClass != null) && ParameterBuilder.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && OperationStructureBuilder.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 					}
-					((ParameterBuilder<?>) object).validate(false, getCurrentPlan(session), getCurrentStep(session));
+					((OperationStructureBuilder<?>) object).validate(false, getCurrentPlan(session),
+							getCurrentStep(session));
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -1945,12 +1962,12 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 					}
 					((Structure.Element) object).validate(false);
-				} else if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
+				} else if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 					}
 					Plan plan = getCurrentPlan(session);
-					((Activator) object).validate(false, plan);
+					((ActivatorStructure) object).validate(false, plan);
 				} else if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -1968,6 +1985,11 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						}
 					}
 					((HTTPServer.RequestHandler) object).validate(server);
+				} else if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
+					if (JESB.DEBUG) {
+						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+					}
+					((ResourceStructure) object).validate(false);
 				} else {
 					if (JESB.DEBUG) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
@@ -2072,7 +2094,7 @@ public class JESBReflectionUI extends SubCustomizedUI {
 						throw new UnexpectedError();
 					}
 					return Arrays.asList(object, plan, transition);
-				} else if (object instanceof ParameterBuilder) {
+				} else if (object instanceof OperationStructureBuilder) {
 					Plan plan = getCurrentPlan(session);
 					if (plan == null) {
 						throw new UnexpectedError();

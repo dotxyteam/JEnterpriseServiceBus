@@ -57,9 +57,11 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
+import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.util.ClassUtils;
 
@@ -71,7 +73,7 @@ public class MiscUtils {
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
-	private static final XStream XSTREAM = new XStream() {
+	public static final XStream XSTREAM = new XStream() {
 		@Override
 		protected MapperWrapper wrapMapper(MapperWrapper next) {
 			return new MapperWrapper(next) {
@@ -112,6 +114,16 @@ public class MiscUtils {
 				super.writeProperty(object, propertyName, value);
 			}
 		}), XStream.PRIORITY_VERY_LOW);
+		XSTREAM.registerConverter(new ReflectionConverter(XSTREAM.getMapper(), XSTREAM.getReflectionProvider()) {
+			@Override
+			public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
+				if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
+						.isAssignableFrom(type)) {
+					return true;
+				}
+				return false;
+			}
+		}, XStream.PRIORITY_VERY_HIGH);
 		XSTREAM.addPermission(AnyTypePermission.ANY);
 		XSTREAM.ignoreUnknownElements();
 	}

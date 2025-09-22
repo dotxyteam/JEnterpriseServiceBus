@@ -1,12 +1,8 @@
 package com.otk.jesb.activation;
 
-import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
-import com.otk.jesb.solution.Plan;
 
-public abstract class Activator {
-
-	public abstract void validate(boolean recursively, Plan plan) throws ValidationError;
+public abstract class Activator implements ActivatorStructure {
 
 	public abstract Class<?> getInputClass();
 
