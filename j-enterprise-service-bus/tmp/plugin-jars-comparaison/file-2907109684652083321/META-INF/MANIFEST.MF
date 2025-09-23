@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Resource-Metadata-Classes: com.otk6.MyResource$Metadata
+Activator-Metadata-Classes: com.otk6.Schedule$Metadata
+Operation-Metadata-Classes: com.otk6.TestOp$Metadata
+

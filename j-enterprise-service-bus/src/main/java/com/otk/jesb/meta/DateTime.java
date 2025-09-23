@@ -10,14 +10,7 @@ public class DateTime {
 
 	private static SimpleDateFormat JAVA_UTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-	public static final DateTime NOW;
-	static {
-		try {
-			NOW = fromJavaUtilDate(MiscUtils.now());
-		} catch (ParseException e) {
-			throw new UnexpectedError(e);
-		}
-	};
+	public static final DateTime NOW = fromJavaUtilDate(MiscUtils.now());
 
 	private final String stringRepresentation;
 
@@ -29,11 +22,15 @@ public class DateTime {
 		return stringRepresentation;
 	}
 
-	public java.util.Date toJavaUtilDate() throws ParseException {
-		return JAVA_UTIL_DATE_FORMAT.parse(stringRepresentation);
+	public java.util.Date toJavaUtilDate() {
+		try {
+			return JAVA_UTIL_DATE_FORMAT.parse(stringRepresentation);
+		} catch (ParseException e) {
+			throw new UnexpectedError(e);
+		}
 	}
 
-	public static DateTime fromJavaUtilDate(java.util.Date date) throws ParseException {
+	public static DateTime fromJavaUtilDate(java.util.Date date) {
 		return new DateTime(JAVA_UTIL_DATE_FORMAT.format(date));
 	}
 

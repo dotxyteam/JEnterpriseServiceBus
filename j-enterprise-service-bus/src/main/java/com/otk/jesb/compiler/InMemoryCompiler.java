@@ -37,6 +37,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.input.ReaderInputStream;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
+import com.otk.jesb.meta.DelegatingClassLoader;
 import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryCompiler {
@@ -53,14 +54,14 @@ public class InMemoryCompiler {
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
 	private Iterable<String> options = Arrays.asList("-parameters");
+	private final DelegatingClassLoader baseDelegatingClassLoader = new DelegatingClassLoader(new URLClassLoader(new URL[0]));
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
+	{
+		compositeClassLoader.setFirstClassLoader(baseDelegatingClassLoader);
+	}
 	private final Object compilationMutex = new Object();
 	private final Object classResourcesMutex = new Object();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
-
-	public InMemoryCompiler() {
-		setBaseClassLoader(new URLClassLoader(new URL[0]));
-	}
 
 	public byte[] getClassBinary(Class<?> clazz) {
 		if (!(clazz.getClassLoader() instanceof MemoryClassLoader)) {
@@ -79,11 +80,11 @@ public class InMemoryCompiler {
 	}
 
 	public URLClassLoader getBaseClassLoader() {
-		return (URLClassLoader) compositeClassLoader.getFirstClassLoader();
+		return (URLClassLoader) baseDelegatingClassLoader.getDelegate();
 	}
 
 	public void setBaseClassLoader(URLClassLoader classLoader) {
-		compositeClassLoader.setFirstClassLoader(classLoader);
+		baseDelegatingClassLoader.setDelegate(classLoader);
 		synchronized (compilationMutex) {
 			classCache.clear();
 		}
@@ -97,7 +98,7 @@ public class InMemoryCompiler {
 		this.options = options;
 	}
 
-	public Class<?> getClassThroughCache(String className) throws ClassNotFoundException {
+	public Class<?> loadClassThroughCache(String className) throws ClassNotFoundException {
 		synchronized (compilationMutex) {
 			Class<?> c = classCache.get(className);
 			if (c == null) {
@@ -441,6 +442,7 @@ public class InMemoryCompiler {
 		private final ClassIdentifier mainClassIdentifier;
 
 		public MemoryClassLoader(ClassIdentifier classIdentifier) {
+			super(baseDelegatingClassLoader);
 			this.mainClassIdentifier = classIdentifier;
 			compositeClassLoader.add(this);
 		}

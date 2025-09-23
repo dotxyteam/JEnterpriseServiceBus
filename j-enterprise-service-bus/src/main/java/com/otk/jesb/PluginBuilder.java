@@ -505,6 +505,14 @@ public class PluginBuilder {
 			this.executionMethodBody = executionMethodBody;
 		}
 
+		public byte[] getOperationIconImageData() {
+			return operationIconImageData;
+		}
+
+		public void setOperationIconImageData(byte[] operationIconImageData) {
+			this.operationIconImageData = operationIconImageData;
+		}
+
 		public void loadIconImage(File file) throws IOException {
 			operationIconImageData = MiscUtils.readBinary(file);
 		}
@@ -1723,6 +1731,14 @@ public class PluginBuilder {
 			this.validationMethodBody = validationMethodBody;
 		}
 
+		public byte[] getResourceIconImageData() {
+			return resourceIconImageData;
+		}
+
+		public void setResourceIconImageData(byte[] resourceIconImageData) {
+			this.resourceIconImageData = resourceIconImageData;
+		}
+
 		public void loadIconImage(File file) throws IOException {
 			resourceIconImageData = MiscUtils.readBinary(file);
 		}
@@ -2266,6 +2282,14 @@ public class PluginBuilder {
 
 		public void setValidationMethodBody(String validationMethodBody) {
 			this.validationMethodBody = validationMethodBody;
+		}
+
+		public byte[] getActivatorIconImageData() {
+			return activatorIconImageData;
+		}
+
+		public void setActivatorIconImageData(byte[] activatorIconImageData) {
+			this.activatorIconImageData = activatorIconImageData;
 		}
 
 		public void loadIconImage(File file) throws IOException {

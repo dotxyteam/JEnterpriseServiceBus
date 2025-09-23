@@ -884,7 +884,7 @@ public class MiscUtils {
 			return ClassUtils.PRIMITIVE_CLASS_BY_NAME.get(typeName);
 		}
 		try {
-			return IN_MEMORY_COMPILER.getClassThroughCache(typeName);
+			return IN_MEMORY_COMPILER.loadClassThroughCache(typeName);
 		} catch (ClassNotFoundException e1) {
 			throw new PotentialError(e1);
 		}

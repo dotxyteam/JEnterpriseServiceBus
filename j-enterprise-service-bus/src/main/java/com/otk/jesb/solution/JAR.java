@@ -70,6 +70,9 @@ public class JAR extends Asset {
 		URLClassLoader jarsClassLoader = new URLClassLoader(
 				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), Solution.class.getClassLoader());
 		MiscUtils.IN_MEMORY_COMPILER.setBaseClassLoader(jarsClassLoader);
+		PLUGIN_OPERATION_METADATAS.clear();
+		PLUGIN_ACTIVATOR_METADATAS.clear();
+		PLUGIN_RESOURCE_METADATAS.clear();
 		for (JAR jar : jars) {
 			JarURLConnection connection;
 			try {
@@ -89,7 +92,6 @@ public class JAR extends Asset {
 			String activatorMetadataClassNames = attributes
 					.getValue(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY);
 			String resourceMetadataClassNames = attributes.getValue(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY);
-			PLUGIN_OPERATION_METADATAS.clear();
 			if (operationMetadataClassNames != null) {
 				for (String className : operationMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {
@@ -103,7 +105,6 @@ public class JAR extends Asset {
 					}
 				}
 			}
-			PLUGIN_ACTIVATOR_METADATAS.clear();
 			if (activatorMetadataClassNames != null) {
 				for (String className : activatorMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {
@@ -117,7 +118,6 @@ public class JAR extends Asset {
 					}
 				}
 			}
-			PLUGIN_RESOURCE_METADATAS.clear();
 			if (resourceMetadataClassNames != null) {
 				for (String className : resourceMetadataClassNames.split(",")) {
 					if (className.isEmpty()) {

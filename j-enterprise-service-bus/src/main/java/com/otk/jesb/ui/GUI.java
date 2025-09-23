@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -32,6 +33,8 @@ import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
+import com.otk.jesb.meta.Date;
+import com.otk.jesb.meta.DateTime;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.Resource;
@@ -40,6 +43,12 @@ import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.SquigglePainter;
 import de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
@@ -52,8 +61,11 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer;
+import xy.reflect.ui.control.swing.plugin.DatePickerPlugin;
+import xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin;
 import xy.reflect.ui.control.swing.plugin.EditorPlugin;
 import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
@@ -614,6 +626,88 @@ public class GUI extends MultiSwingCustomizer {
 
 	@Override
 	protected SubCustomizedUI createSubCustomizedUI(String switchIdentifier) {
-		return new JESBReflectionUI(this, switchIdentifier) ;
+		return new JESBReflectionUI(this, switchIdentifier);
+	}
+
+	@Override
+	public List<IFieldControlPlugin> getFieldControlPlugins() {
+		List<IFieldControlPlugin> result = new ArrayList<IFieldControlPlugin>(super.getFieldControlPlugins());
+		result.add(new JESDDatePickerPlugin());
+		result.add(new JESDDateTimePickerPlugin());
+		return result;
+	}
+
+	protected static class JESDDatePickerPlugin extends DatePickerPlugin {
+
+		@Override
+		protected boolean handles(Class<?> javaType) {
+			return javaType == Date.class;
+		}
+
+		@Override
+		public DatePicker createControl(Object renderer, IFieldControlInput input) {
+			return super.createControl(renderer, new FieldControlInputProxy(input) {
+
+				@Override
+				public IFieldControlData getControlData() {
+					return new FieldControlDataProxy(super.getControlData()) {
+
+						@Override
+						public Object getValue() {
+							return ((Date) super.getValue()).toJavaUtilDate();
+						}
+
+						@Override
+						public void setValue(Object value) {
+							super.setValue(Date.fromJavaUtilDate((java.util.Date) value));
+						}
+
+						@Override
+						public ITypeInfo getType() {
+							ReflectionUI reflectionUI = ((SwingRenderer) renderer).getReflectionUI();
+							return reflectionUI.getTypeInfo(new JavaTypeInfoSource(java.util.Date.class, null));
+						}
+					};
+				}
+			});
+		}
+
+	}
+
+	protected static class JESDDateTimePickerPlugin extends DateTimePickerPlugin {
+
+		@Override
+		protected boolean handles(Class<?> javaType) {
+			return javaType == DateTime.class;
+		}
+
+		@Override
+		public DateTimePicker createControl(Object renderer, IFieldControlInput input) {
+			return super.createControl(renderer, new FieldControlInputProxy(input) {
+
+				@Override
+				public IFieldControlData getControlData() {
+					return new FieldControlDataProxy(super.getControlData()) {
+
+						@Override
+						public Object getValue() {
+							return ((DateTime) super.getValue()).toJavaUtilDate();
+						}
+
+						@Override
+						public void setValue(Object value) {
+							super.setValue(DateTime.fromJavaUtilDate((java.util.Date) value));
+						}
+
+						@Override
+						public ITypeInfo getType() {
+							ReflectionUI reflectionUI = ((SwingRenderer) renderer).getReflectionUI();
+							return reflectionUI.getTypeInfo(new JavaTypeInfoSource(java.util.Date.class, null));
+						}
+					};
+				}
+			});
+		}
+
 	}
 }
