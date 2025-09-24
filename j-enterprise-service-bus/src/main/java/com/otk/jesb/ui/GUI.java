@@ -320,24 +320,24 @@ public class GUI extends MultiSwingCustomizer {
 		if (object instanceof OperationBuilder) {
 			if (GUI.BUILTIN_OPERATION_METADATAS.stream().map(OperationMetadata::getOperationBuilderClass)
 					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_MAIN_CUSTOMIZER;
+				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 			} else if (GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
 					.map(OperationMetadata::getOperationBuilderClass).anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_MAIN_CUSTOMIZER;
+				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 			} else {
 				return object.getClass().getName();
 			}
 		} else if (object instanceof Activator) {
 			if (GUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
 					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_MAIN_CUSTOMIZER;
+				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 			} else {
 				return object.getClass().getName();
 			}
 		} else if (object instanceof Resource) {
 			if (GUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
 					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_MAIN_CUSTOMIZER;
+				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 			} else {
 				return object.getClass().getName();
 			}
@@ -354,7 +354,7 @@ public class GUI extends MultiSwingCustomizer {
 	@Override
 	protected SubSwingCustomizer createSubCustomizer(String switchIdentifier) {
 		SubSwingCustomizer result = new JESBSubSwingCustomizer(switchIdentifier);
-		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_MAIN_CUSTOMIZER) ? (switchIdentifier + "-")
+		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS) ? (switchIdentifier + "-")
 				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
 		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
 			result.setInfoCustomizationsOutputFilePath(
@@ -882,7 +882,7 @@ public class GUI extends MultiSwingCustomizer {
 		};
 
 		public JESBSubCustomizedUI(String switchIdentifier) {
-			super(GUI.this, switchIdentifier);
+			super(switchIdentifier);
 		}
 
 		@Override
