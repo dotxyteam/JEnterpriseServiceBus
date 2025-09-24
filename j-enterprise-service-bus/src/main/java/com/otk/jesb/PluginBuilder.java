@@ -54,8 +54,7 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
-import com.otk.jesb.ui.JESBReflectionUI;
-import com.otk.jesb.ui.JESBReflectionUI.VariantCustomizations;
+import com.otk.jesb.ui.GUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
@@ -1119,7 +1118,7 @@ public class PluginBuilder {
 
 		public List<String> getAssetClassNameOptions() {
 			List<String> result = new ArrayList<String>();
-			result.addAll(JESBReflectionUI.getAllResourceMetadatas().stream()
+			result.addAll(GUI.getAllResourceMetadatas().stream()
 					.map(metadata -> metadata.getResourceClass().getName()).collect(Collectors.toList()));
 			result.add(Plan.class.getName());
 			result.add(Folder.class.getName());

@@ -360,7 +360,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata<?> metadata : JESBReflectionUI.getAllOperationMetadatas()) {
+				for (OperationMetadata<?> metadata : GUI.getAllOperationMetadatas()) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -377,7 +377,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (OperationMetadata<?> metadata : JESBReflectionUI.getAllOperationMetadatas()) {
+							for (OperationMetadata<?> metadata : GUI.getAllOperationMetadatas()) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
@@ -738,7 +738,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	protected void refreshElementObjects() {
 		Plan plan = getPlan();
-		setDragIntent(JESBReflectionUI.getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));
+		setDragIntent(GUI.getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));
 		Set<JDiagramObject> selection = getSelection();
 		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
 				.collect(Collectors.toList());

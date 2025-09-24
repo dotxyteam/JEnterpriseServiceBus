@@ -52,7 +52,7 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.ui.JESBReflectionUI;
+import com.otk.jesb.ui.GUI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
@@ -231,12 +231,12 @@ public class MiscUtils {
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.getAllOperationMetadatas()) {
+		for (OperationMetadata<?> operationMetadata : GUI.getAllOperationMetadatas()) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}
 		}
-		for (OperationMetadata<?> operationMetadata : JESBReflectionUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS) {
+		for (OperationMetadata<?> operationMetadata : GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS) {
 			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return operationMetadata.getOperationIconImagePath();
 			}

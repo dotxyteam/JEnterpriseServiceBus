@@ -11,7 +11,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Asset;
-import com.otk.jesb.ui.JESBReflectionUI;
+import com.otk.jesb.ui.GUI;
 
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.field.GetterFieldInfo;
@@ -25,13 +25,13 @@ public class StaticCodeTests {
 	@Test
 	public void checkFieldTypes() throws Exception{
 		List<Class<?>> classesToCheck = new ArrayList<Class<?>>();
-		classesToCheck.addAll(JESBReflectionUI.BUILTIN_OPERATION_METADATAS.stream()
+		classesToCheck.addAll(GUI.BUILTIN_OPERATION_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
+		classesToCheck.addAll(GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
 				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
+		classesToCheck.addAll(GUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
 				.collect(Collectors.toList()));
-		classesToCheck.addAll(JESBReflectionUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
+		classesToCheck.addAll(GUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
 				.collect(Collectors.toList()));
 		for (Class<?> classToCheck : classesToCheck) {
 			ITypeInfo typeInfo = ReflectionUI.getDefault().getTypeInfo(new JavaTypeInfoSource(classToCheck, null));

@@ -792,13 +792,13 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 										Facade initializerFacade = (Facade) initializerPosition.getItem();
 										RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) Facade
 												.getRoot(initializerFacade)).getUnderlying();
-										JESBReflectionUI.backupRootInstanceBuilderState(rootInstanceBuilder);
+										GUI.backupRootInstanceBuilderState(rootInstanceBuilder);
 										PathNode pathNode = (PathNode) data;
 										pathNode = relativizePathNode(pathNode, initializerFacade);
 										try {
 											accept = map(pathNode, initializerPosition, initializerTreeControl);
 										} catch (CancellationException e) {
-											JESBReflectionUI
+											GUI
 													.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder)
 													.run();
 											initializerTreeControl.refreshUI(false);
