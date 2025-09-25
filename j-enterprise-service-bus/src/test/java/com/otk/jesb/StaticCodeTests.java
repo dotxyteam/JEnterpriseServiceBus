@@ -11,6 +11,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.ui.GUI;
 
 import xy.reflect.ui.ReflectionUI;
@@ -23,12 +24,12 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 public class StaticCodeTests {
 
 	@Test
-	public void checkFieldTypes() throws Exception{
+	public void checkFieldTypes() throws Exception {
 		List<Class<?>> classesToCheck = new ArrayList<Class<?>>();
-		classesToCheck.addAll(GUI.BUILTIN_OPERATION_METADATAS.stream()
-				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
-		classesToCheck.addAll(GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
-				.map(OperationMetadata::getOperationBuilderClass).collect(Collectors.toList()));
+		classesToCheck.addAll(GUI.BUILTIN_OPERATION_METADATAS.stream().map(OperationMetadata::getOperationBuilderClass)
+				.collect(Collectors.toList()));
+		classesToCheck.addAll(GUI.BUILTIN_COMPOSITE_STEP_METADATAS.stream()
+				.map(CompositeStepMetadata::getCompositeStepClass).collect(Collectors.toList()));
 		classesToCheck.addAll(GUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
 				.collect(Collectors.toList()));
 		classesToCheck.addAll(GUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)

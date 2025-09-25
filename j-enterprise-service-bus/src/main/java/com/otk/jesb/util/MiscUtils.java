@@ -50,6 +50,7 @@ import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.ui.GUI;
@@ -227,18 +228,18 @@ public class MiscUtils {
 	}
 
 	public static ResourcePath getIconImagePath(Step step) {
+		for (CompositeStepMetadata metadata : GUI.BUILTIN_COMPOSITE_STEP_METADATAS) {
+			if (metadata.getCompositeStepClass().equals(step.getClass())) {
+				return metadata.getCompositeStepIconImagePath();
+			}
+		}
 		OperationBuilder<?> operationBuilder = step.getOperationBuilder();
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata<?> operationMetadata : GUI.getAllOperationMetadatas()) {
-			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
-				return operationMetadata.getOperationIconImagePath();
-			}
-		}
-		for (OperationMetadata<?> operationMetadata : GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS) {
-			if (operationMetadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
-				return operationMetadata.getOperationIconImagePath();
+		for (OperationMetadata<?> metadata : GUI.getAllOperationMetadatas()) {
+			if (metadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
+				return metadata.getOperationIconImagePath();
 			}
 		}
 		return null;

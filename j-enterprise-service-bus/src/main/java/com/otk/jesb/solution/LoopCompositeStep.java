@@ -22,7 +22,6 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
-import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
@@ -192,30 +191,6 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 				return resultClass.getConstructors()[0].newInstance(resultConstructorArguments);
 			} else {
 				return null;
-			}
-		}
-
-		public static class Metadata implements OperationMetadata<LoopOperation> {
-
-			@Override
-			public String getOperationTypeName() {
-				return "Loop";
-			}
-
-			@Override
-			public String getCategoryName() {
-				return "Composite";
-			}
-
-			@Override
-			public Class<? extends OperationBuilder<LoopOperation>> getOperationBuilderClass() {
-				return Builder.class;
-			}
-
-			@Override
-			public ResourcePath getOperationIconImagePath() {
-				return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-						LoopCompositeStep.class.getPackage().getName().replace(".", "/") + "/Loop.png"));
 			}
 		}
 
@@ -597,6 +572,25 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 
 		}
 
+	}
+
+	public static class Metadata implements CompositeStepMetadata {
+
+		@Override
+		public String getCompositeStepTypeName() {
+			return "Loop";
+		}
+
+		@Override
+		public Class<? extends CompositeStep<?>> getCompositeStepClass() {
+			return LoopCompositeStep.class;
+		}
+
+		@Override
+		public ResourcePath getCompositeStepIconImagePath() {
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(LoopCompositeStep.class.getName().replace(".", "/") + ".png"));
+		}
 	}
 
 }

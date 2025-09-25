@@ -41,8 +41,8 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.PlanElement;
 import com.otk.jesb.solution.CompositeStep;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.LoopCompositeStep;
-import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Metadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
@@ -410,8 +410,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				List<JDiagramActionCategory> result = new ArrayList<JDiagramActionCategory>();
 				result.add(new JDiagramActionCategory() {
 
-					final Metadata metadata = new Metadata();
-
 					@Override
 					public String getName() {
 						return "Flow Control";
@@ -420,12 +418,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					@Override
 					public List<JDiagramAction> getActions() {
 						List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-						result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
-							@Override
-							public Step get() {
-								return new LoopCompositeStep();
-							}
-						}, metadata.getOperationTypeName(), metadata.getOperationIconImagePath()));
+						for (CompositeStepMetadata metadata : GUI.BUILTIN_COMPOSITE_STEP_METADATAS) {
+							result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
+								@Override
+								public Step get() {
+									return new LoopCompositeStep();
+								}
+							}, metadata.getCompositeStepTypeName(), metadata.getCompositeStepIconImagePath()));
+						}
 						return result;
 					}
 				});

@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.DropMode;
@@ -75,6 +74,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.Date;
 import com.otk.jesb.meta.DateTime;
+import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.operation.OperationStructureBuilder;
@@ -109,6 +109,8 @@ import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.resource.builtin.WSDL;
 import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.CompositeStep;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.LoopCompositeStep;
@@ -214,8 +216,8 @@ public class GUI extends MultiSwingCustomizer {
 			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
 			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
 			new CallSOAPWebService.Metadata());
-	public static final List<OperationMetadata<?>> BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS = Arrays
-			.<OperationMetadata<?>>asList(new LoopOperation.Metadata());
+	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
+			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
 	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
 			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),
 			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
@@ -261,7 +263,7 @@ public class GUI extends MultiSwingCustomizer {
 		this.subCustomizationsSwitchSelector = new Function<Object, String>() {
 			@Override
 			public String apply(Object object) {
-				return selectSubCustomizationsSwitch(object);
+				return selectSubCustomizationsSwitch(object.getClass());
 			}
 		};
 	}
@@ -316,31 +318,23 @@ public class GUI extends MultiSwingCustomizer {
 		};
 	}
 
-	protected String selectSubCustomizationsSwitch(Object object) {
-		if (object instanceof OperationBuilder) {
-			if (GUI.BUILTIN_OPERATION_METADATAS.stream().map(OperationMetadata::getOperationBuilderClass)
-					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
-			} else if (GUI.BUILTIN_COMPOSITE_STEP_OPERATION_METADATAS.stream()
-					.map(OperationMetadata::getOperationBuilderClass).anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
-			} else {
-				return object.getClass().getName();
-			}
-		} else if (object instanceof Activator) {
-			if (GUI.BUILTIN_ACTIVATOR__METADATAS.stream().map(ActivatorMetadata::getActivatorClass)
-					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
-			} else {
-				return object.getClass().getName();
-			}
-		} else if (object instanceof Resource) {
-			if (GUI.BUILTIN_RESOURCE_METADATAS.stream().map(ResourceMetadata::getResourceClass)
-					.anyMatch(Predicate.isEqual(object.getClass()))) {
-				return MultiSwingCustomizer.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
-			} else {
-				return object.getClass().getName();
-			}
+	protected String selectSubCustomizationsSwitch(Class<?> objectClass) {
+		if(objectClass == RootInstanceBuilder.class) {
+			return SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
+		}
+		if (objectClass.getEnclosingClass() != null) {
+			return selectSubCustomizationsSwitch(objectClass.getEnclosingClass());
+		}
+		if (Operation.class.isAssignableFrom(objectClass) ) {
+			return objectClass.getName();
+		} else if (OperationBuilder.class.isAssignableFrom(objectClass)) {
+			return MiscUtils.inferOperationClass(objectClass).getName();
+		} else if (Activator.class.isAssignableFrom(objectClass)) {
+			return objectClass.getName();
+		} else if (Resource.class.isAssignableFrom(objectClass)) {
+			return objectClass.getName();
+		} else if (CompositeStep.class.isAssignableFrom(objectClass)) {
+			return objectClass.getName();
 		} else {
 			return null;
 		}
@@ -354,7 +348,8 @@ public class GUI extends MultiSwingCustomizer {
 	@Override
 	protected SubSwingCustomizer createSubCustomizer(String switchIdentifier) {
 		SubSwingCustomizer result = new JESBSubSwingCustomizer(switchIdentifier);
-		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS) ? (switchIdentifier + "-")
+		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
+				? (switchIdentifier + "-")
 				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
 		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
 			result.setInfoCustomizationsOutputFilePath(
@@ -1601,8 +1596,9 @@ public class GUI extends MultiSwingCustomizer {
 
 													@Override
 													public ITypeInfo getType() {
-														return JESBSubCustomizedUI.this.getTypeInfo(new JavaTypeInfoSource(
-																StackTraceElement[].class, null));
+														return JESBSubCustomizedUI.this.getTypeInfo(
+																new JavaTypeInfoSource(StackTraceElement[].class,
+																		null));
 													}
 
 													@Override
@@ -1968,7 +1964,7 @@ public class GUI extends MultiSwingCustomizer {
 
 							@Override
 							public String getCaption() {
-								return ReflectionUIUtils.identifierToCaption(getName());
+								return ReflectionUIUtils.formatMethodCaption(this, getName(), 0);
 							}
 
 							@Override

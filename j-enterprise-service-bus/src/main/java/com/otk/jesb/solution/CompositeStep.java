@@ -8,6 +8,8 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 
+import xy.reflect.ui.info.ResourcePath;
+
 public abstract class CompositeStep<T extends Operation> extends Step {
 
 	public abstract List<VariableDeclaration> getContextualVariableDeclarations();
@@ -44,6 +46,15 @@ public abstract class CompositeStep<T extends Operation> extends Step {
 					stepIconWidth, stepIconHeight);
 		}
 		return result;
+	}
+	
+	
+	public interface CompositeStepMetadata {
+		
+		ResourcePath getCompositeStepIconImagePath();
+		Class<? extends CompositeStep<?>> getCompositeStepClass();
+		String getCompositeStepTypeName();
+		
 	}
 
 }
