@@ -342,9 +342,10 @@ public class PluginBuilder {
 	private static Object getControlPluginConfigurationOnIdentifierUpdate(String controlPluginIdentifier,
 			Object oldControlPluginConfiguration) {
 		if (controlPluginIdentifier != null) {
-			IFieldControlPlugin selectedControlPlugin = GUI.INSTANCE.getFieldControlPlugins().stream()
-					.filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier)).findFirst()
-					.get();
+			IFieldControlPlugin selectedControlPlugin = GUI.INSTANCE
+					.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
+					.stream().filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier))
+					.findFirst().get();
 			if (selectedControlPlugin instanceof ICustomizableFieldControlPlugin) {
 				Object defaultConfiguration = ((ICustomizableFieldControlPlugin) selectedControlPlugin)
 						.getDefaultControlCustomization();
@@ -455,6 +456,7 @@ public class PluginBuilder {
 		private List<ParameterDescriptor> parameters = new ArrayList<ParameterDescriptor>();
 		private ClassOptionDescriptor result;
 		private String executionMethodBody;
+		private String validationMethodBody;
 
 		public String getOpertionTypeName() {
 			return opertionTypeName;
@@ -502,6 +504,14 @@ public class PluginBuilder {
 
 		public void setExecutionMethodBody(String executionMethodBody) {
 			this.executionMethodBody = executionMethodBody;
+		}
+
+		public String getValidationMethodBody() {
+			return validationMethodBody;
+		}
+
+		public void setValidationMethodBody(String validationMethodBody) {
+			this.validationMethodBody = validationMethodBody;
 		}
 
 		public byte[] getOperationIconImageData() {
@@ -620,7 +630,9 @@ public class PluginBuilder {
 			result.append("@Override\n");
 			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " currentPlan, "
 					+ Step.class.getName() + " currentStep) {\n");
-			result.append(generateValidationMethodBody(operationClassName, options) + "\n");
+			if (validationMethodBody != null) {
+				result.append(validationMethodBody + "\n");
+			}
 			result.append("}\n");
 			return result.toString();
 		}
@@ -709,10 +721,6 @@ public class PluginBuilder {
 				return "return null;";
 			}
 			return result.generateClassOptionMethodBody(operationClassName, RESULT_OPTION_NAME, options);
-		}
-
-		protected String generateValidationMethodBody(String operationClassName, Map<Object, Object> options) {
-			return "";
 		}
 
 		public void validate() throws ValidationError {
@@ -892,7 +900,13 @@ public class PluginBuilder {
 		}
 
 		public List<String> getTypeNameOrAliasOptions() {
-			return internalElement.getTypeNameOrAliasOptions();
+			List<String> result = new ArrayList<String>(internalElement.getTypeNameOrAliasOptions());
+			if (internalElement.getTypeNameOrAlias() != null) {
+				if (!internalElement.getTypeNameOrAliasOptions().contains(internalElement.getTypeNameOrAlias())) {
+					result.add(internalElement.getTypeNameOrAlias());
+				}
+			}
+			return result;
 		}
 
 		public String getDefaultValueExpression() {
@@ -957,7 +971,8 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.getFieldControlPlugins().stream()
+			return GUI.INSTANCE.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
+					.getFieldControlPlugins().stream()
 					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
@@ -1118,8 +1133,8 @@ public class PluginBuilder {
 
 		public List<String> getAssetClassNameOptions() {
 			List<String> result = new ArrayList<String>();
-			result.addAll(GUI.getAllResourceMetadatas().stream()
-					.map(metadata -> metadata.getResourceClass().getName()).collect(Collectors.toList()));
+			result.addAll(GUI.getAllResourceMetadatas().stream().map(metadata -> metadata.getResourceClass().getName())
+					.collect(Collectors.toList()));
 			result.add(Plan.class.getName());
 			result.add(Folder.class.getName());
 			result.add(JAR.class.getName());
@@ -1244,7 +1259,8 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.getFieldControlPlugins().stream()
+			return GUI.INSTANCE.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
+					.getFieldControlPlugins().stream()
 					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
@@ -2328,6 +2344,22 @@ public class PluginBuilder {
 			for (AttributeDescriptor attribute : attributes) {
 				activatorStructure.getElements().add(attribute.getActivatorClassElement(activatorClassName));
 			}
+			activatorStructure.getElements().add(new Structure.SimpleElement() {
+				{
+					setName("activationHandler");
+					setTypeNameOrAlias(com.otk.jesb.activation.ActivationHandler.class.getName());
+					Structure.Optionality optionality = new Structure.Optionality();
+					{
+						optionality.setDefaultValueExpression("null");
+						setOptionality(optionality);
+					}
+				}
+
+				@Override
+				protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
+					return null;
+				}
+			});
 			StringBuilder additionalMethodDeclarations = new StringBuilder();
 			StringBuilder additionalInnerClassesDeclarations = new StringBuilder();
 			generateInputSourceCode(activatorClassName, additionalMethodDeclarations,
@@ -2369,11 +2401,13 @@ public class PluginBuilder {
 				if (handlerInitializationStatements != null) {
 					additionalMethodDeclarations.append(handlerInitializationStatements + "\n");
 				}
+				additionalMethodDeclarations.append("this.activationHandler = activationHandler;\n");
 				additionalMethodDeclarations.append("}\n");
 			}
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public void finalizeAutomaticTrigger() throws Exception {\n");
+				additionalMethodDeclarations.append("this.activationHandler = null;\n");
 				if (handlerFinalizationStatements != null) {
 					additionalMethodDeclarations.append(handlerFinalizationStatements + "\n");
 				}
@@ -2382,7 +2416,7 @@ public class PluginBuilder {
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public boolean isAutomaticTriggerReady() {\n");
-				additionalMethodDeclarations.append("return false;\n");
+				additionalMethodDeclarations.append("return activationHandler != null;\n");
 				additionalMethodDeclarations.append("}\n");
 			}
 

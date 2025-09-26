@@ -14,6 +14,10 @@ public class DateTime {
 
 	private final String stringRepresentation;
 
+	public DateTime() {
+		this(NOW.getStringRepresentation());
+	}
+		
 	public DateTime(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}

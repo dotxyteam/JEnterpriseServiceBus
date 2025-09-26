@@ -206,6 +206,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
+		this.activationHandler = null;
 		HTTPServer server = expectServer();
 		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
 		WSDL.OperationDescriptor operation = expectOperationDescriptor();
@@ -213,7 +214,6 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			requestHandler.deactivate(server);
 		}
 		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
-		this.activationHandler = null;
 	}
 
 	@Override

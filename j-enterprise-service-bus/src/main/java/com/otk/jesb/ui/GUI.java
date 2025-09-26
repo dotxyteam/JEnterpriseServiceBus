@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.swing.DropMode;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
 import com.otk.jesb.Debugger;
@@ -153,6 +154,7 @@ import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer;
 import xy.reflect.ui.control.swing.plugin.DatePickerPlugin;
 import xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin;
 import xy.reflect.ui.control.swing.plugin.EditorPlugin;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin;
 import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin;
 import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin.ToggleButtonConfiguration;
 import xy.reflect.ui.control.swing.renderer.Form;
@@ -319,13 +321,13 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	protected String selectSubCustomizationsSwitch(Class<?> objectClass) {
-		if(objectClass == RootInstanceBuilder.class) {
+		if (objectClass == RootInstanceBuilder.class) {
 			return SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
 		if (objectClass.getEnclosingClass() != null) {
 			return selectSubCustomizationsSwitch(objectClass.getEnclosingClass());
 		}
-		if (Operation.class.isAssignableFrom(objectClass) ) {
+		if (Operation.class.isAssignableFrom(objectClass)) {
 			return objectClass.getName();
 		} else if (OperationBuilder.class.isAssignableFrom(objectClass)) {
 			return MiscUtils.inferOperationClass(objectClass).getName();
@@ -370,18 +372,18 @@ public class GUI extends MultiSwingCustomizer {
 		return new JESBSubCustomizedUI(switchIdentifier);
 	}
 
-	@Override
-	public List<IFieldControlPlugin> getFieldControlPlugins() {
-		List<IFieldControlPlugin> result = new ArrayList<IFieldControlPlugin>(super.getFieldControlPlugins());
-		result.add(new JESDDatePickerPlugin());
-		result.add(new JESDDateTimePickerPlugin());
-		return result;
-	}
-
 	private class JESBSubSwingCustomizer extends SubSwingCustomizer {
 
 		public JESBSubSwingCustomizer(String switchIdentifier) {
 			super(switchIdentifier);
+		}
+
+		@Override
+		public List<IFieldControlPlugin> getFieldControlPlugins() {
+			List<IFieldControlPlugin> result = new ArrayList<IFieldControlPlugin>(super.getFieldControlPlugins());
+			result.add(new JESDDatePickerPlugin());
+			result.add(new JESDDateTimePickerPlugin());
+			return result;
 		}
 
 		@Override
@@ -707,8 +709,64 @@ public class GUI extends MultiSwingCustomizer {
 									};
 								}
 							}
+							if (filteredObjectType.getName().equals(CompilationError.class.getName())) {
+								if (field.getName().equals("sourceCode")) {
+									final EditorPlugin editorPlugin = new EditorPlugin();
+									final EditorPlugin.EditorConfiguration pluginConfiguration = new EditorPlugin.EditorConfiguration();
+									{
+										pluginConfiguration.syntaxImplementationClassName = JavaSyntaxKit.class
+												.getName();
+										pluginConfiguration.height = new StyledTextPlugin.StyledTextConfiguration.ControlDimensionSpecification();
+										pluginConfiguration.height.value = 350;
+									}
+									EditorPlugin.EditorControl result = editorPlugin.new EditorControl(swingRenderer,
+											new FieldControlInputProxy(this) {
+												@Override
+												public IFieldControlData getControlData() {
+													return new FieldControlDataProxy(super.getControlData()) {
+														@Override
+														public ITypeInfo getType() {
+															return new InfoProxyFactory() {
+																@Override
+																protected Map<String, Object> getSpecificProperties(
+																		ITypeInfo type) {
+																	Map<String, Object> result = new HashMap<String, Object>(
+																			super.getSpecificProperties(type));
+																	ReflectionUIUtils.updateFieldControlPluginValues(
+																			result, editorPlugin.getIdentifier(),
+																			pluginConfiguration);
+																	return result;
+																}
+															}.wrapTypeInfo(super.getType());
+														}
+													};
+												}
+											});
+									final JEditorPane editorPane = (JEditorPane) result.getTextComponent();
+									final CompilationError compilationError = (CompilationError) getObject();
+									SwingUtilities.invokeLater(new Runnable() {
+										@Override
+										public void run() {
+											int errorStart = (compilationError.getStartPosition() == -1) ? 0
+													: compilationError.getStartPosition();
+											int errorEnd = (compilationError.getEndPosition() == -1)
+													? editorPane.getText().length()
+													: compilationError.getEndPosition();
+											try {
+												editorPane.getHighlighter().addHighlight(errorStart, errorEnd,
+														new SquigglePainter(Color.RED));
+											} catch (BadLocationException e) {
+												throw new UnexpectedError(e);
+											}
+											editorPane.getCaret().setSelectionVisible(true);
+											editorPane.setSelectionStart(errorStart);
+											editorPane.setSelectionEnd(errorEnd);
+										}
+									});
+									return result;
+								}
+							}
 							return super.createFieldControl();
-
 						}
 
 					};
@@ -829,7 +887,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
-			openObjectDialog(activatorComponent, new Exception(null, error));
+			openObjectDialog(activatorComponent, new Exception(null, error), null, null, false);
 		}
 
 		@Override
@@ -2432,6 +2490,22 @@ public class GUI extends MultiSwingCustomizer {
 				}
 
 				@Override
+				protected boolean isRelevant(IFieldInfo field, Object object, ITypeInfo objectType) {
+					Class<?> objectClass;
+					try {
+						objectClass = MiscUtils.getJESBClass(objectType.getName());
+					} catch (Exception e) {
+						objectClass = null;
+					}
+					if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
+						if (field.getName().equals("message")) {
+							return field.getValue(object) != null;
+						}
+					}
+					return super.isRelevant(field, object, objectType);
+				}
+
+				@Override
 				protected boolean isModificationStackAccessible(ITypeInfo type) {
 					try {
 						Class<?> objectClass = MiscUtils.getJESBClass(type.getName());
@@ -2862,13 +2936,21 @@ public class GUI extends MultiSwingCustomizer {
 
 						@Override
 						public Object getValue() {
-							return ((Date) super.getValue()).toJavaUtilDate();
+							Date value = (Date) super.getValue();
+							if(value == null) {
+								return null;
+							}
+							return value.toJavaUtilDate();
 						}
 
 						@Override
 						public void setValue(Object value) {
-							super.setValue(Date.fromJavaUtilDate((java.util.Date) value));
+							if(value != null) {
+								value = Date.fromJavaUtilDate((java.util.Date) value);
+							}
+							super.setValue(value);
 						}
+
 
 						@Override
 						public ITypeInfo getType() {
@@ -2899,12 +2981,19 @@ public class GUI extends MultiSwingCustomizer {
 
 						@Override
 						public Object getValue() {
-							return ((DateTime) super.getValue()).toJavaUtilDate();
+							DateTime value = (DateTime) super.getValue();
+							if(value == null) {
+								return null;
+							}
+							return value.toJavaUtilDate();
 						}
 
 						@Override
 						public void setValue(Object value) {
-							super.setValue(DateTime.fromJavaUtilDate((java.util.Date) value));
+							if(value != null) {
+								value = DateTime.fromJavaUtilDate((java.util.Date) value);
+							}
+							super.setValue(value);
 						}
 
 						@Override

@@ -185,6 +185,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
+		this.activationHandler = null;
 		HTTPServer server = expectServer();
 		String servicePath = getServicePath();
 		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
@@ -193,7 +194,6 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			requestHandler.deactivate(server);
 		}
 		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
-		this.activationHandler = null;
 	}
 
 	@Override

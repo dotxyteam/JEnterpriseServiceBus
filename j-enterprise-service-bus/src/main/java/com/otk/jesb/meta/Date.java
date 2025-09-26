@@ -14,6 +14,10 @@ public class Date {
 
 	private final String stringRepresentation;
 
+	public Date() {
+		this(TODAY.getStringRepresentation());
+	}
+
 	public Date(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}

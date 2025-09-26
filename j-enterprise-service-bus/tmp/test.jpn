@@ -352,6 +352,7 @@
           </elements>
         </structure>
       </result>
+      <validationMethodBody class="null"/>
     </com.otk.jesb.PluginBuilder_-OperationDescriptor>
   </operations>
   <activators>
@@ -361,8 +362,8 @@
       <activatorTypeName>Schedule</activatorTypeName>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>moment</caption>
-          <name>moment</name>
+          <caption>Start At</caption>
+          <name>start</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
             <controlPluginConfiguration class="xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin$DateTimePickerConfiguration">
               <dateFormat>yyyy-MM-dd</dateFormat>
@@ -391,7 +392,47 @@
           <caption>Repetition Settings</caption>
           <name>repetitionSettings</name>
           <nature class="com.otk.jesb.PluginBuilder$GroupAttributeNature">
-            <attributes/>
+            <attributes>
+              <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+                <caption>Period Unit</caption>
+                <name>periodUnit</name>
+                <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+                  <controlPluginConfiguration class="null"/>
+                  <controlPluginIdentifier class="null"/>
+                  <defaultValueExpression>java.util.concurrent.TimeUnit.DAYS</defaultValueExpression>
+                  <nullable>false</nullable>
+                  <typeNameOrAlias>java.util.concurrent.TimeUnit</typeNameOrAlias>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+              <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+                <caption>Period Length</caption>
+                <name>periodLength</name>
+                <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+                  <controlPluginConfiguration class="null"/>
+                  <controlPluginIdentifier class="null"/>
+                  <defaultValueExpression>1l</defaultValueExpression>
+                  <nullable>false</nullable>
+                  <typeNameOrAlias>long</typeNameOrAlias>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+              <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+                <caption>End At</caption>
+                <name>end</name>
+                <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+                  <controlPluginConfiguration class="xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin$DateTimePickerConfiguration">
+                    <dateFormat>yyyy-MM-dd</dateFormat>
+                    <timeFormat>HH:mm:ss</timeFormat>
+                  </controlPluginConfiguration>
+                  <controlPluginIdentifier>com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</controlPluginIdentifier>
+                  <defaultValueExpression>null</defaultValueExpression>
+                  <nullable>true</nullable>
+                  <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
+                  <variant>true</variant>
+                </nature>
+              </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
+            </attributes>
             <nullable>false</nullable>
           </nature>
         </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
@@ -404,7 +445,14 @@
         </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
       </attributes>
       <handlerFinalizationStatements class="null"/>
-      <handlerInitializationStatements class="null"/>
+      <handlerInitializationStatements>new java.util.Timer().schedule(new java.util.TimerTask(){
+        @Override
+        public void run(){
+               
+        }
+    }, 
+    startVariant.getValue().toJavaUtilDate()
+);</handlerInitializationStatements>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>
         <structure class="com.otk.jesb.Structure$ClassicStructure">
@@ -422,8 +470,4 @@
       <validationMethodBody class="null"/>
     </com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
   </activators>
-  <onlineJAR>
-    <name>file-5501994614152696433.jar</name>
-    <temporaryFile>/tmp/file-4737873601211291249.jar</temporaryFile>
-  </onlineJAR>
 </com.otk.jesb.PluginBuilder>

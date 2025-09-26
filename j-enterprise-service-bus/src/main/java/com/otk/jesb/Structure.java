@@ -687,6 +687,19 @@ public abstract class Structure {
 			return visitor.visitNode(this);
 		}
 
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+			super.validate(recursively);
+			if ((typeNameOrAlias == null) || typeNameOrAlias.isEmpty()) {
+				throw new ValidationError("Type name not provided");
+			}
+			try {
+				MiscUtils.getJESBClass(TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias));
+			} catch (Exception e) {
+				throw new ValidationError("Failed to validate the type name: '" + typeNameOrAlias + "'", e);
+			}
+		}
+
 	}
 
 	public static class StructuredElement extends Element {

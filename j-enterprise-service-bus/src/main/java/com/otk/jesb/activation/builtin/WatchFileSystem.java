@@ -123,7 +123,6 @@ public class WatchFileSystem extends Activator {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
-		this.activationHandler = activationHandler;
 		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
 		watchService = FileSystems.getDefault().newWatchService();
 		if (preExistingResourcesConsideredVariant.getValue()) {
@@ -181,16 +180,17 @@ public class WatchFileSystem extends Activator {
 
 		};
 		thread.start();
+		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
+		this.activationHandler = null;
 		watchService.close();
 		while (thread.isAlive()) {
 			thread.interrupt();
 			MiscUtils.relieveCPU();
 		}
-		this.activationHandler = null;
 	}
 
 	@Override

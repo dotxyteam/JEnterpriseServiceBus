@@ -24,7 +24,6 @@ public class LaunchAtStartup extends Activator {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
-		this.activationHandler = activationHandler;
 		new Thread("Worker[of=" + LaunchAtStartup.this + "]") {
 
 			@Override
@@ -33,6 +32,7 @@ public class LaunchAtStartup extends Activator {
 			}
 
 		}.start();
+		this.activationHandler = activationHandler;
 	}
 
 	@Override
