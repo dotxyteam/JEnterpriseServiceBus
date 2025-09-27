@@ -7,17 +7,31 @@
       <activatorIconImageData class="null"/>
       <activatorTypeCaption>Schedule</activatorTypeCaption>
       <activatorTypeName>Schedule</activatorTypeName>
+      <additionalFieldDeclarationsSourceCode>private java.util.Timer timer;</additionalFieldDeclarationsSourceCode>
+      <additionalMethodDeclarationsSourceCode>private long periodToMilliseconds(
+    long periodLength, 
+    RepetitionSettingsStructure.RepetitionSettingsStructurePeriodUnitStructure periodUnit
+){
+    return java.util.concurrent.TimeUnit.MILLISECONDS.convert(
+        periodLength, 
+        java.util.Arrays.stream(
+            java.util.concurrent.TimeUnit.class.getEnumConstants()
+        ).filter(
+            constant -&gt; constant.name().equals(periodUnit.name())
+        ).findFirst().get()
+    );   
+}</additionalMethodDeclarationsSourceCode>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
           <caption>Start At</caption>
-          <name>start</name>
+          <name>startDateTime</name>
           <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
             <controlPluginConfiguration class="xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin$DateTimePickerConfiguration">
               <dateFormat>yyyy-MM-dd</dateFormat>
               <timeFormat>HH:mm:ss</timeFormat>
             </controlPluginConfiguration>
             <controlPluginIdentifier>com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</controlPluginIdentifier>
-            <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
+            <defaultValueExpression>com.otk.jesb.meta.DateTime.now()</defaultValueExpression>
             <nullable>false</nullable>
             <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
             <variant>true</variant>
@@ -43,12 +57,36 @@
               <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
                 <caption>Period Unit</caption>
                 <name>periodUnit</name>
-                <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
+                <nature class="com.otk.jesb.PluginBuilder$EnumerationAttributeNature">
                   <controlPluginConfiguration class="null"/>
                   <controlPluginIdentifier class="null"/>
-                  <defaultValueExpression>java.util.concurrent.TimeUnit.DAYS</defaultValueExpression>
+                  <defaultValueExpression>RepetitionSettingsStructurePeriodUnitStructure.DAYS</defaultValueExpression>
                   <nullable>false</nullable>
-                  <typeNameOrAlias>java.util.concurrent.TimeUnit</typeNameOrAlias>
+                  <structure>
+                    <items>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MILLISECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>SECONDS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MINUTES</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>HOURS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>DAYS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>MONTHS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                      <com.otk.jesb.Structure_-EnumerationItem>
+                        <name>YEARS</name>
+                      </com.otk.jesb.Structure_-EnumerationItem>
+                    </items>
+                  </structure>
                   <variant>true</variant>
                 </nature>
               </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
@@ -66,7 +104,7 @@
               </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
               <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
                 <caption>End At</caption>
-                <name>end</name>
+                <name>endDateTime</name>
                 <nature class="com.otk.jesb.PluginBuilder$SimpleAttributeNature">
                   <controlPluginConfiguration class="xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin$DateTimePickerConfiguration">
                     <dateFormat>yyyy-MM-dd</dateFormat>
@@ -83,22 +121,47 @@
             <nullable>false</nullable>
           </nature>
         </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-        <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
-          <caption>Referennce</caption>
-          <name>reference</name>
-          <nature class="com.otk.jesb.PluginBuilder$ReferenceAttributeNature">
-            <assetClassName>com.otk.jesb.resource.builtin.SharedStructureModel</assetClassName>
-          </nature>
-        </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
       </attributes>
-      <handlerFinalizationStatements class="null"/>
-      <handlerInitializationStatements>new java.util.Timer().schedule(new java.util.TimerTask() {
-	@Override
-	public void run() {
-		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.NOW));
-	}
-}, startVariant.getValue().toJavaUtilDate());
-</handlerInitializationStatements>
+      <handlerFinalizationStatements>timer.cancel();
+timer = null;</handlerFinalizationStatements>
+      <handlerInitializationStatements>timer = new java.util.Timer();
+if(repeatingVariant.getValue()){
+    long periodMilliseconds = periodToMilliseconds(
+        repetitionSettings.periodLengthVariant.getValue(), 
+        repetitionSettings.periodUnitVariant.getValue()
+    );
+    timer.scheduleAtFixedRate(
+        new java.util.TimerTask() {
+        	@Override
+        	public void run() {
+        		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
+        	}
+        }, 
+        startDateTimeVariant.getValue().toJavaUtilDate(),
+        periodMilliseconds
+    );
+    if(repetitionSettings.endDateTimeVariant.getValue() != null){
+        timer.schedule(
+            new java.util.TimerTask() {
+            	@Override
+            	public void run() {
+            		timer.cancel();
+            	}
+            }, 
+            repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate()
+        );
+    }
+}else{
+    timer.schedule(
+        new java.util.TimerTask() {
+        	@Override
+        	public void run() {
+        		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
+        	}
+        }, 
+        startDateTimeVariant.getValue().toJavaUtilDate()
+    );
+}</handlerInitializationStatements>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>
         <structure class="com.otk.jesb.Structure$ClassicStructure">
@@ -113,7 +176,23 @@
         </structure>
       </inputClassOption>
       <outputClassOption class="null"/>
-      <validationMethodBody class="null"/>
+      <validationMethodBody>if(repeatingVariant.getValue()){
+    if(repetitionSettings.periodLengthVariant.getValue() &lt;= 0){
+        throw new com.otk.jesb.ValidationError(&quot;Invalid repetition period length: &quot; + repetitionSettings.periodLengthVariant.getValue() + &quot; (positive number expected)&quot;);
+    }
+    if(repetitionSettings.endDateTimeVariant.getValue() != null){
+        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(startDateTimeVariant.getValue().toJavaUtilDate())){
+            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It is not after the schedule start date/time&quot;);
+        }
+        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
+            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It has passed&quot;);
+        }
+    }
+}else{
+    if(!startDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
+        throw new com.otk.jesb.ValidationError(&quot;Invalid schedule start date/time: It has passed&quot;);
+    }
+}</validationMethodBody>
     </com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
   </activators>
 </com.otk.jesb.PluginBuilder>

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Resource-Metadata-Classes: 
+Activator-Metadata-Classes: com.otk.jesb.activation.builtin.Schedule$M
+ etadata
+Operation-Metadata-Classes: 
+

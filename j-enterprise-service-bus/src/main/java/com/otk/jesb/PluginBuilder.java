@@ -245,13 +245,14 @@ public class PluginBuilder {
 		Manifest manifest = new Manifest();
 		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 		manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
-				operations.stream().map(operation -> packageName + "." + operation.getOpertionTypeName())
+				operations.stream().map(operation -> packageName + "." + operation.getOpertionTypeName() + "$Metadata")
 						.collect(Collectors.joining(",")));
 		manifest.getMainAttributes().put(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY,
-				activators.stream().map(activator -> packageName + "." + activator.getActivatorTypeName())
+				activators.stream().map(activator -> packageName + "." + activator.getActivatorTypeName() + "$Metadata")
 						.collect(Collectors.joining(",")));
-		manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY, resources.stream()
-				.map(resource -> packageName + "." + resource.getResourceTypeName()).collect(Collectors.joining(",")));
+		manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY,
+				resources.stream().map(resource -> packageName + "." + resource.getResourceTypeName() + "$Metadata")
+						.collect(Collectors.joining(",")));
 		try (FileOutputStream out = new FileOutputStream(new File(metaInformationDirectory, "MANIFEST.MF"))) {
 			manifest.write(out);
 		} catch (IOException e) {
@@ -304,6 +305,11 @@ public class PluginBuilder {
 		}
 		for (ResourceDescriptor resource : resources) {
 			resource.validate();
+		}
+		try {
+			unprepareTesting();
+		} catch (Exception e) {
+			throw new UnexpectedError(e);
 		}
 		try {
 			File temporaryDirectory = MiscUtils.createTemporaryDirectory();
@@ -592,7 +598,7 @@ public class PluginBuilder {
 			String operationClassName = packageName + "." + opertionTypeName;
 			String implemented = Operation.class.getName();
 			Structure.ClassicStructure operationStructure = new Structure.ClassicStructure();
-			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singletonOptions();
 			for (ParameterDescriptor parameter : parameters) {
 				operationStructure.getElements().add(parameter.getOperationClassElement(operationClassName));
 			}
@@ -690,7 +696,7 @@ public class PluginBuilder {
 			StringBuilder result = new StringBuilder();
 			result.append("@Override\n");
 			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " currentPlan, "
-					+ Step.class.getName() + " currentStep) {\n");
+					+ Step.class.getName() + " currentStep) throws " + ValidationError.class.getName() + "{\n");
 			if (validationMethodBody != null) {
 				result.append(validationMethodBody + "\n");
 			}
@@ -1831,7 +1837,7 @@ public class PluginBuilder {
 		}
 
 		public File generateJavaSourceCode(File sourceDirectroy, String packageName) {
-			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singletonOptions();
 			String resourceClassName = packageName + "." + resourceTypeName;
 			File javaFile = new File(sourceDirectroy, resourceClassName.replace(".", "/") + ".java");
 			try {
@@ -1872,7 +1878,8 @@ public class PluginBuilder {
 		protected void generateValidationMethodSourceCode(StringBuilder afterMethodDeclarations,
 				Map<Object, Object> codeGenerationOptions) {
 			afterMethodDeclarations.append("@Override\n");
-			afterMethodDeclarations.append("public void validate(boolean recursively) {\n");
+			afterMethodDeclarations.append("public void validate(boolean recursively, " + Plan.class.getName()
+					+ " plan) throws " + ValidationError.class.getName() + " {\n");
 			if (validationMethodBody != null) {
 				afterMethodDeclarations.append(validationMethodBody + "\n");
 			}
@@ -2392,7 +2399,7 @@ public class PluginBuilder {
 		}
 
 		public File generateJavaSourceCode(File sourceDirectroy, String packageName) {
-			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singleton();
+			Map<Object, Object> codeGenerationOptions = Structure.ElementAccessMode.ACCESSORS.singletonOptions();
 			String activatorClassName = packageName + "." + activatorTypeName;
 			File javaFile = new File(sourceDirectroy, activatorClassName.replace(".", "/") + ".java");
 			try {
@@ -2416,8 +2423,7 @@ public class PluginBuilder {
 			StringBuilder afterFieldDeclarations = new StringBuilder();
 			StringBuilder afterMethodDeclarations = new StringBuilder();
 			StringBuilder innerClassesDeclarations = new StringBuilder();
-			afterFieldDeclarations.append(
-					"private " + com.otk.jesb.activation.ActivationHandler.class.getName() + " activationHandler;\n");
+			afterFieldDeclarations.append(getActivationHandlerFieldDeclartionSourceCode() + "\n");
 			generateInputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
 					codeGenerationOptions);
 			generateOutputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
@@ -2440,10 +2446,14 @@ public class PluginBuilder {
 					codeGenerationOptions);
 		}
 
+		protected String getActivationHandlerFieldDeclartionSourceCode() {
+			return "private " + com.otk.jesb.activation.ActivationHandler.class.getName() + " activationHandler;";
+		}
+
 		protected void generateValidationMethodSourceCode(StringBuilder additionalMethodDeclarations) {
 			additionalMethodDeclarations.append("@Override\n");
-			additionalMethodDeclarations
-					.append("public void validate(boolean recursively, " + Plan.class.getName() + " plan) {\n");
+			additionalMethodDeclarations.append("public void validate(boolean recursively, " + Plan.class.getName()
+					+ " plan) throws " + ValidationError.class.getName() + " {\n");
 			if (validationMethodBody != null) {
 				additionalMethodDeclarations.append(validationMethodBody + "\n");
 			}
@@ -2858,6 +2868,11 @@ public class PluginBuilder {
 
 			@Override
 			protected String generateMetadataClassSourceCode(String resourceClassName, Map<Object, Object> options) {
+				return "";
+			}
+
+			@Override
+			protected String getActivationHandlerFieldDeclartionSourceCode() {
 				return "";
 			}
 

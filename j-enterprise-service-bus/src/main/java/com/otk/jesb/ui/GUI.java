@@ -324,6 +324,9 @@ public class GUI extends MultiSwingCustomizer {
 		if (objectClass == RootInstanceBuilder.class) {
 			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
+		if (Structure.class.isAssignableFrom(objectClass)) {
+			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
+		}
 		if (objectClass.getEnclosingClass() != null) {
 			return selectSubCustomizationsSwitch(objectClass.getEnclosingClass());
 		}

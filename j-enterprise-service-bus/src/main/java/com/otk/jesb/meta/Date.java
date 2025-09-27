@@ -10,12 +10,14 @@ public class Date {
 
 	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-	public static final Date TODAY = fromJavaUtilDate(MiscUtils.now());
+	public static final Date toDay() {
+		return fromJavaUtilDate(MiscUtils.now());
+	}
 
 	private final String stringRepresentation;
 
 	public Date() {
-		this(TODAY.getStringRepresentation());
+		this(toDay().getStringRepresentation());
 	}
 
 	public Date(String stringRepresentation) {

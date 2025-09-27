@@ -806,7 +806,7 @@ public abstract class Structure {
 			options.put(option.getClass(), option);
 		}
 
-		public static Map<Object, Object> singleton(CodeGenerationOption option) {
+		public static Map<Object, Object> singletonOptions(CodeGenerationOption option) {
 			return Collections.singletonMap(option.getClass(), option);
 		}
 	}
@@ -822,8 +822,8 @@ public abstract class Structure {
 			CodeGenerationOption.set(this, options);
 		}
 
-		public Map<Object, Object> singleton() {
-			return CodeGenerationOption.singleton(this);
+		public Map<Object, Object> singletonOptions() {
+			return CodeGenerationOption.singletonOptions(this);
 		}
 	}
 
