@@ -262,7 +262,7 @@ public class GUI extends MultiSwingCustomizer {
 
 	private GUI() {
 		super(null, null);
-		this.subCustomizationsSwitchSelector = new Function<Object, String>() {
+		this.customizationsIdentifierSelector = new Function<Object, String>() {
 			@Override
 			public String apply(Object object) {
 				return selectSubCustomizationsSwitch(object.getClass());
@@ -322,7 +322,7 @@ public class GUI extends MultiSwingCustomizer {
 
 	protected String selectSubCustomizationsSwitch(Class<?> objectClass) {
 		if (objectClass == RootInstanceBuilder.class) {
-			return SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
+			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
 		if (objectClass.getEnclosingClass() != null) {
 			return selectSubCustomizationsSwitch(objectClass.getEnclosingClass());
@@ -350,7 +350,7 @@ public class GUI extends MultiSwingCustomizer {
 	@Override
 	protected SubSwingCustomizer createSubCustomizer(String switchIdentifier) {
 		SubSwingCustomizer result = new JESBSubSwingCustomizer(switchIdentifier);
-		String customizationsResourceName = ((switchIdentifier != SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
+		String customizationsResourceName = ((switchIdentifier != GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
 				? (switchIdentifier + "-")
 				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
 		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
@@ -850,6 +850,18 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				public void validateForm(ValidationSession session) throws Exception {
+					if (object instanceof Asset) {
+						session.put(CURRENT_ASSET_KEY, object);
+					}
+					if (object instanceof PlanElement) {
+						session.put(CURRENT_PLAN_ELEMENT_KEY, object);
+					}
+					if (object instanceof Facade) {
+						session.put(CURRENT_INSTANTIATION_FACADE_KEY, object);
+					}
+					if (object instanceof Activator) {
+						session.put(CURRENT_ACTIVATOR_KEY, object);
+					}
 					if (object instanceof FunctionEditor) {
 						TextControl textControl = (TextControl) SwingRendererUtils
 								.findDescendantFieldControlPlaceHolder(this, "functionBody", swingRenderer)
@@ -903,19 +915,19 @@ public class GUI extends MultiSwingCustomizer {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				if (switchIdentifier == null) {
+				if (customizationsIdentifier == null) {
 					return null;
 				}
-				return MiscUtils.getJESBClass(switchIdentifier);
+				return MiscUtils.getJESBClass(customizationsIdentifier);
 			}
 
 			@Override
 			protected InfoCustomizations obtainLatest(Object versionIdentifier) throws VersionAccessException {
 				InfoCustomizations result = new InfoCustomizations();
-				if (switchIdentifier != null) {
+				if (customizationsIdentifier != null) {
 					Method uiCustomizationsMethod;
 					try {
-						uiCustomizationsMethod = MiscUtils.getJESBClass(switchIdentifier)
+						uiCustomizationsMethod = MiscUtils.getJESBClass(customizationsIdentifier)
 								.getMethod(GUI.UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
 					} catch (NoSuchMethodException e) {
 						uiCustomizationsMethod = null;
@@ -945,7 +957,7 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				public String getIdentifier() {
-					return "SubCustomizationsFactory [of=" + switchIdentifier + "]";
+					return "SubCustomizationsFactory [of=" + customizationsIdentifier + "]";
 				}
 
 				@Override
@@ -2519,18 +2531,6 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
-					if (object instanceof Asset) {
-						session.put(CURRENT_ASSET_KEY, object);
-					}
-					if (object instanceof PlanElement) {
-						session.put(CURRENT_PLAN_ELEMENT_KEY, object);
-					}
-					if (object instanceof Facade) {
-						session.put(CURRENT_INSTANTIATION_FACADE_KEY, object);
-					}
-					if (object instanceof Activator) {
-						session.put(CURRENT_ACTIVATOR_KEY, object);
-					}
 					Class<?> objectClass;
 					try {
 						objectClass = MiscUtils.getJESBClass(type.getName());
@@ -2937,7 +2937,7 @@ public class GUI extends MultiSwingCustomizer {
 						@Override
 						public Object getValue() {
 							Date value = (Date) super.getValue();
-							if(value == null) {
+							if (value == null) {
 								return null;
 							}
 							return value.toJavaUtilDate();
@@ -2945,12 +2945,11 @@ public class GUI extends MultiSwingCustomizer {
 
 						@Override
 						public void setValue(Object value) {
-							if(value != null) {
+							if (value != null) {
 								value = Date.fromJavaUtilDate((java.util.Date) value);
 							}
 							super.setValue(value);
 						}
-
 
 						@Override
 						public ITypeInfo getType() {
@@ -2982,7 +2981,7 @@ public class GUI extends MultiSwingCustomizer {
 						@Override
 						public Object getValue() {
 							DateTime value = (DateTime) super.getValue();
-							if(value == null) {
+							if (value == null) {
 								return null;
 							}
 							return value.toJavaUtilDate();
@@ -2990,7 +2989,7 @@ public class GUI extends MultiSwingCustomizer {
 
 						@Override
 						public void setValue(Object value) {
-							if(value != null) {
+							if (value != null) {
 								value = DateTime.fromJavaUtilDate((java.util.Date) value);
 							}
 							super.setValue(value);

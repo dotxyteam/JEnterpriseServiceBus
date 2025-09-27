@@ -138,6 +138,9 @@ public class PluginBuilder {
 		File resourceDirectroy = getResourceDirectory(outputDirectory);
 		MiscUtils.createDirectory(resourceDirectroy, true);
 		generateResources(resourceDirectroy);
+		File metaInformationDirectroy = getMetaInformationDirectory(outputDirectory);
+		MiscUtils.createDirectory(metaInformationDirectroy, true);
+		generateMetaInformation(metaInformationDirectroy);
 	}
 
 	public void generateJAR(File jarFile) throws Exception {
@@ -148,16 +151,10 @@ public class PluginBuilder {
 			classes.addAll(MiscUtils.IN_MEMORY_COMPILER.compile(getSourceDirectory(temporaryDirectory)));
 			classes = MiscUtils.expandWithEnclosedClasses(classes);
 			Manifest manifest = new Manifest();
-			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-			manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
-					classes.stream().filter(clazz -> OperationMetadata.class.isAssignableFrom(clazz))
-							.map(Class::getName).collect(Collectors.joining(",")));
-			manifest.getMainAttributes().put(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY,
-					classes.stream().filter(clazz -> ActivatorMetadata.class.isAssignableFrom(clazz))
-							.map(Class::getName).collect(Collectors.joining(",")));
-			manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY,
-					classes.stream().filter(clazz -> ResourceMetadata.class.isAssignableFrom(clazz)).map(Class::getName)
-							.collect(Collectors.joining(",")));
+			try (FileInputStream in = new FileInputStream(
+					new File(getMetaInformationDirectory(temporaryDirectory), "MANIFEST.MF"))) {
+				manifest.read(in);
+			}
 			try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
 				for (Class<?> clazz : classes) {
 					String entryName = clazz.getName().replace(".", "/") + ".class";
@@ -216,6 +213,10 @@ public class PluginBuilder {
 		return new File(projectDirectory, "src/main/java");
 	}
 
+	private File getMetaInformationDirectory(File projectDirectory) {
+		return new File(projectDirectory, "META-INF");
+	}
+
 	private void generateSources(File sourceDirectroy) {
 		for (OperationDescriptor operation : operations) {
 			operation.generateJavaSourceCode(sourceDirectroy, packageName);
@@ -237,6 +238,24 @@ public class PluginBuilder {
 		}
 		for (ResourceDescriptor resource : resources) {
 			produceIcon(resourceDirectroy, resource.getResourceTypeName(), resource.getIconImage());
+		}
+	}
+
+	private void generateMetaInformation(File metaInformationDirectory) {
+		Manifest manifest = new Manifest();
+		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+		manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
+				operations.stream().map(operation -> packageName + "." + operation.getOpertionTypeName())
+						.collect(Collectors.joining(",")));
+		manifest.getMainAttributes().put(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY,
+				activators.stream().map(activator -> packageName + "." + activator.getActivatorTypeName())
+						.collect(Collectors.joining(",")));
+		manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY, resources.stream()
+				.map(resource -> packageName + "." + resource.getResourceTypeName()).collect(Collectors.joining(",")));
+		try (FileOutputStream out = new FileOutputStream(new File(metaInformationDirectory, "MANIFEST.MF"))) {
+			manifest.write(out);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
 		}
 	}
 
@@ -285,6 +304,19 @@ public class PluginBuilder {
 		}
 		for (ResourceDescriptor resource : resources) {
 			resource.validate();
+		}
+		try {
+			File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+			try {
+				generateSources(temporaryDirectory);
+				MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory);
+			} finally {
+				MiscUtils.delete(temporaryDirectory);
+			}
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		} catch (Throwable t) {
+			throw new ValidationError(t.toString(), t);
 		}
 	}
 
@@ -343,9 +375,9 @@ public class PluginBuilder {
 			Object oldControlPluginConfiguration) {
 		if (controlPluginIdentifier != null) {
 			IFieldControlPlugin selectedControlPlugin = GUI.INSTANCE
-					.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
-					.stream().filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier))
-					.findFirst().get();
+					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins().stream()
+					.filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier)).findFirst()
+					.get();
 			if (selectedControlPlugin instanceof ICustomizableFieldControlPlugin) {
 				Object defaultConfiguration = ((ICustomizableFieldControlPlugin) selectedControlPlugin)
 						.getDefaultControlCustomization();
@@ -371,6 +403,25 @@ public class PluginBuilder {
 
 		protected abstract void generateUICustomizationStatements(StringBuilder result,
 				UIElementBasedDescriptor uiElement, String uiCustomizationsVariableName, String displayedTypeName);
+
+		private String additionalFieldDeclarationsSourceCode;
+		private String additionalMethodDeclarationsSourceCode;
+
+		public String getAdditionalFieldDeclarationsSourceCode() {
+			return additionalFieldDeclarationsSourceCode;
+		}
+
+		public void setAdditionalFieldDeclarationsSourceCode(String additionalFieldDeclarationsSourceCode) {
+			this.additionalFieldDeclarationsSourceCode = additionalFieldDeclarationsSourceCode;
+		}
+
+		public String getAdditionalMethodDeclarationsSourceCode() {
+			return additionalMethodDeclarationsSourceCode;
+		}
+
+		public void setAdditionalMethodDeclarationsSourceCode(String additionalMethodDeclarationsSourceCode) {
+			this.additionalMethodDeclarationsSourceCode = additionalMethodDeclarationsSourceCode;
+		}
 
 		protected String generateUICustomizationsMethodSourceCode(String displayedTypeNamePrefix) {
 			StringBuilder result = new StringBuilder();
@@ -545,25 +596,35 @@ public class PluginBuilder {
 			for (ParameterDescriptor parameter : parameters) {
 				operationStructure.getElements().add(parameter.getOperationClassElement(operationClassName));
 			}
-			StringBuilder additionalDeclarations = new StringBuilder();
-			additionalDeclarations
+			StringBuilder afterFieldDeclarations = new StringBuilder();
+			StringBuilder afterMethodDeclarations = new StringBuilder();
+			afterMethodDeclarations
 					.append(generateExecutionMethodSourceCode(operationClassName, codeGenerationOptions) + "\n");
-			additionalDeclarations
+			afterMethodDeclarations
 					.append(generateOperationBuilderClassSourceCode(operationClassName, codeGenerationOptions) + "\n");
-			additionalDeclarations
+			afterMethodDeclarations
 					.append(generateMetadataClassSourceCode(operationClassName, codeGenerationOptions) + "\n");
 			if (result != null) {
-				additionalDeclarations.append(
+				afterMethodDeclarations.append(
 						result.generateClassesSourceCode(operationClassName, RESULT_OPTION_NAME, codeGenerationOptions)
 								+ "\n");
+			}
+			if (getAdditionalFieldDeclarationsSourceCode() != null) {
+				afterFieldDeclarations.append(getAdditionalFieldDeclarationsSourceCode() + "\n");
+			}
+			if (getAdditionalMethodDeclarationsSourceCode() != null) {
+				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode() + "\n");
 			}
 			File javaFile = new File(sourceDirectroy, operationClassName.replace(".", "/") + ".java");
 			try {
 				if (!javaFile.getParentFile().exists()) {
 					MiscUtils.createDirectory(javaFile.getParentFile(), true);
 				}
-				MiscUtils.write(javaFile, operationStructure.generateJavaTypeSourceCode(operationClassName, implemented,
-						null, additionalDeclarations.toString(), codeGenerationOptions), false);
+				MiscUtils.write(javaFile,
+						operationStructure.generateJavaTypeSourceCode(operationClassName, implemented, null,
+								afterFieldDeclarations.toString(), afterMethodDeclarations.toString(),
+								codeGenerationOptions),
+						false);
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
@@ -589,17 +650,17 @@ public class PluginBuilder {
 				operationBuilderStructure.getElements()
 						.add(parameter.getOperationBuilderClassElement(operationClassName));
 			}
-			StringBuilder additionalDeclarations = new StringBuilder();
-			additionalDeclarations.append(generateOperationBuildMethodSourceCode(operationClassName, options));
-			additionalDeclarations.append(generateOperationResultClassMethodSourceCode(operationClassName, options));
-			additionalDeclarations
+			StringBuilder afterMethodDeclarations = new StringBuilder();
+			afterMethodDeclarations.append(generateOperationBuildMethodSourceCode(operationClassName, options));
+			afterMethodDeclarations.append(generateOperationResultClassMethodSourceCode(operationClassName, options));
+			afterMethodDeclarations
 					.append(generateOperationBuilderValidationMethodSourceCode(operationClassName, options));
 			String packageName = MiscUtils.extractPackageNameFromClassName(operationClassName);
-			additionalDeclarations.append(
+			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
 			return "static "
 					+ operationBuilderStructure.generateJavaTypeSourceCode(getOperationBuilderClassSimpleName(),
-							implemented, null, additionalDeclarations.toString(), options);
+							implemented, null, null, afterMethodDeclarations.toString(), options);
 		}
 
 		@Override
@@ -971,9 +1032,8 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
-					.getFieldControlPlugins().stream()
-					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+			return GUI.INSTANCE.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
+					.stream().filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
 
@@ -1259,9 +1319,8 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
-					.getFieldControlPlugins().stream()
-					.filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+			return GUI.INSTANCE.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
+					.stream().filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
 
@@ -1418,14 +1477,16 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String additionalDeclarations, Map<Object, Object> options) {
+								String afterFieldDeclarations, String afterMethodDeclarations,
+								Map<Object, Object> options) {
 							internalOperation.setOpertionTypeName(groupStructureClassName);
-							additionalDeclarations = ((additionalDeclarations != null) ? (additionalDeclarations + "\n")
+							afterMethodDeclarations = ((afterMethodDeclarations != null)
+									? (afterMethodDeclarations + "\n")
 									: "")
 									+ internalOperation.generateOperationBuilderClassSourceCode(groupStructureClassName,
 											options);
 							return super.generateJavaTypeSourceCode(groupStructureClassName, additionalyImplemented,
-									additionalyExtended, additionalDeclarations, options);
+									additionalyExtended, afterFieldDeclarations, afterMethodDeclarations, options);
 						}
 					});
 				}
@@ -1791,24 +1852,31 @@ public class PluginBuilder {
 			for (PropertyDescriptor property : properties) {
 				resourceStructure.getElements().add(property.getResourceClassElement(resourceClassName));
 			}
-			StringBuilder additionalDeclarations = new StringBuilder();
-			additionalDeclarations.append(
+			StringBuilder afterFieldDeclarations = new StringBuilder();
+			StringBuilder afterMethodDeclarations = new StringBuilder();
+			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
-			generateValidationMethodSourceCode(additionalDeclarations, codeGenerationOptions);
-			additionalDeclarations
+			generateValidationMethodSourceCode(afterMethodDeclarations, codeGenerationOptions);
+			afterMethodDeclarations
 					.append(generateMetadataClassSourceCode(resourceClassName, codeGenerationOptions) + "\n");
+			if (getAdditionalFieldDeclarationsSourceCode() != null) {
+				afterFieldDeclarations.append(getAdditionalFieldDeclarationsSourceCode() + "\n");
+			}
+			if (getAdditionalMethodDeclarationsSourceCode() != null) {
+				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode() + "\n");
+			}
 			return resourceStructure.generateJavaTypeSourceCode(resourceClassName, null, extended,
-					additionalDeclarations.toString(), codeGenerationOptions);
+					afterFieldDeclarations.toString(), afterMethodDeclarations.toString(), codeGenerationOptions);
 		}
 
-		protected void generateValidationMethodSourceCode(StringBuilder additionalDeclarations,
+		protected void generateValidationMethodSourceCode(StringBuilder afterMethodDeclarations,
 				Map<Object, Object> codeGenerationOptions) {
-			additionalDeclarations.append("@Override\n");
-			additionalDeclarations.append("public void validate(boolean recursively) {\n");
+			afterMethodDeclarations.append("@Override\n");
+			afterMethodDeclarations.append("public void validate(boolean recursively) {\n");
 			if (validationMethodBody != null) {
-				additionalDeclarations.append(validationMethodBody + "\n");
+				afterMethodDeclarations.append(validationMethodBody + "\n");
 			}
-			additionalDeclarations.append("}\n");
+			afterMethodDeclarations.append("}\n");
 		}
 
 		protected String generateMetadataClassSourceCode(String resourceClassName, Map<Object, Object> options) {
@@ -2199,7 +2267,8 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String additionalDeclarations, Map<Object, Object> options) {
+								String afterFieldDeclarations, String afterMethodDeclarations,
+								Map<Object, Object> options) {
 							internalResource.setResourceTypeName(groupStructureClassName);
 							String packageName = MiscUtils.extractPackageNameFromClassName(groupStructureClassName);
 							return internalResource.generateJavaSourceCode(packageName, options);
@@ -2344,36 +2413,30 @@ public class PluginBuilder {
 			for (AttributeDescriptor attribute : attributes) {
 				activatorStructure.getElements().add(attribute.getActivatorClassElement(activatorClassName));
 			}
-			activatorStructure.getElements().add(new Structure.SimpleElement() {
-				{
-					setName("activationHandler");
-					setTypeNameOrAlias(com.otk.jesb.activation.ActivationHandler.class.getName());
-					Structure.Optionality optionality = new Structure.Optionality();
-					{
-						optionality.setDefaultValueExpression("null");
-						setOptionality(optionality);
-					}
-				}
-
-				@Override
-				protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
-					return null;
-				}
-			});
-			StringBuilder additionalMethodDeclarations = new StringBuilder();
-			StringBuilder additionalInnerClassesDeclarations = new StringBuilder();
-			generateInputSourceCode(activatorClassName, additionalMethodDeclarations,
-					additionalInnerClassesDeclarations, codeGenerationOptions);
-			generateOutputSourceCode(activatorClassName, additionalMethodDeclarations,
-					additionalInnerClassesDeclarations, codeGenerationOptions);
-			generateTriggerMethodsSourceCode(additionalMethodDeclarations);
-			additionalMethodDeclarations.append(
+			StringBuilder afterFieldDeclarations = new StringBuilder();
+			StringBuilder afterMethodDeclarations = new StringBuilder();
+			StringBuilder innerClassesDeclarations = new StringBuilder();
+			afterFieldDeclarations.append(
+					"private " + com.otk.jesb.activation.ActivationHandler.class.getName() + " activationHandler;\n");
+			generateInputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
+					codeGenerationOptions);
+			generateOutputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
+					codeGenerationOptions);
+			generateTriggerMethodsSourceCode(afterMethodDeclarations);
+			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
-			generateValidationMethodSourceCode(additionalMethodDeclarations);
-			additionalInnerClassesDeclarations
+			generateValidationMethodSourceCode(afterMethodDeclarations);
+			innerClassesDeclarations
 					.append(generateMetadataClassSourceCode(activatorClassName, codeGenerationOptions) + "\n");
+			if (getAdditionalFieldDeclarationsSourceCode() != null) {
+				afterFieldDeclarations.append(getAdditionalFieldDeclarationsSourceCode() + "\n");
+			}
+			if (getAdditionalMethodDeclarationsSourceCode() != null) {
+				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode() + "\n");
+			}
 			return activatorStructure.generateJavaTypeSourceCode(activatorClassName, null, extended,
-					additionalMethodDeclarations.toString() + "\n" + additionalInnerClassesDeclarations.toString(),
+					afterFieldDeclarations.toString(),
+					afterMethodDeclarations.toString() + "\n" + innerClassesDeclarations.toString(),
 					codeGenerationOptions);
 		}
 
@@ -2856,7 +2919,8 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String additionalDeclarations, Map<Object, Object> options) {
+								String afterFieldDeclarations, String afterMethodDeclarations,
+								Map<Object, Object> options) {
 							internalActivator.setActivatorTypeName(groupStructureClassName);
 							String packageName = MiscUtils.extractPackageNameFromClassName(groupStructureClassName);
 							return internalActivator.generateJavaSourceCode(packageName, options);

@@ -1,5 +1,5 @@
 <com.otk.jesb.PluginBuilder>
-  <packageName>com.otk.jesb.activation</packageName>
+  <packageName>com.otk.jesb.activation.builtin</packageName>
   <resources/>
   <operations/>
   <activators>

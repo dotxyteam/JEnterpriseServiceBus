@@ -28,7 +28,7 @@ public class SplitInfoCustomizations {
 		}
 		MiscUtils.createDirectory(WORKING_DIRECTORY);
 		InfoCustomizations globalCustomizations = GUI.INSTANCE
-				.obtainSubCustomizer(GUI.SWITCH_TO_GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getInfoCustomizations();
+				.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getInfoCustomizations();
 		for (OperationMetadata<?> metadata : GUI.BUILTIN_OPERATION_METADATAS) {
 			String switchIdentifier = MiscUtils.inferOperationClass(metadata.getOperationBuilderClass()).getName();
 			List<String> mainTypeNames = Arrays.asList(

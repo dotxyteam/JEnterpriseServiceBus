@@ -150,7 +150,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							try {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
-												additionalMethodDeclarations.toString(), Collections.emptyMap()));
+												null, additionalMethodDeclarations.toString(), Collections.emptyMap()));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}

@@ -23,7 +23,7 @@ import xy.reflect.ui.util.ClassUtils;
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
-			String additionalMethodDeclarations, Map<Object, Object> options);
+			String afterFieldDeclarations, String additionalMethodDeclarations, Map<Object, Object> options);
 
 	public abstract TreeVisitor.VisitStatus visitElements(TreeVisitor<Element> visitor);
 
@@ -32,7 +32,7 @@ public abstract class Structure {
 	public abstract String toString();
 
 	public String generateJavaTypeSourceCode(String className) {
-		return generateJavaTypeSourceCode(className, null, null, null, Collections.emptyMap());
+		return generateJavaTypeSourceCode(className, null, null, null, null, Collections.emptyMap());
 	}
 
 	public static class ClassicStructure extends Structure {
@@ -49,7 +49,8 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalDeclarations, Map<Object, Object> options) {
+				String additionalyExtended, String afterFieldDeclarations, String afterMethodDeclarations,
+				Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -61,14 +62,17 @@ public abstract class Structure {
 			result.append(MiscUtils.stringJoin(elements.stream()
 					.map((e) -> e.generateJavaFieldDeclaration(className, options)).collect(Collectors.toList()), "\n")
 					+ "\n");
+			if (afterFieldDeclarations != null) {
+				result.append(afterFieldDeclarations + "\n");
+			}
 			result.append(generateJavaConstructorSourceCode(className, options) + "\n");
 			result.append(MiscUtils
-					.stringJoin(elements.stream().map((e) -> e.generateJavaMethodsDeclaration(className, options))
+					.stringJoin(elements.stream().map((e) -> e.generateJavaMethodDeclarations(className, options))
 							.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
 					+ "\n");
 			result.append(generateJavaToStringMethodSourceCode(className, options) + "\n");
-			if (additionalDeclarations != null) {
-				result.append(additionalDeclarations + "\n");
+			if (afterMethodDeclarations != null) {
+				result.append(afterMethodDeclarations + "\n");
 			}
 			result.append(MiscUtils.stringJoin(
 					elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className, options))
@@ -219,10 +223,11 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalDeclarations, Map<Object, Object> options) {
+				String additionalyExtended, String afterFieldDeclarations, String afterMethodDeclarations,
+				Map<Object, Object> options) {
 			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
 			return super.generateJavaTypeSourceCode(className, additionalyImplemented, additionalyExtended,
-					additionalDeclarations, options).replace("class " + classSimpleName,
+					afterFieldDeclarations, afterMethodDeclarations, options).replace("class " + classSimpleName,
 							"class " + classSimpleName + " extends " + baseStructureTypeName);
 		}
 
@@ -241,7 +246,8 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalMethodDeclarations, Map<Object, Object> options) {
+				String additionalyExtended, String afterFieldDeclarations, String additionalMethodDeclarations,
+				Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -382,7 +388,8 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String additionalMethodDeclarations, Map<Object, Object> options) {
+				String additionalyExtended, String afterFieldDeclarations, String additionalMethodDeclarations,
+				Map<Object, Object> options) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -486,7 +493,7 @@ public abstract class Structure {
 			return result;
 		}
 
-		protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
+		protected String generateJavaMethodDeclarations(String parentClassName, Map<Object, Object> options) {
 			if (ElementAccessMode.ACCESSORS.isSet(options)) {
 				StringBuilder result = new StringBuilder();
 				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);
@@ -608,8 +615,8 @@ public abstract class Structure {
 		}
 
 		@Override
-		protected String generateJavaMethodsDeclaration(String parentClassName, Map<Object, Object> options) {
-			return base.generateJavaMethodsDeclaration(parentClassName, options);
+		protected String generateJavaMethodDeclarations(String parentClassName, Map<Object, Object> options) {
+			return base.generateJavaMethodDeclarations(parentClassName, options);
 		}
 
 		@Override
@@ -720,7 +727,7 @@ public abstract class Structure {
 				return "";
 			}
 			String className = getStructuredClassName(parentClassName);
-			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, options);
+			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, null, options);
 		}
 
 		@Override

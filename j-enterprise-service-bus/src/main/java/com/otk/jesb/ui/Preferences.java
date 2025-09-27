@@ -118,7 +118,7 @@ public class Preferences {
 							SwingUtilities.updateComponentTreeUI(window);
 						}
 						// force recreation of all controls to prevent some components painting issues
-						for (SwingCustomizer customizer : GUI.INSTANCE.getSubCustomizerBySwitch().values()) {
+						for (SwingCustomizer customizer : GUI.INSTANCE.getSubCustomizerByIdentifier().values()) {
 							customizer.getCustomizationOptions()
 									.setInEditMode(!customizer.getCustomizationOptions().isInEditMode());
 							SwingRendererUtils.refreshAllDisplayedForms(customizer, true);
