@@ -14,6 +14,7 @@ import com.otk.jesb.meta.Date;
 import com.otk.jesb.meta.DateTime;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
 import com.otk.jesb.Reference;
+import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
 import com.otk.jesb.util.TreeVisitor.VisitStatus;
@@ -52,7 +53,7 @@ public abstract class Structure {
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
 				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
 				String afterMethodDeclarations, Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
@@ -63,34 +64,41 @@ public abstract class Structure {
 			result.append("public class " + classSimpleName
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
-			result.append(MiscUtils.stringJoin(elements.stream()
-					.map((e) -> e.generateJavaFieldDeclaration(className, options)).collect(Collectors.toList()), "\n")
-					+ "\n");
-			if (afterFieldDeclarations != null) {
-				result.append(afterFieldDeclarations + "\n");
-			}
-			result.append(generateJavaConstructorSourceCode(className, options) + "\n");
-			result.append(MiscUtils
-					.stringJoin(elements.stream().map((e) -> e.generateJavaMethodDeclarations(className, options))
-							.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
-					+ "\n");
-			result.append(generateJavaToStringMethodSourceCode(className, options) + "\n");
-			if (afterMethodDeclarations != null) {
-				result.append(afterMethodDeclarations + "\n");
-			}
-			result.append(MiscUtils.stringJoin(
-					elements.stream().map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className, options))
-							.filter(Objects::nonNull).collect(Collectors.toList()),
-					"\n") + "\n");
+			result.indenting(() -> {
+				result.append(MiscUtils.stringJoin(elements.stream()
+						.map((e) -> e.generateJavaFieldDeclaration(className, options)).collect(Collectors.toList()),
+						"\n") + "\n");
+				if (afterFieldDeclarations != null) {
+					result.append(afterFieldDeclarations + "\n");
+				}
+				result.append(generateJavaConstructorSourceCode(className, options) + "\n");
+				result.append(MiscUtils
+						.stringJoin(elements.stream().map((e) -> e.generateJavaMethodDeclarations(className, options))
+								.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
+						+ "\n");
+				result.append(generateJavaToStringMethodSourceCode(className, options) + "\n");
+				if (afterMethodDeclarations != null) {
+					result.append(afterMethodDeclarations + "\n");
+				}
+				result.append(
+						MiscUtils
+								.stringJoin(
+										elements.stream()
+												.map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className,
+														options))
+												.filter(Objects::nonNull).collect(Collectors.toList()),
+										"\n")
+								+ "\n");
+			});
 			result.append("}");
 			return result.toString();
 		}
 
 		protected String generateJavaToStringMethodSourceCode(String className, Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
 			result.append("public String toString() {\n");
-			result.append(generateJavaToStringMethodBody(className, options) + "\n");
+			result.appendIndented(generateJavaToStringMethodBody(className, options) + "\n");
 			result.append("}");
 			return result.toString();
 		}
@@ -103,7 +111,7 @@ public abstract class Structure {
 		}
 
 		protected String generateJavaConstructorSourceCode(String className, Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
 			result.append(
 					"public " + classSimpleName + "("
@@ -114,7 +122,7 @@ public abstract class Structure {
 											.filter(Objects::nonNull).collect(Collectors.toList()),
 									", ")
 							+ "){" + "\n");
-			result.append(generateJavaConstructorBody(className, options) + "\n");
+			result.appendIndented(generateJavaConstructorBody(className, options) + "\n");
 			result.append("}");
 			return result.toString();
 		}
@@ -253,18 +261,18 @@ public abstract class Structure {
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
 				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
 				String additionalMethodDeclarations, Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 			}
 			result.append("public enum " + MiscUtils.extractSimpleNameFromClassName(className)
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
-			result.append(
+			result.appendIndented(
 					MiscUtils.stringJoin(items.stream().map((e) -> e.getName()).collect(Collectors.toList()), ", ")
 							+ ";" + "\n");
 			if (additionalMethodDeclarations != null) {
-				result.append(additionalMethodDeclarations + "\n");
+				result.appendIndented(additionalMethodDeclarations + "\n");
 			}
 			result.append("}");
 			return result.toString();
@@ -500,16 +508,16 @@ public abstract class Structure {
 
 		protected String generateJavaMethodDeclarations(String parentClassName, Map<Object, Object> options) {
 			if (ElementAccessMode.ACCESSORS.isSet(options)) {
-				StringBuilder result = new StringBuilder();
+				CodeBuilder result = new CodeBuilder();
 				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);
 				result.append("public " + finalTypeName + " get" + name.substring(0, 1).toUpperCase()
 						+ name.substring(1) + "() {\n");
-				result.append("return " + name + ";\n");
+				result.appendIndented("return " + name + ";\n");
 				result.append("}\n");
 				if (getOptionality() != null) {
 					result.append("public void set" + name.substring(0, 1).toUpperCase() + name.substring(1) + "("
 							+ finalTypeName + " " + name + ") {\n");
-					result.append("this." + name + " = " + name + ";\n");
+					result.appendIndented("this." + name + " = " + name + ";\n");
 					result.append("}\n");
 				}
 				return result.toString();

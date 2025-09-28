@@ -7,6 +7,7 @@ import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
 import com.otk.jesb.util.UpToDate;
@@ -167,6 +168,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 			if (actualRootInstanceTypeName == null) {
 				actualRootInstanceTypeName = NullInstance.class.getName();
 			}
+			final String finalActualRootInstanceTypeName = actualRootInstanceTypeName;
 			Object finalRootInstanceName;
 			if (rootInstanceName != null) {
 				finalRootInstanceName = rootInstanceName;
@@ -185,27 +187,32 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				}
 				rootInstanceWrapperClassName = rootInstanceWrapperClassName.replace("$", "_");
 			}
-			StringBuilder rootInstanceWrapperClassSourceBuilder = new StringBuilder();
+			final String finalRootInstanceWrapperClassName = rootInstanceWrapperClassName;
+			CodeBuilder rootInstanceWrapperClassSourceBuilder = new CodeBuilder();
 			{
 				rootInstanceWrapperClassSourceBuilder.append(
 						"package " + MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + ";\n");
 				rootInstanceWrapperClassSourceBuilder.append("public class "
 						+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + " implements "
 						+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + "{\n");
-				rootInstanceWrapperClassSourceBuilder.append("	private "
-						+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " rootInstance;\n");
-				rootInstanceWrapperClassSourceBuilder
-						.append("	public " + MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName)
-								+ "(" + MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " "
-								+ finalRootInstanceName + ") {\n");
-				rootInstanceWrapperClassSourceBuilder
-						.append("		this.rootInstance = " + finalRootInstanceName + ";\n");
-				rootInstanceWrapperClassSourceBuilder.append("	}\n");
-				rootInstanceWrapperClassSourceBuilder.append("	@Override\n");
-				rootInstanceWrapperClassSourceBuilder.append("	public "
-						+ MiscUtils.adaptClassNameToSourceCode(actualRootInstanceTypeName) + " getRootInstance() {\n");
-				rootInstanceWrapperClassSourceBuilder.append("		return rootInstance;\n");
-				rootInstanceWrapperClassSourceBuilder.append("	}\n");
+				rootInstanceWrapperClassSourceBuilder.indenting(() -> {
+					rootInstanceWrapperClassSourceBuilder
+							.append("private " + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName)
+									+ " rootInstance;\n");
+					rootInstanceWrapperClassSourceBuilder.append(
+							"public " + MiscUtils.extractSimpleNameFromClassName(finalRootInstanceWrapperClassName)
+									+ "(" + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName) + " "
+									+ finalRootInstanceName + ") {\n");
+					rootInstanceWrapperClassSourceBuilder
+							.appendIndented("this.rootInstance = " + finalRootInstanceName + ";\n");
+					rootInstanceWrapperClassSourceBuilder.append("}\n");
+					rootInstanceWrapperClassSourceBuilder.append("@Override\n");
+					rootInstanceWrapperClassSourceBuilder
+							.append("public " + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName)
+									+ " getRootInstance() {\n");
+					rootInstanceWrapperClassSourceBuilder.appendIndented("return rootInstance;\n");
+					rootInstanceWrapperClassSourceBuilder.append("}\n");
+				});
 				rootInstanceWrapperClassSourceBuilder.append("}\n");
 			}
 			try {

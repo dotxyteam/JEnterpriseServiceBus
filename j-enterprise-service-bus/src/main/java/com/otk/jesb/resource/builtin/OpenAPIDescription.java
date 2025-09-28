@@ -37,6 +37,7 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -105,7 +106,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	private void generateSwaggerInitializeResourceClass(File sourceDirectory) throws IOException {
-		StringBuilder swaggerInitializerResourceSourceCode = new StringBuilder();
+		CodeBuilder swaggerInitializerResourceSourceCode = new CodeBuilder();
 		swaggerInitializerResourceSourceCode.append("package " + getServicePackageName() + ";\n");
 		swaggerInitializerResourceSourceCode.append("\n");
 		swaggerInitializerResourceSourceCode.append("import javax.ws.rs.GET;\n");
@@ -180,61 +181,69 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		synchronized (serviceImplementationClassByInterface) {
 			serviceImplementationClassByInterface.computeIfAbsent(currentServiceInterface, serviceInterface -> {
 				String className = serviceInterface.getName() + "Impl";
-				StringBuilder javaSource = new StringBuilder();
+				CodeBuilder javaSource = new CodeBuilder();
 				javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
 				javaSource.append("public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 						+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + "{" + "\n");
-				javaSource.append("  private " + InvocationHandler.class.getName() + " invocationHandler;\n");
-				javaSource.append("  public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
-						+ InvocationHandler.class.getName() + " invocationHandler){" + "\n");
-				javaSource.append("    this.invocationHandler = invocationHandler;\n");
-				javaSource.append("  }" + "\n");
-				for (Method method : serviceInterface.getMethods()) {
-					if (!Modifier.isAbstract(method.getModifiers())) {
-						continue;
+				javaSource.indenting(() -> {
+					javaSource.append("private " + InvocationHandler.class.getName() + " invocationHandler;\n");
+					{
+						javaSource.append("public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
+								+ InvocationHandler.class.getName() + " invocationHandler){" + "\n");
+						javaSource.appendIndented("this.invocationHandler = invocationHandler;\n");
+						javaSource.append("}" + "\n");
 					}
-					javaSource.append("  @Override\n");
-					javaSource
-							.append("  public " + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName())
-									+ " " + method.getName() + "("
+					for (Method method : serviceInterface.getMethods()) {
+						if (!Modifier.isAbstract(method.getModifiers())) {
+							continue;
+						}
+						javaSource.append("@Override\n");
+						javaSource.append(
+								"public " + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName()) + " "
+										+ method.getName() + "("
+										+ Arrays.stream(method.getParameters())
+												.map(parameter -> MiscUtils.adaptClassNameToSourceCode(
+														parameter.getType().getName()) + " " + parameter.getName())
+												.collect(Collectors.joining(", "))
+										+ ") {" + "\n");
+						javaSource.indenting(() -> {
+							String methodReflectionAccessInstruction = MiscUtils
+									.adaptClassNameToSourceCode(serviceInterface.getName()) + ".class.getMethod(\""
+									+ method.getName() + "\", new Class[]{"
 									+ Arrays.stream(method.getParameters())
 											.map(parameter -> MiscUtils.adaptClassNameToSourceCode(
-													parameter.getType().getName()) + " " + parameter.getName())
+													parameter.getType().getName()) + ".class")
 											.collect(Collectors.joining(", "))
-									+ ") {" + "\n");
-					String methodReflectionAccessInstruction = MiscUtils
-							.adaptClassNameToSourceCode(serviceInterface.getName()) + ".class.getMethod(\""
-							+ method.getName() + "\", new Class[]{"
-							+ Arrays.stream(method.getParameters())
-									.map(parameter -> MiscUtils
-											.adaptClassNameToSourceCode(parameter.getType().getName()) + ".class")
-									.collect(Collectors.joining(", "))
-							+ "})";
-					String methodArgumentArrayCreationInstruction = "new Object[]{"
-							+ Arrays.stream(method.getParameters()).map(parameter -> parameter.getName())
-									.collect(Collectors.joining(", "))
-							+ "}";
-					javaSource.append("    try {\n");
-					javaSource
-							.append("        "
-									+ (method.getReturnType().equals(void.class) ? ""
+									+ "})";
+							String methodArgumentArrayCreationInstruction = "new Object[]{"
+									+ Arrays.stream(method.getParameters()).map(parameter -> parameter.getName())
+											.collect(Collectors.joining(", "))
+									+ "}";
+							javaSource.append("try {\n");
+							javaSource
+									.appendIndented((method.getReturnType().equals(void.class) ? ""
 											: ("return (" + MiscUtils.adaptClassNameToSourceCode(
 													method.getReturnType().getName()) + ")"))
-									+ "invocationHandler.invoke(this, " + methodReflectionAccessInstruction + ", "
-									+ methodArgumentArrayCreationInstruction + ");" + "\n");
-					javaSource.append("    } catch (Throwable t) {\n");
-					for (Class<?> exceptionType : method.getExceptionTypes()) {
-						javaSource.append("			if(t instanceof "
-								+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ") {\n");
-						javaSource.append("				throw ("
-								+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ")t;\n");
-						javaSource.append("			}\n");
+											+ "invocationHandler.invoke(this, " + methodReflectionAccessInstruction
+											+ ", " + methodArgumentArrayCreationInstruction + ");" + "\n");
+							javaSource.append("} catch (Throwable t) {\n");
+							javaSource.indenting(() -> {
+								for (Class<?> exceptionType : method.getExceptionTypes()) {
+									javaSource.append("if(t instanceof "
+											+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ") {\n");
+									javaSource.append("throw ("
+											+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + ")t;\n");
+									javaSource.append("}\n");
+								}
+								javaSource.append("throw new "
+										+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName())
+										+ "(t);\n");
+							});
+							javaSource.append("}" + "\n");
+						});
+						javaSource.append("}" + "\n");
 					}
-					javaSource.append("			throw new "
-							+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName()) + "(t);\n");
-					javaSource.append("    }");
-					javaSource.append("  }" + "\n");
-				}
+				});
 				javaSource.append("}" + "\n");
 				try {
 					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
@@ -455,15 +464,15 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 								element.setTypeNameOrAlias(typeName);
 								stucture.getElements().add(element);
 							}
-							StringBuilder additionalMethodDeclarations = new StringBuilder();
-							additionalMethodDeclarations.append("  @Override" + "\n");
-							additionalMethodDeclarations.append("  public Object[] listParameterValues() {" + "\n");
+							CodeBuilder additionalMethodDeclarations = new CodeBuilder();
+							additionalMethodDeclarations.append("@Override" + "\n");
+							additionalMethodDeclarations.append("public Object[] listParameterValues() {" + "\n");
 							additionalMethodDeclarations
-									.append("  return new Object[] {"
+									.appendIndented("return new Object[] {"
 											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())
 													.stream().map(p -> p.getName()).collect(Collectors.toList()), ", ")
 											+ "};" + "\n");
-							additionalMethodDeclarations.append("  }" + "\n");
+							additionalMethodDeclarations.append("}" + "\n");
 							try {
 								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
 										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,

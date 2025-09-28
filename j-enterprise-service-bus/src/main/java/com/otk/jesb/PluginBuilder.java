@@ -56,6 +56,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.GUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
@@ -407,7 +408,7 @@ public class PluginBuilder {
 
 		protected abstract String getDisplayedTypeName(String prefix);
 
-		protected abstract void generateUICustomizationStatements(StringBuilder result,
+		protected abstract void generateUICustomizationStatements(CodeBuilder result,
 				UIElementBasedDescriptor uiElement, String uiCustomizationsVariableName, String displayedTypeName);
 
 		private String additionalFieldDeclarationsSourceCode;
@@ -439,45 +440,50 @@ public class PluginBuilder {
 		}
 
 		protected String generateUICustomizationsMethodSourceCode(String displayedTypeNamePrefix) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			String displayedTypeName = getDisplayedTypeName(displayedTypeNamePrefix);
 			List<? extends UIElementBasedDescriptor> uiElements = getUIElements();
 			result.append("public static void " + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "("
 					+ InfoCustomizations.class.getName() + " infoCustomizations) {\n");
-			result.append("/* " + displayedTypeName + " form customization */\n");
-			{
+			result.indenting(() -> {
+				result.append("/* " + displayedTypeName + " form customization */\n");
 				result.append("{\n");
-				result.append("/* field control positions */\n");
-				result.append(InfoCustomizations.class.getName() + ".getTypeCustomization(infoCustomizations, "
-						+ displayedTypeName + ".class.getName()).setCustomFieldsOrder(" + Arrays.class.getName()
-						+ ".asList("
-						+ uiElements.stream().map(
-								uiField -> '"' + uiField.getDisplayedFieldName(this, displayedTypeNamePrefix) + '"')
-								.collect(Collectors.joining(", "))
-						+ "));\n");
-				for (UIElementBasedDescriptor uiElement : uiElements) {
-					result.append("/* " + uiElement.getDisplayedFieldName(this, displayedTypeNamePrefix)
-							+ " control customization */\n");
-					result.append("{\n");
-					if (uiElement.getCaption() != null) {
-						result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-								+ displayedTypeName + ".class.getName(), \""
-								+ uiElement.getDisplayedFieldName(this, displayedTypeNamePrefix)
-								+ "\").setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(uiElement.getCaption())
-								+ "\");\n");
+				result.indenting(() -> {
+					result.append("/* field control positions */\n");
+					result.append(InfoCustomizations.class.getName() + ".getTypeCustomization(infoCustomizations, "
+							+ displayedTypeName + ".class.getName()).setCustomFieldsOrder(" + Arrays.class.getName()
+							+ ".asList("
+							+ uiElements.stream().map(
+									uiField -> '"' + uiField.getDisplayedFieldName(this, displayedTypeNamePrefix) + '"')
+									.collect(Collectors.joining(", "))
+							+ "));\n");
+					for (UIElementBasedDescriptor uiElement : uiElements) {
+						result.append("/* " + uiElement.getDisplayedFieldName(this, displayedTypeNamePrefix)
+								+ " control customization */\n");
+						result.append("{\n");
+						result.indenting(() -> {
+							if (uiElement.getCaption() != null) {
+								result.append(InfoCustomizations.class.getName()
+										+ ".getFieldCustomization(infoCustomizations, " + displayedTypeName
+										+ ".class.getName(), \""
+										+ uiElement.getDisplayedFieldName(this, displayedTypeNamePrefix)
+										+ "\").setCustomFieldCaption(\""
+										+ MiscUtils.escapeJavaString(uiElement.getCaption()) + "\");\n");
+							}
+							generateUICustomizationStatements(result, uiElement, "infoCustomizations",
+									displayedTypeName);
+						});
+						result.append("}\n");
 					}
-
-					generateUICustomizationStatements(result, uiElement, "infoCustomizations", displayedTypeName);
-					result.append("}\n");
-				}
-				result.append("/* hide UI customization method */\n");
-				result.append(InfoCustomizations.class.getName() + ".getMethodCustomization(infoCustomizations, "
-						+ displayedTypeName + ".class.getName(), " + ReflectionUIUtils.class.getName()
-						+ ".buildMethodSignature(\"void\", \"" + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "\", "
-						+ Arrays.class.getName() + ".asList(" + InfoCustomizations.class.getName()
-						+ ".class.getName()))).setHidden(true);\n");
+					result.append("/* hide UI customization method */\n");
+					result.append(InfoCustomizations.class.getName() + ".getMethodCustomization(infoCustomizations, "
+							+ displayedTypeName + ".class.getName(), " + ReflectionUIUtils.class.getName()
+							+ ".buildMethodSignature(\"void\", \"" + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "\", "
+							+ Arrays.class.getName() + ".asList(" + InfoCustomizations.class.getName()
+							+ ".class.getName()))).setHidden(true);\n");
+				});
 				result.append("}\n");
-			}
+			});
 			result.append("}");
 			return result.toString();
 		}
@@ -610,9 +616,9 @@ public class PluginBuilder {
 			for (ParameterDescriptor parameter : parameters) {
 				operationStructure.getElements().add(parameter.getOperationClassElement(operationClassName));
 			}
-			StringBuilder afterPackageDeclaration = new StringBuilder();
-			StringBuilder afterFieldDeclarations = new StringBuilder();
-			StringBuilder afterMethodDeclarations = new StringBuilder();
+			CodeBuilder afterPackageDeclaration = new CodeBuilder();
+			CodeBuilder afterFieldDeclarations = new CodeBuilder();
+			CodeBuilder afterMethodDeclarations = new CodeBuilder();
 			for (String importedClassName : getImportedClassNames()) {
 				afterPackageDeclaration.append("import " + importedClassName + ";\n");
 			}
@@ -651,7 +657,7 @@ public class PluginBuilder {
 
 		protected String generateExecutionMethodSourceCode(String className,
 				Map<Object, Object> codeGenerationOptions) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
 			result.append("public Object execute() throws Throwable {\n");
 			result.append(executionMethodBody + "\n");
@@ -668,8 +674,8 @@ public class PluginBuilder {
 				operationBuilderStructure.getElements()
 						.add(parameter.getOperationBuilderClassElement(operationClassName));
 			}
-			StringBuilder afterMethodDeclarations = new StringBuilder();
-			StringBuilder afterPackageDeclaration = new StringBuilder();
+			CodeBuilder afterMethodDeclarations = new CodeBuilder();
+			CodeBuilder afterPackageDeclaration = new CodeBuilder();
 			for (String importedClassName : getImportedClassNames()) {
 				afterPackageDeclaration.append("import " + importedClassName + ";\n");
 			}
@@ -698,7 +704,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, UIElementBasedDescriptor uiElement,
+		protected void generateUICustomizationStatements(CodeBuilder result, UIElementBasedDescriptor uiElement,
 				String uiCustomizationsVariableName, String displayedTypeName) {
 			ParameterDescriptor parameter = (ParameterDescriptor) uiElement;
 			String operationClassName = displayedTypeName.substring(0,
@@ -709,42 +715,44 @@ public class PluginBuilder {
 
 		protected String generateOperationBuilderValidationMethodSourceCode(String operationClassName,
 				Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
 			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " currentPlan, "
 					+ Step.class.getName() + " currentStep) throws " + ValidationError.class.getName() + "{\n");
-			for (ParameterDescriptor parameter : parameters) {
-				parameter.getNature().generateOperationBuilderValidationStatements(result, operationClassName,
-						parameter.getName(), parameter.getCaption());
-			}
-			if (additionalBuilderValidationStatements != null) {
-				result.append(additionalBuilderValidationStatements + "\n");
-			}
+			result.indenting(() -> {
+				for (ParameterDescriptor parameter : parameters) {
+					parameter.getNature().generateOperationBuilderValidationStatements(result, operationClassName,
+							parameter.getName(), parameter.getCaption());
+				}
+				if (additionalBuilderValidationStatements != null) {
+					result.append(additionalBuilderValidationStatements + "\n");
+				}
+			});
 			result.append("}\n");
 			return result.toString();
 		}
 
 		protected String generateOperationResultClassMethodSourceCode(String operationClassName,
 				Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
 			result.append("public Class<?> getOperationResultClass(" + Plan.class.getName() + " currentPlan, "
 					+ Step.class.getName() + " currentStep) {\n");
-			result.append(generateResultClassMethodBody(operationClassName, options) + "\n");
+			result.appendIndented(generateResultClassMethodBody(operationClassName, options) + "\n");
 			result.append("}\n");
 			return result.toString();
 		}
 
 		protected String generateOperationBuildMethodSourceCode(String operationClassName,
 				Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			String operationClassSimpleName = MiscUtils.extractSimpleNameFromClassName(operationClassName);
 			result.append("@Override\n");
 			result.append("public " + operationClassSimpleName + " build("
 					+ MiscUtils.adaptClassNameToSourceCode(ExecutionContext.class.getName()) + " context, "
 					+ MiscUtils.adaptClassNameToSourceCode(ExecutionInspector.class.getName())
 					+ " executionInspector) throws Exception {\n");
-			result.append(generateBuildMethodBody(operationClassName, options) + "\n");
+			result.appendIndented(generateBuildMethodBody(operationClassName, options) + "\n");
 			result.append("}\n");
 			return result.toString();
 		}
@@ -754,7 +762,7 @@ public class PluginBuilder {
 		}
 
 		protected String generateBuildMethodBody(String operationClassName, Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			for (ParameterDescriptor parameter : parameters) {
 				String buildStatementTarget = parameter.getOperationClassElement(operationClassName)
 						.getFinalTypeNameAdaptedToSourceCode(operationClassName) + " " + parameter.getName();
@@ -770,35 +778,37 @@ public class PluginBuilder {
 			String className = "Metadata";
 			String operationClassSimpleName = MiscUtils.extractSimpleNameFromClassName(operationClassName);
 			String implemented = OperationMetadata.class.getName() + "<" + operationClassSimpleName + ">";
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
-			{
-				result.append("@Override\n");
-				result.append("public String getOperationTypeName() {\n");
-				result.append("return \"" + opertionTypeCaption + "\";" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public String getCategoryName() {\n");
-				result.append("return \"" + categoryName + "\";" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public Class<? extends " + OperationBuilder.class.getName() + "<"
-						+ operationClassSimpleName + ">> getOperationBuilderClass() {\n");
-				result.append("return Builder.class;" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public " + ResourcePath.class.getName() + " getOperationIconImagePath() {\n");
-				result.append("return new " + ResourcePath.class.getName() + "(" + ResourcePath.class.getName()
-						+ ".specifyClassPathResourceLocation(" + operationClassSimpleName
-						+ ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
-				result.append("}\n");
-			}
+			result.indenting(() -> {
+				{
+					result.append("@Override\n");
+					result.append("public String getOperationTypeName() {\n");
+					result.appendIndented("return \"" + opertionTypeCaption + "\";" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public String getCategoryName() {\n");
+					result.appendIndented("return \"" + categoryName + "\";" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public Class<? extends " + OperationBuilder.class.getName() + "<"
+							+ operationClassSimpleName + ">> getOperationBuilderClass() {\n");
+					result.appendIndented("return Builder.class;" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public " + ResourcePath.class.getName() + " getOperationIconImagePath() {\n");
+					result.appendIndented("return new " + ResourcePath.class.getName() + "("
+							+ ResourcePath.class.getName() + ".specifyClassPathResourceLocation("
+							+ operationClassSimpleName + ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
+					result.append("}\n");
+				}
+			});
 			result.append("}");
 			return result.toString();
 		}
@@ -961,10 +971,10 @@ public class PluginBuilder {
 		protected abstract String generateBuildExpression(String operationClassName, String parameterName,
 				Map<Object, Object> options);
 
-		protected abstract void generateOperationBuilderValidationStatements(StringBuilder result,
+		protected abstract void generateOperationBuilderValidationStatements(CodeBuilder result,
 				String operationClassName, String parameterName, String parameterCaption);
 
-		protected abstract void generateUICustomizationStatements(StringBuilder result,
+		protected abstract void generateUICustomizationStatements(CodeBuilder result,
 				String uiCustomizationsVariableName, String operationClassName, String operationBuilderClassSimpleName,
 				String parameterName);
 
@@ -1067,24 +1077,26 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateOperationBuilderValidationStatements(StringBuilder result, String operationClassName,
+		protected void generateOperationBuilderValidationStatements(CodeBuilder result, String operationClassName,
 				String parameterName, String parameterCaption) {
 			if (variant) {
 				String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName)
 						.getName();
 				result.append("if (recursively) {\n");
-				result.append("try {\n");
-				result.append(builderElementName + ".validate();\n");
-				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
-				result.append("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-						+ parameterCaption + "'\", e);\n");
-				result.append("}\n");
+				result.indenting(() -> {
+					result.append("try {\n");
+					result.appendIndented(builderElementName + ".validate();\n");
+					result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
+					result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
+							+ parameterCaption + "'\", e);\n");
+					result.append("}\n");
+				});
 				result.append("}\n");
 			}
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			String builderClassName = operationClassName
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
@@ -1117,18 +1129,24 @@ public class PluginBuilder {
 						+ ", " + customizedTypeNameExpression + ", " + customizedFieldNameExpression
 						+ ").getSpecificTypeCustomizations(), " + customizedFieldTypeNameExpression
 						+ ").setSpecificProperties(new " + HashMap.class.getName() + "<String, Object>() {\n");
-				result.append("private static final long serialVersionUID = 1L;\n");
-				result.append("{\n");
-				result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginIdentifier(this, \""
-						+ controlPluginIdentifier + "\");\n");
-				if (controlPluginConfiguration != null) {
-					result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginConfiguration(this, \""
-							+ controlPluginIdentifier + "\", (" + Serializable.class.getName() + ") "
-							+ PluginBuilder.class.getName() + ".readControlPluginConfiguration(\""
-							+ MiscUtils.escapeJavaString(writeControlPluginConfiguration(controlPluginConfiguration))
-							+ "\"));\n");
-				}
-				result.append("}\n");
+				result.indenting(() -> {
+					result.append("private static final long serialVersionUID = 1L;\n");
+					result.append("{\n");
+					result.indenting(() -> {
+						result.append(ReflectionUIUtils.class.getName() + ".setFieldControlPluginIdentifier(this, \""
+								+ controlPluginIdentifier + "\");\n");
+						if (controlPluginConfiguration != null) {
+							result.append(
+									ReflectionUIUtils.class.getName() + ".setFieldControlPluginConfiguration(this, \""
+											+ controlPluginIdentifier + "\", (" + Serializable.class.getName() + ") "
+											+ PluginBuilder.class.getName() + ".readControlPluginConfiguration(\""
+											+ MiscUtils.escapeJavaString(
+													writeControlPluginConfiguration(controlPluginConfiguration))
+											+ "\"));\n");
+						}
+					});
+					result.append("}\n");
+				});
 				result.append("});\n");
 			}
 		}
@@ -1227,7 +1245,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateOperationBuilderValidationStatements(StringBuilder result, String operationClassName,
+		protected void generateOperationBuilderValidationStatements(CodeBuilder result, String operationClassName,
 				String parameterName, String parameterCaption) {
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
 			result.append("if (" + builderElementName + ".resolve() == null) {\n");
@@ -1237,7 +1255,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			String builderClassName = operationClassName
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
@@ -1381,12 +1399,12 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateOperationBuilderValidationStatements(StringBuilder result, String operationClassName,
+		protected void generateOperationBuilderValidationStatements(CodeBuilder result, String operationClassName,
 				String parameterName, String parameterCaption) {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			getSimpleParameterNatureUtility(operationClassName, parameterName).generateUICustomizationStatements(result,
 					uiCustomizationsVariableName, operationClassName, operationBuilderClassSimpleName, parameterName);
@@ -1504,12 +1522,12 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateOperationBuilderValidationStatements(StringBuilder result, String operationClassName,
+		protected void generateOperationBuilderValidationStatements(CodeBuilder result, String operationClassName,
 				String parameterName, String parameterCaption) {
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
 			result.append("if (recursively) {\n");
 			result.append("try {\n");
-			result.append(builderElementName + ".validate(recursively, plan, step);\n");
+			result.append(builderElementName + ".validate(recursively, currentPlan, currentStep);\n");
 			result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 			result.append("throw new " + ValidationError.class.getName() + "(\"Failed to validate '" + parameterCaption
 					+ "'\", e);\n");
@@ -1518,7 +1536,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			String builderClassName = operationClassName
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
@@ -1650,22 +1668,24 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateOperationBuilderValidationStatements(StringBuilder result, String operationClassName,
+		protected void generateOperationBuilderValidationStatements(CodeBuilder result, String operationClassName,
 				String parameterName, String parameterCaption) {
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName).getName();
 			result.append("if (recursively) {\n");
-			result.append("try {\n");
-			result.append(builderElementName
-					+ ".getFacade().validate(recursively, plan.getValidationContext(step).getVariableDeclarations());\n");
-			result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
-			result.append("throw new " + ValidationError.class.getName() + "(\"Failed to validate '" + parameterCaption
-					+ "'\", e);\n");
-			result.append("}\n");
+			result.indenting(() -> {
+				result.append("try {\n");
+				result.appendIndented(builderElementName
+						+ ".getFacade().validate(recursively, currentPlan.getValidationContext(currentStep).getVariableDeclarations());\n");
+				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
+				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
+						+ parameterCaption + "'\", e);\n");
+				result.append("}\n");
+			});
 			result.append("}\n");
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String operationClassName, String operationBuilderClassSimpleName, String parameterName) {
 			String builderClassName = operationClassName
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
@@ -1687,7 +1707,7 @@ public class PluginBuilder {
 					options = new HashMap<Object, Object>(options);
 					Structure.ElementAccessMode.PUBLIC_FIELD.set(options);
 					if (concreteStructureAlternatives != null) {
-						StringBuilder result = new StringBuilder();
+						CodeBuilder result = new CodeBuilder();
 						result.append("abstract "
 								+ super.generateRequiredInnerJavaTypesSourceCode(operationClassName, options));
 						for (StructureDerivationAlternative alternative : concreteStructureAlternatives) {
@@ -1739,12 +1759,13 @@ public class PluginBuilder {
 
 		private String generateConcreteTypeNameAccessorClassSourceCode(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("private class " + getConcreteTypeNameAccessorClassName(parameterName) + " extends "
 					+ Accessor.class.getName() + "<String> {\n");
 			result.append("	@Override\n");
 			result.append("	public String get() {\n");
-			result.append(generateConcreteTypeNameGetterBody(operationClassName, parameterName, options) + "\n");
+			result.appendIndented(
+					generateConcreteTypeNameGetterBody(operationClassName, parameterName, options) + "\n");
 			result.append("	}\n");
 			result.append("}");
 			return result.toString();
@@ -1752,16 +1773,16 @@ public class PluginBuilder {
 
 		protected String generateConcreteTypeNameGetterBody(String operationClassName, String parameterName,
 				Map<Object, Object> options) {
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			for (StructureDerivationAlternative alternative : concreteStructureAlternatives) {
-				result.append("		if (" + alternative.getCondition() + ") {\n");
-				result.append("			return "
+				result.append("if (" + alternative.getCondition() + ") {\n");
+				result.appendIndented("return "
 						+ alternative.getConcreteStructureTypeName(operationClassName,
 								getBaseStructureTypeName(operationClassName, parameterName), structure)
 						+ ".class.getName();\n");
-				result.append("		}\n");
+				result.append("}\n");
 			}
-			result.append("		return null;");
+			result.append("return null;");
 			return result.toString();
 		}
 
@@ -1946,9 +1967,9 @@ public class PluginBuilder {
 			for (PropertyDescriptor property : properties) {
 				resourceStructure.getElements().add(property.getResourceClassElement(resourceClassName));
 			}
-			StringBuilder afterFieldDeclarations = new StringBuilder();
-			StringBuilder afterMethodDeclarations = new StringBuilder();
-			StringBuilder afterPackageDeclaration = new StringBuilder();
+			CodeBuilder afterFieldDeclarations = new CodeBuilder();
+			CodeBuilder afterMethodDeclarations = new CodeBuilder();
+			CodeBuilder afterPackageDeclaration = new CodeBuilder();
 			for (String importedClassName : getImportedClassNames()) {
 				afterPackageDeclaration.append("import " + importedClassName + ";\n");
 			}
@@ -1968,7 +1989,7 @@ public class PluginBuilder {
 					afterMethodDeclarations.toString(), codeGenerationOptions);
 		}
 
-		protected void generateValidationMethodSourceCode(StringBuilder result, String resourceClassName,
+		protected void generateValidationMethodSourceCode(CodeBuilder result, String resourceClassName,
 				Map<Object, Object> codeGenerationOptions) {
 			result.append("@Override\n");
 			result.append(
@@ -1987,28 +2008,30 @@ public class PluginBuilder {
 			String className = "Metadata";
 			String resourceClassSimpleName = MiscUtils.extractSimpleNameFromClassName(resourceClassName);
 			String implemented = ResourceMetadata.class.getName();
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
-			{
-				result.append("@Override\n");
-				result.append("public String getResourceTypeName() {\n");
-				result.append("return \"" + resourceTypeCaption + "\";" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public Class<? extends " + Resource.class.getName() + "> getResourceClass() {\n");
-				result.append("return " + resourceClassSimpleName + ".class;" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public " + ResourcePath.class.getName() + " getResourceIconImagePath() {\n");
-				result.append("return new " + ResourcePath.class.getName() + "(" + ResourcePath.class.getName()
-						+ ".specifyClassPathResourceLocation(" + resourceClassSimpleName
-						+ ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
-				result.append("}\n");
-			}
+			result.indenting(() -> {
+				{
+					result.append("@Override\n");
+					result.append("public String getResourceTypeName() {\n");
+					result.appendIndented("return \"" + resourceTypeCaption + "\";" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public Class<? extends " + Resource.class.getName() + "> getResourceClass() {\n");
+					result.appendIndented("return " + resourceClassSimpleName + ".class;" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public " + ResourcePath.class.getName() + " getResourceIconImagePath() {\n");
+					result.appendIndented("return new " + ResourcePath.class.getName() + "("
+							+ ResourcePath.class.getName() + ".specifyClassPathResourceLocation("
+							+ resourceClassSimpleName + ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
+					result.append("}\n");
+				}
+			});
 			result.append("}");
 			return result.toString();
 		}
@@ -2025,7 +2048,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, UIElementBasedDescriptor uiElement,
+		protected void generateUICustomizationStatements(CodeBuilder result, UIElementBasedDescriptor uiElement,
 				String uiCustomizationsVariableName, String displayedTypeName) {
 			PropertyDescriptor property = (PropertyDescriptor) uiElement;
 			String resourceClassName = displayedTypeName;
@@ -2085,10 +2108,10 @@ public class PluginBuilder {
 
 		protected abstract void validate() throws ValidationError;
 
-		protected abstract void generateResourceValidationStatements(StringBuilder result, String resourceClassName,
+		protected abstract void generateResourceValidationStatements(CodeBuilder result, String resourceClassName,
 				String propertyName, String caption);
 
-		protected abstract void generateUICustomizationStatements(StringBuilder result,
+		protected abstract void generateUICustomizationStatements(CodeBuilder result,
 				String uiCustomizationsVariableName, String resourceClassName, String name);
 
 		protected abstract Element getResourceClassElement(String resourceClassName, String propertyName);
@@ -2161,14 +2184,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateResourceValidationStatements(StringBuilder result, String resourceClassName,
+		protected void generateResourceValidationStatements(CodeBuilder result, String resourceClassName,
 				String propertyName, String propertyCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, resourceClassName,
 					propertyName, propertyCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String resourceClassName, String propertyName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					resourceClassName, null, propertyName);
@@ -2254,14 +2277,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateResourceValidationStatements(StringBuilder result, String resourceClassName,
+		protected void generateResourceValidationStatements(CodeBuilder result, String resourceClassName,
 				String propertyName, String propertyCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, resourceClassName,
 					propertyName, propertyCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String resourceClassName, String propertyName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					resourceClassName, null, propertyName);
@@ -2307,14 +2330,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateResourceValidationStatements(StringBuilder result, String resourceClassName,
+		protected void generateResourceValidationStatements(CodeBuilder result, String resourceClassName,
 				String propertyName, String propertyCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, resourceClassName,
 					propertyName, propertyCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String resourceClassName, String propertyName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					resourceClassName, null, propertyName);
@@ -2362,21 +2385,23 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateResourceValidationStatements(StringBuilder result, String resourceClassName,
+		protected void generateResourceValidationStatements(CodeBuilder result, String resourceClassName,
 				String propertyName, String propertyCaption) {
 			String elementName = getResourceClassElement(resourceClassName, propertyName).getName();
 			result.append("if (recursively) {\n");
-			result.append("try {\n");
-			result.append(elementName + ".validate(recursively);\n");
-			result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
-			result.append("throw new " + ValidationError.class.getName() + "(\"Failed to validate '" + propertyCaption
-					+ "'\", e);\n");
-			result.append("}\n");
+			result.indenting(() -> {
+				result.append("try {\n");
+				result.appendIndented(elementName + ".validate(recursively);\n");
+				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
+				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
+						+ propertyCaption + "'\", e);\n");
+				result.append("}\n");
+			});
 			result.append("}\n");
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String resourceClassName, String propertyName) {
 			String uiTypeName = resourceClassName;
 			String uiElementName = getResourceClassElement(resourceClassName, propertyName).getName();
@@ -2558,10 +2583,10 @@ public class PluginBuilder {
 			for (AttributeDescriptor attribute : attributes) {
 				activatorStructure.getElements().add(attribute.getActivatorClassElement(activatorClassName));
 			}
-			StringBuilder afterPackageDeclaration = new StringBuilder();
-			StringBuilder afterFieldDeclarations = new StringBuilder();
-			StringBuilder afterMethodDeclarations = new StringBuilder();
-			StringBuilder innerClassesDeclarations = new StringBuilder();
+			CodeBuilder afterPackageDeclaration = new CodeBuilder();
+			CodeBuilder afterFieldDeclarations = new CodeBuilder();
+			CodeBuilder afterMethodDeclarations = new CodeBuilder();
+			CodeBuilder innerClassesDeclarations = new CodeBuilder();
 			for (String importedClassName : getImportedClassNames()) {
 				afterPackageDeclaration.append("import " + importedClassName + ";\n");
 			}
@@ -2592,26 +2617,28 @@ public class PluginBuilder {
 			return "private " + com.otk.jesb.activation.ActivationHandler.class.getName() + " activationHandler;";
 		}
 
-		protected void generateValidationMethodSourceCode(StringBuilder result, String activatorClassName) {
+		protected void generateValidationMethodSourceCode(CodeBuilder result, String activatorClassName) {
 			result.append("@Override\n");
 			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " plan) throws "
 					+ ValidationError.class.getName() + " {\n");
-			result.append("super.validate(recursively, plan);\n");
-			for (AttributeDescriptor attribute : attributes) {
-				attribute.getNature().generateActivatorValidationStatements(result, activatorClassName,
-						attribute.getName(), attribute.getCaption());
-			}
-			if (additionalValidationStatements != null) {
-				result.append(additionalValidationStatements + "\n");
-			}
+			result.indenting(() -> {
+				result.append("super.validate(recursively, plan);\n");
+				for (AttributeDescriptor attribute : attributes) {
+					attribute.getNature().generateActivatorValidationStatements(result, activatorClassName,
+							attribute.getName(), attribute.getCaption());
+				}
+				if (additionalValidationStatements != null) {
+					result.append(additionalValidationStatements + "\n");
+				}
+			});
 			result.append("}\n");
 		}
 
-		protected void generateTriggerMethodsSourceCode(StringBuilder additionalMethodDeclarations) {
+		protected void generateTriggerMethodsSourceCode(CodeBuilder additionalMethodDeclarations) {
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public boolean isAutomaticallyTriggerable() {\n");
-				additionalMethodDeclarations.append("return true;\n");
+				additionalMethodDeclarations.appendIndented("return true;\n");
 				additionalMethodDeclarations.append("}");
 			}
 			{
@@ -2619,55 +2646,56 @@ public class PluginBuilder {
 				additionalMethodDeclarations.append("public void initializeAutomaticTrigger("
 						+ ActivationHandler.class.getName() + " activationHandler) throws Exception {\n");
 				if (handlerInitializationStatements != null) {
-					additionalMethodDeclarations.append(handlerInitializationStatements + "\n");
+					additionalMethodDeclarations.appendIndented(handlerInitializationStatements + "\n");
 				}
-				additionalMethodDeclarations.append("this.activationHandler = activationHandler;\n");
+				additionalMethodDeclarations.appendIndented("this.activationHandler = activationHandler;\n");
 				additionalMethodDeclarations.append("}\n");
 			}
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public void finalizeAutomaticTrigger() throws Exception {\n");
-				additionalMethodDeclarations.append("this.activationHandler = null;\n");
+				additionalMethodDeclarations.appendIndented("this.activationHandler = null;\n");
 				if (handlerFinalizationStatements != null) {
-					additionalMethodDeclarations.append(handlerFinalizationStatements + "\n");
+					additionalMethodDeclarations.appendIndented(handlerFinalizationStatements + "\n");
 				}
 				additionalMethodDeclarations.append("}\n");
 			}
 			{
 				additionalMethodDeclarations.append("@Override\n");
 				additionalMethodDeclarations.append("public boolean isAutomaticTriggerReady() {\n");
-				additionalMethodDeclarations.append("return activationHandler != null;\n");
+				additionalMethodDeclarations.appendIndented("return activationHandler != null;\n");
 				additionalMethodDeclarations.append("}\n");
 			}
 
 		}
 
-		protected void generateOutputSourceCode(String activatorClassName, StringBuilder additionalMethodDeclarations,
-				StringBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
+		protected void generateOutputSourceCode(String activatorClassName, CodeBuilder additionalMethodDeclarations,
+				CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
 			additionalMethodDeclarations.append("@Override\n");
 			additionalMethodDeclarations.append("public Class<?> getOutputClass() {\n");
 			if (outputClassOption == null) {
-				additionalMethodDeclarations.append("return null;\n");
+				additionalMethodDeclarations.appendIndented("return null;\n");
 			} else {
 				additionalInnerClassesDeclarations.append(outputClassOption
 						.generateClassesSourceCode(activatorClassName, "outputClass", codeGenerationOptions) + "\n");
-				additionalMethodDeclarations.append(outputClassOption.generateClassOptionMethodBody(activatorClassName,
-						"outputClass", codeGenerationOptions) + "\n");
+				additionalMethodDeclarations
+						.appendIndented(outputClassOption.generateClassOptionMethodBody(activatorClassName,
+								"outputClass", codeGenerationOptions) + "\n");
 			}
 			additionalMethodDeclarations.append("}\n");
 		}
 
-		protected void generateInputSourceCode(String activatorClassName, StringBuilder additionalMethodDeclarations,
-				StringBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
+		protected void generateInputSourceCode(String activatorClassName, CodeBuilder additionalMethodDeclarations,
+				CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
 			additionalMethodDeclarations.append("@Override\n");
 			additionalMethodDeclarations.append("public Class<?> getInputClass() {\n");
 			if (inputClassOption == null) {
-				additionalMethodDeclarations.append("return null;\n");
+				additionalMethodDeclarations.appendIndented("return null;\n");
 			} else {
 				additionalInnerClassesDeclarations.append(inputClassOption.generateClassesSourceCode(activatorClassName,
 						"inputClass", codeGenerationOptions) + "\n");
-				additionalMethodDeclarations.append(inputClassOption.generateClassOptionMethodBody(activatorClassName,
-						"inputClass", codeGenerationOptions) + "\n");
+				additionalMethodDeclarations.appendIndented(inputClassOption
+						.generateClassOptionMethodBody(activatorClassName, "inputClass", codeGenerationOptions) + "\n");
 			}
 			additionalMethodDeclarations.append("}\n");
 		}
@@ -2676,28 +2704,30 @@ public class PluginBuilder {
 			String className = "Metadata";
 			String activatorClassSimpleName = MiscUtils.extractSimpleNameFromClassName(resourceClassName);
 			String implemented = ActivatorMetadata.class.getName();
-			StringBuilder result = new StringBuilder();
+			CodeBuilder result = new CodeBuilder();
 			result.append("public static class " + className + " implements " + implemented + "{" + "\n");
-			{
-				result.append("@Override\n");
-				result.append("public String getActivatorName() {\n");
-				result.append("return \"" + activatorTypeCaption + "\";" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public Class<? extends " + Activator.class.getName() + "> getActivatorClass() {\n");
-				result.append("return " + activatorClassSimpleName + ".class;" + "\n");
-				result.append("}\n");
-			}
-			{
-				result.append("@Override\n");
-				result.append("public " + ResourcePath.class.getName() + " getActivatorIconImagePath() {\n");
-				result.append("return new " + ResourcePath.class.getName() + "(" + ResourcePath.class.getName()
-						+ ".specifyClassPathResourceLocation(" + activatorClassSimpleName
-						+ ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
-				result.append("}\n");
-			}
+			result.indenting(() -> {
+				{
+					result.append("@Override\n");
+					result.append("public String getActivatorName() {\n");
+					result.appendIndented("return \"" + activatorTypeCaption + "\";" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public Class<? extends " + Activator.class.getName() + "> getActivatorClass() {\n");
+					result.appendIndented("return " + activatorClassSimpleName + ".class;" + "\n");
+					result.append("}\n");
+				}
+				{
+					result.append("@Override\n");
+					result.append("public " + ResourcePath.class.getName() + " getActivatorIconImagePath() {\n");
+					result.appendIndented("return new " + ResourcePath.class.getName() + "("
+							+ ResourcePath.class.getName() + ".specifyClassPathResourceLocation("
+							+ activatorClassSimpleName + ".class.getName().replace(\".\", \"/\") + \".png\"));" + "\n");
+					result.append("}\n");
+				}
+			});
 			result.append("}");
 			return result.toString();
 		}
@@ -2714,7 +2744,7 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, UIElementBasedDescriptor uiElement,
+		protected void generateUICustomizationStatements(CodeBuilder result, UIElementBasedDescriptor uiElement,
 				String uiCustomizationsVariableName, String displayedTypeName) {
 			AttributeDescriptor attribute = (AttributeDescriptor) uiElement;
 			String activatorClassName = displayedTypeName;
@@ -2774,10 +2804,10 @@ public class PluginBuilder {
 
 		protected abstract void validate() throws ValidationError;
 
-		protected abstract void generateActivatorValidationStatements(StringBuilder result, String activatorClassName,
+		protected abstract void generateActivatorValidationStatements(CodeBuilder result, String activatorClassName,
 				String attributeName, String attributeCaption);
 
-		protected abstract void generateUICustomizationStatements(StringBuilder result,
+		protected abstract void generateUICustomizationStatements(CodeBuilder result,
 				String uiCustomizationsVariableName, String activatorClassName, String attributeName);
 
 		protected abstract Element getActivatorClassElement(String activatorClassName, String attributeName);
@@ -2844,14 +2874,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateActivatorValidationStatements(StringBuilder result, String activatorClassName,
+		protected void generateActivatorValidationStatements(CodeBuilder result, String activatorClassName,
 				String attributeName, String attributeCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, activatorClassName,
 					attributeName, attributeCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String activatorClassName, String attributeName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					activatorClassName, null, attributeName);
@@ -2942,14 +2972,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateActivatorValidationStatements(StringBuilder result, String activatorClassName,
+		protected void generateActivatorValidationStatements(CodeBuilder result, String activatorClassName,
 				String attributeName, String attributeCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, activatorClassName,
 					attributeName, attributeCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String activatorClassName, String attributeName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					activatorClassName, null, attributeName);
@@ -2995,14 +3025,14 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateActivatorValidationStatements(StringBuilder result, String activatorClassName,
+		protected void generateActivatorValidationStatements(CodeBuilder result, String activatorClassName,
 				String attributeName, String attributeCaption) {
 			internalParameterNature.generateOperationBuilderValidationStatements(result, activatorClassName,
 					attributeName, attributeCaption);
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String activatorClassName, String attributeName) {
 			internalParameterNature.generateUICustomizationStatements(result, uiCustomizationsVariableName,
 					activatorClassName, null, attributeName);
@@ -3022,19 +3052,17 @@ public class PluginBuilder {
 		private ActivatorDescriptor internalActivator = new ActivatorDescriptor() {
 
 			@Override
-			protected void generateTriggerMethodsSourceCode(StringBuilder additionalMethodDeclarations) {
+			protected void generateTriggerMethodsSourceCode(CodeBuilder additionalMethodDeclarations) {
 			}
 
 			@Override
-			protected void generateOutputSourceCode(String activatorClassName,
-					StringBuilder additionalMethodDeclarations, StringBuilder additionalInnerClassesDeclarations,
-					Map<Object, Object> codeGenerationOptions) {
+			protected void generateOutputSourceCode(String activatorClassName, CodeBuilder additionalMethodDeclarations,
+					CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
 			}
 
 			@Override
-			protected void generateInputSourceCode(String activatorClassName,
-					StringBuilder additionalMethodDeclarations, StringBuilder additionalInnerClassesDeclarations,
-					Map<Object, Object> codeGenerationOptions) {
+			protected void generateInputSourceCode(String activatorClassName, CodeBuilder additionalMethodDeclarations,
+					CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions) {
 			}
 
 			@Override
@@ -3048,8 +3076,8 @@ public class PluginBuilder {
 			}
 
 			@Override
-			protected void generateValidationMethodSourceCode(StringBuilder result, String activatorClassName) {
-				StringBuilder tmp = new StringBuilder();
+			protected void generateValidationMethodSourceCode(CodeBuilder result, String activatorClassName) {
+				CodeBuilder tmp = new CodeBuilder();
 				super.generateValidationMethodSourceCode(tmp, activatorClassName);
 				result.append(tmp.toString().replace("super.validate(recursively, plan);\n", ""));
 			}
@@ -3079,21 +3107,23 @@ public class PluginBuilder {
 		}
 
 		@Override
-		protected void generateActivatorValidationStatements(StringBuilder result, String activatorClassName,
+		protected void generateActivatorValidationStatements(CodeBuilder result, String activatorClassName,
 				String attributeName, String attributeCaption) {
 			String elementName = getActivatorClassElement(activatorClassName, attributeName).getName();
 			result.append("if (recursively) {\n");
-			result.append("try {\n");
-			result.append(elementName + ".validate(recursively, plan);\n");
-			result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
-			result.append("throw new " + ValidationError.class.getName() + "(\"Failed to validate '" + attributeCaption
-					+ "'\", e);\n");
-			result.append("}\n");
+			result.indenting(() -> {
+				result.append("try {\n");
+				result.appendIndented(elementName + ".validate(recursively, plan);\n");
+				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
+				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
+						+ attributeCaption + "'\", e);\n");
+				result.append("}\n");
+			});
 			result.append("}\n");
 		}
 
 		@Override
-		protected void generateUICustomizationStatements(StringBuilder result, String uiCustomizationsVariableName,
+		protected void generateUICustomizationStatements(CodeBuilder result, String uiCustomizationsVariableName,
 				String activatorClassName, String attributeName) {
 			String uiTypeName = activatorClassName;
 			String uiElementName = getActivatorClassElement(activatorClassName, attributeName).getName();

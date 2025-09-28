@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Resource-Metadata-Classes: com.otk3.MyResource$Metadata
-Activator-Metadata-Classes: com.otk3.Schedule$Metadata
-Operation-Metadata-Classes: com.otk3.TestOp$Metadata
+Resource-Metadata-Classes: com.otk2.MyResource$Metadata
+Activator-Metadata-Classes: com.otk2.Schedule$Metadata
+Operation-Metadata-Classes: com.otk2.TestOp$Metadata
 
