@@ -1,6 +1,8 @@
 package com.otk.jesb.activation;
 
+import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
+import com.otk.jesb.solution.Plan;
 
 public abstract class Activator implements ActivatorStructure {
 
@@ -26,4 +28,8 @@ public abstract class Activator implements ActivatorStructure {
 		this.enabledVariant = enabledVariant;
 	}
 
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		enabledVariant.validate();
+	}
 }

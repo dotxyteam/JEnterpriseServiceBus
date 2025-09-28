@@ -4,7 +4,6 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Session;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.activation.builtin.Operate;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -75,7 +74,7 @@ public class ExecutePlan implements Operation {
 		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
 				new PlanInputClassNameAccessor());
 
-		private Plan getPlan() {
+		private Plan getTargetPlan() {
 			return planReference.resolve();
 		}
 
@@ -99,23 +98,24 @@ public class ExecutePlan implements Operation {
 		public ExecutePlan build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new ExecutePlan(context.getSession(), getPlan(), planInput, executionInspector);
+			return new ExecutePlan(context.getSession(), getTargetPlan(), planInput, executionInspector);
 		}
 
 		@Override
 		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			Plan plan = getPlan();
-			if (plan == null) {
+			if (getTargetPlan() == null) {
 				return null;
 			}
-			Operate activation = (Operate) plan.getActivator();
-			return activation.getOutputClass();
+			return getTargetPlan().getActivator().getOutputClass();
 		}
 
 		@Override
 		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getPlan() == null) {
-				throw new ValidationError("Failed to resolve the plan reference");
+			if (getTargetPlan() == null) {
+				throw new ValidationError("Failed to resolve the target plan reference");
+			}
+			if (!getTargetPlan().getActivator().getEnabledVariant().getValue()) {
+				throw new ValidationError("The target plan activation is disabled");
 			}
 			if (recursively) {
 				if (planInputBuilder != null) {
@@ -123,7 +123,7 @@ public class ExecutePlan implements Operation {
 						planInputBuilder.getFacade().validate(recursively,
 								plan.getValidationContext(step).getVariableDeclarations());
 					} catch (ValidationError e) {
-						throw new ValidationError("Failed to validate the plan input builder", e);
+						throw new ValidationError("Failed to validate the target plan input builder", e);
 					}
 				}
 			}
@@ -132,7 +132,7 @@ public class ExecutePlan implements Operation {
 		private class PlanInputClassNameAccessor extends Accessor<String> {
 			@Override
 			public String get() {
-				Plan plan = getPlan();
+				Plan plan = getTargetPlan();
 				if (plan == null) {
 					return null;
 				}

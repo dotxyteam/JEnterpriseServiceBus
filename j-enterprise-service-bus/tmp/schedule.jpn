@@ -23,7 +23,7 @@
     );   
 }
 
-private ScheduledFuture&lt;?&gt; setUp(
+private ScheduledFuture&lt;?&gt; prepare(
     Runnable task,
     java.util.Date start, 
     boolean repeating, 
@@ -47,7 +47,7 @@ private ScheduledFuture&lt;?&gt; setUp(
     long delayMilliseconds = nextMilliseconds - nowMilliseconds;
     return scheduler.schedule(() -&gt; {
         if(repeating){            
-            setUp(task, start, repeating, periodMilliseconds, end);
+            prepare(task, start, repeating, periodMilliseconds, end);
         }
         task.run();
     }, delayMilliseconds, TimeUnit.MILLISECONDS);
@@ -65,6 +65,23 @@ private java.util.Date computeNextOccurrence(java.util.Date start, long periodMi
     return new java.util.Date(nextMilliseconds);
 }
 </additionalMethodDeclarationsSourceCode>
+      <additionalValidationStatements>if(repeatingVariant.getValue()){
+    if(repetitionSettings.periodLengthVariant.getValue() &lt;= 0){
+        throw new com.otk.jesb.ValidationError(&quot;Invalid repetition period length: &quot; + repetitionSettings.periodLengthVariant.getValue() + &quot; (positive number expected)&quot;);
+    }
+    if(repetitionSettings.endDateTimeVariant.getValue() != null){
+        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(startDateTimeVariant.getValue().toJavaUtilDate())){
+            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It is not after the schedule start date/time&quot;);
+        }
+        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
+            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It has passed&quot;);
+        }
+    }
+}else{
+    if(!startDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
+        throw new com.otk.jesb.ValidationError(&quot;Invalid schedule start date/time: It has passed&quot;);
+    }
+}</additionalValidationStatements>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
           <caption>Start At</caption>
@@ -180,7 +197,7 @@ long periodMilliseconds = periodToMilliseconds(
     repetitionSettings.periodLengthVariant.getValue(), 
     repetitionSettings.periodUnitVariant.getValue()
 );
-setUp(
+prepare(
     task,
     startDateTimeVariant.getValue().toJavaUtilDate(), 
     repeatingVariant.getValue(), 
@@ -212,23 +229,6 @@ setUp(
         </structure>
       </inputClassOption>
       <outputClassOption class="null"/>
-      <validationMethodBody>if(repeatingVariant.getValue()){
-    if(repetitionSettings.periodLengthVariant.getValue() &lt;= 0){
-        throw new com.otk.jesb.ValidationError(&quot;Invalid repetition period length: &quot; + repetitionSettings.periodLengthVariant.getValue() + &quot; (positive number expected)&quot;);
-    }
-    if(repetitionSettings.endDateTimeVariant.getValue() != null){
-        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(startDateTimeVariant.getValue().toJavaUtilDate())){
-            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It is not after the schedule start date/time&quot;);
-        }
-        if(!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
-            throw new com.otk.jesb.ValidationError(&quot;Invalid schedule end date/time: It has passed&quot;);
-        }
-    }
-}else{
-    if(!startDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())){
-        throw new com.otk.jesb.ValidationError(&quot;Invalid schedule start date/time: It has passed&quot;);
-    }
-}</validationMethodBody>
     </com.otk.jesb.PluginBuilder_-ActivatorDescriptor>
   </activators>
 </com.otk.jesb.PluginBuilder>

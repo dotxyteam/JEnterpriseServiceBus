@@ -1,11 +1,8 @@
 package com.otk.jesb.activation.builtin;
 
-import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
-import com.otk.jesb.solution.Plan;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class LaunchAtStartup extends Activator {
@@ -48,10 +45,6 @@ public class LaunchAtStartup extends Activator {
 	@Override
 	public boolean isAutomaticallyTriggerable() {
 		return true;
-	}
-
-	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
 	}
 
 	public static class Metadata implements ActivatorMetadata {

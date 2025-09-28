@@ -119,6 +119,7 @@ public abstract class HTTPRequestReceiver extends Activator {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		super.validate(recursively, plan);
 		try {
 			expectServer();
 		} catch (IllegalStateException e) {

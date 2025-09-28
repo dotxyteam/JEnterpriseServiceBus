@@ -3,12 +3,12 @@ package com.otk.jesb.meta;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.PotentialError;
 import com.otk.jesb.util.MiscUtils;
 
 public class Date {
 
-	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static final Date toDay() {
 		return fromJavaUtilDate(MiscUtils.now());
@@ -17,11 +17,13 @@ public class Date {
 	private final String stringRepresentation;
 
 	public Date() {
-		this(toDay().getStringRepresentation());
+		this.stringRepresentation = toDay().getStringRepresentation();
 	}
 
 	public Date(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
+		// validate format
+		toJavaUtilDate();
 	}
 
 	public String getStringRepresentation() {
@@ -30,14 +32,15 @@ public class Date {
 
 	public java.util.Date toJavaUtilDate() {
 		try {
-			return SIMPLE_DATE_FORMAT.parse(stringRepresentation);
+			return DATE_FORMAT.parse(stringRepresentation);
 		} catch (ParseException e) {
-			throw new UnexpectedError(e);
+			throw new PotentialError("'" + stringRepresentation + "' format is invalid: Expected date format: "
+					+ DATE_FORMAT.toPattern() + " (example: " + toDay().getStringRepresentation() + ")", e);
 		}
 	}
 
 	public static Date fromJavaUtilDate(java.util.Date date) {
-		return new Date(SIMPLE_DATE_FORMAT.format(date));
+		return new Date(DATE_FORMAT.format(date));
 	}
 
 	@Override

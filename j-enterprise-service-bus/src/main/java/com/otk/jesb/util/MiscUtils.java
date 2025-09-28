@@ -39,14 +39,18 @@ import com.otk.jesb.Expression;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
@@ -237,7 +241,7 @@ public class MiscUtils {
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata<?> metadata : GUI.getAllOperationMetadatas()) {
+		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
 			if (metadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return metadata.getOperationIconImagePath();
 			}
@@ -982,6 +986,37 @@ public class MiscUtils {
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new UnexpectedError(e);
 		}
+	}
+
+	public static Class<? extends OperationBuilder<?>> findOperationBuilderClass(
+			Class<? extends Operation> operationCass) {
+		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
+			if (inferOperationClass(metadata.getOperationBuilderClass()) == operationCass) {
+				return metadata.getOperationBuilderClass();
+			}
+		}
+		return null;
+	}
+
+	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
+		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
+		result.addAll(GUI.BUILTIN_OPERATION_METADATAS);
+		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);
+		return result;
+	}
+
+	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
+		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
+		result.addAll(GUI.BUILTIN_ACTIVATOR__METADATAS);
+		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);
+		return result;
+	}
+
+	public static List<ResourceMetadata> getAllResourceMetadatas() {
+		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
+		result.addAll(GUI.BUILTIN_RESOURCE_METADATAS);
+		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
+		return result;
 	}
 
 }

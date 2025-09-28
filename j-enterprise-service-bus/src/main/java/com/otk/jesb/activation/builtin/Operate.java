@@ -80,6 +80,7 @@ public class Operate extends Activator {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		super.validate(recursively, plan);
 		if (inputStructure != null) {
 			try {
 				inputStructure.validate(recursively);

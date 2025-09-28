@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.meta.Date;
@@ -92,7 +92,11 @@ public class Variant<T> {
 				T result = Arrays.stream(valueClass.getEnumConstants())
 						.filter(constant -> constant.toString().equals(valueString)).findFirst().orElse(null);
 				if (result == null) {
-					throw new NoSuchElementException(valueClass.getName() + "." + valueString);
+					throw new IllegalStateException(
+							"Invalid enumeration (" + valueClass.getName() + ") item name: '" + valueString
+									+ "' (expected [" + Arrays.stream(valueClass.getEnumConstants())
+											.map(constant -> constant.toString()).collect(Collectors.joining(", "))
+									+ "])");
 				}
 				return result;
 			} else {
@@ -133,9 +137,9 @@ public class Variant<T> {
 	public void validate() throws ValidationError {
 		if (variable) {
 			try {
-				requireExpression();
-			} catch (PotentialError e) {
-				throw new ValidationError(e.getMessage());
+				getValue();
+			} catch (Exception e) {
+				throw new ValidationError(e.toString());
 			}
 		}
 	}

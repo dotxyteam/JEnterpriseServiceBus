@@ -261,20 +261,23 @@ public class WatchFileSystem extends Activator {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		super.validate(recursively, plan);
 		String baseDircetoryPath = baseDircetoryPathVariant.getValue();
 		if ((baseDircetoryPath == null) || baseDircetoryPath.isEmpty()) {
 			throw new ValidationError("Base directory path not provided");
 		}
-		if (getEnabledVariant().getValue()) {
-			if (!Files.isDirectory(Paths.get(baseDircetoryPath))) {
-				throw new ValidationError(
-						"Base directory path does not point to a valid directory: '" + baseDircetoryPath + "'");
-			}
+		if (!Files.isDirectory(Paths.get(baseDircetoryPath))) {
+			throw new ValidationError(
+					"Base directory path does not point to a valid directory: '" + baseDircetoryPath + "'");
 		}
+		subDirectoriesWatchedRecursivelyVariant.validate();
+		watchedResourceKindVariant.validate();
+		patternVariant.validate();
 		if (!creationWatchedVariant.getValue() && !deletionWatchedVariant.getValue()
 				&& !modificationWatchedVariant.getValue()) {
 			throw new ValidationError("No enabled event (creation, deletion, modification)");
 		}
+		preExistingResourcesConsideredVariant.validate();
 	}
 
 	public static enum ResourceKind {

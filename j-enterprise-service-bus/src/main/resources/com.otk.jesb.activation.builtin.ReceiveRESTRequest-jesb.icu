@@ -1141,6 +1141,23 @@
         <menuModel>
             <uniqueIdentifier>-611d6933:1985d669866:-6991</uniqueIdentifier>
         </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-5f08ef47:199911f3470:43d4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomization>
         <typeName>com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler$WebUISupport</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

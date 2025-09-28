@@ -2,6 +2,9 @@
   <packageName>com.otk3</packageName>
   <resources>
     <com.otk.jesb.PluginBuilder_-ResourceDescriptor>
+      <additionalFieldDeclarationsSourceCode class="null"/>
+      <additionalMethodDeclarationsSourceCode class="null"/>
+      <importedClassNames/>
       <properties>
         <com.otk.jesb.PluginBuilder_-PropertyDescriptor>
           <caption>1st Property</caption>
@@ -73,8 +76,11 @@
   </resources>
   <operations>
     <com.otk.jesb.PluginBuilder_-OperationDescriptor>
+      <additionalFieldDeclarationsSourceCode class="null"/>
+      <additionalMethodDeclarationsSourceCode class="null"/>
       <categoryName>General</categoryName>
       <executionMethodBody>return null;</executionMethodBody>
+      <importedClassNames/>
       <operationIconImageData class="null"/>
       <opertionTypeCaption>Test Op</opertionTypeCaption>
       <opertionTypeName>TestOp</opertionTypeName>
@@ -360,6 +366,8 @@
       <activatorIconImageData class="null"/>
       <activatorTypeCaption>Schedule</activatorTypeCaption>
       <activatorTypeName>Schedule</activatorTypeName>
+      <additionalFieldDeclarationsSourceCode class="null"/>
+      <additionalMethodDeclarationsSourceCode class="null"/>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
           <caption>Start At</caption>
@@ -370,7 +378,7 @@
               <timeFormat>HH:mm:ss</timeFormat>
             </controlPluginConfiguration>
             <controlPluginIdentifier>com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</controlPluginIdentifier>
-            <defaultValueExpression>com.otk.jesb.meta.DateTime.NOW</defaultValueExpression>
+            <defaultValueExpression>com.otk.jesb.meta.DateTime.now()</defaultValueExpression>
             <nullable>false</nullable>
             <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
             <variant>true</variant>
@@ -453,6 +461,7 @@
     }, 
     startVariant.getValue().toJavaUtilDate()
 );</handlerInitializationStatements>
+      <importedClassNames/>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>
         <structure class="com.otk.jesb.Structure$ClassicStructure">

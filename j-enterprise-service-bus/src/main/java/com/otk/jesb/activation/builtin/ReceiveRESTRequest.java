@@ -352,6 +352,8 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			} catch (IllegalStateException e) {
 				throw new ValidationError(e.getMessage(), e);
 			}
+			webUIEnabledVariant.validate();
+			webUISupport.validate();
 		}
 
 		@Override
@@ -434,6 +436,16 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				this.termsOfServiceUrlVariant = termsOfServiceUrlVariant;
 			}
 
+			public void validate() throws ValidationError {
+				titleVariant.validate();
+				contactNameVariant.validate();
+				contactEmailVariant.validate();
+				contactUrlVariant.validate();
+				descriptionVariant.validate();
+				versionVariant.validate();
+				licenseVariant.validate();
+				termsOfServiceUrlVariant.validate();
+			}
 		}
 
 		protected static class CustomOpenApiFeature extends OpenApiFeature {

@@ -113,7 +113,6 @@ import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.Folder;
-import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.PlanElement;
@@ -270,27 +269,6 @@ public class GUI extends MultiSwingCustomizer {
 		};
 	}
 
-	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
-		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
-		result.addAll(BUILTIN_OPERATION_METADATAS);
-		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);
-		return result;
-	}
-
-	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
-		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
-		result.addAll(BUILTIN_ACTIVATOR__METADATAS);
-		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);
-		return result;
-	}
-
-	public static List<ResourceMetadata> getAllResourceMetadatas() {
-		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
-		result.addAll(BUILTIN_RESOURCE_METADATAS);
-		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
-		return result;
-	}
-
 	public static WeakHashMap<Plan, DragIntent> getDiagramDragIntentByPlan() {
 		return diagramDragIntentByPlan;
 	}
@@ -345,8 +323,16 @@ public class GUI extends MultiSwingCustomizer {
 		}
 	}
 
+	protected Class<?> getMainCustomizedClass(String customizationsIdentifier) {
+		Class<?> result = MiscUtils.getJESBClass(customizationsIdentifier);
+		if (Operation.class.isAssignableFrom(result)) {
+			result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
+		}
+		return result;
+	}
+
 	@Override
-	protected String getSubInfoCustomizationsOutputFilePath(String switchIdentifier) {
+	protected String getSubInfoCustomizationsOutputFilePath(String customizationsIdentifier) {
 		return null;
 	}
 
@@ -930,7 +916,7 @@ public class GUI extends MultiSwingCustomizer {
 				if (customizationsIdentifier != null) {
 					Method uiCustomizationsMethod;
 					try {
-						uiCustomizationsMethod = MiscUtils.getJESBClass(customizationsIdentifier)
+						uiCustomizationsMethod = getMainCustomizedClass(customizationsIdentifier)
 								.getMethod(GUI.UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
 					} catch (NoSuchMethodException e) {
 						uiCustomizationsMethod = null;
@@ -2248,20 +2234,20 @@ public class GUI extends MultiSwingCustomizer {
 				protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
 					if (type.getName().equals(OperationBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
+						for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
 							result.add(getTypeInfo(
 									new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Resource.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
+						for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
 							result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Activator.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
+						for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
 							result.add(
 									getTypeInfo(new JavaTypeInfoSource(activatorMetadata.getActivatorClass(), null)));
 						}
@@ -2276,17 +2262,17 @@ public class GUI extends MultiSwingCustomizer {
 					if (type.getName().equals(ReflectionUIError.class.getName())) {
 						return "Error";
 					}
-					for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
+					for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
 						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 							return operationMetadata.getOperationTypeName();
 						}
 					}
-					for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
+					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
 						if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 							return resourceMetadata.getResourceTypeName();
 						}
 					}
-					for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
+					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
 						if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 							return activatorMetadata.getActivatorName();
 						}
@@ -2296,17 +2282,17 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-					for (OperationMetadata<?> operationMetadata : getAllOperationMetadatas()) {
+					for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
 						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 							return operationMetadata.getOperationIconImagePath();
 						}
 					}
-					for (ResourceMetadata resourceMetadata : getAllResourceMetadatas()) {
+					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
 						if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 							return resourceMetadata.getResourceIconImagePath();
 						}
 					}
-					for (ActivatorMetadata activatorMetadata : getAllActivatorMetadatas()) {
+					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
 						if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 							return activatorMetadata.getActivatorIconImagePath();
 						}
@@ -2764,7 +2750,7 @@ public class GUI extends MultiSwingCustomizer {
 						Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
 								: getCurrentStep(session);
 						return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
-					} else if (object instanceof Activator) {
+					} else if (object instanceof ActivatorStructure) {
 						Plan plan = getCurrentPlan(session);
 						if (plan == null) {
 							throw new UnexpectedError();
