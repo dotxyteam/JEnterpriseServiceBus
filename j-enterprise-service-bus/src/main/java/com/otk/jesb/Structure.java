@@ -23,7 +23,8 @@ import xy.reflect.ui.util.ClassUtils;
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
-			String afterFieldDeclarations, String additionalMethodDeclarations, Map<Object, Object> options);
+			String afterPackageDeclaration, String afterFieldDeclarations, String additionalMethodDeclarations,
+			Map<Object, Object> options);
 
 	public abstract TreeVisitor.VisitStatus visitElements(TreeVisitor<Element> visitor);
 
@@ -32,7 +33,7 @@ public abstract class Structure {
 	public abstract String toString();
 
 	public String generateJavaTypeSourceCode(String className) {
-		return generateJavaTypeSourceCode(className, null, null, null, null, Collections.emptyMap());
+		return generateJavaTypeSourceCode(className, null, null, null, null, null, Collections.emptyMap());
 	}
 
 	public static class ClassicStructure extends Structure {
@@ -49,11 +50,14 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String afterFieldDeclarations, String afterMethodDeclarations,
-				Map<Object, Object> options) {
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String afterMethodDeclarations, Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+			}
+			if (afterPackageDeclaration != null) {
+				result.append(afterPackageDeclaration + "\n");
 			}
 			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
 			result.append("public class " + classSimpleName
@@ -223,11 +227,12 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String afterFieldDeclarations, String afterMethodDeclarations,
-				Map<Object, Object> options) {
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String afterMethodDeclarations, Map<Object, Object> options) {
 			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
 			return super.generateJavaTypeSourceCode(className, additionalyImplemented, additionalyExtended,
-					afterFieldDeclarations, afterMethodDeclarations, options).replace("class " + classSimpleName,
+					afterPackageDeclaration, afterFieldDeclarations, afterMethodDeclarations, options).replace(
+							"class " + classSimpleName,
 							"class " + classSimpleName + " extends " + baseStructureTypeName);
 		}
 
@@ -246,8 +251,8 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String afterFieldDeclarations, String additionalMethodDeclarations,
-				Map<Object, Object> options) {
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String additionalMethodDeclarations, Map<Object, Object> options) {
 			StringBuilder result = new StringBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
@@ -388,8 +393,8 @@ public abstract class Structure {
 
 		@Override
 		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
-				String additionalyExtended, String afterFieldDeclarations, String additionalMethodDeclarations,
-				Map<Object, Object> options) {
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String additionalMethodDeclarations, Map<Object, Object> options) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -727,7 +732,7 @@ public abstract class Structure {
 				return "";
 			}
 			String className = getStructuredClassName(parentClassName);
-			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, null, options);
+			return "static " + structure.generateJavaTypeSourceCode(className, null, null, null, null, null, options);
 		}
 
 		@Override

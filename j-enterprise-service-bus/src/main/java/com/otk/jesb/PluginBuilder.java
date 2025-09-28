@@ -412,6 +412,7 @@ public class PluginBuilder {
 
 		private String additionalFieldDeclarationsSourceCode;
 		private String additionalMethodDeclarationsSourceCode;
+		private List<String> importedClassNames = new ArrayList<String>();
 
 		public String getAdditionalFieldDeclarationsSourceCode() {
 			return additionalFieldDeclarationsSourceCode;
@@ -427,6 +428,14 @@ public class PluginBuilder {
 
 		public void setAdditionalMethodDeclarationsSourceCode(String additionalMethodDeclarationsSourceCode) {
 			this.additionalMethodDeclarationsSourceCode = additionalMethodDeclarationsSourceCode;
+		}
+
+		public List<String> getImportedClassNames() {
+			return importedClassNames;
+		}
+
+		public void setImportedClassNames(List<String> importedClassNames) {
+			this.importedClassNames = importedClassNames;
 		}
 
 		protected String generateUICustomizationsMethodSourceCode(String displayedTypeNamePrefix) {
@@ -602,8 +611,12 @@ public class PluginBuilder {
 			for (ParameterDescriptor parameter : parameters) {
 				operationStructure.getElements().add(parameter.getOperationClassElement(operationClassName));
 			}
+			StringBuilder afterPackageDeclaration = new StringBuilder();
 			StringBuilder afterFieldDeclarations = new StringBuilder();
 			StringBuilder afterMethodDeclarations = new StringBuilder();
+			for (String importedClassName : getImportedClassNames()) {
+				afterPackageDeclaration.append("import " + importedClassName + ";\n");
+			}
 			afterMethodDeclarations
 					.append(generateExecutionMethodSourceCode(operationClassName, codeGenerationOptions) + "\n");
 			afterMethodDeclarations
@@ -628,8 +641,8 @@ public class PluginBuilder {
 				}
 				MiscUtils.write(javaFile,
 						operationStructure.generateJavaTypeSourceCode(operationClassName, implemented, null,
-								afterFieldDeclarations.toString(), afterMethodDeclarations.toString(),
-								codeGenerationOptions),
+								afterPackageDeclaration.toString(), afterFieldDeclarations.toString(),
+								afterMethodDeclarations.toString(), codeGenerationOptions),
 						false);
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
@@ -657,6 +670,10 @@ public class PluginBuilder {
 						.add(parameter.getOperationBuilderClassElement(operationClassName));
 			}
 			StringBuilder afterMethodDeclarations = new StringBuilder();
+			StringBuilder afterPackageDeclaration = new StringBuilder();
+			for (String importedClassName : getImportedClassNames()) {
+				afterPackageDeclaration.append("import " + importedClassName + ";\n");
+			}
 			afterMethodDeclarations.append(generateOperationBuildMethodSourceCode(operationClassName, options));
 			afterMethodDeclarations.append(generateOperationResultClassMethodSourceCode(operationClassName, options));
 			afterMethodDeclarations
@@ -664,9 +681,9 @@ public class PluginBuilder {
 			String packageName = MiscUtils.extractPackageNameFromClassName(operationClassName);
 			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
-			return "static "
-					+ operationBuilderStructure.generateJavaTypeSourceCode(getOperationBuilderClassSimpleName(),
-							implemented, null, null, afterMethodDeclarations.toString(), options);
+			return "static " + operationBuilderStructure.generateJavaTypeSourceCode(
+					getOperationBuilderClassSimpleName(), implemented, null, afterPackageDeclaration.toString(), null,
+					afterMethodDeclarations.toString(), options);
 		}
 
 		@Override
@@ -1483,8 +1500,8 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String afterFieldDeclarations, String afterMethodDeclarations,
-								Map<Object, Object> options) {
+								String afterPackageDeclaration, String afterFieldDeclarations,
+								String afterMethodDeclarations, Map<Object, Object> options) {
 							internalOperation.setOpertionTypeName(groupStructureClassName);
 							afterMethodDeclarations = ((afterMethodDeclarations != null)
 									? (afterMethodDeclarations + "\n")
@@ -1492,7 +1509,8 @@ public class PluginBuilder {
 									+ internalOperation.generateOperationBuilderClassSourceCode(groupStructureClassName,
 											options);
 							return super.generateJavaTypeSourceCode(groupStructureClassName, additionalyImplemented,
-									additionalyExtended, afterFieldDeclarations, afterMethodDeclarations, options);
+									additionalyExtended, afterPackageDeclaration, afterFieldDeclarations,
+									afterMethodDeclarations, options);
 						}
 					});
 				}
@@ -1860,6 +1878,10 @@ public class PluginBuilder {
 			}
 			StringBuilder afterFieldDeclarations = new StringBuilder();
 			StringBuilder afterMethodDeclarations = new StringBuilder();
+			StringBuilder afterPackageDeclaration = new StringBuilder();
+			for (String importedClassName : getImportedClassNames()) {
+				afterPackageDeclaration.append("import " + importedClassName + ";\n");
+			}
 			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
 			generateValidationMethodSourceCode(afterMethodDeclarations, codeGenerationOptions);
@@ -1872,7 +1894,8 @@ public class PluginBuilder {
 				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode() + "\n");
 			}
 			return resourceStructure.generateJavaTypeSourceCode(resourceClassName, null, extended,
-					afterFieldDeclarations.toString(), afterMethodDeclarations.toString(), codeGenerationOptions);
+					afterPackageDeclaration.toString(), afterFieldDeclarations.toString(),
+					afterMethodDeclarations.toString(), codeGenerationOptions);
 		}
 
 		protected void generateValidationMethodSourceCode(StringBuilder afterMethodDeclarations,
@@ -2274,8 +2297,8 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String afterFieldDeclarations, String afterMethodDeclarations,
-								Map<Object, Object> options) {
+								String afterPackageDeclaration, String afterFieldDeclarations,
+								String afterMethodDeclarations, Map<Object, Object> options) {
 							internalResource.setResourceTypeName(groupStructureClassName);
 							String packageName = MiscUtils.extractPackageNameFromClassName(groupStructureClassName);
 							return internalResource.generateJavaSourceCode(packageName, options);
@@ -2420,9 +2443,13 @@ public class PluginBuilder {
 			for (AttributeDescriptor attribute : attributes) {
 				activatorStructure.getElements().add(attribute.getActivatorClassElement(activatorClassName));
 			}
+			StringBuilder afterPackageDeclaration = new StringBuilder();
 			StringBuilder afterFieldDeclarations = new StringBuilder();
 			StringBuilder afterMethodDeclarations = new StringBuilder();
 			StringBuilder innerClassesDeclarations = new StringBuilder();
+			for (String importedClassName : getImportedClassNames()) {
+				afterPackageDeclaration.append("import " + importedClassName + ";\n");
+			}
 			afterFieldDeclarations.append(getActivationHandlerFieldDeclartionSourceCode() + "\n");
 			generateInputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
 					codeGenerationOptions);
@@ -2441,7 +2468,7 @@ public class PluginBuilder {
 				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode() + "\n");
 			}
 			return activatorStructure.generateJavaTypeSourceCode(activatorClassName, null, extended,
-					afterFieldDeclarations.toString(),
+					afterPackageDeclaration.toString(), afterFieldDeclarations.toString(),
 					afterMethodDeclarations.toString() + "\n" + innerClassesDeclarations.toString(),
 					codeGenerationOptions);
 		}
@@ -2934,8 +2961,8 @@ public class PluginBuilder {
 						@Override
 						public String generateJavaTypeSourceCode(String groupStructureClassName,
 								String additionalyImplemented, String additionalyExtended,
-								String afterFieldDeclarations, String afterMethodDeclarations,
-								Map<Object, Object> options) {
+								String afterPackageDeclartion, String afterFieldDeclarations,
+								String afterMethodDeclarations, Map<Object, Object> options) {
 							internalActivator.setActivatorTypeName(groupStructureClassName);
 							String packageName = MiscUtils.extractPackageNameFromClassName(groupStructureClassName);
 							return internalActivator.generateJavaSourceCode(packageName, options);

@@ -7,7 +7,8 @@
       <activatorIconImageData class="null"/>
       <activatorTypeCaption>Schedule</activatorTypeCaption>
       <activatorTypeName>Schedule</activatorTypeName>
-      <additionalFieldDeclarationsSourceCode>private java.util.Timer timer;</additionalFieldDeclarationsSourceCode>
+      <additionalFieldDeclarationsSourceCode>private ScheduledExecutorService scheduler;
+</additionalFieldDeclarationsSourceCode>
       <additionalMethodDeclarationsSourceCode>private long periodToMilliseconds(
     long periodLength, 
     RepetitionSettingsStructure.RepetitionSettingsStructurePeriodUnitStructure periodUnit
@@ -20,7 +21,50 @@
             constant -&gt; constant.name().equals(periodUnit.name())
         ).findFirst().get()
     );   
-}</additionalMethodDeclarationsSourceCode>
+}
+
+private ScheduledFuture&lt;?&gt; setUp(
+    Runnable task,
+    java.util.Date start, 
+    boolean repeating, 
+    long periodMilliseconds,
+    java.util.Date end
+) {
+    java.util.Date now = new java.util.Date();
+    java.util.Date next;
+    if(repeating){
+        next = computeNextOccurrence(start, periodMilliseconds, now);
+        if(end != null){
+            if(end.before(next)){
+                return null;
+            }
+        }
+    }else{
+        next = start;
+    }
+    long nowMilliseconds = now.getTime();
+    long nextMilliseconds = next.getTime();
+    long delayMilliseconds = nextMilliseconds - nowMilliseconds;
+    return scheduler.schedule(() -&gt; {
+        if(repeating){            
+            setUp(task, start, repeating, periodMilliseconds, end);
+        }
+        task.run();
+    }, delayMilliseconds, TimeUnit.MILLISECONDS);
+}
+
+private java.util.Date computeNextOccurrence(java.util.Date start, long periodMilliseconds, java.util.Date now) {
+    long startMilliseconds = start.getTime();
+    long nowMilliseconds = now.getTime();
+    if (nowMilliseconds &lt;= startMilliseconds) {
+        return start;
+    }
+    long elapsed = nowMilliseconds - startMilliseconds;
+    long missed = (elapsed / periodMilliseconds) + 1;
+    long nextMilliseconds = startMilliseconds + missed * periodMilliseconds;
+    return new java.util.Date(nextMilliseconds);
+}
+</additionalMethodDeclarationsSourceCode>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
           <caption>Start At</caption>
@@ -122,46 +166,38 @@
           </nature>
         </com.otk.jesb.PluginBuilder_-AttributeDescriptor>
       </attributes>
-      <handlerFinalizationStatements>timer.cancel();
-timer = null;</handlerFinalizationStatements>
-      <handlerInitializationStatements>timer = new java.util.Timer();
-if(repeatingVariant.getValue()){
-    long periodMilliseconds = periodToMilliseconds(
+      <handlerFinalizationStatements>scheduler.shutdown();
+scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+scheduler = null;</handlerFinalizationStatements>
+      <handlerInitializationStatements>scheduler = Executors.newScheduledThreadPool(1);
+Runnable task = new Runnable(){
+	@Override
+	public void run() {
+		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
+	}
+};
+long periodMilliseconds = periodToMilliseconds(
+    repetitionSettings.periodLengthVariant.getValue(), 
+    repetitionSettings.periodUnitVariant.getValue()
+);
+setUp(
+    task,
+    startDateTimeVariant.getValue().toJavaUtilDate(), 
+    repeatingVariant.getValue(), 
+    periodToMilliseconds(
         repetitionSettings.periodLengthVariant.getValue(), 
         repetitionSettings.periodUnitVariant.getValue()
-    );
-    timer.scheduleAtFixedRate(
-        new java.util.TimerTask() {
-        	@Override
-        	public void run() {
-        		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
-        	}
-        }, 
-        startDateTimeVariant.getValue().toJavaUtilDate(),
-        periodMilliseconds
-    );
-    if(repetitionSettings.endDateTimeVariant.getValue() != null){
-        timer.schedule(
-            new java.util.TimerTask() {
-            	@Override
-            	public void run() {
-            		timer.cancel();
-            	}
-            }, 
-            repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate()
-        );
-    }
-}else{
-    timer.schedule(
-        new java.util.TimerTask() {
-        	@Override
-        	public void run() {
-        		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
-        	}
-        }, 
-        startDateTimeVariant.getValue().toJavaUtilDate()
-    );
-}</handlerInitializationStatements>
+    ),
+    (repetitionSettings.getEndDateTimeVariant().getValue() == null) 
+        ? null 
+        : repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate()
+);</handlerInitializationStatements>
+      <importedClassNames>
+        <string>java.util.concurrent.Executors</string>
+        <string>java.util.concurrent.ScheduledExecutorService</string>
+        <string>java.util.concurrent.ScheduledFuture</string>
+        <string>java.util.concurrent.TimeUnit</string>
+      </importedClassNames>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>
         <structure class="com.otk.jesb.Structure$ClassicStructure">
