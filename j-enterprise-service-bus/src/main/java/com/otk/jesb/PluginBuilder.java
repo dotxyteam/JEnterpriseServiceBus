@@ -143,6 +143,7 @@ public class PluginBuilder {
 		File metaInformationDirectroy = getMetaInformationDirectory(outputDirectory);
 		MiscUtils.createDirectory(metaInformationDirectroy, true);
 		generateMetaInformation(metaInformationDirectroy);
+		generateProjectDescriptor(outputDirectory);
 	}
 
 	public void generateJAR(File jarFile) throws Exception {
@@ -257,6 +258,80 @@ public class PluginBuilder {
 						.collect(Collectors.joining(",")));
 		try (FileOutputStream out = new FileOutputStream(new File(metaInformationDirectory, "MANIFEST.MF"))) {
 			manifest.write(out);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+	}
+
+	private void generateProjectDescriptor(File projectDirectory) {
+		try (FileOutputStream out = new FileOutputStream(new File(projectDirectory, "pom.xml"))) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n");
+			stringBuilder.append("	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
+			stringBuilder.append(
+					"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n");
+			stringBuilder.append("	<modelVersion>4.0.0</modelVersion>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	<groupId>" + packageName + "</groupId>\n");
+			stringBuilder.append("	<artifactId>jesb-plugin</artifactId>\n");
+			stringBuilder.append("	<version>0.0.1</version>\n");
+			stringBuilder.append("	<packaging>jar</packaging>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	<name>" + packageName + " JEnterpriseServiceBus Plugin</name>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	<properties>\n");
+			stringBuilder.append("		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n");
+			stringBuilder.append("		<compiler.sourceVersion>" + BuildInformation.getCompilerSourceVersion()
+					+ "</compiler.sourceVersion>\n");
+			stringBuilder.append("		<compiler.targetVersion>" + BuildInformation.getCompilerTargetVersion()
+					+ "</compiler.targetVersion>\n");
+			stringBuilder.append("	</properties>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	<dependencies>\n");
+			stringBuilder.append("		<dependency>\n");
+			stringBuilder.append("			<groupId>" + BuildInformation.getGroupId() + "</groupId>\n");
+			stringBuilder.append("			<artifactId>" + BuildInformation.getArtifactId() + "</artifactId>\n");
+			stringBuilder.append("			<version>" + BuildInformation.getVersion() + "</version>\n");
+			stringBuilder.append("		</dependency>\n");
+			stringBuilder.append("	</dependencies>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	<build>\n");
+			stringBuilder.append("		<plugins>\n");
+			stringBuilder.append("			<plugin>\n");
+			stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+			stringBuilder.append("				<artifactId>maven-compiler-plugin</artifactId>\n");
+			stringBuilder.append("				<version>3.8.0</version>\n");
+			stringBuilder.append("				<configuration>\n");
+			stringBuilder.append("					<source>${compiler.sourceVersion}</source>\n");
+			stringBuilder.append("					<target>${compiler.targetVersion}</target>\n");
+			stringBuilder.append("					<compilerArgs>\n");
+			stringBuilder.append("						<arg>-parameters</arg>\n");
+			stringBuilder.append("					</compilerArgs>\n");
+			stringBuilder.append("				</configuration>\n");
+			stringBuilder.append("			</plugin>\n");
+			stringBuilder.append("			<plugin>\n");
+			stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+			stringBuilder.append("				<artifactId>maven-jar-plugin</artifactId>\n");
+			stringBuilder.append("				<executions>\n");
+			stringBuilder.append("					<execution>\n");
+			stringBuilder.append("						<phase>prepare-package</phase>\n");
+			stringBuilder.append("						<goals>\n");
+			stringBuilder.append("							<goal>jar</goal>\n");
+			stringBuilder.append("						</goals>\n");
+			stringBuilder.append("					</execution>\n");
+			stringBuilder.append("				</executions>\n");
+			stringBuilder.append("				<version>2.4</version>\n");
+			stringBuilder.append("				<configuration>\n");
+			stringBuilder.append("					<archive>\n");
+			stringBuilder.append("						<manifestFile>META-INF/MANIFEST.MF</manifestFile>\n");
+			stringBuilder.append("					</archive>\n");
+			stringBuilder.append("				</configuration>\n");
+			stringBuilder.append("			</plugin>\n");
+			stringBuilder.append("		</plugins>\n");
+			stringBuilder.append("	</build>\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("</project>\n");
+			out.write((stringBuilder.toString()).getBytes());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}

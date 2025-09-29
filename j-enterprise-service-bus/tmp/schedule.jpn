@@ -193,10 +193,6 @@ Runnable task = new Runnable(){
 		activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
 	}
 };
-long periodMilliseconds = periodToMilliseconds(
-    repetitionSettings.periodLengthVariant.getValue(), 
-    repetitionSettings.periodUnitVariant.getValue()
-);
 prepare(
     task,
     startDateTimeVariant.getValue().toJavaUtilDate(), 

@@ -147,6 +147,22 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>/build.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>/build.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -224,7 +240,7 @@
 								<path>./windows-jdk</path>
 								<minVersion>1.8.0</minVersion>
 								<maxVersion>1.17.9</maxVersion>
-								<opts>								
+								<opts>
 									<opt>-splash:splash.gif</opt>
 									<opt>-Dcom.otk.jesb.exeFile="%EXEFILE%"</opt>
 									<opt>-Dcom.otk.jesb.defaultExeFile=${project.artifactId}.exe</opt>
@@ -309,8 +325,10 @@ exit $$?]]></echo>
 						</goals>
 						<configuration>
 							<tasks>
-								<unzip src="${basedir}/misc/jvm/windows-jdk.zip" dest="${basedir}/target/windows-jdk/"/>
-								<unzip src="${basedir}/misc/jvm/linux-jdk.zip" dest="${basedir}/target/linux-jdk/"/>
+								<unzip src="${basedir}/misc/jvm/windows-jdk.zip"
+									dest="${basedir}/target/windows-jdk/" />
+								<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
+									dest="${basedir}/target/linux-jdk/" />
 							</tasks>
 						</configuration>
 					</execution>

@@ -8,7 +8,7 @@ import com.otk.jesb.util.MiscUtils;
 
 public class DateTime {
 
-	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 
 	public static final DateTime now() {
 		return fromJavaUtilDate(MiscUtils.now());

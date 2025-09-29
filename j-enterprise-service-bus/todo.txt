@@ -27,6 +27,8 @@
 	. manual
 	. readme.md (extensibility, ...)
 	. javadoc
+- fix date/time display issues due to java.util.Date picking the current local time zone
+(not the historical one)
 - allow to access step error variables
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - add a welcome image ???
