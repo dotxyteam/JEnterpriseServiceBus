@@ -1,19 +1,24 @@
 package com.otk.jesb.util;
 
+import java.rmi.server.UID;
+import java.util.ArrayList;
+import java.util.List;
+
 public class CodeBuilder {
 
 	private static final char LINE_SEPARATOR = '\n';
 
 	private final StringBuilder stringBuilder = new StringBuilder();
-	private final String indentationString;
+	private String indentationString = "\t";
 	private int currentIndentation = 0;
+	private List<PlaceHolder> placeholders = new ArrayList<CodeBuilder.PlaceHolder>();
 
 	public CodeBuilder() {
-		this("\t");
+		this("");
 	}
 
-	public CodeBuilder(String indentationString) {
-		this.indentationString = indentationString;
+	public CodeBuilder(String s) {
+		append(s);
 	}
 
 	public int getCurrentIndentation() {
@@ -32,10 +37,11 @@ public class CodeBuilder {
 		currentIndentation++;
 	}
 
-	private void appendIndentation() {
+	private CodeBuilder appendIndentation() {
 		for (int i = 0; i < currentIndentation; i++) {
 			stringBuilder.append(indentationString);
 		}
+		return this;
 	}
 
 	public CodeBuilder append(String string) {
@@ -63,7 +69,7 @@ public class CodeBuilder {
 		return this;
 	}
 
-	public void indenting(Runnable runnable) {
+	public CodeBuilder indenting(Runnable runnable) {
 		int initialIndentation = currentIndentation;
 		incrementIndentation();
 		try {
@@ -71,16 +77,62 @@ public class CodeBuilder {
 		} finally {
 			currentIndentation = initialIndentation;
 		}
+		return this;
 	}
 
-	public void appendIndented(String string) {
+	public CodeBuilder appendIndented(String string) {
 		indenting(() -> {
 			append(string);
 		});
+		return this;
+	}
+
+	public CodeBuilder appendPlaceHolder(PlaceHolder placeholder) {
+		registerPlaceHolder(placeholder);
+		append(placeholder.getReferenceString());
+		return this;
+	}
+
+	public CodeBuilder registerPlaceHolder(PlaceHolder placeholder) {
+		placeholders.add(placeholder);
+		return this;
 	}
 
 	public String toString() {
-		return stringBuilder.toString();
+		String result = stringBuilder.toString();
+		for (PlaceHolder placeHolder : placeholders) {
+			result = placeHolder.replace(result);
+		}
+		return result;
+	}
+
+	public static abstract class PlaceHolder {
+
+		public static final PlaceHolder NULL_PLACEHOLDER = new PlaceHolder() {
+
+			@Override
+			public String getReferenceString() {
+				return "";
+			}
+
+			@Override
+			protected String computeReplacement(String finalCode) {
+				return finalCode;
+			}
+		};
+
+		private final String referenceString = "$" + new UID().toString();
+
+		protected abstract String computeReplacement(String finalCode);
+
+		public String getReferenceString() {
+			return referenceString;
+		}
+
+		protected String replace(String finalCode) {
+			return finalCode.replace(referenceString, computeReplacement(finalCode));
+		}
+
 	}
 
 }

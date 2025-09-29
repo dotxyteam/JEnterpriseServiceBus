@@ -56,41 +56,42 @@ public abstract class Structure {
 			CodeBuilder result = new CodeBuilder();
 			if (MiscUtils.isPackageNameInClassName(className)) {
 				result.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+				result.append("\n");
 			}
-			if (afterPackageDeclaration != null) {
+			if ((afterPackageDeclaration != null) && !afterPackageDeclaration.isEmpty()) {
 				result.append(afterPackageDeclaration + "\n");
 			}
 			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);
 			result.append("public class " + classSimpleName
 					+ ((additionalyExtended != null) ? (" extends " + additionalyExtended) : "")
 					+ ((additionalyImplemented != null) ? (" implements " + additionalyImplemented) : "") + "{" + "\n");
+			result.append("\n");
 			result.indenting(() -> {
-				result.append(MiscUtils.stringJoin(elements.stream()
-						.map((e) -> e.generateJavaFieldDeclaration(className, options)).collect(Collectors.toList()),
-						"\n") + "\n");
-				if (afterFieldDeclarations != null) {
-					result.append(afterFieldDeclarations + "\n");
+				if (elements.size() > 0) {
+					result.append(elements.stream().map((e) -> e.generateJavaFieldDeclaration(className, options))
+							.collect(Collectors.joining()));
+					result.append("\n");
 				}
-				result.append(generateJavaConstructorSourceCode(className, options) + "\n");
-				result.append(MiscUtils
-						.stringJoin(elements.stream().map((e) -> e.generateJavaMethodDeclarations(className, options))
-								.filter(Objects::nonNull).collect(Collectors.toList()), "\n")
-						+ "\n");
-				result.append(generateJavaToStringMethodSourceCode(className, options) + "\n");
-				if (afterMethodDeclarations != null) {
-					result.append(afterMethodDeclarations + "\n");
+				if ((afterFieldDeclarations != null) && !afterFieldDeclarations.isEmpty()) {
+					result.append(afterFieldDeclarations);
+					result.append("\n");
 				}
-				result.append(
-						MiscUtils
-								.stringJoin(
-										elements.stream()
-												.map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className,
-														options))
-												.filter(Objects::nonNull).collect(Collectors.toList()),
-										"\n")
-								+ "\n");
+				result.append(generateJavaConstructorSourceCode(className, options));
+				result.append("\n");
+				result.append(elements.stream().map((e) -> e.generateJavaMethodDeclarations(className, options))
+						.filter(Objects::nonNull).map(declaration -> declaration + "\n").collect(Collectors.joining()));
+				result.append(generateJavaToStringMethodSourceCode(className, options));
+				result.append("\n");
+				if ((afterMethodDeclarations != null) && !afterMethodDeclarations.isEmpty()) {
+					result.append(afterMethodDeclarations);
+					result.append("\n");
+				}
+				result.append(elements.stream()
+						.map((e) -> e.generateRequiredInnerJavaTypesSourceCode(className, options))
+						.filter(Objects::nonNull).map(declaration -> declaration + "\n").collect(Collectors.joining()));
 			});
-			result.append("}");
+			result.append("\n");
+			result.append("}\n");
 			return result.toString();
 		}
 
@@ -99,7 +100,7 @@ public abstract class Structure {
 			result.append("@Override\n");
 			result.append("public String toString() {\n");
 			result.appendIndented(generateJavaToStringMethodBody(className, options) + "\n");
-			result.append("}");
+			result.append("}\n");
 			return result.toString();
 		}
 
@@ -122,16 +123,14 @@ public abstract class Structure {
 											.filter(Objects::nonNull).collect(Collectors.toList()),
 									", ")
 							+ "){" + "\n");
-			result.appendIndented(generateJavaConstructorBody(className, options) + "\n");
-			result.append("}");
+			result.appendIndented(generateJavaConstructorBody(className, options));
+			result.append("}\n");
 			return result.toString();
 		}
 
 		protected String generateJavaConstructorBody(String className, Map<Object, Object> options) {
-			return MiscUtils.stringJoin(
-					elements.stream().map((e) -> (e.generateJavaFieldConstructorStatement(className, options)))
-							.filter(Objects::nonNull).collect(Collectors.toList()),
-					"\n");
+			return elements.stream().map((e) -> (e.generateJavaFieldConstructorStatement(className, options)))
+					.filter(Objects::nonNull).map(statement -> statement + "\n").collect(Collectors.joining());
 		}
 
 		@Override
@@ -502,7 +501,7 @@ public abstract class Structure {
 			if ((getOptionality() != null) && (getOptionality().getDefaultValueExpression() != null)) {
 				result += "=" + getOptionality().getDefaultValueExpression();
 			}
-			result += ";";
+			result += ";\n";
 			return result;
 		}
 
@@ -515,6 +514,7 @@ public abstract class Structure {
 				result.appendIndented("return " + name + ";\n");
 				result.append("}\n");
 				if (getOptionality() != null) {
+					result.append("\n");
 					result.append("public void set" + name.substring(0, 1).toUpperCase() + name.substring(1) + "("
 							+ finalTypeName + " " + name + ") {\n");
 					result.appendIndented("this." + name + " = " + name + ";\n");

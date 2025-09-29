@@ -385,11 +385,14 @@ public class WSDL extends XMLBasedDocumentResource {
 					String className = serviceInterface.getName() + "Impl";
 					CodeBuilder javaSource = new CodeBuilder();
 					javaSource.append("package " + MiscUtils.extractPackageNameFromClassName(className) + ";" + "\n");
+					javaSource.append("\n");
 					javaSource.append(
 							"public class " + MiscUtils.extractSimpleNameFromClassName(className) + " implements "
 									+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + "{" + "\n");
+					javaSource.append("\n");
 					javaSource.indenting(() -> {
 						javaSource.append("private " + InvocationHandler.class.getName() + " invocationHandler;\n");
+						javaSource.append("\n");
 						javaSource.append("public " + MiscUtils.extractSimpleNameFromClassName(className) + "("
 								+ InvocationHandler.class.getName() + " invocationHandler){" + "\n");
 						javaSource.appendIndented("this.invocationHandler = invocationHandler;\n");
@@ -398,6 +401,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							if (!Modifier.isAbstract(method.getModifiers())) {
 								continue;
 							}
+							javaSource.append("\n");
 							javaSource.append("@Override\n");
 							javaSource.append(
 									"public " + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName())
@@ -447,6 +451,7 @@ public class WSDL extends XMLBasedDocumentResource {
 							javaSource.append("}" + "\n");
 						}
 					});
+					javaSource.append("\n");
 					javaSource.append("}" + "\n");
 					try {
 						return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
