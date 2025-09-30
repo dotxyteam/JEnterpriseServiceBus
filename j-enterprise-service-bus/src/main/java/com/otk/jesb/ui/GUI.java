@@ -324,9 +324,16 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	protected Class<?> getMainCustomizedClass(String customizationsIdentifier) {
-		Class<?> result = MiscUtils.getJESBClass(customizationsIdentifier);
-		if (Operation.class.isAssignableFrom(result)) {
-			result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
+		Class<?> result;
+		try {
+			result = MiscUtils.getJESBClass(customizationsIdentifier);
+		} catch (Throwable t) {
+			result = null;
+		}
+		if (result != null) {
+			if (Operation.class.isAssignableFrom(result)) {
+				result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
+			}
 		}
 		return result;
 	}
@@ -904,20 +911,21 @@ public class GUI extends MultiSwingCustomizer {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				if (customizationsIdentifier == null) {
+				if (getCustomizationsIdentifier() == null) {
 					return null;
 				}
-				return MiscUtils.getJESBClass(customizationsIdentifier);
+				return getMainCustomizedClass(getCustomizationsIdentifier());
 			}
 
 			@Override
 			protected InfoCustomizations obtainLatest(Object versionIdentifier) throws VersionAccessException {
 				InfoCustomizations result = new InfoCustomizations();
-				if (customizationsIdentifier != null) {
+				Class<?> mainCustomizedClass = (Class<?>) versionIdentifier;
+				if (mainCustomizedClass != null) {
 					Method uiCustomizationsMethod;
 					try {
-						uiCustomizationsMethod = getMainCustomizedClass(customizationsIdentifier)
-								.getMethod(GUI.UI_CUSTOMIZATIONS_METHOD_NAME, InfoCustomizations.class);
+						uiCustomizationsMethod = mainCustomizedClass.getMethod(GUI.UI_CUSTOMIZATIONS_METHOD_NAME,
+								InfoCustomizations.class);
 					} catch (NoSuchMethodException e) {
 						uiCustomizationsMethod = null;
 					}

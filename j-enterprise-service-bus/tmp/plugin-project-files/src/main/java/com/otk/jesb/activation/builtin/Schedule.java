@@ -9,16 +9,21 @@ import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.util.ReflectionUIUtils;
 import com.otk.jesb.ValidationError;
 import xy.reflect.ui.info.ResourcePath;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Schedule extends Activator{
 
 	private Variant<com.otk.jesb.meta.DateTime> startDateTimeVariant=new Variant<com.otk.jesb.meta.DateTime>(com.otk.jesb.meta.DateTime.class, com.otk.jesb.meta.DateTime.now());
 	private Variant<Boolean> repeatingVariant=new Variant<Boolean>(Boolean.class, false);
 	private RepetitionSettingsStructure repetitionSettings=new RepetitionSettingsStructure();
+	private Variant<String> timeZoneIdentifierVariant=new Variant<String>(String.class, ZoneId.systemDefault().getId());
 	
 	private ActivationHandler activationHandler;
 	private ScheduledExecutorService scheduler;
@@ -51,9 +56,17 @@ public class Schedule extends Activator{
 		this.repetitionSettings = repetitionSettings;
 	}
 	
+	public Variant<String> getTimeZoneIdentifierVariant() {
+		return timeZoneIdentifierVariant;
+	}
+	
+	public void setTimeZoneIdentifierVariant(Variant<String> timeZoneIdentifierVariant) {
+		this.timeZoneIdentifierVariant = timeZoneIdentifierVariant;
+	}
+	
 	@Override
 	public String toString() {
-		return "Schedule [startDateTimeVariant=" + startDateTimeVariant + ", repeatingVariant=" + repeatingVariant + ", repetitionSettings=" + repetitionSettings + "]";
+		return "Schedule [startDateTimeVariant=" + startDateTimeVariant + ", repeatingVariant=" + repeatingVariant + ", repetitionSettings=" + repetitionSettings + ", timeZoneIdentifierVariant=" + timeZoneIdentifierVariant + "]";
 	}
 	
 	@Override
@@ -73,35 +86,28 @@ public class Schedule extends Activator{
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		scheduler = Executors.newScheduledThreadPool(1);
-		Runnable task = new Runnable(){
+		Runnable task = new Runnable() {
 			@Override
 			public void run() {
 				activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
 			}
 		};
-		long periodMilliseconds = periodToMilliseconds(
-		    repetitionSettings.periodLengthVariant.getValue(), 
-		    repetitionSettings.periodUnitVariant.getValue()
-		);
-		prepare(
-		    task,
-		    startDateTimeVariant.getValue().toJavaUtilDate(), 
-		    repeatingVariant.getValue(), 
-		    periodToMilliseconds(
-		        repetitionSettings.periodLengthVariant.getValue(), 
-		        repetitionSettings.periodUnitVariant.getValue()
-		    ),
-		    (repetitionSettings.getEndDateTimeVariant().getValue() == null) 
-		        ? null 
-		        : repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate()
-		);
+		ChronoUnit chronUnit = Arrays.stream(ChronoUnit.class.getEnumConstants())
+				.filter(constant -> repetitionSettings.periodUnitVariant.getValue().name().startsWith(constant.name()))
+				.findFirst().get();
+		prepare(task, startDateTimeVariant.getValue().toJavaUtilDate(), repeatingVariant.getValue(),
+				repetitionSettings.periodLengthVariant.getValue(), chronUnit,
+				(repetitionSettings.getEndDateTimeVariant().getValue() == null) ? null
+						: repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate());
+		this.activationHandler = activationHandler;
+		
 		this.activationHandler = activationHandler;
 	}
 	
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
 		this.activationHandler = null;
-		scheduler.shutdown();
+		scheduler.shutdownNow();
 		scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 		scheduler = null;
 	}
@@ -116,7 +122,7 @@ public class Schedule extends Activator{
 		{
 			// field control positions
 			InfoCustomizations.getTypeCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName())
-			.setCustomFieldsOrder(java.util.Arrays.asList("startDateTimeVariant", "repeatingVariant", "repetitionSettings"));
+			.setCustomFieldsOrder(java.util.Arrays.asList("startDateTimeVariant", "repeatingVariant", "repetitionSettings", "timeZoneIdentifierVariant"));
 			// startDateTimeVariant control customization
 			{
 				InfoCustomizations.getFieldCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName(), "startDateTimeVariant")
@@ -143,6 +149,11 @@ public class Schedule extends Activator{
 				.setValueValidityDetectionForced(true);
 				InfoCustomizations.getFieldCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName(), "repetitionSettings").setFormControlEmbeddingForced(true);
 				RepetitionSettingsStructure.customizeUI(infoCustomizations);
+			}
+			// timeZoneIdentifierVariant control customization
+			{
+				InfoCustomizations.getFieldCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName(), "timeZoneIdentifierVariant")
+				.setCustomFieldCaption("Time Zone");
 			}
 			// hide UI customization method
 			InfoCustomizations.getMethodCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName(), ReflectionUIUtils.buildMethodSignature("void", "customizeUI", java.util.Arrays.asList(InfoCustomizations.class.getName())))
@@ -174,6 +185,13 @@ public class Schedule extends Activator{
 				throw new ValidationError("Failed to validate 'Repetition Settings'", e);
 			}
 		}
+		if (recursively) {
+			try {
+				timeZoneIdentifierVariant.validate();
+			} catch (ValidationError e) {
+				throw new ValidationError("Failed to validate 'Time Zone'", e);
+			}
+		}
 		if(repeatingVariant.getValue()){
 		    if(repetitionSettings.periodLengthVariant.getValue() <= 0){
 		        throw new ValidationError("Invalid repetition period length: " + repetitionSettings.periodLengthVariant.getValue() + " (positive number expected)");
@@ -191,62 +209,49 @@ public class Schedule extends Activator{
 		        throw new ValidationError("Invalid schedule start date/time: It has passed");
 		    }
 		}
+		if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())) {
+			throw new ValidationError("Invalid time zone: '" + timeZoneIdentifierVariant.getValue() + "': Expected "
+					+ ZoneId.getAvailableZoneIds());
+		}
+		
 	}
 	
-	private long periodToMilliseconds(
-	    long periodLength, 
-	    RepetitionSettingsStructure.RepetitionSettingsStructurePeriodUnitStructure periodUnit
-	){
-	    return java.util.concurrent.TimeUnit.MILLISECONDS.convert(
-	        periodLength, 
-	        java.util.Arrays.stream(
-	            java.util.concurrent.TimeUnit.class.getEnumConstants()
-	        ).filter(
-	            constant -> constant.name().equals(periodUnit.name())
-	        ).findFirst().get()
-	    );   
+	private ScheduledFuture<?> prepare(Runnable task, java.util.Date start, boolean repeating, long periodLength,
+			ChronoUnit periodUnit, java.util.Date end) {
+		java.util.Date now = new java.util.Date();
+		java.util.Date next;
+		if (repeating) {
+			next = computeNextOccurrence(start, periodLength, periodUnit, now);
+			if (end != null) {
+				if (end.before(next)) {
+					return null;
+				}
+			}
+		} else {
+			next = start;
+		}
+		long nowMilliseconds = now.getTime();
+		long nextMilliseconds = next.getTime();
+		long delayMilliseconds = nextMilliseconds - nowMilliseconds;
+		return scheduler.schedule(() -> {
+			if (repeating) {
+				prepare(task, start, repeating, periodLength, periodUnit, end);
+			}
+			task.run();
+		}, delayMilliseconds, TimeUnit.MILLISECONDS);
 	}
 	
-	private ScheduledFuture<?> prepare(
-	    Runnable task,
-	    java.util.Date start, 
-	    boolean repeating, 
-	    long periodMilliseconds,
-	    java.util.Date end
-	) {
-	    java.util.Date now = new java.util.Date();
-	    java.util.Date next;
-	    if(repeating){
-	        next = computeNextOccurrence(start, periodMilliseconds, now);
-	        if(end != null){
-	            if(end.before(next)){
-	                return null;
-	            }
-	        }
-	    }else{
-	        next = start;
-	    }
-	    long nowMilliseconds = now.getTime();
-	    long nextMilliseconds = next.getTime();
-	    long delayMilliseconds = nextMilliseconds - nowMilliseconds;
-	    return scheduler.schedule(() -> {
-	        if(repeating){            
-	            prepare(task, start, repeating, periodMilliseconds, end);
-	        }
-	        task.run();
-	    }, delayMilliseconds, TimeUnit.MILLISECONDS);
-	}
-	
-	private java.util.Date computeNextOccurrence(java.util.Date start, long periodMilliseconds, java.util.Date now) {
-	    long startMilliseconds = start.getTime();
-	    long nowMilliseconds = now.getTime();
-	    if (nowMilliseconds <= startMilliseconds) {
-	        return start;
-	    }
-	    long elapsed = nowMilliseconds - startMilliseconds;
-	    long missed = (elapsed / periodMilliseconds) + 1;
-	    long nextMilliseconds = startMilliseconds + missed * periodMilliseconds;
-	    return new java.util.Date(nextMilliseconds);
+	private java.util.Date computeNextOccurrence(java.util.Date start, long periodLength, ChronoUnit periodUnit,
+			java.util.Date now) {
+		if (start.after(now)) {
+			return start;
+		}
+		ZoneId timeZone = ZoneId.of(timeZoneIdentifierVariant.getValue());
+		ZonedDateTime startZonedDateTime = start.toInstant().atZone(timeZone);
+		ZonedDateTime nowZonedDateTime = now.toInstant().atZone(timeZone);
+		long elapsed = periodUnit.between(startZonedDateTime, nowZonedDateTime);
+		long missed = (elapsed / periodLength) + 1;
+		return java.util.Date.from(startZonedDateTime.plus(missed * periodLength, periodUnit).toInstant());
 	}
 	
 	

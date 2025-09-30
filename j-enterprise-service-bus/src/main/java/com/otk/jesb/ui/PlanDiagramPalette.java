@@ -58,46 +58,44 @@ public class PlanDiagramPalette extends ControlPanel implements IAdvancedFieldCo
 
 	@Override
 	public boolean refreshUI(boolean refreshStructure) {
-		if (refreshStructure) {
-			removeAll();
-			if (getDiagram() != null) {
-				add(BorderLayout.CENTER,
-						getDiagram().createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
-				SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
-			} else {
-				add(BorderLayout.CENTER, new PlanDiagram(swingRenderer, new FieldControlInputProxy(input) {
-					@Override
-					public IFieldControlData getControlData() {
-						return new FieldControlDataProxy(super.getControlData()) {
-							@Override
-							public Object getValue() {
-								return new PlanDiagram.Source(((Source) super.getValue()).getPlan());
-							}
-						};
-					}
-				}) {
-					private static final long serialVersionUID = 1L;
+		removeAll();
+		if (getDiagram() != null) {
+			add(BorderLayout.CENTER,
+					getDiagram().createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
+			SwingRendererUtils.handleComponentSizeChange(PlanDiagramPalette.this);
+		} else {
+			add(BorderLayout.CENTER, new PlanDiagram(swingRenderer, new FieldControlInputProxy(input) {
+				@Override
+				public IFieldControlData getControlData() {
+					return new FieldControlDataProxy(super.getControlData()) {
+						@Override
+						public Object getValue() {
+							return new PlanDiagram.Source(((Source) super.getValue()).getPlan());
+						}
+					};
+				}
+			}) {
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					protected void updateExternalComponentsOnInternalEvents() {
-					}
+				@Override
+				protected void updateExternalComponentsOnInternalEvents() {
+				}
 
-					@Override
-					protected void updateInternalComponentsOnExternalEvents() {
-					}
+				@Override
+				protected void updateInternalComponentsOnExternalEvents() {
+				}
 
-					@Override
-					protected void refreshElementObjects() {
-					}
+				@Override
+				protected void refreshElementObjects() {
+				}
 
-				}.createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						PlanDiagramPalette.this.refreshUI(true);
-					}
-				});
-			}
+			}.createActionPalette(JTabbedPane.TOP, JTabbedPane.RIGHT, BoxLayout.Y_AXIS));
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					PlanDiagramPalette.this.refreshUI(true);
+				}
+			});
 		}
 		return true;
 	}
