@@ -324,16 +324,9 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	protected Class<?> getMainCustomizedClass(String customizationsIdentifier) {
-		Class<?> result;
-		try {
-			result = MiscUtils.getJESBClass(customizationsIdentifier);
-		} catch (Throwable t) {
-			result = null;
-		}
-		if (result != null) {
-			if (Operation.class.isAssignableFrom(result)) {
-				result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
-			}
+		Class<?> result = MiscUtils.getJESBClass(customizationsIdentifier);
+		if (Operation.class.isAssignableFrom(result)) {
+			result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
 		}
 		return result;
 	}
