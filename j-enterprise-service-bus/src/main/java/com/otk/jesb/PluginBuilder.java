@@ -564,8 +564,9 @@ public class PluginBuilder {
 			return result.toString();
 		}
 
-		private List<Class<?>> getCommonImportedClasses() {
+		private static List<Class<?>> getCommonImportedClasses() {
 			List<Class<?>> result = new ArrayList<Class<?>>();
+			result.add(Serializable.class);
 			result.add(Operation.class);
 			result.add(OperationStructureBuilder.class);
 			result.add(OperationBuilder.class);
@@ -584,28 +585,35 @@ public class PluginBuilder {
 			result.add(ReflectionUIUtils.class);
 			result.add(ValidationError.class);
 			result.add(ResourcePath.class);
+			result.add(Step.class);
+			result.add(Plan.class);
 			return result;
 		}
 
-		protected CodeBuilder.PlaceHolder getImportsPlaceHolder() {
+		protected CodeBuilder.PlaceHolder getImportsPlaceHolder(String rootClassName) {
 			return new CodeBuilder.PlaceHolder() {
 				List<Class<?>> usedImportClasses;
 
 				@Override
 				protected String replace(String finalCode) {
 					finalCode = finalCode.replaceAll("\\b" + MiscUtils.escapeRegex("java.lang.") + "\\b", "");
+					finalCode = finalCode.replaceAll("\\b" + rootClassName + "\\b",
+							MiscUtils.extractSimpleNameFromClassName(rootClassName));
+					List<Class<?>> candidateImportClasses = new ArrayList<Class<?>>(getCommonImportedClasses());
+					candidateImportClasses.addAll(importedClassNames.stream()
+							.map(className -> MiscUtils.getJESBClass(className)).collect(Collectors.toList()));
 					usedImportClasses = new ArrayList<Class<?>>();
-					for (Class<?> importedClass : getCommonImportedClasses()) {
+					for (Class<?> importedClass : candidateImportClasses) {
 						String newFinalCode = finalCode.replaceAll(
 								"\\b" + MiscUtils.escapeRegex(importedClass.getCanonicalName()) + "\\b",
 								importedClass.getSimpleName());
-						if (!newFinalCode.equals(finalCode)) {
-							usedImportClasses.add(importedClass);
-							finalCode = newFinalCode;
+						boolean explicitImport = importedClassNames.contains(importedClass.getName());
+						if (!explicitImport && newFinalCode.equals(finalCode)) {
+							continue;
 						}
+						usedImportClasses.add(importedClass);
+						finalCode = newFinalCode;
 					}
-					usedImportClasses.addAll(importedClassNames.stream()
-							.map(className -> MiscUtils.getJESBClass(className)).collect(Collectors.toList()));
 					return super.replace(finalCode);
 				}
 
@@ -747,7 +755,7 @@ public class PluginBuilder {
 			CodeBuilder afterPackageDeclaration = new CodeBuilder();
 			CodeBuilder afterFieldDeclarations = new CodeBuilder();
 			CodeBuilder afterMethodDeclarations = new CodeBuilder();
-			PlaceHolder importsPlaceHolder = getImportsPlaceHolder();
+			PlaceHolder importsPlaceHolder = getImportsPlaceHolder(operationClassName);
 			afterPackageDeclaration.append(importsPlaceHolder.getReferenceString());
 			afterMethodDeclarations
 					.append(generateExecutionMethodSourceCode(operationClassName, codeGenerationOptions) + "\n");
@@ -1640,7 +1648,7 @@ public class PluginBuilder {
 			}
 
 			@Override
-			protected PlaceHolder getImportsPlaceHolder() {
+			protected PlaceHolder getImportsPlaceHolder(String rootClassName) {
 				return PlaceHolder.NULL_PLACEHOLDER;
 			}
 
@@ -2117,7 +2125,7 @@ public class PluginBuilder {
 			CodeBuilder afterFieldDeclarations = new CodeBuilder();
 			CodeBuilder afterMethodDeclarations = new CodeBuilder();
 			CodeBuilder afterPackageDeclaration = new CodeBuilder();
-			PlaceHolder importsPlaceHolder = getImportsPlaceHolder();
+			PlaceHolder importsPlaceHolder = getImportsPlaceHolder(resourceClassName);
 			afterPackageDeclaration.append(importsPlaceHolder.getReferenceString());
 			afterMethodDeclarations.append(
 					generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "") + "\n");
@@ -2524,7 +2532,7 @@ public class PluginBuilder {
 			}
 
 			@Override
-			protected PlaceHolder getImportsPlaceHolder() {
+			protected PlaceHolder getImportsPlaceHolder(String rootClassName) {
 				return PlaceHolder.NULL_PLACEHOLDER;
 			}
 		};
@@ -2748,7 +2756,7 @@ public class PluginBuilder {
 			CodeBuilder afterFieldDeclarations = new CodeBuilder();
 			CodeBuilder afterMethodDeclarations = new CodeBuilder();
 			CodeBuilder innerClassesDeclarations = new CodeBuilder();
-			PlaceHolder importsPlaceHolder = getImportsPlaceHolder();
+			PlaceHolder importsPlaceHolder = getImportsPlaceHolder(activatorClassName);
 			afterPackageDeclaration.append(importsPlaceHolder.getReferenceString());
 			afterFieldDeclarations.append(getActivationHandlerFieldDeclartionSourceCode() + "\n");
 			generateInputSourceCode(activatorClassName, afterMethodDeclarations, innerClassesDeclarations,
@@ -3261,7 +3269,7 @@ public class PluginBuilder {
 			}
 
 			@Override
-			protected PlaceHolder getImportsPlaceHolder() {
+			protected PlaceHolder getImportsPlaceHolder(String rootClassName) {
 				return PlaceHolder.NULL_PLACEHOLDER;
 			}
 		};

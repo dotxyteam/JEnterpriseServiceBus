@@ -39,8 +39,10 @@ private java.util.Date computeNextOccurrence(java.util.Date start, long periodLe
 	if (start.after(now)) {
 		return start;
 	}
-	ZoneId timeZone = ZoneId.of(timeZoneIdentifierVariant.getValue());
-	ZonedDateTime startZonedDateTime = start.toInstant().atZone(timeZone);
+	ZoneId timeZone = (timeZoneIdentifierVariant.getValue() != null)
+				? ZoneId.of(timeZoneIdentifierVariant.getValue())
+				: ZoneId.systemDefault();
+    ZonedDateTime startZonedDateTime = start.toInstant().atZone(timeZone);
 	ZonedDateTime nowZonedDateTime = now.toInstant().atZone(timeZone);
 	long elapsed = periodUnit.between(startZonedDateTime, nowZonedDateTime);
 	long missed = (elapsed / periodLength) + 1;
@@ -79,7 +81,7 @@ if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())
               <timeFormat>HH:mm:ss</timeFormat>
             </controlPluginConfiguration>
             <controlPluginIdentifier>com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</controlPluginIdentifier>
-            <defaultValueExpression>com.otk.jesb.meta.DateTime.now()</defaultValueExpression>
+            <defaultValueExpression>com.otk.jesb.meta.DateTime.fromJavaUtilDate(new java.util.Date(System.currentTimeMillis() + 60000))</defaultValueExpression>
             <nullable>false</nullable>
             <typeNameOrAlias>com.otk.jesb.meta.DateTime</typeNameOrAlias>
             <variant>true</variant>
@@ -202,6 +204,7 @@ prepare(task, startDateTimeVariant.getValue().toJavaUtilDate(), repeatingVariant
 this.activationHandler = activationHandler;
 </handlerInitializationStatements>
       <importedClassNames>
+        <string>java.util.Date</string>
         <string>java.util.Arrays</string>
         <string>java.util.concurrent.Executors</string>
         <string>java.util.concurrent.ScheduledExecutorService</string>
@@ -210,6 +213,7 @@ this.activationHandler = activationHandler;
         <string>java.time.ZoneId</string>
         <string>java.time.ZonedDateTime</string>
         <string>java.time.temporal.ChronoUnit</string>
+        <string>com.otk.jesb.meta.DateTime</string>
       </importedClassNames>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>

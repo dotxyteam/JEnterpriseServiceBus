@@ -29,24 +29,24 @@ public class SplitInfoCustomizations {
 		MiscUtils.createDirectory(WORKING_DIRECTORY);
 		InfoCustomizations globalCustomizations = GUI.INSTANCE
 				.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getInfoCustomizations();
-		for (OperationMetadata<?> metadata : GUI.BUILTIN_OPERATION_METADATAS) {
+		for (OperationMetadata<?> metadata : MiscUtils.BUILTIN_OPERATION_METADATAS) {
 			String switchIdentifier = MiscUtils.inferOperationClass(metadata.getOperationBuilderClass()).getName();
 			List<String> mainTypeNames = Arrays.asList(
 					MiscUtils.inferOperationClass(metadata.getOperationBuilderClass()).getName(),
 					metadata.getOperationBuilderClass().getName());
 			extractAnsSaveSpecificCustomizations(globalCustomizations, switchIdentifier, mainTypeNames);
 		}
-		for (ActivatorMetadata metadata : GUI.BUILTIN_ACTIVATOR__METADATAS) {
+		for (ActivatorMetadata metadata : MiscUtils.BUILTIN_ACTIVATOR__METADATAS) {
 			String switchIdentifier = metadata.getActivatorClass().getName();
 			List<String> mainTypeNames = Arrays.asList(metadata.getActivatorClass().getName());
 			extractAnsSaveSpecificCustomizations(globalCustomizations, switchIdentifier, mainTypeNames);
 		}
-		for (ResourceMetadata metadata : GUI.BUILTIN_RESOURCE_METADATAS) {
+		for (ResourceMetadata metadata : MiscUtils.BUILTIN_RESOURCE_METADATAS) {
 			String switchIdentifier = metadata.getResourceClass().getName();
 			List<String> mainTypeNames = Arrays.asList(metadata.getResourceClass().getName());
 			extractAnsSaveSpecificCustomizations(globalCustomizations, switchIdentifier, mainTypeNames);
 		}
-		for (CompositeStepMetadata metadata : GUI.BUILTIN_COMPOSITE_STEP_METADATAS) {
+		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
 			String switchIdentifier = metadata.getCompositeStepClass().getName();
 			List<String> mainTypeNames = Arrays.asList(metadata.getCompositeStepClass().getName());
 			extractAnsSaveSpecificCustomizations(globalCustomizations, switchIdentifier, mainTypeNames);

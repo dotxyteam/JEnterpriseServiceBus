@@ -40,24 +40,57 @@ import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.activation.builtin.LaunchAtStartup;
+import com.otk.jesb.activation.builtin.Operate;
+import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
+import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
+import com.otk.jesb.activation.builtin.Schedule;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.builtin.CallRESTAPI;
+import com.otk.jesb.operation.builtin.CallSOAPWebService;
+import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
+import com.otk.jesb.operation.builtin.CreateDirectory;
+import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
+import com.otk.jesb.operation.builtin.DoNothing;
+import com.otk.jesb.operation.builtin.Evaluate;
+import com.otk.jesb.operation.builtin.ExecuteCommand;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.operation.builtin.Fail;
+import com.otk.jesb.operation.builtin.GenerateXML;
+import com.otk.jesb.operation.builtin.InspectResource;
+import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.JDBCStoredProcedureCall;
+import com.otk.jesb.operation.builtin.JDBCUpdate;
+import com.otk.jesb.operation.builtin.Log;
+import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
+import com.otk.jesb.operation.builtin.ParseXML;
+import com.otk.jesb.operation.builtin.ReadFile;
+import com.otk.jesb.operation.builtin.Sleep;
+import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.resource.builtin.HTTPServer;
+import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.JAR;
+import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-import com.otk.jesb.ui.GUI;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
@@ -71,6 +104,23 @@ import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.util.ClassUtils;
 
 public class MiscUtils {
+
+	public static final List<OperationMetadata<?>> BUILTIN_OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
+			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
+			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
+			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
+			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
+			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
+			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
+			new CallSOAPWebService.Metadata());
+	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
+			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
+	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
+			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),
+			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
+	public static final List<ActivatorMetadata> BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(
+			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new Schedule.Metadata(),
+			new WatchFileSystem.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
 
 	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
 	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
@@ -232,7 +282,7 @@ public class MiscUtils {
 	}
 
 	public static ResourcePath getIconImagePath(Step step) {
-		for (CompositeStepMetadata metadata : GUI.BUILTIN_COMPOSITE_STEP_METADATAS) {
+		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
 			if (metadata.getCompositeStepClass().equals(step.getClass())) {
 				return metadata.getCompositeStepIconImagePath();
 			}
@@ -1000,23 +1050,22 @@ public class MiscUtils {
 
 	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
 		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
-		result.addAll(GUI.BUILTIN_OPERATION_METADATAS);
+		result.addAll(MiscUtils.BUILTIN_OPERATION_METADATAS);
 		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);
 		return result;
 	}
 
 	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
 		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
-		result.addAll(GUI.BUILTIN_ACTIVATOR__METADATAS);
+		result.addAll(MiscUtils.BUILTIN_ACTIVATOR__METADATAS);
 		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);
 		return result;
 	}
 
 	public static List<ResourceMetadata> getAllResourceMetadatas() {
 		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
-		result.addAll(GUI.BUILTIN_RESOURCE_METADATAS);
+		result.addAll(MiscUtils.BUILTIN_RESOURCE_METADATAS);
 		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
 		return result;
 	}
-
 }

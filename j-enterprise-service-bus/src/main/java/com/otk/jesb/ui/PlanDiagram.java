@@ -418,7 +418,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					@Override
 					public List<JDiagramAction> getActions() {
 						List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-						for (CompositeStepMetadata metadata : GUI.BUILTIN_COMPOSITE_STEP_METADATAS) {
+						for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
 							result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 								@Override
 								public Step get() {

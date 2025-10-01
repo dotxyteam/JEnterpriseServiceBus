@@ -45,11 +45,6 @@ import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.ActivatorStructure;
 import com.otk.jesb.activation.builtin.HTTPRequestReceiver;
-import com.otk.jesb.activation.builtin.LaunchAtStartup;
-import com.otk.jesb.activation.builtin.Operate;
-import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
-import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
-import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.Debugger.PlanActivation;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.EnvironmentSettings.EnvironmentVariable;
@@ -79,39 +74,12 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.operation.OperationStructureBuilder;
-import com.otk.jesb.operation.builtin.CallRESTAPI;
-import com.otk.jesb.operation.builtin.CallSOAPWebService;
-import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
-import com.otk.jesb.operation.builtin.CreateDirectory;
-import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
-import com.otk.jesb.operation.builtin.DoNothing;
-import com.otk.jesb.operation.builtin.Evaluate;
-import com.otk.jesb.operation.builtin.ExecuteCommand;
-import com.otk.jesb.operation.builtin.ExecutePlan;
-import com.otk.jesb.operation.builtin.Fail;
-import com.otk.jesb.operation.builtin.GenerateXML;
-import com.otk.jesb.operation.builtin.InspectResource;
-import com.otk.jesb.operation.builtin.JDBCQuery;
-import com.otk.jesb.operation.builtin.JDBCStoredProcedureCall;
-import com.otk.jesb.operation.builtin.JDBCUpdate;
-import com.otk.jesb.operation.builtin.Log;
-import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
-import com.otk.jesb.operation.builtin.ParseXML;
-import com.otk.jesb.operation.builtin.ReadFile;
-import com.otk.jesb.operation.builtin.Sleep;
-import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.ResourceStructure;
 import com.otk.jesb.resource.builtin.HTTPServer;
-import com.otk.jesb.resource.builtin.JDBCConnection;
-import com.otk.jesb.resource.builtin.OpenAPIDescription;
-import com.otk.jesb.resource.builtin.SharedStructureModel;
-import com.otk.jesb.resource.builtin.WSDL;
-import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
-import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
@@ -208,23 +176,6 @@ import xy.reflect.ui.util.SystemProperties;
 import xy.reflect.ui.util.ValidationErrorRegistry;
 
 public class GUI extends MultiSwingCustomizer {
-
-	public static final List<OperationMetadata<?>> BUILTIN_OPERATION_METADATAS = Arrays.<OperationMetadata<?>>asList(
-			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),
-			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
-			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
-			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
-			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
-			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
-			new CallSOAPWebService.Metadata());
-	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
-			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
-	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
-			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),
-			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
-	public static final List<ActivatorMetadata> BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(
-			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new WatchFileSystem.Metadata(),
-			new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
 
 	public static final String UI_CUSTOMIZATIONS_METHOD_NAME = "customizeUI";
 
@@ -3410,7 +3361,7 @@ public class GUI extends MultiSwingCustomizer {
 
 						@Override
 						protected int getFormSpacing(ITypeInfo type) {
-							return 10;
+							return 5;
 						}
 
 						@Override
