@@ -870,8 +870,16 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
-		if (swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(diagramObject.getValue(),
-				null) != null) {
+		Throwable validationError;
+		try {
+			validationError = swingRenderer.getReflectionUI().getValidationErrorRegistry()
+					.getValidationError(diagramObject.getValue(), null);
+		} catch (Throwable t) {
+			swingRenderer.getReflectionUI().logDebug("WARNING: Failed to retrieve validation error attributed to '"
+					+ diagramObject.getValue() + "': " + MiscUtils.getPrintedStackTrace(t));
+			return;
+		}
+		if (validationError != null) {
 			Point errorMarkerLocation = getErrorMarkerLocation(diagramObject);
 			if (errorMarkerLocation != null) {
 				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);

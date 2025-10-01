@@ -20,6 +20,9 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +35,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.Expression;
+import com.otk.jesb.JESB;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.VariableDeclaration;
@@ -123,7 +129,6 @@ public class MiscUtils {
 			new WatchFileSystem.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
 
 	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
-	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
@@ -185,6 +190,11 @@ public class MiscUtils {
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
+
+	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
+	static {
+		configureSolutionDependencies(Collections.emptyList());
+	}
 
 	public static void sleepSafely(long durationMilliseconds) {
 		try {
@@ -930,6 +940,10 @@ public class MiscUtils {
 		return s;
 	}
 
+	public static ClassLoader getJESBResourceLoader() {
+		return IN_MEMORY_COMPILER.getBaseClassLoader();
+	}
+
 	public static Class<?> getJESBClass(String typeName) {
 		String arrayComponentTypeName = getArrayComponentTypeName(typeName);
 		if (arrayComponentTypeName != null) {
@@ -1068,4 +1082,71 @@ public class MiscUtils {
 		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
 		return result;
 	}
+
+	public static void configureSolutionDependencies(List<JAR> jars) {
+		URLClassLoader jarsClassLoader = new URLClassLoader(
+				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), JESB.class.getClassLoader());
+		IN_MEMORY_COMPILER.setBaseClassLoader(jarsClassLoader);
+		JAR.PLUGIN_OPERATION_METADATAS.clear();
+		JAR.PLUGIN_ACTIVATOR_METADATAS.clear();
+		JAR.PLUGIN_RESOURCE_METADATAS.clear();
+		for (JAR jar : jars) {
+			JarURLConnection connection;
+			try {
+				connection = (JarURLConnection) new URL("jar:" + jar.getURL().toString() + "!/").openConnection();
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			}
+			Manifest manifest;
+			try {
+				manifest = connection.getManifest();
+			} catch (IOException e) {
+				continue;
+			}
+			Attributes attributes = manifest.getMainAttributes();
+			String operationMetadataClassNames = attributes
+					.getValue(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY);
+			String activatorMetadataClassNames = attributes
+					.getValue(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY);
+			String resourceMetadataClassNames = attributes.getValue(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY);
+			if (operationMetadataClassNames != null) {
+				for (String className : operationMetadataClassNames.split(",")) {
+					if (className.isEmpty()) {
+						continue;
+					}
+					try {
+						JAR.PLUGIN_OPERATION_METADATAS
+								.add((OperationMetadata<?>) getJESBClass(className).newInstance());
+					} catch (InstantiationException | IllegalAccessException e) {
+						throw new UnexpectedError(e);
+					}
+				}
+			}
+			if (activatorMetadataClassNames != null) {
+				for (String className : activatorMetadataClassNames.split(",")) {
+					if (className.isEmpty()) {
+						continue;
+					}
+					try {
+						JAR.PLUGIN_ACTIVATOR_METADATAS.add((ActivatorMetadata) getJESBClass(className).newInstance());
+					} catch (InstantiationException | IllegalAccessException e) {
+						throw new UnexpectedError(e);
+					}
+				}
+			}
+			if (resourceMetadataClassNames != null) {
+				for (String className : resourceMetadataClassNames.split(",")) {
+					if (className.isEmpty()) {
+						continue;
+					}
+					try {
+						JAR.PLUGIN_RESOURCE_METADATAS.add((ResourceMetadata) getJESBClass(className).newInstance());
+					} catch (InstantiationException | IllegalAccessException e) {
+						throw new UnexpectedError(e);
+					}
+				}
+			}
+		}
+	}
+
 }

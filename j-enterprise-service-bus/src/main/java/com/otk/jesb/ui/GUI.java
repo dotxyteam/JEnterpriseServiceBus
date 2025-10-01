@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -298,8 +299,11 @@ public class GUI extends MultiSwingCustomizer {
 					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + customizationsResourceName);
 		} else {
 			try {
-				result.getInfoCustomizations()
-						.loadFromStream(getClass().getResourceAsStream("/" + customizationsResourceName), null);
+				InputStream stream = result.getClassPathResourceLoader()
+						.getResourceAsStream(customizationsResourceName);
+				if (stream != null) {
+					result.getInfoCustomizations().loadFromStream(stream, null);
+				}
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
@@ -844,7 +848,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public ClassLoader getClassPathResourceLoader() {
-			return MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader();
+			return MiscUtils.getJESBResourceLoader();
 		}
 
 	}

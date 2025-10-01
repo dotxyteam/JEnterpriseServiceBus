@@ -1,5 +1,5 @@
 <com.otk.jesb.PluginBuilder>
-  <packageName>com.otk.jesb.activation.builtin</packageName>
+  <packageName>com.otk.jesb.activation.builtin.test</packageName>
   <resources/>
   <operations/>
   <activators>
@@ -66,11 +66,12 @@ private java.util.Date computeNextOccurrence(java.util.Date start, long periodLe
         throw new com.otk.jesb.ValidationError(&quot;Invalid schedule start date/time: It has passed&quot;);
     }
 }
-if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())) {
-	throw new ValidationError(&quot;Invalid time zone: &apos;&quot; + timeZoneIdentifierVariant.getValue() + &quot;&apos;: Expected &quot;
-			+ ZoneId.getAvailableZoneIds());
-}
-</additionalValidationStatements>
+if(timeZoneIdentifierVariant.getValue() != null){
+    if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())) {
+    	throw new ValidationError(&quot;Invalid time zone: &apos;&quot; + timeZoneIdentifierVariant.getValue() + &quot;&apos;: Expected &quot;
+    			+ ZoneId.getAvailableZoneIds());
+    }
+}</additionalValidationStatements>
       <attributes>
         <com.otk.jesb.PluginBuilder_-AttributeDescriptor>
           <caption>Start At</caption>

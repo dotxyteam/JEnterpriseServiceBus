@@ -253,13 +253,13 @@ public class Solution {
 	public static class Singleton extends Solution {
 
 		private Singleton() {
-			JAR.configureSolutionDependencies(getRequiredJARs());
+			MiscUtils.configureSolutionDependencies(getRequiredJARs());
 		}
 
 		@Override
 		public void setRequiredJARs(List<JAR> jars) {
 			super.setRequiredJARs(jars);
-			JAR.configureSolutionDependencies(jars);
+			MiscUtils.configureSolutionDependencies(jars);
 		}
 
 		public PluginBuilder accessPluginBuilder() {
