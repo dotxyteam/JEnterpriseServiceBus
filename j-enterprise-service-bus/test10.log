@@ -1305,3 +1305,11 @@
 2025-08-12 20:58:55,802 [PlanExecutor [plan=Test]] ERROR 	at com.otk.jesb.util.MiscUtils.getJESBClass(MiscUtils.java:863)
 2025-08-12 20:58:55,802 [PlanExecutor [plan=Test]] ERROR 	... 22 more
 2025-08-12 20:58:55,802 [PlanExecutor [plan=Test]] ERROR 
+2025-10-02 14:15:53,205 [main] DEBUG Starting up...
+2025-10-02 14:15:53,435 [main] DEBUG Exception in thread "main" java.lang.IllegalArgumentException: 'tmp/test10/lib' is not a valid directory
+2025-10-02 14:15:53,435 [main] DEBUG 	at com.otk.jesb.solution.Solution.loadFolder(Solution.java:136)
+2025-10-02 14:15:53,436 [main] DEBUG 	at com.otk.jesb.solution.Solution.loadRequiredJARs(Solution.java:129)
+2025-10-02 14:15:53,436 [main] DEBUG 	at com.otk.jesb.solution.Solution.load(Solution.java:119)
+2025-10-02 14:15:53,436 [main] DEBUG 	at com.otk.jesb.solution.Solution.loadFromDirectory(Solution.java:115)
+2025-10-02 14:15:53,436 [main] DEBUG 	at com.otk.jesb.JESB.main(JESB.java:104)
+2025-10-02 14:15:53,437 [Thread-0] DEBUG Shutting down...

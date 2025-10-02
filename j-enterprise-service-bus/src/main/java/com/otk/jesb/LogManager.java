@@ -8,6 +8,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
+
+import com.otk.jesb.util.MiscUtils;
+
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.log4j.core.appender.rolling.*;
 import org.apache.logging.log4j.core.config.NullConfiguration;
@@ -15,15 +18,20 @@ import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 
 public class LogManager {
 
+	public static final String ERROR_LEVEL_NAME = "ERROR";
+	public static final String WARNING_LEVEL_NAME = "WARNING";
+	public static final String INFORMATION_LEVEL_NAME = "INFORMATION";
+	public static final String VERBOSE_LEVEL_NAME = "VERBOSE";
+
 	private static final int DEFAULT_LOGGING_HISTORY_DAYS = Integer
 			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultHistoryDays", "7"));
 	private static final int DEFAULT_MAX_LOG_FILE_SIZE_MB = Integer
 			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultMaxLogFileSizeMB", "10"));
 
-	private PrintStream informationStream = interceptPrintStreamData(System.out, Console.INFORMATION_LEVEL_NAME,
+	private PrintStream informationStream = interceptPrintStreamData(System.out, LogManager.INFORMATION_LEVEL_NAME,
 			() -> true);
-	private PrintStream warningStream = interceptPrintStreamData(System.err, Console.WARNING_LEVEL_NAME, () -> true);
-	private PrintStream errorStream = interceptPrintStreamData(System.err, Console.ERROR_LEVEL_NAME, () -> true);
+	private PrintStream warningStream = interceptPrintStreamData(System.err, LogManager.WARNING_LEVEL_NAME, () -> true);
+	private PrintStream errorStream = interceptPrintStreamData(System.err, LogManager.ERROR_LEVEL_NAME, () -> true);
 
 	private RollingFileAppender appender;
 
@@ -58,47 +66,44 @@ public class LogManager {
 
 	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName,
 			Supplier<Boolean> enablementStatusSupplier) {
-		return new Console() {
-
-			@Override
-			public void log(String message, String levelName, String prefixColor, String messageColor) {
-				Level level;
-				if (Console.INFORMATION_LEVEL_NAME.equals(levelName)) {
-					level = Level.INFO;
-				} else if (Console.WARNING_LEVEL_NAME.equals(levelName)) {
-					level = Level.WARN;
-				} else if (Console.ERROR_LEVEL_NAME.equals(levelName)) {
-					level = Level.ERROR;
-				} else if (Console.VERBOSE_LEVEL_NAME.equals(levelName)) {
-					level = Level.DEBUG;
-				} else {
-					throw new UnexpectedError();
-				}
-				LogEvent event = Log4jLogEvent.newBuilder().setLoggerName("MyPrivateLogger").setLevel(level)
-						.setMessage(new Message() {
-
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public Throwable getThrowable() {
-								return null;
-							}
-
-							@Override
-							public Object[] getParameters() {
-								return null;
-							}
-
-							@Override
-							public String getFormattedMessage() {
-								return message;
-							}
-						}).setTimeMillis(System.currentTimeMillis()).build();
-
-				appender.append(event);
-			}
-
-		}.interceptPrintStreamData(basePrintStream, levelName, null, null, enablementStatusSupplier);
+		return MiscUtils.interceptPrintStreamData(basePrintStream, line -> log(line, levelName),
+				enablementStatusSupplier);
 	};
 
+	protected void log(String message, String levelName) {
+		Level level;
+		if (LogManager.INFORMATION_LEVEL_NAME.equals(levelName)) {
+			level = Level.INFO;
+		} else if (LogManager.WARNING_LEVEL_NAME.equals(levelName)) {
+			level = Level.WARN;
+		} else if (LogManager.ERROR_LEVEL_NAME.equals(levelName)) {
+			level = Level.ERROR;
+		} else if (LogManager.VERBOSE_LEVEL_NAME.equals(levelName)) {
+			level = Level.DEBUG;
+		} else {
+			throw new UnexpectedError();
+		}
+		LogEvent event = Log4jLogEvent.newBuilder().setLoggerName("MyPrivateLogger").setLevel(level)
+				.setMessage(new Message() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Throwable getThrowable() {
+						return null;
+					}
+
+					@Override
+					public Object[] getParameters() {
+						return null;
+					}
+
+					@Override
+					public String getFormattedMessage() {
+						return message;
+					}
+				}).setTimeMillis(System.currentTimeMillis()).build();
+
+		appender.append(event);
+	}
 }

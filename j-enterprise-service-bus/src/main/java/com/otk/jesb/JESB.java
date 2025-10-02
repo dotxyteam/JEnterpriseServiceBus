@@ -3,6 +3,7 @@ package com.otk.jesb;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import javax.swing.SwingUtilities;
 
@@ -30,13 +31,11 @@ import com.otk.jesb.ui.Preferences;
 
 public class JESB {
 
-	public static final boolean DEBUG = Boolean
-			.valueOf(System.getProperty(JESB.class.getPackage().getName() + ".debug", Boolean.FALSE.toString()));
-	private static final boolean RUNNER_LOG_VERBOSE = Boolean.valueOf(
-			System.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
+	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
+	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
+	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
 
-	public static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
-	public static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
+	private static Supplier<Boolean> verbositySupplier;
 
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
@@ -44,12 +43,29 @@ public class JESB {
 		options.addOption(Option.builder().longOpt(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT).hasArg()
 				.argName("ENVIRONMENT_SETTINGS_FILE_PATH").desc("Specify the solution environment settings file")
 				.get());
+		options.addOption(Option.builder().longOpt(SYSTEM_PROPERTIES_DEFINITION_ARGUMENT).hasArgs().valueSeparator(',')
+				.argName("SYSTEM_PROPERTIES_DEFINITION")
+				.desc("Define system properties (Example: --" + SYSTEM_PROPERTIES_DEFINITION_ARGUMENT
+						+ " propertyName1=propertyValue1,propertyName2=propertyValue2)")
+				.get());
 		CommandLine commandLine = null;
 		try {
 			CommandLineParser CommandLineParser = new DefaultParser();
 			commandLine = CommandLineParser.parse(options, args);
 		} catch (ParseException e) {
 			throw newIllegalArgumentException(e, args, options);
+		}
+		if (commandLine.hasOption(SYSTEM_PROPERTIES_DEFINITION_ARGUMENT)) {
+			for (String propertyDefinition : commandLine.getOptionValues(SYSTEM_PROPERTIES_DEFINITION_ARGUMENT)) {
+				int separatorPosition = propertyDefinition.indexOf("=");
+				if (separatorPosition == -1) {
+					throw new IllegalArgumentException("Invalid system property definition string: '"
+							+ propertyDefinition + "': 'key=value' format expected");
+				}
+				String propertyName = propertyDefinition.substring(0, separatorPosition);
+				String propertyValue = propertyDefinition.substring(separatorPosition+1);
+				System.setProperty(propertyName, propertyValue);
+			}
 		}
 		String[] remainingArgs = commandLine.getArgs();
 		File fileOrFolder;
@@ -67,18 +83,21 @@ public class JESB {
 						args, options);
 			}
 			runnerlogManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
-			System.setOut(runnerlogManager.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
-			System.setErr(runnerlogManager.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME,
-					() -> RUNNER_LOG_VERBOSE));
+			verbositySupplier = () -> Boolean.valueOf(System
+					.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
+			System.setOut(runnerlogManager.interceptPrintStreamData(System.out, LogManager.VERBOSE_LEVEL_NAME,
+					verbositySupplier));
+			System.setErr(runnerlogManager.interceptPrintStreamData(System.err, LogManager.VERBOSE_LEVEL_NAME,
+					verbositySupplier));
 			System.out.println("Starting up...");
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
 		} else {
 			runnerlogManager = null;
-			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, Console.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
-			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, Console.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", () -> Preferences.INSTANCE.isLogVerbose()));
+			verbositySupplier = () -> Preferences.INSTANCE.isLogVerbose();
+			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, LogManager.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", verbositySupplier));
+			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogManager.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", verbositySupplier));
 		}
 		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
@@ -111,6 +130,15 @@ public class JESB {
 		}
 	}
 
+	public static boolean isVerbose() {
+		return verbositySupplier.get();
+	}
+
+	public static boolean isDebugModeActive() {
+		return Boolean
+				.valueOf(System.getProperty(JESB.class.getPackage().getName() + ".debug", Boolean.FALSE.toString()));
+	}
+
 	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {
 		HelpFormatter helpFormatter = HelpFormatter.builder().get();
 		return new IllegalArgumentException("Found: " + Arrays.toString(args) + ".\n"
@@ -121,7 +149,7 @@ public class JESB {
 	private static void setupSampleSolution() {
 		Plan plan = new Plan("Sample");
 		Solution.INSTANCE.getContents().add(plan);
-		if (DEBUG) {
+		if (isDebugModeActive()) {
 			JDBCConnection c = new JDBCConnection("db");
 			c.getDriverClassNameVariant().setConstantValue("org.hsqldb.jdbcDriver");
 			c.getUrlVariant().setConstantValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");

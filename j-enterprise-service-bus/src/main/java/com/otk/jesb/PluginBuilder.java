@@ -90,7 +90,7 @@ public class PluginBuilder {
 
 	public static final PluginBuilder INSTANCE = new PluginBuilder();
 
-	private String packageName;
+	private String packageName = "com.example";
 	private List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();
 	private List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
 	private List<ActivatorDescriptor> activators = new ArrayList<ActivatorDescriptor>();

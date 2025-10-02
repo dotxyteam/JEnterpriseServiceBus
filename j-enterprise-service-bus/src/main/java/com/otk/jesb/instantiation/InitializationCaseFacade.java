@@ -221,7 +221,7 @@ public class InitializationCaseFacade extends Facade {
 		try {
 			typeInfo = instanceBuilderFacade.getTypeInfo();
 		} catch (Throwable t) {
-			if (JESB.DEBUG) {
+			if (JESB.isVerbose()) {
 				t.printStackTrace();
 			}
 			return Collections.emptyList();
@@ -253,7 +253,7 @@ public class InitializationCaseFacade extends Facade {
 				if (fieldInfo.isGetOnly()) {
 					continue;
 				}
-				if (JESB.DEBUG) {
+				if (JESB.isVerbose()) {
 					if (result.stream().anyMatch(facade -> (facade instanceof ParameterInitializerFacade)
 							&& ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {
 						System.out.println("Name conflict detected between parameter '" + fieldInfo.getName()

@@ -290,7 +290,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 						MiscUtils.delete(mainFile);
 						MiscUtils.delete(directory);
 					} catch (Throwable ignore) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							ignore.printStackTrace();
 						}
 					}

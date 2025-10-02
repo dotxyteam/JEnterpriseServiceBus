@@ -18,11 +18,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,10 +37,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.apache.commons.io.output.WriterOutputStream;
 
 import com.otk.jesb.Expression;
 import com.otk.jesb.JESB;
@@ -1147,6 +1153,117 @@ public class MiscUtils {
 				}
 			}
 		}
+	}
+
+	public static PrintStream interceptPrintStreamData(PrintStream basePrintStream, Consumer<String> lineConsumer,
+			Supplier<Boolean> enablementStatusSupplier) {
+		return new PrintStream(new WriterOutputStream(new Writer() {
+			private final StringBuilder lineBuffer = new StringBuilder();
+	
+			@Override
+			public synchronized void write(char[] cbuf, int off, int len) throws IOException {
+				if (!enablementStatusSupplier.get()) {
+					return;
+				}
+				for (int i = 0; i < len; i++) {
+					char c = cbuf[off + i];
+					if (c == '\n') {
+						flushLine();
+					} else if (c == '\r') {
+						if ((i + 1 < len) && (cbuf[off + i + 1] == '\n')) {
+							i++;
+						}
+						flushLine();
+					} else {
+						lineBuffer.append(c);
+					}
+				}
+			}
+	
+			@Override
+			public synchronized void flush() throws IOException {
+				if (!enablementStatusSupplier.get()) {
+					return;
+				}
+				if (lineBuffer.length() > 0) {
+					flushLine();
+				}
+			}
+	
+			@Override
+			public synchronized void close() throws IOException {
+				flush();
+			}
+	
+			private void flushLine() throws IOException {
+				String line = lineBuffer.toString();
+				basePrintStream.println(line);
+				lineConsumer.accept(line);
+				lineBuffer.setLength(0);
+			}
+		}, Charset.defaultCharset())) {
+	
+			@Override
+			public void println() {
+				super.println();
+				flush();
+			}
+	
+			@Override
+			public void println(boolean x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(char x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(int x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(long x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(float x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(double x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(char[] x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(String x) {
+				super.println(x);
+				flush();
+			}
+	
+			@Override
+			public void println(Object x) {
+				super.println(x);
+				flush();
+			}
+	
+		};
 	}
 
 }

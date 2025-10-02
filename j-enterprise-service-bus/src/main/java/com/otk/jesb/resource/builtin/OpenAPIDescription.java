@@ -375,7 +375,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 						MiscUtils.delete(mainFile);
 						MiscUtils.delete(directory);
 					} catch (Throwable t) {
-						if (JESB.DEBUG) {
+						if (JESB.isVerbose()) {
 							t.printStackTrace();
 						}
 					}

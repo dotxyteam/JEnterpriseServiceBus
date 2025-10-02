@@ -89,6 +89,7 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.ui.diagram.DragIntent;
@@ -199,7 +200,7 @@ public class GUI extends MultiSwingCustomizer {
 	private static List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
 
 	static {
-		if (JESB.DEBUG) {
+		if (JESB.isDebugModeActive()) {
 			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
 		}
 		Preferences.INSTANCE.getTheme().activate();
@@ -219,6 +220,29 @@ public class GUI extends MultiSwingCustomizer {
 				return selectSubCustomizationsSwitch(object.getClass());
 			}
 		};
+		preLoadBuiltInCustomizations();
+	}
+
+	private void preLoadBuiltInCustomizations() {
+		List<Class<?>> mainCustomizionClasses = new ArrayList<Class<?>>();
+		for (OperationMetadata<?> metadata : MiscUtils.BUILTIN_OPERATION_METADATAS) {
+			mainCustomizionClasses.add(metadata.getOperationBuilderClass());
+		}
+		for (ActivatorMetadata metadata : MiscUtils.BUILTIN_ACTIVATOR__METADATAS) {
+			mainCustomizionClasses.add(metadata.getActivatorClass());
+		}
+		for (ResourceMetadata metadata : MiscUtils.BUILTIN_RESOURCE_METADATAS) {
+			mainCustomizionClasses.add(metadata.getResourceClass());
+		}
+		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
+			mainCustomizionClasses.add(metadata.getCompositeStepClass());
+		}
+		for(Class<?> customizionClass: mainCustomizionClasses) {
+			String customizationsIdentifier = selectSubCustomizationsSwitch(customizionClass);
+			SubSwingCustomizer subCustomizer = obtainSubCustomizer(customizationsIdentifier);
+			SubCustomizedUI subCustomizedUI = subCustomizer.getCustomizedUI();
+			subCustomizedUI.getTypeInfo(subCustomizedUI.getTypeInfoSource(customizionClass));
+		}
 	}
 
 	public static WeakHashMap<Plan, DragIntent> getDiagramDragIntentByPlan() {
@@ -902,7 +926,7 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				public String getIdentifier() {
-					return "SubCustomizationsFactory [of=" + customizationsIdentifier + "]";
+					return "MethodBasedSubInfoCustomizationsFactory [of=" + customizationsIdentifier + "]";
 				}
 
 				@Override
@@ -971,8 +995,8 @@ public class GUI extends MultiSwingCustomizer {
 					public void accept(Deque<?> stack) {
 						Object peeked;
 						if ((peeked = stack.peek()) != object) {
-							if (Preferences.INSTANCE.isLogVerbose()) {
-								new UnexpectedError("The user interface may become instable because " + object
+							if (JESB.isDebugModeActive()) {
+								new UnexpectedError("The user interface may become unstable because " + object
 										+ " was abnormally hidden before " + peeked).printStackTrace();
 							}
 						}
@@ -1006,7 +1030,7 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		public ITypeInfo getTypeInfoBeforeCustomizations(ITypeInfo type) {
+		protected IInfoProxyFactory createBeforeInfoCustomizationsFactory() {
 			return new InfoProxyFactory() {
 
 				@Override
@@ -2023,7 +2047,7 @@ public class GUI extends MultiSwingCustomizer {
 							}
 						});
 						return result;
-					} else if ((objectClass != null) && Function.class.isAssignableFrom(objectClass)) {
+					} else if ((objectClass != null) && com.otk.jesb.Function.class.isAssignableFrom(objectClass)) {
 						List<IMethodInfo> result = new ArrayList<IMethodInfo>(super.getMethods(type));
 						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
@@ -2483,34 +2507,39 @@ public class GUI extends MultiSwingCustomizer {
 						objectClass = null;
 					}
 					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
+						}
+						if (JESB.isVerbose()) {
+							if (!(object instanceof Folder)) {
+								System.out.println("Validating '" + object + "'...");
+							}
 						}
 						((Asset) object).validate(false);
 					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						((Step) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						((Transition.Condition) object).validate(getCurrentPlan(session)
 								.getTransitionContextVariableDeclarations(getCurrentTransition(session)));
 					} else if ((objectClass != null) && OperationStructureBuilder.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						((OperationStructureBuilder<?>) object).validate(false, getCurrentPlan(session),
 								getCurrentStep(session));
 					} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						Step step = getCurrentStep(session);
@@ -2520,7 +2549,7 @@ public class GUI extends MultiSwingCustomizer {
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 					} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						Step step = getCurrentStep(session);
@@ -2531,23 +2560,23 @@ public class GUI extends MultiSwingCustomizer {
 						((ListItemReplicationFacade) object)
 								.validate(plan.getValidationContext(step).getVariableDeclarations());
 					} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						((Structure) object).validate(false);
 					} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						((Structure.Element) object).validate(false);
 					} else if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						Plan plan = getCurrentPlan(session);
 						((ActivatorStructure) object).validate(false, plan);
 					} else if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						HTTPServer server = null;
@@ -2564,12 +2593,12 @@ public class GUI extends MultiSwingCustomizer {
 						}
 						((HTTPServer.RequestHandler) object).validate(server);
 					} else if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						((ResourceStructure) object).validate(false);
 					} else {
-						if (JESB.DEBUG) {
+						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						super.validate(type, object, session);
@@ -2642,7 +2671,7 @@ public class GUI extends MultiSwingCustomizer {
 					return super.getListItemAbstractFormValidationJob(listType, itemPosition);
 				}
 
-			}.wrapTypeInfo(type);
+			};
 		}
 
 		@Override
@@ -2736,7 +2765,7 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		public ITypeInfo getTypeInfoAfterCustomizations(ITypeInfo type) {
+		protected IInfoProxyFactory createAfterInfoCustomizationsFactory() {
 			return new InfoProxyFactory() {
 
 				@Override
@@ -2765,7 +2794,7 @@ public class GUI extends MultiSwingCustomizer {
 					}
 					return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
 				}
-			}.wrapTypeInfo(type);
+			};
 		}
 
 		private Asset getCurrentAsset(ValidationSession session) {
@@ -2806,12 +2835,6 @@ public class GUI extends MultiSwingCustomizer {
 				return (Plan) current;
 			}
 			Plan result = (Plan) stackOfCurrentAssets.stream().filter(Plan.class::isInstance).findFirst().orElse(null);
-			if (result != null) {
-				if (Preferences.INSTANCE.isLogVerbose()) {
-					System.err.println("The user interface may become instable because " + current
-							+ " was abnormally displayed after " + result);
-				}
-			}
 			return result;
 		}
 
@@ -2822,12 +2845,6 @@ public class GUI extends MultiSwingCustomizer {
 			}
 			Step result = (Step) stackOfCurrentPlanElements.stream().filter(Step.class::isInstance).findFirst()
 					.orElse(null);
-			if (result != null) {
-				if (Preferences.INSTANCE.isLogVerbose()) {
-					System.err.println("The user interface may become instable because " + current
-							+ " was abnormally displayed after " + result);
-				}
-			}
 			return result;
 		}
 
@@ -2838,12 +2855,6 @@ public class GUI extends MultiSwingCustomizer {
 			}
 			Transition result = (Transition) stackOfCurrentPlanElements.stream().filter(Transition.class::isInstance)
 					.findFirst().orElse(null);
-			if (result != null) {
-				if (Preferences.INSTANCE.isLogVerbose()) {
-					System.err.println("The user interface may become instable because " + current
-							+ " was abnormally displayed after " + result);
-				}
-			}
 			return result;
 		}
 
@@ -2854,12 +2865,6 @@ public class GUI extends MultiSwingCustomizer {
 			}
 			RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) stackOfCurrentInstantiationFacades.stream()
 					.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
-			if (result != null) {
-				if (Preferences.INSTANCE.isLogVerbose()) {
-					System.err.println("The user interface may become instable because " + current
-							+ " was abnormally displayed after " + result);
-				}
-			}
 			return result;
 		}
 	}

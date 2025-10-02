@@ -35,6 +35,8 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
 import org.apache.commons.io.input.ReaderInputStream;
+
+import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.meta.DelegatingClassLoader;
@@ -54,14 +56,16 @@ public class InMemoryCompiler {
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
 	private Iterable<String> options = Arrays.asList("-parameters");
-	private final DelegatingClassLoader baseDelegatingClassLoader = new DelegatingClassLoader(new URLClassLoader(new URL[0]));
+	private final DelegatingClassLoader baseDelegatingClassLoader = new DelegatingClassLoader(
+			new URLClassLoader(new URL[0]));
 	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
 	{
 		compositeClassLoader.setFirstClassLoader(baseDelegatingClassLoader);
 	}
-	private final Object compilationMutex = new Object();
-	private final Object classResourcesMutex = new Object();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
+	private final Object compilationMutex = new Object();
+	private final Object classDataMutex = new Object();
+	private final Object classCacheMutex = new Object();
 
 	public byte[] getClassBinary(Class<?> clazz) {
 		if (!(clazz.getClassLoader() instanceof MemoryClassLoader)) {
@@ -70,7 +74,7 @@ public class InMemoryCompiler {
 		ClassIdentifier classIdentifier = new ClassIdentifier(
 				((MemoryClassLoader) clazz.getClassLoader()).getMainClassIdentifier().getCompilationIdentifier(),
 				clazz.getName());
-		synchronized (classResourcesMutex) {
+		synchronized (classDataMutex) {
 			return classBinaries.get(classIdentifier);
 		}
 	}
@@ -85,7 +89,7 @@ public class InMemoryCompiler {
 
 	public void setBaseClassLoader(URLClassLoader classLoader) {
 		baseDelegatingClassLoader.setDelegate(classLoader);
-		synchronized (compilationMutex) {
+		synchronized (classCacheMutex) {
 			classCache.clear();
 		}
 	}
@@ -99,7 +103,7 @@ public class InMemoryCompiler {
 	}
 
 	public Class<?> loadClassThroughCache(String className) throws ClassNotFoundException {
-		synchronized (compilationMutex) {
+		synchronized (classCacheMutex) {
 			Class<?> c = classCache.get(className);
 			if (c == null) {
 				try {
@@ -120,39 +124,39 @@ public class InMemoryCompiler {
 		synchronized (compilationMutex) {
 			UID compilationIdentifier = new UID();
 			List<JavaFileObject> files = collectSourceFiles(compilationIdentifier, sourceDirectory, null);
-			compile(compilationIdentifier, files.toArray(new JavaFileObject[files.size()]));
-			return files.stream().map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).getClassIdentifier()))
-					.collect(Collectors.toList()).stream().map(classLoader -> {
-						try {
-							return classLoader.loadClass(classLoader.getMainClassIdentifier().className);
-						} catch (ClassNotFoundException e) {
-							throw new UnexpectedError(e);
-						}
-					}).collect(Collectors.toList());
+			return compile(compilationIdentifier, files.toArray(new JavaFileObject[files.size()]));
 		}
 	}
 
 	public Class<?> compile(String className, String source) throws CompilationError {
 		synchronized (compilationMutex) {
 			ClassIdentifier classIdentifier = new ClassIdentifier(new UID(), className);
-			compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source, null));
-			try {
-				return new MemoryClassLoader(classIdentifier).loadClass(className);
-			} catch (ClassNotFoundException e) {
-				throw new UnexpectedError(e);
-			}
+			return compile(classIdentifier.getCompilationIdentifier(), sourceFile(classIdentifier, source, null))
+					.get(0);
 		}
 	}
 
-	private void compile(UID compilationIdentifier, JavaFileObject... files) throws CompilationError {
-		compile(compilationIdentifier, Arrays.asList(files));
+	private List<Class<?>> compile(UID compilationIdentifier, JavaFileObject... files) throws CompilationError {
+		return compile(compilationIdentifier, Arrays.asList(files));
 	}
 
-	private void compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
+	private List<Class<?>> compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
+		if (JESB.isVerbose()) {
+			System.out.println("Compiling " + files.stream()
+					.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
+					.collect(Collectors.toList()) + "...");
+		}
 		if (files.isEmpty())
 			throw new CompilationError(-1, -1, "No input files", null, null);
+		synchronized (classCacheMutex) {
+			classCache.entrySet().removeIf(entry -> {
+				String className = entry.getKey();
+				return files.stream()
+						.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
+						.anyMatch(newClassName -> className.startsWith(newClassName));
+			});
+		}
 		try (JavaFileManager manager = createJavaFileManager()) {
-			classCache.clear();
 			DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 			boolean success;
 			List<String> finalOptions = new ArrayList<String>();
@@ -188,6 +192,19 @@ public class InMemoryCompiler {
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
+		List<Class<?>> result = files.stream()
+				.map(f -> new MemoryClassLoader(((NamedJavaFileObject) f).getClassIdentifier()))
+				.collect(Collectors.toList()).stream().map(classLoader -> {
+					try {
+						return classLoader.loadClass(classLoader.getMainClassIdentifier().className);
+					} catch (ClassNotFoundException e) {
+						throw new UnexpectedError(e);
+					}
+				}).collect(Collectors.toList());
+		synchronized (classCacheMutex) {
+			result.stream().forEach(clazz -> classCache.put(clazz.getName(), clazz));
+		}
+		return result;
 	}
 
 	private void check(boolean success, DiagnosticCollector<?> collector) throws CompilationError {
@@ -218,7 +235,7 @@ public class InMemoryCompiler {
 					throws IOException {
 				List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 				Iterable<JavaFileObject> files;
-				synchronized (classResourcesMutex) {
+				synchronized (classDataMutex) {
 					files = packagingMap.get(pkg);
 				}
 				if (files != null)
@@ -345,7 +362,7 @@ public class InMemoryCompiler {
 	}
 
 	private void storeClass(ClassIdentifier classIdentifier, byte[] bytes) {
-		synchronized (classResourcesMutex) {
+		synchronized (classDataMutex) {
 			if (classBinaries.containsKey(classIdentifier)) {
 				throw new UnexpectedError();
 			}
@@ -358,7 +375,7 @@ public class InMemoryCompiler {
 	}
 
 	private void unstoreClass(ClassIdentifier classIdentifier) {
-		synchronized (classResourcesMutex) {
+		synchronized (classDataMutex) {
 			if (!classBinaries.containsKey(classIdentifier)) {
 				throw new UnexpectedError();
 			}
@@ -516,7 +533,7 @@ public class InMemoryCompiler {
 		@Override
 		protected Class<?> findClass(String className) throws ClassNotFoundException {
 			byte[] bytes;
-			synchronized (classResourcesMutex) {
+			synchronized (classDataMutex) {
 				bytes = classBinaries
 						.get(new ClassIdentifier(mainClassIdentifier.getCompilationIdentifier(), className));
 			}

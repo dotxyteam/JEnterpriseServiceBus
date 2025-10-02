@@ -306,17 +306,17 @@ public class Debugger extends Session {
 
 				@Override
 				public void logInformation(String message) {
-					console.log(message, Console.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA");
+					console.log(message, LogManager.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA");
 				}
 
 				@Override
 				public void logWarning(String message) {
-					console.log(message, Console.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B");
+					console.log(message, LogManager.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B");
 				}
 
 				@Override
 				public void logError(String message) {
-					console.log(message, Console.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40");
+					console.log(message, LogManager.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40");
 				}
 
 			};

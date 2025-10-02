@@ -1,0 +1,21 @@
+<com.otk.jesb.EnvironmentSettings>
+  <environmentVariableTreeElements>
+    <com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
+      <name>var</name>
+      <valueString>var value</valueString>
+    </com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
+    <com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
+      <elements>
+        <com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
+          <name>var</name>
+          <valueString>var value</valueString>
+        </com.otk.jesb.EnvironmentSettings_-EnvironmentVariable>
+        <com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
+          <elements/>
+          <name>group</name>
+        </com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
+      </elements>
+      <name>group</name>
+    </com.otk.jesb.EnvironmentSettings_-EnvironmentVariableGroup>
+  </environmentVariableTreeElements>
+</com.otk.jesb.EnvironmentSettings>
