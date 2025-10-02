@@ -388,18 +388,20 @@ public class PluginBuilder {
 		} catch (Exception e) {
 			throw new UnexpectedError(e);
 		}
-		try {
-			File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+		if (operations.size() + activators.size() + resources.size() > 0) {
 			try {
-				generateSources(temporaryDirectory);
-				MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory);
-			} finally {
-				MiscUtils.delete(temporaryDirectory);
+				File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+				try {
+					generateSources(temporaryDirectory);
+					MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory);
+				} finally {
+					MiscUtils.delete(temporaryDirectory);
+				}
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			} catch (Throwable t) {
+				throw new ValidationError(t.toString(), t);
 			}
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
-		} catch (Throwable t) {
-			throw new ValidationError(t.toString(), t);
 		}
 	}
 

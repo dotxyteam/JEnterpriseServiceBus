@@ -212,6 +212,8 @@ public class GUI extends MultiSwingCustomizer {
 
 	public static GUI INSTANCE = new GUI();
 
+	private List<SubSwingCustomizer> builtInSubCustomizers = new ArrayList<SubSwingCustomizer>();
+
 	private GUI() {
 		super(null, null);
 		this.customizationsIdentifierSelector = new Function<Object, String>() {
@@ -237,11 +239,12 @@ public class GUI extends MultiSwingCustomizer {
 		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
 			mainCustomizionClasses.add(metadata.getCompositeStepClass());
 		}
-		for(Class<?> customizionClass: mainCustomizionClasses) {
+		for (Class<?> customizionClass : mainCustomizionClasses) {
 			String customizationsIdentifier = selectSubCustomizationsSwitch(customizionClass);
 			SubSwingCustomizer subCustomizer = obtainSubCustomizer(customizationsIdentifier);
 			SubCustomizedUI subCustomizedUI = subCustomizer.getCustomizedUI();
 			subCustomizedUI.getTypeInfo(subCustomizedUI.getTypeInfoSource(customizionClass));
+			builtInSubCustomizers.add(subCustomizer);
 		}
 	}
 
@@ -2512,7 +2515,7 @@ public class GUI extends MultiSwingCustomizer {
 						}
 						if (JESB.isVerbose()) {
 							if (!(object instanceof Folder)) {
-								System.out.println("Validating '" + object + "'...");
+								System.out.println("Validating '" + ((Asset)object).getFullName() + "'...");
 							}
 						}
 						((Asset) object).validate(false);

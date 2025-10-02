@@ -6,7 +6,7 @@
       <variable>false</variable>
       <variableReferenceExpression class="null"/>
     </enabledVariant>
-    <operationSignature>java.lang.String numberToDollars(java.math.BigDecimal)</operationSignature>
+    <operationSignature>java.lang.String numberToWords(java.math.BigInteger)</operationSignature>
     <serverReference>
       <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
       <assetFilter class="null"/>
@@ -22,7 +22,7 @@
       <path>resources &gt; NumberConversion</path>
     </wsdlReference>
   </activator>
-  <name>SOAPServiceTest2</name>
+  <name>SOAPServiceTest</name>
   <note class="null"/>
   <outputBuilder>
     <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
@@ -45,7 +45,7 @@
             <com.otk.jesb.instantiation.ParameterInitializer>
               <parameterPosition>0</parameterPosition>
               <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                <functionBody>return &quot;input was &quot; + PLAN_INPUT.dNum;</functionBody>
+                <functionBody>return &quot;input was &quot; + PLAN_INPUT.ubiNum;</functionBody>
               </parameterValue>
             </com.otk.jesb.instantiation.ParameterInitializer>
           </parameterInitializers>
@@ -57,7 +57,6 @@
     <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
     <rootInstanceName>PlanOutput</rootInstanceName>
     <rootInstanceTypeName class="null"/>
-    <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
     <selectedConstructorSignature class="null"/>
     <typeName>&lt;Dynamic&gt;</typeName>
   </outputBuilder>
@@ -86,7 +85,7 @@
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
                     <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                      <functionBody>return &quot;Input=&quot; + PLAN_INPUT.dNum;</functionBody>
+                      <functionBody>return &quot;Input=&quot; + PLAN_INPUT.ubiNum;</functionBody>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
@@ -98,7 +97,6 @@
           <rootInstanceDynamicTypeNameAccessor class="null"/>
           <rootInstanceName>LogInput</rootInstanceName>
           <rootInstanceTypeName>com.otk.jesb.operation.builtin.Log</rootInstanceTypeName>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>

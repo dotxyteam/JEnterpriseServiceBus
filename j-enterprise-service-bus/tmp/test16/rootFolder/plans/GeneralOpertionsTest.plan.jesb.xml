@@ -35,14 +35,13 @@
     <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
     <rootInstanceName>PlanOutput</rootInstanceName>
     <rootInstanceTypeName class="null"/>
-    <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
     <selectedConstructorSignature class="null"/>
     <typeName>&lt;Dynamic&gt;</typeName>
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>114</diagramX>
-      <diagramY>101</diagramY>
+      <diagramX>119</diagramX>
+      <diagramY>49</diagramY>
       <name>fullFsSizeCommand</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ExecuteCommand$Builder">
         <instanceBuilder>
@@ -100,7 +99,6 @@
           <rootInstanceDynamicTypeNameAccessor class="null"/>
           <rootInstanceName>ExecuteCommandInput</rootInstanceName>
           <rootInstanceTypeName>com.otk.jesb.operation.builtin.ExecuteCommand</rootInstanceTypeName>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
@@ -109,8 +107,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>309</diagramX>
-      <diagramY>103</diagramY>
+      <diagramX>314</diagramX>
+      <diagramY>51</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -144,7 +142,6 @@
           <rootInstanceDynamicTypeNameAccessor class="null"/>
           <rootInstanceName>LogInput</rootInstanceName>
           <rootInstanceTypeName>com.otk.jesb.operation.builtin.Log</rootInstanceTypeName>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
@@ -152,15 +149,15 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>621</diagramX>
-      <diagramY>217</diagramY>
+      <diagramX>626</diagramX>
+      <diagramY>165</diagramY>
       <name>doNothing</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>607</diagramX>
-      <diagramY>100</diagramY>
+      <diagramX>612</diagramX>
+      <diagramY>48</diagramY>
       <name>sleep</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Sleep$Builder">
         <instanceBuilder>
@@ -192,7 +189,6 @@
           <rootInstanceDynamicTypeNameAccessor class="null"/>
           <rootInstanceName>SleepInput</rootInstanceName>
           <rootInstanceTypeName>com.otk.jesb.operation.builtin.Sleep</rootInstanceTypeName>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </instanceBuilder>
@@ -200,8 +196,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>134</diagramX>
-      <diagramY>219</diagramY>
+      <diagramX>139</diagramX>
+      <diagramY>167</diagramY>
       <name>executePlan</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ExecutePlan$Builder">
         <planInputBuilder>
@@ -230,7 +226,6 @@
           <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.ExecutePlan$Builder$PlanInputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
           <rootInstanceName>PlanInput</rootInstanceName>
           <rootInstanceTypeName class="null"/>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </planInputBuilder>
@@ -244,8 +239,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>365</diagramX>
-      <diagramY>219</diagramY>
+      <diagramX>370</diagramX>
+      <diagramY>167</diagramY>
       <name>fail</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
         <exceptionBuilder>
@@ -274,7 +269,6 @@
           <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
           <rootInstanceName>ExceptionInput</rootInstanceName>
           <rootInstanceTypeName class="null"/>
-          <rootInstantiationNode class="com.otk.jesb.instantiation.ParameterInitializer" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
         </exceptionBuilder>

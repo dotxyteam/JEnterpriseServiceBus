@@ -17,7 +17,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.operation.Operation;
@@ -145,8 +144,9 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					if (executionInspector.isExecutionInterrupted()) {
 						break;
 					}
-					if ((Boolean) CompiledFunction.get(loopEndCondition.getFunctionBody(),
-							loopEndConditionVariableDeclarations, boolean.class).call(context.getVariables())) {
+					if ((Boolean) loopEndCondition
+							.getCompiledVersion(null, loopEndConditionVariableDeclarations, boolean.class)
+							.call(context.getVariables())) {
 						break;
 					}
 					context.getVariables().clear();
@@ -322,7 +322,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					}
 				}
 				try {
-					CompiledFunction.get(loopEndCondition.getFunctionBody(),
+					loopEndCondition.getCompiledVersion(null,
 							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(plan), boolean.class);
 				} catch (CompilationError e) {
 					throw new ValidationError("Failed to validate the loop end condition", e);

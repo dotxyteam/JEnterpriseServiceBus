@@ -1,5 +1,6 @@
 package com.otk.jesb.instantiation;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +85,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return new FacadeOutline(getFacade()).getChildren();
 	}
 
+	
+	@Transient
 	public Object getRootInstantiationNode() {
 		List<Facade> children = getFacade().getChildren();
 		if (children.size() == 0) {
