@@ -1,4 +1,5 @@
 package com.otk.jesb.unpackaged;
+
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -31,20 +32,6 @@ public class TestInMemoryCompilerClassLoading {
 		Session session = Session.createDummySession();
 		ExecutionContext context = new ExecutionContext(session, plan);
 		ExecutionInspector executionInspector = new ExecutionInspector() {
-
-			@Override
-			public void logWarning(String message) {
-			}
-
-			@Override
-			public void logInformation(String message) {
-
-			}
-
-			@Override
-			public void logError(String message) {
-
-			}
 
 			@Override
 			public boolean isExecutionInterrupted() {

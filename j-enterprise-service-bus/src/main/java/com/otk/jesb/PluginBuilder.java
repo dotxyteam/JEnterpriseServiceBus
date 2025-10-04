@@ -69,6 +69,7 @@ import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration;
 import xy.reflect.ui.control.plugin.ICustomizableFieldControlPlugin;
 import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer.SubSwingCustomizer;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -1217,8 +1218,10 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
-					.stream().filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+			SubSwingCustomizer globalSubCustomizer = GUI.INSTANCE
+					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
+			return globalSubCustomizer.getFieldControlPlugins().stream().filter(
+					controlPlugin -> controlPlugin.handles(globalSubCustomizer.getReflectionUI(), sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
 
@@ -1539,8 +1542,10 @@ public class PluginBuilder {
 							};
 						}
 					});
-			return GUI.INSTANCE.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins()
-					.stream().filter(controlPlugin -> controlPlugin.handles(sampleControlInput))
+			SubSwingCustomizer globalSubCustomizer = GUI.INSTANCE
+					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
+			return globalSubCustomizer.getFieldControlPlugins().stream().filter(
+					controlPlugin -> controlPlugin.handles(globalSubCustomizer.getReflectionUI(), sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
 		}
 

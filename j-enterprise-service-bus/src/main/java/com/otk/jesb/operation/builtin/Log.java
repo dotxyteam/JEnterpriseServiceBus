@@ -19,7 +19,6 @@ public class Log implements Operation {
 
 	private String message;
 	private Level level = Level.INFORMATION;
-	private ExecutionInspector executionInspector;
 
 	public Log(String message) {
 		this.message = message;
@@ -37,18 +36,15 @@ public class Log implements Operation {
 		this.level = level;
 	}
 
-	private void setExecutionInspector(ExecutionInspector executionInspector) {
-		this.executionInspector = executionInspector;
-	}
 
 	@Override
 	public Object execute() throws IOException {
 		if (level == Level.INFORMATION) {
-			executionInspector.logInformation(message);
+			com.otk.jesb.Log.get().info(message);
 		} else if (level == Level.WARNING) {
-			executionInspector.logWarning(message);
+			com.otk.jesb.Log.get().warn(message);
 		} else if (level == Level.INFORMATION) {
-			executionInspector.logError(message);
+			com.otk.jesb.Log.get().err(message);
 		} else {
 			throw new UnexpectedError();
 		}
@@ -100,7 +96,6 @@ public class Log implements Operation {
 		public Log build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Log instance = (Log) instanceBuilder.build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			instance.setExecutionInspector(executionInspector);
 			return instance;
 		}
 

@@ -32,6 +32,7 @@ import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.UnexpectedError;
@@ -326,10 +327,10 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				factory.setFeatures(Arrays.asList(openApiFeature));
 			}
 			endpoint = factory.create();
-			System.out.println("Published REST service at: " + server.getLocaBaseURL() + servicePath);
+			Log.get().info("Published REST service at: " + server.getLocaBaseURL() + servicePath);
 			if (webUIEnabledVariant.getValue()) {
-				System.out.println("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
-				System.out.println("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
+				Log.get().info("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
+				Log.get().info("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
 			}
 		}
 
@@ -341,7 +342,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			endpoint.destroy();
 			endpoint = null;
 			String servicePath = getServicePathVariant().getValue();
-			System.out.println("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+			Log.get().info("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 		}
 
 		@Override

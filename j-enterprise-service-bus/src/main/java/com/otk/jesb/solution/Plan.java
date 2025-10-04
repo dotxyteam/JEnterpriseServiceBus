@@ -587,12 +587,6 @@ public class Plan extends Asset {
 
 		void afterOperation(StepCrossing stepCrossing);
 
-		void logInformation(String message);
-
-		void logError(String message);
-
-		void logWarning(String message);
-
 	}
 
 	public static class PlanificationError extends StandardError {

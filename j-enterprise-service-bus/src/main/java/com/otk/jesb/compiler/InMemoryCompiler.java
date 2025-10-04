@@ -36,7 +36,7 @@ import javax.tools.ToolProvider;
 
 import org.apache.commons.io.input.ReaderInputStream;
 
-import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.meta.DelegatingClassLoader;
@@ -44,10 +44,10 @@ import com.otk.jesb.util.MiscUtils;
 
 public class InMemoryCompiler {
 
-	private static final Class<?> CLASS_NOT_FOUND = (new Object() {
+	private static final Class<?> CACHED_CLASS_NOT_FOUND = (new Object() {
 		@Override
 		public String toString() {
-			return "CLASS_NOT_FOUND";
+			return "CACHED_CLASS_NOT_FOUND";
 		}
 	}).getClass();
 
@@ -109,11 +109,11 @@ public class InMemoryCompiler {
 				try {
 					c = compositeClassLoader.loadClass(className);
 				} catch (ClassNotFoundException e) {
-					c = CLASS_NOT_FOUND;
+					c = CACHED_CLASS_NOT_FOUND;
 				}
 				classCache.put(className, c);
 			}
-			if (c == CLASS_NOT_FOUND) {
+			if (c == CACHED_CLASS_NOT_FOUND) {
 				throw new ClassNotFoundException(className);
 			}
 			return c;
@@ -141,8 +141,8 @@ public class InMemoryCompiler {
 	}
 
 	private List<Class<?>> compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
-		if (JESB.isVerbose()) {
-			System.out.println("Compiling " + files.stream()
+		if (Log.isVerbose()) {
+			Log.get().info("Compiling " + files.stream()
 					.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
 					.collect(Collectors.toList()) + "...");
 		}

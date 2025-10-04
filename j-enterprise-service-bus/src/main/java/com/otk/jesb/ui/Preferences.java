@@ -16,6 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
+import com.otk.jesb.Log;
 import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
@@ -32,7 +33,7 @@ public class Preferences {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
 				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream);
 			} catch (IOException e) {
-				e.printStackTrace();
+				Log.get().err(e);
 				System.exit(-1);
 				throw new UnexpectedError();
 			}

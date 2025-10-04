@@ -332,7 +332,7 @@ public class EnvironmentSettings {
 		protected void importProperties(Properties properties, String propertyNamePrefix) {
 			String propertyName = ((propertyNamePrefix != null) ? (propertyNamePrefix + ".") : "") + getName();
 			if (!properties.stringPropertyNames().contains(propertyName)) {
-				System.out.println(
+				Log.get().info(
 						"Variable property not found while importing environment settings: '" + propertyName + "'");
 				return;
 			}

@@ -5,20 +5,14 @@ import java.text.DateFormat;
 import java.util.function.Supplier;
 import com.otk.jesb.util.MiscUtils;
 
-public class Console {
+public class Console extends Log {
 
 	public static final Console DEFAULT = new Console();
 
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
-	private PrintStream informationStream = interceptPrintStreamData(System.out, LogManager.INFORMATION_LEVEL_NAME, "#FFFFFF",
-			"#AAAAAA", () -> true);
-	private PrintStream warningStream = interceptPrintStreamData(System.err, LogManager.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B",
-			() -> true);
-	private PrintStream errorStream = interceptPrintStreamData(System.err, LogManager.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40",
-			() -> true);
-
+	
 	public int getSize() {
 		return size;
 	}
@@ -30,16 +24,19 @@ public class Console {
 		this.size = size;
 	}
 
-	public void info(String message) {
-		informationStream.println(message);
+	@Override
+	public PrintStream createErrorStream() {
+		return interceptPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
 	}
 
-	public void warn(String message) {
-		warningStream.println(message);
+	@Override
+	public PrintStream createWarningStream() {
+		return interceptPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true);
 	}
 
-	public void error(String message) {
-		errorStream.println(message);
+	@Override
+	public PrintStream createInformationStream() {
+		return interceptPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
 	}
 
 	protected void log(String message, String levelName, String prefixColor, String messageColor) {
@@ -70,8 +67,8 @@ public class Console {
 
 	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName, final String prefixColor,
 			final String messageColor, final Supplier<Boolean> enablementStatusSupplier) {
-		return MiscUtils.interceptPrintStreamData(basePrintStream, line -> log(line, levelName, prefixColor, messageColor),
-				enablementStatusSupplier);
+		return MiscUtils.interceptPrintStreamData(basePrintStream,
+				line -> log(line, levelName, prefixColor, messageColor), enablementStatusSupplier);
 	}
 
 }

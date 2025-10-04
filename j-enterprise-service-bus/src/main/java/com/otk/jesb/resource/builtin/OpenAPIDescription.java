@@ -26,7 +26,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
@@ -375,8 +375,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 						MiscUtils.delete(mainFile);
 						MiscUtils.delete(directory);
 					} catch (Throwable t) {
-						if (JESB.isVerbose()) {
-							t.printStackTrace();
+						if (Log.isVerbose()) {
+							Log.get().err(t);
 						}
 					}
 				}

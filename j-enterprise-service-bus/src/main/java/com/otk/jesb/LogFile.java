@@ -16,7 +16,7 @@ import org.apache.logging.log4j.core.appender.rolling.*;
 import org.apache.logging.log4j.core.config.NullConfiguration;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 
-public class LogManager {
+public class LogFile extends Log {
 
 	public static final String ERROR_LEVEL_NAME = "ERROR";
 	public static final String WARNING_LEVEL_NAME = "WARNING";
@@ -24,22 +24,17 @@ public class LogManager {
 	public static final String VERBOSE_LEVEL_NAME = "VERBOSE";
 
 	private static final int DEFAULT_LOGGING_HISTORY_DAYS = Integer
-			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultHistoryDays", "7"));
+			.valueOf(System.getProperty(LogFile.class.getName() + ".defaultHistoryDays", "7"));
 	private static final int DEFAULT_MAX_LOG_FILE_SIZE_MB = Integer
-			.valueOf(System.getProperty(LogManager.class.getName() + ".defaultMaxLogFileSizeMB", "10"));
-
-	private PrintStream informationStream = interceptPrintStreamData(System.out, LogManager.INFORMATION_LEVEL_NAME,
-			() -> true);
-	private PrintStream warningStream = interceptPrintStreamData(System.err, LogManager.WARNING_LEVEL_NAME, () -> true);
-	private PrintStream errorStream = interceptPrintStreamData(System.err, LogManager.ERROR_LEVEL_NAME, () -> true);
+			.valueOf(System.getProperty(LogFile.class.getName() + ".defaultMaxLogFileSizeMB", "10"));
 
 	private RollingFileAppender appender;
 
-	public LogManager(File file) {
+	public LogFile(File file) {
 		this(file, DEFAULT_MAX_LOG_FILE_SIZE_MB, DEFAULT_LOGGING_HISTORY_DAYS);
 	}
 
-	public LogManager(File file, int maxLogFileSizeMB, int historyDays) {
+	public LogFile(File file, int maxLogFileSizeMB, int historyDays) {
 		NullConfiguration config = new NullConfiguration();
 		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %-5level %msg%n")
 				.withConfiguration(config).build();
@@ -52,16 +47,19 @@ public class LogManager {
 		appender.start();
 	}
 
-	public void info(String message) {
-		informationStream.println(message);
+	@Override
+	protected PrintStream createErrorStream() {
+		return interceptPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, () -> true);
 	}
 
-	public void warn(String message) {
-		warningStream.println(message);
+	@Override
+	protected PrintStream createWarningStream() {
+		return interceptPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, () -> true);
 	}
 
-	public void error(String message) {
-		errorStream.println(message);
+	@Override
+	protected PrintStream createInformationStream() {
+		return interceptPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, () -> true);
 	}
 
 	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName,
@@ -72,13 +70,13 @@ public class LogManager {
 
 	protected void log(String message, String levelName) {
 		Level level;
-		if (LogManager.INFORMATION_LEVEL_NAME.equals(levelName)) {
+		if (LogFile.INFORMATION_LEVEL_NAME.equals(levelName)) {
 			level = Level.INFO;
-		} else if (LogManager.WARNING_LEVEL_NAME.equals(levelName)) {
+		} else if (LogFile.WARNING_LEVEL_NAME.equals(levelName)) {
 			level = Level.WARN;
-		} else if (LogManager.ERROR_LEVEL_NAME.equals(levelName)) {
+		} else if (LogFile.ERROR_LEVEL_NAME.equals(levelName)) {
 			level = Level.ERROR;
-		} else if (LogManager.VERBOSE_LEVEL_NAME.equals(levelName)) {
+		} else if (LogFile.VERBOSE_LEVEL_NAME.equals(levelName)) {
 			level = Level.DEBUG;
 		} else {
 			throw new UnexpectedError();

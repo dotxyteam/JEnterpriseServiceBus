@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
@@ -221,8 +221,8 @@ public class InitializationCaseFacade extends Facade {
 		try {
 			typeInfo = instanceBuilderFacade.getTypeInfo();
 		} catch (Throwable t) {
-			if (JESB.isVerbose()) {
-				t.printStackTrace();
+			if (Log.isVerbose()) {
+				Log.get().err(t);
 			}
 			return Collections.emptyList();
 		}
@@ -253,10 +253,10 @@ public class InitializationCaseFacade extends Facade {
 				if (fieldInfo.isGetOnly()) {
 					continue;
 				}
-				if (JESB.isVerbose()) {
+				if (Log.isVerbose()) {
 					if (result.stream().anyMatch(facade -> (facade instanceof ParameterInitializerFacade)
 							&& ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {
-						System.out.println("Name conflict detected between parameter '" + fieldInfo.getName()
+						Log.get().info("Name conflict detected between parameter '" + fieldInfo.getName()
 								+ "' and editable field '" + fieldInfo.getName() + "'");
 					}
 				}

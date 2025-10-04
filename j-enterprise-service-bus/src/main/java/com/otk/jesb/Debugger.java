@@ -199,12 +199,12 @@ public class Debugger extends Session {
 		}
 
 		protected void handleActivationError(Exception e) {
-			e.printStackTrace();
+			Log.get().err(e);
 			planExecutors.add(new PlanActivationFailure(plan, e));
 		}
 
 		protected void handleDeactivationError(Exception e) {
-			e.printStackTrace();
+			Log.get().err(e);
 		}
 
 		public boolean isAutomaticTriggerReady() {
@@ -303,22 +303,6 @@ public class Debugger extends Session {
 				public boolean isExecutionInterrupted() {
 					return Thread.currentThread().isInterrupted();
 				}
-
-				@Override
-				public void logInformation(String message) {
-					console.log(message, LogManager.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA");
-				}
-
-				@Override
-				public void logWarning(String message) {
-					console.log(message, LogManager.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B");
-				}
-
-				@Override
-				public void logError(String message) {
-					console.log(message, LogManager.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40");
-				}
-
 			};
 		}
 
@@ -474,7 +458,7 @@ public class Debugger extends Session {
 		}
 
 		protected void handleExecutionError(Throwable t) {
-			executionInspector.logError(MiscUtils.getPrintedStackTrace(t));
+			Log.get().err(MiscUtils.getPrintedStackTrace(t));
 			executionError = t;
 		}
 

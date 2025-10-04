@@ -7,11 +7,9 @@ import com.otk.jesb.solution.StepCrossing;
 
 public class Runner extends Debugger {
 
-	private LogManager logManager;
-
-	public Runner(Solution solution, LogManager logManager) {
+	
+	public Runner(Solution solution) {
 		super(solution);
-		this.logManager = logManager;
 	}
 
 	@Override
@@ -32,7 +30,7 @@ public class Runner extends Debugger {
 
 		@Override
 		protected void handleActivationError(Exception e) {
-			e.printStackTrace();
+			Log.get().err(e);
 		}
 
 	}
@@ -58,21 +56,6 @@ public class Runner extends Debugger {
 				@Override
 				public boolean isExecutionInterrupted() {
 					return Thread.currentThread().isInterrupted();
-				}
-
-				@Override
-				public void logInformation(String message) {
-					logManager.info(message);
-				}
-
-				@Override
-				public void logWarning(String message) {
-					logManager.warn(message);
-				}
-
-				@Override
-				public void logError(String message) {
-					logManager.error(message);
 				}
 
 			};

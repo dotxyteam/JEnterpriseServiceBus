@@ -1,11 +1,49 @@
 <com.otk.jesb.solution.Plan>
-  <activator class="com.otk.jesb.activation.builtin.LaunchAtStartup">
+  <activator class="com.otk.jesb.activation.builtin.Schedule">
     <enabledVariant>
       <constantValue class="boolean">true</constantValue>
       <valueClass>java.lang.Boolean</valueClass>
       <variable>false</variable>
       <variableReferenceExpression class="null"/>
     </enabledVariant>
+    <repeatingVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </repeatingVariant>
+    <repetitionSettings>
+      <endDateTimeVariant>
+        <constantValue class="null"/>
+        <valueClass>com.otk.jesb.meta.DateTime</valueClass>
+        <variable>false</variable>
+        <variableReferenceExpression class="null"/>
+      </endDateTimeVariant>
+      <periodLengthVariant>
+        <constantValue class="long">15</constantValue>
+        <valueClass>java.lang.Long</valueClass>
+        <variable>false</variable>
+        <variableReferenceExpression class="null"/>
+      </periodLengthVariant>
+      <periodUnitVariant>
+        <constantValue class="com.otk.jesb.activation.builtin.Schedule$RepetitionSettingsStructure$RepetitionSettingsStructurePeriodUnitStructure">SECONDS</constantValue>
+        <valueClass>com.otk.jesb.activation.builtin.Schedule$RepetitionSettingsStructure$RepetitionSettingsStructurePeriodUnitStructure</valueClass>
+        <variable>false</variable>
+        <variableReferenceExpression class="null"/>
+      </periodUnitVariant>
+    </repetitionSettings>
+    <startDateTimeVariant>
+      <constantValue class="com.otk.jesb.meta.DateTime"/>
+      <valueClass>com.otk.jesb.meta.DateTime</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </startDateTimeVariant>
+    <timeZoneIdentifierVariant>
+      <constantValue class="null"/>
+      <valueClass>java.lang.String</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </timeZoneIdentifierVariant>
   </activator>
   <name>GeneralOpertionsTest</name>
   <note class="null"/>

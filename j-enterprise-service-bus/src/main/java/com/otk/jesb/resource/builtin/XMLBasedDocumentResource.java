@@ -21,6 +21,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.Listener;
@@ -291,7 +292,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 						MiscUtils.delete(directory);
 					} catch (Throwable ignore) {
 						if (JESB.isDebugModeActive()) {
-							ignore.printStackTrace();
+							Log.get().err(ignore);
 						}
 					}
 				}

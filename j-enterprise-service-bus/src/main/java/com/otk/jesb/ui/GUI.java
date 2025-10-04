@@ -33,6 +33,7 @@ import com.otk.jesb.Debugger;
 import com.otk.jesb.Expression;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure;
@@ -911,7 +912,7 @@ public class GUI extends MultiSwingCustomizer {
 							throw new UnexpectedError(e);
 						}
 					}
-					getCustomizedTypeCache().clear();
+					getCustomizedTypeInfoCache().clear();
 				}
 				return result;
 			}
@@ -920,6 +921,11 @@ public class GUI extends MultiSwingCustomizer {
 
 		public JESBSubCustomizedUI(String switchIdentifier) {
 			super(switchIdentifier);
+		}
+
+		@Override
+		public Class<?> loadClassThroughCache(String name) throws ClassNotFoundException {
+			return MiscUtils.IN_MEMORY_COMPILER.loadClassThroughCache(name);
 		}
 
 		@Override
@@ -999,8 +1005,8 @@ public class GUI extends MultiSwingCustomizer {
 						Object peeked;
 						if ((peeked = stack.peek()) != object) {
 							if (JESB.isDebugModeActive()) {
-								new UnexpectedError("The user interface may become unstable because " + object
-										+ " was abnormally hidden before " + peeked).printStackTrace();
+								Log.get().err(new UnexpectedError("The user interface may become unstable because "
+										+ object + " was abnormally hidden before " + peeked));
 							}
 						}
 						if (!stack.remove(object)) {
@@ -1692,7 +1698,7 @@ public class GUI extends MultiSwingCustomizer {
 
 													@Override
 													public Object invoke(Object object, InvocationData invocationData) {
-														((Throwable) selection.get(0).getItem()).printStackTrace();
+														Log.get().err(((Throwable) selection.get(0).getItem()));
 														return null;
 													}
 												});
@@ -2513,10 +2519,8 @@ public class GUI extends MultiSwingCustomizer {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
-						if (JESB.isVerbose()) {
-							if (!(object instanceof Folder)) {
-								System.out.println("Validating '" + ((Asset)object).getFullName() + "'...");
-							}
+						if (!(object instanceof Folder)) {
+							Log.get().info("Validating '" + ((Asset) object).getFullName() + "'...");
 						}
 						((Asset) object).validate(false);
 					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
@@ -2650,7 +2654,14 @@ public class GUI extends MultiSwingCustomizer {
 						ItemPosition itemPosition) {
 					Object item = itemPosition.getItem();
 					if (item instanceof Asset) {
-						return (session) -> ((Asset) item).validate(!(item instanceof Folder));
+						return (session) -> {
+							if (item instanceof Folder) {
+								((Folder) item).validate(false);
+							} else {
+								Log.get().info("Validating '" + ((Asset) item).getFullName() + "'...");
+								((Asset) item).validate(true);
+							}
+						};
 					} else if (item instanceof Facade) {
 						return (session) -> {
 							Step step = getCurrentStep(session);

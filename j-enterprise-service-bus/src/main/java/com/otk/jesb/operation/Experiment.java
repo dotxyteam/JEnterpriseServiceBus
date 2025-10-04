@@ -43,18 +43,6 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 					new Plan.ExecutionInspector() {
 
 						@Override
-						public void logWarning(String message) {
-						}
-
-						@Override
-						public void logInformation(String message) {
-						}
-
-						@Override
-						public void logError(String message) {
-						}
-
-						@Override
 						public boolean isExecutionInterrupted() {
 							return false;
 						}

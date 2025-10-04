@@ -3,7 +3,6 @@ package com.otk.jesb;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 import javax.swing.SwingUtilities;
 
@@ -35,8 +34,6 @@ public class JESB {
 	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
 	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
 
-	private static Supplier<Boolean> verbositySupplier;
-
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
 		options.addOption(Option.builder().longOpt(RUNNER_SWITCH_ARGUMENT).desc("Only execute the solution").get());
@@ -63,7 +60,7 @@ public class JESB {
 							+ propertyDefinition + "': 'key=value' format expected");
 				}
 				String propertyName = propertyDefinition.substring(0, separatorPosition);
-				String propertyValue = propertyDefinition.substring(separatorPosition+1);
+				String propertyValue = propertyDefinition.substring(separatorPosition + 1);
 				System.setProperty(propertyName, propertyValue);
 			}
 		}
@@ -76,29 +73,34 @@ public class JESB {
 		} else {
 			throw newIllegalArgumentException(null, args, options);
 		}
-		LogManager runnerlogManager;
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
 			if (fileOrFolder == null) {
 				throw newIllegalArgumentException(new Exception("Missing <DIRECTORY_PATH> or <ARCHIVE_FILE_PATH>"),
 						args, options);
 			}
-			runnerlogManager = new LogManager(new File(fileOrFolder.getName() + ".log"));
-			verbositySupplier = () -> Boolean.valueOf(System
-					.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString()));
-			System.setOut(runnerlogManager.interceptPrintStreamData(System.out, LogManager.VERBOSE_LEVEL_NAME,
-					verbositySupplier));
-			System.setErr(runnerlogManager.interceptPrintStreamData(System.err, LogManager.VERBOSE_LEVEL_NAME,
-					verbositySupplier));
-			System.out.println("Starting up...");
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutting down...")));
+			LogFile runnerlogFile = new LogFile(new File(fileOrFolder.getName() + ".log"));
+			Log.set(runnerlogFile);
+			Log.setVerbosityStatusSupplier(() -> Boolean.valueOf(System
+					.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString())));
+			System.setOut(runnerlogFile.interceptPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME,
+					Log.getVerbosityStatusSupplier()));
+			System.setErr(runnerlogFile.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME,
+					Log.getVerbosityStatusSupplier()));
 		} else {
-			runnerlogManager = null;
-			verbositySupplier = () -> Preferences.INSTANCE.isLogVerbose();
-			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, LogManager.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", verbositySupplier));
-			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogManager.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", verbositySupplier));
+			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
+			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", Log.getVerbosityStatusSupplier()));
+			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
+					"#00FFFF", Log.getVerbosityStatusSupplier()));
 		}
+		Log.get().info("Starting up...");
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().info("Shutting down...")));
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				Log.get().err(e);
+			}
+		});
 		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
 				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
@@ -112,9 +114,9 @@ public class JESB {
 		} else {
 			setupSampleSolution();
 		}
-		if (runnerlogManager != null) {
+		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
 			@SuppressWarnings("resource")
-			Runner runner = new Runner(Solution.INSTANCE, runnerlogManager);
+			Runner runner = new Runner(Solution.INSTANCE);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
@@ -128,10 +130,6 @@ public class JESB {
 				}
 			});
 		}
-	}
-
-	public static boolean isVerbose() {
-		return verbositySupplier.get();
 	}
 
 	public static boolean isDebugModeActive() {

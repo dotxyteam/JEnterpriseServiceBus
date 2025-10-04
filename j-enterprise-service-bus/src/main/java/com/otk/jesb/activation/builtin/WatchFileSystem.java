@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
@@ -172,7 +173,7 @@ public class WatchFileSystem extends Activator {
 						if (t instanceof InterruptedException) {
 							break;
 						} else {
-							t.printStackTrace();
+							Log.get().err(t);
 						}
 					}
 				}
@@ -233,7 +234,9 @@ public class WatchFileSystem extends Activator {
 	private void eventOccured(Kind<?> eventKind, Path nioPath, boolean registerNewDirectory) throws IOException {
 		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
 		Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);
-		System.out.println(eventKind + ": " + resolvedNioPath);
+		if (Log.isVerbose()) {
+			Log.get().info(eventKind + ": " + resolvedNioPath);
+		}
 		PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + patternVariant.getValue());
 		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();
 		if (pathMatcher.matches(nioPath)) {

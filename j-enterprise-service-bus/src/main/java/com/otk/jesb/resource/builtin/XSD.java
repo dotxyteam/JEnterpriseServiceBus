@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.xml.sax.SAXParseException;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
@@ -48,12 +49,12 @@ public class XSD extends XMLBasedDocumentResource {
 
 				@Override
 				public void warning(SAXParseException exception) {
-					System.err.println("XJC WARNING: " + exception);
+					Log.get().err("XJC WARNING: " + exception);
 				}
 
 				@Override
 				public void info(SAXParseException exception) {
-					System.out.println("XJC INFO: " + exception);
+					Log.get().info("XJC INFO: " + exception);
 				}
 
 				@Override
