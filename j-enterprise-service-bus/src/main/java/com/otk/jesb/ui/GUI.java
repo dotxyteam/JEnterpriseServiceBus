@@ -244,7 +244,12 @@ public class GUI extends MultiSwingCustomizer {
 			String customizationsIdentifier = selectSubCustomizationsSwitch(customizionClass);
 			SubSwingCustomizer subCustomizer = obtainSubCustomizer(customizationsIdentifier);
 			SubCustomizedUI subCustomizedUI = subCustomizer.getCustomizedUI();
-			subCustomizedUI.getTypeInfo(subCustomizedUI.getTypeInfoSource(customizionClass));
+			ITypeInfo customizedType = subCustomizedUI.getTypeInfo(subCustomizedUI.getTypeInfoSource(customizionClass));
+			customizedType.getName();
+			customizedType.getFields();
+			customizedType.getMethods();
+			customizedType.getConstructors();
+			customizedType.getMenuModel();
 			builtInSubCustomizers.add(subCustomizer);
 		}
 	}
