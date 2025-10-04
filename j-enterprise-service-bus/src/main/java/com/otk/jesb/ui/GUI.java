@@ -924,8 +924,8 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		public Class<?> loadClassThroughCache(String name) throws ClassNotFoundException {
-			return MiscUtils.IN_MEMORY_COMPILER.loadClassThroughCache(name);
+		public Class<?> getReflectedClass(String name) throws ClassNotFoundException {
+			return MiscUtils.getJESBClass(name);
 		}
 
 		@Override
