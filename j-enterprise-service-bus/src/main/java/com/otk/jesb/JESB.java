@@ -3,6 +3,7 @@ package com.otk.jesb;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
@@ -28,11 +29,20 @@ import com.otk.jesb.solution.Transition;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.Preferences;
 
+/**
+ * This is the main class of the application. The {@link #main(String[])} method
+ * (run with the '--help' argument to get more details) allows to open the
+ * graphical editor or directly launch the execution of a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
 public class JESB {
 
-	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
 	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
 	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
+	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
+	private static final String HELP_OPTION_ARGUMENT = "help";
 
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
@@ -45,6 +55,10 @@ public class JESB {
 				.desc("Define system properties (Example: --" + SYSTEM_PROPERTIES_DEFINITION_ARGUMENT
 						+ " propertyName1=propertyValue1,propertyName2=propertyValue2)")
 				.get());
+		if ((args.length == 1) && args[0].equals("--" + HELP_OPTION_ARGUMENT)) {
+			System.out.println("Expected arguments:" + getCommandLineSyntax("", options));
+			return;
+		}
 		CommandLine commandLine = null;
 		try {
 			CommandLineParser CommandLineParser = new DefaultParser();
@@ -139,10 +153,22 @@ public class JESB {
 	}
 
 	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {
+		return new IllegalArgumentException("Unexpected arguments: " + Arrays.toString(args) + "\n" + "Expected:"
+				+ getCommandLineSyntax("", options), e);
+	}
+
+	private static String getCommandLineSyntax(String executableName, Options options) {
 		HelpFormatter helpFormatter = HelpFormatter.builder().get();
-		return new IllegalArgumentException("Found: " + Arrays.toString(args) + ".\n"
-				+ "Expected: [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] " + helpFormatter.toSyntaxOptions(options) + "]",
-				e);
+		String syntax = executableName + " --help | [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] "
+				+ helpFormatter.toSyntaxOptions(options) + "]";
+		String optionDescriptions = "\t* DIRECTORY_PATH: The path to a solution directory to load" + "\n"
+				+ "\tARCHIVE_FILE_PATH: The path to a solution archive file to load\n"
+				+ options.getOptions().stream()
+						.map(option -> "\t* "
+								+ ((option.getArgName() != null) ? option.getArgName() : ("--" + option.getLongOpt()))
+								+ ": " + option.getDescription())
+						.collect(Collectors.joining("\n"));
+		return syntax + "\n" + optionDescriptions;
 	}
 
 	private static void setupSampleSolution() {
