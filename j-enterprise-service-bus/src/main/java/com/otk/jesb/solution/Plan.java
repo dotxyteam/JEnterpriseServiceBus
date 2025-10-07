@@ -31,6 +31,14 @@ import com.otk.jesb.solution.Transition.IfCondition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class allows to model a set of successive actions (instances of
+ * {@link Operation}) and their trigger ({@link Activator}) in the form of
+ * directed graphs (nodes = instances of {@link Step)}).
+ * 
+ * @author olitank
+ *
+ */
 public class Plan extends Asset {
 
 	public static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";

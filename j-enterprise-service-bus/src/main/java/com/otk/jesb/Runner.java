@@ -5,9 +5,15 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 
+/**
+ * This class allows to run optimally a {@link Solution} in a production
+ * environment.
+ * 
+ * @author olitank
+ *
+ */
 public class Runner extends Debugger {
 
-	
 	public Runner(Solution solution) {
 		super(solution);
 	}

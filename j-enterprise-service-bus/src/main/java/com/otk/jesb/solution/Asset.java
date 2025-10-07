@@ -6,6 +6,13 @@ import java.nio.file.Paths;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class is the base of any element of a {@link Solution}, persisted in a
+ * separate resource of the file system (file or folder).
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Asset {
 
 	private static final char[] ILLEGAL_NAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',

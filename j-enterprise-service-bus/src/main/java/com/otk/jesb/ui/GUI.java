@@ -178,6 +178,12 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 import xy.reflect.ui.util.SystemProperties;
 import xy.reflect.ui.util.ValidationErrorRegistry;
 
+/**
+ * Main graphical user interface rendering class of the application.
+ * 
+ * @author olitank
+ *
+ */
 public class GUI extends MultiSwingCustomizer {
 
 	public static final String UI_CUSTOMIZATIONS_METHOD_NAME = "customizeUI";

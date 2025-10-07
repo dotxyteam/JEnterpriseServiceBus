@@ -3,6 +3,15 @@ package com.otk.jesb;
 import java.io.PrintStream;
 import java.util.function.Supplier;
 
+import com.otk.jesb.solution.Solution;
+
+/**
+ * This class is the basis for building the list of execution message records
+ * for a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Log {
 
 	private static Log instance = new Log() {

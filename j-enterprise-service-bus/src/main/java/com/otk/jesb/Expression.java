@@ -10,6 +10,13 @@ import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
+/**
+ * This class allows to specify a dynamic value in the form of a simple
+ * expression.
+ * 
+ * @author olitank
+ *
+ */
 public class Expression<T> {
 
 	private static final Precompiler PRECOMPILER = new Precompiler() {
@@ -125,6 +132,4 @@ public class Expression<T> {
 		return get();
 	}
 
-	
-	
 }

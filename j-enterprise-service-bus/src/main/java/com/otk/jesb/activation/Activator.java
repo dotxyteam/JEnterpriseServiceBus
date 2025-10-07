@@ -4,6 +4,12 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
 import com.otk.jesb.solution.Plan;
 
+/**
+ * This is the base of any trigger of a {@link Plan}.
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Activator implements ActivatorStructure {
 
 	public abstract Class<?> getInputClass();

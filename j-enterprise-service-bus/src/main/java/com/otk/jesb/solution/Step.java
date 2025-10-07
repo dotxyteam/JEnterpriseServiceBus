@@ -1,10 +1,18 @@
 package com.otk.jesb.solution;
 
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class allows to represent nodes that host each {@link Operation} within
+ * a {@link Plan}.
+ * 
+ * @author olitank
+ *
+ */
 public class Step extends PlanElement {
 
 	private String name = "";

@@ -3,6 +3,14 @@ package com.otk.jesb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.otk.jesb.solution.Solution;
+
+/**
+ * This class represents the execution period of a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Session implements AutoCloseable {
 
 	public static Session createDummySession() {

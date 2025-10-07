@@ -1,5 +1,5 @@
-ABOUT MAPPINGS
---------------
+MAPPINGS PHILOSOPHY
+-------------------
 Any source node can be mapped to a target node, even if the types are
 incompatible. Actually the intent of the developer may be to generate a base
 expression and modify it. 
@@ -14,11 +14,11 @@ no need to allow to specify all the possible logics in the mappings editor.
 
 DYNAMIC CLASSES UPDATE
 ----------------------
-There are some classes that need to regenerated each time some model values
+There are some classes that need to be regenerated each time some model values
 change. The model value on which such class relies may reside in the same
 containing object as the class. In that case it is easy to regenerate the
 class each time the value changes since it is in the same object. But there
-are some cases where the value is somewhere else in the model. It is then
+are some cases where the value is somewhere else in the global model. It is then
 difficult to detect the value change and update the class. It is not an
 option to systematically regenerate the class because each generated class
 has its own identity, even if it has the same source code as its predecessor.

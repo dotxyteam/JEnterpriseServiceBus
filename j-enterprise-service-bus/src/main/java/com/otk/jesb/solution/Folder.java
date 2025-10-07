@@ -5,6 +5,13 @@ import java.util.List;
 
 import com.otk.jesb.ValidationError;
 
+/**
+ * This class allows to logically and physically group (in a directory) elements
+ * of a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
 public class Folder extends Asset {
 
 	private List<Asset> contents = new ArrayList<Asset>();

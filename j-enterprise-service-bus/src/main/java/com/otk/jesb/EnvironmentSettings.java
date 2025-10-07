@@ -29,6 +29,13 @@ import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
+/**
+ * This class represents all the data of a solution, which may vary from one
+ * environment to another.
+ * 
+ * @author olitank
+ *
+ */
 public class EnvironmentSettings {
 
 	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {

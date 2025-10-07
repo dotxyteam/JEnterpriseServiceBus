@@ -12,6 +12,12 @@ import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
+/**
+ * This class allows to specify a dynamic value in source code form.
+ * 
+ * @author olitank
+ *
+ */
 public class Function {
 	private static final String PRECOMPILED_FUNCTION_BODY_KEY = Function.class.getName()
 			+ ".PRECOMPILED_FUNCTION_BODY_KEY";

@@ -9,6 +9,14 @@ import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Solution;
 
+/**
+ * This class allows to store the access path to an {@link Asset} of a given
+ * type.
+ * 
+ * @author olitank
+ *
+ * @param <T>
+ */
 public class Reference<T extends Asset> {
 
 	private static final String PATH_SEPARATOR = " > ";
@@ -24,9 +32,11 @@ public class Reference<T extends Asset> {
 		this.assetFilter = assetFilter;
 		this.newPathValidator = newPathValidator;
 	}
+
 	public Reference() {
 		this(null);
 	}
+
 	public Reference(Class<T> assetClass) {
 		this(assetClass, null, null);
 	}
@@ -34,21 +44,27 @@ public class Reference<T extends Asset> {
 	public Class<T> getAssetClass() {
 		return assetClass;
 	}
+
 	public void setAssetClass(Class<T> assetClass) {
 		this.assetClass = assetClass;
 	}
+
 	public Predicate<T> getAssetFilter() {
 		return assetFilter;
 	}
+
 	public void setAssetFilter(Predicate<T> assetFilter) {
 		this.assetFilter = assetFilter;
 	}
+
 	public Consumer<String> getNewPathValidator() {
 		return newPathValidator;
 	}
+
 	public void setNewPathValidator(Consumer<String> newPathValidator) {
 		this.newPathValidator = newPathValidator;
 	}
+
 	public String getPath() {
 		return path;
 	}

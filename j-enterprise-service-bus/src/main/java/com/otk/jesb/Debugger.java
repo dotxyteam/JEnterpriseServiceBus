@@ -24,6 +24,13 @@ import com.otk.jesb.solution.Transition;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class allows to run a {@link Solution} while collecting information to
+ * analyze and understand the progress of the {@link Session}.
+ * 
+ * @author olitank
+ *
+ */
 public class Debugger extends Session {
 
 	private Solution solution;

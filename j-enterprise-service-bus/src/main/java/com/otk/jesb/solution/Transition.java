@@ -12,6 +12,13 @@ import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class represents the arcs that connect {@link Step} instances in a
+ * {@link Plan}.
+ * 
+ * @author olitank
+ *
+ */
 public class Transition extends PlanElement {
 
 	private Step startStep;

@@ -13,6 +13,7 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.Date;
 import com.otk.jesb.meta.DateTime;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.MiscUtils;
@@ -21,6 +22,12 @@ import com.otk.jesb.util.TreeVisitor.VisitStatus;
 
 import xy.reflect.ui.util.ClassUtils;
 
+/**
+ * This class allows to model the data manipulated in a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Structure {
 
 	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,

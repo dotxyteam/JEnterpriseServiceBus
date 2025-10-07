@@ -78,6 +78,14 @@ import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
+/**
+ * This class allows to model and generate code for new
+ * {@link Operation}/{@link Activator}/{@link Resource} types that will be
+ * usable in the form of a plugin.
+ * 
+ * @author olitank
+ *
+ */
 public class PluginBuilder {
 
 	public static void main(String[] args) {

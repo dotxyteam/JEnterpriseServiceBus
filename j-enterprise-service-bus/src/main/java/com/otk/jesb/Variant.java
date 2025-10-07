@@ -15,6 +15,14 @@ import com.otk.jesb.meta.DateTime;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
 
+/**
+ * This class represents typed data that potentially varies from one environment
+ * to another. Variations are managed by the {@link EnvironmentSettings} class.
+ * 
+ * @author olitank
+ *
+ * @param <T>
+ */
 public class Variant<T> {
 
 	private Class<T> valueClass;

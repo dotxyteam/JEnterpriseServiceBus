@@ -26,8 +26,16 @@ import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.operation.builtin.Evaluate;
+import com.otk.jesb.resource.Resource;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * This class allows to represent a coherent set of more or less interdependent
+ * processing assets (instances of {@link Plan}, {@link Resource}, ...).
+ * 
+ * @author olitank
+ *
+ */
 public class Solution {
 
 	public static Solution INSTANCE = new Singleton();
