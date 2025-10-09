@@ -9,10 +9,16 @@ import com.otk.jesb.solution.Step;
  * 
  * @author olitank
  *
- * @param <T>
+ * @param <T> The specific {@link Operation} type.
  */
 public interface OperationBuilder<T extends Operation> extends OperationStructureBuilder<T> {
 
+	/**
+	 * @param currentPlan
+	 * @param currentStep
+	 * @return The class of objects returned by the related
+	 *         {@link Operation#execute()}.
+	 */
 	Class<?> getOperationResultClass(Plan currentPlan, Step currentStep);
 
 }

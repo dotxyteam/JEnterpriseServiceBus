@@ -4,16 +4,24 @@ import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Solution;
 
 /**
- * This is the base for shared configurations of a {@link Solution}.
+ * This is the base for shared configurations of {@link Solution} instances.
  * 
  * @author olitank
  *
  */
 public abstract class Resource extends Asset implements ResourceStructure {
 
+	/**
+	 * The default constructor.
+	 */
 	public Resource() {
 	}
 
+	/**
+	 * The naming constructor.
+	 * 
+	 * @param name The new instance name
+	 */
 	public Resource(String name) {
 		super(name);
 	}
