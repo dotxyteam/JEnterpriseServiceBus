@@ -24,7 +24,7 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 
 # Advantages
 
-- Visual process modeling (low code) and debugging
+- Visual process development (low code) and debugging
 - Simplified extensibility (plugins generator available) 
 
 # Requirements
