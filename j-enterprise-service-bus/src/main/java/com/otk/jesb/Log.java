@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import com.otk.jesb.solution.Solution;
 
 /**
- * This class is the basis for building the list of execution message records
+ * This class is the base for building the list of execution message records
  * for a {@link Solution}.
  * 
  * @author olitank

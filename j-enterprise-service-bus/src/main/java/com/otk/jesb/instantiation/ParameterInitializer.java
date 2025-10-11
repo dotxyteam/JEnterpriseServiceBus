@@ -1,5 +1,11 @@
 package com.otk.jesb.instantiation;
 
+/**
+ * Allows to specify an object constructor parameter value.
+ * 
+ * @author olitank
+ *
+ */
 public class ParameterInitializer {
 
 	private int parameterPosition;

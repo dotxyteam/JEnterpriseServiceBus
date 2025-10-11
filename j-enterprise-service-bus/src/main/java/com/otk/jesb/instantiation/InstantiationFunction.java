@@ -26,6 +26,12 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 
 import xy.reflect.ui.info.type.ITypeInfo;
 
+/**
+ * Allows to specify a value by using a code snippet.
+ * 
+ * @author olitank
+ *
+ */
 public class InstantiationFunction extends Function {
 
 	private Function returnTypeUtil = new Function();
@@ -76,8 +82,8 @@ public class InstantiationFunction extends Function {
 		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
-	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler,
-			List<VariableDeclaration> variableDeclarations) throws CompilationError {
+	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler, List<VariableDeclaration> variableDeclarations)
+			throws CompilationError {
 		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);
 		upToDateGuessedReturnTypeInfo.setCustomValue(compiledFunction);

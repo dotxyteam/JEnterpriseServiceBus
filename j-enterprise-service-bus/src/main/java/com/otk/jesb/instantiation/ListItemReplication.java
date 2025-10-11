@@ -2,10 +2,15 @@ package com.otk.jesb.instantiation;
 
 import com.otk.jesb.Variable;
 
+/**
+ * Allows to specify a range of item values.
+ * 
+ * @author olitank
+ *
+ */
 public class ListItemReplication {
 
-	private Object iterationListValue = new InstantiationFunction(
-			"return ?;");
+	private Object iterationListValue = new InstantiationFunction("return ?;");
 	private String iterationVariableName = "current";
 	private String iterationVariableTypeName;
 

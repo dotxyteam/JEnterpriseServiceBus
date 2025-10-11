@@ -4,8 +4,14 @@ import java.util.LinkedHashMap;
 
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * Allows to specify multiple conditional exclusive instantiation cases.
+ * 
+ * @author olitank
+ *
+ */
 public class InitializationSwitch {
-	
+
 	private LinkedHashMap<InstantiationFunction, InitializationCase> initializationCaseByCondition = new LinkedHashMap<InstantiationFunction, InitializationCase>();
 	private InitializationCase defaultInitializationCase;
 
@@ -13,7 +19,8 @@ public class InitializationSwitch {
 		return initializationCaseByCondition;
 	}
 
-	public void setInitializationCaseByCondition(LinkedHashMap<InstantiationFunction, InitializationCase> initializationCaseByCondition) {
+	public void setInitializationCaseByCondition(
+			LinkedHashMap<InstantiationFunction, InitializationCase> initializationCaseByCondition) {
 		this.initializationCaseByCondition = initializationCaseByCondition;
 	}
 
@@ -25,7 +32,6 @@ public class InitializationSwitch {
 		this.defaultInitializationCase = defaultInitializationCase;
 	}
 
-	
 	public InstantiationFunction findCondition(InitializationCase initializationCase) {
 		if (initializationCase == defaultInitializationCase) {
 			return null;

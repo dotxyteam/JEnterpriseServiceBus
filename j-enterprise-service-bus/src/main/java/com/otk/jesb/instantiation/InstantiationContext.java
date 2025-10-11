@@ -7,6 +7,13 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.instantiation.ListItemReplication.IterationVariable;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * Contains contextual information to use during the execution of
+ * {@link InstanceBuilder#build(InstantiationContext)}.
+ * 
+ * @author olitank
+ *
+ */
 public class InstantiationContext {
 
 	private List<Variable> variables = new ArrayList<Variable>();

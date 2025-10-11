@@ -20,23 +20,57 @@ import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
+/**
+ * Allows you to specify and execute the creation (instantiation) and simple
+ * configuration of any object.
+ * 
+ * Reflection is used to get the created objects class from a final type name
+ * computed with the provided {@link #typeName} or
+ * {@link #dynamicTypeNameAccessor}.
+ * 
+ * This final type name may be relative in the sense that it could contain a
+ * variable that will be resolved by using ancestor {@link InstanceBuilder}
+ * instances.
+ * 
+ * If the {@link #selectedConstructorSignature} is not provided, then 1 of the
+ * available constructors will be automatically selected.
+ * 
+ * @author olitank
+ *
+ */
 public class InstanceBuilder extends InitializationCase {
 
 	private String typeName;
 	private Accessor<String> dynamicTypeNameAccessor;
 	private String selectedConstructorSignature;
 
+	/**
+	 * The default constructor.
+	 */
 	public InstanceBuilder() {
 	}
 
+	/**
+	 * Creates an instance that will have the provided type name.
+	 * 
+	 * @param typeName The class name of created objects.
+	 */
 	public InstanceBuilder(String typeName) {
 		setTypeName(typeName);
 	}
 
+	/**
+	 * Creates an instance that will use the provided accessor to get the type name.
+	 * 
+	 * @param dynamicTypeNameAccessor The accessor of created objects class name.
+	 */
 	public InstanceBuilder(Accessor<String> dynamicTypeNameAccessor) {
 		setDynamicTypeNameAccessor(dynamicTypeNameAccessor);
 	}
 
+	/**
+	 * @return The class name of created objects.
+	 */
 	public String getTypeName() {
 		if (dynamicTypeNameAccessor != null) {
 			return "<Dynamic>";
@@ -44,6 +78,11 @@ public class InstanceBuilder extends InitializationCase {
 		return typeName;
 	}
 
+	/**
+	 * Updates the class name of created objects.
+	 * 
+	 * @param typeName The new class name of created objects.
+	 */
 	public void setTypeName(String typeName) {
 		if (dynamicTypeNameAccessor != null) {
 			if ("<Dynamic>".equals(typeName)) {
@@ -73,10 +112,19 @@ public class InstanceBuilder extends InitializationCase {
 		}
 	}
 
+	/**
+	 * @return The accessor of created objects class name.
+	 */
 	public Accessor<String> getDynamicTypeNameAccessor() {
 		return dynamicTypeNameAccessor;
 	}
 
+	/**
+	 * Updates the accessor of created objects class name.
+	 * 
+	 * @param dynamicTypeNameAccessor The new accessor of created objects class
+	 *                                name.
+	 */
 	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
 		this.dynamicTypeNameAccessor = dynamicTypeNameAccessor;
 		if (dynamicTypeNameAccessor != null) {
@@ -84,6 +132,12 @@ public class InstanceBuilder extends InitializationCase {
 		}
 	}
 
+	/**
+	 * @param ancestorStructureInstanceBuilders The ancestor {@link InstanceBuilder}
+	 *                                          instances.
+	 * @return The created objects class name with any variable resolved using the
+	 *         given ancestor {@link InstanceBuilder} instances.
+	 */
 	public String computeActualTypeName(List<InstanceBuilder> ancestorStructureInstanceBuilders) {
 		String result;
 		if (dynamicTypeNameAccessor != null) {
@@ -98,14 +152,31 @@ public class InstanceBuilder extends InitializationCase {
 		return result;
 	}
 
+	/**
+	 * @return The signature of the constructor used to build the target objects, or
+	 *         null.
+	 */
 	public String getSelectedConstructorSignature() {
 		return selectedConstructorSignature;
 	}
 
+	/**
+	 * Updates the signature of the constructor used to build the target objects.
+	 * 
+	 * @param selectedConstructorSignature The new signature or null.
+	 */
 	public void setSelectedConstructorSignature(String selectedConstructorSignature) {
 		this.selectedConstructorSignature = selectedConstructorSignature;
 	}
 
+	/**
+	 * Builds the specified instance.
+	 * 
+	 * @param context Contains contextual information to use.
+	 * @return The specified instance.
+	 * @throws Exception If the creation or configuration of the specified instance
+	 *                   fails.
+	 */
 	public Object build(InstantiationContext context) throws Exception {
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
 				context.getParentFacade());

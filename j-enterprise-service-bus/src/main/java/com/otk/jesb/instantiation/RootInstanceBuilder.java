@@ -14,6 +14,23 @@ import com.otk.jesb.util.TreeVisitor;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
+/**
+ * This class allows to specify a root value that can be obtained by using, or
+ * even combining, the different instantiation structures
+ * ({@link InstanceBuilder}, {@link InstantiationFunction},
+ * {@link InitializationSwitch}, ...).
+ * 
+ * To provide this flexibility, a dynamically generated class is internally used
+ * as a wrapper for the root value which is then named according to the provided
+ * {@link #rootInstanceName}.
+ * 
+ * The root value type name is computed with the provided
+ * {@link #rootInstanceTypeName} or
+ * {@link #rootInstanceDynamicTypeNameAccessor}.
+ * 
+ * @author olitank
+ *
+ */
 public class RootInstanceBuilder extends InstanceBuilder {
 
 	private String rootInstanceName;
@@ -85,7 +102,6 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return new FacadeOutline(getFacade()).getChildren();
 	}
 
-	
 	@Transient
 	public Object getRootInstantiationNode() {
 		List<Facade> children = getFacade().getChildren();
