@@ -12,7 +12,7 @@ It has a graphical user interface for process modeling and debugging.
 
 The dynamism/intelligence of processes is expressed through (essentially) generated Java code snippets, which eliminates the need to learn any specific syntax.
 
-Extensibility is a almost key feature allowing any user to model and mostly generate plugins complementing core features as needed.
+Extensibility is almost a key feature allowing any user to model and mostly generate plugins complementing core features as needed.
 
 
 # Use Cases
