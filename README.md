@@ -27,7 +27,7 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 - Visual process development (low code) and debugging
 - Simplified extensibility (plugins generator available) 
 
-# Requirements
+# Compatibility
 
 Tested on Windows & Linux.
 
