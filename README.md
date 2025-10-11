@@ -36,20 +36,18 @@ Tested on Windows & Linux.
 It is distributed under this
 [license](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/master/j-enterprise-service-bus/LICENSE).
 
-# Getting started
-
-*   Get the archives from the download area (see below)
-    *   Choose the one corresponding to your OS
-    *   Extract it
-*   Run the executable (with "--help" command-line argument to see available options)
-
 # Download
 
 *  [Get the source code and the binaries↓](https://github.com/dotxyteam/JEnterpriseServiceBus/releases)
 
-# Documentation
+# Getting started
 
-## Concepts
+*   Get the archives from the download area (see above)
+    *   Choose the one corresponding to your OS
+    *   Extract it
+*   Run the executable (with "--help" command-line argument to see available options)
+
+# Concepts
 
 - JESB allows to develop one **solution** at a time.
 - Each **solution** is composed of **plans** and **resources**.
