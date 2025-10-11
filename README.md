@@ -41,7 +41,7 @@ It is distributed under this
 *   Get the archives from the download area (see below)
     *   Choose the one corresponding to your OS
     *   Extract it
-*   Run the executable
+*   Run the executable (with "--help" command-line argument to see available options)
 
 # Download
 
