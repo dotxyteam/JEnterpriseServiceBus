@@ -1,5 +1,11 @@
 package com.otk.jesb.instantiation;
 
+/**
+ * Allows to specify a collection/array item value.
+ * 
+ * @author olitank
+ *
+ */
 public class ListItemInitializer {
 
 	private int index;

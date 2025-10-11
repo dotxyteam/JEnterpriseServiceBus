@@ -6,6 +6,12 @@ import java.util.stream.Collectors;
 
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
 
+/**
+ * Allows to specify an enumeration item.
+ * 
+ * @author olitank
+ *
+ */
 public class EnumerationItemSelector {
 
 	private List<String> itemNames;

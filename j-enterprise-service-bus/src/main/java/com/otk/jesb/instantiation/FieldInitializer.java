@@ -1,5 +1,11 @@
 package com.otk.jesb.instantiation;
 
+/**
+ * Allows to specify an object field value.
+ * 
+ * @author olitank
+ *
+ */
 public class FieldInitializer {
 
 	private String fieldName;

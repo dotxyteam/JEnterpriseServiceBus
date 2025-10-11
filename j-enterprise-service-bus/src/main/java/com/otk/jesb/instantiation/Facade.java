@@ -9,37 +9,113 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
 
+/**
+ * This is the base of the wrapper classes used to improve the usability of
+ * instantiation structures/nodes ({@link InstanceBuilder},
+ * {@link FieldInitializer}, {@link InitializationSwitch}, ...).
+ * 
+ * Note that these wrapper classes use reflection to provide validation,
+ * preview, etc.
+ * 
+ * @author olitank
+ *
+ */
 public abstract class Facade {
 
+	/**
+	 * @return A text summarizing the specific behavior of the underlying
+	 *         instantiation structure/node.
+	 */
 	public abstract String express();
 
+	/**
+	 * @return The parent {@link Facade}.
+	 */
 	public abstract Facade getParent();
 
+	/**
+	 * @return The list of valid child {@link Facade} instances.
+	 */
 	public abstract List<? extends Facade> getChildren();
 
+	/**
+	 * @return Whether the underlying instantiation structure/node is connected to
+	 *         the root and therefore actually active. Otherwise, the current
+	 *         {@link Facade} is just a glimpse of the possibilities.
+	 */
 	public abstract boolean isConcrete();
 
+	/**
+	 * Updates whether the underlying instantiation structure/node is connected to
+	 * the root and therefore actually active. Otherwise, the current {@link Facade}
+	 * is just a glimpse of the possibilities.
+	 * 
+	 * @param b The new status.
+	 */
 	public abstract void setConcrete(boolean b);
 
+	/**
+	 * @return The underlying instantiation structure/node.
+	 */
 	public abstract Object getUnderlying();
 
+	/**
+	 * @param function                 This current {@link Facade} function whose
+	 *                                 evaluation context will be associated with
+	 *                                 the result of this method. If null is
+	 *                                 provided then the result of this method is
+	 *                                 not calculated for a function of the current
+	 *                                 {@link Facade}, but rather for the function
+	 *                                 of a descendant {@link Facade}.
+	 * @param baseVariableDeclarations The {@link VariableDeclaration} instances of
+	 *                                 the root evaluation context.
+	 * @return The additional {@link VariableDeclaration} instances generated (in
+	 *         addition to those in the the root evaluation context) by the
+	 *         ascending branch of the current instantiation {@link Facade}. These
+	 *         will be part of the evaluation context of the provided function (if
+	 *         non-null) or a descendant {@link Facade} function.
+	 */
 	public abstract List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations);
 
+	/**
+	 * @param function                 A function of the current {@link Facade}.
+	 * @param baseVariableDeclarations The {@link VariableDeclaration} instances of
+	 *                                 the root evaluation context.
+	 * @return The return type associated with provided function.
+	 */
 	public abstract Class<?> getFunctionReturnType(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations);
 
+	/**
+	 * @param recursively          Whether the validation is recursively executed on
+	 *                             sub-objects or not.
+	 * @param variableDeclarations The {@link VariableDeclaration} instances of the
+	 *                             root evaluation context.
+	 * @throws ValidationError If the current object is considered as invalid.
+	 */
 	public abstract void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
 			throws ValidationError;
 
+	/**
+	 * @return Whether the current {@link Facade} may be validated or not.
+	 */
 	public boolean isValidable() {
 		return isConcrete();
 	}
 
+	/**
+	 * @param visitor The visitor instance.
+	 * @return The status resulting from the current visit.
+	 */
 	public TreeVisitor.VisitStatus visit(TreeVisitor<Facade> visitor) {
 		return TreeVisitor.visitTreeFrom(this, visitor, Facade::getChildren);
 	}
 
+	/**
+	 * @param facade The current {@link Facade}.
+	 * @return The list of ancestor {@link Facade} instances.
+	 */
 	public static List<Facade> getAncestors(Facade facade) {
 		List<Facade> result = new ArrayList<Facade>();
 		Facade parentFacade;
@@ -50,6 +126,10 @@ public abstract class Facade {
 		return result;
 	}
 
+	/**
+	 * @param facade The current facade.
+	 * @return The root facade.
+	 */
 	public static Facade getRoot(Facade facade) {
 		List<Facade> ancestors = getAncestors(facade);
 		if (ancestors.size() == 0) {
@@ -58,6 +138,12 @@ public abstract class Facade {
 		return ancestors.get(ancestors.size() - 1);
 	}
 
+	/**
+	 * @param node         The underlying instantiation structure/node.
+	 * @param parentFacade The parent facade.
+	 * @return The appropriate facade for the provided underlying instantiation
+	 *         structure.
+	 */
 	public static Facade get(Object node, Facade parentFacade) {
 		if (node instanceof RootInstanceBuilder) {
 			if (parentFacade != null) {
@@ -86,6 +172,11 @@ public abstract class Facade {
 		}
 	}
 
+	/**
+	 * @param facade1
+	 * @param facade2
+	 * @return whether the provided facades
+	 */
 	public static boolean same(Facade facade1, Facade facade2) {
 		if (facade1.getClass() != facade2.getClass()) {
 			return false;

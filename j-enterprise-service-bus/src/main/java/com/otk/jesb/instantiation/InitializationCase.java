@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Allows to specify a case related to a parent {@link InitializationSwitch}.
+ * 
+ * @author olitank
+ *
+ */
 public class InitializationCase {
 	private List<ParameterInitializer> parameterInitializers = new ArrayList<ParameterInitializer>();
 	private List<FieldInitializer> fieldInitializers = new ArrayList<FieldInitializer>();
