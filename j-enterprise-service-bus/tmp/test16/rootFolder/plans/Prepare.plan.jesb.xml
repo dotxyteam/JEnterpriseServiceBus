@@ -40,8 +40,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>275</diagramX>
-      <diagramY>156</diagramY>
+      <diagramX>273</diagramX>
+      <diagramY>203</diagramY>
       <name>createPetTable</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -96,8 +96,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>619</diagramX>
-      <diagramY>154</diagramY>
+      <diagramX>617</diagramX>
+      <diagramY>201</diagramY>
       <name>addPet</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -180,8 +180,8 @@ values
         </statementVariant>
       </operationBuilder>
       <parent class="com.otk.jesb.solution.LoopCompositeStep">
-        <diagramX>161</diagramX>
-        <diagramY>114</diagramY>
+        <diagramX>617</diagramX>
+        <diagramY>201</diagramY>
         <name>loopOperation</name>
         <operationBuilder class="com.otk.jesb.solution.LoopCompositeStep$LoopOperation$Builder">
           <iterationIndexVariableName>iterationIndex</iterationIndexVariableName>
@@ -195,8 +195,8 @@ values
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.LoopCompositeStep reference="../com.otk.jesb.solution.Step[2]/parent"/>
     <com.otk.jesb.solution.Step>
-      <diagramX>421</diagramX>
-      <diagramY>154</diagramY>
+      <diagramX>419</diagramX>
+      <diagramY>201</diagramY>
       <name>Pets</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Evaluate$Builder">
         <multiple>true</multiple>
@@ -398,8 +398,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>54</diagramX>
-      <diagramY>154</diagramY>
+      <diagramX>52</diagramX>
+      <diagramY>201</diagramY>
       <name>allTables</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCQuery$Builder">
         <connectionReference>
@@ -450,8 +450,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>323</diagramX>
-      <diagramY>14</diagramY>
+      <diagramX>321</diagramX>
+      <diagramY>61</diagramY>
       <name>createCustomersTable</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -501,8 +501,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>512</diagramX>
-      <diagramY>17</diagramY>
+      <diagramX>510</diagramX>
+      <diagramY>64</diagramY>
       <name>jDBCUpdate</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -554,8 +554,8 @@ values
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>164</diagramX>
-      <diagramY>275</diagramY>
+      <diagramX>162</diagramX>
+      <diagramY>322</diagramY>
       <name>doNothing</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
       <parent class="null"/>
