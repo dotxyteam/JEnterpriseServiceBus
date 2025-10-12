@@ -24,6 +24,7 @@
 			<directory>${project.build.directory}</directory>
 			<includes>
 				<include>${project.artifactId}.exe</include>
+				<include>${project.artifactId}-cmd.exe</include>
 				<include>lib/*</include>
 				<include>windows-jdk/**</include>
 			</includes>

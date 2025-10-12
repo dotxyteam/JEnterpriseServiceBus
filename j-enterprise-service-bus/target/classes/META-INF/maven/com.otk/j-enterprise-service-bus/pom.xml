@@ -219,7 +219,7 @@
 			<plugin>
 				<groupId>com.akathist.maven.plugins.launch4j</groupId>
 				<artifactId>launch4j-maven-plugin</artifactId>
-				<version>2.1.0</version>
+				<version>2.5.3</version>
 				<executions>
 					<execution>
 						<id>l4j-gui</id>
@@ -242,8 +242,32 @@
 								<maxVersion>1.17.9</maxVersion>
 								<opts>
 									<opt>-splash:splash.gif</opt>
-									<opt>-Dcom.otk.jesb.exeFile="%EXEFILE%"</opt>
-									<opt>-Dcom.otk.jesb.defaultExeFile=${project.artifactId}.exe</opt>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
+								</opts>
+							</jre>
+						</configuration>
+					</execution>
+					<execution>
+						<id>l4j-cmd</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>console</headerType>
+							<outfile>target/${project.artifactId}-cmd.exe</outfile>
+							<icon>${project.artifactId}.ico</icon>
+							<jar>target/${project.artifactId}-${project.version}.jar</jar>
+							<errTitle>${project.artifactId}</errTitle>
+							<classPath>
+								<mainClass>com.otk.jesb.JESB</mainClass>
+							</classPath>
+							<jre>
+								<path>./windows-jdk</path>
+								<minVersion>1.8.0</minVersion>
+								<maxVersion>1.17.9</maxVersion>
+								<opts>
 									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
 									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
 								</opts>
