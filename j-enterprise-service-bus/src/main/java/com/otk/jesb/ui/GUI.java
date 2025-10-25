@@ -146,6 +146,7 @@ import xy.reflect.ui.info.method.MethodInfoProxy;
 import xy.reflect.ui.info.parameter.IParameterInfo;
 import xy.reflect.ui.info.parameter.ParameterInfoProxy;
 import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.CategoriesStyle;
 import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
 import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
@@ -936,7 +937,11 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public Class<?> getReflectedClass(String name) throws ClassNotFoundException {
-			return MiscUtils.getJESBClass(name);
+			try {
+				return MiscUtils.getJESBClass(name);
+			} catch (PotentialError e) {
+				throw new ClassNotFoundException(name, e);
+			}
 		}
 
 		@Override
@@ -1052,6 +1057,11 @@ public class GUI extends MultiSwingCustomizer {
 		@Override
 		protected IInfoProxyFactory createBeforeInfoCustomizationsFactory() {
 			return new InfoProxyFactory() {
+
+				@Override
+				protected CategoriesStyle getCategoriesStyle(ITypeInfo type) {
+					return CategoriesStyle.STANDARD;
+				}
 
 				@Override
 				protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
@@ -1526,7 +1536,7 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(Preferences.class,
-										new SpecificitiesIdentifier(Solution.class.getName(), getName())));
+										new SpecificitiesIdentifier(Solution.Singleton.class.getName(), getName())));
 							}
 
 							@Override
@@ -1565,7 +1575,7 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(SidePaneValueName.class,
-										new SpecificitiesIdentifier(Solution.class.getName(), getName())));
+										new SpecificitiesIdentifier(Solution.Singleton.class.getName(), getName())));
 							}
 
 							@Override
@@ -1786,7 +1796,8 @@ public class GUI extends MultiSwingCustomizer {
 
 							@Override
 							public ITypeInfo getType() {
-								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.Source.class, null));
+								return getTypeInfo(new JavaTypeInfoSource(PlanDiagram.Source.class,
+										new SpecificitiesIdentifier(Plan.class.getName(), getName())));
 							}
 
 						});
@@ -1808,7 +1819,8 @@ public class GUI extends MultiSwingCustomizer {
 
 							@Override
 							public ITypeInfo getType() {
-								return getTypeInfo(new JavaTypeInfoSource(PlanDiagramPalette.Source.class, null));
+								return getTypeInfo(new JavaTypeInfoSource(PlanDiagramPalette.Source.class,
+										new SpecificitiesIdentifier(Plan.class.getName(), getName())));
 							}
 
 						});
@@ -1875,7 +1887,8 @@ public class GUI extends MultiSwingCustomizer {
 
 							@Override
 							public ITypeInfo getType() {
-								return getTypeInfo(new JavaTypeInfoSource(DebugPlanDiagram.Source.class, null));
+								return getTypeInfo(new JavaTypeInfoSource(DebugPlanDiagram.Source.class,
+										new SpecificitiesIdentifier(type.getName(), getName())));
 							}
 
 						});

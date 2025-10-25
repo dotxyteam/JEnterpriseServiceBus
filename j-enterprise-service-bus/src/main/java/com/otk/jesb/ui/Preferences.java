@@ -103,6 +103,7 @@ public class Preferences {
 						throw new UnexpectedError(e);
 					}
 					UIManager.put( "TableHeader.height", 0 );
+					UIManager.put( "TabbedPane.rotateTabRuns", false );
 					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() );
 				} else {
 					throw new UnexpectedError();

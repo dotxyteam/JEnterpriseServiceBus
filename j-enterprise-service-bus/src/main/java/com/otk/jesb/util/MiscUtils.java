@@ -950,7 +950,7 @@ public class MiscUtils {
 		return IN_MEMORY_COMPILER.getBaseClassLoader();
 	}
 
-	public static Class<?> getJESBClass(String typeName) {
+	public static Class<?> getJESBClass(String typeName) throws PotentialError{
 		String arrayComponentTypeName = getArrayComponentTypeName(typeName);
 		if (arrayComponentTypeName != null) {
 			return getArrayType(getJESBClass(arrayComponentTypeName));

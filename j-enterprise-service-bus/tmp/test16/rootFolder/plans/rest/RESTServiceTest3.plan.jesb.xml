@@ -66,7 +66,7 @@
                                 <parameterValue class="double">0.0</parameterValue>
                               </com.otk.jesb.instantiation.ParameterInitializer>
                             </parameterInitializers>
-                            <selectedConstructorSignature class="null"/>
+                            <selectedConstructorSignature>java.math.BigDecimal (double)</selectedConstructorSignature>
                             <typeName>java.math.BigDecimal</typeName>
                           </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
@@ -84,7 +84,7 @@
                                 <parameterValue class="double">0.0</parameterValue>
                               </com.otk.jesb.instantiation.ParameterInitializer>
                             </parameterInitializers>
-                            <selectedConstructorSignature class="null"/>
+                            <selectedConstructorSignature>java.math.BigDecimal (double)</selectedConstructorSignature>
                             <typeName>java.math.BigDecimal</typeName>
                           </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
@@ -121,7 +121,7 @@
                                 <parameterValue class="double">0.0</parameterValue>
                               </com.otk.jesb.instantiation.ParameterInitializer>
                             </parameterInitializers>
-                            <selectedConstructorSignature class="null"/>
+                            <selectedConstructorSignature>java.math.BigDecimal (double)</selectedConstructorSignature>
                             <typeName>java.math.BigDecimal</typeName>
                           </fieldValue>
                         </com.otk.jesb.instantiation.FieldInitializer>
