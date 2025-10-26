@@ -1,0 +1,24 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761473398424</startTimestamp>
+      <endTimestamp>1761473399325</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.09.58.png</windowsImageFileName>
+      <actionSummary>Send keys Ctrl+A, &quot;return evaluate;&quot; to &quot;return \&quot;\&quot;;&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:09:58 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:09:58 AM - Component found: xy.reflect.ui.control.swing.plugin.EditorPlugin$EditorControl$1[,0,0,553x544,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=javax.swing.border.EmptyBorder@2711cba5,flags=16777512,maximumSize=,minimumSize=,preferredSize=,caretColor=java.awt.Color[r=0,g=0,b=0],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=true,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=java.awt.Color[r=153,g=204,b=255],kit=de.sciss.syntaxpane.syntaxkits.JavaSyntaxKit@2abae5a7,typeHandlers=]</string>
+        <string>Oct 26, 2025 11:09:59 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>26</numberOfActions>
+        <instantiationDate>2025-10-26 10:09:58.275 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-11.09.58-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>26</numberOfActions>
+  <instantiationDate>2025-10-26 10:09:59.431 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

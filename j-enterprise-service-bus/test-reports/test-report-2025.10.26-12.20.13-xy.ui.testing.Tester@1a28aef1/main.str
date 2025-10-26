@@ -1,0 +1,27 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>CANCELLED</status>
+      <startTimestamp>1761477614073</startTimestamp>
+      <endTimestamp>1761477618227</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-12.20.17.png</windowsImageFileName>
+      <actionSummary>Check Text ~ &quot;.*INFORMATION \\[PlanExecutor \\[plan=Sample\\]\\] Hello world.*&quot; for JTextPane[0]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 12:20:14 PM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 12:20:14 PM - Component found: xy.reflect.ui.control.swing.plugin.StyledTextPlugin$StyledTextControl$1[,0,0,930x128,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=javax.swing.border.EmptyBorder@1ebad119,flags=16777504,maximumSize=,minimumSize=,preferredSize=,caretColor=javax.swing.plaf.ColorUIResource[r=51,g=51,b=51],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=false,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],kit=javax.swing.text.html.HTMLEditorKit@636ca7fe,typeHandlers={text/html=javax.swing.text.html.HTMLEditorKit@636ca7fe}]</string>
+        <string>Oct 26, 2025 12:20:15 PM - The action execution failed</string>
+        <string>Oct 26, 2025 12:20:16 PM - Component found: xy.reflect.ui.control.swing.plugin.StyledTextPlugin$StyledTextControl$1[,0,0,930x128,invalid,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=javax.swing.border.EmptyBorder@1ebad119,flags=16777504,maximumSize=,minimumSize=,preferredSize=,caretColor=javax.swing.plaf.ColorUIResource[r=51,g=51,b=51],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=false,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],kit=javax.swing.text.html.HTMLEditorKit@636ca7fe,typeHandlers={text/html=javax.swing.text.html.HTMLEditorKit@636ca7fe}]</string>
+        <string>Oct 26, 2025 12:20:17 PM - The action execution failed</string>
+        <string>Oct 26, 2025 12:20:18 PM - This action was interrupted</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>38</numberOfActions>
+        <instantiationDate>2025-10-26 11:20:13.953 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-12.20.13-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>38</numberOfActions>
+  <instantiationDate>2025-10-26 11:20:18.330 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

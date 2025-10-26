@@ -1,0 +1,24 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761473467705</startTimestamp>
+      <endTimestamp>1761473468606</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.11.08.png</windowsImageFileName>
+      <actionSummary>Verify &quot;&lt;HTML&gt;Elements - Failed to validate the step &apos;log&apos; - Failed to validate the input builder&lt;/HTML&gt;&quot; on &lt;window&gt;[0]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:11:07 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:11:07 AM - Component found: xy.reflect.ui.control.swing.builder.AbstractEditorBuilder$EditorFrame[frame0,158,1189,1050x699,layout=java.awt.BorderLayout,title=J-Enterprise Service Bus,resizable,normal,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,0,0,1050x699,layout=javax.swing.JRootPane$RootLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]</string>
+        <string>Oct 26, 2025 11:11:08 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>29</numberOfActions>
+        <instantiationDate>2025-10-26 10:11:07.579 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-11.11.07-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>29</numberOfActions>
+  <instantiationDate>2025-10-26 10:11:08.712 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

@@ -1,0 +1,37 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761472678946</startTimestamp>
+      <endTimestamp>1761472680147</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-10.57.59.png</windowsImageFileName>
+      <actionSummary>Click on &quot;&lt;HTML&gt;Open&lt;/HTML&gt;&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 10:57:58 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 10:57:59 AM - Component found: xy.reflect.ui.control.swing.ListControl$6[,5,1,26x26,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@6f6a8acc,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=file:/run/media/olitank/data/prog/git/ReflectionUI/reflection-ui/target/classes/xy/reflect/ui/resource/details.png,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=null,defaultCapable=true]</string>
+        <string>Oct 26, 2025 10:58:00 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>19</numberOfActions>
+        <instantiationDate>2025-10-26 09:57:58.866 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-10.57.58-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761472680147</startTimestamp>
+      <endTimestamp>1761472681249</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-10.58.00.png</windowsImageFileName>
+      <actionSummary>Click on &quot;&lt;HTML&gt;Function&lt;/HTML&gt;&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 10:58:00 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 10:58:00 AM - Component found: xy.reflect.ui.control.swing.plugin.OptionButtonsPlugin$OptionButtons$2[,0,0,26x26,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@6f6a8acc,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=javax.swing.ImageIcon@2fbed60b,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=,defaultCapable=true]</string>
+        <string>Oct 26, 2025 10:58:01 AM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>19</numberOfActions>
+  <instantiationDate>2025-10-26 09:58:01.352 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

@@ -1,0 +1,55 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761472149547</startTimestamp>
+      <endTimestamp>1761472151864</endTimestamp>
+      <actionSummary>Run class &lt;com.otk.jesb.JESB&gt;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 10:49:09 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 10:49:09 AM - This action did not search for any component</string>
+        <string>Oct 26, 2025 10:49:11 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>11</numberOfActions>
+        <instantiationDate>2025-10-26 09:49:09.382 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-10.49.09-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761472151864</startTimestamp>
+      <endTimestamp>1761472155275</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-10.49.14.png</windowsImageFileName>
+      <actionSummary>Click on PlanDiagram[0]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 10:49:11 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 10:49:14 AM - Component found: com.otk.jesb.ui.PlanDiagram[fieldControl [field=diagram, parent=form [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]], fieldName=diagramBox]]],0,0,529x224,layout=java.awt.FlowLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777217,maximumSize=,minimumSize=,preferredSize=]</string>
+        <string>Oct 26, 2025 10:49:15 AM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>CANCELLED</status>
+      <startTimestamp>1761472155275</startTimestamp>
+      <endTimestamp>1761472164439</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-10.49.24.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Add Operation&quot; / &quot;General&quot; / &quot;Evaluate&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 10:49:15 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 10:49:16 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:17 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:19 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:20 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:21 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:23 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:24 AM - The action execution failed</string>
+        <string>Oct 26, 2025 10:49:24 AM - This action was interrupted</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>11</numberOfActions>
+  <instantiationDate>2025-10-26 09:49:24.545 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

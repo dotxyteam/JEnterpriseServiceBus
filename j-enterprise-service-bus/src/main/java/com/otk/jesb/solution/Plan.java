@@ -131,22 +131,30 @@ public class Plan extends Asset {
 
 	public List<PlanElement> getFocusedElementSurroundings() {
 		List<PlanElement> result = new ArrayList<PlanElement>();
-		PlanElement focusedElement = getFocusedElement();
-		if (focusedElement != null) {
-			if (focusedElement instanceof Step) {
-				Step step = (Step) focusedElement;
-				result.addAll(transitions.stream().filter(transition -> transition.getEndStep() == step)
-						.collect(Collectors.toList()));
-				result.add(step);
-				result.addAll(transitions.stream().filter(transition -> transition.getStartStep() == step)
-						.collect(Collectors.toList()));
-			} else if (focusedElement instanceof Transition) {
-				Transition transition = (Transition) focusedElement;
-				result.add(transition.getStartStep());
-				result.add(transition);
-				result.add(transition.getEndStep());
-			} else {
-				throw new UnexpectedError();
+		if (getSelectedElements().size() == 0) {
+			result.addAll(steps);
+			result.addAll(transitions);
+		} else {
+			PlanElement focusedElement = getFocusedElement();
+			if (focusedElement != null) {
+				if (focusedElement instanceof Step) {
+					Step step = (Step) focusedElement;
+					result.addAll(transitions.stream().filter(transition -> transition.getEndStep() == step)
+							.collect(Collectors.toList()));
+					result.add(step);
+					result.addAll(transitions.stream().filter(transition -> transition.getStartStep() == step)
+							.collect(Collectors.toList()));
+				} else if (focusedElement instanceof Transition) {
+					Transition transition = (Transition) focusedElement;
+					result.add(transition.getStartStep());
+					result.addAll(transitions.stream()
+							.filter(anyTransition -> (anyTransition.getStartStep() == transition.getStartStep())
+									&& (anyTransition.getEndStep() == transition.getEndStep()))
+							.collect(Collectors.toList()));
+					result.add(transition.getEndStep());
+				} else {
+					throw new UnexpectedError();
+				}
 			}
 		}
 		return result;
@@ -588,6 +596,22 @@ public class Plan extends Asset {
 	}
 
 	public interface ExecutionInspector {
+		
+		public static final ExecutionInspector DEFAULT = new Plan.ExecutionInspector() {
+
+			@Override
+			public boolean isExecutionInterrupted() {
+				return false;
+			}
+
+			@Override
+			public void beforeOperation(StepCrossing stepCrossing) {
+			}
+
+			@Override
+			public void afterOperation(StepCrossing stepCrossing) {
+			}
+		};
 
 		void beforeOperation(StepCrossing stepCrossing);
 

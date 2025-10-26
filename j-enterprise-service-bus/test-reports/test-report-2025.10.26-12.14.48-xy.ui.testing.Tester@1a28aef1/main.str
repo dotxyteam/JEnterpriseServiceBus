@@ -1,0 +1,34 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761477288954</startTimestamp>
+      <endTimestamp>1761477291368</endTimestamp>
+      <actionSummary>Run class &lt;com.otk.jesb.JESB&gt;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 12:14:48 PM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 12:14:49 PM - This action did not search for any component</string>
+        <string>Oct 26, 2025 12:14:51 PM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>37</numberOfActions>
+        <instantiationDate>2025-10-26 11:14:48.686 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-12.14.48-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>CANCELLED</status>
+      <startTimestamp>1761477291368</startTimestamp>
+      <endTimestamp>1761477295102</endTimestamp>
+      <actionSummary>Wait 3 seconds</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 12:14:51 PM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 12:14:55 PM - This action was interrupted</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>37</numberOfActions>
+  <instantiationDate>2025-10-26 11:14:55.212 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

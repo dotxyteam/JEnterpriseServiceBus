@@ -97,6 +97,35 @@
             <itemName>DEACTIVATED_PLANS</itemName>
         </itemCustomization>
     </enumerationCustomization>
+    <enumerationCustomization>
+        <uniqueIdentifier>-62b95a09:19a1fe3c2dc:5d7</uniqueIdentifier>
+        <dynamicEnumerationForced>false</dynamicEnumerationForced>
+        <enumerationTypeName>com.otk.jesb.instantiation.ValueMode</enumerationTypeName>
+        <itemCustomization>
+            <uniqueIdentifier>-62b95a09:19a1fe3c2dc:5df</uniqueIdentifier>
+            <specificProperties/>
+            <customCaption></customCaption>
+            <hidden>false</hidden>
+            <iconImagePath>
+                <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/function.png</specification>
+            </iconImagePath>
+            <itemName>FUNCTION</itemName>
+            <onlineHelp>Function</onlineHelp>
+        </itemCustomization>
+        <itemCustomization>
+            <uniqueIdentifier>-62b95a09:19a1fe3c2dc:5de</uniqueIdentifier>
+            <specificProperties/>
+            <customCaption></customCaption>
+            <hidden>false</hidden>
+            <iconImagePath>
+                <specification>&lt;class-path-resource&gt; com/otk/jesb/ui/plain.png</specification>
+            </iconImagePath>
+            <itemName>PLAIN</itemName>
+            <onlineHelp>Plain</onlineHelp>
+        </itemCustomization>
+        <itemsCustomOrderEntry>FUNCTION</itemsCustomOrderEntry>
+        <itemsCustomOrderEntry>PLAIN</itemsCustomOrderEntry>
+    </enumerationCustomization>
     <typeCustomization>
         <uniqueIdentifier>27bee7ae:1937ebdba86:4700</uniqueIdentifier>
         <specificProperties/>
@@ -5469,7 +5498,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-492c</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f8</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -6396,7 +6425,7 @@
                     <specificProperties>
                         <entry>
                             <key>xy.reflect.ui.control.swing.plugin.SplitFormPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAEl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRTcGxpdEZvcm1Db25maWd1cmF0aW9uAAAAAAAAAAECAAVEABZkZWZhdWx0RGl2aWRlckxvY2F0aW9uSQASZmlyc3RMb3RGaWVsZENvdW50TAAGaGVpZ2h0dABSTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uO0wAC29yaWVudGF0aW9udABATHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJE9yaWVudGF0aW9uO0wABXdpZHRocQB+AAF4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwP+gAAAAAAAAAAAABc3IAUHh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uAAAAAAAAAAECAAJJAAV2YWx1ZUwABHVuaXR0AERMeHkvcmVmbGVjdC91aS9jb250cm9sL3N3aW5nL3BsdWdpbi9TcGxpdEZvcm1QbHVnaW4kQ29udHJvbFNpemVVbml0O3hwAAABwn5yAEJ4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRDb250cm9sU2l6ZVVuaXQAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZQSVhFTFN+cgA+eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5TcGxpdEZvcm1QbHVnaW4kT3JpZW50YXRpb24AAAAAAAAAABIAAHhxAH4ACXQADlZFUlRJQ0FMX1NQTElUcA==</value>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAEl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRTcGxpdEZvcm1Db25maWd1cmF0aW9uAAAAAAAAAAECAAVEABZkZWZhdWx0RGl2aWRlckxvY2F0aW9uSQASZmlyc3RMb3RGaWVsZENvdW50TAAGaGVpZ2h0dABSTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uO0wAC29yaWVudGF0aW9udABATHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJE9yaWVudGF0aW9uO0wABXdpZHRocQB+AAF4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwP+ij1wo9cKQAAAABc3IAUHh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uAAAAAAAAAAECAAJJAAV2YWx1ZUwABHVuaXR0AERMeHkvcmVmbGVjdC91aS9jb250cm9sL3N3aW5nL3BsdWdpbi9TcGxpdEZvcm1QbHVnaW4kQ29udHJvbFNpemVVbml0O3hwAAABwn5yAEJ4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRDb250cm9sU2l6ZVVuaXQAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZQSVhFTFN+cgA+eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5TcGxpdEZvcm1QbHVnaW4kT3JpZW50YXRpb24AAAAAAAAAABIAAHhxAH4ACXQADlZFUlRJQ0FMX1NQTElUcA==</value>
                         </entry>
                         <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
@@ -8999,7 +9028,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:7583</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-492b</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f7</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -9061,7 +9090,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:77a7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-492a</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f6</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -9123,7 +9152,7 @@
             <uniqueIdentifier>60364107:1999163bebe:-3d1d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4929</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f5</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -9185,7 +9214,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5a91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4928</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f4</uniqueIdentifier>
                 <caption>Handler Finalization Statements</caption>
                 <name>handlerFinalizationStatements</name>
             </category>
@@ -9247,7 +9276,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5822</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4927</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f3</uniqueIdentifier>
                 <caption>Handler Initialization Statements</caption>
                 <name>handlerInitializationStatements</name>
             </category>
@@ -9309,7 +9338,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5cb6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4926</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23f2</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -10386,6 +10415,7 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7098</uniqueIdentifier>
@@ -11479,7 +11509,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-4925</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23f1</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -13131,7 +13161,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-4924</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23f0</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -14651,7 +14681,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-4923</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23ef</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -17312,7 +17342,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-4922</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23ee</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -18512,7 +18542,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:5106</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4921</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23ed</uniqueIdentifier>
                 <caption>Activators</caption>
                 <name>activators</name>
             </category>
@@ -18676,7 +18706,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:51a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4920</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23ec</uniqueIdentifier>
                 <caption>Operations</caption>
                 <name>operations</name>
             </category>
@@ -18825,7 +18855,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:5204</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-491f</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23eb</uniqueIdentifier>
                 <caption>Resources</caption>
                 <name>resources</name>
             </category>
@@ -20716,6 +20746,11 @@
                         <itemMoveEnabled>true</itemMoveEnabled>
                     </editOptions>
                     <fieldColumnsAdded>true</fieldColumnsAdded>
+                    <height>
+                        <uniqueIdentifier>-6feaa2ab:19a1d66db43:788f</uniqueIdentifier>
+                        <unit>PIXELS</unit>
+                        <value>150</value>
+                    </height>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
@@ -21540,7 +21575,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-491e</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23ea</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -25560,7 +25595,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-491d</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e9</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -25623,7 +25658,7 @@
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-491c</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e8</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -25685,7 +25720,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-491b</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e7</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -28664,7 +28699,7 @@
             <uniqueIdentifier>60364107:19991607df3:761f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-491a</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e6</uniqueIdentifier>
                 <caption>Additional Builder Validation Statements</caption>
                 <name>additionalBuilderValidationStatements</name>
             </category>
@@ -28726,7 +28761,7 @@
             <uniqueIdentifier>-25d11e7e:1998b1b6193:770c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4919</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e5</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -28788,7 +28823,7 @@
             <uniqueIdentifier>-25d11e7e:1998b1b6193:796c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4918</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e4</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -28850,7 +28885,7 @@
             <uniqueIdentifier>-483a07cc:1998aac383e:-eca</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4917</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e3</uniqueIdentifier>
                 <caption>Execution Method Body</caption>
                 <name>executionMethodBody</name>
             </category>
@@ -28912,7 +28947,7 @@
             <uniqueIdentifier>-483a07cc:1998aac383e:-c9b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4916</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e2</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -30133,7 +30168,7 @@
             <uniqueIdentifier>-483a07cc:1998aac383e:1b21</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4915</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e1</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -30251,7 +30286,7 @@
             <uniqueIdentifier>2e919049:1998f9824b5:4f0f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4914</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23e0</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -30285,7 +30320,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-5d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4913</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23df</uniqueIdentifier>
                 <caption>Properties</caption>
                 <name>properties</name>
             </category>
@@ -30439,7 +30474,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-66</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4912</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23de</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -31794,7 +31829,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4911</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23dd</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -31856,7 +31891,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4910</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23dc</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -31891,7 +31926,7 @@
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490f</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23db</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -32275,7 +32310,7 @@
             <uniqueIdentifier>1de56e9d:19906e52549:-54b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490e</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23da</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -32312,7 +32347,7 @@
             <uniqueIdentifier>1de56e9d:19906e52549:-495</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490d</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d9</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -32348,7 +32383,7 @@
             <uniqueIdentifier>2e919049:199903bf2b3:189d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490c</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d8</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -32567,7 +32602,7 @@
             <uniqueIdentifier>-18464e28:1959c217a77:-5313</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490b</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d7</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -32601,7 +32636,7 @@
                     <specificProperties>
                         <entry>
                             <key>xy.reflect.ui.control.swing.plugin.SplitFormPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAEl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRTcGxpdEZvcm1Db25maWd1cmF0aW9uAAAAAAAAAAECAAVEABZkZWZhdWx0RGl2aWRlckxvY2F0aW9uSQASZmlyc3RMb3RGaWVsZENvdW50TAAGaGVpZ2h0dABSTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uO0wAC29yaWVudGF0aW9udABATHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJE9yaWVudGF0aW9uO0wABXdpZHRocQB+AAF4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwP+TMzMzMzM0AAAABc3IAUHh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uAAAAAAAAAAECAAJJAAV2YWx1ZUwABHVuaXR0AERMeHkvcmVmbGVjdC91aS9jb250cm9sL3N3aW5nL3BsdWdpbi9TcGxpdEZvcm1QbHVnaW4kQ29udHJvbFNpemVVbml0O3hwAAAAyH5yAEJ4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRDb250cm9sU2l6ZVVuaXQAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZQSVhFTFN+cgA+eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5TcGxpdEZvcm1QbHVnaW4kT3JpZW50YXRpb24AAAAAAAAAABIAAHhxAH4ACXQAEEhPUklaT05UQUxfU1BMSVRzcQB+AAUAAAJYcQB+AAo=</value>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAEl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRTcGxpdEZvcm1Db25maWd1cmF0aW9uAAAAAAAAAAECAAVEABZkZWZhdWx0RGl2aWRlckxvY2F0aW9uSQASZmlyc3RMb3RGaWVsZENvdW50TAAGaGVpZ2h0dABSTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uO0wAC29yaWVudGF0aW9udABATHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vU3BsaXRGb3JtUGx1Z2luJE9yaWVudGF0aW9uO0wABXdpZHRocQB+AAF4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwP+AAAAAAAAAAAAABc3IAUHh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uU3BsaXRGb3JtUGx1Z2luJENvbnRyb2xEaW1lbnNpb25TcGVjaWZpY2F0aW9uAAAAAAAAAAECAAJJAAV2YWx1ZUwABHVuaXR0AERMeHkvcmVmbGVjdC91aS9jb250cm9sL3N3aW5nL3BsdWdpbi9TcGxpdEZvcm1QbHVnaW4kQ29udHJvbFNpemVVbml0O3hwAAAA+n5yAEJ4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLlNwbGl0Rm9ybVBsdWdpbiRDb250cm9sU2l6ZVVuaXQAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZQSVhFTFN+cgA+eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5TcGxpdEZvcm1QbHVnaW4kT3JpZW50YXRpb24AAAAAAAAAABIAAHhxAH4ACXQAEEhPUklaT05UQUxfU1BMSVRzcQB+AAUAAAJYcQB+AAo=</value>
                         </entry>
                         <entry>
                             <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
@@ -32629,7 +32664,7 @@
             <uniqueIdentifier>-7e3c01d6:19680a0ac94:-4647</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-490a</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d6</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32665,7 +32700,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-27a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4909</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d5</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32699,7 +32734,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:7e7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4908</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d4</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32786,7 +32821,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:32c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4907</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d3</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32821,7 +32856,7 @@
             <uniqueIdentifier>352a0435:1990bae02c1:339</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4906</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d2</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32856,7 +32891,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63b8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4905</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d1</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32894,7 +32929,7 @@
             <uniqueIdentifier>35b74ac5:1986218f832:-2e33</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4904</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23d0</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -32929,7 +32964,7 @@
             <uniqueIdentifier>-56dd94c9:1968bf985ca:-4038</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4903</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23cf</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -33082,7 +33117,7 @@
             <uniqueIdentifier>-29ddb02e:198233ec638:63bb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4902</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23ce</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33216,7 +33251,7 @@
             <uniqueIdentifier>-332f65a0:1947f7efd62:-757a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4901</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23cd</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -34598,7 +34633,7 @@
             <uniqueIdentifier>-55559b63:1998b374367:-5e87</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-4900</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23cc</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -34660,7 +34695,7 @@
             <uniqueIdentifier>-55559b63:1998b374367:-5c62</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48ff</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23cb</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -34722,7 +34757,7 @@
             <uniqueIdentifier>60364107:1999163bebe:-14d9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48fe</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23ca</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -34784,7 +34819,7 @@
             <uniqueIdentifier>-483a07cc:1998aac383e:1b26</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48fd</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c9</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -36059,7 +36094,7 @@
             <uniqueIdentifier>-53aac6:1980480734d:-65e3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48fc</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c8</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -40291,7 +40326,7 @@
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>590f75a6:19a1c4492b3:-48fb</uniqueIdentifier>
+                        <uniqueIdentifier>-9fae57:19a210f1848:-23c7</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -42848,7 +42883,7 @@
                     </openMenuItem>
                     <saveMenuItem>
                         <uniqueIdentifier>-302a3051:1942311765d:-68b4</uniqueIdentifier>
-                        <name>Save</name>
+                        <name>Save Solution Directory</name>
                         <keyboardShortcut>
                             <keyName>S</keyName>
                             <altDown>false</altDown>
@@ -46963,7 +46998,7 @@
             <uniqueIdentifier>-483a07cc:1998aac383e:-ecf</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48fa</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c6</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -47000,7 +47035,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-20f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f9</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c5</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -47143,7 +47178,7 @@
             <uniqueIdentifier>2e919049:1998f9824b5:4e35</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f8</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c4</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -47260,7 +47295,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-1fc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f7</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c3</uniqueIdentifier>
                 <caption>Parameters</caption>
                 <name>parameters</name>
             </category>
@@ -47331,7 +47366,7 @@
             <uniqueIdentifier>5053b6c7:19900d6d525:-219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f6</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c2</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>result</name>
             </category>
@@ -47368,7 +47403,7 @@
             <uniqueIdentifier>-545958f1:199878e0fe5:4cd1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f5</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c1</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50079,7 +50114,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-b4</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f4</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23c0</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50252,7 +50287,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-83</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f3</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23bf</uniqueIdentifier>
                 <caption>Attributes</caption>
                 <name>attributes</name>
             </category>
@@ -50323,7 +50358,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:581a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f2</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23be</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50360,7 +50395,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-96</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f1</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23bd</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50422,7 +50457,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48f0</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23bc</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50540,7 +50575,7 @@
             <uniqueIdentifier>2e919049:1998f9824b5:4ebe</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48ef</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23bb</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -50574,7 +50609,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-af</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48ee</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23ba</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -50610,7 +50645,7 @@
             <uniqueIdentifier>27ff0412:1990199b89a:33e5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48ed</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23b9</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -50672,7 +50707,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48ec</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23b8</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -50708,7 +50743,7 @@
             <uniqueIdentifier>27ff0412:19901928c0d:-8c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>590f75a6:19a1c4492b3:-48eb</uniqueIdentifier>
+                <uniqueIdentifier>-9fae57:19a210f1848:-23b7</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -54298,12 +54333,67 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <customTypeCaption>Debug</customTypeCaption>
+        <fieldsCustomization>
+            <uniqueIdentifier>-29ea3ca1:19a1d702fcd:7c20</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
+            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName></fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-29ea3ca1:19a1d702fcd:7c22</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-29ea3ca1:19a1d702fcd:7c21</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>590f75a6:19a1c4199c7:4c53</uniqueIdentifier>
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.Debugger createDebugger(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Solution$Singleton], fieldName=sideToolBar]], fieldName=methodsGroup]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.Debugger]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-62b95a09:19a1fe3c2dc:3d1</uniqueIdentifier>
+        <specificProperties>
+            <entry>
+                <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.OptionButtonsPlugin</value>
+            </entry>
+            <entry>
+                <key>xy.reflect.ui.control.swing.plugin.OptionButtonsPlugin</key>
+                <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFF4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk9wdGlvbkJ1dHRvbnNQbHVnaW4kT3B0aW9uQnV0dG9uc0NvbmZpZ3VyYXRpb24AAAAAAAAAAQIAA0kAB3NwYWNpbmdMAApidXR0b25UeXBldABJTHh5L3JlZmxlY3QvdWkvY29udHJvbC9zd2luZy9wbHVnaW4vT3B0aW9uQnV0dG9uc1BsdWdpbiRPcHRpb25CdXR0b25UeXBlO0wABmxheW91dHQATEx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL09wdGlvbkJ1dHRvbnNQbHVnaW4kT3B0aW9uQnV0dG9uc0xheW91dDt4cgBfeHkucmVmbGVjdC51aS5jb250cm9sLnBsdWdpbi5BYnN0cmFjdFNpbXBsZUN1c3RvbWl6YWJsZUZpZWxkQ29udHJvbFBsdWdpbiRBYnN0cmFjdENvbmZpZ3VyYXRpb24AAAAAAAAAAQIAAHhwAAAAAH5yAEd4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk9wdGlvbkJ1dHRvbnNQbHVnaW4kT3B0aW9uQnV0dG9uVHlwZQAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlRPR0dMRX5yAEp4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk9wdGlvbkJ1dHRvbnNQbHVnaW4kT3B0aW9uQnV0dG9uc0xheW91dAAAAAAAAAAAEgAAeHEAfgAGdAAPSE9SSVpPTlRBTF9GTE9X</value>
+            </entry>
+        </specificProperties>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-62b95a09:19a1fe3c2dc:3d2</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>com.otk.jesb.instantiation.ValueMode</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

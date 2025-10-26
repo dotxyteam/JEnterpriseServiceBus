@@ -188,6 +188,8 @@ import xy.reflect.ui.util.ValidationErrorRegistry;
 public class GUI extends MultiSwingCustomizer {
 
 	public static final String UI_CUSTOMIZATIONS_METHOD_NAME = "customizeUI";
+	public static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY_PROPERTY_KEY = GUI.class.getPackage().getName()
+			+ ".alternateUICustomizationsFileDirectory";
 
 	private static final String CURRENT_ASSET_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_ASSET_KEY";
 	private static final String CURRENT_PLAN_ELEMENT_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_PLAN_ELEMENT_KEY";
@@ -214,9 +216,7 @@ public class GUI extends MultiSwingCustomizer {
 		Preferences.INSTANCE.getTheme().activate();
 	}
 
-	private static final String GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY = System
-			.getProperty(GUI.class.getPackage().getName() + ".alternateUICustomizationsFileDirectory");
-	private static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
+	public static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
 
 	public static GUI INSTANCE = new GUI();
 
@@ -324,23 +324,30 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	@Override
-	protected String getSubInfoCustomizationsOutputFilePath(String customizationsIdentifier) {
-		return null;
+	public String getInfoCustomizationsOutputFilePath(String customizationsIdentifier) {
+		String customizationsDirectoryPath = System.getProperty(GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY_PROPERTY_KEY);
+		if (customizationsDirectoryPath != null) {
+			return customizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
+		} else {
+			return null;
+		}
+	}
+
+	protected String getInfoCustomizationsResourceName(String customizationsIdentifier) {
+		return ((customizationsIdentifier != GLOBAL_EXCLUSIVE_CUSTOMIZATIONS) ? (customizationsIdentifier + "-") : "")
+				+ GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
 	}
 
 	@Override
-	protected SubSwingCustomizer createSubCustomizer(String switchIdentifier) {
-		SubSwingCustomizer result = new JESBSubSwingCustomizer(switchIdentifier);
-		String customizationsResourceName = ((switchIdentifier != GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
-				? (switchIdentifier + "-")
-				: "") + GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME;
-		if (GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY != null) {
-			result.setInfoCustomizationsOutputFilePath(
-					GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY + "/" + customizationsResourceName);
+	protected SubSwingCustomizer createSubCustomizer(String customizationsIdentifier) {
+		SubSwingCustomizer result = new JESBSubSwingCustomizer(customizationsIdentifier);
+		String customizationsFilePath = getInfoCustomizationsOutputFilePath(customizationsIdentifier);
+		if (customizationsFilePath != null) {
+			result.setInfoCustomizationsOutputFilePath(customizationsFilePath);
 		} else {
 			try {
 				InputStream stream = result.getClassPathResourceLoader()
-						.getResourceAsStream(customizationsResourceName);
+						.getResourceAsStream(getInfoCustomizationsResourceName(customizationsIdentifier));
 				if (stream != null) {
 					result.getInfoCustomizations().loadFromStream(stream, null);
 				}
@@ -1200,11 +1207,11 @@ public class GUI extends MultiSwingCustomizer {
 				}
 
 				@Override
-				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo type,
+				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo listType,
 						List<? extends ItemPosition> selection,
 						Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
 					List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
-							super.getDynamicActions(type, selection, listModificationFactoryAccessor));
+							super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
 					if (selection.size() > 0) {
 						final ItemPosition firstItemPosition = selection.get(0);
 						if (selection.stream().allMatch(
@@ -1447,6 +1454,96 @@ public class GUI extends MultiSwingCustomizer {
 							}
 						}
 					}
+					if ((listType.getItemType() != null)
+							&& listType.getItemType().getName().equals(PlanElement.class.getName())) {
+						final ItemPosition singleSelection = (selection.size() == 1) ? selection.get(0) : null;
+						final Plan plan = getCurrentPlan(null);
+						if ((singleSelection != null) && singleSelection.getItem() instanceof Step) {
+							final Step currentStep = (Step) singleSelection.getItem();
+							result.add(new AbstractDynamicListAction() {
+
+								Transition newTransition;
+
+								@Override
+								public String getName() {
+									return "connectTo";
+								}
+
+								@Override
+								public String getCaption() {
+									return "Connect To...";
+								}
+
+								@Override
+								public DisplayMode getDisplayMode() {
+									return DisplayMode.CONTEXT_MENU;
+								}
+
+								@Override
+								public List<IParameterInfo> getParameters() {
+									List<IParameterInfo> result = new ArrayList<IParameterInfo>();
+									result.add(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+										@Override
+										public String getName() {
+											return "otherStep";
+										}
+
+										@Override
+										public String getCaption() {
+											return "Step";
+										}
+
+										@Override
+										public ITypeInfo getType() {
+											return getTypeInfo(new JavaTypeInfoSource(Step.class, null));
+										}
+
+										@Override
+										public boolean hasValueOptions(Object object) {
+											return true;
+										}
+
+										@Override
+										public Object[] getValueOptions(Object object) {
+											return plan.getSteps().stream().filter(step -> (step != currentStep)
+													&& (step.getParent() == currentStep.getParent())).toArray();
+										}
+
+									});
+									return result;
+								}
+
+								@Override
+								public Object invoke(Object object, InvocationData invocationData) {
+									Step otherStep = (Step) invocationData.getParameterValue(0);
+									if (otherStep == null) {
+										throw new NullPointerException();
+									}
+									newTransition = new Transition();
+									newTransition.setStartStep(currentStep);
+									newTransition.setEndStep(otherStep);
+									plan.getTransitions().add(newTransition);
+									return null;
+								}
+
+								@Override
+								public List<ItemPosition> getPostSelection() {
+									return null;
+								}
+
+								@Override
+								public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+									return new Runnable() {
+										@Override
+										public void run() {
+											plan.getTransitions().remove(newTransition);
+										}
+									};
+								}
+							});
+						}
+					}
 					return result;
 				}
 
@@ -1477,6 +1574,12 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected List<IMethodInfo> getConstructors(ITypeInfo type) {
+					Class<?> objectClass;
+					try {
+						objectClass = MiscUtils.getJESBClass(type.getName());
+					} catch (Exception e) {
+						objectClass = null;
+					}
 					if (type.getName().equals(Solution.Singleton.class.getName())) {
 						return Collections.singletonList(new AbstractConstructorInfo() {
 
@@ -1490,6 +1593,11 @@ public class GUI extends MultiSwingCustomizer {
 								return type;
 							}
 						});
+					}
+					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
+						return super.getConstructors(type).stream()
+								.filter(constructor -> constructor.getParameters().size() > 0)
+								.collect(Collectors.toList());
 					}
 					return super.getConstructors(type);
 				}

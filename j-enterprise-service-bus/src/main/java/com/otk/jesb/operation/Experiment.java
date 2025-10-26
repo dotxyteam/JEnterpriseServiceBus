@@ -8,7 +8,6 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
@@ -40,21 +39,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		OperationBuilder<?> operationBuilder = experimentalStep.getOperationBuilder();
 		try (Session session = Session.createDummySession()) {
 			Operation operation = operationBuilder.build(new Plan.ExecutionContext(session, this),
-					new Plan.ExecutionInspector() {
-
-						@Override
-						public boolean isExecutionInterrupted() {
-							return false;
-						}
-
-						@Override
-						public void beforeOperation(StepCrossing stepCrossing) {
-						}
-
-						@Override
-						public void afterOperation(StepCrossing stepCrossing) {
-						}
-					});
+					ExecutionInspector.DEFAULT);
 			return operation.execute();
 		}
 	}
