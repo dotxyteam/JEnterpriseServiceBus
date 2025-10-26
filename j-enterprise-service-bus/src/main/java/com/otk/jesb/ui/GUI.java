@@ -2659,10 +2659,16 @@ public class GUI extends MultiSwingCustomizer {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
+						if (Log.isVerbose()) {
+							Log.get().info("Validating plan step '" + ((Step) object).getName() + "'...");
+						}
 						((Step) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
+						}
+						if (Log.isVerbose()) {
+							Log.get().info("Validating plan transition '" + ((Step) object).getName() + "'...");
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
