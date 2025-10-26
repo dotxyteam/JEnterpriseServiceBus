@@ -1,0 +1,24 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761475866329</startTimestamp>
+      <endTimestamp>1761475867331</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.51.06.png</windowsImageFileName>
+      <actionSummary>Expand To item[0] / item[0] from TreeTable[1]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:51:06 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:51:06 AM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,360x508,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Oct 26, 2025 11:51:07 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>36</numberOfActions>
+        <instantiationDate>2025-10-26 10:51:06.168 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-11.51.06-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>36</numberOfActions>
+  <instantiationDate>2025-10-26 10:51:07.434 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

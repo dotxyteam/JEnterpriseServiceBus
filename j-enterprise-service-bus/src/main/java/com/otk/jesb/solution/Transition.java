@@ -60,6 +60,16 @@ public class Transition extends PlanElement {
 
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
+		for (Transition otherTransition : plan.getTransitions()) {
+			if (otherTransition == this) {
+				continue;
+			}
+			if ((startStep != null) && (endStep != null)) {
+				if ((startStep == otherTransition.startStep) && (endStep == otherTransition.endStep)) {
+					throw new ValidationError("Duplicate transition detected");
+				}
+			}
+		}
 		if (recursively) {
 			if (condition != null) {
 				try {

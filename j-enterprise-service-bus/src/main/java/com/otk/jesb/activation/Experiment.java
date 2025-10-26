@@ -12,7 +12,6 @@ import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.AbstractExperiment;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
@@ -64,21 +63,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 					long eventTimestamp = System.currentTimeMillis();
 					Object planOutput;
 					try {
-						planOutput = Experiment.this.execute(planInput, new Plan.ExecutionInspector() {
-
-							@Override
-							public boolean isExecutionInterrupted() {
-								return false;
-							}
-
-							@Override
-							public void beforeOperation(StepCrossing stepCrossing) {
-							}
-
-							@Override
-							public void afterOperation(StepCrossing stepCrossing) {
-							}
-						}, new Plan.ExecutionContext(session, Experiment.this));
+						planOutput = Experiment.this.execute(planInput,Plan.ExecutionInspector.DEFAULT, new Plan.ExecutionContext(session, Experiment.this));
 					} catch (ExecutionError e) {
 						throw new PotentialError(e);
 					}

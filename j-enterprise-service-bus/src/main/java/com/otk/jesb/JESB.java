@@ -39,6 +39,8 @@ import com.otk.jesb.ui.Preferences;
  */
 public class JESB {
 
+	public static final String DEBUG_PROPERTY_KEY = JESB.class.getPackage().getName() + ".debug";
+
 	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
 	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
 	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
@@ -148,8 +150,7 @@ public class JESB {
 	}
 
 	public static boolean isDebugModeActive() {
-		return Boolean
-				.valueOf(System.getProperty(JESB.class.getPackage().getName() + ".debug", Boolean.FALSE.toString()));
+		return Boolean.valueOf(System.getProperty(DEBUG_PROPERTY_KEY, Boolean.FALSE.toString()));
 	}
 
 	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {

@@ -1,0 +1,24 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761465901783</startTimestamp>
+      <endTimestamp>1761465903289</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-09.05.02.png</windowsImageFileName>
+      <actionSummary>Click on PlanDiagram[0]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 9:05:01 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 9:05:01 AM - Component found: com.otk.jesb.ui.PlanDiagram[fieldControl [field=diagram, parent=form [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=center]], fieldName=diagramBox]]],0,0,534x239,layout=java.awt.FlowLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777217,maximumSize=,minimumSize=,preferredSize=]</string>
+        <string>Oct 26, 2025 9:05:03 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>6</numberOfActions>
+        <instantiationDate>2025-10-26 08:05:01.712 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-09.05.01-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>6</numberOfActions>
+  <instantiationDate>2025-10-26 08:05:03.396 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

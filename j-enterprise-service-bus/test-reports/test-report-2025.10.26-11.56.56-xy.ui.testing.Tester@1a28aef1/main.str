@@ -1,0 +1,50 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761476216520</startTimestamp>
+      <endTimestamp>1761476217521</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.56.56.png</windowsImageFileName>
+      <actionSummary>Click on &quot;...&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:56:56 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:56:56 AM - Component found: xy.reflect.ui.control.swing.DialogAccessControl$4[,0,0,32x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@1aaaf59e,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=...,defaultCapable=true]</string>
+        <string>Oct 26, 2025 11:56:57 AM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>37</numberOfActions>
+        <instantiationDate>2025-10-26 10:56:56.409 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-11.56.56-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761476217521</startTimestamp>
+      <endTimestamp>1761476218423</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.56.57.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Log&quot;, &quot;Level: &quot;, &quot;Information&quot;, &quot;Message: &quot;, &quot;Hello world !&quot;, &quot;Execute&quot; on &lt;window&gt;[2]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:56:57 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:56:57 AM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$RenderedDialog[dialog1,443,1438,480x270,layout=java.awt.BorderLayout,DOCUMENT_MODAL,title=Log,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,0,0,480x270,layout=javax.swing.JRootPane$RootLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]</string>
+        <string>Oct 26, 2025 11:56:58 AM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761476218423</startTimestamp>
+      <endTimestamp>1761476219425</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-11.56.58.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 11:56:58 AM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 11:56:58 AM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,279,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@1aaaf59e,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Oct 26, 2025 11:56:59 AM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>37</numberOfActions>
+  <instantiationDate>2025-10-26 10:56:59.528 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

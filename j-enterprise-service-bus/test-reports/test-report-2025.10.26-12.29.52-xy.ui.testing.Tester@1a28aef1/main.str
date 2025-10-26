@@ -1,0 +1,37 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761478192945</startTimestamp>
+      <endTimestamp>1761478195448</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-12.29.53.png</windowsImageFileName>
+      <actionSummary>Send keys Ctrl+A, &quot;testFirstUse-solution/&quot; to JTextField[0]</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 12:29:52 PM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 12:29:53 PM - Component found: javax.swing.plaf.metal.MetalFileChooserUI$3[,102,0,585x32,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatTextBorder@642e2beb,flags=288,maximumSize=,minimumSize=,preferredSize=,caretColor=javax.swing.plaf.ColorUIResource[r=51,g=51,b=51],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=true,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],columns=35,columnWidth=15,command=,horizontalAlignment=LEADING]</string>
+        <string>Oct 26, 2025 12:29:55 PM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>58</numberOfActions>
+        <instantiationDate>2025-10-26 11:29:52.837 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.10.26-12.29.52-xy.ui.testing.Tester@1a28aef1</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1761478195448</startTimestamp>
+      <endTimestamp>1761478198051</endTimestamp>
+      <windowsImageFileName>screenschot-2025.10.26-12.29.55.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Oct 26, 2025 12:29:55 PM - Action delayed for 0.1 second(s)</string>
+        <string>Oct 26, 2025 12:29:55 PM - Component found: javax.swing.JButton[,514,17,84x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@8ee2534,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Oct 26, 2025 12:29:58 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>58</numberOfActions>
+  <instantiationDate>2025-10-26 11:29:58.155 UTC</instantiationDate>
+</xy.ui.testing.TestReport>
