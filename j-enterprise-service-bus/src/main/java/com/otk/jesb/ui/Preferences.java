@@ -10,12 +10,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.ComponentUI;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
+import com.formdev.flatlaf.ui.FlatTreeUI;
 import com.otk.jesb.Log;
 import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
@@ -70,7 +74,6 @@ public class Preferences {
 	}
 
 	public void setTheme(Theme theme) {
-		theme.activate();
 		this.theme = theme;
 	}
 
@@ -102,9 +105,19 @@ public class Preferences {
 					} catch (IOException | FontFormatException e) {
 						throw new UnexpectedError(e);
 					}
-					UIManager.put( "TableHeader.height", 0 );
-					UIManager.put( "TabbedPane.rotateTabRuns", false );
-					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() );
+					UIManager.put("TableHeader.height", 0);
+					UIManager.put("TabbedPane.rotateTabRuns", false);
+					UIManager.setLookAndFeel(new FlatLightFlatIJTheme() {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public UIDefaults getDefaults() {
+							UIDefaults result = super.getDefaults();
+							result.put("TreeUI", CustomTreeUI.class.getName());
+							return result;
+						}
+					});
 				} else {
 					throw new UnexpectedError();
 				}
@@ -133,6 +146,14 @@ public class Preferences {
 			}
 		}
 
+	}
+
+	public static class CustomTreeUI extends FlatTreeUI {
+
+		public static ComponentUI createUI(JComponent c) {
+			c.putClientProperty("JTree.paintSelection", false);
+			return new CustomTreeUI();
+		}
 	}
 
 }

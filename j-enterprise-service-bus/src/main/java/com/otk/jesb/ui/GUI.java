@@ -1066,6 +1066,22 @@ public class GUI extends MultiSwingCustomizer {
 			return new InfoProxyFactory() {
 
 				@Override
+				protected void setValue(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
+					if (object == Preferences.INSTANCE) {
+						if (field.getName().equals("theme")) {
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									GUI.INSTANCE.openInformationDialog(null,
+											"Restart the application to apply the change.", null);
+								}
+							});
+						}
+					}
+					super.setValue(field, object, value, objectType);
+				}
+
+				@Override
 				protected CategoriesStyle getCategoriesStyle(ITypeInfo type) {
 					return CategoriesStyle.STANDARD;
 				}
