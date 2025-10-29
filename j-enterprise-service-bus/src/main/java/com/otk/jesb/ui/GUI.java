@@ -363,6 +363,88 @@ public class GUI extends MultiSwingCustomizer {
 		return new JESBSubCustomizedUI(switchIdentifier);
 	}
 
+	private void setFocusTrackingDisabled(boolean b) {
+		focusTrackingDisabled = b;
+		if (!b) {
+			while (gainedFocusWhileTrackingDisabled.size() > 0) {
+				Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
+				handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
+			}
+			while (lostFocusWhileTrackingDisabled.size() > 0) {
+				Pair<ITypeInfo, Object> pair = lostFocusWhileTrackingDisabled.remove(0);
+				handleFocusEvent(pair.getFirst(), pair.getSecond(), false);
+			}
+		}
+	}
+
+	private boolean handleFocusEvent(ITypeInfo type, Object object, boolean focusGainedOrLost) {
+		if (focusTrackingDisabled) {
+			Pair<ITypeInfo, Object> pair = new Pair<ITypeInfo, Object>(type, object);
+			if (focusGainedOrLost) {
+				if (!lostFocusWhileTrackingDisabled.remove(pair)) {
+					gainedFocusWhileTrackingDisabled.add(pair);
+				}
+			} else {
+				if (!gainedFocusWhileTrackingDisabled.remove(pair)) {
+					lostFocusWhileTrackingDisabled.add(pair);
+				}
+			}
+			return false;
+		}
+		if (focusGainedOrLost) {
+			if (object instanceof Asset) {
+				stackOfCurrentAssets.push((Asset) object);
+				return true;
+			} else if (object instanceof PlanElement) {
+				stackOfCurrentPlanElements.push((PlanElement) object);
+				return true;
+			} else if (object instanceof Activator) {
+				stackOfCurrentActivators.push((Activator) object);
+				return true;
+			} else if (object instanceof Facade) {
+				stackOfCurrentInstantiationFacades.push((Facade) object);
+				return true;
+			}
+		} else {
+			Consumer<Deque<?>> handler = new Consumer<Deque<?>>() {
+				@Override
+				public void accept(Deque<?> stack) {
+					Object peeked;
+					if ((peeked = stack.peek()) != object) {
+						if (JESB.isDebugModeActive()) {
+							Log.get().err(new UnexpectedError("The user interface may become unstable because " + object
+									+ " was abnormally hidden before " + peeked));
+						}
+					}
+					if (!stack.remove(object)) {
+						throw new UnexpectedError();
+					}
+				}
+			};
+			if (object instanceof Asset) {
+				handler.accept(stackOfCurrentAssets);
+				return true;
+			} else if (object instanceof PlanElement) {
+				handler.accept(stackOfCurrentPlanElements);
+				return true;
+			} else if (object instanceof Activator) {
+				handler.accept(stackOfCurrentActivators);
+				return true;
+			} else if (object instanceof Facade) {
+				handler.accept(stackOfCurrentInstantiationFacades);
+				return true;
+			} else if (object instanceof Debugger) {
+				try {
+					((Debugger) object).close();
+				} catch (Exception e) {
+					throw new PotentialError(e);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private class JESBSubSwingCustomizer extends SubSwingCustomizer {
 
 		public JESBSubSwingCustomizer(String switchIdentifier) {
@@ -383,11 +465,11 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected void recustomizeAllForms() {
-					((JESBSubCustomizedUI) getReflectionUI()).setFocusTrackingDisabled(true);
+					setFocusTrackingDisabled(true);
 					try {
 						super.recustomizeAllForms();
 					} finally {
-						((JESBSubCustomizedUI) getReflectionUI()).setFocusTrackingDisabled(false);
+						setFocusTrackingDisabled(false);
 					}
 				}
 			};
@@ -461,6 +543,16 @@ public class GUI extends MultiSwingCustomizer {
 								return VisitStatus.VISIT_NOT_INTERRUPTED;
 							}
 						});
+					}
+				}
+
+				@Override
+				public void refresh(boolean refreshStructure) {
+					handleFocusEvent(filteredObjectType, object, true);
+					try {
+						super.refresh(refreshStructure);
+					} finally {
+						handleFocusEvent(filteredObjectType, object, false);
 					}
 				}
 
@@ -977,88 +1069,6 @@ public class GUI extends MultiSwingCustomizer {
 			});
 			result.accessFactories().add(super.getSubInfoCustomizationsFactory());
 			return result;
-		}
-
-		public void setFocusTrackingDisabled(boolean b) {
-			focusTrackingDisabled = b;
-			if (!b) {
-				while (gainedFocusWhileTrackingDisabled.size() > 0) {
-					Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
-					handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
-				}
-				while (lostFocusWhileTrackingDisabled.size() > 0) {
-					Pair<ITypeInfo, Object> pair = lostFocusWhileTrackingDisabled.remove(0);
-					handleFocusEvent(pair.getFirst(), pair.getSecond(), false);
-				}
-			}
-		}
-
-		private boolean handleFocusEvent(ITypeInfo type, Object object, boolean focusGainedOrLost) {
-			if (focusTrackingDisabled) {
-				Pair<ITypeInfo, Object> pair = new Pair<ITypeInfo, Object>(type, object);
-				if (focusGainedOrLost) {
-					if (!lostFocusWhileTrackingDisabled.remove(pair)) {
-						gainedFocusWhileTrackingDisabled.add(pair);
-					}
-				} else {
-					if (!gainedFocusWhileTrackingDisabled.remove(pair)) {
-						lostFocusWhileTrackingDisabled.add(pair);
-					}
-				}
-				return false;
-			}
-			if (focusGainedOrLost) {
-				if (object instanceof Asset) {
-					stackOfCurrentAssets.push((Asset) object);
-					return true;
-				} else if (object instanceof PlanElement) {
-					stackOfCurrentPlanElements.push((PlanElement) object);
-					return true;
-				} else if (object instanceof Activator) {
-					stackOfCurrentActivators.push((Activator) object);
-					return true;
-				} else if (object instanceof Facade) {
-					stackOfCurrentInstantiationFacades.push((Facade) object);
-					return true;
-				}
-			} else {
-				Consumer<Deque<?>> handler = new Consumer<Deque<?>>() {
-					@Override
-					public void accept(Deque<?> stack) {
-						Object peeked;
-						if ((peeked = stack.peek()) != object) {
-							if (JESB.isDebugModeActive()) {
-								Log.get().err(new UnexpectedError("The user interface may become unstable because "
-										+ object + " was abnormally hidden before " + peeked));
-							}
-						}
-						if (!stack.remove(object)) {
-							throw new UnexpectedError();
-						}
-					}
-				};
-				if (object instanceof Asset) {
-					handler.accept(stackOfCurrentAssets);
-					return true;
-				} else if (object instanceof PlanElement) {
-					handler.accept(stackOfCurrentPlanElements);
-					return true;
-				} else if (object instanceof Activator) {
-					handler.accept(stackOfCurrentActivators);
-					return true;
-				} else if (object instanceof Facade) {
-					handler.accept(stackOfCurrentInstantiationFacades);
-					return true;
-				} else if (object instanceof Debugger) {
-					try {
-						((Debugger) object).close();
-					} catch (Exception e) {
-						throw new PotentialError(e);
-					}
-					return true;
-				}
-			}
-			return false;
 		}
 
 		@Override
@@ -1578,13 +1588,6 @@ public class GUI extends MultiSwingCustomizer {
 				protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
 					if (!handleFocusEvent(type, object, visible)) {
 						super.onFormVisibilityChange(type, object, visible);
-					}
-				}
-
-				@Override
-				protected void onFormCreation(ITypeInfo type, Object object, boolean beforeOrAfter) {
-					if (!handleFocusEvent(type, object, beforeOrAfter)) {
-						super.onFormCreation(type, object, beforeOrAfter);
 					}
 				}
 

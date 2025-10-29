@@ -1424,6 +1424,9 @@ public class PluginBuilder {
 
 		public List<String> getAssetClassNameOptions() {
 			List<String> result = new ArrayList<String>();
+			PluginBuilder.INSTANCE.getResources().stream()
+					.map(resource -> PluginBuilder.INSTANCE.getPackageName() + "." + resource.getResourceTypeName())
+					.forEach(result::add);
 			result.addAll(MiscUtils.getAllResourceMetadatas().stream()
 					.map(metadata -> metadata.getResourceClass().getName()).collect(Collectors.toList()));
 			result.add(Plan.class.getName());

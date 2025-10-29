@@ -49,7 +49,7 @@ public class Preferences {
 	private Preferences() {
 	}
 
-	private boolean fadingTransitioningEnabled = false;
+	private boolean fadingTransitioningEnabled = true;
 	private boolean logVerbose = false;
 	private Theme theme = Theme.FLAT;
 
