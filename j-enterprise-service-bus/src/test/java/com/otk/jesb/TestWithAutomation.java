@@ -48,4 +48,9 @@ public class TestWithAutomation {
 		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/testFirstUse.stt"));
 	}
 
+	@Test
+	public void testBuiltInElements() throws Exception {
+		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/testBuiltInElements.stt"));
+	}
+
 }

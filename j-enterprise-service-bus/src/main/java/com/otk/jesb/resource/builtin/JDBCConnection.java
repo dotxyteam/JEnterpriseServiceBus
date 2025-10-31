@@ -99,16 +99,21 @@ public class JDBCConnection extends Resource {
 	}
 
 	public <T> T during(Function<Connection, T> callable) throws Exception {
-		instanceMutex.acquire();
-		try {
-			Connection instance = open();
-			try {
-				return callable.apply(instance);
-			} finally {
-				instance.close();
+		synchronized (this) {
+			if (currentSessionInstance != null) {
+				return callable.apply(currentSessionInstance);
 			}
-		} finally {
-			instanceMutex.release();
+			instanceMutex.acquire();
+			try {
+				Connection instance = open();
+				try {
+					return callable.apply(instance);
+				} finally {
+					instance.close();
+				}
+			} finally {
+				instanceMutex.release();
+			}
 		}
 	}
 
@@ -160,15 +165,15 @@ public class JDBCConnection extends Resource {
 		}
 		try {
 			instanceMutex.acquire();
+			try {
+				open().close();
+			} catch (Exception e) {
+				throw new ValidationError("Failed to create the connection", e);
+			} finally {
+				instanceMutex.release();
+			}
 		} catch (InterruptedException e) {
 			throw new UnexpectedError(e);
-		}
-		try {
-			open().close();
-		} catch (Exception e) {
-			throw new ValidationError("Failed to create the connection", e);
-		} finally {
-			instanceMutex.release();
 		}
 	}
 

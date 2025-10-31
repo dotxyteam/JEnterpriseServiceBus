@@ -47,6 +47,8 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.util.MiscUtils;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import xy.reflect.ui.info.ResourcePath;
 
@@ -159,6 +161,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+		this.activationHandler = activationHandler;
 		HTTPServer server = expectServer();
 		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
 		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
@@ -181,20 +184,29 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			requestHandler.activate(server);
 		}
 		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
-		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		this.activationHandler = null;
-		HTTPServer server = expectServer();
-		String servicePath = getServicePath();
-		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
-		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
-		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-			requestHandler.deactivate(server);
-		}
-		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+		MiscUtils.finalizing((compositeException) -> {
+			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
+			String servicePath = getServicePath();
+			RequestHandler requestHandler = (server == null) ? null
+					: compositeException.tryReturnCactch(() -> server.expectRequestHandler(servicePath));
+			if (requestHandler != null) {
+				OpenAPIDescription.APIOperationDescriptor operation = compositeException
+						.tryReturnCactch(() -> expectOperationDescriptor());
+				if (operation != null) {
+					((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+					if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+						compositeException.tryCactch(() -> {
+							requestHandler.deactivate(server);
+						});
+					}
+				}
+			}
+			this.activationHandler = null;
+		});
 	}
 
 	@Override
@@ -339,8 +351,12 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
-			endpoint.destroy();
-			endpoint = null;
+			MiscUtils.finalizing((compositeException) -> {
+				compositeException.tryCactch(() -> {
+					endpoint.destroy();
+				});
+				endpoint = null;
+			});
 			String servicePath = getServicePathVariant().getValue();
 			Log.get().info("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 		}

@@ -17,6 +17,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.ComponentUI;
 
+import org.jdesktop.swingx.JXTreeTable;
+
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatLightFlatIJTheme;
 import com.formdev.flatlaf.ui.FlatTreeUI;
@@ -151,7 +153,9 @@ public class Preferences {
 	public static class CustomTreeUI extends FlatTreeUI {
 
 		public static ComponentUI createUI(JComponent c) {
-			c.putClientProperty("JTree.paintSelection", false);
+			if (c.getClass().getName().startsWith(JXTreeTable.class.getName())) {
+				c.putClientProperty("JTree.paintSelection", false);
+			}
 			return new CustomTreeUI();
 		}
 	}
