@@ -19,6 +19,17 @@ public class Runner extends Debugger {
 	}
 
 	@Override
+	protected void initiate() {
+		activatePlans();
+	}
+
+	@Override
+	protected void terminate() {
+		deactivatePlans();
+		stopExecutions();
+	}
+
+	@Override
 	protected PlanActivation createPlanActivation(Plan plan) {
 		return new RuntimePlanActivation(plan);
 	}

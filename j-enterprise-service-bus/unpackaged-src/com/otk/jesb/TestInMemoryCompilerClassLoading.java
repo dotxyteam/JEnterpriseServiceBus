@@ -28,13 +28,14 @@ public class TestInMemoryCompilerClassLoading {
 	private static void test(ClassLoader classLoader) throws Exception {
 		Plan plan = new Plan();
 		Solution.INSTANCE.getContents().add(plan);
-		Session session = Session.createDummySession();
-		ExecutionContext context = new ExecutionContext(session, plan);
-		ExecutionInspector executionInspector = ExecutionInspector.DEFAULT;
-		OperationBuilder<?> testOpBuilder = (OperationBuilder<?>) classLoader.loadClass("com.otk6.TestOp$Builder")
-				.newInstance();
-		Operation testOp = testOpBuilder.build(context, executionInspector);
-		System.out.println(testOp);
+		try (Session session = Session.openDummySession()) {
+			ExecutionContext context = new ExecutionContext(session, plan);
+			ExecutionInspector executionInspector = ExecutionInspector.DEFAULT;
+			OperationBuilder<?> testOpBuilder = (OperationBuilder<?>) classLoader.loadClass("com.otk6.TestOp$Builder")
+					.newInstance();
+			Operation testOp = testOpBuilder.build(context, executionInspector);
+			System.out.println(testOp);
+		}
 	}
 
 }

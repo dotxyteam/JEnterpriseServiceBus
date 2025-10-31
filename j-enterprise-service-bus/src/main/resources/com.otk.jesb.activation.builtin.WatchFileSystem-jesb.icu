@@ -67,6 +67,7 @@
                     <menuModel>
                         <uniqueIdentifier>6633f5e4:198b4b74c9e:1823</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.io.File</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -102,6 +103,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:75f6</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.BaseDircetoryPathVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -203,6 +205,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:764e</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.ModificationWatchedVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -304,6 +307,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:7632</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.DeletionWatchedVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -320,6 +324,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4c8c52a:-7c26</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem.DeletionWatchedVariantAdapterType], fieldName=variantReferenceBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -422,6 +427,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:7686</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.SubDirectoriesWatchedRecursivelyVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -521,6 +527,7 @@
         <menuModel>
             <uniqueIdentifier>-7c457ca4:198b48178d8:-205e</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem], fieldName=eventGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -537,6 +544,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4c8c52a:-58fd</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem.ModificationWatchedVariantAdapterType], fieldName=variantReferenceBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -581,6 +589,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b74c9e:5e9e</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem.CreationWatchedVariantAdapterType], fieldName=variantReferenceBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -625,6 +634,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b74c9e:3c00</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem.SubDirectoriesWatchedRecursivelyVariantAdapterType], fieldName=variantReferenceBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -837,6 +847,7 @@
                     <menuModel>
                         <uniqueIdentifier>-7c457ca4:198b47b3229:797c</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.io.File</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -967,6 +978,7 @@
                     <menuModel>
                         <uniqueIdentifier>-154e2117:198b762033b:4f5b</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem], fieldName=directoriesGroup]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1236,6 +1248,7 @@
         <menuModel>
             <uniqueIdentifier>-7c457ca4:198b47b3229:-43b</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1307,6 +1320,7 @@
         <menuModel>
             <uniqueIdentifier>-768da96f:198b8aee516:563f</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.PreExistingResourcesConsideredVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1439,6 +1453,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:773e</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem], fieldName=eventsGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1482,6 +1497,7 @@
         <menuModel>
             <uniqueIdentifier>-57d9cff2:198b767c08d:4f66</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.SubDirectoriesWatchedRecursivelyVariantAdapterWrapperType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1539,6 +1555,7 @@
                     <menuModel>
                         <uniqueIdentifier>-7c457ca4:198b47b3229:797c</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.io.File</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1660,6 +1677,7 @@
         <menuModel>
             <uniqueIdentifier>-7c457ca4:198b48178d8:1b0</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.WatchFileSystem], fieldName=directoriesGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1761,6 +1779,7 @@
         <menuModel>
             <uniqueIdentifier>6633f5e4:198b4b43e96:7614</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem.CreationWatchedVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

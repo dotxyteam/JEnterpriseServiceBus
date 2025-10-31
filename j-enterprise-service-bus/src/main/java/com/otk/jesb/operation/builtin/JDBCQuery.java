@@ -50,7 +50,8 @@ public class JDBCQuery extends JDBCOperation {
 	public Object execute() throws Exception {
 		PreparedStatement preparedStatement = prepare();
 		ResultSet resultSet = preparedStatement.executeQuery();
-		List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(preparedStatement);
+		List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(
+				preparedStatement.getMetaData());
 		Class<?> resultRowClass = resultClass.getComponentType();
 		Constructor<?> resultRowConstructor = resultRowClass.getConstructors()[0];
 		Parameter[] resultRowConstructorParameters = resultRowConstructor.getParameters();
@@ -81,9 +82,8 @@ public class JDBCQuery extends JDBCOperation {
 		return result;
 	}
 
-	protected static List<ColumnDefinition> retrieveResultColumnDefinitions(PreparedStatement preparedStatement)
+	protected static List<ColumnDefinition> retrieveResultColumnDefinitions(ResultSetMetaData metaData)
 			throws SQLException {
-		ResultSetMetaData metaData = preparedStatement.getMetaData();
 		if (metaData == null) {
 			throw new SQLException("No SQL statement meta data found");
 		}
@@ -240,7 +240,7 @@ public class JDBCQuery extends JDBCOperation {
 					}
 					try {
 						PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);
-						return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement);
+						return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement.getMetaData());
 					} catch (SQLException e) {
 						throw new PotentialError(e);
 					}

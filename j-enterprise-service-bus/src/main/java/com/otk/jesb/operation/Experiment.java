@@ -37,7 +37,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 
 	public Object carryOut() throws Throwable {
 		OperationBuilder<?> operationBuilder = experimentalStep.getOperationBuilder();
-		try (Session session = Session.createDummySession()) {
+		try (Session session = Session.openDummySession()) {
 			Operation operation = operationBuilder.build(new Plan.ExecutionContext(session, this),
 					ExecutionInspector.DEFAULT);
 			return operation.execute();

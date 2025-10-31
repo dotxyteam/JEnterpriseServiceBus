@@ -37,22 +37,25 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		return new ActivationEventBasket();
 	}
 
-	public class ActivationEventBasket implements AutoCloseable {
+	public class ActivationEventBasket extends Session {
 
-		private Session session;
 		private List<ActivationEvent> activationEvents = new ArrayList<ActivationEvent>();
 
-		public ActivationEventBasket() throws Exception {
-			session = Session.createDummySession();
-			Experiment.this.getActivator().initializeAutomaticTrigger(getActivationHandler());
+		@Override
+		protected void initiate() {
+			try {
+				Experiment.this.getActivator().initializeAutomaticTrigger(getActivationHandler());
+			} catch (Exception e) {
+				throw new PotentialError(e);
+			}
 		}
 
 		@Override
-		public void close() throws Exception {
+		protected void terminate() {
 			try {
 				Experiment.this.getActivator().finalizeAutomaticTrigger();
-			} finally {
-				session.close();
+			} catch (Exception e) {
+				throw new PotentialError(e);
 			}
 		}
 
@@ -63,7 +66,8 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 					long eventTimestamp = System.currentTimeMillis();
 					Object planOutput;
 					try {
-						planOutput = Experiment.this.execute(planInput,Plan.ExecutionInspector.DEFAULT, new Plan.ExecutionContext(session, Experiment.this));
+						planOutput = Experiment.this.execute(planInput, Plan.ExecutionInspector.DEFAULT,
+								new Plan.ExecutionContext(ActivationEventBasket.this, Experiment.this));
 					} catch (ExecutionError e) {
 						throw new PotentialError(e);
 					}

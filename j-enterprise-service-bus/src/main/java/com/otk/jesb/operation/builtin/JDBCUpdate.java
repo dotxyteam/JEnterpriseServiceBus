@@ -67,34 +67,6 @@ public class JDBCUpdate extends JDBCOperation {
 
 	}
 
-	public static class ColumnDefinition {
-
-		private String columnName;
-		private String columnTypeName;
-
-		public ColumnDefinition(String columnName, String columnTypeName) {
-			this.columnName = columnName;
-			this.columnTypeName = columnTypeName;
-		}
-
-		public String getColumnName() {
-			return columnName;
-		}
-
-		public void setColumnName(String columnName) {
-			this.columnName = columnName;
-		}
-
-		public String getColumnTypeName() {
-			return columnTypeName;
-		}
-
-		public void setColumnTypeName(String columnTypeName) {
-			this.columnTypeName = columnTypeName;
-		}
-
-	}
-
 	public static class Result {
 
 		public final int affectedRowCount;

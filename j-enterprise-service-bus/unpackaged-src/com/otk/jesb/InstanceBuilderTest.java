@@ -64,11 +64,10 @@ public class InstanceBuilderTest {
 				Tree.Builder builder = (Builder) step.getOperationBuilder();
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
-				try {
+				try (Session session = Session.openDummySession()) {
 					Object input = plan.getActivator().getInputClass().getConstructor(Tree.class)
 							.newInstance(inputTree);
-					output = plan.execute(input, Plan.ExecutionInspector.DEFAULT,
-							new ExecutionContext(Session.createDummySession(), plan));
+					output = plan.execute(input, Plan.ExecutionInspector.DEFAULT, new ExecutionContext(session, plan));
 				} catch (Throwable t) {
 					GUI.INSTANCE.handleException(null, t);
 					return;

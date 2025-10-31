@@ -83,12 +83,11 @@ public class Debugger extends Session {
 	}
 
 	@Override
-	public void initiate() {
-		activatePlans();
+	protected void initiate() {
 	}
 
 	@Override
-	public void terminate() {
+	protected void terminate() {
 		deactivatePlans();
 		stopExecutions();
 	}
@@ -398,18 +397,7 @@ public class Debugger extends Session {
 				return executionContext.getVariables().stream()
 						.filter(variable -> !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)
 								&& (variable.getValue() != Variable.UNDEFINED_VALUE))
-						.map(variable -> new Variable() {
-
-							@Override
-							public Object getValue() {
-								return variable.getValue();
-							}
-
-							@Override
-							public String getName() {
-								return variable.getName();
-							}
-						}).collect(Collectors.toList());
+						.map(variable -> new Variable.Proxy(variable)).collect(Collectors.toList());
 			}
 		}
 

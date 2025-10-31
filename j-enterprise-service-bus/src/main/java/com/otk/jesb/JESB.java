@@ -138,7 +138,7 @@ public class JESB {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
 			}
-			runner.initiate();
+			runner.open();
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override

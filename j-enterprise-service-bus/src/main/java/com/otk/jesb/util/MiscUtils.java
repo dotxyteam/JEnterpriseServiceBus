@@ -76,6 +76,7 @@ import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.operation.builtin.Fail;
 import com.otk.jesb.operation.builtin.GenerateXML;
 import com.otk.jesb.operation.builtin.InspectResource;
+import com.otk.jesb.operation.builtin.JDBCGenericOperation;
 import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCStoredProcedureCall;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
@@ -122,9 +123,9 @@ public class MiscUtils {
 			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
 			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
 			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
-			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCStoredProcedureCall.Metadata(),
-			new ParseXML.Metadata(), new GenerateXML.Metadata(), new CallRESTAPI.Metadata(),
-			new CallSOAPWebService.Metadata());
+			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCGenericOperation.Metadata(),
+			new JDBCStoredProcedureCall.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
+			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
 			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
 	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays.asList(
@@ -950,7 +951,7 @@ public class MiscUtils {
 		return IN_MEMORY_COMPILER.getBaseClassLoader();
 	}
 
-	public static Class<?> getJESBClass(String typeName) throws PotentialError{
+	public static Class<?> getJESBClass(String typeName) throws PotentialError {
 		String arrayComponentTypeName = getArrayComponentTypeName(typeName);
 		if (arrayComponentTypeName != null) {
 			return getArrayType(getJESBClass(arrayComponentTypeName));
@@ -1159,7 +1160,7 @@ public class MiscUtils {
 			Supplier<Boolean> enablementStatusSupplier) {
 		return new PrintStream(new WriterOutputStream(new Writer() {
 			private final StringBuilder lineBuffer = new StringBuilder();
-	
+
 			@Override
 			public synchronized void write(char[] cbuf, int off, int len) throws IOException {
 				if (!enablementStatusSupplier.get()) {
@@ -1179,7 +1180,7 @@ public class MiscUtils {
 					}
 				}
 			}
-	
+
 			@Override
 			public synchronized void flush() throws IOException {
 				if (!enablementStatusSupplier.get()) {
@@ -1189,12 +1190,12 @@ public class MiscUtils {
 					flushLine();
 				}
 			}
-	
+
 			@Override
 			public synchronized void close() throws IOException {
 				flush();
 			}
-	
+
 			private void flushLine() throws IOException {
 				String line = lineBuffer.toString();
 				basePrintStream.println(line);
@@ -1202,67 +1203,67 @@ public class MiscUtils {
 				lineBuffer.setLength(0);
 			}
 		}, Charset.defaultCharset())) {
-	
+
 			@Override
 			public void println() {
 				super.println();
 				flush();
 			}
-	
+
 			@Override
 			public void println(boolean x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(char x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(int x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(long x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(float x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(double x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(char[] x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(String x) {
 				super.println(x);
 				flush();
 			}
-	
+
 			@Override
 			public void println(Object x) {
 				super.println(x);
 				flush();
 			}
-	
+
 		};
 	}
 

@@ -13,15 +13,18 @@ import com.otk.jesb.solution.Solution;
  */
 public abstract class Session implements AutoCloseable {
 
-	public static Session createDummySession() {
+	public static Session openDummySession() {
 		return new Session() {
-
-			@Override
-			public void terminate() {
+			{
+				open();
 			}
 
 			@Override
-			public void initiate() {
+			protected void initiate() {
+			}
+
+			@Override
+			protected void terminate() {
 			}
 
 			@Override
@@ -31,26 +34,53 @@ public abstract class Session implements AutoCloseable {
 		};
 	}
 
-	public abstract void initiate();
+	protected abstract void initiate();
 
-	public abstract void terminate();
+	protected abstract void terminate();
 
-	private List<AutoCloseable> closables = new ArrayList<AutoCloseable>();
+	private List<AutoCloseable> closables;
+	private boolean active = false;
 
 	public List<AutoCloseable> getClosables() {
 		return closables;
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+
+	public void open() {
+		if (active) {
+			throw new UnexpectedError();
+		}
+		active = true;
+		closables = new ArrayList<AutoCloseable>();
+		initiate();
+	}
+
 	@Override
 	public void close() throws Exception {
-		terminate();
+		if (!active) {
+			throw new UnexpectedError();
+		}
+		active = false;
+		List<Throwable> errors = new ArrayList<Throwable>();
+		try {
+			terminate();
+		} catch (Throwable t) {
+			errors.add(t);
+		}
 		closables.stream().forEach(closable -> {
 			try {
 				closable.close();
-			} catch (Exception e) {
-				throw new PotentialError(e);
+			} catch (Throwable t) {
+				errors.add(t);
 			}
 		});
+		closables = null;
+		if (errors.size() > 0) {
+			throw new Exception("Error(s) occured (see the logs for more information)");
+		}
 	}
 
 }

@@ -36,6 +36,7 @@ import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.Session;
 import com.otk.jesb.Structure;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.Structure.Element;
@@ -432,13 +433,6 @@ public class GUI extends MultiSwingCustomizer {
 				return true;
 			} else if (object instanceof Facade) {
 				handler.accept(stackOfCurrentInstantiationFacades);
-				return true;
-			} else if (object instanceof Debugger) {
-				try {
-					((Debugger) object).close();
-				} catch (Exception e) {
-					throw new PotentialError(e);
-				}
 				return true;
 			}
 		}
@@ -1569,8 +1563,108 @@ public class GUI extends MultiSwingCustomizer {
 								}
 							});
 						}
+						if ((singleSelection != null) && singleSelection.getItem() instanceof Transition) {
+							Transition currentTransition = (Transition) singleSelection.getItem();
+							result.add(getTransitionTransferAction(currentTransition, true, plan));
+							result.add(getTransitionTransferAction(currentTransition, false, plan));
+						}
 					}
 					return result;
+				}
+
+				IDynamicListAction getTransitionTransferAction(Transition transition, boolean startElseEnd, Plan plan) {
+					Step oldStep = startElseEnd ? transition.getStartStep() : transition.getEndStep();
+					Step oppositeStep = startElseEnd ? transition.getEndStep() : transition.getStartStep();
+					return new AbstractDynamicListAction() {
+
+						@Override
+						public String getName() {
+							return startElseEnd ? "changeStartStep" : "changeEndStep";
+						}
+
+						@Override
+						public String getCaption() {
+							return startElseEnd ? "Transition Start..." : "Transition End...";
+						}
+
+						@Override
+						public DisplayMode getDisplayMode() {
+							return DisplayMode.CONTEXT_MENU;
+						}
+
+						@Override
+						public List<IParameterInfo> getParameters() {
+							List<IParameterInfo> result = new ArrayList<IParameterInfo>();
+							result.add(new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {
+
+								@Override
+								public String getName() {
+									return "step";
+								}
+
+								@Override
+								public String getCaption() {
+									return "Step";
+								}
+
+								@Override
+								public ITypeInfo getType() {
+									return getTypeInfo(new JavaTypeInfoSource(Step.class, null));
+								}
+
+								@Override
+								public boolean hasValueOptions(Object object) {
+									return true;
+								}
+
+								@Override
+								public Object[] getValueOptions(Object object) {
+									return plan.getSteps().stream().filter(step -> (step != oppositeStep)
+											&& (step.getParent() == oppositeStep.getParent())).toArray();
+								}
+
+								@Override
+								public Object getDefaultValue(Object object) {
+									return oldStep;
+								}
+
+							});
+							return result;
+						}
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							Step newStep = (Step) invocationData.getParameterValue(0);
+							if (newStep == oldStep) {
+								throw new IllegalArgumentException("No change detected!");
+							}
+							if (startElseEnd) {
+								transition.setStartStep(newStep);
+							} else {
+								transition.setEndStep(newStep);
+							}
+							return null;
+						}
+
+						@Override
+						public List<ItemPosition> getPostSelection() {
+							return null;
+						}
+
+						@Override
+						public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+							return new Runnable() {
+								@Override
+								public void run() {
+									if (startElseEnd) {
+										transition.setStartStep(oldStep);
+									} else {
+										transition.setEndStep(oldStep);
+									}
+								}
+							};
+						}
+					};
 				}
 
 				@Override
@@ -1588,6 +1682,20 @@ public class GUI extends MultiSwingCustomizer {
 				protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
 					if (!handleFocusEvent(type, object, visible)) {
 						super.onFormVisibilityChange(type, object, visible);
+					}
+					if (object instanceof Session) {
+						Session session = (Session) object;
+						if (session.isActive() != visible) {
+							if (visible) {
+								session.open();
+							} else {
+								try {
+									session.close();
+								} catch (Exception e) {
+									throw new PotentialError(e);
+								}
+							}
+						}
 					}
 				}
 
@@ -2687,7 +2795,7 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						if (Log.isVerbose()) {
-							Log.get().info("Validating plan transition '" + ((Step) object).getName() + "'...");
+							Log.get().info("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
@@ -2848,6 +2956,15 @@ public class GUI extends MultiSwingCustomizer {
 		@Override
 		protected ValidationErrorRegistry createValidationErrorRegistry() {
 			return new ValidationErrorRegistry() {
+
+				@Override
+				public Exception getValidationError(Object object, ValidationSession session) {
+					try {
+						return super.getValidationError(object, session);
+					} catch (Throwable t) {
+						return new Exception("Failed to retrieve the validation error", t);
+					}
+				}
 
 				@Override
 				public Object getValidationErrorMapKey(Object object, ValidationSession session) {
