@@ -19,6 +19,8 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.info.ResourcePath;
 
 public class HTTPServer extends Resource {
@@ -114,8 +116,12 @@ public class HTTPServer extends Resource {
 		if (!isActive()) {
 			throw new UnexpectedError();
 		}
-		jettyServer.stop();
-		jettyServer = null;
+		MiscUtils.finalizing(compositeException -> {
+			compositeException.tryCactch(() -> {
+				jettyServer.stop();
+				jettyServer = null;
+			});
+		});
 	}
 
 	private boolean isActive() {
@@ -169,27 +175,43 @@ public class HTTPServer extends Resource {
 		}
 
 		public void activate(HTTPServer server) throws Exception {
+			if(active) {
+				throw new UnexpectedError();
+			}
 			synchronized (server) {
 				if (!server.requestHandlers.contains(this)) {
 					throw new UnexpectedError();
+				} else {
+					active = true;
+					if (server.requestHandlers.stream()
+							.noneMatch(requestHandler -> (requestHandler != this) && requestHandler.isActive())) {
+						server.start();
+					}
+					install(server);
 				}
-				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
-					server.start();
-				}
-				active = true;
-				install(server);
 			}
 		}
 
 		public void deactivate(HTTPServer server) throws Exception {
+			if(!active) {
+				throw new UnexpectedError();
+			}
 			synchronized (server) {
 				if (!server.requestHandlers.contains(this)) {
 					throw new UnexpectedError();
-				}
-				uninstall(server);
-				active = false;
-				if (server.requestHandlers.stream().noneMatch(RequestHandler::isActive)) {
-					server.stop();
+				} else {
+					MiscUtils.finalizing((compositeException) -> {
+						compositeException.tryCactch(() -> {
+							uninstall(server);
+						});
+						if (server.requestHandlers.stream()
+								.noneMatch(requestHandler -> (requestHandler != this) && requestHandler.isActive())) {
+							compositeException.tryCactch(() -> {
+								server.stop();
+							});
+						}
+						active = false;
+					});
 				}
 			}
 		}

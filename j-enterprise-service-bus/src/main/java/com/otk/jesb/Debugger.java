@@ -167,6 +167,10 @@ public class Debugger extends Session {
 			return planExecutors;
 		}
 
+		public boolean isAutomaticTriggerReady() {
+			return plan.getActivator().isAutomaticTriggerReady();
+		}
+
 		public void setAutomaticTriggerReady(boolean ready) {
 			if (ready) {
 				ActivationHandler activationHandler = new ActivationHandler() {
@@ -211,10 +215,6 @@ public class Debugger extends Session {
 
 		protected void handleDeactivationError(Exception e) {
 			Log.get().err(e);
-		}
-
-		public boolean isAutomaticTriggerReady() {
-			return plan.getActivator().isAutomaticTriggerReady();
 		}
 
 		public boolean isAutomaticallyTriggerable() {

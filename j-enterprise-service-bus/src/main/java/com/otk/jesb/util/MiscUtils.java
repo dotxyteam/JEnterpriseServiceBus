@@ -203,6 +203,11 @@ public class MiscUtils {
 		configureSolutionDependencies(Collections.emptyList());
 	}
 
+	public static void finalizing(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
+		CompositeException.willRethrow(workWithCompositeException, true,
+				"Error(s) occured (see the logs for more information)");
+	}
+
 	public static void sleepSafely(long durationMilliseconds) {
 		try {
 			Thread.sleep(durationMilliseconds);

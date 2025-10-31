@@ -798,9 +798,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 										try {
 											accept = map(pathNode, initializerPosition, initializerTreeControl);
 										} catch (CancellationException e) {
-											GUI
-													.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder)
-													.run();
+											GUI.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder).run();
 											initializerTreeControl.refreshUI(false);
 										}
 										if (accept) {
@@ -964,17 +962,23 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 				if (choice == 0) {
 					ListItemReplication itemReplication = new ListItemReplication();
 					InstantiationFunction function = new InstantiationFunction(
-							"return " + pathNode.getParent().getTypicalExpression() + ";");
+							"return " + ((pathNode.getParent() != null) ? pathNode.getParent().getTypicalExpression()
+									: pathNode.getExplorer().getTypicalRootExpression()) + ";");
 					itemReplication.setIterationListValue(function);
 					listItemInitializerFacade.setConcrete(true);
 					listItemInitializerFacade.getUnderlying().setItemReplication(itemReplication);
 
-					if (unrelativizePathNode(pathNode.getParent()) instanceof FieldNode) {
-						String parentFieldName = ((FieldNode) unrelativizePathNode(pathNode.getParent()))
-								.getFieldName();
-						itemReplication
-								.setIterationVariableName("current" + parentFieldName.substring(0, 1).toUpperCase()
-										+ parentFieldName.substring(1) + "Item");
+					String parentName;
+					if (pathNode.getParent() == null) {
+						parentName = pathNode.getExplorer().getRootVariableName();
+					} else if (unrelativizePathNode(pathNode.getParent()) instanceof FieldNode) {
+						parentName = ((FieldNode) unrelativizePathNode(pathNode.getParent())).getFieldName();
+					} else {
+						parentName = null;
+					}
+					if (parentName != null) {
+						itemReplication.setIterationVariableName("current" + parentName.substring(0, 1).toUpperCase()
+								+ parentName.substring(1) + "Item");
 					}
 					Source mappingsSource = initializerTreeControl.findMappingsControl().getSource();
 					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(

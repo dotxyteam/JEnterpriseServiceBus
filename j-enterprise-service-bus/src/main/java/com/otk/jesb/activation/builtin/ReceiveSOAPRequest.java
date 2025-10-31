@@ -25,6 +25,8 @@ import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor;
 import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
 import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.info.ResourcePath;
 
 public class ReceiveSOAPRequest extends HTTPRequestReceiver {
@@ -176,6 +178,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+		this.activationHandler = activationHandler;
 		WSDL wsdl = expectWSDL();
 		WSDL.OperationDescriptor operation = expectOperationDescriptor();
 		HTTPServer server = expectServer();
@@ -202,19 +205,28 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			requestHandler.activate(server);
 		}
 		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
-		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		this.activationHandler = null;
-		HTTPServer server = expectServer();
-		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
-		WSDL.OperationDescriptor operation = expectOperationDescriptor();
-		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-			requestHandler.deactivate(server);
-		}
-		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+		MiscUtils.finalizing((compositeException) -> {
+			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
+			RequestHandler requestHandler = (server == null) ? null
+					: compositeException.tryReturnCactch(() -> server.expectRequestHandler(getServicePath()));
+			if (requestHandler != null) {
+				WSDL.OperationDescriptor operation = compositeException
+						.tryReturnCactch(() -> expectOperationDescriptor());
+				if (operation != null) {
+					((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
+					if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
+						compositeException.tryCactch(() -> {
+							requestHandler.deactivate(server);
+						});
+					}
+				}
+			}
+			this.activationHandler = null;
+		});
 	}
 
 	@Override
@@ -336,8 +348,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
-			endpoint.stop();
-			endpoint = null;
+			MiscUtils.finalizing((compositeException) -> {
+				compositeException.tryCactch(() -> {
+					endpoint.stop();
+				});
+				endpoint = null;
+			});
 			String servicePath = getServicePathVariant().getValue();
 			Log.get().info("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
 		}

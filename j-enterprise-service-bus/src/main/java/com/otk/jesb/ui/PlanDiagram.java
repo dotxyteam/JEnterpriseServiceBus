@@ -585,6 +585,25 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		result.add(createSelectAllAction());
 		result.add(new JSeparator());
 		result.add(createExperimentAction());
+
+		List<AbstractAction> dynamicActions = new ArrayList<AbstractAction>();
+		{
+			Set<JDiagramObject> selection = getSelection();
+			if (selection.size() == 1) {
+				ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+				BufferedItemPosition itemPosition = focusedPlanElementsControl
+						.findItemPositionByReference(selection.iterator().next().getValue());
+				dynamicActions.addAll(
+						focusedPlanElementsControl.getDynamicActionHooks(Collections.singletonList(itemPosition)));
+				dynamicActions.addAll(
+						focusedPlanElementsControl.getDynamicPropertyHooks(Collections.singletonList(itemPosition)));
+			}
+		}
+		if (dynamicActions.size() > 0) {
+			result.add(new JSeparator());
+			dynamicActions.forEach(result::add);
+		}
+
 		return result;
 	}
 

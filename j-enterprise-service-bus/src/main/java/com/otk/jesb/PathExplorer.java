@@ -34,6 +34,10 @@ public class PathExplorer {
 		this.rootVariableName = rootVariableName;
 	}
 
+	public String getRootVariableName() {
+		return rootVariableName;
+	}
+
 	public List<PathNode> explore() {
 		return new TypedNodeUtility(null, typeName).getChildren();
 	}

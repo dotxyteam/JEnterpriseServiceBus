@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.MiscUtils;
 
 /**
  * This class represents the execution period of a {@link Solution}.
@@ -63,24 +64,18 @@ public abstract class Session implements AutoCloseable {
 		if (!active) {
 			throw new UnexpectedError();
 		}
-		active = false;
-		List<Throwable> errors = new ArrayList<Throwable>();
-		try {
-			terminate();
-		} catch (Throwable t) {
-			errors.add(t);
-		}
-		closables.stream().forEach(closable -> {
-			try {
-				closable.close();
-			} catch (Throwable t) {
-				errors.add(t);
-			}
+		MiscUtils.finalizing((compositeException) -> {
+			compositeException.tryCactch(() -> {
+				terminate();
+			});
+			closables.stream().forEach(closable -> {
+				compositeException.tryCactch(() -> {
+					closable.close();
+				});
+			});
+			closables = null;
+			active = false;
 		});
-		closables = null;
-		if (errors.size() > 0) {
-			throw new Exception("Error(s) occured (see the logs for more information)");
-		}
 	}
 
 }
