@@ -188,7 +188,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		MiscUtils.finalizing((compositeException) -> {
+		MiscUtils.willRethrowCommonly((compositeException) -> {
 			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
 			String servicePath = getServicePath();
 			RequestHandler requestHandler = (server == null) ? null
@@ -351,7 +351,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
-			MiscUtils.finalizing((compositeException) -> {
+			MiscUtils.willRethrowCommonly((compositeException) -> {
 				compositeException.tryCactch(() -> {
 					endpoint.destroy();
 				});

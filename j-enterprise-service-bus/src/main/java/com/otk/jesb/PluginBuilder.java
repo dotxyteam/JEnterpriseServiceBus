@@ -37,6 +37,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.ActivatorStructure;
+import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
@@ -160,8 +161,7 @@ public class PluginBuilder {
 		try {
 			generateProject(temporaryDirectory);
 			List<Class<?>> classes = new ArrayList<Class<?>>();
-			classes.addAll(MiscUtils.IN_MEMORY_COMPILER.compile(getSourceDirectory(temporaryDirectory)));
-			classes = MiscUtils.expandWithEnclosedClasses(classes);
+			classes.addAll(compile(getSourceDirectory(temporaryDirectory)));
 			Manifest manifest = new Manifest();
 			try (FileInputStream in = new FileInputStream(
 					new File(getMetaInformationDirectory(temporaryDirectory), "MANIFEST.MF"))) {
@@ -198,7 +198,9 @@ public class PluginBuilder {
 	}
 
 	public void prepareTesting() throws Exception {
-		unprepareTesting();
+		if (isTestingPrepared()) {
+			throw new UnexpectedError();
+		}
 		File temporaryJarFile = MiscUtils.createTemporaryFile("jar");
 		try {
 			generateJAR(temporaryJarFile);
@@ -210,11 +212,51 @@ public class PluginBuilder {
 		}
 	}
 
-	public void unprepareTesting() throws Exception {
-		if (onlineJAR != null) {
-			Solution.INSTANCE.setRequiredJARs(MiscUtils.removed(Solution.INSTANCE.getRequiredJARs(), -1, onlineJAR));
-			onlineJAR = null;
+	public void unprepareTesting() {
+		if (!isTestingPrepared()) {
+			throw new UnexpectedError();
 		}
+		Solution.INSTANCE.setRequiredJARs(MiscUtils.removed(Solution.INSTANCE.getRequiredJARs(), -1, onlineJAR));
+		onlineJAR = null;
+	}
+
+	public boolean isTestingPrepared() {
+		return onlineJAR != null;
+	}
+
+	private void withoutTestingPrepared(Runnable runnable) {
+		if (onlineJAR == null) {
+			runnable.run();
+			return;
+		}
+		Solution.INSTANCE.setRequiredJARs(MiscUtils.removed(Solution.INSTANCE.getRequiredJARs(), -1, onlineJAR));
+		try {
+			runnable.run();
+		} finally {
+			Solution.INSTANCE.setRequiredJARs(MiscUtils.added(Solution.INSTANCE.getRequiredJARs(),
+					Solution.INSTANCE.getRequiredJARs().size(), onlineJAR));
+		}
+	}
+
+	private List<Class<?>> compile(File sourceDirectory) throws CompilationError {
+		@SuppressWarnings("unchecked")
+		List<Class<?>>[] result = new List[1];
+		CompilationError[] compilationError = new CompilationError[1];
+		withoutTestingPrepared(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					result[0] = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
+					result[0] = MiscUtils.expandWithEnclosedClasses(result[0]);
+				} catch (CompilationError e) {
+					compilationError[0] = e;
+				}
+			}
+		});
+		if (compilationError[0] != null) {
+			throw compilationError[0];
+		}
+		return result[0];
 	}
 
 	private File getResourceDirectory(File projectDirectory) {
@@ -392,17 +434,12 @@ public class PluginBuilder {
 		for (ResourceDescriptor resource : resources) {
 			resource.validate();
 		}
-		try {
-			unprepareTesting();
-		} catch (Exception e) {
-			throw new UnexpectedError(e);
-		}
 		if (operations.size() + activators.size() + resources.size() > 0) {
 			try {
 				File temporaryDirectory = MiscUtils.createTemporaryDirectory();
 				try {
 					generateSources(temporaryDirectory);
-					MiscUtils.IN_MEMORY_COMPILER.compile(temporaryDirectory);
+					compile(temporaryDirectory);
 				} finally {
 					MiscUtils.delete(temporaryDirectory);
 				}
@@ -985,6 +1022,9 @@ public class PluginBuilder {
 		}
 
 		public com.otk.jesb.operation.Experiment test() throws Exception {
+			if (PluginBuilder.INSTANCE.isTestingPrepared()) {
+				PluginBuilder.INSTANCE.unprepareTesting();
+			}
 			PluginBuilder.INSTANCE.prepareTesting();
 			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + opertionTypeName;
 			OperationBuilder<?> operationBuilder = (OperationBuilder<?>) MiscUtils
@@ -2159,10 +2199,18 @@ public class PluginBuilder {
 				afterMethodDeclarations.append("\n");
 				afterMethodDeclarations.append(getAdditionalMethodDeclarationsSourceCode());
 			}
+			generateAdditionalConstructorsSourceCode(afterFieldDeclarations);
 			return new CodeBuilder(resourceStructure.generateJavaTypeSourceCode(resourceClassName, null, extended,
 					afterPackageDeclaration.toString(), afterFieldDeclarations.toString(),
 					afterMethodDeclarations.toString(), codeGenerationOptions)).registerPlaceHolder(importsPlaceHolder)
 							.toString();
+		}
+
+		protected void generateAdditionalConstructorsSourceCode(CodeBuilder result) {
+			result.append("\n");
+			result.append("public " + resourceTypeName + "(String name) {\n");
+			result.appendIndented("super(name);\n");
+			result.append("}");
 		}
 
 		protected void generateValidationMethodSourceCode(CodeBuilder result, String resourceClassName,
@@ -2248,6 +2296,9 @@ public class PluginBuilder {
 		}
 
 		public com.otk.jesb.resource.Experiment test() throws Exception {
+			if (PluginBuilder.INSTANCE.isTestingPrepared()) {
+				PluginBuilder.INSTANCE.unprepareTesting();
+			}
 			PluginBuilder.INSTANCE.prepareTesting();
 			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + resourceTypeName;
 			Resource resource = (Resource) MiscUtils.getJESBClass(fullClassName).newInstance();
@@ -2837,20 +2888,20 @@ public class PluginBuilder {
 				result.append("@Override\n");
 				result.append("public void initializeAutomaticTrigger(" + ActivationHandler.class.getName()
 						+ " activationHandler) throws Exception {\n");
+				result.appendIndented("this.activationHandler = activationHandler;\n");
 				if (handlerInitializationStatements != null) {
 					result.appendIndented(handlerInitializationStatements + "\n");
 				}
-				result.appendIndented("this.activationHandler = activationHandler;\n");
 				result.append("}\n");
 			}
 			result.append("\n");
 			{
 				result.append("@Override\n");
 				result.append("public void finalizeAutomaticTrigger() throws Exception {\n");
-				result.appendIndented("this.activationHandler = null;\n");
 				if (handlerFinalizationStatements != null) {
 					result.appendIndented(handlerFinalizationStatements + "\n");
 				}
+				result.appendIndented("this.activationHandler = null;\n");
 				result.append("}\n");
 			}
 			result.append("\n");
@@ -2960,6 +3011,9 @@ public class PluginBuilder {
 		}
 
 		public com.otk.jesb.activation.Experiment test() throws Exception {
+			if (PluginBuilder.INSTANCE.isTestingPrepared()) {
+				PluginBuilder.INSTANCE.unprepareTesting();
+			}
 			PluginBuilder.INSTANCE.prepareTesting();
 			String fullClassName = PluginBuilder.INSTANCE.getPackageName() + "." + activatorTypeName;
 			Activator activator = (Activator) MiscUtils.getJESBClass(fullClassName).newInstance();

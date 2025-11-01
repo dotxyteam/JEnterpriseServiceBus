@@ -203,7 +203,7 @@ public class MiscUtils {
 		configureSolutionDependencies(Collections.emptyList());
 	}
 
-	public static void finalizing(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
+	public static void willRethrowCommonly(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
 		CompositeException.willRethrow(workWithCompositeException, true,
 				"Error(s) occured (see the logs for more information)");
 	}

@@ -2,6 +2,7 @@ package com.otk.jesb.activation.builtin;
 
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorStructure;
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Variant;
@@ -89,6 +90,7 @@ public class Schedule extends Activator {
 
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+		this.activationHandler = activationHandler;
 		scheduler = Executors.newScheduledThreadPool(1);
 		Runnable task = new Runnable() {
 			@Override
@@ -103,17 +105,20 @@ public class Schedule extends Activator {
 				repetitionSettings.periodLengthVariant.getValue(), chronUnit,
 				(repetitionSettings.getEndDateTimeVariant().getValue() == null) ? null
 						: repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate());
-		this.activationHandler = activationHandler;
-
-		this.activationHandler = activationHandler;
 	}
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		this.activationHandler = null;
-		scheduler.shutdownNow();
-		scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-		scheduler = null;
+		MiscUtils.willRethrowCommonly(compositeException -> {
+			compositeException.tryCactch(() -> {
+				scheduler.shutdownNow();
+			});
+			compositeException.tryCactch(() -> {
+				scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			});
+			scheduler = null;
+			this.activationHandler = null;
+		});
 	}
 
 	@Override

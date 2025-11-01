@@ -186,7 +186,7 @@ public class WatchFileSystem extends Activator {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		MiscUtils.finalizing((compositeException) -> {
+		MiscUtils.willRethrowCommonly((compositeException) -> {
 			compositeException.tryCactch(() -> {
 				watchService.close();
 			});

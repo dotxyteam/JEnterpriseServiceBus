@@ -64,7 +64,7 @@ public abstract class Session implements AutoCloseable {
 		if (!active) {
 			throw new UnexpectedError();
 		}
-		MiscUtils.finalizing((compositeException) -> {
+		MiscUtils.willRethrowCommonly((compositeException) -> {
 			compositeException.tryCactch(() -> {
 				terminate();
 			});

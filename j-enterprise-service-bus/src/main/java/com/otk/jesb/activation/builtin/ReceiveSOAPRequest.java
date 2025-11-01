@@ -209,7 +209,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		MiscUtils.finalizing((compositeException) -> {
+		MiscUtils.willRethrowCommonly((compositeException) -> {
 			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
 			RequestHandler requestHandler = (server == null) ? null
 					: compositeException.tryReturnCactch(() -> server.expectRequestHandler(getServicePath()));
@@ -348,7 +348,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
-			MiscUtils.finalizing((compositeException) -> {
+			MiscUtils.willRethrowCommonly((compositeException) -> {
 				compositeException.tryCactch(() -> {
 					endpoint.stop();
 				});
