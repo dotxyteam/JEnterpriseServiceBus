@@ -42,6 +42,8 @@
 	. indent the generated code
 	. check if things can be done by using javaparser
 - maybe change the project name since ESBs are not popular anymore
+- allow SSL for HTTPServer (can be managed by a reverse proxy)
+- allow authentication for HTTP-based request operations (can be managed by a reverse proxy)
 - configure heapdump on OOM by default ???
 - create a basic WSDL generator
 - allow to view APIs (SOAP/REST) documentation URL

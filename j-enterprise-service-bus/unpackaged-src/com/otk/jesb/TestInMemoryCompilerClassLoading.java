@@ -20,7 +20,7 @@ public class TestInMemoryCompilerClassLoading {
 		try (URLClassLoader classLoader = new URLClassLoader(
 				new URL[] { new File("./tmp/plugin-jars-comparaison/file-8326478456596934304.jar").toURI().toURL() })) {
 			Solution.INSTANCE.setRequiredJARs(Collections.emptyList());
-			MiscUtils.IN_MEMORY_COMPILER.setBaseClassLoader(classLoader);
+			MiscUtils.IN_MEMORY_COMPILER.setFirstClassLoader(classLoader);
 			test(classLoader);
 		}
 	}

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
@@ -56,12 +57,9 @@ public class InMemoryCompiler {
 	private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	private UID currentCompilationIdentifier;
 	private Iterable<String> options = Arrays.asList("-parameters");
-	private final DelegatingClassLoader baseDelegatingClassLoader = new DelegatingClassLoader(
+	private final DelegatingClassLoader firstClassLoaderDelegator = new DelegatingClassLoader(
 			new URLClassLoader(new URL[0]));
-	private final CompositeClassLoader compositeClassLoader = new CompositeClassLoader();
-	{
-		compositeClassLoader.setFirstClassLoader(baseDelegatingClassLoader);
-	}
+	private final CompiledClassesLoader compiledClassesLoader = new CompiledClassesLoader();
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
 	private final Object compilationMutex = new Object();
 	private final Object classDataMutex = new Object();
@@ -80,15 +78,15 @@ public class InMemoryCompiler {
 	}
 
 	public ClassLoader getCompiledClassesLoader() {
-		return compositeClassLoader;
+		return compiledClassesLoader;
 	}
 
-	public URLClassLoader getBaseClassLoader() {
-		return (URLClassLoader) baseDelegatingClassLoader.getDelegate();
+	public URLClassLoader getFirstClassLoader() {
+		return (URLClassLoader) firstClassLoaderDelegator.getDelegate();
 	}
 
-	public void setBaseClassLoader(URLClassLoader classLoader) {
-		baseDelegatingClassLoader.setDelegate(classLoader);
+	public void setFirstClassLoader(URLClassLoader classLoader) {
+		firstClassLoaderDelegator.setDelegate(classLoader);
 		synchronized (classCacheMutex) {
 			classCache.clear();
 		}
@@ -107,7 +105,7 @@ public class InMemoryCompiler {
 			Class<?> c = classCache.get(className);
 			if (c == null) {
 				try {
-					c = compositeClassLoader.loadClass(className);
+					c = compiledClassesLoader.loadClass(className);
 				} catch (ClassNotFoundException e) {
 					c = CACHED_CLASS_NOT_FOUND;
 				}
@@ -142,9 +140,10 @@ public class InMemoryCompiler {
 
 	private List<Class<?>> compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
 		if (Log.isVerbose()) {
-			Log.get().info("Compiling " + files.stream()
-					.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
-					.collect(Collectors.toList()) + "...");
+			Log.get()
+					.info("Compiling " + files.stream()
+							.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
+							.collect(Collectors.toList()) + "...");
 		}
 		if (files.isEmpty())
 			throw new CompilationError(-1, -1, "No input files", null, null);
@@ -168,9 +167,9 @@ public class InMemoryCompiler {
 				if (classpath == null) {
 					throw new UnexpectedError();
 				}
-				URLClassLoader baseClassLoader = getBaseClassLoader();
-				if (baseClassLoader != null) {
-					String parentClasspapth = Arrays.stream(baseClassLoader.getURLs()).map(url -> {
+				URLClassLoader firstClassLoader = getFirstClassLoader();
+				if (firstClassLoader != null) {
+					String parentClasspapth = Arrays.stream(firstClassLoader.getURLs()).map(url -> {
 						try {
 							return new File(url.toURI()).getAbsolutePath();
 						} catch (URISyntaxException e) {
@@ -390,6 +389,14 @@ public class InMemoryCompiler {
 		}
 	}
 
+	private boolean shouldLoadThePackageFromMemory(String packageName) {
+		return compiledClassesLoader.getClassLoaders().stream()
+				.filter(l -> (l instanceof MemoryClassLoader) && !(l instanceof MemoryPackageLoader)
+						&& packageName.equals(MiscUtils.extractPackageNameFromClassName(
+								((MemoryClassLoader) l).getMainClassIdentifier().getClassName())))
+				.count() > 0;
+	}
+
 	private static class ClassIdentifier {
 		private final UID compilationIdentifier;
 		private final String className;
@@ -454,14 +461,46 @@ public class InMemoryCompiler {
 		}
 	}
 
+	private class CompiledClassesLoader extends CompositeClassLoader {
+		public CompiledClassesLoader() {
+			setFirstClassLoader(firstClassLoaderDelegator);
+		}
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		protected Function<ClassLoader, Class> getClassLoadingFunction(String className, boolean resolve) {
+			Function<ClassLoader, Class> baseFunction = super.getClassLoadingFunction(className, resolve);
+			return classLoader -> {
+				if (classLoader instanceof MemoryClassLoader) {
+					if (!((MemoryClassLoader) classLoader).isResponsibleForClass(className)) {
+						return null;
+					}
+				}
+				return baseFunction.apply(classLoader);
+			};
+		}
+
+		@Override
+		protected Function<ClassLoader, URL> getResourceLoadingFunction(String name) {
+			Function<ClassLoader, URL> baseFunction = super.getResourceLoadingFunction(name);
+			return classLoader -> {
+				if (classLoader instanceof MemoryClassLoader) {
+					return null;
+				}
+				return baseFunction.apply(classLoader);
+			};
+		}
+
+	}
+
 	private class MemoryClassLoader extends ClassLoader {
 		private final List<String> definedClassNames = new ArrayList<String>();
 		private final ClassIdentifier mainClassIdentifier;
 
 		public MemoryClassLoader(ClassIdentifier classIdentifier) {
-			super(baseDelegatingClassLoader);
+			super(compiledClassesLoader);
 			this.mainClassIdentifier = classIdentifier;
-			compositeClassLoader.add(this);
+			compiledClassesLoader.add(this);
 		}
 
 		public ClassIdentifier getMainClassIdentifier() {
@@ -471,10 +510,10 @@ public class InMemoryCompiler {
 		@Override
 		protected Package getPackage(String packageName) {
 			if (shouldLoadThePackageFromMemory(packageName)) {
-				MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compositeClassLoader
+				MemoryPackageLoader responsiblePackageLoader = (MemoryPackageLoader) compiledClassesLoader
 						.getClassLoaders().stream()
 						.filter(l -> (l instanceof MemoryPackageLoader)
-								&& ((MemoryPackageLoader) l).getThePackageName().equals(packageName))
+								&& ((MemoryPackageLoader) l).isResponsibleForPackage(packageName))
 						.findFirst().orElse(null);
 				if (responsiblePackageLoader == null) {
 					responsiblePackageLoader = new MemoryPackageLoader(packageName);
@@ -484,19 +523,10 @@ public class InMemoryCompiler {
 			return super.getPackage(packageName);
 		}
 
-		private boolean shouldLoadThePackageFromMemory(String packageName) {
-			return compositeClassLoader
-					.getClassLoaders().stream().filter(
-							l -> (l instanceof MemoryClassLoader) && !(l instanceof MemoryPackageLoader)
-									&& packageName.equals(MiscUtils.extractPackageNameFromClassName(
-											((MemoryClassLoader) l).getMainClassIdentifier().getClassName())))
-					.count() > 0;
-		}
-
 		@Override
 		protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 			synchronized (getClassLoadingLock(className)) {
-				if (isResponsibleFor(className)) {
+				if (isResponsibleForClass(className)) {
 					// First, check if the class has already been loaded
 					Class<?> c = findLoadedClass(className);
 					if (c == null) {
@@ -507,16 +537,7 @@ public class InMemoryCompiler {
 					}
 					return c;
 				} else {
-					ClassLoader responsibleClassLoader = compositeClassLoader.getClassLoaders().stream()
-							.filter(l -> (l instanceof MemoryClassLoader)
-									&& ((MemoryClassLoader) l).isResponsibleFor(className))
-							.findFirst().orElse(null);
-					Class<?> c;
-					if (responsibleClassLoader != null) {
-						c = responsibleClassLoader.loadClass(className);
-					} else {
-						c = getParent().loadClass(className);
-					}
+					Class<?> c = compiledClassesLoader.loadClass(className);
 					if (resolve) {
 						resolveClass(c);
 					}
@@ -525,7 +546,7 @@ public class InMemoryCompiler {
 			}
 		}
 
-		protected boolean isResponsibleFor(String className) {
+		protected boolean isResponsibleForClass(String className) {
 			return className.equals(mainClassIdentifier.getClassName())
 					|| className.startsWith(mainClassIdentifier.getClassName() + "$");
 		}
@@ -540,16 +561,9 @@ public class InMemoryCompiler {
 			if (bytes == null)
 				throw new ClassNotFoundException(className);
 			try {
-				if (getParent().loadClass(className) != null) {
+				if (firstClassLoaderDelegator.loadClass(className) != null) {
 					throw new UnexpectedError(
 							"Cannot define a class that is already defined by the system class loader: " + className);
-				}
-				URLClassLoader baseClassLoader = getBaseClassLoader();
-				if (baseClassLoader != null) {
-					if (baseClassLoader.loadClass(className) != null) {
-						throw new UnexpectedError(
-								"Cannot define a class that is already defined by the base class loader: " + className);
-					}
 				}
 			} catch (ClassNotFoundException e) {
 			}
@@ -580,12 +594,12 @@ public class InMemoryCompiler {
 			this.thePackageName = thePackageName;
 		}
 
-		public String getThePackageName() {
-			return thePackageName;
+		public boolean isResponsibleForPackage(String packageName) {
+			return thePackageName.equals(packageName);
 		}
 
 		@Override
-		protected boolean isResponsibleFor(String className) {
+		protected boolean isResponsibleForClass(String className) {
 			return false;
 		}
 

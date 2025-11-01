@@ -96,14 +96,26 @@ public class CompositeClassLoader extends ClassLoader {
 
 	@Override
 	public URL getResource(String name) {
-		return compositively(classLoader -> classLoader.getResource(name));
+		return applyCompositively(getResourceLoadingFunction(name));
 	}
 
 	@Override
 	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		Class result = compositively(classLoader -> {
+		Class result = applyCompositively(getClassLoadingFunction(name, resolve));
+		if (result == null) {
+			throw new ClassNotFoundException(name);
+		}
+		return result;
+	}
+
+	protected Function<ClassLoader, URL> getResourceLoadingFunction(String resourceName) {
+		return classLoader -> classLoader.getResource(resourceName);
+	}
+
+	protected Function<ClassLoader, Class> getClassLoadingFunction(String className, boolean resolve) {
+		return classLoader -> {
 			try {
-				Class<?> clazz = classLoader.loadClass(name);
+				Class<?> clazz = classLoader.loadClass(className);
 				if (resolve) {
 					resolveClass(clazz);
 				}
@@ -111,14 +123,10 @@ public class CompositeClassLoader extends ClassLoader {
 			} catch (ClassNotFoundException notFound) {
 				return null;
 			}
-		});
-		if (result == null) {
-			throw new ClassNotFoundException(name);
-		}
-		return result;
+		};
 	}
 
-	private <T> T compositively(Function<ClassLoader, T> accessor) {
+	private <T> T applyCompositively(Function<ClassLoader, T> accessor) {
 		List copy = new ArrayList(classLoaders.size()) {
 
 			public boolean addAll(Collection c) {
@@ -142,15 +150,12 @@ public class CompositeClassLoader extends ClassLoader {
 			cleanup();
 			copy.addAll(classLoaders);
 		}
-		
 		if (firstClassLoader != null) {
 			T result = accessor.apply(firstClassLoader);
 			if (result != null) {
 				return result;
 			}
 		}
-
-
 		for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
 			ClassLoader classLoader = (ClassLoader) iterator.next();
 			T result = accessor.apply(classLoader);
@@ -158,14 +163,12 @@ public class CompositeClassLoader extends ClassLoader {
 				return result;
 			}
 		}
-
 		if (lastClassLoader != null) {
 			T result = accessor.apply(lastClassLoader);
 			if (result != null) {
 				return result;
 			}
 		}
-
 		return null;
 	}
 

@@ -53,4 +53,9 @@ public class TestWithAutomation {
 		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/testBuiltInElements.stt"));
 	}
 
+	@Test
+	public void testPluginBuilder() throws Exception {
+		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/testPluginBuilder.stt"));
+	}
+
 }

@@ -35,7 +35,9 @@ import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.PathOptionsProvider;
+import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
 import com.otk.jesb.Session;
 import com.otk.jesb.Structure;
 import com.otk.jesb.PathExplorer.PathNode;
@@ -131,6 +133,7 @@ import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin.ToggleButtonConfigu
 import xy.reflect.ui.control.swing.renderer.Form;
 import xy.reflect.ui.control.swing.renderer.SwingRenderer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.InfoCategory;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.custom.InfoCustomizations;
@@ -293,6 +296,9 @@ public class GUI extends MultiSwingCustomizer {
 
 	protected String selectSubCustomizationsSwitch(Class<?> objectClass) {
 		if (objectClass == RootInstanceBuilder.class) {
+			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
+		}
+		if (objectClass == Reference.class) {
 			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
 		if (Structure.class.isAssignableFrom(objectClass)) {
@@ -1069,6 +1075,53 @@ public class GUI extends MultiSwingCustomizer {
 		protected IInfoProxyFactory createBeforeInfoCustomizationsFactory() {
 			return new InfoProxyFactory() {
 
+				boolean isResourceNoteField(IFieldInfo field, ITypeInfo objectType) {
+					Class<?> objectClass;
+					try {
+						objectClass = MiscUtils.getJESBClass(objectType.getName());
+					} catch (Exception e) {
+						objectClass = null;
+					}
+					if ((objectClass != null) && Resource.class.isAssignableFrom(objectClass)) {
+						if (field.getName().equals("note")) {
+							return true;
+						}
+					}
+					return false;
+				}
+
+				@Override
+				protected InfoCategory getCategory(IFieldInfo field, ITypeInfo objectType) {
+					if (isResourceNoteField(field, objectType)) {
+						return new InfoCategory("Note", 0, null);
+					}
+					return super.getCategory(field, objectType);
+				}
+
+				@Override
+				protected String getCaption(IFieldInfo field, ITypeInfo objectType) {
+					if (isResourceNoteField(field, objectType)) {
+						return "";
+					}
+					return super.getCaption(field, objectType);
+				}
+
+				@Override
+				protected double getDisplayAreaVerticalWeight(IFieldInfo field, ITypeInfo objectType) {
+					if (isResourceNoteField(field, objectType)) {
+						return 1.0;
+					}
+					return super.getDisplayAreaVerticalWeight(field, objectType);
+				}
+
+				@Override
+				protected boolean isDisplayAreaVerticallyFilled(IFieldInfo field, ITypeInfo objectType) {
+					if (isResourceNoteField(field, objectType)) {
+						return true;
+					}
+					return super.isDisplayAreaVerticallyFilled(field, objectType);
+				}
+
 				@Override
 				protected void setValue(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
 					if (object == Preferences.INSTANCE) {
@@ -1694,6 +1747,14 @@ public class GUI extends MultiSwingCustomizer {
 								} catch (Exception e) {
 									throw new PotentialError(e);
 								}
+							}
+						}
+					}
+					if (object instanceof PluginBuilder) {
+						if (!visible) {
+							PluginBuilder pluginBuilder = (PluginBuilder) object;
+							if (pluginBuilder.isTestingPrepared()) {
+								pluginBuilder.unprepareTesting();
 							}
 						}
 					}
@@ -2795,7 +2856,8 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						if (Log.isVerbose()) {
-							Log.get().info("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
+							Log.get()
+									.info("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {

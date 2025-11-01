@@ -116,7 +116,7 @@ public class HTTPServer extends Resource {
 		if (!isActive()) {
 			throw new UnexpectedError();
 		}
-		MiscUtils.finalizing(compositeException -> {
+		MiscUtils.willRethrowCommonly(compositeException -> {
 			compositeException.tryCactch(() -> {
 				jettyServer.stop();
 				jettyServer = null;
@@ -200,7 +200,7 @@ public class HTTPServer extends Resource {
 				if (!server.requestHandlers.contains(this)) {
 					throw new UnexpectedError();
 				} else {
-					MiscUtils.finalizing((compositeException) -> {
+					MiscUtils.willRethrowCommonly((compositeException) -> {
 						compositeException.tryCactch(() -> {
 							uninstall(server);
 						});

@@ -203,7 +203,7 @@ public class MiscUtils {
 		configureSolutionDependencies(Collections.emptyList());
 	}
 
-	public static void finalizing(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
+	public static void willRethrowCommonly(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
 		CompositeException.willRethrow(workWithCompositeException, true,
 				"Error(s) occured (see the logs for more information)");
 	}
@@ -953,7 +953,7 @@ public class MiscUtils {
 	}
 
 	public static ClassLoader getJESBResourceLoader() {
-		return IN_MEMORY_COMPILER.getBaseClassLoader();
+		return IN_MEMORY_COMPILER.getFirstClassLoader();
 	}
 
 	public static Class<?> getJESBClass(String typeName) throws PotentialError {
@@ -1098,7 +1098,7 @@ public class MiscUtils {
 	public static void configureSolutionDependencies(List<JAR> jars) {
 		URLClassLoader jarsClassLoader = new URLClassLoader(
 				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), JESB.class.getClassLoader());
-		IN_MEMORY_COMPILER.setBaseClassLoader(jarsClassLoader);
+		IN_MEMORY_COMPILER.setFirstClassLoader(jarsClassLoader);
 		JAR.PLUGIN_OPERATION_METADATAS.clear();
 		JAR.PLUGIN_ACTIVATOR_METADATAS.clear();
 		JAR.PLUGIN_RESOURCE_METADATAS.clear();

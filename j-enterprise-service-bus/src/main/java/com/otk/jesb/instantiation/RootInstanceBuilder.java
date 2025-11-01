@@ -92,8 +92,13 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public synchronized RootInstanceBuilderFacade getFacade() {
 		if (facade == null) {
-			facade = (RootInstanceBuilderFacade) Facade.get(this, null);
-			facade.getChildren().get(0).setConcrete(true);
+			RootInstanceBuilderFacade tmpFacade = (RootInstanceBuilderFacade) Facade.get(this, null);
+			List<Facade> facadeChildren = tmpFacade.getChildren();
+			if (facadeChildren.size() == 0) {
+				return tmpFacade;
+			}
+			facadeChildren.get(0).setConcrete(true);
+			facade = tmpFacade;
 		}
 		return facade;
 	}
