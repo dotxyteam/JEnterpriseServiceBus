@@ -5656,7 +5656,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-141e</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:422c</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -9273,7 +9273,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:7583</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-141d</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:422d</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -9336,7 +9336,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:77a7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-141c</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:422e</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -9399,7 +9399,7 @@
             <uniqueIdentifier>60364107:1999163bebe:-3d1d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-141b</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:422f</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -9462,7 +9462,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5a91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-141a</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4230</uniqueIdentifier>
                 <caption>Handler Finalization Statements</caption>
                 <name>handlerFinalizationStatements</name>
             </category>
@@ -9533,7 +9533,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5822</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1419</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4231</uniqueIdentifier>
                 <caption>Handler Initialization Statements</caption>
                 <name>handlerInitializationStatements</name>
             </category>
@@ -9609,7 +9609,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-483a07cc:1998a954cca:5cb6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1418</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4232</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -11788,7 +11788,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-1417</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:4233</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -13440,7 +13440,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-1416</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:4234</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -14960,7 +14960,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-1415</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:4235</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -17621,7 +17621,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-1414</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:4236</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -18821,7 +18821,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:5106</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1413</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4237</uniqueIdentifier>
                 <caption>Activators</caption>
                 <name>activators</name>
             </category>
@@ -18990,7 +18990,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:51a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1412</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4238</uniqueIdentifier>
                 <caption>Operations</caption>
                 <name>operations</name>
             </category>
@@ -19144,7 +19144,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:5204</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1411</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4239</uniqueIdentifier>
                 <caption>Resources</caption>
                 <name>resources</name>
             </category>
@@ -21869,7 +21869,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-1410</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:423a</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -25890,7 +25890,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140f</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:423b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -25953,7 +25953,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140e</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:423c</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -26015,7 +26015,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140d</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:423d</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -26278,6 +26278,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>27ff0412:1990199b89a:33ea</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
+            <onlineHelp>Allows to describe the class (name: InputClassStructure) of input objects that will be passed to the method com.otk.jesb.activation.ActivationHandler#trigger(Object).</onlineHelp>
             <customFieldCaption>Enable Input</customFieldCaption>
             <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
@@ -26308,6 +26309,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>27ff0412:1990199b89a:3400</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
+            <onlineHelp>Allows to describe the class (name: OutputClassStructure) of output objects that will be returned by the method com.otk.jesb.activation.ActivationHandler#trigger(Object).</onlineHelp>
             <customFieldCaption>Enable Output</customFieldCaption>
             <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
             <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
@@ -26334,7 +26336,6 @@ period) to trigger an activation event.
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
-        <fieldsLayout>HORIZONTAL_FLOW</fieldsLayout>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
         <menuModel>
@@ -28994,7 +28995,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>60364107:19991607df3:761f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140c</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:423e</uniqueIdentifier>
                 <caption>Additional Builder Validation Statements</caption>
                 <name>additionalBuilderValidationStatements</name>
             </category>
@@ -29066,7 +29067,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-25d11e7e:1998b1b6193:770c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140b</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:423f</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -29129,7 +29130,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-25d11e7e:1998b1b6193:796c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-140a</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4240</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -29192,7 +29193,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-483a07cc:1998aac383e:-eca</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1409</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4241</uniqueIdentifier>
                 <caption>Execution Method Body</caption>
                 <name>executionMethodBody</name>
             </category>
@@ -29256,7 +29257,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:-c9b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1408</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4242</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -30477,7 +30478,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:1b21</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1407</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4243</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -30595,7 +30596,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4f0f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1406</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4244</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -30656,7 +30657,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-5d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1405</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4245</uniqueIdentifier>
                 <caption>Properties</caption>
                 <name>properties</name>
             </category>
@@ -30815,7 +30816,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-66</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1404</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4246</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -32171,7 +32172,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1403</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4247</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -32233,7 +32234,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1402</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4248</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -32268,7 +32269,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1401</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4249</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -32652,7 +32653,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>1de56e9d:19906e52549:-54b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-1400</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -32689,7 +32690,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>1de56e9d:19906e52549:-495</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13ff</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424b</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -32725,7 +32726,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:199903bf2b3:189d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13fe</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424c</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -32949,7 +32950,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-18464e28:1959c217a77:-5313</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13fd</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424d</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -33011,7 +33012,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7e3c01d6:19680a0ac94:-4647</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13fc</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424e</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33047,7 +33048,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>35b74ac5:1986218f832:-27a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13fb</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:424f</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33081,7 +33082,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:7e7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13fa</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4250</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33168,7 +33169,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:32c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f9</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4251</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33203,7 +33204,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:339</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f8</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4252</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33238,7 +33239,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-29ddb02e:198233ec638:63b8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f7</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4253</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33276,7 +33277,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>35b74ac5:1986218f832:-2e33</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f6</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4254</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33311,7 +33312,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-56dd94c9:1968bf985ca:-4038</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f5</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4255</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -33464,7 +33465,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-29ddb02e:198233ec638:63bb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f4</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4256</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -33598,7 +33599,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-332f65a0:1947f7efd62:-757a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f3</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4257</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -34980,7 +34981,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-55559b63:1998b374367:-5e87</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f2</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4258</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -35043,7 +35044,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-55559b63:1998b374367:-5c62</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f1</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4259</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -35106,7 +35107,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>60364107:1999163bebe:-14d9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13f0</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:425a</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -35177,7 +35178,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:1b26</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13ef</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:425b</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -36452,7 +36453,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-53aac6:1980480734d:-65e3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13ee</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:425c</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -39603,6 +39604,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
         <customFieldsOrderEntry>sizeBox</customFieldsOrderEntry>
         <customFieldsOrderEntry>title</customFieldsOrderEntry>
         <customFieldsOrderEntry>clearButtonBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>writeBox</customFieldsOrderEntry>
         <customFieldsOrderEntry>sizeButtonBox</customFieldsOrderEntry>
         <customFieldsOrderEntry>size</customFieldsOrderEntry>
         <fieldsCustomization>
@@ -39770,6 +39772,34 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:-4738</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>writeBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:-4736</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-529c1e9a:19a46a12841:-4737</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <formBackgroundColor>
             <blue>128</blue>
             <green>112</green>
@@ -39814,6 +39844,36 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
             <methodName>sizeBox.get</methodName>
             <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Console], fieldName=toolBox]], fieldName=sizeBox] sizeBox.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:-4aac</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Wrrite</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>writeBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>submitInputLine</methodName>
+            <methodSignature>void submitInputLine(java.lang.String)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:-4aab</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-529c1e9a:19a46a12841:-4aaa</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>s</parameterName>
+            </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -40743,7 +40803,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-6b9702df:19a416db5c8:-13ed</uniqueIdentifier>
+                        <uniqueIdentifier>-529c1e9a:19a46a12841:425d</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -46675,6 +46735,141 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5ba7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>errorStream</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>344078b0:19a463a912a:5ba9</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>344078b0:19a463a912a:5ba8</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5bb3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>informationStream</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>344078b0:19a463a912a:5bb5</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>344078b0:19a463a912a:5bb4</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5bbd</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>warningStream</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>344078b0:19a463a912a:5bbf</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>344078b0:19a463a912a:5bbe</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a0da78:5bc6</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>STANDARD_INPUT_SOURCE</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-529c1e9a:19a46a0da78:5bc8</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-529c1e9a:19a46a0da78:5bc7</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a0da78:5bf1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>inputStream</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-529c1e9a:19a46a0da78:5bf3</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-529c1e9a:19a46a0da78:5bf2</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <fieldsLayout>HORIZONTAL_FLOW</fieldsLayout>
         <formBackgroundColor>
             <blue>76</blue>
@@ -47333,6 +47528,119 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5bf0</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>information</methodName>
+            <methodSignature>void information(java.lang.String)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>344078b0:19a463a912a:5bf3</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>344078b0:19a463a912a:5bf4</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>message</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5bf1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>warning</methodName>
+            <methodSignature>void warning(java.lang.String)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>344078b0:19a463a912a:5bf5</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>344078b0:19a463a912a:5bf6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>message</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>344078b0:19a463a912a:5bf2</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>error</methodName>
+            <methodSignature>void error(java.lang.Throwable)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>344078b0:19a463a912a:5bf7</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>344078b0:19a463a912a:5bf8</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>t</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a0da78:5c42</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>toolBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>submitInputLine</methodName>
+            <methodSignature>void submitInputLine(java.lang.String)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-529c1e9a:19a46a0da78:5c43</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-529c1e9a:19a46a0da78:5c44</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>s</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.Console</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -47416,7 +47724,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:-ecf</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13ec</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:425e</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -47453,7 +47761,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-20f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13eb</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:425f</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -47596,7 +47904,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4e35</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13ea</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4260</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -47740,7 +48048,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-1fc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e9</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4261</uniqueIdentifier>
                 <caption>Parameters</caption>
                 <name>parameters</name>
             </category>
@@ -47816,7 +48124,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e8</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4262</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>result</name>
             </category>
@@ -47853,7 +48161,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-545958f1:199878e0fe5:4cd1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e7</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4263</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50725,7 +51033,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-b4</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e6</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4264</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -50898,7 +51206,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-83</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e5</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4265</uniqueIdentifier>
                 <caption>Attributes</caption>
                 <name>attributes</name>
             </category>
@@ -50974,7 +51282,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998a954cca:581a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e4</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4266</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -51011,7 +51319,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-96</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e3</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4267</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -51073,7 +51381,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e2</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4268</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -51191,7 +51499,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4ebe</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e1</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:4269</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -51252,7 +51560,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-af</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13e0</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:426a</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -51288,7 +51596,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:1990199b89a:33e5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13df</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:426b</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -51350,7 +51658,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13de</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:426c</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -51386,7 +51694,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-8c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6b9702df:19a416db5c8:-13dd</uniqueIdentifier>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:426d</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -55459,6 +55767,96 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=outputClassOption, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.PluginBuilder$ActivatorDescriptor], fieldName=interfaceGroup]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.PluginBuilder$ClassOptionDescriptor]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-529c1e9a:19a46a12841:-4733</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:-4732</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:-4731</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Input...</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>submitInputLine</methodName>
+            <methodSignature>void submitInputLine(java.lang.String)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:-4aab</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-529c1e9a:19a46a12841:-4aaa</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>s</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Console], fieldName=toolBox]], fieldName=writeBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-529c1e9a:19a46a12841:1c4c</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:1c61</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>s</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-529c1e9a:19a46a12841:1c63</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-529c1e9a:19a46a12841:1c62</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-529c1e9a:19a46a12841:1c4d</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>MethodSetupObject [context=MethodContext [methodSignature=void submitInputLine(java.lang.String), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Console], fieldName=toolBox]], fieldName=writeBox]]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

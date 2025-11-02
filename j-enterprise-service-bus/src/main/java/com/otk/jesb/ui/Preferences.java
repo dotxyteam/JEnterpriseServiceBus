@@ -39,7 +39,7 @@ public class Preferences {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
 				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream);
 			} catch (IOException e) {
-				Log.get().err(e);
+				Log.get().error(e);
 				System.exit(-1);
 				throw new UnexpectedError();
 			}

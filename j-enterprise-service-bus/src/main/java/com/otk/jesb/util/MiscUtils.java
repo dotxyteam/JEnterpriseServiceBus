@@ -37,6 +37,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
@@ -203,9 +208,28 @@ public class MiscUtils {
 		configureSolutionDependencies(Collections.emptyList());
 	}
 
-	public static void willRethrowCommonly(Consumer<CompositeException> workWithCompositeException) throws CompositeException {
+	public static ExecutorService newExecutor(final String threadName, int minimumThreadCount) {
+		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE,
+				300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+				new ThreadFactory() {
+					private int threadNumber = 0;
+
+					@Override
+					public Thread newThread(Runnable r) {
+						Thread result = new Thread(r);
+						result.setName(threadName + "-" + (threadNumber++));
+						result.setDaemon(true);
+						return result;
+					}
+				});
+		result.allowCoreThreadTimeOut(true);
+		return result;
+	}
+	
+	public static void willRethrowCommonly(Consumer<CompositeException> workWithCompositeException)
+			throws CompositeException {
 		CompositeException.willRethrow(workWithCompositeException, true,
-				"Error(s) occured (see the logs for more information)");
+				"Error(s) occured (see the logs for more information)", com.otk.jesb.Log.get().getErrorStream());
 	}
 
 	public static void sleepSafely(long durationMilliseconds) {

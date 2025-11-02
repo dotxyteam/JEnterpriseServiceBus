@@ -24,7 +24,7 @@ public class Profile {
 				}
 			}
 		} catch (Throwable e) {
-			Log.get().err(e);
+			Log.get().error(e);
 			System.exit(-1);
 		}
 	}

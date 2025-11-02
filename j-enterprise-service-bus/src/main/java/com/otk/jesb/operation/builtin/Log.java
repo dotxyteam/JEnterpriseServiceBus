@@ -40,11 +40,11 @@ public class Log implements Operation {
 	@Override
 	public Object execute() throws IOException {
 		if (level == Level.INFORMATION) {
-			com.otk.jesb.Log.get().info(message);
+			com.otk.jesb.Log.get().information(message);
 		} else if (level == Level.WARNING) {
-			com.otk.jesb.Log.get().warn(message);
+			com.otk.jesb.Log.get().warning(message);
 		} else if (level == Level.INFORMATION) {
-			com.otk.jesb.Log.get().err(message);
+			com.otk.jesb.Log.get().error(message);
 		} else {
 			throw new UnexpectedError();
 		}

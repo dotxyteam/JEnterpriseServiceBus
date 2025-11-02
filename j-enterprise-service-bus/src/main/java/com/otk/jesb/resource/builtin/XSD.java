@@ -49,12 +49,12 @@ public class XSD extends XMLBasedDocumentResource {
 
 				@Override
 				public void warning(SAXParseException exception) {
-					Log.get().err("XJC WARNING: " + exception);
+					Log.get().error("XJC WARNING: " + exception);
 				}
 
 				@Override
 				public void info(SAXParseException exception) {
-					Log.get().info("XJC INFO: " + exception);
+					Log.get().information("XJC INFO: " + exception);
 				}
 
 				@Override

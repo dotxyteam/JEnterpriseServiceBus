@@ -110,12 +110,12 @@ public class JESB {
 			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", Log.getVerbosityStatusSupplier()));
 		}
-		Log.get().info("Starting up...");
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().info("Shutting down...")));
+		Log.get().information("Starting up...");
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().information("Shutting down...")));
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
-				Log.get().err(e);
+				Log.get().error(e);
 			}
 		});
 		if (fileOrFolder != null) {

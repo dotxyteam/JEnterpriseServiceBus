@@ -1,6 +1,7 @@
 package com.otk.jesb;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.function.Supplier;
 
@@ -67,6 +68,12 @@ public class LogFile extends Log {
 		return MiscUtils.interceptPrintStreamData(basePrintStream, line -> log(line, levelName),
 				enablementStatusSupplier);
 	};
+
+	@Override
+	protected InputStream createInputStream() {
+		System.setIn(STANDARD_INPUT_SOURCE.newInputStream());
+		return System.in;
+	}
 
 	protected void log(String message, String levelName) {
 		Level level;

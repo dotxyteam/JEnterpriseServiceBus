@@ -339,10 +339,10 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				factory.setFeatures(Arrays.asList(openApiFeature));
 			}
 			endpoint = factory.create();
-			Log.get().info("Published REST service at: " + server.getLocaBaseURL() + servicePath);
+			Log.get().information("Published REST service at: " + server.getLocaBaseURL() + servicePath);
 			if (webUIEnabledVariant.getValue()) {
-				Log.get().info("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
-				Log.get().info("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
+				Log.get().information("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
+				Log.get().information("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
 			}
 		}
 
@@ -358,7 +358,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				endpoint = null;
 			});
 			String servicePath = getServicePathVariant().getValue();
-			Log.get().info("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
+			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath + "?WSDL");
 		}
 
 		@Override

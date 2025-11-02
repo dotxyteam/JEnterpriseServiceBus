@@ -339,8 +339,8 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 					}));
 			String servicePath = getServicePathVariant().getValue();
 			endpoint.publish(servicePath);
-			Log.get().info("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
-			Log.get().info("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
+			Log.get().information("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
+			Log.get().information("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
 		}
 
 		@Override
@@ -355,7 +355,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 				endpoint = null;
 			});
 			String servicePath = getServicePathVariant().getValue();
-			Log.get().info("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
+			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
 		}
 
 		@Override
