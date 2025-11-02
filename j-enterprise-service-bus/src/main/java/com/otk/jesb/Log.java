@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 import com.otk.jesb.solution.Solution;
 
 /**
- * This class is the base for building the list of execution message records
- * for a {@link Solution}.
+ * This class is the base for building the list of execution message records for
+ * a {@link Solution}.
  * 
  * @author olitank
  *
@@ -26,6 +26,7 @@ public abstract class Log {
 		protected PrintStream createInformationStream() {
 			return System.out;
 		}
+
 	};
 	private static Supplier<Boolean> verbosityStatusSupplier = () -> false;
 
@@ -62,19 +63,31 @@ public abstract class Log {
 	protected Log() {
 	}
 
-	public void info(String message) {
+	public PrintStream getInformationStream() {
+		return informationStream;
+	}
+
+	public PrintStream getWarningStream() {
+		return warningStream;
+	}
+
+	public PrintStream getErrorStream() {
+		return errorStream;
+	}
+
+	public void information(String message) {
 		informationStream.println(message);
 	}
 
-	public void warn(String message) {
+	public void warning(String message) {
 		warningStream.println(message);
 	}
 
-	public void err(String message) {
+	public void error(String message) {
 		errorStream.println(message);
 	}
 
-	public void err(Throwable t) {
+	public void error(Throwable t) {
 		t.printStackTrace(errorStream);
 	}
 

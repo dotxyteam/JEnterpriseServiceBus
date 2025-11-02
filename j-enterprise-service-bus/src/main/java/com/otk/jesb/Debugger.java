@@ -209,12 +209,12 @@ public class Debugger extends Session {
 		}
 
 		protected void handleActivationError(Exception e) {
-			Log.get().err(e);
+			Log.get().error(e);
 			planExecutors.add(new PlanActivationFailure(plan, e));
 		}
 
 		protected void handleDeactivationError(Exception e) {
-			Log.get().err(e);
+			Log.get().error(e);
 		}
 
 		public boolean isAutomaticallyTriggerable() {
@@ -453,7 +453,7 @@ public class Debugger extends Session {
 		}
 
 		protected void handleExecutionError(Throwable t) {
-			Log.get().err(MiscUtils.getPrintedStackTrace(t));
+			Log.get().error(MiscUtils.getPrintedStackTrace(t));
 			executionError = t;
 		}
 

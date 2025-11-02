@@ -45,15 +45,11 @@ public class CompositeException extends Exception {
 		return tryReturnCactch(tryable, null);
 	}
 
-	public void printStackTraces(PrintStream stream) {
+	public void printStackTraces(PrintStream errorStream) {
 		for (Entry entry : entries) {
-			stream.append(entry.getTimestamp().toString() + ": ");
-			entry.getException().printStackTrace(stream);
+			errorStream.append(entry.getTimestamp().toString() + ": ");
+			entry.getException().printStackTrace(errorStream);
 		}
-	}
-
-	public void printStackTraces() {
-		printStackTraces(System.err);
 	}
 
 	public void rethrow(String mainMessage) throws CompositeException {
@@ -64,11 +60,11 @@ public class CompositeException extends Exception {
 	}
 
 	public static void willRethrow(Consumer<CompositeException> workWithCompositeException, boolean printStackTraces,
-			String mainMessage) throws CompositeException {
+			String mainMessage, PrintStream errorStream) throws CompositeException {
 		CompositeException compositeException = new CompositeException();
 		workWithCompositeException.accept(compositeException);
 		if (printStackTraces) {
-			compositeException.printStackTraces();
+			compositeException.printStackTraces(errorStream);
 		}
 		compositeException.rethrow(mainMessage);
 	}

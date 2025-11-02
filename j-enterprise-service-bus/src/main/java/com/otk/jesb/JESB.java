@@ -2,6 +2,7 @@ package com.otk.jesb;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.Preferences;
+import com.otk.jesb.util.DuplicatedInputStreamSource;
 
 /**
  * This is the main class of the application. The {@link #main(String[])} method
@@ -38,13 +40,6 @@ import com.otk.jesb.ui.Preferences;
  *
  */
 public class JESB {
-
-	public static final String DEBUG_PROPERTY_KEY = JESB.class.getPackage().getName() + ".debug";
-
-	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
-	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
-	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
-	private static final String HELP_OPTION_ARGUMENT = "help";
 
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
@@ -105,17 +100,19 @@ public class JESB {
 		} else {
 			Log.set(Console.DEFAULT);
 			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
+			standardOutput = Console.DEFAULT.interceptPrintStreamData(System.out, null, null, null, () -> true);
+			standardError = Console.DEFAULT.interceptPrintStreamData(System.err, null, null, null, () -> true);
 			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", Log.getVerbosityStatusSupplier()));
 			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", Log.getVerbosityStatusSupplier()));
 		}
-		Log.get().info("Starting up...");
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().info("Shutting down...")));
+		Log.get().information("Starting up...");
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().information("Shutting down...")));
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
-				Log.get().err(e);
+				Log.get().error(e);
 			}
 		});
 		if (fileOrFolder != null) {
@@ -147,6 +144,29 @@ public class JESB {
 				}
 			});
 		}
+	}
+
+	public static final String DEBUG_PROPERTY_KEY = JESB.class.getPackage().getName() + ".debug";
+
+	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
+	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
+	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
+	private static final String HELP_OPTION_ARGUMENT = "help";
+
+	private static PrintStream standardOutput = System.out;
+	private static PrintStream standardError = System.err;
+	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
+
+	public static PrintStream getStandardOutput() {
+		return standardOutput;
+	}
+
+	public static PrintStream getStandardError() {
+		return standardError;
+	}
+
+	public static DuplicatedInputStreamSource getStandardInputSource() {
+		return standardInputSource;
 	}
 
 	public static boolean isDebugModeActive() {

@@ -174,7 +174,7 @@ public class WatchFileSystem extends Activator {
 						if (t instanceof InterruptedException) {
 							break;
 						} else {
-							Log.get().err(t);
+							Log.get().error(t);
 						}
 					}
 				}
@@ -239,7 +239,7 @@ public class WatchFileSystem extends Activator {
 		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
 		Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);
 		if (Log.isVerbose()) {
-			Log.get().info(eventKind + ": " + resolvedNioPath);
+			Log.get().information(eventKind + ": " + resolvedNioPath);
 		}
 		PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + patternVariant.getValue());
 		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();

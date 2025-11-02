@@ -183,7 +183,8 @@ public class PluginBuilder {
 				Files.walkFileTree(resourceDirectory.toPath(), new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-						String entryName = resourceDirectory.toPath().relativize(filePath).toString();
+						String entryName = resourceDirectory.toPath().relativize(filePath).toString().replace("\\",
+								"/");
 						JarEntry jarEntry = new JarEntry(entryName);
 						jarOutputStream.putNextEntry(jarEntry);
 						jarOutputStream.write(MiscUtils.readBinary(filePath.toFile()));

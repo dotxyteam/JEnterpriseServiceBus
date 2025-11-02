@@ -376,7 +376,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 						MiscUtils.delete(directory);
 					} catch (Throwable t) {
 						if (Log.isVerbose()) {
-							Log.get().err(t);
+							Log.get().error(t);
 						}
 					}
 				}

@@ -64,9 +64,13 @@ public class LogFile extends Log {
 
 	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName,
 			Supplier<Boolean> enablementStatusSupplier) {
-		return MiscUtils.interceptPrintStreamData(basePrintStream, line -> log(line, levelName),
-				enablementStatusSupplier);
+		return MiscUtils.interceptPrintStreamData(line -> {
+			basePrintStream.println(line);
+			log(line, levelName);
+		}, enablementStatusSupplier);
 	};
+
+
 
 	protected void log(String message, String levelName) {
 		Level level;

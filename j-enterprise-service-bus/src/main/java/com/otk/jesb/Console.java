@@ -12,7 +12,7 @@ public class Console extends Log {
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
-	
+
 	public int getSize() {
 		return size;
 	}
@@ -42,10 +42,20 @@ public class Console extends Log {
 	protected void log(String message, String levelName, String prefixColor, String messageColor) {
 		synchronized (bufferMutex) {
 			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
-			String formattedMessage = String.format(
-					"<pre><font color=\"%s\">- %s - %s [%s] </font><font color=\"%s\"><b>%s</b></font></pre>",
-					prefixColor, date, levelName, Thread.currentThread().getName(), messageColor,
-					MiscUtils.escapeHTML(message, false));
+			int MAX_MESSAGE_LENGTH = 5000;
+			if (message.length() > MAX_MESSAGE_LENGTH) {
+				message = message.substring(0, MAX_MESSAGE_LENGTH) + "...";
+			}
+			String formattedMessage = message;
+			formattedMessage = "<b>" + MiscUtils.escapeHTML(formattedMessage, false) + "</b>";
+			if (messageColor != null) {
+				formattedMessage = "<font color=\"" + messageColor + "\">" + formattedMessage + "</font>";
+			}
+			if ((levelName != null) && (prefixColor != null)) {
+				formattedMessage = "<font color=\"" + prefixColor + "\">" + "- " + date + " - " + levelName + " ["
+						+ Thread.currentThread().getName() + "] " + "</font>" + formattedMessage;
+			}
+			formattedMessage = "<pre>" + formattedMessage + "</pre>";
 			buffer.append(formattedMessage + "\n");
 			if ((buffer.length() - size) > 0) {
 				int endOfFirstLine = buffer.indexOf("\n");
@@ -61,14 +71,23 @@ public class Console extends Log {
 		return buffer.toString();
 	}
 
+	public void submitInputLine(String s) {
+		if (s == null) {
+			s = "";
+		}
+		buffer.append("<pre>" + s + "</pre>" + "\n");
+		JESB.getStandardInputSource().pushLine(s);
+	}
+
 	public void clear() {
 		buffer.delete(0, buffer.length());
 	}
 
 	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName, final String prefixColor,
 			final String messageColor, final Supplier<Boolean> enablementStatusSupplier) {
-		return MiscUtils.interceptPrintStreamData(basePrintStream,
-				line -> log(line, levelName, prefixColor, messageColor), enablementStatusSupplier);
+		return MiscUtils.interceptPrintStreamData(line -> {
+			basePrintStream.println(line);
+			log(line, levelName, prefixColor, messageColor);
+		}, enablementStatusSupplier);
 	}
-
 }

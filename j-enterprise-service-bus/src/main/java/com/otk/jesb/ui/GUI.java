@@ -419,7 +419,7 @@ public class GUI extends MultiSwingCustomizer {
 					Object peeked;
 					if ((peeked = stack.peek()) != object) {
 						if (JESB.isDebugModeActive()) {
-							Log.get().err(new UnexpectedError("The user interface may become unstable because " + object
+							Log.get().error(new UnexpectedError("The user interface may become unstable because " + object
 									+ " was abnormally hidden before " + peeked));
 						}
 					}
@@ -2015,7 +2015,7 @@ public class GUI extends MultiSwingCustomizer {
 
 													@Override
 													public Object invoke(Object object, InvocationData invocationData) {
-														Log.get().err(((Throwable) selection.get(0).getItem()));
+														Log.get().error(((Throwable) selection.get(0).getItem()));
 														return null;
 													}
 												});
@@ -2840,7 +2840,7 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						if (!(object instanceof Folder)) {
-							Log.get().info("Validating '" + ((Asset) object).getFullName() + "'...");
+							Log.get().information("Validating '" + ((Asset) object).getFullName() + "'...");
 						}
 						((Asset) object).validate(false);
 					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
@@ -2848,7 +2848,7 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						if (Log.isVerbose()) {
-							Log.get().info("Validating plan step '" + ((Step) object).getName() + "'...");
+							Log.get().information("Validating plan step '" + ((Step) object).getName() + "'...");
 						}
 						((Step) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
@@ -2857,7 +2857,7 @@ public class GUI extends MultiSwingCustomizer {
 						}
 						if (Log.isVerbose()) {
 							Log.get()
-									.info("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
+									.information("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
@@ -2985,7 +2985,7 @@ public class GUI extends MultiSwingCustomizer {
 							if (item instanceof Folder) {
 								((Folder) item).validate(false);
 							} else {
-								Log.get().info("Validating '" + ((Asset) item).getFullName() + "'...");
+								Log.get().information("Validating '" + ((Asset) item).getFullName() + "'...");
 								((Asset) item).validate(true);
 							}
 						};

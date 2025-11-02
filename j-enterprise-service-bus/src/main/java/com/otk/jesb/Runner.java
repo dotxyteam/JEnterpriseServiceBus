@@ -47,7 +47,7 @@ public class Runner extends Debugger {
 
 		@Override
 		protected void handleActivationError(Exception e) {
-			Log.get().err(e);
+			Log.get().error(e);
 		}
 
 	}

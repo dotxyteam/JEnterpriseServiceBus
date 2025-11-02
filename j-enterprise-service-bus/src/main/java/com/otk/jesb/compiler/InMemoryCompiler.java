@@ -141,7 +141,7 @@ public class InMemoryCompiler {
 	private List<Class<?>> compile(UID compilationIdentifier, List<JavaFileObject> files) throws CompilationError {
 		if (Log.isVerbose()) {
 			Log.get()
-					.info("Compiling " + files.stream()
+					.information("Compiling " + files.stream()
 							.map(fileObject -> ((NamedJavaFileObject) fileObject).getClassIdentifier().getClassName())
 							.collect(Collectors.toList()) + "...");
 		}

@@ -222,7 +222,7 @@ public class InitializationCaseFacade extends Facade {
 			typeInfo = instanceBuilderFacade.getTypeInfo();
 		} catch (Throwable t) {
 			if (Log.isVerbose()) {
-				Log.get().err(t);
+				Log.get().error(t);
 			}
 			return Collections.emptyList();
 		}
@@ -256,7 +256,7 @@ public class InitializationCaseFacade extends Facade {
 				if (Log.isVerbose()) {
 					if (result.stream().anyMatch(facade -> (facade instanceof ParameterInitializerFacade)
 							&& ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {
-						Log.get().info("Name conflict detected between parameter '" + fieldInfo.getName()
+						Log.get().information("Name conflict detected between parameter '" + fieldInfo.getName()
 								+ "' and editable field '" + fieldInfo.getName() + "'");
 					}
 				}
