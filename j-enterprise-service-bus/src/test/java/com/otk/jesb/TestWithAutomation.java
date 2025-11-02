@@ -3,9 +3,11 @@ package com.otk.jesb;
 import java.io.File;
 import java.util.Locale;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 
 import xy.reflect.ui.util.IOUtils;
@@ -37,6 +39,13 @@ public class TestWithAutomation {
 	@BeforeClass
 	public static void beforeAllTests() {
 		setupTestEnvironment();
+	}
+
+	@Before
+	public void beforeEachTest() {
+		Solution.INSTANCE.getContents().clear();
+		Solution.INSTANCE.getRequiredJARs().clear();
+		Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
 	}
 
 	@Test
