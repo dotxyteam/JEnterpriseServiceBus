@@ -49,28 +49,30 @@ public class LogFile extends Log {
 
 	@Override
 	protected PrintStream createErrorStream() {
-		return interceptPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, () -> true);
+		return getPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, () -> true);
 	}
 
 	@Override
 	protected PrintStream createWarningStream() {
-		return interceptPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, () -> true);
+		return getPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, () -> true);
 	}
 
 	@Override
 	protected PrintStream createInformationStream() {
-		return interceptPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, () -> true);
+		return getPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, () -> true);
 	}
 
-	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName,
+	public PrintStream getPrintStreamData(PrintStream parallelPrintStream, String levelName,
 			Supplier<Boolean> enablementStatusSupplier) {
-		return MiscUtils.interceptPrintStreamData(line -> {
-			basePrintStream.println(line);
+		return MiscUtils.createBufferedPrintStream((line, lineTerminated) -> {
+			if (lineTerminated) {
+				parallelPrintStream.println(line);
+			} else {
+				parallelPrintStream.print(line);
+			}
 			log(line, levelName);
 		}, enablementStatusSupplier);
 	};
-
-
 
 	protected void log(String message, String levelName) {
 		Level level;

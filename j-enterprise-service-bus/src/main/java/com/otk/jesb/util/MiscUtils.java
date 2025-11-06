@@ -42,6 +42,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
@@ -59,6 +60,7 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
+import com.otk.jesb.activation.builtin.ReadCommandLine;
 import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.builtin.Schedule;
@@ -138,7 +140,8 @@ public class MiscUtils {
 			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());
 	public static final List<ActivatorMetadata> BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(
 			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new Schedule.Metadata(),
-			new WatchFileSystem.Metadata(), new ReceiveRESTRequest.Metadata(), new ReceiveSOAPRequest.Metadata());
+			new WatchFileSystem.Metadata(), new ReadCommandLine.Metadata(), new ReceiveRESTRequest.Metadata(),
+			new ReceiveSOAPRequest.Metadata());
 
 	public static final String SERIALIZED_FILE_NAME_SUFFIX = ".jesb.xml";
 	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
@@ -209,9 +212,8 @@ public class MiscUtils {
 	}
 
 	public static ExecutorService newExecutor(final String threadName, int minimumThreadCount) {
-		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE,
-				300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
-				new ThreadFactory() {
+		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE, 300, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(), new ThreadFactory() {
 					private int threadNumber = 0;
 
 					@Override
@@ -225,7 +227,7 @@ public class MiscUtils {
 		result.allowCoreThreadTimeOut(true);
 		return result;
 	}
-	
+
 	public static void willRethrowCommonly(Consumer<CompositeException> workWithCompositeException)
 			throws CompositeException {
 		CompositeException.willRethrow(workWithCompositeException, true,
@@ -1185,7 +1187,7 @@ public class MiscUtils {
 		}
 	}
 
-	public static PrintStream interceptPrintStreamData(Consumer<String> lineConsumer,
+	public static PrintStream createBufferedPrintStream(BiConsumer<String, Boolean> lineConsumer,
 			Supplier<Boolean> enablementStatusSupplier) {
 		return new PrintStream(new WriterOutputStream(new Writer() {
 			private final StringBuilder lineBuffer = new StringBuilder();
@@ -1198,12 +1200,12 @@ public class MiscUtils {
 				for (int i = 0; i < len; i++) {
 					char c = cbuf[off + i];
 					if (c == '\n') {
-						flushLine();
+						flush(true);
 					} else if (c == '\r') {
 						if ((i + 1 < len) && (cbuf[off + i + 1] == '\n')) {
 							i++;
 						}
-						flushLine();
+						flush(true);
 					} else {
 						lineBuffer.append(c);
 					}
@@ -1216,7 +1218,7 @@ public class MiscUtils {
 					return;
 				}
 				if (lineBuffer.length() > 0) {
-					flushLine();
+					flush(false);
 				}
 			}
 
@@ -1225,9 +1227,9 @@ public class MiscUtils {
 				flush();
 			}
 
-			private void flushLine() throws IOException {
+			private void flush(boolean lineTerminated) throws IOException {
 				String line = lineBuffer.toString();
-				lineConsumer.accept(line);
+				lineConsumer.accept(line, lineTerminated);
 				lineBuffer.setLength(0);
 			}
 		}, Charset.defaultCharset())) {

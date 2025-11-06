@@ -93,18 +93,18 @@ public class JESB {
 			Log.set(runnerlogFile);
 			Log.setVerbosityStatusSupplier(() -> Boolean.valueOf(System
 					.getProperty(JESB.class.getPackage().getName() + ".runnerLogVerbose", Boolean.FALSE.toString())));
-			System.setOut(runnerlogFile.interceptPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME,
+			System.setOut(runnerlogFile.getPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME,
 					Log.getVerbosityStatusSupplier()));
-			System.setErr(runnerlogFile.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME,
+			System.setErr(runnerlogFile.getPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME,
 					Log.getVerbosityStatusSupplier()));
 		} else {
 			Log.set(Console.DEFAULT);
 			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
-			standardOutput = Console.DEFAULT.interceptPrintStreamData(System.out, null, null, null, () -> true);
-			standardError = Console.DEFAULT.interceptPrintStreamData(System.err, null, null, null, () -> true);
-			System.setOut(Console.DEFAULT.interceptPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999",
+			standardOutput = Console.DEFAULT.getPrintStreamData(System.out, null, null, null, () -> true);
+			standardError = Console.DEFAULT.getPrintStreamData(System.err, null, null, null, () -> true);
+			System.setOut(Console.DEFAULT.getPrintStreamData(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", Log.getVerbosityStatusSupplier()));
-			System.setErr(Console.DEFAULT.interceptPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
+			System.setErr(Console.DEFAULT.getPrintStreamData(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
 					"#00FFFF", Log.getVerbosityStatusSupplier()));
 		}
 		Log.get().information("Starting up...");

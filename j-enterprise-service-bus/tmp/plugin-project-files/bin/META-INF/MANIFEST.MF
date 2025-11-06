@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
-Resource-Metadata-Classes: com.otk3.MyResource$Metadata
-Activator-Metadata-Classes: com.otk3.Schedule$Metadata
-Operation-Metadata-Classes: com.otk3.TestOp$Metadata
+Resource-Metadata-Classes: 
+Activator-Metadata-Classes: com.otk.jesb.activation.builtin.ReadComman
+ dLine$Metadata
+Operation-Metadata-Classes: 
 

@@ -12,6 +12,7 @@ public class Console extends Log {
 	private StringBuilder buffer = new StringBuilder();
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
+	private String pendingInputLine;
 
 	public int getSize() {
 		return size;
@@ -24,22 +25,31 @@ public class Console extends Log {
 		this.size = size;
 	}
 
+	public String getPendingInputLine() {
+		return pendingInputLine;
+	}
+
+	public void setPendingInputLine(String pendingInputLine) {
+		this.pendingInputLine = pendingInputLine;
+	}
+
 	@Override
 	public PrintStream createErrorStream() {
-		return interceptPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
+		return getPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
 	}
 
 	@Override
 	public PrintStream createWarningStream() {
-		return interceptPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true);
+		return getPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true);
 	}
 
 	@Override
 	public PrintStream createInformationStream() {
-		return interceptPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
+		return getPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
 	}
 
-	protected void log(String message, String levelName, String prefixColor, String messageColor) {
+	protected void log(String message, Boolean lineTerminated, String levelName, String prefixColor,
+			String messageColor) {
 		synchronized (bufferMutex) {
 			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
 			int MAX_MESSAGE_LENGTH = 5000;
@@ -55,8 +65,13 @@ public class Console extends Log {
 				formattedMessage = "<font color=\"" + prefixColor + "\">" + "- " + date + " - " + levelName + " ["
 						+ Thread.currentThread().getName() + "] " + "</font>" + formattedMessage;
 			}
-			formattedMessage = "<pre>" + formattedMessage + "</pre>";
-			buffer.append(formattedMessage + "\n");
+			if (buffer.length() == 0) {
+				buffer.append("<pre>");
+			}
+			buffer.append(formattedMessage);
+			if (lineTerminated) {
+				buffer.append("</pre>\n<pre>");
+			}
 			if ((buffer.length() - size) > 0) {
 				int endOfFirstLine = buffer.indexOf("\n");
 				if (endOfFirstLine == -1) {
@@ -68,26 +83,28 @@ public class Console extends Log {
 	}
 
 	public String read() {
-		return buffer.toString();
+		return buffer.toString() + "<font color=\"blue\">_</font>";
 	}
 
-	public void submitInputLine(String s) {
+	public void submitPendingInputLine() {
+		String s = pendingInputLine;
 		if (s == null) {
 			s = "";
 		}
-		buffer.append("<pre>" + s + "</pre>" + "\n");
 		JESB.getStandardInputSource().pushLine(s);
+		JESB.getStandardOutput().println(s);
+		pendingInputLine = null;
 	}
 
 	public void clear() {
 		buffer.delete(0, buffer.length());
 	}
 
-	public PrintStream interceptPrintStreamData(PrintStream basePrintStream, String levelName, final String prefixColor,
+	public PrintStream getPrintStreamData(PrintStream parallelPrintStream, String levelName, final String prefixColor,
 			final String messageColor, final Supplier<Boolean> enablementStatusSupplier) {
-		return MiscUtils.interceptPrintStreamData(line -> {
-			basePrintStream.println(line);
-			log(line, levelName, prefixColor, messageColor);
+		return MiscUtils.createBufferedPrintStream((line, lineTerminated) -> {
+			parallelPrintStream.println(line);
+			log(line, lineTerminated, levelName, prefixColor, messageColor);
 		}, enablementStatusSupplier);
 	}
 }

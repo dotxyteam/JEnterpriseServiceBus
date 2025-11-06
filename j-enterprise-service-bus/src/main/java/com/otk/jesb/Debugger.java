@@ -183,6 +183,9 @@ public class Debugger extends Session {
 						} catch (InterruptedException e) {
 							throw new UnexpectedError(e);
 						}
+						if (planExecutor.getExecutionError() != null) {
+							throw new PotentialError(planExecutor.getExecutionError());
+						}
 						return planExecutor.getPlanOutput();
 					}
 				};

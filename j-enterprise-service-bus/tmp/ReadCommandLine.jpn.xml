@@ -35,6 +35,7 @@ standardInput.close();
 standardInput = null;
 </handlerFinalizationStatements>
       <handlerInitializationStatements>standardInput = new BufferedReader(
+<<<<<<< HEAD
     new InputStreamReader(JESB.getStandardInputSource().newInputStream())
 );
 thread = new Thread(&quot;CommandLineReader-&quot; + hashCode()){
@@ -50,8 +51,7 @@ thread = new Thread(&quot;CommandLineReader-&quot; + hashCode()){
                     break;   
                 }
                 if(prompt != null){
-                    JESB.getStandardOutput().print(prompt);
-                    JESB.getStandardOutput().flush();
+                    JESB.getStandardOutput().println(prompt);
                 }
                 String line = standardInput.readLine();
                 if(line == null){
@@ -81,6 +81,52 @@ thread.start();</handlerInitializationStatements>
         <string>com.otk.jesb.UnexpectedError</string>
         <string>com.otk.jesb.Log</string>
         <string>com.otk.jesb.JESB</string>
+=======
+    new InputStreamReader(Log.STANDARD_INPUT_SOURCE.newInputStream())
+);
+thread = new Thread(&quot;CommandLineReader-&quot; + hashCode()){
+    {
+        setDaemon(true);   
+    }
+    @Override
+    public void run(){
+        String prompt = promptVariant.getValue();
+        try {			
+			while (true){
+                if(isInterrupted()){
+                    break;   
+                }
+                if(prompt != null){
+                    Log.get().getInformationStream().println(prompt);
+                }
+                String line = standardInput.readLine();
+                if(line == null){
+                    break;   
+                }
+				InputClassStructure input = new InputClassStructure(line);
+                OutputClassStructure ouput = (OutputClassStructure)activationHandler.trigger(input);
+                if(ouput.result != null){
+                    Log.get().getInformationStream().println(ouput.result);    
+                }
+            }
+		} catch (InterruptedIOException e) {
+			return;
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+    }
+};
+thread.start();</handlerInitializationStatements>
+      <importedClassNames>
+        <string>java.io.BufferedReader</string>
+        <string>java.io.InputStreamReader</string>
+        <string>java.io.IOException</string>
+        <string>java.io.InterruptedIOException</string>
+        <string>com.otk.jesb.util.DuplicatedInputStreamSource</string>
+        <string>com.otk.jesb.util.MiscUtils</string>
+        <string>com.otk.jesb.UnexpectedError</string>
+        <string>com.otk.jesb.Log</string>
+>>>>>>> branch 'main' of https://github.com/dotxyteam/JEnterpriseServiceBus.git
       </importedClassNames>
       <inputClassOption>
         <concreteStructureAlternatives class="null"/>
