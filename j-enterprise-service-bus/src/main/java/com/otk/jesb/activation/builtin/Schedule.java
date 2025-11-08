@@ -11,7 +11,6 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 import com.otk.jesb.ValidationError;
 import xy.reflect.ui.info.ResourcePath;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +90,7 @@ public class Schedule extends Activator {
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		this.activationHandler = activationHandler;
-		scheduler = Executors.newScheduledThreadPool(1);
+		scheduler = MiscUtils.newScheduler(Schedule.class.getName() + "Worker-" + hashCode(), 1);
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {

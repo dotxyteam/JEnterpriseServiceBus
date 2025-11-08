@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variant;
 import com.otk.jesb.activation.ActivationHandler;
@@ -171,10 +172,11 @@ public class WatchFileSystem extends Activator {
 							break;
 						}
 					} catch (Throwable t) {
-						if (t instanceof InterruptedException) {
+						if (MiscUtils.isInterruptionException(t)) {
 							break;
 						} else {
 							Log.get().error(t);
+							throw new UnexpectedError(t);
 						}
 					}
 				}

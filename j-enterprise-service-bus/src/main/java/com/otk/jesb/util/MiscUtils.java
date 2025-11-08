@@ -14,6 +14,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -38,6 +39,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -225,6 +227,21 @@ public class MiscUtils {
 					}
 				});
 		result.allowCoreThreadTimeOut(true);
+		return result;
+	}
+
+	public static ScheduledThreadPoolExecutor newScheduler(final String threadName, int minimumThreadCount) {
+		ScheduledThreadPoolExecutor result = new ScheduledThreadPoolExecutor(minimumThreadCount, new ThreadFactory() {
+			private int threadNumber = 0;
+
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread result = new Thread(r);
+				result.setName(threadName + "-" + (threadNumber++));
+				result.setDaemon(true);
+				return result;
+			}
+		});
 		return result;
 	}
 
@@ -1295,6 +1312,17 @@ public class MiscUtils {
 			}
 
 		};
+	}
+
+	public static boolean isInterruptionException(Throwable t) {
+		if (t instanceof InterruptedException) {
+			return true;
+		} else if (t instanceof InterruptedIOException) {
+			return true;
+		} else if (t.getCause() != null) {
+			return isInterruptionException(t.getCause());
+		}
+		return false;
 	}
 
 }

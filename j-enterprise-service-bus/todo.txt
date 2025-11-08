@@ -31,6 +31,8 @@
 (not the historical one)
 - allow to access step error variables
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
+- factorize activators error handling to prevent unexpected deactivation
+(may be by adding service-oriented features to the ACtivator class)
 - add a welcome image ???
 - allow to have environment variables having array type
 - add date/datetime support

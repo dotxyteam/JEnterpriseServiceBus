@@ -11,132 +11,144 @@ import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.solution.Plan;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.InterruptedIOException;
 import com.otk.jesb.util.MiscUtils;
-import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
+import com.otk.jesb.UnexpectedError;
 
-public class ReadCommandLine extends Activator{
+public class ReadCommandLine extends Activator {
 
-	private Variant<String> promptVariant=new Variant<String>(String.class, "jesb> ");
-	
+	private Variant<String> promptVariant = new Variant<String>(String.class, "jesb> ");
+
 	private ActivationHandler activationHandler;
 	private BufferedReader standardInput;
 	private Thread thread;
-			
-	
-	public ReadCommandLine(){
+
+	public ReadCommandLine() {
 	}
-	
+
 	public Variant<String> getPromptVariant() {
 		return promptVariant;
 	}
-	
+
 	public void setPromptVariant(Variant<String> promptVariant) {
 		this.promptVariant = promptVariant;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ReadCommandLine [promptVariant=" + promptVariant + "]";
 	}
-	
+
 	@Override
 	public Class<?> getInputClass() {
 		return InputClassStructure.class;
 	}
-	
+
 	@Override
 	public Class<?> getOutputClass() {
 		return OutputClassStructure.class;
 	}
-	
+
 	@Override
 	public boolean isAutomaticallyTriggerable() {
 		return true;
 	}
+
 	@Override
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		this.activationHandler = activationHandler;
-		standardInput = new BufferedReader(
-		    new InputStreamReader(JESB.getStandardInputSource().newInputStream())
-		);
-		thread = new Thread("CommandLineReader-" + hashCode()){
-		    {
-		        setDaemon(true);   
-		    }
-		    @Override
-		    public void run(){
-		        String prompt = promptVariant.getValue();
-		        try {			
-					while (true){
-		                if(isInterrupted()){
-		                    break;   
-		                }
-		                if(prompt != null){
-		                    JESB.getStandardOutput().print(prompt);
-		                    JESB.getStandardOutput().flush();
-		                }
-		                String line = standardInput.readLine();
-		                if(line == null){
-		                    break;   
-		                }
+		standardInput = new BufferedReader(new InputStreamReader(JESB.getStandardInputSource().newInputStream()));
+		thread = new Thread(ReadCommandLine.class.getSimpleName() + "Worker-" + hashCode()) {
+			{
+				setDaemon(true);
+			}
+
+			@Override
+			public void run() {
+				String prompt = promptVariant.getValue();
+				while (true) {
+					try {
+						if (isInterrupted()) {
+							break;
+						}
+						if (prompt != null) {
+							JESB.getStandardOutput().print(prompt);
+							JESB.getStandardOutput().flush();
+						}
+						String line = standardInput.readLine();
+						if (line == null) {
+							break;
+						}
 						InputClassStructure input = new InputClassStructure(line);
-		                OutputClassStructure ouput = (OutputClassStructure)activationHandler.trigger(input);
-		                if(ouput.result != null){
-		                    JESB.getStandardOutput().println(ouput.result);    
-		                }
-		            }
-				} catch (InterruptedIOException e) {
-					return;
-				} catch (IOException e) {
-					throw new UnexpectedError(e);
+						OutputClassStructure output = (OutputClassStructure) activationHandler.trigger(input);
+						if (output.result != null) {
+							JESB.getStandardOutput().println(output.result);
+						}
+					} catch (Throwable t) {
+						if (MiscUtils.isInterruptionException(t)) {
+							break;
+						} else {
+							Log.get().error(t);
+							throw new UnexpectedError(t);
+						}
+					}
 				}
-		    }
+			}
 		};
 		thread.start();
 	}
-	
+
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		while(thread.isAlive()){
-		    thread.interrupt();
-		    MiscUtils.relieveCPU();
+		while (thread.isAlive()) {
+			thread.interrupt();
+			MiscUtils.relieveCPU();
 		}
 		thread = null;
 		standardInput.close();
 		standardInput = null;
-		
+
 		this.activationHandler = null;
 	}
-	
+
 	@Override
 	public boolean isAutomaticTriggerReady() {
 		return activationHandler != null;
 	}
-	
+
 	public static void customizeUI(InfoCustomizations infoCustomizations) {
 		// ReadCommandLine form customization
 		{
 			// field control positions
 			InfoCustomizations.getTypeCustomization(infoCustomizations, ReadCommandLine.class.getName())
-			.setCustomFieldsOrder(java.util.Arrays.asList("promptVariant"));
+					.setCustomFieldsOrder(java.util.Arrays.asList("promptVariant"));
 			// promptVariant control customization
 			{
-				InfoCustomizations.getFieldCustomization(infoCustomizations, ReadCommandLine.class.getName(), "promptVariant")
-				.setCustomFieldCaption("Prompt");
-				InfoCustomizations.getFieldCustomization(infoCustomizations, com.otk.jesb.ui.GUI.VariantCustomizations.getAdapterTypeName(ReadCommandLine.class.getName(),"promptVariant"), com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName("promptVariant"))
-				.setCustomFieldCaption("Prompt");
-				InfoCustomizations.getFieldCustomization(infoCustomizations, com.otk.jesb.ui.GUI.VariantCustomizations.getAdapterTypeName(ReadCommandLine.class.getName(),"promptVariant"), com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName("promptVariant"))
-				.setNullValueDistinctForced(true);
+				InfoCustomizations
+						.getFieldCustomization(infoCustomizations, ReadCommandLine.class.getName(), "promptVariant")
+						.setCustomFieldCaption("Prompt");
+				InfoCustomizations
+						.getFieldCustomization(infoCustomizations,
+								com.otk.jesb.ui.GUI.VariantCustomizations
+										.getAdapterTypeName(ReadCommandLine.class.getName(), "promptVariant"),
+								com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName("promptVariant"))
+						.setCustomFieldCaption("Prompt");
+				InfoCustomizations
+						.getFieldCustomization(infoCustomizations,
+								com.otk.jesb.ui.GUI.VariantCustomizations
+										.getAdapterTypeName(ReadCommandLine.class.getName(), "promptVariant"),
+								com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName("promptVariant"))
+						.setNullValueDistinctForced(true);
 			}
 			// hide UI customization method
-			InfoCustomizations.getMethodCustomization(infoCustomizations, ReadCommandLine.class.getName(), ReflectionUIUtils.buildMethodSignature("void", "customizeUI", java.util.Arrays.asList(InfoCustomizations.class.getName())))
-			.setHidden(true);
+			InfoCustomizations.getMethodCustomization(infoCustomizations, ReadCommandLine.class.getName(),
+					ReflectionUIUtils.buildMethodSignature("void", "customizeUI",
+							java.util.Arrays.asList(InfoCustomizations.class.getName())))
+					.setHidden(true);
 		}
 	}
-	
+
 	@Override
 	public void validate(boolean recursively, Plan plan) throws ValidationError {
 		super.validate(recursively, plan);
@@ -148,56 +160,54 @@ public class ReadCommandLine extends Activator{
 			}
 		}
 	}
-	
-	static public class InputClassStructure{
-	
+
+	static public class InputClassStructure {
+
 		public final String inputLine;
-		
-		public InputClassStructure(String inputLine){
-			this.inputLine=inputLine;
+
+		public InputClassStructure(String inputLine) {
+			this.inputLine = inputLine;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "InputClassStructure [inputLine=" + inputLine + "]";
 		}
-		
-	
+
 	}
-	
-	static public class OutputClassStructure{
-	
+
+	static public class OutputClassStructure {
+
 		public String result;
-		
-		public OutputClassStructure(){
+
+		public OutputClassStructure() {
 		}
-		
+
 		@Override
 		public String toString() {
 			return "OutputClassStructure [result=" + result + "]";
 		}
-		
-	
+
 	}
-	
-	public static class Metadata implements ActivatorMetadata{
-		
+
+	public static class Metadata implements ActivatorMetadata {
+
 		@Override
 		public String getActivatorName() {
 			return "Read Command Line";
 		}
-		
+
 		@Override
 		public Class<? extends Activator> getActivatorClass() {
 			return ReadCommandLine.class;
 		}
-		
+
 		@Override
 		public ResourcePath getActivatorIconImagePath() {
-			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(ReadCommandLine.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(ReadCommandLine.class.getName().replace(".", "/") + ".png"));
 		}
-		
+
 	}
-	
 
 }
