@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 
+import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin;
 import xy.reflect.ui.util.IOUtils;
 import xy.reflect.ui.util.MiscUtils;
 import xy.ui.testing.Tester;
@@ -46,6 +47,10 @@ public class TestWithAutomation {
 		Solution.INSTANCE.getContents().clear();
 		Solution.INSTANCE.getRequiredJARs().clear();
 		Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
+		GUI.INSTANCE.getLastInvocationDataByMethodContext().clear();
+		GUI.INSTANCE.getSubCustomizerByIdentifier().values()
+				.forEach(swingCustomizer -> swingCustomizer.getLastInvocationDataByMethodContext().clear());
+		FileBrowserPlugin.setLastDirectory(FileBrowserPlugin.DEFAULT_DIRECTORY);
 	}
 
 	@Test

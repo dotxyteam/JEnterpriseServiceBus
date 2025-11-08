@@ -1,6 +1,7 @@
 package com.otk.jesb.util;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 import com.otk.jesb.UnexpectedError;
@@ -56,7 +57,32 @@ public class DuplicatedInputStreamSource implements Closeable {
 			throw new IllegalStateException("Source already closed");
 
 		try {
-			PipedInputStream in = new PipedInputStream(8192);
+			PipedInputStream in = new PipedInputStream(8192) {
+				/*
+				 * Fix for this issue: https://bugs.java.com/bugdatabase/view_bug?bug_id=4028322
+				 */
+				@Override
+				public synchronized int read() throws IOException {
+					try {
+						return super.read();
+					} catch (IOException e) {
+						if ("Pipe broken".equals(e.getMessage()) || "Write end dead".equals(e.getMessage())) {
+							try {
+								Field writeSideField = PipedInputStream.class.getDeclaredField("writeSide");
+								writeSideField.setAccessible(true);
+								writeSideField.set(this, Thread.currentThread());
+							} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
+									| SecurityException e1) {
+								throw new UnexpectedError(e1);
+							}
+							return read();
+						} else {
+							throw e;
+						}
+					}
+				}
+
+			};
 			PipedOutputStream out = new PipedOutputStream(in);
 			outputs.add(out);
 

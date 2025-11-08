@@ -45,6 +45,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -80,6 +81,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -109,6 +111,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -124,6 +127,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -167,6 +171,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -202,6 +207,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -239,6 +245,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -264,6 +271,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -325,6 +333,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -368,6 +377,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -409,8 +419,10 @@
         <string>(0) NumberToWordsService</string>
         <string>(0) PetCreationService</string>
         <string>(0) PetListingService</string>
+        <string>(0) HelloCommandServer</string>
         <string>(0) Test</string>
         <string>(0) FolderWatchTest</string>
+        <string>(0) TestCommandServer</string>
       </visibleStrings>
     </xy.ui.testing.action.component.CheckVisibleStringsAction>
     <xy.ui.testing.action.component.ClickAction>
@@ -424,6 +436,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -582,6 +595,66 @@
         <string>DONE</string>
       </visibleStrings>
     </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>5</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>6</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
     <xy.ui.testing.action.component.ClickAction>
       <button>LEFT_BUTTON</button>
       <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
@@ -593,6 +666,7 @@
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>
@@ -627,6 +701,7 @@ Continue?</string>
       </componentFinder>
       <disabled>false</disabled>
       <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
       <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
       <locationOnComponent class="null"/>
       <poupTrigger>false</poupTrigger>

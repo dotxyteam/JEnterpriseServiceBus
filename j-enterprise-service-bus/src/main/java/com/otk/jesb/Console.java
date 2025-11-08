@@ -35,17 +35,17 @@ public class Console extends Log {
 
 	@Override
 	public PrintStream createErrorStream() {
-		return getPrintStreamData(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
+		return getPrintStream(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
 	}
 
 	@Override
 	public PrintStream createWarningStream() {
-		return getPrintStreamData(System.err, LogFile.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true);
+		return getPrintStream(System.err, LogFile.WARNING_LEVEL_NAME, "#FFFFFF", "#FFC13B", () -> true);
 	}
 
 	@Override
 	public PrintStream createInformationStream() {
-		return getPrintStreamData(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
+		return getPrintStream(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
 	}
 
 	protected void log(String message, Boolean lineTerminated, String levelName, String prefixColor,
@@ -100,10 +100,14 @@ public class Console extends Log {
 		buffer.delete(0, buffer.length());
 	}
 
-	public PrintStream getPrintStreamData(PrintStream parallelPrintStream, String levelName, final String prefixColor,
+	public PrintStream getPrintStream(PrintStream parallelPrintStream, String levelName, final String prefixColor,
 			final String messageColor, final Supplier<Boolean> enablementStatusSupplier) {
 		return MiscUtils.createBufferedPrintStream((line, lineTerminated) -> {
-			parallelPrintStream.println(line);
+			if (lineTerminated) {
+				parallelPrintStream.println(line);
+			} else {
+				parallelPrintStream.print(line);
+			}
 			log(line, lineTerminated, levelName, prefixColor, messageColor);
 		}, enablementStatusSupplier);
 	}
