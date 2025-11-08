@@ -16,17 +16,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.help.HelpFormatter;
 
-import com.otk.jesb.instantiation.InstanceBuilder;
-import com.otk.jesb.instantiation.InstantiationFunction;
-import com.otk.jesb.instantiation.ParameterInitializer;
-import com.otk.jesb.operation.builtin.JDBCQuery;
-import com.otk.jesb.operation.builtin.WriteFile;
-import com.otk.jesb.resource.builtin.JDBCConnection;
-import com.otk.jesb.solution.LoopCompositeStep;
-import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
-import com.otk.jesb.solution.Step;
-import com.otk.jesb.solution.Transition;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.Preferences;
 import com.otk.jesb.util.DuplicatedInputStreamSource;
@@ -102,13 +92,22 @@ public class JESB {
 			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
 			standardOutput = Console.DEFAULT.getPrintStream(System.out, null, null, null, () -> true);
 			standardError = Console.DEFAULT.getPrintStream(System.err, null, null, null, () -> true);
-			System.setOut(Console.DEFAULT.getPrintStream(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", Log.getVerbosityStatusSupplier()));
-			System.setErr(Console.DEFAULT.getPrintStream(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999",
-					"#00FFFF", Log.getVerbosityStatusSupplier()));
+			System.setOut(Console.DEFAULT.getPrintStream(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
+					Log.getVerbosityStatusSupplier()));
+			System.setErr(Console.DEFAULT.getPrintStream(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
+					Log.getVerbosityStatusSupplier()));
 		}
 		Log.get().information("Starting up...");
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.get().information("Shutting down...")));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			Log.get().information("Shutting down...");
+			if (runner != null) {
+				try {
+					runner.close();
+				} catch (Exception e) {
+					Log.get().error(e);
+				}
+			}
+		}));
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
@@ -125,12 +124,9 @@ public class JESB {
 						new IOException("Invalid solution directory or archive file: '" + fileOrFolder + "'"), args,
 						options);
 			}
-		} else {
-			setupSampleSolution();
 		}
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
-			@SuppressWarnings("resource")
-			Runner runner = new Runner(Solution.INSTANCE);
+			runner = new Runner(Solution.INSTANCE);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
@@ -156,6 +152,7 @@ public class JESB {
 	private static PrintStream standardOutput = System.out;
 	private static PrintStream standardError = System.err;
 	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
+	private static Runner runner;
 
 	public static PrintStream getStandardOutput() {
 		return standardOutput;
@@ -190,54 +187,6 @@ public class JESB {
 								+ ": " + option.getDescription())
 						.collect(Collectors.joining("\n"));
 		return syntax + "\n" + optionDescriptions;
-	}
-
-	private static void setupSampleSolution() {
-		Plan plan = new Plan("Sample");
-		Solution.INSTANCE.getContents().add(plan);
-		if (isDebugModeActive()) {
-			JDBCConnection c = new JDBCConnection("db");
-			c.getDriverClassNameVariant().setConstantValue("org.hsqldb.jdbcDriver");
-			c.getUrlVariant().setConstantValue("jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;");
-			Solution.INSTANCE.getContents().add(c);
-
-			Step s1 = new Step();
-			plan.getSteps().add(s1);
-			s1.setName("a");
-			s1.setDiagramX(100);
-			s1.setDiagramY(100);
-			JDBCQuery.Builder ab1 = new JDBCQuery.Builder();
-			s1.setOperationBuilder(ab1);
-			ab1.setConnectionReference(Reference.get(c));
-			ab1.getStatementVariant().setConstantValue("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
-
-			LoopCompositeStep ls = new LoopCompositeStep();
-			plan.getSteps().add(ls);
-			ls.setName("loop");
-			ls.setDiagramX(200);
-			ls.setDiagramY(100);
-			ls.getOperationBuilder().setIterationIndexVariableName("index");
-			ls.getOperationBuilder().setLoopEndCondition(new Function("return index==3;"));
-
-			Step s2 = new Step();
-			plan.getSteps().add(s2);
-			s2.setName("w");
-			s2.setDiagramX(300);
-			s2.setDiagramY(100);
-			s2.setParent(ls);
-			WriteFile.Builder ab2 = new WriteFile.Builder();
-			s2.setOperationBuilder(ab2);
-			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInstantiationNode())
-					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(0, "tmp/test.txt"));
-			((InstanceBuilder) ((ParameterInitializer) ab2.getInstanceBuilder().getRootInstantiationNode())
-					.getParameterValue()).getParameterInitializers().add(new ParameterInitializer(1,
-							new InstantiationFunction("return (String)a.rows[index].cellValues.get(\"TABLE_NAME\");")));
-
-			Transition t1 = new Transition();
-			t1.setStartStep(s1);
-			t1.setEndStep(ls);
-			plan.getTransitions().add(t1);
-		}
 	}
 
 }

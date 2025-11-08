@@ -124,7 +124,7 @@ public class DuplicatedInputStreamSource implements Closeable {
 			}
 		} catch (IOException e) {
 			if (!closed)
-				throw new UnexpectedError("Duplicator thread error: " + e);
+				throw new UnexpectedError("Duplicator thread error: " + e, e);
 		} finally {
 			synchronized (this) {
 				for (PipedOutputStream out : outputs) {

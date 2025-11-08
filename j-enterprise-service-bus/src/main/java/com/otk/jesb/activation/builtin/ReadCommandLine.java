@@ -60,9 +60,6 @@ public class ReadCommandLine extends Activator {
 		this.activationHandler = activationHandler;
 		standardInput = new BufferedReader(new InputStreamReader(JESB.getStandardInputSource().newInputStream()));
 		thread = new Thread(ReadCommandLine.class.getSimpleName() + "Worker-" + hashCode()) {
-			{
-				setDaemon(true);
-			}
 
 			@Override
 			public void run() {
@@ -101,15 +98,20 @@ public class ReadCommandLine extends Activator {
 
 	@Override
 	public void finalizeAutomaticTrigger() throws Exception {
-		while (thread.isAlive()) {
-			thread.interrupt();
-			MiscUtils.relieveCPU();
-		}
-		thread = null;
-		standardInput.close();
-		standardInput = null;
-
-		this.activationHandler = null;
+		MiscUtils.willRethrowCommonly((compositeException) -> {
+			compositeException.tryCactch(() -> {
+				while (thread.isAlive()) {
+					thread.interrupt();
+					MiscUtils.relieveCPU();
+				}
+			});
+			thread = null;
+			compositeException.tryCactch(() -> {
+				standardInput.close();
+			});
+			standardInput = null;
+			this.activationHandler = null;
+		});
 	}
 
 	@Override

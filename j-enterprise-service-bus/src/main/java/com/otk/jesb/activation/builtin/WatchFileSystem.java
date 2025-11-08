@@ -192,10 +192,12 @@ public class WatchFileSystem extends Activator {
 			compositeException.tryCactch(() -> {
 				watchService.close();
 			});
-			while (thread.isAlive()) {
-				thread.interrupt();
-				MiscUtils.relieveCPU();
-			}
+			compositeException.tryCactch(() -> {
+				while (thread.isAlive()) {
+					thread.interrupt();
+					MiscUtils.relieveCPU();
+				}
+			});
 			this.activationHandler = null;
 		});
 	}
