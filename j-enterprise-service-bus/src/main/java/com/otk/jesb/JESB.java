@@ -16,6 +16,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.help.HelpFormatter;
 
+import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.Preferences;
@@ -124,6 +125,8 @@ public class JESB {
 						new IOException("Invalid solution directory or archive file: '" + fileOrFolder + "'"), args,
 						options);
 			}
+		} else {
+			setupSampleSolution();
 		}
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
 			runner = new Runner(Solution.INSTANCE);
@@ -187,6 +190,11 @@ public class JESB {
 								+ ": " + option.getDescription())
 						.collect(Collectors.joining("\n"));
 		return syntax + "\n" + optionDescriptions;
+	}
+
+	private static void setupSampleSolution() {
+		Plan plan = new Plan("Sample");
+		Solution.INSTANCE.getContents().add(plan);
 	}
 
 }
