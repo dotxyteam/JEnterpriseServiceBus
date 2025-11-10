@@ -34,7 +34,7 @@ import com.otk.jesb.util.MiscUtils;
 /**
  * This class allows to model a set of successive actions (instances of
  * {@link Operation}) and their trigger ({@link Activator}) in the form of
- * directed graphs (nodes = instances of {@link Step)}).
+ * directed graphs (nodes are instances of {@link Step}).
  * 
  * @author olitank
  *
@@ -596,7 +596,7 @@ public class Plan extends Asset {
 	}
 
 	public interface ExecutionInspector {
-		
+
 		public static final ExecutionInspector DEFAULT = new Plan.ExecutionInspector() {
 
 			@Override

@@ -48,11 +48,11 @@ public class DuplicatedInputStreamSource implements Closeable {
 		return closed;
 	}
 
-	/**
-	 * Creates and returns a new InputStream that receives the same data as the
-	 * source. Starts the duplicator thread if necessary.
-	 */
 	public synchronized InputStream newInputStream() {
+		/**
+		 * Creates and returns a new InputStream that receives the same data as the
+		 * source. Starts the duplicator thread if necessary.
+		 */
 		if (closed)
 			throw new IllegalStateException("Source already closed");
 

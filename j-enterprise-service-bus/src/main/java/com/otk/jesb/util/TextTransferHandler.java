@@ -53,19 +53,19 @@ public class TextTransferHandler extends TransferHandler implements UIResource {
 	 */
 	private Position.Bias dropBias;
 
-	/**
-	 * Try to find a flavor that can be used to import a Transferable. The set of
-	 * usable flavors are tried in the following order:
-	 * <ol>
-	 * <li>First, an attempt is made to find a flavor matching the content type of
-	 * the EditorKit for the component.
-	 * <li>Second, an attempt to find a text/plain flavor is made.
-	 * <li>Third, an attempt to find a flavor representing a String reference in the
-	 * same VM is made.
-	 * <li>Lastly, DataFlavor.stringFlavor is searched for.
-	 * </ol>
-	 */
 	protected DataFlavor getImportFlavor(DataFlavor[] flavors, JTextComponent c) {
+		/**
+		 * Try to find a flavor that can be used to import a Transferable. The set of
+		 * usable flavors are tried in the following order:
+		 * <ol>
+		 * <li>First, an attempt is made to find a flavor matching the content type of
+		 * the EditorKit for the component.
+		 * <li>Second, an attempt to find a text/plain flavor is made.
+		 * <li>Third, an attempt to find a flavor representing a String reference in the
+		 * same VM is made.
+		 * <li>Lastly, DataFlavor.stringFlavor is searched for.
+		 * </ol>
+		 */
 		DataFlavor plainFlavor = null;
 		DataFlavor refFlavor = null;
 		DataFlavor stringFlavor = null;
@@ -113,11 +113,11 @@ public class TextTransferHandler extends TransferHandler implements UIResource {
 		return null;
 	}
 
-	/**
-	 * Import the given stream data into the text component.
-	 */
 	protected void handleReaderImport(Reader in, JTextComponent c, boolean useRead)
 			throws BadLocationException, IOException {
+		/**
+		 * Import the given stream data into the text component.
+		 */
 		if (useRead) {
 			int startPosition = c.getSelectionStart();
 			int endPosition = c.getSelectionEnd();

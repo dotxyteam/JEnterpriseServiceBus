@@ -14,8 +14,8 @@ import com.otk.jesb.solution.Step;
 public interface OperationBuilder<T extends Operation> extends OperationStructureBuilder<T> {
 
 	/**
-	 * @param currentPlan
-	 * @param currentStep
+	 * @param currentPlan The current plan.
+	 * @param currentStep The current step.
 	 * @return The class of objects returned by the related
 	 *         {@link Operation#execute()}.
 	 */

@@ -1,5 +1,7 @@
 package com.otk.jesb.operation;
 
+import com.otk.jesb.solution.Plan;
+
 /**
  * This is the base of all atomic activities in a {@link Plan}.
  * 

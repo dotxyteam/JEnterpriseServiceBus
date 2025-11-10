@@ -21,7 +21,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
  * 
  * @author olitank
  *
- * @param <T>
+ * @param <T> Data type.
  */
 public class Variant<T> {
 

@@ -25,7 +25,8 @@ public abstract class Accessor<T> {
 	}
 
 	/**
-	 * @param t The value.
+	 * @param <T> The type that is accessed.
+	 * @param t   The value.
 	 * @return an instance returning the specified value.
 	 */
 	public static <T> Accessor<T> returning(final T t) {
@@ -33,6 +34,7 @@ public abstract class Accessor<T> {
 	}
 
 	/**
+	 * @param <T>    The type that is accessed.
 	 * @param t      The value.
 	 * @param canSet WHether the value can be updated or not.
 	 * @return an instance returning and potentially allowing to update the

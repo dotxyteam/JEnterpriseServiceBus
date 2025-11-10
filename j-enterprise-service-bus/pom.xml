@@ -3,13 +3,33 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.otk</groupId>
+	<groupId>com.github.dotxyteam</groupId>
 	<artifactId>j-enterprise-service-bus</artifactId>
 	<version>0.9.1</version>
 	<packaging>jar</packaging>
 
 	<name>JEnterpriseServiceBus</name>
+	<description>Java Swing UI testing toolkit</description>
 	<url>https://github.com/dotxyteam/JEnterpriseServiceBus</url>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/LICENSE</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>DotXY team</name>
+			<email>dotxyteam@yahoo.fr</email>
+			<organization>DotXY</organization>
+			<organizationUrl>http://javacollection.net</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git@github.com:dotxyteam/JEnterpriseServiceBus.git</connection>
+		<developerConnection>scm:git:git@github.com:dotxyteam/JEnterpriseServiceBus.git</developerConnection>
+		<url>git@github.com:dotxyteam/JEnterpriseServiceBus</url>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -184,117 +204,151 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>${project.build.directory}/lib</outputDirectory>
-					<excludeTransitive>false</excludeTransitive>
-					<stripVersion>false</stripVersion>
-				</configuration>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
+						<id>attach-sources</id>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
 				<executions>
 					<execution>
-						<phase>prepare-package</phase>
+						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.otk.jesb.JESB</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-						</manifest>
-					</archive>
-				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.akathist.maven.plugins.launch4j</groupId>
-				<artifactId>launch4j-maven-plugin</artifactId>
-				<version>2.5.3</version>
-				<executions>
-					<execution>
-						<id>l4j-gui</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>launch4j</goal>
-						</goals>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>dist</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
 						<configuration>
-							<headerType>gui</headerType>
-							<outfile>target/${project.artifactId}.exe</outfile>
-							<icon>${project.artifactId}.ico</icon>
-							<jar>target/${project.artifactId}-${project.version}.jar</jar>
-							<errTitle>${project.artifactId}</errTitle>
-							<classPath>
-								<mainClass>com.otk.jesb.JESB</mainClass>
-							</classPath>
-							<jre>
-								<path>./windows-jdk</path>
-								<minVersion>1.8.0</minVersion>
-								<maxVersion>1.17.9</maxVersion>
-								<opts>
-									<opt>-splash:splash.gif</opt>
-									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
-									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
-								</opts>
-							</jre>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<excludeTransitive>false</excludeTransitive>
+							<stripVersion>false</stripVersion>
 						</configuration>
-					</execution>
-					<execution>
-						<id>l4j-cmd</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>launch4j</goal>
-						</goals>
+						<executions>
+							<execution>
+								<id>copy-dependencies</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<version>2.4</version>
 						<configuration>
-							<headerType>console</headerType>
-							<outfile>target/${project.artifactId}-cmd.exe</outfile>
-							<icon>${project.artifactId}.ico</icon>
-							<jar>target/${project.artifactId}-${project.version}.jar</jar>
-							<errTitle>${project.artifactId}</errTitle>
-							<classPath>
-								<mainClass>com.otk.jesb.JESB</mainClass>
-							</classPath>
-							<jre>
-								<path>./windows-jdk</path>
-								<minVersion>1.8.0</minVersion>
-								<maxVersion>1.17.9</maxVersion>
-								<opts>
-									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
-									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
-								</opts>
-							</jre>
+							<archive>
+								<manifest>
+									<mainClass>com.otk.jesb.JESB</mainClass>
+									<addClasspath>true</addClasspath>
+									<classpathPrefix>lib/</classpathPrefix>
+								</manifest>
+							</archive>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<echo file="${basedir}/target/${project.artifactId}.tmp"
-									append="yes"><![CDATA[#!/bin/bash
+					</plugin>
+					<plugin>
+						<groupId>com.akathist.maven.plugins.launch4j</groupId>
+						<artifactId>launch4j-maven-plugin</artifactId>
+						<version>2.5.3</version>
+						<executions>
+							<execution>
+								<id>l4j-gui</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>launch4j</goal>
+								</goals>
+								<configuration>
+									<headerType>gui</headerType>
+									<outfile>target/${project.artifactId}.exe</outfile>
+									<icon>${project.artifactId}.ico</icon>
+									<jar>target/${project.artifactId}-${project.version}.jar</jar>
+									<errTitle>${project.artifactId}</errTitle>
+									<classPath>
+										<mainClass>com.otk.jesb.JESB</mainClass>
+									</classPath>
+									<jre>
+										<path>./windows-jdk</path>
+										<minVersion>1.8.0</minVersion>
+										<maxVersion>1.17.9</maxVersion>
+										<opts>
+											<opt>-splash:splash.gif</opt>
+											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
+											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
+										</opts>
+									</jre>
+								</configuration>
+							</execution>
+							<execution>
+								<id>l4j-cmd</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>launch4j</goal>
+								</goals>
+								<configuration>
+									<headerType>console</headerType>
+									<outfile>target/${project.artifactId}-cmd.exe</outfile>
+									<icon>${project.artifactId}.ico</icon>
+									<jar>target/${project.artifactId}-${project.version}.jar</jar>
+									<errTitle>${project.artifactId}</errTitle>
+									<classPath>
+										<mainClass>com.otk.jesb.JESB</mainClass>
+									</classPath>
+									<jre>
+										<path>./windows-jdk</path>
+										<minVersion>1.8.0</minVersion>
+										<maxVersion>1.17.9</maxVersion>
+										<opts>
+											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
+											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
+										</opts>
+									</jre>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<echo file="${basedir}/target/${project.artifactId}.tmp"
+											append="yes"><![CDATA[#!/bin/bash
 #set -x
 
 
@@ -326,99 +380,99 @@ $$JAVA_EXE \
 -jar "$$0" "$@"
 
 exit $$?]]></echo>
-								<fixcrlf srcdir="${basedir}/target"
-									includes="${project.artifactId}.tmp" eol="lf" eof="remove" />
-								<concat
-									destfile="${basedir}/target/${project.artifactId}"
-									binary="true">
-									<filelist>
-										<file name="${basedir}/target/${project.artifactId}.tmp" />
-										<file
-											name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
-									</filelist>
-								</concat>
-								<delete
-									file="${basedir}/target/${project.artifactId}.tmp" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<unzip src="${basedir}/misc/jvm/windows-jdk.zip"
-									dest="${basedir}/target/windows-jdk/" />
-								<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
-									dest="${basedir}/target/linux-jdk/" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>l4j-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>assembly-windows-l4j.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>tgz-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>assembly-linux-tgz.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>assembly-sources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attached</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>assembly-sources.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
-	<profiles>
+										<fixcrlf srcdir="${basedir}/target"
+											includes="${project.artifactId}.tmp" eol="lf" eof="remove" />
+										<concat
+											destfile="${basedir}/target/${project.artifactId}"
+											binary="true">
+											<filelist>
+												<file
+													name="${basedir}/target/${project.artifactId}.tmp" />
+												<file
+													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
+											</filelist>
+										</concat>
+										<delete
+											file="${basedir}/target/${project.artifactId}.tmp" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<unzip src="${basedir}/misc/jvm/windows-jdk.zip"
+											dest="${basedir}/target/windows-jdk/" />
+										<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
+											dest="${basedir}/target/linux-jdk/" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>l4j-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attached</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-windows-l4j.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>tgz-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attached</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-linux-tgz.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>assembly-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attached</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-sources.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>sonatype</id>
 			<build>

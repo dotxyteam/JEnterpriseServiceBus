@@ -46,7 +46,7 @@ public interface TreeVisitor<T> {
 	/**
 	 * Performs a subtree visit by using a "depth-first" algorithm.
 	 * 
-	 * @param <T>
+	 * @param <T>              The type of the visited elements.
 	 * @param t                The base node of the visit.
 	 * @param visitor          The visitor.
 	 * @param childrenAccessor A function that retrieves the children of the given
@@ -71,7 +71,7 @@ public interface TreeVisitor<T> {
 	 * Allows you to recursively visit the provided nodes. The visit can be
 	 * interrupted depending on the successive statuses of individual visits.
 	 *
-	 * @param <T>
+	 * @param <T>              The type of the visited elements.
 	 * @param ts               The nodes to visit.
 	 * @param recursiveVisitor A function performing a recursive visit.
 	 * @param initialStatus    The initial status of the visit on which the final

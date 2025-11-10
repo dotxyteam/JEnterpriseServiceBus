@@ -15,7 +15,7 @@ import com.otk.jesb.solution.Solution;
  * 
  * @author olitank
  *
- * @param <T>
+ * @param <T> SPecific type of asset.
  */
 public class Reference<T extends Asset> {
 

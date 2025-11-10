@@ -173,9 +173,10 @@ public abstract class Facade {
 	}
 
 	/**
-	 * @param facade1
-	 * @param facade2
-	 * @return whether the provided facades
+	 * @param facade1 1st facade to compare.
+	 * @param facade2 2nd facade to compare.
+	 * @return whether the provided facades are equivalent (same kind and same
+	 *         identifier).
 	 */
 	public static boolean same(Facade facade1, Facade facade2) {
 		if (facade1.getClass() != facade2.getClass()) {
