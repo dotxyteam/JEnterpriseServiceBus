@@ -45,7 +45,10 @@ It is distributed under this
 *   Get the archives from the download area (see above)
     *   Choose the one corresponding to your OS
     *   Extract it
-*   Run the executable (with "--help" command-line argument to see available options)
+*   Run the executable (with "--help" command-line argument to see available options).
+    *   NOTES:
+        *    On Windows you must run the CMD executable (j-enterprise-service-bus-cmd.exe) if you intend to use the command-line options.
+        *    On Linux you may encounter the error "./linux-jdk/bin/java: Permission denied" => you just need to enable the executable permission (chmod +x ./linux-jdk/bin/java).
 
 # Concepts
 
