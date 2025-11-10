@@ -18,7 +18,7 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 # Use Cases
 
 - Integrating heterogeneous applications (REST/SOAP, XML, database, ...)
-- Developing ETL (extract, transform, and load) jobs
+- Developing ETL (extract, transform, and load) / ESB (Enterprise Service Bus) jobs
 - Orchestrating business processes
 - …
 
