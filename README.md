@@ -25,6 +25,7 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 # Advantages
 
 - Visual process development (low code) and debugging
+- Java-based expression editor (no specific language to learn)
 - Simplified extensibility (plugins generator available) 
 
 # Compatibility
