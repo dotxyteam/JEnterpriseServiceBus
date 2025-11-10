@@ -26,7 +26,8 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 
 - Visual process development (low code) and debugging
 - Java-based expression editor (no specific language to learn)
-- Simplified extensibility (plugins generator available) 
+- Simplified extensibility (plugins generator available)
+- Easy reusability/integration (Maven dependency available)
 
 # Compatibility
 
