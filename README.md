@@ -18,14 +18,16 @@ Extensibility is almost a key feature allowing any user to model and mostly gene
 # Use Cases
 
 - Integrating heterogeneous applications (REST/SOAP, XML, database, ...)
-- Developing ETL (extract, transform, and load) jobs
+- Developing ETL (extract, transform, and load) / ESB (Enterprise Service Bus) jobs
 - Orchestrating business processes
 - …
 
 # Advantages
 
 - Visual process development (low code) and debugging
-- Simplified extensibility (plugins generator available) 
+- Java-based expression editor (no specific language to learn)
+- Simplified extensibility (plugins generator available)
+- Easy reusability/integration (Maven dependency available)
 
 # Compatibility
 
@@ -45,7 +47,10 @@ It is distributed under this
 *   Get the archives from the download area (see above)
     *   Choose the one corresponding to your OS
     *   Extract it
-*   Run the executable (with "--help" command-line argument to see available options)
+*   Run the executable (with "--help" command-line argument to see available options).
+    *   NOTES:
+        *    On Windows you must run the CMD executable (j-enterprise-service-bus-cmd.exe) if you intend to use the command-line options.
+        *    On Linux you may encounter the error "./linux-jdk/bin/java: Permission denied" => you just need to enable the executable permission (chmod +x ./linux-jdk/bin/java).
 
 # Concepts
 
