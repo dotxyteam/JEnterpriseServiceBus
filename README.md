@@ -59,6 +59,20 @@ It is distributed under this
 - Each **plan** has its own activation mode (**activator**).
 - **Resources** are shared configurations referenced by **plans** or other **resources**.
 
+# Java API
+
+JESB processes can be called from any Java code. 
+The required Maven dependency is as follows:
+
+    <dependency>
+    <groupId>com.github.dotxyteam</groupId>
+    <artifactId>j-enterprise-service-bus</artifactId>
+    <version>LATEST</version>
+    </dependency>
+
+The following class demonstrates the use of this API: 
+https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/TestJesbAPI.java
+
 # Support
 
 The support page is hosted [here on GitHub](https://github.com/dotxyteam/JEnterpriseServiceBus/issues). You can also contact us by email: [dotxyteam@yahoo.fr](mailto:dotxyteam@yahoo.fr).
