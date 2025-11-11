@@ -31,6 +31,13 @@
 (not the historical one)
 - allow to access step error variables
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
+- simplify the reuse of the JESB API:
+	- allow the use of Solution instances other than the default
+		- allow Reference instances to work on Solution instances other than the default
+		- allow Variant instances to work on EnvironmentSettings instances other than the default
+		- Check the use Reference.get(...)
+	- add method InitializerFacade.getChild(String displayString).
+	- add method RootInstanceBuilder.getRootInstantiationFacade()
 - factorize activators error handling to prevent unexpected deactivation
 (may be by adding service-oriented features to the ACtivator class)
 - add a welcome image ???
