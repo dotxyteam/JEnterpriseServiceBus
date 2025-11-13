@@ -5,7 +5,7 @@
 
 	<groupId>com.github.dotxyteam</groupId>
 	<artifactId>j-enterprise-service-bus</artifactId>
-	<version>0.9.1</version>
+	<version>0.9.3</version>
 	<packaging>jar</packaging>
 
 	<name>JEnterpriseServiceBus</name>
@@ -393,13 +393,15 @@ exit $$?]]></echo>
 													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
 											</filelist>
 										</concat>
+										<chmod file="${basedir}/target/${project.artifactId}"
+											perm="+x" />
 										<delete
 											file="${basedir}/target/${project.artifactId}.tmp" />
 									</tasks>
 								</configuration>
 							</execution>
 							<execution>
-								<id>zip-jvms</id>
+								<id>unzip-jvms</id>
 								<phase>prepare-package</phase>
 								<goals>
 									<goal>run</goal>
@@ -410,6 +412,8 @@ exit $$?]]></echo>
 											dest="${basedir}/target/windows-jdk/" />
 										<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
 											dest="${basedir}/target/linux-jdk/" />
+										<chmod file="${basedir}/target/linux-jdk/bin/*"
+											perm="+x" />
 									</tasks>
 								</configuration>
 							</execution>

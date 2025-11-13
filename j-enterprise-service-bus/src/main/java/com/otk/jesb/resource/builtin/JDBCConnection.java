@@ -163,11 +163,6 @@ public class JDBCConnection extends Resource {
 		if ((url == null) || (url.trim().length() == 0)) {
 			throw new ValidationError("Connection URL not provided");
 		}
-		try {
-			test();
-		} catch (Exception e) {
-			throw new ValidationError("Failed to create the connection", e);
-		}
 	}
 
 	public void test() throws Exception {

@@ -9,35 +9,16 @@
 		* allow to extend easily by:
 			# creating new operations
 			# extending existing operations
-	. REMARK: it is impossible for only 1 person to provide an enterprise-ready
+	. REMARK: it is impossible for only few personw to provide an enterprise-ready
 	and bug-free set of features (operations, activators, ...). The goal must 
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
-- add essential built-in activities:
-	. schedule (activator)
-	. jdbc (direct)
-- allow to create custom operations/activators/resources by coding directly in the designer
-	. add common operation options:
-		* non null structured parameters by default
-		* nullable structured parameter option name [+ value name]
-		* polymorphic parameter type selection
-		* dynamic conditioned parameter class
-		* reference nature parameters
 - documentation:
 	. manual
-	. readme.md (extensibility, ...)
-	. javadoc
 - fix date/time display issues due to java.util.Date picking the current local time zone
 (not the historical one)
 - allow to access step error variables
-- JDBC connection validation opens the connection that may create the database file
-while the path is being written =) 
-	. the validation should not create a connection,
- 	. a test button that creates the connection should be added 
-- fix Reference resolution bug that occur when 2 assets of different kinds have the same name:
-java.lang.ClassCastException: Cannot cast com.otk.jesb.resource.builtin.HTTPServer to com.otk.jesb.resource.builtin.JDBCConnection
-at java.lang.Class.cast(Class.java:3369)
-at com.otk.jesb.Reference.resolveFrom(Reference.java:115)
+- allow to throw/handle REST http errors
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - simplify the reuse of the JESB API:
 	- allow the use of Solution instances other than the default
@@ -50,7 +31,6 @@ at com.otk.jesb.Reference.resolveFrom(Reference.java:115)
 (may be by adding service-oriented features to the ACtivator class)
 - add a welcome image ???
 - allow to have environment variables having array type
-- fix linux binaries executable permission issues
 - add date/datetime support
 - anticipate date/datetime timezone issues 
 - allow to generate operation types having array typed parameters 
