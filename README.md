@@ -49,8 +49,7 @@ It is distributed under this
     *   Extract it
 *   Run the executable (with "--help" command-line argument to see available options).
     *   IMPORTANT:
-        *    On Windows you must run the CMD executable (j-enterprise-service-bus-cmd.exe) if you intend to use the command-line options.
-        *    On Linux, after extracting the files from the archive, restore the "executable" permissions with the following command (to be run from the binary's directory): **chmod +x j-enterprise-service-bus linux-jdk/bin/java**. Otherwise, you may encounter the **Permission denied** error.
+        *    On Windows you must run the CMD executable (**j-enterprise-service-bus-cmd.exe**) if you intend to use the command-line options.
 
 # Concepts
 
