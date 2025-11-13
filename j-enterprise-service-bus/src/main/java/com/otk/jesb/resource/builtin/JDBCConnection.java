@@ -164,16 +164,18 @@ public class JDBCConnection extends Resource {
 			throw new ValidationError("Connection URL not provided");
 		}
 		try {
-			instanceMutex.acquire();
-			try {
-				open().close();
-			} catch (Exception e) {
-				throw new ValidationError("Failed to create the connection", e);
-			} finally {
-				instanceMutex.release();
-			}
-		} catch (InterruptedException e) {
-			throw new UnexpectedError(e);
+			test();
+		} catch (Exception e) {
+			throw new ValidationError("Failed to create the connection", e);
+		}
+	}
+
+	public void test() throws Exception {
+		instanceMutex.acquire();
+		try {
+			open().close();
+		} finally {
+			instanceMutex.release();
 		}
 	}
 

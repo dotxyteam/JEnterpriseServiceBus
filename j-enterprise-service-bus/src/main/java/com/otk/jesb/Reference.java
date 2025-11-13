@@ -112,7 +112,9 @@ public class Reference<T extends Asset> {
 
 	private T resolveFrom(Asset asset, String assetPath) {
 		if (assetPath.equals(path)) {
-			return assetClass.cast(asset);
+			if (assetClass.isInstance(asset)) {
+				return assetClass.cast(asset);
+			}
 		}
 		if (path.startsWith(assetPath + PATH_SEPARATOR) && (asset instanceof Folder)) {
 			for (Asset childAsset : ((Folder) asset).getContents()) {

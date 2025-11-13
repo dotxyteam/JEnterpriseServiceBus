@@ -30,6 +30,14 @@
 - fix date/time display issues due to java.util.Date picking the current local time zone
 (not the historical one)
 - allow to access step error variables
+- JDBC connection validation opens the connection that may create the database file
+while the path is being written =) 
+	. the validation should not create a connection,
+ 	. a test button that creates the connection should be added 
+- fix Reference resolution bug that occur when 2 assets of different kinds have the same name:
+java.lang.ClassCastException: Cannot cast com.otk.jesb.resource.builtin.HTTPServer to com.otk.jesb.resource.builtin.JDBCConnection
+at java.lang.Class.cast(Class.java:3369)
+at com.otk.jesb.Reference.resolveFrom(Reference.java:115)
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - simplify the reuse of the JESB API:
 	- allow the use of Solution instances other than the default
@@ -42,6 +50,7 @@
 (may be by adding service-oriented features to the ACtivator class)
 - add a welcome image ???
 - allow to have environment variables having array type
+- fix linux binaries executable permission issues
 - add date/datetime support
 - anticipate date/datetime timezone issues 
 - allow to generate operation types having array typed parameters 
