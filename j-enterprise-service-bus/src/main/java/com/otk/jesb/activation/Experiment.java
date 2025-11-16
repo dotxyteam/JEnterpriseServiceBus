@@ -62,15 +62,10 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		private ActivationHandler getActivationHandler() {
 			return new ActivationHandler() {
 				@Override
-				public Object trigger(Object planInput) {
+				public Object trigger(Object planInput) throws ExecutionError {
 					long eventTimestamp = System.currentTimeMillis();
-					Object planOutput;
-					try {
-						planOutput = Experiment.this.execute(planInput, Plan.ExecutionInspector.DEFAULT,
-								new Plan.ExecutionContext(ActivationEventBasket.this, Experiment.this));
-					} catch (ExecutionError e) {
-						throw new PotentialError(e);
-					}
+					Object planOutput = Experiment.this.execute(planInput, Plan.ExecutionInspector.DEFAULT,
+							new Plan.ExecutionContext(ActivationEventBasket.this, Experiment.this));
 					activationEvents.add(new ActivationEvent(eventTimestamp, planInput, planOutput));
 					return planOutput;
 				}

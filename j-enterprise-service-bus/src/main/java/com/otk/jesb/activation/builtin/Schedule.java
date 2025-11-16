@@ -2,12 +2,15 @@ package com.otk.jesb.activation.builtin;
 
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorStructure;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.Variant;
 import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.util.ReflectionUIUtils;
+
+import com.otk.jesb.Log;
 import com.otk.jesb.ValidationError;
 import xy.reflect.ui.info.ResourcePath;
 import java.util.Arrays;
@@ -94,7 +97,11 @@ public class Schedule extends Activator {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-				activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
+				try {
+					activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));
+				} catch (ExecutionError e) {
+					Log.get().error(e);
+				}
 			}
 		};
 		ChronoUnit chronUnit = Arrays.stream(ChronoUnit.class.getEnumConstants())

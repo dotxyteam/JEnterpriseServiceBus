@@ -8,6 +8,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
+
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
@@ -89,7 +96,20 @@ public class CallRESTAPI implements Operation {
 			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof Exception) {
-				throw (Exception) e.getTargetException();
+				if (e.getTargetException() instanceof RestClientException) {
+					RestClientResponseException clientException = (RestClientResponseException) e.getTargetException();
+					Status status = Status.fromStatusCode(clientException.getRawStatusCode());
+					String reasonPhrase = clientException.getStatusText();
+					MediaType mediaType = (clientException.getResponseHeaders()
+							.getFirst(HttpHeaders.CONTENT_TYPE) != null)
+									? MediaType.valueOf(
+											clientException.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE))
+									: null;
+					String body = clientException.getResponseBodyAsString();
+					throw new OpenAPIDescription.ResponseException(status, reasonPhrase, mediaType, body);
+				} else {
+					throw (Exception) e.getTargetException();
+				}
 			} else {
 				throw new PotentialError(e.getTargetException());
 			}

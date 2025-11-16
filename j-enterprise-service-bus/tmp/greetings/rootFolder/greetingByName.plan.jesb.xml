@@ -73,6 +73,94 @@
     <selectedConstructorSignature class="null"/>
     <typeName>&lt;Dynamic&gt;</typeName>
   </outputBuilder>
-  <steps/>
-  <transitions/>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>149</diagramX>
+      <diagramY>63</diagramY>
+      <name>doNothing</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>330</diagramX>
+      <diagramY>170</diagramY>
+      <name>fail</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
+        <exceptionBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor">
+                  <outer-class reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.EnumerationItemSelector">
+                      <selectedItemName>Bad Request</selectedItemName>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>1</parameterPosition>
+                    <parameterValue class="string">Name not provided!</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>2</parameterPosition>
+                    <parameterValue class="null"/>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>3</parameterPosition>
+                    <parameterValue class="null"/>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException (javax.ws.rs.core.Response$Status, java.lang.String, javax.ws.rs.core.MediaType, java.lang.String)</selectedConstructorSignature>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>ExceptionInput</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </exceptionBuilder>
+        <exceptionClassName>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException</exceptionClassName>
+        <exceptionContructorSignature>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException (javax.ws.rs.core.Response$Status, java.lang.String, javax.ws.rs.core.MediaType, java.lang.String)</exceptionContructorSignature>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>340</diagramX>
+      <diagramY>35</diagramY>
+      <name>doNothing1</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$IfCondition">
+        <functionBody>return PLAN_INPUT.name.trim().isEmpty();</functionBody>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ElseCondition"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
+  </transitions>
 </com.otk.jesb.solution.Plan>

@@ -17,6 +17,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.config.CodegenConfigurator;
@@ -585,6 +591,29 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		@Override
 		public String getResourceTypeName() {
 			return "OpenAPI Description";
+		}
+
+	}
+
+	public static class ResponseException extends WebApplicationException {
+
+		private static final long serialVersionUID = 1L;
+
+		public ResponseException(Status status, String reasonPhrase, MediaType mediaType, String body) {
+			super(createResponse(status, reasonPhrase, mediaType, body));
+		}
+
+		private static Response createResponse(Status status, String reasonPhrase, MediaType mediaType, String body) {
+			ResponseBuilder responseBuilder = (reasonPhrase != null)
+					? Response.status(status.getStatusCode(), reasonPhrase)
+					: Response.status(status);
+			if (mediaType != null) {
+				responseBuilder = responseBuilder.type(mediaType);
+			}
+			if (body != null) {
+				responseBuilder = responseBuilder.entity(body);
+			}
+			return responseBuilder.build();
 		}
 
 	}

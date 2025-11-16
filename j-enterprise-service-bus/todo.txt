@@ -13,6 +13,11 @@
 	and bug-free set of features (operations, activators, ...). The goal must 
 	then be to provide extensibility capabilities as a core feature and address
 	very specific (niche) needs like mainframe interactions, mq, etc.    
+	. REMARK: if an important feature is missing and costly to implement, 
+	it's best to first implement a quick workaround, release it, and then gradually 
+	implement the final solution. It's also essential have a branch dedicated to 
+	maintaining at least the latest	stable version, in order to include bug fixes 
+	discovered during the feature addition process.
 - documentation:
 	. manual
 - fix date/time display issues due to java.util.Date picking the current local time zone
@@ -29,6 +34,14 @@
 	- add method RootInstanceBuilder.getRootInstantiationFacade()
 - factorize activators error handling to prevent unexpected deactivation
 (may be by adding service-oriented features to the ACtivator class)
+- improve exception management:
+	. add OperationBuilder#getExceptionClassByIdentifier() 
+	. allow to choose one of these exception identifiers (+ default) from error transitions
+	. add Activator#getExceptionClassByIdentifier()
+	. allow to add custom entries for 'Operate' activators
+	. allow to choose one of these exception identifiers from 'Fail' operations
+	. allow to assign an exception to a variable from error transitions
+	. allow to specify an additional condition for error transitions
 - add a welcome image ???
 - allow to have environment variables having array type
 - add date/datetime support

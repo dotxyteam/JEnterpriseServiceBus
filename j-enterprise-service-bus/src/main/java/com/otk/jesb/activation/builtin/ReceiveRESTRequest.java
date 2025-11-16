@@ -47,6 +47,7 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.util.MiscUtils;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -228,7 +229,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
 		private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
 				OpenAPIDescription.class);
-		private Variant<Boolean> webUIEnabledVariant = new Variant<Boolean>(Boolean.class, false);
+		private Variant<Boolean> webUIEnabledVariant = new Variant<Boolean>(Boolean.class, true);
 		private WebUISupport webUISupport = new WebUISupport();
 
 		private Map<OpenAPIDescription.APIOperationDescriptor, ActivationHandler> activationHandlerByOperation = new ConcurrentHashMap<OpenAPIDescription.APIOperationDescriptor, ActivationHandler>();
@@ -300,7 +301,16 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 							}
 							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()
 									.getConstructor(method.getParameterTypes()).newInstance(args);
-							Object operationOutput = registeredActivationHandler.trigger(operationInput);
+							Object operationOutput;
+							try {
+								operationOutput = registeredActivationHandler.trigger(operationInput);
+							} catch (ExecutionError e) {
+								if (e.getCause() instanceof OpenAPIDescription.ResponseException) {
+									throw e.getCause();
+								} else {
+									throw e;
+								}
+							}
 							Class<?> operationOutputClass = operation.getOperationOutputClass();
 							if (operationOutputClass == null) {
 								return null;
@@ -342,7 +352,7 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			Log.get().information("Published REST service at: " + server.getLocaBaseURL() + servicePath);
 			if (webUIEnabledVariant.getValue()) {
 				Log.get().information("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
-				Log.get().information("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
+				Log.get().information("Web UI: " + server.getLocaBaseURL() + servicePath + "/api-docs");
 			}
 		}
 

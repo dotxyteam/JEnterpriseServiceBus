@@ -419,8 +419,8 @@ public class GUI extends MultiSwingCustomizer {
 					Object peeked;
 					if ((peeked = stack.peek()) != object) {
 						if (JESB.isDebugModeActive()) {
-							Log.get().error(new UnexpectedError("The user interface may become unstable because " + object
-									+ " was abnormally hidden before " + peeked));
+							Log.get().error(new UnexpectedError("The user interface may become unstable because "
+									+ object + " was abnormally hidden before " + peeked));
 						}
 					}
 					if (!stack.remove(object)) {
@@ -1287,13 +1287,14 @@ public class GUI extends MultiSwingCustomizer {
 							super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
 					if (selection.size() > 0) {
 						final ItemPosition firstItemPosition = selection.get(0);
-						if (selection.stream().allMatch(
-								itemPosition -> ((itemPosition.getItem() instanceof ParameterInitializerFacade)
-										|| (itemPosition.getItem() instanceof FieldInitializerFacade)
-										|| (itemPosition.getItem() instanceof ListItemInitializerFacade)
-										|| (itemPosition.getItem() instanceof InitializationSwitchFacade))
-										&& MiscUtils.equalsOrBothNull(itemPosition.getParentItemPosition(),
-												firstItemPosition.getParentItemPosition()))) {
+						if ("Data".equals(firstItemPosition.getRoot().getContainingListTitle())
+								&& selection.stream().allMatch(
+										itemPosition -> ((itemPosition.getItem() instanceof ParameterInitializerFacade)
+												|| (itemPosition.getItem() instanceof FieldInitializerFacade)
+												|| (itemPosition.getItem() instanceof ListItemInitializerFacade)
+												|| (itemPosition.getItem() instanceof InitializationSwitchFacade))
+												&& MiscUtils.equalsOrBothNull(itemPosition.getParentItemPosition(),
+														firstItemPosition.getParentItemPosition()))) {
 							final Facade parentFacade = ((Facade) firstItemPosition.getItem()).getParent();
 							result.add(new AbstractDynamicListAction() {
 
@@ -2840,7 +2841,9 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
 						if (!(object instanceof Folder)) {
-							Log.get().information("Validating '" + ((Asset) object).getFullName() + "'...");
+							if (Log.isVerbose()) {
+								Log.get().information("Validating '" + ((Asset) object).getFullName() + "'...");
+							}
 						}
 						((Asset) object).validate(false);
 					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
@@ -2856,8 +2859,8 @@ public class GUI extends MultiSwingCustomizer {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						if (Log.isVerbose()) {
-							Log.get()
-									.information("Validating plan transition '" + ((Transition) object).getSummary() + "'...");
+							Log.get().information(
+									"Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 						}
 						((Transition) object).validate(false, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
@@ -2985,7 +2988,9 @@ public class GUI extends MultiSwingCustomizer {
 							if (item instanceof Folder) {
 								((Folder) item).validate(false);
 							} else {
-								Log.get().information("Validating '" + ((Asset) item).getFullName() + "'...");
+								if (Log.isVerbose()) {
+									Log.get().information("Validating '" + ((Asset) item).getFullName() + "'...");
+								}
 								((Asset) item).validate(true);
 							}
 						};

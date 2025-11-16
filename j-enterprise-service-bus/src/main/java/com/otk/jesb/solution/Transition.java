@@ -1,9 +1,11 @@
 package com.otk.jesb.solution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Function;
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
@@ -86,6 +88,73 @@ public class Transition extends PlanElement {
 		return getStartStep().getName() + " => " + getEndStep().getName();
 	}
 
+	public List<VariableDeclaration> getVariableDeclarations() {
+		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>();
+		if (condition instanceof ExceptionCondition) {
+			ExceptionCondition exceptionCondition = (ExceptionCondition) condition;
+			VariableDeclaration exceptionVariableDeclaration = exceptionCondition.getExceptionVariableDeclaration();
+			if (exceptionVariableDeclaration != null) {
+				result.add(exceptionVariableDeclaration);
+			}
+		}
+		return result;
+	}
+
+	public static List<Transition> computeValidTranstions(List<Transition> transitions,
+			Plan.ExecutionError executionError, Plan.ExecutionContext context) throws FunctionCallError {
+		List<Transition> result = new ArrayList<Transition>();
+		List<Transition> elseTransitions = new ArrayList<Transition>();
+		for (Transition transition : transitions) {
+			if (transition.getCondition() != null) {
+				if (transition.getCondition() instanceof IfCondition) {
+					if (executionError == null) {
+						if (((IfCondition) transition.getCondition()).isFulfilled(
+								context.getPlan().getTransitionContextVariableDeclarations(transition),
+								context.getVariables())) {
+							result.add(transition);
+						}
+					}
+				} else if (transition.getCondition() instanceof ElseCondition) {
+					if (executionError == null) {
+						elseTransitions.add(transition);
+					}
+				} else if (transition.getCondition() instanceof ExceptionCondition) {
+					if (executionError != null) {
+						ExceptionCondition exceptionCondition = (ExceptionCondition) transition.getCondition();
+						if (exceptionCondition.isFullfilled(executionError.getCause())) {
+							result.add(transition);
+							Variable exceptionVariable = exceptionCondition
+									.getExceptionVariable(executionError.getCause());
+							if (exceptionVariable != null) {
+								context.getVariables().add(exceptionVariable);
+								/*
+								 * TODO: PROBLEM: the exception variable is added only to valid execution branch
+								 * contexts.
+								 */
+								/*
+								 * TODO: Check if a unique context is abnormally used for all execution
+								 * branches.
+								 */
+							}
+						}
+					}
+				} else {
+					throw new UnexpectedError();
+				}
+			} else {
+				if (executionError == null) {
+					result.add(transition);
+				}
+			}
+		}
+		if (elseTransitions.size() > 0) {
+			if (result.stream().noneMatch(transition -> (transition.getCondition() instanceof IfCondition))) {
+				result.addAll(elseTransitions);
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
@@ -154,6 +223,7 @@ public class Transition extends PlanElement {
 
 	public static class ExceptionCondition implements Condition {
 		private String exceptionTypeName = Exception.class.getName();
+		private String exceptionVariableName;
 
 		public String getExceptionTypeName() {
 			return exceptionTypeName;
@@ -161,6 +231,49 @@ public class Transition extends PlanElement {
 
 		public void setExceptionTypeName(String exceptionTypeName) {
 			this.exceptionTypeName = exceptionTypeName;
+		}
+
+		public String getExceptionVariableName() {
+			return exceptionVariableName;
+		}
+
+		public void setExceptionVariableName(String exceptionVariableName) {
+			this.exceptionVariableName = exceptionVariableName;
+		}
+
+		public VariableDeclaration getExceptionVariableDeclaration() {
+			if (exceptionVariableName == null) {
+				return null;
+			}
+			return new VariableDeclaration() {
+				@Override
+				public Class<?> getVariableType() {
+					return MiscUtils.getJESBClass(exceptionTypeName);
+				}
+
+				@Override
+				public String getVariableName() {
+					return exceptionVariableName;
+				}
+			};
+		}
+
+		public Variable getExceptionVariable(Throwable exception) {
+			if (exceptionVariableName == null) {
+				return null;
+			}
+			return new Variable() {
+
+				@Override
+				public Object getValue() {
+					return exception;
+				}
+
+				@Override
+				public String getName() {
+					return exceptionVariableName;
+				}
+			};
 		}
 
 		public boolean isFullfilled(Throwable thrown) {

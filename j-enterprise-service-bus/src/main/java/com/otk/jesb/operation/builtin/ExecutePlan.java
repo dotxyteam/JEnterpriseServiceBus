@@ -11,6 +11,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -39,7 +40,7 @@ public class ExecutePlan implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute() throws ExecutionError {
 		return plan.execute(planInput, executionInspector, new ExecutionContext(session, plan));
 	}
 

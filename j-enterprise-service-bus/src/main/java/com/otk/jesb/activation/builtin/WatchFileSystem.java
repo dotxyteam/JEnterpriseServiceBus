@@ -29,6 +29,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -250,14 +251,17 @@ public class WatchFileSystem extends Activator {
 		if (pathMatcher.matches(nioPath)) {
 			ResourceKind eventResourceKind = ResourceKind.get(resolvedNioPath);
 			if ((eventResourceKind == watchedResourceKind) || (watchedResourceKind == ResourceKind.ANY)) {
-
 				String path = resolvedNioPath.toString();
 				boolean creationEvent = eventKind == StandardWatchEventKinds.ENTRY_CREATE;
 				boolean deletionEvent = eventKind == StandardWatchEventKinds.ENTRY_DELETE;
 				boolean modificationEvent = eventKind == StandardWatchEventKinds.ENTRY_MODIFY;
 				boolean overflowEvent = eventKind == StandardWatchEventKinds.OVERFLOW;
-				activationHandler.trigger(new FileSystemEvent(path, eventResourceKind, creationEvent, deletionEvent,
-						modificationEvent, overflowEvent));
+				try {
+					activationHandler.trigger(new FileSystemEvent(path, eventResourceKind, creationEvent, deletionEvent,
+							modificationEvent, overflowEvent));
+				} catch (ExecutionError e) {
+					Log.get().error(e);
+				}
 			}
 		}
 		if (registerNewDirectory) {

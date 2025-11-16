@@ -16,6 +16,7 @@ import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.Reference;
 import com.otk.jesb.solution.Solution;
@@ -175,7 +176,7 @@ public class Debugger extends Session {
 			if (ready) {
 				ActivationHandler activationHandler = new ActivationHandler() {
 					@Override
-					public Object trigger(Object planInput) {
+					public Object trigger(Object planInput) throws ExecutionError {
 						PlanExecutor planExecutor = createPlanExecutor(planInput);
 						planExecutors.add(planExecutor);
 						try {
@@ -184,7 +185,7 @@ public class Debugger extends Session {
 							throw new UnexpectedError(e);
 						}
 						if (planExecutor.getExecutionError() != null) {
-							throw new PotentialError(planExecutor.getExecutionError());
+							throw planExecutor.getExecutionError();
 						}
 						return planExecutor.getPlanOutput();
 					}
@@ -260,7 +261,7 @@ public class Debugger extends Session {
 		protected Object planOutput;
 		protected List<StepCrossing> stepCrossings = new ArrayList<StepCrossing>();
 		protected StepCrossing currentStepCrossing;
-		protected Throwable executionError;
+		protected ExecutionError executionError;
 		protected Thread thread;
 		protected List<PlanExecutor> children = new ArrayList<Debugger.PlanExecutor>();
 		protected Stack<SubPlanExecutor> subPlanExecutionStack = new Stack<SubPlanExecutor>();
@@ -298,7 +299,10 @@ public class Debugger extends Session {
 				@Override
 				public void afterOperation(StepCrossing stepCrossing) {
 					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
-						subPlanExecutionStack.pop().executionError = stepCrossing.getOperationError();
+						subPlanExecutionStack
+								.pop().executionError = (stepCrossing.getOperationError() instanceof ExecutionError)
+										? (ExecutionError) stepCrossing.getOperationError()
+										: new ExecutionError(stepCrossing.getOperationError());
 					}
 					try {
 						Thread.sleep(500);
@@ -367,7 +371,7 @@ public class Debugger extends Session {
 			return true;
 		}
 
-		public Throwable getExecutionError() {
+		public ExecutionError getExecutionError() {
 			return executionError;
 		}
 
@@ -448,16 +452,16 @@ public class Debugger extends Session {
 			onExecutionStart(this);
 			try {
 				planOutput = plan.execute(planInput, executionInspector, executionContext);
-			} catch (Throwable t) {
-				handleExecutionError(t);
+			} catch (ExecutionError e) {
+				handleExecutionError(e);
 			} finally {
 				onExecutionEnd(this);
 			}
 		}
 
-		protected void handleExecutionError(Throwable t) {
-			Log.get().error(MiscUtils.getPrintedStackTrace(t));
-			executionError = t;
+		protected void handleExecutionError(ExecutionError e) {
+			Log.get().error(MiscUtils.getPrintedStackTrace(e));
+			executionError = e;
 		}
 
 		@Override
@@ -488,7 +492,7 @@ public class Debugger extends Session {
 
 		public PlanActivationFailure(Plan plan, Exception error) {
 			super(plan, null);
-			this.executionError = error;
+			this.executionError = new ExecutionError(error);
 		}
 
 		@Override

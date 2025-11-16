@@ -28,7 +28,7 @@
         <variableReferenceExpression class="null"/>
       </servicePathVariant>
       <webUIEnabledVariant>
-        <constantValue class="boolean">false</constantValue>
+        <constantValue class="boolean">true</constantValue>
         <valueClass>java.lang.Boolean</valueClass>
         <variable>false</variable>
         <variableReferenceExpression class="null"/>
