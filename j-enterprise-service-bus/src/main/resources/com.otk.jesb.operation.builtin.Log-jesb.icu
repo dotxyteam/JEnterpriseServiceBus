@@ -16,7 +16,7 @@
             <uniqueIdentifier>-7637751e:19809ec588c:66f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4b35</uniqueIdentifier>
+                <uniqueIdentifier>10206a89:19a9348d699:-5c5a</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -56,6 +56,7 @@
         <menuModel>
             <uniqueIdentifier>-7637751e:19809ec588c:6585</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.Log$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

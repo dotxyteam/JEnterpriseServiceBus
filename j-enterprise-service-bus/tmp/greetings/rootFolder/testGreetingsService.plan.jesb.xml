@@ -105,7 +105,11 @@
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
                     <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                      <functionBody>return &quot;Exception successfully caught!&quot;;</functionBody>
+                      <functionBody>return &quot;HTTP error&quot; 
++ &quot;: code=&quot; + httpError.getStatusCode()
++ &quot;; status=&quot; + httpError.getStatus()
++ &quot;; reason=&quot; + httpError.getReasonPhrase()
++ &quot;; body=&quot; + httpError.getBody();</functionBody>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
@@ -141,6 +145,7 @@
     <com.otk.jesb.solution.Transition>
       <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
         <exceptionTypeName>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException</exceptionTypeName>
+        <exceptionVariableName>httpError</exceptionVariableName>
       </condition>
       <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
       <label class="null"/>

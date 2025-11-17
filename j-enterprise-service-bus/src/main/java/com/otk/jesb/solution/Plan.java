@@ -196,6 +196,14 @@ public class Plan extends Asset {
 		return result;
 	}
 
+	private List<Step> findLastSteps(List<Step> steps) {
+		List<Step> result = new ArrayList<Step>(steps);
+		for (Transition t : transitions) {
+			result.remove(t.getStartStep());
+		}
+		return result;
+	}
+
 	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
 			throws ExecutionError {
 		try {
@@ -242,9 +250,29 @@ public class Plan extends Asset {
 		if (firstSteps.size() == 0) {
 			throw new ExecutionError(new PlanificationError("Could not find any initial step"));
 		}
+		List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
+		List<Variable> allVariables = new ArrayList<Variable>(initialVariables);
 		for (Step firstStep : firstSteps) {
+			context.getVariables().clear();
+			context.getVariables().addAll(initialVariables);
 			continueExecution(firstStep, true, context, executionInspector);
+			context.getVariables().forEach(variable -> {
+				if (!allVariables.contains(variable)) {
+					allVariables.add(variable);
+				}
+			});
 		}
+		context.getVariables().clear();
+		context.getVariables().addAll(allVariables);
+		List<Step> lastSteps = findLastSteps(steps);
+		List<StepOccurrence> lastStepOccurrences = lastSteps.stream()
+				.map(lastStep -> findStepOccurrence(lastStep, context)).collect(Collectors.toList());
+		if (lastStepOccurrences.contains(null)) {
+			throw new UnexpectedError();
+		}
+		List<Variable> finalVariables = mergeStepOccurrenceVariables(lastStepOccurrences);
+		context.getVariables().clear();
+		context.getVariables().addAll(finalVariables);
 	}
 
 	private void continueExecution(Step fromStep, boolean executionBranchValid, ExecutionContext context,
@@ -252,31 +280,29 @@ public class Plan extends Asset {
 		if (executionInspector.isExecutionInterrupted()) {
 			return;
 		}
-		List<Transition> currentStepTransitions = transitions.stream()
+		List<Transition> outgoingTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == fromStep)).collect(Collectors.toList());
-		execute(fromStep, currentStepTransitions, executionBranchValid, context, executionInspector);
+		execute(fromStep, outgoingTransitions, executionBranchValid, context, executionInspector);
 		final int TRANSITION_NOT_REACHED = 0;
 		final int TRANSITION_REACHED_THROUGH_VALID_BRANCH = 1;
 		final int TRANSITION_REACHED_THROUGH_INVALID_BRANCH = 2;
-		for (Transition transition : currentStepTransitions) {
+		List<Variable> finalVariables = new ArrayList<Variable>(context.getVariables());
+		for (Transition outgoingTransition : outgoingTransitions) {
 			boolean endStepAlreadyExecuted = context.getVariables().stream()
-					.anyMatch(variable -> variable.getName().equals(transition.getEndStep().getName()));
+					.anyMatch(variable -> variable.getName().equals(outgoingTransition.getEndStep().getName()));
 			if (endStepAlreadyExecuted) {
 				continue;
 			}
 			List<Transition> convergentTransitions = transitions.stream()
-					.filter(candidateConvergentTransition -> (candidateConvergentTransition.getEndStep() == transition
-							.getEndStep()))
+					.filter(candidateConvergentTransition -> (candidateConvergentTransition
+							.getEndStep() == outgoingTransition.getEndStep()))
 					.collect(Collectors.toList());
 			Map<Transition, Integer> statusByConvergentTransition = new HashMap<Transition, Integer>();
-			Map<Transition, StepOccurrence> startStepOccurrenceByConvergentTransition = new HashMap<Transition, StepOccurrence>();
 			for (Transition convergentTransition : convergentTransitions) {
 				int convergentTransitionStatus = TRANSITION_NOT_REACHED;
-				StepOccurrence startStepOccurrence = null;
 				for (Variable variable : context.getVariables()) {
 					if ((variable instanceof StepOccurrence)
 							&& (((StepOccurrence) variable).getStep() == convergentTransition.getStartStep())) {
-						startStepOccurrence = (StepOccurrence) variable;
 						if (variable instanceof StepCrossing) {
 							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_VALID_BRANCH;
 						} else if (variable instanceof StepSkipping) {
@@ -287,25 +313,18 @@ public class Plan extends Asset {
 						break;
 					}
 				}
-				startStepOccurrenceByConvergentTransition.put(convergentTransition, startStepOccurrence);
 				statusByConvergentTransition.put(convergentTransition, convergentTransitionStatus);
 			}
 			boolean readyForNextStep = !statusByConvergentTransition.containsValue(TRANSITION_NOT_REACHED);
 			if (readyForNextStep) {
-				List<Variable> convergentTransitionsMergedVariables = new ArrayList<Variable>();
-				{
-					startStepOccurrenceByConvergentTransition.entrySet().stream().forEach(entry -> {
-						StepOccurrence startStepOccurrence = entry.getValue();
-						if (startStepOccurrence == null) {
-							throw new UnexpectedError();
-						}
-						for (Variable variable : startStepOccurrence.getPostVariablesSnapshot()) {
-							if (!convergentTransitionsMergedVariables.contains(variable)) {
-								convergentTransitionsMergedVariables.add(variable);
-							}
-						}
-					});
+				List<StepOccurrence> startStepOccurrences = convergentTransitions.stream()
+						.map(convergentTransition -> findStepOccurrence(convergentTransition.getStartStep(), context))
+						.collect(Collectors.toList());
+				if (startStepOccurrences.contains(null)) {
+					throw new UnexpectedError();
 				}
+				List<Variable> convergentTransitionsMergedVariables = mergeStepOccurrenceVariables(
+						startStepOccurrences);
 				context.getVariables().clear();
 				context.getVariables().addAll(convergentTransitionsMergedVariables);
 				boolean futureExecutionBranchValid = statusByConvergentTransition.entrySet().stream()
@@ -315,14 +334,45 @@ public class Plan extends Asset {
 							if (convergentTransitionStatus != TRANSITION_REACHED_THROUGH_VALID_BRANCH) {
 								return false;
 							}
-							StepCrossing convergentTransitionStartStepCrossing = (StepCrossing) startStepOccurrenceByConvergentTransition
-									.get(convergentTransition);
+							StepCrossing convergentTransitionStartStepCrossing = (StepCrossing) startStepOccurrences
+									.stream().filter(startStepOccurrence -> startStepOccurrence
+											.getStep() == convergentTransition.getStartStep())
+									.findFirst().get();
 							return convergentTransitionStartStepCrossing.getValidTransitions()
 									.contains(convergentTransition);
 						});
-				continueExecution(transition.getEndStep(), futureExecutionBranchValid, context, executionInspector);
+				continueExecution(outgoingTransition.getEndStep(), futureExecutionBranchValid, context,
+						executionInspector);
+			}
+			context.getVariables().forEach(variable -> {
+				if (!finalVariables.contains(variable)) {
+					finalVariables.add(variable);
+				}
+			});
+		}
+		context.getVariables().clear();
+		context.getVariables().addAll(finalVariables);		
+	}
+
+	private List<Variable> mergeStepOccurrenceVariables(List<StepOccurrence> stepOccurrences) {
+		List<Variable> result = new ArrayList<Variable>();
+		stepOccurrences.stream().forEach(stepOccurrence -> {
+			for (Variable variable : stepOccurrence.getPostVariablesSnapshot()) {
+				if (!result.contains(variable)) {
+					result.add(variable);
+				}
+			}
+		});
+		return result;
+	}
+
+	private StepOccurrence findStepOccurrence(Step step, ExecutionContext context) {
+		for (Variable variable : context.getVariables()) {
+			if ((variable instanceof StepOccurrence) && (((StepOccurrence) variable).getStep() == step)) {
+				return (StepOccurrence) variable;
 			}
 		}
+		return null;
 	}
 
 	private void execute(Step step, List<Transition> outgoingTransitions, boolean executionBranchValid,
@@ -331,41 +381,45 @@ public class Plan extends Asset {
 			StepCrossing stepCrossing = new StepCrossing(step, this);
 			ExecutionError executionError;
 			try {
-				execute(stepCrossing, context, executionInspector);
-				executionError = null;
-			} catch (ExecutionError e) {
-				executionError = e;
-			} finally {
-				synchronized (context) {
-					context.getVariables().add(stepCrossing);
-				}
-				stepCrossing.capturePostVariables(context.getVariables());
-			}
-			if (outgoingTransitions.size() == 0) {
-				if (executionError != null) {
-					throw executionError;
-				} else {
-					return;
-				}
-			} else {
-				List<Transition> validTransitions;
 				try {
-					validTransitions = Transition.computeValidTranstions(outgoingTransitions, executionError, context);
-				} catch (Throwable t) {
-					stepCrossing.setOperationError(t);
-					throw new ExecutionError(t);
+					execute(stepCrossing, context, executionInspector);
+					executionError = null;
+				} catch (ExecutionError e) {
+					executionError = e;
+				} finally {
+					synchronized (context) {
+						context.getVariables().add(stepCrossing);
+					}
 				}
-				stepCrossing.setValidTransitions(validTransitions);
-				if (validTransitions.size() == 0) {
+				if (outgoingTransitions.size() == 0) {
 					if (executionError != null) {
 						throw executionError;
 					} else {
-						PlanificationError planificationError = new PlanificationError(
-								"Could not find any valid transition from step '" + step + "'");
-						stepCrossing.setOperationError(planificationError);
-						throw new ExecutionError(planificationError);
+						return;
+					}
+				} else {
+					List<Transition> validTransitions;
+					try {
+						validTransitions = Transition.computeValidTranstions(outgoingTransitions, executionError,
+								context);
+					} catch (Throwable t) {
+						stepCrossing.setOperationError(t);
+						throw new ExecutionError(t);
+					}
+					stepCrossing.setValidTransitions(validTransitions);
+					if (validTransitions.size() == 0) {
+						if (executionError != null) {
+							throw executionError;
+						} else {
+							PlanificationError planificationError = new PlanificationError(
+									"Could not find any valid transition from step '" + step + "'");
+							stepCrossing.setOperationError(planificationError);
+							throw new ExecutionError(planificationError);
+						}
 					}
 				}
+			} finally {
+				stepCrossing.capturePostVariables(context.getVariables());
 			}
 		} else {
 			StepSkipping stepSkipping = new StepSkipping(step, this);
@@ -431,7 +485,6 @@ public class Plan extends Asset {
 				});
 			}
 		}
-		result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(currentStep));
 		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep)
 				: steps.stream().filter(step -> step.getParent() == null).collect(Collectors.toList());
 		for (Step step : precedingSteps) {
@@ -448,6 +501,7 @@ public class Plan extends Asset {
 				}
 			}
 		}
+		result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(currentStep));
 		return result;
 	}
 

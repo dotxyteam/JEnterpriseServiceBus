@@ -1,5 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
+import java.beans.Transient;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,6 +106,7 @@ public class Fail implements Operation {
 			return result;
 		}
 
+		@Transient
 		public String getExceptionContructorSignature() {
 			String result = null;
 			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();

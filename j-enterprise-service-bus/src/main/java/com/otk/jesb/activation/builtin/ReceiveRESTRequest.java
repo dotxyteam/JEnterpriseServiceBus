@@ -306,7 +306,8 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 								operationOutput = registeredActivationHandler.trigger(operationInput);
 							} catch (ExecutionError e) {
 								if (e.getCause() instanceof OpenAPIDescription.ResponseException) {
-									throw e.getCause();
+									throw ((OpenAPIDescription.ResponseException) e.getCause())
+											.toWebApplicationException();
 								} else {
 									throw e;
 								}

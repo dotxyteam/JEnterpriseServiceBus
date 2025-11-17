@@ -119,24 +119,17 @@ public class Transition extends PlanElement {
 						elseTransitions.add(transition);
 					}
 				} else if (transition.getCondition() instanceof ExceptionCondition) {
+					ExceptionCondition exceptionCondition = (ExceptionCondition) transition.getCondition();
 					if (executionError != null) {
-						ExceptionCondition exceptionCondition = (ExceptionCondition) transition.getCondition();
 						if (exceptionCondition.isFullfilled(executionError.getCause())) {
 							result.add(transition);
-							Variable exceptionVariable = exceptionCondition
-									.getExceptionVariable(executionError.getCause());
-							if (exceptionVariable != null) {
-								context.getVariables().add(exceptionVariable);
-								/*
-								 * TODO: PROBLEM: the exception variable is added only to valid execution branch
-								 * contexts.
-								 */
-								/*
-								 * TODO: Check if a unique context is abnormally used for all execution
-								 * branches.
-								 */
-							}
+
 						}
+					}
+					Variable exceptionVariable = exceptionCondition
+							.getExceptionVariable((executionError != null) ? executionError.getCause() : null);
+					if (exceptionVariable != null) {
+						context.getVariables().add(exceptionVariable);
 					}
 				} else {
 					throw new UnexpectedError();

@@ -18,7 +18,6 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -34,6 +33,7 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.StandardError;
 import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
@@ -595,25 +595,65 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 	}
 
-	public static class ResponseException extends WebApplicationException {
+	public static class ResponseException extends StandardError {
 
 		private static final long serialVersionUID = 1L;
+		private Status status;
+		private String reasonPhrase;
+		private String contentType;
+		private String body;
 
-		public ResponseException(Status status, String reasonPhrase, MediaType mediaType, String body) {
-			super(createResponse(status, reasonPhrase, mediaType, body));
+		public ResponseException(Status status) {
+			this.status = status;
 		}
 
-		private static Response createResponse(Status status, String reasonPhrase, MediaType mediaType, String body) {
+		public ResponseException(int statusCode) {
+			this.status = Status.fromStatusCode(statusCode);
+		}
+
+		public Status getStatus() {
+			return status;
+		}
+
+		public int getStatusCode() {
+			return status.getStatusCode();
+		}
+
+		public String getReasonPhrase() {
+			return reasonPhrase;
+		}
+
+		public void setReasonPhrase(String reasonPhrase) {
+			this.reasonPhrase = reasonPhrase;
+		}
+
+		public String getContentType() {
+			return contentType;
+		}
+
+		public void setContentType(String contentType) {
+			this.contentType = contentType;
+		}
+
+		public String getBody() {
+			return body;
+		}
+
+		public void setBody(String body) {
+			this.body = body;
+		}
+
+		public WebApplicationException toWebApplicationException() {
 			ResponseBuilder responseBuilder = (reasonPhrase != null)
 					? Response.status(status.getStatusCode(), reasonPhrase)
 					: Response.status(status);
-			if (mediaType != null) {
-				responseBuilder = responseBuilder.type(mediaType);
+			if (contentType != null) {
+				responseBuilder = responseBuilder.type(contentType);
 			}
 			if (body != null) {
 				responseBuilder = responseBuilder.entity(body);
 			}
-			return responseBuilder.build();
+			return new WebApplicationException(responseBuilder.build());
 		}
 
 	}

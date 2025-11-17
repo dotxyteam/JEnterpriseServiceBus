@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -27,6 +24,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.OpenAPIDescription;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.ResponseException;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -98,15 +96,13 @@ public class CallRESTAPI implements Operation {
 			if (e.getTargetException() instanceof Exception) {
 				if (e.getTargetException() instanceof RestClientException) {
 					RestClientResponseException clientException = (RestClientResponseException) e.getTargetException();
-					Status status = Status.fromStatusCode(clientException.getRawStatusCode());
-					String reasonPhrase = clientException.getStatusText();
-					MediaType mediaType = (clientException.getResponseHeaders()
-							.getFirst(HttpHeaders.CONTENT_TYPE) != null)
-									? MediaType.valueOf(
-											clientException.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE))
-									: null;
-					String body = clientException.getResponseBodyAsString();
-					throw new OpenAPIDescription.ResponseException(status, reasonPhrase, mediaType, body);
+					ResponseException responseException = new OpenAPIDescription.ResponseException(
+							clientException.getRawStatusCode());
+					responseException.setReasonPhrase(clientException.getStatusText());
+					responseException
+							.setContentType(clientException.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE));
+					responseException.setBody(clientException.getResponseBodyAsString());
+					throw responseException;
 				} else {
 					throw (Exception) e.getTargetException();
 				}

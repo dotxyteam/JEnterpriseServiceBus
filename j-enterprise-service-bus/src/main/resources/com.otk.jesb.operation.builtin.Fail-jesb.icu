@@ -225,6 +225,7 @@
             </nullReplacement>
             <nullStatusFieldExported>false</nullStatusFieldExported>
             <nullValueDistinctForced>false</nullValueDistinctForced>
+            <nullValueLabel>&lt;First Constructor&gt;</nullValueLabel>
             <setterGenerated>false</setterGenerated>
             <specificTypeCustomizations>
                 <applicationCustomization>

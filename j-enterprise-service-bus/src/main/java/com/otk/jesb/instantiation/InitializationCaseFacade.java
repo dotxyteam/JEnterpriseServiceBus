@@ -12,6 +12,7 @@ import com.otk.jesb.Log;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -321,7 +322,10 @@ public class InitializationCaseFacade extends Facade {
 
 	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo) {
 		if (Throwable.class.isAssignableFrom(MiscUtils.getJESBClass(typeInfo.getName()))) {
-			return false;
+			if (TypeInfoProvider.getTypeInfo(Throwable.class).getFields().stream()
+					.anyMatch(throwableFieldInfo -> throwableFieldInfo.getName().equals(fieldInfo.getName()))) {
+				return false;
+			}
 		}
 		return true;
 	}

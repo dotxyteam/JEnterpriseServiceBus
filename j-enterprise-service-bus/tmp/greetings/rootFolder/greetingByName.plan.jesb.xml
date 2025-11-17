@@ -82,7 +82,7 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>330</diagramX>
+      <diagramX>329</diagramX>
       <diagramY>170</diagramY>
       <name>fail</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
@@ -100,7 +100,36 @@
                 <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor">
                   <outer-class reference="../../../../../.."/>
                 </dynamicTypeNameAccessor>
-                <fieldInitializers/>
+                <fieldInitializers>
+                  <com.otk.jesb.instantiation.FieldInitializer>
+                    <condition class="null"/>
+                    <fieldName>body</fieldName>
+                    <fieldValue class="string">{ &quot;name&quot;   : &quot;Alice Brown&quot;,
+  &quot;sku&quot;    : &quot;54321&quot;,
+  &quot;price&quot;  : 199.95,
+  &quot;shipTo&quot; : { &quot;name&quot; : &quot;Bob Brown&quot;,
+               &quot;address&quot; : &quot;456 Oak Lane&quot;,
+               &quot;city&quot; : &quot;Pretendville&quot;,
+               &quot;state&quot; : &quot;HI&quot;,
+               &quot;zip&quot;   : &quot;98999&quot; },
+  &quot;billTo&quot; : { &quot;name&quot; : &quot;Alice Brown&quot;,
+               &quot;address&quot; : &quot;456 Oak Lane&quot;,
+               &quot;city&quot; : &quot;Pretendville&quot;,
+               &quot;state&quot; : &quot;HI&quot;,
+               &quot;zip&quot;   : &quot;98999&quot; }
+}</fieldValue>
+                  </com.otk.jesb.instantiation.FieldInitializer>
+                  <com.otk.jesb.instantiation.FieldInitializer>
+                    <condition class="null"/>
+                    <fieldName>contentType</fieldName>
+                    <fieldValue class="string">application/json</fieldValue>
+                  </com.otk.jesb.instantiation.FieldInitializer>
+                  <com.otk.jesb.instantiation.FieldInitializer>
+                    <condition class="null"/>
+                    <fieldName>reasonPhrase</fieldName>
+                    <fieldValue class="string">Name not provided !</fieldValue>
+                  </com.otk.jesb.instantiation.FieldInitializer>
+                </fieldInitializers>
                 <initializationSwitches/>
                 <listItemInitializers/>
                 <parameterInitializers>
@@ -115,15 +144,28 @@
                     <parameterValue class="string">Name not provided!</parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                   <com.otk.jesb.instantiation.ParameterInitializer>
-                    <parameterPosition>2</parameterPosition>
-                    <parameterValue class="null"/>
+                    <parameterPosition>3</parameterPosition>
+                    <parameterValue class="string">{ &quot;name&quot;   : &quot;Alice Brown&quot;,
+  &quot;sku&quot;    : &quot;54321&quot;,
+  &quot;price&quot;  : 199.95,
+  &quot;shipTo&quot; : { &quot;name&quot; : &quot;Bob Brown&quot;,
+               &quot;address&quot; : &quot;456 Oak Lane&quot;,
+               &quot;city&quot; : &quot;Pretendville&quot;,
+               &quot;state&quot; : &quot;HI&quot;,
+               &quot;zip&quot;   : &quot;98999&quot; },
+  &quot;billTo&quot; : { &quot;name&quot; : &quot;Alice Brown&quot;,
+               &quot;address&quot; : &quot;456 Oak Lane&quot;,
+               &quot;city&quot; : &quot;Pretendville&quot;,
+               &quot;state&quot; : &quot;HI&quot;,
+               &quot;zip&quot;   : &quot;98999&quot; }
+}</parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                   <com.otk.jesb.instantiation.ParameterInitializer>
-                    <parameterPosition>3</parameterPosition>
-                    <parameterValue class="null"/>
+                    <parameterPosition>2</parameterPosition>
+                    <parameterValue class="string">application/json</parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
-                <selectedConstructorSignature>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException (javax.ws.rs.core.Response$Status, java.lang.String, javax.ws.rs.core.MediaType, java.lang.String)</selectedConstructorSignature>
+                <selectedConstructorSignature>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException (javax.ws.rs.core.Response$Status)</selectedConstructorSignature>
                 <typeName>&lt;Dynamic&gt;</typeName>
               </parameterValue>
             </com.otk.jesb.instantiation.ParameterInitializer>
@@ -135,7 +177,6 @@
           <typeName>&lt;Dynamic&gt;</typeName>
         </exceptionBuilder>
         <exceptionClassName>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException</exceptionClassName>
-        <exceptionContructorSignature>com.otk.jesb.resource.builtin.OpenAPIDescription$ResponseException (javax.ws.rs.core.Response$Status, java.lang.String, javax.ws.rs.core.MediaType, java.lang.String)</exceptionContructorSignature>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>

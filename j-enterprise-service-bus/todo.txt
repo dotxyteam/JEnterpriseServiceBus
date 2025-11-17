@@ -20,6 +20,9 @@
 	discovered during the feature addition process.
 - documentation:
 	. manual
+- harmonize http request paths automatically
+- allow to provide Structure.SimpleElement.customTypeName 
+(same for Evaluate$SimpleValueKind)   
 - fix date/time display issues due to java.util.Date picking the current local time zone
 (not the historical one)
 - allow to access step error variables
@@ -40,8 +43,8 @@
 	. add Activator#getExceptionClassByIdentifier()
 	. allow to add custom entries for 'Operate' activators
 	. allow to choose one of these exception identifiers from 'Fail' operations
-	. allow to assign an exception to a variable from error transitions
-	. allow to specify an additional condition for error transitions
+	. allow to specify an additional condition for error transitions 
+	(can already be expressed by adding a transition) ???
 - add a welcome image ???
 - allow to have environment variables having array type
 - add date/datetime support
