@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebFault;
 
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.PotentialError;
@@ -100,7 +101,12 @@ public class CallSOAPWebService implements Operation {
 			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof Exception) {
-				throw (Exception) e.getTargetException();
+				if (e.getTargetException().getClass().getAnnotation(WebFault.class) != null) {
+					throw new WSDL.ResponseException(
+							wsdl.faultExceptionToDescription((Exception) e.getTargetException(), operationMethod));
+				} else {
+					throw (Exception) e.getTargetException();
+				}
 			} else {
 				throw new PotentialError(e.getTargetException());
 			}

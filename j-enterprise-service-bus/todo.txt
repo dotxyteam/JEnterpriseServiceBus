@@ -45,6 +45,7 @@
 	. allow to choose one of these exception identifiers from 'Fail' operations
 	. allow to specify an additional condition for error transitions 
 	(can already be expressed by adding a transition) ???
+	. replace REST and SOAP ResponseException by derived specific exceptions
 - add a welcome image ???
 - allow to have environment variables having array type
 - add date/datetime support

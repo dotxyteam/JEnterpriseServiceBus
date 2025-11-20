@@ -112,6 +112,20 @@ public class InstantiationUtils {
 		return true;
 	}
 
+	public static Object getDefaultValue(ITypeInfo type) {
+		Class<?> clazz = ((JavaTypeInfoSource) type.getSource()).getJavaType();
+		if (ClassUtils.isPrimitiveWrapperClass(clazz)) {
+			clazz = ClassUtils.wrapperToPrimitiveClass(clazz);
+		}
+		if (clazz.isPrimitive()) {
+			return ClassUtils.getDefaultPrimitiveValue(clazz);
+		}
+		if (clazz == String.class) {
+			return "string";
+		}
+		return ReflectionUIUtils.createDefaultInstance(type);
+	}
+
 	public static ValueMode getValueMode(Object value) {
 		if (value instanceof InstantiationFunction) {
 			return ValueMode.FUNCTION;
@@ -264,7 +278,7 @@ public class InstantiationUtils {
 			String functionBody;
 			if (!isComplexType(type)
 					&& !ClassUtils.isPrimitiveWrapperClass(((JavaTypeInfoSource) type.getSource()).getJavaType())) {
-				Object defaultValue = ReflectionUIUtils.createDefaultInstance(type);
+				Object defaultValue = getDefaultValue(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
 							+ MiscUtils.adaptClassNameToSourceCode(
@@ -289,7 +303,7 @@ public class InstantiationUtils {
 					}
 					return result;
 				} else {
-					return ReflectionUIUtils.createDefaultInstance(type);
+					return getDefaultValue(type);
 				}
 			} else {
 				RootInstanceBuilder rootInstanceBuilder = RootInstanceBuilder
@@ -441,6 +455,15 @@ public class InstantiationUtils {
 			}
 		});
 		return result;
+	}
+
+	public static void makeConcreteRecursively(Facade facade, int maximumDepth) {
+		if (maximumDepth <= 0) {
+			return;
+		}
+		facade.setConcrete(true);
+		facade.getChildren().forEach(childFacade -> makeConcreteRecursively(childFacade, maximumDepth - 1));
+
 	}
 
 }

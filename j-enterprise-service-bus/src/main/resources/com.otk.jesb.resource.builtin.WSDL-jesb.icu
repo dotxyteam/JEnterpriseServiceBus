@@ -100,77 +100,6 @@
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>
     <typeCustomization>
-        <uniqueIdentifier>61347bf6:1974b9376d1:5710</uniqueIdentifier>
-        <specificProperties/>
-        <abstractForced>false</abstractForced>
-        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
-        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
-        <copyForbidden>false</copyForbidden>
-        <fieldsCustomization>
-            <uniqueIdentifier>61347bf6:1974b9376d1:5712</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customFieldCaption></customFieldCaption>
-            <displayAreaVerticalFilling>true</displayAreaVerticalFilling>
-            <displayAreaVerticalWeight>1.0</displayAreaVerticalWeight>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>note</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>61347bf6:1974b9376d1:3641</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>61347bf6:1974b9376d1:3640</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-                <typeCustomization>
-                    <uniqueIdentifier>61347bf6:1974b9376d1:3663</uniqueIdentifier>
-                    <specificProperties>
-                        <entry>
-                            <key>xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFl4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLk11bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbgAAAAAAAAABAgADWgATbGluZVdyYXBwaW5nRW5hYmxlZEwABmhlaWdodHQAeUx4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sRGltZW5zaW9uU3BlY2lmaWNhdGlvbjtMAAV3aWR0aHEAfgABeHIAX3h5LnJlZmxlY3QudWkuY29udHJvbC5wbHVnaW4uQWJzdHJhY3RTaW1wbGVDdXN0b21pemFibGVGaWVsZENvbnRyb2xQbHVnaW4kQWJzdHJhY3RDb25maWd1cmF0aW9uAAAAAAAAAAECAAB4cABzcgB3eHkucmVmbGVjdC51aS5jb250cm9sLnN3aW5nLnBsdWdpbi5NdWx0aXBsZUxpbmVzVGV4dFBsdWdpbiRNdWx0aXBsZUxpbmVzVGV4dENvbmZpZ3VyYXRpb24kQ29udHJvbERpbWVuc2lvblNwZWNpZmljYXRpb24AAAAAAAAAAQIAAkkABXZhbHVlTAAEdW5pdHQAa0x4eS9yZWZsZWN0L3VpL2NvbnRyb2wvc3dpbmcvcGx1Z2luL011bHRpcGxlTGluZXNUZXh0UGx1Z2luJE11bHRpcGxlTGluZXNUZXh0Q29uZmlndXJhdGlvbiRDb250cm9sU2l6ZVVuaXQ7eHAAAAGQfnIAaXh5LnJlZmxlY3QudWkuY29udHJvbC5zd2luZy5wbHVnaW4uTXVsdGlwbGVMaW5lc1RleHRQbHVnaW4kTXVsdGlwbGVMaW5lc1RleHRDb25maWd1cmF0aW9uJENvbnRyb2xTaXplVW5pdAAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABlBJWEVMU3NxAH4ABAAAAZBxAH4ACQ==</value>
-                        </entry>
-                        <entry>
-                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin</value>
-                        </entry>
-                    </specificProperties>
-                    <abstractForced>false</abstractForced>
-                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
-                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
-                    <copyForbidden>false</copyForbidden>
-                    <immutableForced>false</immutableForced>
-                    <menuModel>
-                        <uniqueIdentifier>61347bf6:1974b9376d1:3664</uniqueIdentifier>
-                    </menuModel>
-                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
-                    <typeName>java.lang.String</typeName>
-                    <undoManagementHidden>false</undoManagementHidden>
-                    <validationRequirementForced>false</validationRequirementForced>
-                </typeCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <immutableForced>false</immutableForced>
-        <menuModel>
-            <uniqueIdentifier>61347bf6:1974b9376d1:5711</uniqueIdentifier>
-        </menuModel>
-        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
-        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=noteBox]</typeName>
-        <undoManagementHidden>false</undoManagementHidden>
-        <validationRequirementForced>false</validationRequirementForced>
-    </typeCustomization>
-    <typeCustomization>
         <uniqueIdentifier>-26abd643:194b71ba484:-7797</uniqueIdentifier>
         <specificProperties/>
         <abstractForced>false</abstractForced>
@@ -181,7 +110,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6642</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2c</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -244,7 +173,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6643</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2d</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -336,7 +265,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6644</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2e</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -420,7 +349,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6645</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2f</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -480,7 +409,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6646</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a30</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -1164,38 +1093,10 @@
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <fieldsCustomization>
-            <uniqueIdentifier>61347bf6:1974b9376d1:363f</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>noteBox</encapsulationFieldName>
-            <fieldName>note</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>61347bf6:1974b9376d1:3641</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>61347bf6:1974b9376d1:3640</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>940df92:19a9e4f5cd3:6647</uniqueIdentifier>
+                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a31</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -2365,7 +2266,7 @@
             <uniqueIdentifier>14cdfdb0:19a9e48e536:-490f</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customMethodCaption>HTTP Error(s)</customMethodCaption>
+            <customMethodCaption>HTTP Error(s)...</customMethodCaption>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
@@ -2478,7 +2379,7 @@
             <uniqueIdentifier>940df92:19a9e4f5cd3:5114</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customFieldCaption>Sample(s)</customFieldCaption>
+            <customFieldCaption>Example(s)</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>sampleResponseExceptions</fieldName>
@@ -2498,6 +2399,56 @@
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
+                <listCustomization>
+                    <uniqueIdentifier>765c3f55:19aa12baf4e:-53ef</uniqueIdentifier>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa15a8758:-163c</uniqueIdentifier>
+                        <columnName>cause</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa15a8758:-163e</uniqueIdentifier>
+                        <columnName>localizedMessage</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa15a8758:-163d</uniqueIdentifier>
+                        <columnName>message</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa15a8758:-1641</uniqueIdentifier>
+                        <columnName>stackTrace</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa15a8758:-1640</uniqueIdentifier>
+                        <columnName>suppressed</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
+                        <uniqueIdentifier>765c3f55:19aa12baf4e:-525f</uniqueIdentifier>
+                        <columnName>toStringValue</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <editOptions>
+                        <uniqueIdentifier>765c3f55:19aa12baf4e:-53ee</uniqueIdentifier>
+                        <itemCreationEnabled>true</itemCreationEnabled>
+                        <itemDeletionEnabled>true</itemDeletionEnabled>
+                        <itemMoveEnabled>true</itemMoveEnabled>
+                    </editOptions>
+                    <fieldColumnsAdded>true</fieldColumnsAdded>
+                    <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
+                    <itemCreationMode>UNDEFINED</itemCreationMode>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
+                    <itemNullValueAllowed>false</itemNullValueAllowed>
+                    <itemTypeColumnAdded>false</itemTypeColumnAdded>
+                    <itemTypeName>com.otk.jesb.resource.builtin.WSDL$ResponseException</itemTypeName>
+                    <listSorted>false</listSorted>
+                    <listTypeName>java.util.List</listTypeName>
+                    <positionColumnAdded>false</positionColumnAdded>
+                    <stringValueColumnAdded>false</stringValueColumnAdded>
+                </listCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>

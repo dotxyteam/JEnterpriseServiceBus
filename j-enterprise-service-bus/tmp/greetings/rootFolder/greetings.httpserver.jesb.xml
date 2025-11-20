@@ -22,7 +22,7 @@
         <path>Greetings</path>
       </openAPIDescriptionReference>
       <servicePathVariant>
-        <constantValue class="string">/greetings</constantValue>
+        <constantValue class="string">/greetings/</constantValue>
         <valueClass>java.lang.String</valueClass>
         <variable>false</variable>
         <variableReferenceExpression class="null"/>

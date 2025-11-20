@@ -22,12 +22,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.config.CodegenConfigurator;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.github.javaparser.StaticJavaParser;
@@ -42,7 +42,9 @@ import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.Accessor;
@@ -460,19 +462,29 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 					if (responseAnnotation.message() != null) {
 						responseException.setReasonPhrase(responseAnnotation.message());
 					}
-					if (responseAnnotation.response() != null) {
-						responseException.setContentType("application/json");
+					if ((responseAnnotation.response() != null) && (responseAnnotation.response() != Void.class)) {
+						responseException.setContentType(MediaType.APPLICATION_JSON);
+						Object sampleEntity;
 						try {
-							Object sampleResponse = responseAnnotation.response().newInstance();
-							ObjectMapper mapper = new JacksonJsonProvider().locateMapper(Error.class,
-									MediaType.APPLICATION_JSON_TYPE);
-							String jsonBody = mapper.writerWithDefaultPrettyPrinter()
-									.writeValueAsString(sampleResponse);
-							responseException.setBody(jsonBody);
+							InstanceBuilder entityBuilder = new InstanceBuilder(
+									Accessor.returning(responseAnnotation.response().getName()));
+							InstantiationUtils.makeConcreteRecursively(Facade.get(entityBuilder, null), 3);
+							sampleEntity = entityBuilder
+									.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 						} catch (Exception e) {
 							throw new UnexpectedError(e);
 						}
+						ObjectMapper mapper = new JacksonJsonProvider().locateMapper(sampleEntity.getClass(),
+								MediaType.APPLICATION_JSON_TYPE);
+						String jsonBody;
+						try {
+							jsonBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sampleEntity);
+						} catch (JsonProcessingException e) {
+							throw new UnexpectedError(e);
+						}
+						responseException.setBody(jsonBody);
 					}
+					result.add(responseException);
 				}
 			}
 			return result;
@@ -690,6 +702,12 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				responseBuilder = responseBuilder.entity(body);
 			}
 			return new WebApplicationException(responseBuilder.build());
+		}
+
+		@Override
+		public String toString() {
+			return "ResponseException [status=" + status + ", reasonPhrase=" + reasonPhrase + ", contentType="
+					+ contentType + ", body=" + body + "]";
 		}
 
 	}

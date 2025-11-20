@@ -20,6 +20,7 @@ import com.otk.jesb.Structure.ClassicStructure;
 import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.resource.Resource;
@@ -97,26 +98,33 @@ public class WSDL extends XMLBasedDocumentResource {
 				.findFirst().orElse(null);
 	}
 
-	public Exception faultDescriptionToException(String faultDescription, OperationDescriptor operation) {
+	public Exception faultDescriptionToException(String faultDescription, Method operationMethod) {
 		String dynamicTypeNamePart = InstantiationUtils
-				.extractDynamicTypeNameVariablePart(operation.retrieveMethod().getDeclaringClass().getName());
+				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());
 		faultDescription = InstantiationUtils.makeTypeNamesAbsolute(faultDescription, dynamicTypeNamePart);
 		return (Exception) MiscUtils.deserialize(faultDescription);
 	}
 
-	public String getFaultDescriptionTemplate(Class<?> faultExceptionClass, OperationDescriptor operation) {
+	public String faultExceptionToDescription(Exception faultException, Method operationMethod) {
+		String result = MiscUtils.serialize(faultException).replace(
+				"\n" + "  <cause class=\"" + faultException.getClass().getName() + "\" reference=\"..\"/>", "");
+		String dynamicTypeNamePart = InstantiationUtils
+				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());
+		result = InstantiationUtils.makeTypeNamesRelative(result, dynamicTypeNamePart);
+		return result;
+	}
+
+	public String getFaultDescriptionTemplate(Class<?> faultExceptionClass, Method operationMethod) {
 		Exception sampleFaultException;
 		try {
-			sampleFaultException = (Exception) new InstanceBuilder(Accessor.returning(faultExceptionClass.getName()))
+			InstanceBuilder exceptionBuilder = new InstanceBuilder(Accessor.returning(faultExceptionClass.getName()));
+			InstantiationUtils.makeConcreteRecursively(Facade.get(exceptionBuilder, null), 3);
+			sampleFaultException = (Exception) exceptionBuilder
 					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 		} catch (Exception e) {
 			throw new UnexpectedError(e);
 		}
-		String result = MiscUtils.serialize(sampleFaultException);
-		String dynamicTypeNamePart = InstantiationUtils
-				.extractDynamicTypeNameVariablePart(operation.retrieveMethod().getDeclaringClass().getName());
-		result = InstantiationUtils.makeTypeNamesRelative(result, dynamicTypeNamePart);
-		return result;
+		return faultExceptionToDescription(sampleFaultException, operationMethod);
 	}
 
 	public static class OperationDescriptor {
@@ -149,7 +157,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		public List<ResponseException> getSampleResponseExceptions() {
 			return Arrays.stream(operationMethod.getExceptionTypes())
-					.map(type -> new ResponseException(wsdl.getFaultDescriptionTemplate(type, this)))
+					.map(type -> new ResponseException(wsdl.getFaultDescriptionTemplate(type, operationMethod)))
 					.collect(Collectors.toList());
 		}
 
@@ -557,7 +565,12 @@ public class WSDL extends XMLBasedDocumentResource {
 		}
 
 		public Exception toFaultException(OperationDescriptor operation, WSDL wsdl) {
-			return wsdl.faultDescriptionToException(faultDescription, operation);
+			return wsdl.faultDescriptionToException(faultDescription, operation.retrieveMethod());
+		}
+
+		@Override
+		public String toString() {
+			return "ResponseException [faultDescription=" + faultDescription + "]";
 		}
 
 	}

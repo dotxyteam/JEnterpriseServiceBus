@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
+import com.otk.jesb.instantiation.Facade;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.builtin.ExecutePlan;
@@ -23,6 +24,7 @@ import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
 import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
 /**
@@ -147,6 +149,9 @@ public class Debugger extends Session {
 					return inputClass.getName();
 				}
 			});
+			if (plan.getActivator().getInputClass() != null) {
+				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), 3);
+			}
 		}
 
 		public Plan getPlan() {

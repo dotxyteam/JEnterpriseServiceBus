@@ -162,9 +162,22 @@ public class MiscUtils {
 				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
 					if (type.isAnonymousClass()) {
 						throw new UnexpectedError("Cannot serialize instance of class " + type
-								+ ": Anonymous class instance serialization forbidden");
+								+ ": Anonymous class instance serialization is forbidden");
 					}
 					return super.serializedClass(type);
+				}
+
+				@Override
+				public boolean shouldSerializeMember(@SuppressWarnings("rawtypes") Class definedIn, String fieldName) {
+					if (Throwable.class.isAssignableFrom(definedIn)) {
+						if (fieldName.equals("stackTrace")) {
+							return false;
+						}
+						if (fieldName.equals("suppressedExceptions")) {
+							return false;
+						}
+					}
+					return super.shouldSerializeMember(definedIn, fieldName);
 				}
 
 			};
@@ -190,12 +203,6 @@ public class MiscUtils {
 					return false;
 				}
 
-				if (Throwable.class.isAssignableFrom(descriptor.getReadMethod().getDeclaringClass())) {
-					if (descriptor.getReadMethod().getName().equals("getStackTrace")) {
-						return false;
-					}
-				}
-
 				return true;
 			}
 
@@ -212,6 +219,9 @@ public class MiscUtils {
 			public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
 				if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
 						.isAssignableFrom(type)) {
+					return true;
+				}
+				if ((type != null) && Throwable.class.isAssignableFrom(type)) {
 					return true;
 				}
 				return false;

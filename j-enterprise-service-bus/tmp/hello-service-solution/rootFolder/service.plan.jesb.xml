@@ -62,22 +62,22 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>121</diagramX>
-      <diagramY>154</diagramY>
+      <diagramX>144</diagramX>
+      <diagramY>65</diagramY>
       <name>doNothing</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>378</diagramX>
-      <diagramY>157</diagramY>
+      <diagramX>405</diagramX>
+      <diagramY>66</diagramY>
       <name>doNothing1</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>120</diagramX>
-      <diagramY>399</diagramY>
+      <diagramX>143</diagramX>
+      <diagramY>197</diagramY>
       <name>fail</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
         <exceptionBuilder>
@@ -100,7 +100,10 @@
                 <parameterInitializers>
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
-                    <parameterValue class="string">&lt;${_}.MissingName/&gt;</parameterValue>
+                    <parameterValue class="string">&lt;${_}.MissingName&gt;
+  &lt;detailMessage&gt;An error occured&lt;/detailMessage&gt;
+  &lt;faultInfo&gt;Name not provided&lt;/faultInfo&gt;
+&lt;/${_}.MissingName&gt;</parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
                 <selectedConstructorSignature class="null"/>

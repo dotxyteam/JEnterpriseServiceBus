@@ -38,8 +38,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>167</diagramX>
-      <diagramY>131</diagramY>
+      <diagramX>166</diagramX>
+      <diagramY>54</diagramY>
       <name>callSOAPWebService</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.CallSOAPWebService$Builder">
         <customServiceEndpointURLVariant>
@@ -97,8 +97,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>449</diagramX>
-      <diagramY>138</diagramY>
+      <diagramX>456</diagramX>
+      <diagramY>54</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -139,8 +139,8 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>160</diagramX>
-      <diagramY>372</diagramY>
+      <diagramX>166</diagramX>
+      <diagramY>193</diagramY>
       <name>log1</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
