@@ -175,7 +175,7 @@ public class HTTPServer extends Resource {
 		}
 
 		public void activate(HTTPServer server) throws Exception {
-			if(active) {
+			if (active) {
 				throw new UnexpectedError();
 			}
 			synchronized (server) {
@@ -193,7 +193,7 @@ public class HTTPServer extends Resource {
 		}
 
 		public void deactivate(HTTPServer server) throws Exception {
-			if(!active) {
+			if (!active) {
 				throw new UnexpectedError();
 			}
 			synchronized (server) {
@@ -220,6 +220,9 @@ public class HTTPServer extends Resource {
 			String servicePath = servicePathVariant.getValue();
 			if ((servicePath == null) || servicePath.isEmpty()) {
 				throw new ValidationError("Service path not provided");
+			}
+			if (!servicePath.startsWith("/") || !servicePath.endsWith("/")) {
+				throw new ValidationError("Service path must start and end with '/'");
 			}
 			if (server.requestHandlers.stream().filter(Predicate.isEqual(this).negate())
 					.map(requestHandler -> requestHandler.getServicePathVariant().getValue()).filter(Objects::nonNull)

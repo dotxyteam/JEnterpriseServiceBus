@@ -438,6 +438,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.ReceiveRESTRequest</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -498,6 +499,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=webUISupport, objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler$WebUISupport]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -530,6 +532,7 @@
                 <specificProperties/>
                 <defaultValue>
                     <uniqueIdentifier>-1aaba821:1985d32dfa6:-56d4</uniqueIdentifier>
+                    <data>rO0ABXQAAS8=</data>
                 </defaultValue>
                 <displayedAsField>false</displayedAsField>
                 <hidden>false</hidden>
@@ -543,6 +546,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest], fieldName=servicePathGroup]], fieldName=servicePathAdditionBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -706,6 +710,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest], fieldName=servicePathGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -825,6 +830,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler], fieldName=webUIGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -901,6 +907,7 @@
         <menuModel>
             <uniqueIdentifier>-1aaba821:1985d32dfa6:-56c9</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest], fieldName=servicePathGroup]], fieldName=servicePathValueBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1158,6 +1165,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler$WebUISupport</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1173,6 +1181,7 @@
         <menuModel>
             <uniqueIdentifier>35b74ac5:198620fc8ed:52a3</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [encapsulatedObjectType=MethodSetupObject [context=MethodContext [methodSignature=void addServicePathOption(java.lang.String), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest], fieldName=servicePathGroup]], fieldName=servicePathAdditionBox]]]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1411,6 +1420,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1444,6 +1454,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler], fieldName=webUIGroup]], fieldName=webUIOptionsGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1460,6 +1471,7 @@
         <menuModel>
             <uniqueIdentifier>-481933d5:19871e63cdf:-7a79</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.ReceiveRESTRequest$RESTRequestHandler.WebUIEnabledVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

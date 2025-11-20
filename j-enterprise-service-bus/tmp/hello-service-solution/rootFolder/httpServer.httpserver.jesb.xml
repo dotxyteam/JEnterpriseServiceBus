@@ -1,0 +1,33 @@
+<com.otk.jesb.resource.builtin.HTTPServer>
+  <hostNameVariant>
+    <constantValue class="string">localhost</constantValue>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </hostNameVariant>
+  <name>httpServer</name>
+  <note class="null"/>
+  <portVariant>
+    <constantValue class="int">8080</constantValue>
+    <valueClass>java.lang.Integer</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </portVariant>
+  <requestHandlers>
+    <com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+      <serviceName>HelloWorld</serviceName>
+      <servicePathVariant>
+        <constantValue class="string">/</constantValue>
+        <valueClass>java.lang.String</valueClass>
+        <variable>false</variable>
+        <variableReferenceExpression class="null"/>
+      </servicePathVariant>
+      <wsdlReference>
+        <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+        <assetFilter class="null"/>
+        <newPathValidator class="null"/>
+        <path>hello</path>
+      </wsdlReference>
+    </com.otk.jesb.activation.builtin.ReceiveSOAPRequest_-SOAPRequestHandler>
+  </requestHandlers>
+</com.otk.jesb.resource.builtin.HTTPServer>

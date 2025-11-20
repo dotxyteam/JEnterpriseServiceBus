@@ -150,6 +150,10 @@ public class MiscUtils {
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
+	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
+	static {
+		configureSolutionDependencies(Collections.emptyList());
+	}
 	public static final XStream XSTREAM = new XStream() {
 		@Override
 		protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -167,20 +171,32 @@ public class MiscUtils {
 		}
 	};
 	static {
+		XSTREAM.setClassLoader(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader());
 		XSTREAM.registerConverter(new JavaBeanConverter(XSTREAM.getMapper(), new BeanProvider() {
 			@Override
 			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
+
 				final boolean canStream = super.canStreamProperty(descriptor);
 				if (!canStream) {
 					return false;
 				}
+
 				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
 						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
 				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
 						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
 				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
+				if (isTransient) {
+					return false;
+				}
 
-				return !isTransient;
+				if (Throwable.class.isAssignableFrom(descriptor.getReadMethod().getDeclaringClass())) {
+					if (descriptor.getReadMethod().getName().equals("getStackTrace")) {
+						return false;
+					}
+				}
+
+				return true;
 			}
 
 			@Override
@@ -207,11 +223,6 @@ public class MiscUtils {
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
-
-	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
-	static {
-		configureSolutionDependencies(Collections.emptyList());
-	}
 
 	public static ExecutorService newExecutor(final String threadName, int minimumThreadCount) {
 		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE, 300, TimeUnit.SECONDS,

@@ -50,10 +50,10 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class InstantiationUtils {
 
 	public static final String RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE = "${_}";
-	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_START = "a7374617274";
-	private static final String RELATIVE_TYPE_NAME_VARIABLE_PART_END = "z656e64";
-	private static final Pattern RELATIVE_TYPE_NAME_PATTERN = Pattern.compile(
-			".*(" + RELATIVE_TYPE_NAME_VARIABLE_PART_START + ".+" + RELATIVE_TYPE_NAME_VARIABLE_PART_END + ").*");
+	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_START = "a7374617274";
+	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_END = "z656e64";
+	private static final Pattern DYNAMIC_TYPE_NAME_PATTERN = Pattern.compile(
+			".*(" + DYNAMIC_TYPE_NAME_VARIABLE_PART_START + ".+" + DYNAMIC_TYPE_NAME_VARIABLE_PART_END + ").*");
 
 	public static Object cloneInitializer(Object initializer) {
 		Function<Pair<ITypeInfo, IFieldInfo>, Function<Object, Object>> customCopierByContext = context -> {
@@ -349,9 +349,9 @@ public class InstantiationUtils {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
 		if (dynamicTypeNamePart != null) {
-			text = text.replace(dynamicTypeNamePart, RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);
+			text = makeTypeNamesRelative(text, dynamicTypeNamePart);
 		}
 		return text;
 	}
@@ -360,26 +360,42 @@ public class InstantiationUtils {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
 		if (dynamicTypeNamePart != null) {
-			text = text.replace(RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE, dynamicTypeNamePart);
+			text = makeTypeNamesAbsolute(text, dynamicTypeNamePart);
 		}
 		return text;
 	}
 
-	public static String toRelativeTypeNameVariablePart(String baseClassNamePart) {
-		return RELATIVE_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + RELATIVE_TYPE_NAME_VARIABLE_PART_END;
+	public static String makeTypeNamesRelative(String text, String dynamicTypeNamePart) {
+		return text.replace(dynamicTypeNamePart, RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);
 	}
 
-	private static String extractRelativeTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
+	public static String makeTypeNamesAbsolute(String text, String dynamicTypeNamePart) {
+		return text.replace(RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE, dynamicTypeNamePart);
+	}
+
+	public static String toRelativeTypeNameVariablePart(String baseClassNamePart) {
+		return DYNAMIC_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + DYNAMIC_TYPE_NAME_VARIABLE_PART_END;
+	}
+
+	public static String findDynamicTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
 		for (int i = 0; i < ancestorInstanceBuilders.size(); i++) {
 			InstanceBuilder ancestorInstanceBuilder = ancestorInstanceBuilders.get(i);
 			String absoluteAncestorTypeName = ancestorInstanceBuilder
 					.computeActualTypeName(ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()));
-			Matcher matcher = RELATIVE_TYPE_NAME_PATTERN.matcher(absoluteAncestorTypeName);
-			if (matcher.find()) {
-				return matcher.group(1);
+			String result = extractDynamicTypeNameVariablePart(absoluteAncestorTypeName);
+			if (result != null) {
+				return result;
 			}
+		}
+		return null;
+	}
+
+	public static String extractDynamicTypeNameVariablePart(String typeName) {
+		Matcher matcher = DYNAMIC_TYPE_NAME_PATTERN.matcher(typeName);
+		if (matcher.find()) {
+			return matcher.group(1);
 		}
 		return null;
 	}
@@ -389,7 +405,7 @@ public class InstantiationUtils {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return positionAfter;
 		}
-		String dynamicTypeNamePart = extractRelativeTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
 		if (dynamicTypeNamePart != null) {
 			return MiscUtils.positionAfterReplacement(positionAfter, text, dynamicTypeNamePart,
 					RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);

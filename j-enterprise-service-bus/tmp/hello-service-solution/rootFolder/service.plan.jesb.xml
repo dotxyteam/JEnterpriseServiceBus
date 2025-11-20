@@ -1,0 +1,138 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.ReceiveSOAPRequest">
+    <enabledVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </enabledVariant>
+    <operationSignature>java.lang.String sayHelloWorld(java.lang.String)</operationSignature>
+    <serverReference>
+      <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>httpServer</path>
+    </serverReference>
+    <serviceName>HelloWorld</serviceName>
+    <servicePathOptionIndex>0</servicePathOptionIndex>
+    <wsdlReference>
+      <assetClass>com.otk.jesb.resource.builtin.WSDL</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>hello</path>
+    </wsdlReference>
+  </activator>
+  <name>service</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                <functionBody>return &quot;Hello &quot; + PLAN_INPUT.name + &quot;!&quot;;</functionBody>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>121</diagramX>
+      <diagramY>154</diagramY>
+      <name>doNothing</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>378</diagramX>
+      <diagramY>157</diagramY>
+      <name>doNothing1</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DoNothing$Builder"/>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>120</diagramX>
+      <diagramY>399</diagramY>
+      <name>fail</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
+        <exceptionBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor">
+                  <outer-class reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="string">&lt;${_}.MissingName/&gt;</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>ExceptionInput</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </exceptionBuilder>
+        <exceptionClassName>com.otk.jesb.resource.builtin.WSDL$ResponseException</exceptionClassName>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ElseCondition"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$IfCondition">
+        <functionBody>return PLAN_INPUT.name.trim().isEmpty();</functionBody>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+    </com.otk.jesb.solution.Transition>
+  </transitions>
+</com.otk.jesb.solution.Plan>

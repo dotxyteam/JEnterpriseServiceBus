@@ -18,6 +18,7 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -27,6 +28,8 @@ import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.config.CodegenConfigurator;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -49,6 +52,8 @@ import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -444,6 +449,37 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 		public Method retrieveMethod() {
 			return operationMethod;
+		}
+
+		public List<ResponseException> getSampleResponseExceptions() {
+			List<ResponseException> result = new ArrayList<OpenAPIDescription.ResponseException>();
+			ApiResponses responsesAnnotation = operationMethod.getAnnotation(ApiResponses.class);
+			if (responsesAnnotation != null) {
+				for (ApiResponse responseAnnotation : responsesAnnotation.value()) {
+					ResponseException responseException = new ResponseException(responseAnnotation.code());
+					if (responseAnnotation.message() != null) {
+						responseException.setReasonPhrase(responseAnnotation.message());
+					}
+					if (responseAnnotation.response() != null) {
+						responseException.setContentType("application/json");
+						try {
+							Object sampleResponse = responseAnnotation.response().newInstance();
+							ObjectMapper mapper = new JacksonJsonProvider().locateMapper(Error.class,
+									MediaType.APPLICATION_JSON_TYPE);
+							String jsonBody = mapper.writerWithDefaultPrettyPrinter()
+									.writeValueAsString(sampleResponse);
+							responseException.setBody(jsonBody);
+						} catch (Exception e) {
+							throw new UnexpectedError(e);
+						}
+					}
+				}
+			}
+			return result;
+		}
+
+		public String getResponseExceptionClassName() {
+			return ResponseException.class.getName();
 		}
 
 		@SuppressWarnings("unchecked")

@@ -97,6 +97,7 @@ import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation;
 import com.otk.jesb.solution.LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry;
 import com.otk.jesb.ui.diagram.DragIntent;
+import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -439,6 +440,18 @@ public class GUI extends MultiSwingCustomizer {
 				return true;
 			} else if (object instanceof Facade) {
 				handler.accept(stackOfCurrentInstantiationFacades);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isConstantInstanceBuilder(RootInstanceBuilderFacade rootInstanceBuilderFacade) {
+		Accessor<String> rootInstanceDynamicTypeNameAccessor = rootInstanceBuilderFacade.getUnderlying()
+				.getRootInstanceDynamicTypeNameAccessor();
+		if (rootInstanceDynamicTypeNameAccessor != null) {
+			if (rootInstanceDynamicTypeNameAccessor.getClass().getName()
+					.startsWith(Debugger.PlanActivation.class.getName())) {
 				return true;
 			}
 		}
@@ -2879,20 +2892,28 @@ public class GUI extends MultiSwingCustomizer {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
-						Step step = getCurrentStep(session);
-						Plan plan = getCurrentPlan(session);
 						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 								.getRoot((Facade) object);
+						if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+							((Facade) object).validate(false, Collections.emptyList());
+							return;
+						}
+						Step step = getCurrentStep(session);
+						Plan plan = getCurrentPlan(session);
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 					} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
-						Step step = getCurrentStep(session);
-						Plan plan = getCurrentPlan(session);
 						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 								.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
+						if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+							((ListItemReplicationFacade) object).validate(Collections.emptyList());
+							return;
+						}
+						Step step = getCurrentStep(session);
+						Plan plan = getCurrentPlan(session);
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 						((ListItemReplicationFacade) object)
 								.validate(plan.getValidationContext(step).getVariableDeclarations());
@@ -2996,19 +3017,27 @@ public class GUI extends MultiSwingCustomizer {
 						};
 					} else if (item instanceof Facade) {
 						return (session) -> {
-							Step step = getCurrentStep(session);
-							Plan plan = getCurrentPlan(session);
 							RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 									.getRoot((Facade) item);
+							if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+								((Facade) item).validate(false, Collections.emptyList());
+								return;
+							}
+							Step step = getCurrentStep(session);
+							Plan plan = getCurrentPlan(session);
 							step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 							((Facade) item).validate(false, plan.getValidationContext(step).getVariableDeclarations());
 						};
 					} else if (item instanceof FacadeOutline) {
 						return (session) -> {
-							Step step = getCurrentStep(session);
-							Plan plan = getCurrentPlan(session);
 							RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 									.getRoot(((FacadeOutline) item).getFacade());
+							if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+								(((FacadeOutline) item).getFacade()).validate(false, Collections.emptyList());
+								return;
+							}
+							Step step = getCurrentStep(session);
+							Plan plan = getCurrentPlan(session);
 							step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 							(((FacadeOutline) item).getFacade()).validate(false,
 									plan.getValidationContext(step).getVariableDeclarations());
@@ -3068,23 +3097,26 @@ public class GUI extends MultiSwingCustomizer {
 						}
 						return Arrays.asList(object, plan, step);
 					} else if (object instanceof Facade) {
+						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
+								.getRoot((Facade) object);
+						if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+							return Arrays.asList(object, rootInstanceBuilderFacade);
+						}
 						Plan plan = getCurrentPlan(session);
 						if (plan == null) {
 							throw new UnexpectedError();
 						}
-						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
-								.getRoot((Facade) object);
 						Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null
 								: getCurrentStep(session);
 						return Arrays.asList(object, plan, step, rootInstanceBuilderFacade);
 					} else if (object instanceof ListItemReplicationFacade) {
-						Plan plan = getCurrentPlan(session);
-						if (plan == null) {
-							throw new UnexpectedError();
-						}
 						RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 								.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
-						if (rootInstanceBuilderFacade == null) {
+						if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
+							return Arrays.asList(object, rootInstanceBuilderFacade);
+						}
+						Plan plan = getCurrentPlan(session);
+						if (plan == null) {
 							throw new UnexpectedError();
 						}
 						Step step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null

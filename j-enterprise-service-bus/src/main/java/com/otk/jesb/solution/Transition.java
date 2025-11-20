@@ -123,13 +123,7 @@ public class Transition extends PlanElement {
 					if (executionError != null) {
 						if (exceptionCondition.isFullfilled(executionError.getCause())) {
 							result.add(transition);
-
 						}
-					}
-					Variable exceptionVariable = exceptionCondition
-							.getExceptionVariable((executionError != null) ? executionError.getCause() : null);
-					if (exceptionVariable != null) {
-						context.getVariables().add(exceptionVariable);
 					}
 				} else {
 					throw new UnexpectedError();

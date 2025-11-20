@@ -282,7 +282,8 @@ public class Plan extends Asset {
 		}
 		List<Transition> outgoingTransitions = transitions.stream()
 				.filter(transition -> (transition.getStartStep() == fromStep)).collect(Collectors.toList());
-		execute(fromStep, outgoingTransitions, executionBranchValid, context, executionInspector);
+		StepOccurrence currentStepOccurrence = execute(fromStep, outgoingTransitions, executionBranchValid, context,
+				executionInspector);
 		final int TRANSITION_NOT_REACHED = 0;
 		final int TRANSITION_REACHED_THROUGH_VALID_BRANCH = 1;
 		final int TRANSITION_REACHED_THROUGH_INVALID_BRANCH = 2;
@@ -327,6 +328,22 @@ public class Plan extends Asset {
 						startStepOccurrences);
 				context.getVariables().clear();
 				context.getVariables().addAll(convergentTransitionsMergedVariables);
+				if (currentStepOccurrence instanceof StepCrossing) {
+					StepCrossing currentStepCrossing = (StepCrossing) currentStepOccurrence;
+					if (currentStepCrossing.getOperationError() != null) {
+						if (currentStepCrossing.getValidTransitions().contains(outgoingTransition)) {
+							if (outgoingTransition.getCondition() instanceof Transition.ExceptionCondition) {
+								Transition.ExceptionCondition exceptionCondition = (Transition.ExceptionCondition) outgoingTransition
+										.getCondition();
+								Variable exceptionVariable = exceptionCondition
+										.getExceptionVariable(currentStepCrossing.getOperationError());
+								if (exceptionVariable != null) {
+									context.getVariables().add(exceptionVariable);
+								}
+							}
+						}
+					}
+				}
 				boolean futureExecutionBranchValid = statusByConvergentTransition.entrySet().stream()
 						.anyMatch(entry -> {
 							Transition convergentTransition = entry.getKey();
@@ -351,7 +368,7 @@ public class Plan extends Asset {
 			});
 		}
 		context.getVariables().clear();
-		context.getVariables().addAll(finalVariables);		
+		context.getVariables().addAll(finalVariables);
 	}
 
 	private List<Variable> mergeStepOccurrenceVariables(List<StepOccurrence> stepOccurrences) {
@@ -375,7 +392,7 @@ public class Plan extends Asset {
 		return null;
 	}
 
-	private void execute(Step step, List<Transition> outgoingTransitions, boolean executionBranchValid,
+	private StepOccurrence execute(Step step, List<Transition> outgoingTransitions, boolean executionBranchValid,
 			ExecutionContext context, ExecutionInspector executionInspector) throws ExecutionError {
 		if (executionBranchValid) {
 			StepCrossing stepCrossing = new StepCrossing(step, this);
@@ -394,8 +411,6 @@ public class Plan extends Asset {
 				if (outgoingTransitions.size() == 0) {
 					if (executionError != null) {
 						throw executionError;
-					} else {
-						return;
 					}
 				} else {
 					List<Transition> validTransitions;
@@ -421,10 +436,12 @@ public class Plan extends Asset {
 			} finally {
 				stepCrossing.capturePostVariables(context.getVariables());
 			}
+			return stepCrossing;
 		} else {
 			StepSkipping stepSkipping = new StepSkipping(step, this);
 			context.getVariables().add(stepSkipping);
 			stepSkipping.capturePostVariables(context.getVariables());
+			return stepSkipping;
 		}
 	}
 

@@ -43,6 +43,7 @@
         <menuModel>
             <uniqueIdentifier>-238101:194b63ec4d9:-6fa9</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=com.otk.jesb.resource.builtin.WSDL]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$URLSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -59,6 +60,7 @@
         <menuModel>
             <uniqueIdentifier>45e306c2:194bd645b48:-6ebf</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=serviceClientDescriptors, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=content]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$ServiceClientDescriptor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -75,6 +77,7 @@
         <menuModel>
             <uniqueIdentifier>45e306c2:194bd645b48:-6eb2</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=portDescriptors, objectType=com.otk.jesb.resource.builtin.WSDL$ServiceClientDescriptor], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$PortDescriptor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -91,6 +94,7 @@
         <menuModel>
             <uniqueIdentifier>45e306c2:194bd645b48:-6ea3</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=operationDescriptors, objectType=com.otk.jesb.resource.builtin.WSDL$PortDescriptor], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$OperationDescriptor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -148,6 +152,7 @@
                     <menuModel>
                         <uniqueIdentifier>61347bf6:1974b9376d1:3664</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -160,6 +165,7 @@
         <menuModel>
             <uniqueIdentifier>61347bf6:1974b9376d1:5711</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=noteBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -175,7 +181,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4309</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6642</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -225,6 +231,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6a09c6e4:194b44869ec:-6f9d</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -237,7 +244,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4308</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6643</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -316,6 +323,7 @@
                     <menuModel>
                         <uniqueIdentifier>-55d0129b:194b8a0b728:-6f22</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -328,7 +336,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4307</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6644</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -412,7 +420,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4306</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6645</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -459,6 +467,7 @@
                     <menuModel>
                         <uniqueIdentifier>-d88499a:197e12932ee:48cb</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=content]], fieldName=sourceGroup]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -471,7 +480,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4305</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6646</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -518,6 +527,7 @@
                     <menuModel>
                         <uniqueIdentifier>-1ccf00b9:19838cf35da:444c</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -540,6 +550,7 @@
         <menuModel>
             <uniqueIdentifier>-26abd643:194b71ba484:-7796</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=content]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -583,6 +594,7 @@
         <menuModel>
             <uniqueIdentifier>-2f59564c:194b8d2648a:-4520</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -693,6 +705,7 @@
                     <menuModel>
                         <uniqueIdentifier>-1ccf00b9:19838cf35da:7846</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -750,6 +763,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.WSDL$ServiceSpecificationDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -793,6 +807,7 @@
         <menuModel>
             <uniqueIdentifier>-238101:194b63ec4d9:-739d</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=com.otk.jesb.resource.builtin.WSDL]]</typeName>
         <undoManagementHidden>true</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -866,6 +881,7 @@
                     <menuModel>
                         <uniqueIdentifier>-238101:194b63ec4d9:-711d</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -878,6 +894,7 @@
         <menuModel>
             <uniqueIdentifier>-238101:194b63ec4d9:-7124</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=com.otk.jesb.resource.builtin.WSDL]]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -951,6 +968,7 @@
                     <menuModel>
                         <uniqueIdentifier>-2f59564c:194b8d2648a:-4510</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -963,6 +981,7 @@
         <menuModel>
             <uniqueIdentifier>-2f59564c:194b8d2648a:-4517</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1023,6 +1042,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6a09c6e4:194b44869ec:-6f9d</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1175,7 +1195,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4304</uniqueIdentifier>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:6647</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -1330,6 +1350,85 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>de22b1c:19a9debb128:a9f</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getFaultDescriptionTemplate</methodName>
+            <methodSignature>java.lang.String getFaultDescriptionTemplate(java.lang.Class, com.otk.jesb.resource.builtin.WSDL$OperationDescriptor)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>de22b1c:19a9debb128:aa3</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>de22b1c:19a9debb128:aa4</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>faultExceptionClass</parameterName>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>de22b1c:19a9debb128:aa5</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>de22b1c:19a9debb128:aa6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>operation</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>de22b1c:19a9debb128:aa0</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>faultDescriptionToException</methodName>
+            <methodSignature>java.lang.Exception faultDescriptionToException(java.lang.String, com.otk.jesb.resource.builtin.WSDL$OperationDescriptor)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>de22b1c:19a9debb128:aa7</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>de22b1c:19a9debb128:aa8</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>faultDescription</parameterName>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>de22b1c:19a9debb128:aa9</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>de22b1c:19a9debb128:aaa</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>operation</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.WSDL</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1385,6 +1484,7 @@
                     <menuModel>
                         <uniqueIdentifier>-55d0129b:194b8a0b728:-6f07</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1442,6 +1542,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.WSDL$PortDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1484,6 +1585,7 @@
         <menuModel>
             <uniqueIdentifier>-2f59564c:194b8d2648a:-87a</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$URLSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1500,6 +1602,7 @@
         <menuModel>
             <uniqueIdentifier>61347bf6:1974b9376d1:3672</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1542,6 +1645,7 @@
         <menuModel>
             <uniqueIdentifier>53761ee2:1974c180dcd:606d</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$URLSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1584,6 +1688,7 @@
         <menuModel>
             <uniqueIdentifier>-238101:194b63ec4d9:-6fbc</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=com.otk.jesb.resource.builtin.WSDL]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$FileSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1626,6 +1731,7 @@
         <menuModel>
             <uniqueIdentifier>-2f59564c:194b8d2648a:-887</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$FileSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1707,6 +1813,7 @@
                     <menuModel>
                         <uniqueIdentifier>-55d0129b:194b8a0b728:-6f19</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1792,6 +1899,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.WSDL$ServiceClientDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1925,6 +2033,7 @@
                     <menuModel>
                         <uniqueIdentifier>-6a09c6e4:194b44869ec:-6f9d</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1938,6 +2047,7 @@
         <menuModel>
             <uniqueIdentifier>-d88499a:197e12932ee:487f</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=content]], fieldName=sourceGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1980,6 +2090,7 @@
         <menuModel>
             <uniqueIdentifier>53761ee2:1974c180dcd:625b</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$FileSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -2101,6 +2212,116 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>5ec06d49:19a9d810bcd:-4e77</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>faultDescriptionTemplates</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>true</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>5ec06d49:19a9d810bcd:-4e75</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>5ec06d49:19a9d810bcd:-4e76</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>14cdfdb0:19a9e485112:55a3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>exceptionGroup</encapsulationFieldName>
+            <fieldName>responseExceptionClassName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>14cdfdb0:19a9e485112:55a5</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>14cdfdb0:19a9e485112:55a4</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>14cdfdb0:19a9e485112:55c0</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>exceptionGroup</encapsulationFieldName>
+            <fieldName>sampleResponseExceptions</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>14cdfdb0:19a9e485112:55c2</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>14cdfdb0:19a9e485112:55c1</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>14cdfdb0:19a9e48e536:-4980</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>exceptionGroup</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>true</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>14cdfdb0:19a9e48e536:-497e</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>14cdfdb0:19a9e48e536:-497f</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-55d0129b:194b8a0b728:-6f0c</uniqueIdentifier>
@@ -2122,7 +2343,171 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>5ec06d49:19a9d810bcd:-4595</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Faults...</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>faultDescriptionTemplates.get</methodName>
+            <methodSignature>java.util.List faultDescriptionTemplates.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>14cdfdb0:19a9e48e536:-490f</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>HTTP Error(s)</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>exceptionGroup.get</methodName>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL$OperationDescriptor], fieldName=exceptionGroup] exceptionGroup.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.WSDL$OperationDescriptor</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>14cdfdb0:19a9e485112:55ac</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>14cdfdb0:19a9e485112:55ad</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>14cdfdb0:19a9e485112:575f</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>toFaultException</methodName>
+            <methodSignature>java.lang.Exception toFaultException(com.otk.jesb.resource.builtin.WSDL$OperationDescriptor, com.otk.jesb.resource.builtin.WSDL)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>14cdfdb0:19a9e485112:5764</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>14cdfdb0:19a9e485112:5765</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>operation</parameterName>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>14cdfdb0:19a9e485112:5766</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>14cdfdb0:19a9e485112:5767</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>wsdl</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>com.otk.jesb.resource.builtin.WSDL$ResponseException</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>940df92:19a9e4f3d2a:55eb</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>940df92:19a9e4f5cd3:5101</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Exception Class</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>responseExceptionClassName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:5103</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>940df92:19a9e4f5cd3:5102</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>940df92:19a9e4f5cd3:5114</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Sample(s)</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>sampleResponseExceptions</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>940df92:19a9e4f5cd3:5116</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>940df92:19a9e4f5cd3:5115</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>940df92:19a9e4f3d2a:55ec</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL$OperationDescriptor], fieldName=exceptionGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

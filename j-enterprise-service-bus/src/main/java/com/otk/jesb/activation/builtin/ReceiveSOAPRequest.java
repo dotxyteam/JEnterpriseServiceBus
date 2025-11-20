@@ -25,6 +25,7 @@ import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor;
 import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
 import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -312,16 +313,17 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		}
 
 		@Override
-		public void install(HTTPServer server) throws Exception {
+		protected void install(HTTPServer server) throws Exception {
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
+			WSDL wsdl = expectWSDL();
 			ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
 			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)
 					.newInstance(new InvocationHandler() {
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-							OperationDescriptor operation = new WSDL.OperationDescriptor(method);
+							OperationDescriptor operation = new WSDL.OperationDescriptor(method, wsdl);
 							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()
 									.get(operation);
 							if (registeredActivationHandler == null) {
@@ -329,7 +331,16 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 							}
 							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()
 									.getConstructor(method.getParameterTypes()).newInstance(args);
-							Object operationOutput = registeredActivationHandler.trigger(operationInput);
+							Object operationOutput;
+							try {
+								operationOutput = registeredActivationHandler.trigger(operationInput);
+							} catch (ExecutionError e) {
+								if (e.getCause() instanceof WSDL.ResponseException) {
+									throw ((WSDL.ResponseException) e.getCause()).toFaultException(operation, wsdl);
+								} else {
+									throw e;
+								}
+							}
 							Class<?> operationOutputClass = operation.getOperationOutputClass();
 							if (operationOutputClass == null) {
 								return null;
@@ -355,7 +366,7 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 				endpoint = null;
 			});
 			String servicePath = getServicePathVariant().getValue();
-			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + "/" + servicePath);
+			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + servicePath);
 		}
 
 		@Override
