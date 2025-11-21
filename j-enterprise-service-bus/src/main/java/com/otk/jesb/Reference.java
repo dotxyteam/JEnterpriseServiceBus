@@ -78,7 +78,7 @@ public class Reference<T extends Asset> {
 
 	public List<String> getPathOptions() {
 		List<String> result = new ArrayList<String>();
-		for (Asset asset : Solution.INSTANCE.getContents()) {
+		for (Asset asset : getSolutionInstance().getContents()) {
 			result.addAll(findOptionsFrom(asset, asset.getName()));
 		}
 		return result;
@@ -101,13 +101,17 @@ public class Reference<T extends Asset> {
 		if (path == null) {
 			return null;
 		}
-		for (Asset asset : Solution.INSTANCE.getContents()) {
+		for (Asset asset : getSolutionInstance().getContents()) {
 			T result = resolveFrom(asset, asset.getName());
 			if (result != null) {
 				return result;
 			}
 		}
 		return null;
+	}
+
+	protected Solution getSolutionInstance() {
+		return Solution.INSTANCE;
 	}
 
 	private T resolveFrom(Asset asset, String assetPath) {

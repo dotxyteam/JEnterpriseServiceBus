@@ -150,7 +150,17 @@ public class Debugger extends Session {
 				}
 			});
 			if (plan.getActivator().getInputClass() != null) {
-				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), 3);
+				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), eachFacade -> {
+					if(Facade.getAncestors(eachFacade).size() >= 4) {
+						return true;
+					}
+					try {
+						eachFacade.validate(true, Collections.emptyList());
+						return true;
+					} catch (ValidationError e) {
+						return false;
+					}
+				});
 			}
 		}
 

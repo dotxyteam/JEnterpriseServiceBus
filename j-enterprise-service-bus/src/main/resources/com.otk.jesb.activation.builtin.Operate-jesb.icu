@@ -43,6 +43,7 @@
         <menuModel>
             <uniqueIdentifier>-5e2fae22:197418e3cbc:5bb4</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=activator, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.builtin.Operate]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -87,6 +88,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:7bc8</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=inputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.Operate], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -162,6 +164,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:65d1</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.Operate], fieldName=structures]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -275,6 +278,7 @@
                     <menuModel>
                         <uniqueIdentifier>-7ea92b19:197453a3f88:65e2</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.Operate], fieldName=structures]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -283,10 +287,21 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <formHeight>
+            <uniqueIdentifier>-253f17bb:19aa2f37b87:-4cfe</uniqueIdentifier>
+            <unit>PIXELS</unit>
+            <value>500</value>
+        </formHeight>
+        <formWidth>
+            <uniqueIdentifier>-253f17bb:19aa2f37b87:-4e65</uniqueIdentifier>
+            <unit>PIXELS</unit>
+            <value>800</value>
+        </formWidth>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:309f</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.Operate</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -332,6 +347,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:6591</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.activation.Activator activator.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.solution.Plan], fieldName=top]], fieldName=activationDetails]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.activation.Activator]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.activation.builtin.Operate]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -376,6 +392,7 @@
         <menuModel>
             <uniqueIdentifier>-7ea92b19:197453a3f88:7bbf</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=outputStructure, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.Operate], fieldName=structures]], subContext=NullableInstance, encapsulatedObjectType=com.otk.jesb.Structure$ClassicStructure]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

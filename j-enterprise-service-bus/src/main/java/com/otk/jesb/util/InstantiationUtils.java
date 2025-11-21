@@ -458,11 +458,15 @@ public class InstantiationUtils {
 	}
 
 	public static void makeConcreteRecursively(Facade facade, int maximumDepth) {
-		if (maximumDepth <= 0) {
+		makeConcreteRecursively(facade, eachFacade -> Facade.getAncestors(eachFacade).size() >= maximumDepth);
+	}
+
+	public static void makeConcreteRecursively(Facade facade, Function<Facade, Boolean> until) {
+		if (until.apply(facade)) {
 			return;
 		}
 		facade.setConcrete(true);
-		facade.getChildren().forEach(childFacade -> makeConcreteRecursively(childFacade, maximumDepth - 1));
+		facade.getChildren().forEach(childFacade -> makeConcreteRecursively(childFacade, until));
 
 	}
 
