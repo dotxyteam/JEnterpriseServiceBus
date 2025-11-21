@@ -459,9 +459,6 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 			if (responsesAnnotation != null) {
 				for (ApiResponse responseAnnotation : responsesAnnotation.value()) {
 					ResponseException responseException = new ResponseException(responseAnnotation.code());
-					if (responseAnnotation.message() != null) {
-						responseException.setReasonPhrase(responseAnnotation.message());
-					}
 					if ((responseAnnotation.response() != null) && (responseAnnotation.response() != Void.class)) {
 						responseException.setContentType(MediaType.APPLICATION_JSON);
 						Object sampleEntity;
@@ -647,7 +644,6 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 		private static final long serialVersionUID = 1L;
 		private Status status;
-		private String reasonPhrase;
 		private String contentType;
 		private String body;
 
@@ -667,14 +663,6 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 			return status.getStatusCode();
 		}
 
-		public String getReasonPhrase() {
-			return reasonPhrase;
-		}
-
-		public void setReasonPhrase(String reasonPhrase) {
-			this.reasonPhrase = reasonPhrase;
-		}
-
 		public String getContentType() {
 			return contentType;
 		}
@@ -692,9 +680,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 
 		public WebApplicationException toWebApplicationException() {
-			ResponseBuilder responseBuilder = (reasonPhrase != null)
-					? Response.status(status.getStatusCode(), reasonPhrase)
-					: Response.status(status);
+			ResponseBuilder responseBuilder = Response.status(status);
 			if (contentType != null) {
 				responseBuilder = responseBuilder.type(contentType);
 			}
@@ -706,8 +692,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 		@Override
 		public String toString() {
-			return "ResponseException [status=" + status + ", reasonPhrase=" + reasonPhrase + ", contentType="
-					+ contentType + ", body=" + body + "]";
+			return "ResponseException [status=" + status + ", contentType=" + contentType + ", body=" + body + "]";
 		}
 
 	}

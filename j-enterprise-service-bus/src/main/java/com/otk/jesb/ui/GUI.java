@@ -3151,39 +3151,6 @@ public class GUI extends MultiSwingCustomizer {
 			};
 		}
 
-		@Override
-		protected IInfoProxyFactory createAfterInfoCustomizationsFactory() {
-			return new InfoProxyFactory() {
-
-				@Override
-				protected List<IDynamicListAction> getDynamicActions(IListTypeInfo listType,
-						final List<? extends ItemPosition> selection,
-						Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
-					if (listType.getItemType() != null) {
-						if (listType.getItemType().getName().equals(PlanActivation.class.getName())) {
-							List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
-									super.getDynamicActions(listType, selection, listModificationFactoryAccessor));
-							for (int i = 0; i < result.size(); i++) {
-								if (result.get(i).getName().endsWith("executePlan")) {
-									result.set(i, new DynamicListActionProxy(result.get(i)) {
-										@Override
-										public List<ItemPosition> getPostSelection() {
-											List<? extends ItemPosition> subItemPositions = selection.get(0)
-													.getSubItemPositions();
-											return Collections
-													.singletonList(subItemPositions.get(subItemPositions.size() - 1));
-										}
-									});
-								}
-							}
-							return result;
-						}
-					}
-					return super.getDynamicActions(listType, selection, listModificationFactoryAccessor);
-				}
-			};
-		}
-
 		private Asset getCurrentAsset(ValidationSession session) {
 			Asset result = (session == null) ? null : (Asset) session.get(CURRENT_ASSET_KEY);
 			if (result == null) {

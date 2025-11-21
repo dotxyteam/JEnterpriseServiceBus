@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.otk.jesb.solution.Plan;
@@ -94,11 +93,10 @@ public class CallRESTAPI implements Operation {
 			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);
 		} catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof Exception) {
-				if (e.getTargetException() instanceof RestClientException) {
+				if (e.getTargetException() instanceof RestClientResponseException) {
 					RestClientResponseException clientException = (RestClientResponseException) e.getTargetException();
 					ResponseException responseException = new OpenAPIDescription.ResponseException(
 							clientException.getRawStatusCode());
-					responseException.setReasonPhrase(clientException.getStatusText());
 					responseException
 							.setContentType(clientException.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE));
 					responseException.setBody(clientException.getResponseBodyAsString());

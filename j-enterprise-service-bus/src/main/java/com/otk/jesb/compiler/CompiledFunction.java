@@ -3,6 +3,7 @@ package com.otk.jesb.compiler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.otk.jesb.StandardError;
@@ -11,7 +12,7 @@ import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.util.MiscUtils;
 
-public class CompiledFunction {
+public class CompiledFunction<T> {
 
 	private Class<?> functionClass;
 	private String functionClassSource;
@@ -29,8 +30,8 @@ public class CompiledFunction {
 		return functionClassSource;
 	}
 
-	public static CompiledFunction get(String functionBody, List<VariableDeclaration> variableDeclarations,
-			Class<?> returnType) throws CompilationError {
+	public static <T> CompiledFunction<T> get(String functionBody, List<VariableDeclaration> variableDeclarations,
+			Class<T> returnType) throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
 		String preBody = "";
@@ -70,7 +71,12 @@ public class CompiledFunction {
 			}
 			throw new CompilationError(startPosition, endPosition, e.getMessage(), null, functionBody, e);
 		}
-		return new CompiledFunction(functionClass, functionClassSource);
+		return new CompiledFunction<T>(functionClass, functionClassSource);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T call(Variable... variables) throws FunctionCallError {
+		return (T)call(Arrays.asList(variables));
 	}
 
 	public Object call(List<Variable> variables) throws FunctionCallError {
@@ -97,16 +103,19 @@ public class CompiledFunction {
 			if (t instanceof InvocationTargetException) {
 				t = ((InvocationTargetException) t).getTargetException();
 			}
-			throw new FunctionCallError(t);
+			throw new FunctionCallError(this, t);
 		}
 	}
 
-	public class FunctionCallError extends StandardError {
+	public static class FunctionCallError extends StandardError {
 
 		private static final long serialVersionUID = 1L;
 
-		public FunctionCallError(Throwable cause) {
+		private CompiledFunction<?> compiledFunction;
+
+		public FunctionCallError(CompiledFunction<?> compiledFunction, Throwable cause) {
 			super(cause);
+			this.compiledFunction = compiledFunction;
 		}
 
 		@Override
@@ -117,13 +126,15 @@ public class CompiledFunction {
 		public String describeSource() {
 			String result;
 			Throwable t = getCause();
-			if ((t.getStackTrace().length > 0) && t.getStackTrace()[0].getClassName().equals(functionClass.getName())
+			if ((t.getStackTrace().length > 0)
+					&& t.getStackTrace()[0].getClassName().equals(compiledFunction.getFunctionClass().getName())
 					&& (t.getStackTrace()[0].getLineNumber() > 0)) {
-				result = "/* The instruction that raised the exception */\n"
-						+ functionClassSource.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
+				result = "/* The instruction that raised the exception */\n" + compiledFunction.getFunctionClassSource()
+						.split("\n")[t.getStackTrace()[0].getLineNumber() - 1];
 			} else {
-				result = "/* The source code of the function that crashed (" + functionClass.getSimpleName()
-						+ ".java) */\n" + functionClassSource;
+				result = "/* The source code of the function that crashed ("
+						+ compiledFunction.getFunctionClass().getSimpleName() + ".java) */\n"
+						+ compiledFunction.getFunctionClassSource();
 			}
 			return result;
 		}

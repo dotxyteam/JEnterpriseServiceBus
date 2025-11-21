@@ -23,13 +23,17 @@ import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
 import com.otk.jesb.instantiation.InstantiationFunctionCompilationContext;
+import com.otk.jesb.instantiation.ListItemInitializerFacade;
 import com.otk.jesb.instantiation.EnumerationItemSelector;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FieldInitializerFacade;
+import com.otk.jesb.instantiation.InitializerFacade;
 import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstanceBuilderFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.MapEntryBuilder;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
 import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
@@ -91,7 +95,7 @@ public class InstantiationUtils {
 		if (!actualVariableNames.equals(expectedVariableNames)) {
 			throw new UnexpectedError();
 		}
-		CompiledFunction compiledFunction;
+		CompiledFunction<?> compiledFunction;
 		try {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
 					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function));
@@ -468,6 +472,42 @@ public class InstantiationUtils {
 		facade.setConcrete(true);
 		facade.getChildren().forEach(childFacade -> makeConcreteRecursively(childFacade, until));
 
+	}
+
+	public static Object getChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier) {
+		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder)
+				.getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier)).findFirst().get();
+		return getInitializerFacadeValue(initializerFacade);
+	}
+
+	public static void setChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier, Object value) {
+		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder)
+				.getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier)).findFirst().get();
+		setInitializerFacadeValue(initializerFacade, value);
+	}
+
+	private static Object getInitializerFacadeValue(InitializerFacade initializerFacade) {
+		if (initializerFacade instanceof ParameterInitializerFacade) {
+			return ((ParameterInitializerFacade) initializerFacade).getParameterValue();
+		} else if (initializerFacade instanceof FieldInitializerFacade) {
+			return ((FieldInitializerFacade) initializerFacade).getFieldValue();
+		} else if (initializerFacade instanceof ListItemInitializerFacade) {
+			return ((ListItemInitializerFacade) initializerFacade).getItemValue();
+		} else {
+			throw new UnexpectedError();
+		}
+	}
+
+	private static void setInitializerFacadeValue(InitializerFacade initializerFacade, Object value) {
+		if (initializerFacade instanceof ParameterInitializerFacade) {
+			((ParameterInitializerFacade) initializerFacade).setParameterValue(value);
+		} else if (initializerFacade instanceof FieldInitializerFacade) {
+			((FieldInitializerFacade) initializerFacade).setFieldValue(value);
+		} else if (initializerFacade instanceof ListItemInitializerFacade) {
+			((ListItemInitializerFacade) initializerFacade).setItemValue(value);
+		} else {
+			throw new UnexpectedError();
+		}
 	}
 
 }

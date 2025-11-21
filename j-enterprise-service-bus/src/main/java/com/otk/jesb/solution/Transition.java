@@ -177,7 +177,7 @@ public class Transition extends PlanElement {
 
 		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables)
 				throws FunctionCallError {
-			CompiledFunction compiledFunction;
+			CompiledFunction<?> compiledFunction;
 			try {
 				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {

@@ -54,11 +54,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.WriterOutputStream;
 
-import com.otk.jesb.Expression;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
@@ -67,8 +65,6 @@ import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.builtin.Schedule;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
-import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
@@ -917,13 +913,6 @@ public class MiscUtils {
 	public static void improveRenderingQuality(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-	}
-
-	public static <T> CompiledFunction compileExpression(String expressionString,
-			List<VariableDeclaration> variableDeclarations, Class<T> returnType) throws CompilationError {
-		Expression<T> expression = new Expression<T>(returnType);
-		expression.set(expressionString);
-		return expression.compile(variableDeclarations);
 	}
 
 	public static boolean areIncompatible(Class<?> class1, Class<?> class2) {

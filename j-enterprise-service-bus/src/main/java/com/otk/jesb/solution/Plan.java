@@ -328,20 +328,19 @@ public class Plan extends Asset {
 						startStepOccurrences);
 				context.getVariables().clear();
 				context.getVariables().addAll(convergentTransitionsMergedVariables);
-				if (currentStepOccurrence instanceof StepCrossing) {
-					StepCrossing currentStepCrossing = (StepCrossing) currentStepOccurrence;
-					if (currentStepCrossing.getOperationError() != null) {
+				if (outgoingTransition.getCondition() instanceof Transition.ExceptionCondition) {
+					Transition.ExceptionCondition exceptionCondition = (Transition.ExceptionCondition) outgoingTransition
+							.getCondition();
+					Throwable exception = null;
+					if (currentStepOccurrence instanceof StepCrossing) {
+						StepCrossing currentStepCrossing = (StepCrossing) currentStepOccurrence;
 						if (currentStepCrossing.getValidTransitions().contains(outgoingTransition)) {
-							if (outgoingTransition.getCondition() instanceof Transition.ExceptionCondition) {
-								Transition.ExceptionCondition exceptionCondition = (Transition.ExceptionCondition) outgoingTransition
-										.getCondition();
-								Variable exceptionVariable = exceptionCondition
-										.getExceptionVariable(currentStepCrossing.getOperationError());
-								if (exceptionVariable != null) {
-									context.getVariables().add(exceptionVariable);
-								}
-							}
+							exception = currentStepCrossing.getOperationError();
 						}
+					}
+					Variable exceptionVariable = exceptionCondition.getExceptionVariable(exception);
+					if (exceptionVariable != null) {
+						context.getVariables().add(exceptionVariable);
 					}
 				}
 				boolean futureExecutionBranchValid = statusByConvergentTransition.entrySet().stream()

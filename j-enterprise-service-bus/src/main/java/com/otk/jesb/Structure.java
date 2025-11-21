@@ -557,8 +557,8 @@ public abstract class Structure {
 			if (optionality != null) {
 				if (optionality.getDefaultValueExpression() != null) {
 					try {
-						MiscUtils.compileExpression(optionality.getDefaultValueExpression(), Collections.emptyList(),
-								Object.class);
+						new Expression<Object>(optionality.getDefaultValueExpression(), Object.class)
+								.compile(Collections.emptyList());
 					} catch (CompilationError e) {
 						throw new ValidationError("Invalid default value expression detected", e);
 					}

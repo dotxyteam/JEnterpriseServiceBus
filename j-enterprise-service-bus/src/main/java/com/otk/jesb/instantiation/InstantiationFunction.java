@@ -39,13 +39,13 @@ public class InstantiationFunction extends Function {
 
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
-			CompiledFunction compiledFunction = (CompiledFunction) getCustomValue();
+			CompiledFunction<?> compiledFunction = (CompiledFunction<?>) getCustomValue();
 			return compiledFunction.getFunctionClass();
 		}
 
 		@Override
 		protected ITypeInfo obtainLatest(Object versionIdentifier) throws VersionAccessException {
-			CompiledFunction compiledFunction = (CompiledFunction) getCustomValue();
+			CompiledFunction<?> compiledFunction = (CompiledFunction<?>) getCustomValue();
 			TypeSolver typeSolver = new CombinedTypeSolver(
 					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader()));
 			ParserConfiguration configuration = new ParserConfiguration()
@@ -84,7 +84,7 @@ public class InstantiationFunction extends Function {
 
 	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler, List<VariableDeclaration> variableDeclarations)
 			throws CompilationError {
-		CompiledFunction compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
+		CompiledFunction<?> compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);
 		upToDateGuessedReturnTypeInfo.setCustomValue(compiledFunction);
 		try {

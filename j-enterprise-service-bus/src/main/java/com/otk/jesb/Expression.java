@@ -1,5 +1,6 @@
 package com.otk.jesb;
 
+import java.util.Arrays;
 import java.util.List;
 import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.compiler.CompilationError;
@@ -31,12 +32,17 @@ public class Expression<T> {
 		}
 	};
 
-	private Class<T> valueClass;
+	private Class<T> resultClass;
 	private Function internalFunction;
 	private boolean dynamic = false;
 
-	public Expression(Class<T> valueClass) {
-		this.valueClass = valueClass;
+	public Expression(Class<T> resultClass) {
+		this.resultClass = resultClass;
+	}
+
+	public Expression(String string, Class<T> resultClass) {
+		this(resultClass);
+		set(string);
 	}
 
 	public String get() {
@@ -46,6 +52,10 @@ public class Expression<T> {
 	public void set(String string) {
 		internalFunction = (string != null) ? new Function(string) : null;
 		dynamic = true;
+	}
+
+	public Class<T> getResultClass() {
+		return resultClass;
 	}
 
 	public boolean isDynamic() {
@@ -64,8 +74,8 @@ public class Expression<T> {
 			return null;
 		}
 		try {
-			CompiledFunction compiledFunction = compile(variableDeclarations);
-			return valueClass.cast(compiledFunction.call(variables));
+			CompiledFunction<T> compiledFunction = compile(variableDeclarations);
+			return resultClass.cast(compiledFunction.call(variables));
 		} catch (CompilationError | FunctionCallError e) {
 			throw new PotentialError(e);
 		}
@@ -76,20 +86,32 @@ public class Expression<T> {
 			internalFunction = null;
 			return;
 		}
-		if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {
+		if (ClassUtils.isPrimitiveClassOrWrapper(resultClass)) {
 			internalFunction = new Function(ReflectionUIUtils.primitiveToString(t));
-		} else if (valueClass == String.class) {
+		} else if (resultClass == String.class) {
 			internalFunction = new Function('"' + MiscUtils.escapeJavaString((String) t) + '"');
-		} else if (valueClass.isEnum()) {
-			internalFunction = new Function(valueClass.getName() + "." + t.toString());
+		} else if (resultClass.isEnum()) {
+			internalFunction = new Function(resultClass.getName() + "." + t.toString());
 		} else {
 			throw new UnexpectedError();
 		}
 		dynamic = false;
 	}
 
-	public CompiledFunction compile(List<VariableDeclaration> variableDeclarations) throws CompilationError {
-		return internalFunction.getCompiledVersion(PRECOMPILER, variableDeclarations, valueClass);
+	public CompiledFunction<T> compile(VariableDeclaration... variableDeclarations) throws CompilationError {
+		return compile(Arrays.asList(variableDeclarations));
+	}
+
+	public CompiledFunction<T> compile(List<VariableDeclaration> variableDeclarations) throws CompilationError {
+		return internalFunction.getCompiledVersion(PRECOMPILER, variableDeclarations, resultClass);
+	}
+
+	public static <T> T evaluateObjectMemberSelection(Object object, String selection, Class<T> resultClass)
+			throws CompilationError, FunctionCallError {
+		String variableName = "var" + MiscUtils.getDigitalUniqueIdentifier();
+		return new Expression<T>(variableName + "." + selection, resultClass)
+				.compile(new VariableDeclaration.BasicVariableDeclaration(variableName, object.getClass()))
+				.call(new Variable.BasicVariable(variableName, object));
 	}
 
 	@Override
@@ -98,7 +120,7 @@ public class Expression<T> {
 		int result = 1;
 		result = prime * result + (dynamic ? 1231 : 1237);
 		result = prime * result + ((internalFunction == null) ? 0 : internalFunction.hashCode());
-		result = prime * result + ((valueClass == null) ? 0 : valueClass.hashCode());
+		result = prime * result + ((resultClass == null) ? 0 : resultClass.hashCode());
 		return result;
 	}
 
@@ -119,10 +141,10 @@ public class Expression<T> {
 				return false;
 		} else if (!internalFunction.equals(other.internalFunction))
 			return false;
-		if (valueClass == null) {
-			if (other.valueClass != null)
+		if (resultClass == null) {
+			if (other.resultClass != null)
 				return false;
-		} else if (!valueClass.equals(other.valueClass))
+		} else if (!resultClass.equals(other.resultClass))
 			return false;
 		return true;
 	}

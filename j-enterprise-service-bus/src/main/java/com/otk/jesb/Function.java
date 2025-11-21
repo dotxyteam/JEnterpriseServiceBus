@@ -25,6 +25,7 @@ public class Function {
 	private static final String RETURN_TYPE_KEY = Function.class.getName() + ".RETURN_TYPE_KEY";
 
 	private String functionBody;
+	@SuppressWarnings("rawtypes")
 	private UpToDate<CompiledFunction> upToDateCompiledVersion = new UpToDate<CompiledFunction>() {
 
 		@SuppressWarnings("unchecked")
@@ -46,7 +47,7 @@ public class Function {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		protected CompiledFunction obtainLatest(Object versionIdentifier) throws VersionAccessException {
+		protected CompiledFunction<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
 			Map<String, Object> compilationData = (Map<String, Object>) getCustomValue();
 			String precompiledFunctionBody = (String) compilationData.get(PRECOMPILED_FUNCTION_BODY_KEY);
 			List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) compilationData
@@ -75,8 +76,9 @@ public class Function {
 		this.functionBody = functionBody;
 	}
 
-	public CompiledFunction getCompiledVersion(Precompiler precompiler, List<VariableDeclaration> variableDeclarations,
-			Class<?> functionReturnType) throws CompilationError {
+	@SuppressWarnings("unchecked")
+	public <T> CompiledFunction<T> getCompiledVersion(Precompiler precompiler,
+			List<VariableDeclaration> variableDeclarations, Class<T> functionReturnType) throws CompilationError {
 		Map<String, Object> compilationData = new HashMap<String, Object>();
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
