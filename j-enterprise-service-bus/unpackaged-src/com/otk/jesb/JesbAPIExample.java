@@ -5,14 +5,13 @@ import java.io.File;
 import com.otk.jesb.Runner;
 import com.otk.jesb.Session;
 import com.otk.jesb.Variant;
-import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.builtin.ReadCommandLine;
 import com.otk.jesb.instantiation.FieldInitializerFacade;
 import com.otk.jesb.instantiation.InstantiationFunction;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.solution.Plan;
-import com.otk.jesb.solution.Plan.ExecutionContext;
-import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.SolutionUtils;
 import com.otk.jesb.solution.Solution;
 
 /**
@@ -22,7 +21,7 @@ import com.otk.jesb.solution.Solution;
  * @author olitank
  *
  */
-public class TestJesbAPI {
+public class JesbAPIExample {
 
 	public static void main(String[] args) throws Exception {
 		/*
@@ -34,7 +33,7 @@ public class TestJesbAPI {
 		{
 			solution.saveToArchiveFile(solutionFile);
 			solution.loadFromArchiveFile(solutionFile);
-			if(!solutionFile.delete()) {
+			if (!solutionFile.delete()) {
 				throw new AssertionError();
 			}
 		}
@@ -67,7 +66,7 @@ public class TestJesbAPI {
 	}
 
 	/**
-	 * Executes synchronously the single plan of the given sample solution.
+	 * Executes synchronously the first plan of the given solution.
 	 * 
 	 * @param solution The sample solution.
 	 * @param name     The sample plan parameter value.
@@ -76,18 +75,17 @@ public class TestJesbAPI {
 	 */
 	private static String executeHelloPlan(Solution solution, String name) throws Exception {
 		try (Session session = Session.openDummySession()) {
-			Plan plan = (Plan) solution.getContents().get(0);
-			Activator activator = plan.getActivator();
-			String inputParameter = "John";
-			Object input = activator.getInputClass().getConstructor(String.class).newInstance(inputParameter);
-			Object output = plan.execute(input, ExecutionInspector.DEFAULT, new ExecutionContext(session, plan));
-			String outputResult = (String) plan.getActivator().getOutputClass().getField("result").get(output);
-			return outputResult;
+			Plan plan = (Plan) SolutionUtils.findAsset(solution, Plan.class::isInstance);
+			Object output = SolutionUtils.executePlan(plan, session, inputBuilder -> {
+				InstantiationUtils.setChildInitializerValue(inputBuilder, "(inputLine)", "John");
+			});
+			return Expression.evaluateObjectMemberSelection(output, "result", String.class);
 		}
 	}
 
 	/**
-	 * Executes asynchronously all the activable plans of the given sample solution.
+	 * Activates for a certain period of time all "activable" plans of the given
+	 * solution.
 	 * 
 	 * @param solution The sample solution.
 	 * @throws Exception If a problem occurs.
