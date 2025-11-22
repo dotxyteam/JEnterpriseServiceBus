@@ -70,7 +70,7 @@ The required Maven dependency is as follows:
     </dependency>
 
 The following class demonstrates the use of this API: 
-https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/TestJesbAPI.java
+https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/JesbAPIExample.java
 
 # Support
 
