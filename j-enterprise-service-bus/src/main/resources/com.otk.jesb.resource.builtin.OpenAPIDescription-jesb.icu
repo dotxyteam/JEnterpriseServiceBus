@@ -306,7 +306,7 @@
             <uniqueIdentifier>765c3f55:19aa156920a:1132</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customMethodCaption>Fault(s)...</customMethodCaption>
+            <customMethodCaption>Response(s)...</customMethodCaption>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
@@ -336,7 +336,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:4a42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6d873172:19aa2a9e286:-3628</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:-524b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -1217,7 +1217,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:49f9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6d873172:19aa2a9e286:-3627</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:-524a</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -1251,7 +1251,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:470f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6d873172:19aa2a9e286:-3626</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:-5249</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -1311,7 +1311,7 @@
             <uniqueIdentifier>-1ccf00b9:19838dcf645:-5f70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6d873172:19aa2a9e286:-3625</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:-5248</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -1400,7 +1400,7 @@
             <uniqueIdentifier>-67c7e284:1983933ccaf:461c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6d873172:19aa2a9e286:-3624</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:-5247</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -1685,6 +1685,23 @@
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.OpenAPIDescription$APIOperationDescriptor], fieldName=exceptionGroup]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>552d3431:19aad3c7e86:-602e</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>552d3431:19aad3c7e86:-602d</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>Encapsulation [context=FieldContext [fieldName=serviceOperationDescriptors, objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.OpenAPIDescription], fieldName=content]], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.resource.builtin.OpenAPIDescription$APIOperationDescriptor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

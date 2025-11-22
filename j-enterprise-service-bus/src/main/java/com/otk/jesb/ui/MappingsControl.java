@@ -919,14 +919,10 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					accept = true;
 				} else {
 					int choice = openMappingOptionSelectionDialog(
-							Arrays.asList("Assign source value to target",
-									"Map corresponding children (same name) of source and target values", "Do not map"),
+							Arrays.asList("Map corresponding children (same name) of source and target values",
+									"Assign source value to target", "Do not map"),
 							pathNode, initializerFacade, initializerTreeControl);
 					if (choice == 0) {
-						targetValueAccessor
-								.set(new InstantiationFunction("return " + pathNode.getTypicalExpression() + ";"));
-						accept = true;
-					} else if (choice == 1) {
 						initializerFacade.setConcrete(true);
 						for (BufferedItemPosition subInitializerPosition : initializerPosition.getSubItemPositions()) {
 							Facade initializerFacadeChild = (Facade) subInitializerPosition.getItem();
@@ -940,6 +936,10 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 								}
 							}
 						}
+						accept = true;
+					} else if (choice == 1) {
+						targetValueAccessor
+								.set(new InstantiationFunction("return " + pathNode.getTypicalExpression() + ";"));
 						accept = true;
 					} else if (choice == 2) {
 						// do nothing

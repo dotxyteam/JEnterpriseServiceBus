@@ -165,13 +165,14 @@ public class JDBCConnection extends Resource {
 		}
 	}
 
-	public void test() throws Exception {
+	public String test() throws Exception {
 		instanceMutex.acquire();
 		try {
 			open().close();
 		} finally {
 			instanceMutex.release();
 		}
+		return "Connection successful!";
 	}
 
 	public static class Metadata implements ResourceMetadata {

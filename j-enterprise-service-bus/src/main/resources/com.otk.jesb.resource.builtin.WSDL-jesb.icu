@@ -110,7 +110,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2c</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b23</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -173,7 +173,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2d</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b24</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -265,7 +265,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2e</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b25</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -349,7 +349,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a2f</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b26</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -409,7 +409,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a30</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b27</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -1096,7 +1096,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-405cc17b:19aa28dfeb1:5a31</uniqueIdentifier>
+                <uniqueIdentifier>552d3431:19aad3c7e86:5b28</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -2459,6 +2459,23 @@
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.WSDL$OperationDescriptor], fieldName=exceptionGroup]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>552d3431:19aad3c7e86:53d3</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>552d3431:19aad3c7e86:53d4</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>Encapsulation [context=FieldContext [fieldName=operationDescriptors, objectType=com.otk.jesb.resource.builtin.WSDL$ServiceSpecificationDescriptor], subContext=ListItem, encapsulatedObjectType=com.otk.jesb.resource.builtin.WSDL$OperationDescriptor]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

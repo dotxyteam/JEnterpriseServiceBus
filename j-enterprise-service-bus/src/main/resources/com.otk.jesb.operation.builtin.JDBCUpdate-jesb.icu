@@ -73,6 +73,7 @@
         <menuModel>
             <uniqueIdentifier>49810c2e:1941f18cd61:-5d50</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parametersGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -89,6 +90,7 @@
         <menuModel>
             <uniqueIdentifier>49810c2e:1941f18cd61:-4119</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parametersGroup] parametersGroup.get(), objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parametersGroup]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -227,7 +229,7 @@
             <uniqueIdentifier>49810c2e:1941f1474f4:77c5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4846</uniqueIdentifier>
+                <uniqueIdentifier>-496ba9d3:19aad5f8214:-51b</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -330,6 +332,7 @@
                     <menuModel>
                         <uniqueIdentifier>49810c2e:1941f1474f4:77b9</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -369,7 +372,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-54fb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4845</uniqueIdentifier>
+                <uniqueIdentifier>-496ba9d3:19aad5f8214:-51a</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -881,6 +884,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.JDBCUpdate$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -943,7 +947,7 @@
             <uniqueIdentifier>2e332761:1984b85e818:-7296</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customMethodCaption>Refresh</customMethodCaption>
+            <customMethodCaption>(Re)Generate</customMethodCaption>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
             <enablementStatusFieldName>parameterDefinitionAutomatic.duplicate.duplicate</enablementStatusFieldName>
@@ -958,6 +962,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parameterSettingsGroup]], fieldName=parameterDefinitionsRetrievalBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1202,6 +1207,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parameterSettingsGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1279,6 +1285,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parameterSettingsGroup]], fieldName=manualParameterDefinitionGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1321,6 +1328,7 @@
         <menuModel>
             <uniqueIdentifier>49810c2e:1941f18cd61:-5cb3</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>MethodSetupObject [context=MethodContext [methodSignature=void parametersGroup.set(CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=parametersGroup]), objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1375,6 +1383,7 @@
                     <menuModel>
                         <uniqueIdentifier>-717c9a28:198b505e916:7a08</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -1387,6 +1396,7 @@
         <menuModel>
             <uniqueIdentifier>-717c9a28:198b505e916:79fc</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.JDBCUpdate$Builder.StatementVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -1462,6 +1472,7 @@
         <menuModel>
             <uniqueIdentifier>2e332761:1984b85e818:-4e59</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCUpdate$Builder], fieldName=interfaceGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

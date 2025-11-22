@@ -1,0 +1,191 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.ReceiveRESTRequest">
+    <enabledVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </enabledVariant>
+    <openAPIDescriptionReference>
+      <assetClass>com.otk.jesb.resource.builtin.OpenAPIDescription</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>greetings</path>
+    </openAPIDescriptionReference>
+    <operationSignature>${_}.service.Greeting greetingByName(java.lang.String)</operationSignature>
+    <serverReference>
+      <assetClass>com.otk.jesb.resource.builtin.HTTPServer</assetClass>
+      <assetFilter class="null"/>
+      <newPathValidator class="null"/>
+      <path>httpServer</path>
+    </serverReference>
+    <servicePathOptionIndex>0</servicePathOptionIndex>
+  </activator>
+  <name>greetingService</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers>
+                  <com.otk.jesb.instantiation.FieldInitializer>
+                    <condition class="null"/>
+                    <fieldName>message</fieldName>
+                    <fieldValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return evaluate;</functionBody>
+                    </fieldValue>
+                  </com.otk.jesb.instantiation.FieldInitializer>
+                </fieldInitializers>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>${_}.service.Greeting</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>456</diagramX>
+      <diagramY>70</diagramY>
+      <name>insert</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
+        <connectionReference>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>database</path>
+        </connectionReference>
+        <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
+        <parameterDefinitions>
+          <com.otk.jesb.operation.builtin.JDBCOperation_-ParameterDefinition>
+            <parameterName>message</parameterName>
+            <parameterTypeName>java.lang.String</parameterTypeName>
+          </com.otk.jesb.operation.builtin.JDBCOperation_-ParameterDefinition>
+        </parameterDefinitions>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder" reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return evaluate;</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <statementVariant>
+          <constantValue class="string">INSERT INTO greeting_history(
+   insertion_date,
+   message
+) 
+VALUES(
+	current_timestamp,
+	?
+)</constantValue>
+          <valueClass>java.lang.String</valueClass>
+          <variable>false</variable>
+          <variableReferenceExpression class="null"/>
+        </statementVariant>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>236</diagramX>
+      <diagramY>77</diagramY>
+      <name>evaluate</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Evaluate$Builder">
+        <multiple>false</multiple>
+        <valueBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                <functionBody>return &quot;Hello &quot; + PLAN_INPUT.name + &quot;!&quot;;</functionBody>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Evaluate$Builder$ValueClassNameAccessor">
+            <outer-class reference="../../.."/>
+          </rootInstanceDynamicTypeNameAccessor>
+          <rootInstanceName>Value</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </valueBuilder>
+        <valueKind class="com.otk.jesb.operation.builtin.Evaluate$Builder$SimpleValueKind">
+          <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+        </valueKind>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+    </com.otk.jesb.solution.Transition>
+  </transitions>
+</com.otk.jesb.solution.Plan>

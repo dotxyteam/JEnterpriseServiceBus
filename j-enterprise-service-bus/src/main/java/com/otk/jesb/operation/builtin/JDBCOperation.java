@@ -324,7 +324,7 @@ public abstract class JDBCOperation implements Operation {
 		private class UpToDateParameterValuesClass extends UpToDate<Class<? extends ParameterValues>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
-				return computeParameterDefinitions();
+				return MiscUtils.serialize(computeParameterDefinitions());
 			}
 
 			@SuppressWarnings("unchecked")
