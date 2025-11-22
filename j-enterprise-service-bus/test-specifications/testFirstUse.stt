@@ -101,6 +101,14 @@
       </componentFinder>
       <disabled>false</disabled>
       <keyboardInteractions>
+        <xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
+          <altDown>false</altDown>
+          <altGrtDown>false</altGrtDown>
+          <ctrlDown>true</ctrlDown>
+          <keyName>KEY_A</keyName>
+          <metaDown>false</metaDown>
+          <shiftDown>false</shiftDown>
+        </xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
         <xy.ui.testing.action.component.SendKeysAction_-WriteText>
           <text>Hello world !</text>
         </xy.ui.testing.action.component.SendKeysAction_-WriteText>
@@ -412,11 +420,9 @@
       <poupTrigger>false</poupTrigger>
     </xy.ui.testing.action.component.ClickAction>
     <xy.ui.testing.action.component.SendKeysAction>
-      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
-        <componentClassName class="null"/>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JEditorPane</componentClassName>
         <occurrencesToSkip>0</occurrencesToSkip>
-        <visibleString>return &quot;&quot;;</visibleString>
-        <visibleStringInTree>false</visibleStringInTree>
         <windowIndex>2</windowIndex>
       </componentFinder>
       <disabled>false</disabled>

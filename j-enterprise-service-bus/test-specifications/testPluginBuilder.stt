@@ -474,6 +474,14 @@
       </componentFinder>
       <disabled>false</disabled>
       <keyboardInteractions>
+        <xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
+          <altDown>false</altDown>
+          <altGrtDown>false</altGrtDown>
+          <ctrlDown>true</ctrlDown>
+          <keyName>KEY_A</keyName>
+          <metaDown>false</metaDown>
+          <shiftDown>false</shiftDown>
+        </xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
         <xy.ui.testing.action.component.SendKeysAction_-WriteText>
           <text>John</text>
         </xy.ui.testing.action.component.SendKeysAction_-WriteText>
@@ -840,8 +848,14 @@ try{
 Thread.sleep(delaySeconds * 1000);   
 }catch(InterruptedException e){
 e.printStackTrace();
+return;
 }
-activationHandler.trigger(null);   
+try{
+activationHandler.trigger(null);
+}catch(Exception e){
+e.printStackTrace();
+return;
+}
 }
 }.start();</text>
         </xy.ui.testing.action.component.SendKeysAction_-WriteText>
@@ -1430,13 +1444,9 @@ activationHandler.trigger(null);
       <poupTrigger>false</poupTrigger>
     </xy.ui.testing.action.component.ClickAction>
     <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
-      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
-        <componentClassName class="null"/>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>org.jdesktop.swingx.JXTreeTable</componentClassName>
         <occurrencesToSkip>0</occurrencesToSkip>
-        <visibleString>com.otk.jesb.compiler.CompilationError: cannot find symbol
-  symbol:   variable Language
-  location: class com.example.HelloTranslator</visibleString>
-        <visibleStringInTree>false</visibleStringInTree>
         <windowIndex>2</windowIndex>
       </componentFinder>
       <disabled>false</disabled>
@@ -2507,11 +2517,9 @@ throw new IllegalStateException();
       <poupTrigger>false</poupTrigger>
     </xy.ui.testing.action.component.ClickAction>
     <xy.ui.testing.action.component.SendKeysAction>
-      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
-        <componentClassName class="null"/>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JEditorPane</componentClassName>
         <occurrencesToSkip>0</occurrencesToSkip>
-        <visibleString>return &quot;&quot;;</visibleString>
-        <visibleStringInTree>false</visibleStringInTree>
         <windowIndex>2</windowIndex>
       </componentFinder>
       <disabled>false</disabled>
