@@ -151,7 +151,7 @@ public class Debugger extends Session {
 			});
 			if (plan.getActivator().getInputClass() != null) {
 				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), eachFacade -> {
-					if(Facade.getAncestors(eachFacade).size() >= 4) {
+					if (Facade.getAncestors(eachFacade).size() >= 4) {
 						return true;
 					}
 					try {
@@ -314,10 +314,13 @@ public class Debugger extends Session {
 				@Override
 				public void afterOperation(StepCrossing stepCrossing) {
 					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
-						subPlanExecutionStack
-								.pop().executionError = (stepCrossing.getOperationError() instanceof ExecutionError)
-										? (ExecutionError) stepCrossing.getOperationError()
-										: new ExecutionError(stepCrossing.getOperationError());
+						SubPlanExecutor subPlanExecutor = subPlanExecutionStack.pop();
+						if (stepCrossing.getOperationError() != null) {
+							subPlanExecutor.executionError = (stepCrossing
+									.getOperationError() instanceof ExecutionError)
+											? (ExecutionError) stepCrossing.getOperationError()
+											: new ExecutionError(stepCrossing.getOperationError());
+						}
 					}
 					try {
 						Thread.sleep(500);

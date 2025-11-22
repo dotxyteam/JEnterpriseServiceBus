@@ -139,11 +139,9 @@ import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.ValidationSession;
 import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
-import xy.reflect.ui.info.field.ValueAsListFieldInfo;
 import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
-import xy.reflect.ui.info.filter.InfoFilterProxy;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
@@ -162,16 +160,9 @@ import xy.reflect.ui.info.type.factory.InfoProxyFactory;
 import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
-import xy.reflect.ui.info.type.iterable.item.EmbeddedItemDetailsAccessMode;
-import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
 import xy.reflect.ui.info.type.iterable.item.ItemPosition;
-import xy.reflect.ui.info.type.iterable.structure.DefaultListStructuralInfo;
-import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
 import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListAction;
-import xy.reflect.ui.info.type.iterable.util.AbstractDynamicListProperty;
-import xy.reflect.ui.info.type.iterable.util.DynamicListActionProxy;
 import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
-import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
 import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
@@ -866,6 +857,7 @@ public class GUI extends MultiSwingCustomizer {
 						}
 
 					};
+
 				}
 
 				@Override
@@ -995,7 +987,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
-			openObjectDialog(activatorComponent, new Exception(null, error), null, null, false);
+			openObjectDialog(activatorComponent, new ExceptionTree(error), null, null, false);
 		}
 
 		@Override
@@ -1003,6 +995,72 @@ public class GUI extends MultiSwingCustomizer {
 			return MiscUtils.getJESBResourceLoader();
 		}
 
+	}
+
+	public static class ExceptionTree {
+		private Throwable exception;
+
+		public ExceptionTree(Throwable exception) {
+			this.exception = exception;
+		}
+
+		public ExceptionNode[] getRoot() {
+			return new ExceptionNode[] { new ExceptionNode(null, exception) };
+		}
+
+		@Override
+		public String toString() {
+			return exception.toString();
+		}
+
+		public static class ExceptionNode {
+
+			private ExceptionNode parent;
+			private Throwable exception;
+
+			public ExceptionNode(ExceptionNode parent, Throwable exception) {
+				this.parent = parent;
+				this.exception = exception;
+			}
+
+			public Throwable getException() {
+				return exception;
+			}
+
+			public ExceptionNode[] getChild() {
+				if (exception.getCause() == null) {
+					return null;
+				}
+				return new ExceptionNode[] { new ExceptionNode(this, exception.getCause()) };
+			}
+
+			public void printStackTrace() {
+				Log.get().error(exception);
+			}
+
+			public StackTraceElement[] getStackTrace() {
+				return exception.getStackTrace();
+			}
+
+			private List<ExceptionNode> listtAncestors() {
+				List<ExceptionNode> result = new ArrayList<GUI.ExceptionTree.ExceptionNode>();
+				if (parent != null) {
+					result.add(parent);
+					result.addAll(parent.listtAncestors());
+				}
+				return result;
+			}
+
+			@Override
+			public String toString() {
+				List<ExceptionNode> similarAncestors = listtAncestors().stream()
+						.filter(node -> node.getException().getClass() == exception.getClass())
+						.collect(Collectors.toList());
+				return ReflectionUIUtils.identifierToCaption(exception.getClass().getSimpleName())
+						+ ((similarAncestors.size() > 0) ? (" [" + similarAncestors.size() + "]") : "");
+			}
+
+		}
 	}
 
 	private class JESBSubCustomizedUI extends SubCustomizedUI {
@@ -1630,13 +1688,16 @@ public class GUI extends MultiSwingCustomizer {
 								}
 							});
 						}
-						if ((singleSelection != null) && singleSelection.getItem() instanceof Transition) {
+						if ((singleSelection != null) && singleSelection.getItem() instanceof Transition)
+
+						{
 							Transition currentTransition = (Transition) singleSelection.getItem();
 							result.add(getTransitionTransferAction(currentTransition, true, plan));
 							result.add(getTransitionTransferAction(currentTransition, false, plan));
 						}
 					}
 					return result;
+
 				}
 
 				IDynamicListAction getTransitionTransferAction(Transition transition, boolean startElseEnd, Plan plan) {
@@ -1738,9 +1799,6 @@ public class GUI extends MultiSwingCustomizer {
 				protected String toString(ITypeInfo type, Object object) {
 					if (object instanceof OperationMetadata) {
 						return ((OperationMetadata<?>) object).getOperationTypeName();
-					}
-					if (object instanceof Throwable) {
-						return object.toString();
 					}
 					return super.toString(type, object);
 				}
@@ -1900,191 +1958,6 @@ public class GUI extends MultiSwingCustomizer {
 
 						});
 						return result;
-					} else if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
-						List<IFieldInfo> result = new ArrayList<IFieldInfo>();
-						for (IFieldInfo field : baseResult) {
-							if (field.getName().equals("cause")) {
-								field = new ValueAsListFieldInfo(JESBSubCustomizedUI.this, field, type) {
-
-									@Override
-									public String getCaption() {
-										return "Cause(s)";
-									}
-
-									@Override
-									public boolean isRelevant(Object object) {
-										return getValue(object) != null;
-									}
-
-									@Override
-									public double getDisplayAreaVerticalWeight() {
-										return 1.0;
-									}
-
-									@Override
-									public boolean isDisplayAreaVerticallyFilled() {
-										return true;
-									}
-
-									@Override
-									protected IListTypeInfo createListType() {
-										return new ListTypeInfo() {
-											@Override
-											public IListItemDetailsAccessMode getDetailsAccessMode() {
-												return new EmbeddedItemDetailsAccessMode();
-											}
-
-											@Override
-											public List<IDynamicListProperty> getDynamicProperties(
-													List<? extends ItemPosition> selection,
-													Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
-												List<IDynamicListProperty> result = new ArrayList<IDynamicListProperty>(
-														super.getDynamicProperties(selection,
-																listModificationFactoryAccessor));
-												result.add(new AbstractDynamicListProperty() {
-
-													@Override
-													public String getName() {
-														return "stackTrace";
-													}
-
-													@Override
-													public String getCaption() {
-														return "Show Stack Trace";
-													}
-
-													@Override
-													public void setValue(Object object, Object value) {
-														throw new UnsupportedOperationException();
-													}
-
-													@Override
-													public boolean isGetOnly() {
-														return true;
-													}
-
-													@Override
-													public boolean isEnabled() {
-														return selection.size() == 1;
-													}
-
-													@Override
-													public Object getValue(Object object) {
-														return ((Throwable) selection.get(0).getItem()).getStackTrace();
-													}
-
-													@Override
-													public ITypeInfo getType() {
-														return JESBSubCustomizedUI.this.getTypeInfo(
-																new JavaTypeInfoSource(StackTraceElement[].class,
-																		null));
-													}
-
-													@Override
-													public DisplayMode getDisplayMode() {
-														return DisplayMode.CONTEXT_MENU;
-													}
-												});
-												return result;
-											}
-
-											@Override
-											public List<IDynamicListAction> getDynamicActions(
-													List<? extends ItemPosition> selection,
-													Mapper<ItemPosition, ListModificationFactory> listModificationFactoryAccessor) {
-												List<IDynamicListAction> result = new ArrayList<IDynamicListAction>(
-														super.getDynamicActions(selection,
-																listModificationFactoryAccessor));
-												result.add(new DynamicListActionProxy(
-														IDynamicListAction.NULL_DYNAMIC_LIST_ACTION) {
-													@Override
-													public String getSignature() {
-														return ReflectionUIUtils.buildMethodSignature(this);
-													}
-
-													@Override
-													public String getName() {
-														return "printStackTrace";
-													}
-
-													@Override
-													public String getCaption() {
-														return "Print Stack Trace";
-													}
-
-													@Override
-													public ITypeInfo getReturnValueType() {
-														return null;
-													}
-
-													@Override
-													public boolean isEnabled(Object object) {
-														return selection.size() == 1;
-													}
-
-													@Override
-													public DisplayMode getDisplayMode() {
-														return DisplayMode.CONTEXT_MENU;
-													}
-
-													@Override
-													public Object invoke(Object object, InvocationData invocationData) {
-														Log.get().error(((Throwable) selection.get(0).getItem()));
-														return null;
-													}
-												});
-												return result;
-											}
-
-											@Override
-											public IListStructuralInfo getStructuralInfo() {
-												return new DefaultListStructuralInfo(reflectionUI) {
-
-													@Override
-													public IFieldInfo getItemSubListField(ItemPosition itemPosition) {
-														return ReflectionUIUtils.findInfoByName(reflectionUI
-																.getTypeInfo(reflectionUI
-																		.getTypeInfoSource(itemPosition.getItem()))
-																.getFields(), "cause");
-													}
-
-													@Override
-													public IInfoFilter getItemDetailsInfoFilter(
-															ItemPosition itemPosition) {
-														return new InfoFilterProxy(
-																super.getItemDetailsInfoFilter(itemPosition)) {
-
-															@Override
-															public IFieldInfo apply(IFieldInfo field) {
-																if (field.getName().equals("cause")) {
-																	field = null;
-																}
-																return field;
-															}
-
-															@Override
-															public IMethodInfo apply(IMethodInfo method) {
-																return method;
-															}
-
-														};
-													}
-
-													@Override
-													public int getHeight() {
-														return 200;
-													}
-
-												};
-											}
-										};
-									}
-
-								};
-							}
-							result.add(field);
-						}
-						return result;
 					} else if (type.getName().equals(Plan.class.getName())) {
 						List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
@@ -2180,6 +2053,7 @@ public class GUI extends MultiSwingCustomizer {
 					{
 						List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
 							@Override
 							public String getName() {
 								return "diagram";
@@ -2271,6 +2145,7 @@ public class GUI extends MultiSwingCustomizer {
 					} else if (type.getName().equals(ListItemReplicationFacade.class.getName())) {
 						List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
 							@Override
 							public String getName() {
 								return "inferredIterationVariableTypeName";
@@ -2666,7 +2541,7 @@ public class GUI extends MultiSwingCustomizer {
 						objectClass = null;
 					}
 					if ((objectClass != null) && Throwable.class.isAssignableFrom(objectClass)) {
-						if (!field.getName().equals("message") && !field.getName().equals("cause")) {
+						if (!field.getName().equals("message")) {
 							for (IFieldInfo throwableField : ReflectionUI.getDefault()
 									.getTypeInfo(new JavaTypeInfoSource(Throwable.class, null)).getFields()) {
 								if (field.getName().equals(throwableField.getName())) {
@@ -2827,18 +2702,6 @@ public class GUI extends MultiSwingCustomizer {
 						}
 					}
 					return super.isRelevant(field, object, objectType);
-				}
-
-				@Override
-				protected boolean isModificationStackAccessible(ITypeInfo type) {
-					try {
-						Class<?> objectClass = MiscUtils.getJESBClass(type.getName());
-						if (Throwable.class.isAssignableFrom(objectClass)) {
-							return false;
-						}
-					} catch (Exception e) {
-					}
-					return super.isModificationStackAccessible(type);
 				}
 
 				@Override

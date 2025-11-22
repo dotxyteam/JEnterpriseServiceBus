@@ -255,18 +255,11 @@ public class Plan extends Asset {
 		for (Step firstStep : firstSteps) {
 			context.getVariables().clear();
 			context.getVariables().addAll(initialVariables);
-			continueExecution(firstStep, true, context, executionInspector);
-			context.getVariables().forEach(variable -> {
-				if (!allVariables.contains(variable)) {
-					allVariables.add(variable);
-				}
-			});
+			continueExecution(firstStep, true, context, allVariables, executionInspector);
 		}
-		context.getVariables().clear();
-		context.getVariables().addAll(allVariables);
 		List<Step> lastSteps = findLastSteps(steps);
 		List<StepOccurrence> lastStepOccurrences = lastSteps.stream()
-				.map(lastStep -> findStepOccurrence(lastStep, context)).collect(Collectors.toList());
+				.map(lastStep -> findStepOccurrence(lastStep, allVariables)).collect(Collectors.toList());
 		if (lastStepOccurrences.contains(null)) {
 			throw new UnexpectedError();
 		}
@@ -276,7 +269,8 @@ public class Plan extends Asset {
 	}
 
 	private void continueExecution(Step fromStep, boolean executionBranchValid, ExecutionContext context,
-			ExecutionInspector executionInspector) throws ExecutionError {
+			List<Variable> allTakenExecutionPathVariables, ExecutionInspector executionInspector)
+			throws ExecutionError {
 		if (executionInspector.isExecutionInterrupted()) {
 			return;
 		}
@@ -284,14 +278,18 @@ public class Plan extends Asset {
 				.filter(transition -> (transition.getStartStep() == fromStep)).collect(Collectors.toList());
 		StepOccurrence currentStepOccurrence = execute(fromStep, outgoingTransitions, executionBranchValid, context,
 				executionInspector);
+		allTakenExecutionPathVariables.add(currentStepOccurrence);
 		final int TRANSITION_NOT_REACHED = 0;
 		final int TRANSITION_REACHED_THROUGH_VALID_BRANCH = 1;
 		final int TRANSITION_REACHED_THROUGH_INVALID_BRANCH = 2;
-		List<Variable> finalVariables = new ArrayList<Variable>(context.getVariables());
 		for (Transition outgoingTransition : outgoingTransitions) {
-			boolean endStepAlreadyExecuted = context.getVariables().stream()
+			boolean endStepAlreadyExecuted = allTakenExecutionPathVariables.stream()
 					.anyMatch(variable -> variable.getName().equals(outgoingTransition.getEndStep().getName()));
 			if (endStepAlreadyExecuted) {
+				/*
+				 * It occurs when the end step is also in a path starting from a preceding
+				 * sibling outgoing transition.
+				 */
 				continue;
 			}
 			List<Transition> convergentTransitions = transitions.stream()
@@ -301,7 +299,7 @@ public class Plan extends Asset {
 			Map<Transition, Integer> statusByConvergentTransition = new HashMap<Transition, Integer>();
 			for (Transition convergentTransition : convergentTransitions) {
 				int convergentTransitionStatus = TRANSITION_NOT_REACHED;
-				for (Variable variable : context.getVariables()) {
+				for (Variable variable : allTakenExecutionPathVariables) {
 					if ((variable instanceof StepOccurrence)
 							&& (((StepOccurrence) variable).getStep() == convergentTransition.getStartStep())) {
 						if (variable instanceof StepCrossing) {
@@ -319,7 +317,8 @@ public class Plan extends Asset {
 			boolean readyForNextStep = !statusByConvergentTransition.containsValue(TRANSITION_NOT_REACHED);
 			if (readyForNextStep) {
 				List<StepOccurrence> startStepOccurrences = convergentTransitions.stream()
-						.map(convergentTransition -> findStepOccurrence(convergentTransition.getStartStep(), context))
+						.map(convergentTransition -> findStepOccurrence(convergentTransition.getStartStep(),
+								allTakenExecutionPathVariables))
 						.collect(Collectors.toList());
 				if (startStepOccurrences.contains(null)) {
 					throw new UnexpectedError();
@@ -358,16 +357,14 @@ public class Plan extends Asset {
 									.contains(convergentTransition);
 						});
 				continueExecution(outgoingTransition.getEndStep(), futureExecutionBranchValid, context,
-						executionInspector);
+						allTakenExecutionPathVariables, executionInspector);
 			}
 			context.getVariables().forEach(variable -> {
-				if (!finalVariables.contains(variable)) {
-					finalVariables.add(variable);
+				if (!allTakenExecutionPathVariables.contains(variable)) {
+					allTakenExecutionPathVariables.add(variable);
 				}
 			});
 		}
-		context.getVariables().clear();
-		context.getVariables().addAll(finalVariables);
 	}
 
 	private List<Variable> mergeStepOccurrenceVariables(List<StepOccurrence> stepOccurrences) {
@@ -382,8 +379,8 @@ public class Plan extends Asset {
 		return result;
 	}
 
-	private StepOccurrence findStepOccurrence(Step step, ExecutionContext context) {
-		for (Variable variable : context.getVariables()) {
+	private StepOccurrence findStepOccurrence(Step step, List<Variable> variables) {
+		for (Variable variable : variables) {
 			if ((variable instanceof StepOccurrence) && (((StepOccurrence) variable).getStep() == step)) {
 				return (StepOccurrence) variable;
 			}

@@ -32,6 +32,70 @@ import com.otk.jesb.util.DuplicatedInputStreamSource;
  */
 public class JESB {
 
+	public static final String DEBUG_PROPERTY_KEY = JESB.class.getPackage().getName() + ".debug";
+
+	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
+	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
+	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
+	private static final String HELP_OPTION_ARGUMENT = "help";
+
+	private static PrintStream standardOutput = System.out;
+	private static PrintStream standardError = System.err;
+	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
+	private static Runner runner;
+
+	public static PrintStream getStandardOutput() {
+		return JESB.standardOutput;
+	}
+
+	public static void setStandardOutput(PrintStream standardOutput) {
+		JESB.standardOutput = standardOutput;
+	}
+
+	public static PrintStream getStandardError() {
+		return JESB.standardError;
+	}
+
+	public static void setStandardError(PrintStream standardError) {
+		JESB.standardError = standardError;
+	}
+
+	public static DuplicatedInputStreamSource getStandardInputSource() {
+		return JESB.standardInputSource;
+	}
+
+	public static void setStandardInputSource(DuplicatedInputStreamSource standardInputSource) {
+		JESB.standardInputSource = standardInputSource;
+	}
+
+	public static boolean isDebugModeActive() {
+		return Boolean.valueOf(System.getProperty(DEBUG_PROPERTY_KEY, Boolean.FALSE.toString()));
+	}
+
+	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {
+		return new IllegalArgumentException("Unexpected arguments: " + Arrays.toString(args) + "\n" + "Expected:"
+				+ getCommandLineSyntax("", options), e);
+	}
+
+	private static String getCommandLineSyntax(String executableName, Options options) {
+		HelpFormatter helpFormatter = HelpFormatter.builder().get();
+		String syntax = executableName + " --help | [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] "
+				+ helpFormatter.toSyntaxOptions(options) + "]";
+		String optionDescriptions = "\t* DIRECTORY_PATH: The path to a solution directory to load" + "\n"
+				+ "\tARCHIVE_FILE_PATH: The path to a solution archive file to load\n"
+				+ options.getOptions().stream()
+						.map(option -> "\t* "
+								+ ((option.getArgName() != null) ? option.getArgName() : ("--" + option.getLongOpt()))
+								+ ": " + option.getDescription())
+						.collect(Collectors.joining("\n"));
+		return syntax + "\n" + optionDescriptions;
+	}
+
+	private static void setupSampleSolution() {
+		Plan plan = new Plan("Sample");
+		Solution.INSTANCE.getContents().add(plan);
+	}
+
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
 		options.addOption(Option.builder().longOpt(RUNNER_SWITCH_ARGUMENT).desc("Only execute the solution").get());
@@ -91,8 +155,8 @@ public class JESB {
 		} else {
 			Log.set(Console.DEFAULT);
 			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
-			standardOutput = Console.DEFAULT.getPrintStream(System.out, null, null, null, () -> true);
-			standardError = Console.DEFAULT.getPrintStream(System.err, null, null, null, () -> true);
+			setStandardOutput(Console.DEFAULT.getPrintStream(System.out, null, null, null, () -> true));
+			setStandardError(Console.DEFAULT.getPrintStream(System.err, null, null, null, () -> true));
 			System.setOut(Console.DEFAULT.getPrintStream(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
 					Log.getVerbosityStatusSupplier()));
 			System.setErr(Console.DEFAULT.getPrintStream(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
@@ -143,58 +207,6 @@ public class JESB {
 				}
 			});
 		}
-	}
-
-	public static final String DEBUG_PROPERTY_KEY = JESB.class.getPackage().getName() + ".debug";
-
-	private static final String RUNNER_SWITCH_ARGUMENT = "run-solution";
-	private static final String ENVIRONMENT_SETTINGS_OPTION_ARGUMENT = "env-settings";
-	private static final String SYSTEM_PROPERTIES_DEFINITION_ARGUMENT = "define";
-	private static final String HELP_OPTION_ARGUMENT = "help";
-
-	private static PrintStream standardOutput = System.out;
-	private static PrintStream standardError = System.err;
-	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
-	private static Runner runner;
-
-	public static PrintStream getStandardOutput() {
-		return standardOutput;
-	}
-
-	public static PrintStream getStandardError() {
-		return standardError;
-	}
-
-	public static DuplicatedInputStreamSource getStandardInputSource() {
-		return standardInputSource;
-	}
-
-	public static boolean isDebugModeActive() {
-		return Boolean.valueOf(System.getProperty(DEBUG_PROPERTY_KEY, Boolean.FALSE.toString()));
-	}
-
-	private static IllegalArgumentException newIllegalArgumentException(Exception e, String[] args, Options options) {
-		return new IllegalArgumentException("Unexpected arguments: " + Arrays.toString(args) + "\n" + "Expected:"
-				+ getCommandLineSyntax("", options), e);
-	}
-
-	private static String getCommandLineSyntax(String executableName, Options options) {
-		HelpFormatter helpFormatter = HelpFormatter.builder().get();
-		String syntax = executableName + " --help | [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] "
-				+ helpFormatter.toSyntaxOptions(options) + "]";
-		String optionDescriptions = "\t* DIRECTORY_PATH: The path to a solution directory to load" + "\n"
-				+ "\tARCHIVE_FILE_PATH: The path to a solution archive file to load\n"
-				+ options.getOptions().stream()
-						.map(option -> "\t* "
-								+ ((option.getArgName() != null) ? option.getArgName() : ("--" + option.getLongOpt()))
-								+ ": " + option.getDescription())
-						.collect(Collectors.joining("\n"));
-		return syntax + "\n" + optionDescriptions;
-	}
-
-	private static void setupSampleSolution() {
-		Plan plan = new Plan("Sample");
-		Solution.INSTANCE.getContents().add(plan);
 	}
 
 }
