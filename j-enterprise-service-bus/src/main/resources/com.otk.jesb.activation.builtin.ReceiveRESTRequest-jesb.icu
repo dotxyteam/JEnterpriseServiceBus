@@ -360,6 +360,11 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <formWidth>
+            <uniqueIdentifier>3326f9bd:19ab03686ad:-5ef6</uniqueIdentifier>
+            <unit>PIXELS</unit>
+            <value>600</value>
+        </formWidth>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>-3df525ef:1983c23913f:46cf</uniqueIdentifier>
