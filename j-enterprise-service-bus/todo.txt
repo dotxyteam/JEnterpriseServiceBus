@@ -20,6 +20,10 @@
 	discovered during the feature addition process.
 - documentation:
 	. manual
+- allow to use the JESB API to access the current execution context and perform some actions
+- add ExecutePlan.fork option ???
+- add an ExecutePlan option to dynamically select the target plan
+(maybe allow to do it via the JESB API)
 - harmonize http request paths automatically
 - allow to provide Structure.SimpleElement.customTypeName 
 (same for Evaluate$SimpleValueKind)   
