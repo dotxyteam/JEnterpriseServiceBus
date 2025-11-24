@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.otk.jesb.UnexpectedError;
 
@@ -139,7 +140,7 @@ public class CommandExecutor {
 	}
 
 	public boolean waitForProcessEnd(long timeout, TimeUnit unit) throws InterruptedException {
-		if (timeout < 0) {
+		if (timeout <= 0) {
 			process.waitFor();
 			return true;
 		} else {
@@ -195,52 +196,51 @@ public class CommandExecutor {
 	}
 
 	public static Process run(final String commandLine, boolean synchronous, final OutputStream outReceiver,
-			final OutputStream errReceiver, File workingDir, long timeout, TimeUnit timeoutUnit) throws IOException {
+			final OutputStream errReceiver, File workingDir, long timeout, TimeUnit timeoutUnit)
+			throws IOException, TimeoutException {
 		CommandExecutor commandExecutor = new CommandExecutor(commandLine);
 		commandExecutor.setProcessOutputRedirectedTo(outReceiver);
 		commandExecutor.setProcessErrorRedirectedTo(errReceiver);
 		commandExecutor.setWorkingDir(workingDir);
 		commandExecutor.startProcess();
-		boolean timedOut = false;
+		final boolean[] timedOut = new boolean[] { false };
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {
+						commandExecutor.killProcess();
+						timedOut[0] = true;
+					}
+				} catch (InterruptedException e) {
+					commandExecutor.killProcess();
+				} finally {
+					commandExecutor.disconnectProcess();
+				}
+			}
+		};
 		if (synchronous) {
 			commandExecutor.destroyProcessOnExit();
-			try {
-				if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {
-					timedOut = true;
-					commandExecutor.killProcess();
-				}
-			} catch (InterruptedException e) {
-				commandExecutor.killProcess();
-			} finally {
-				commandExecutor.disconnectProcess();
+			runnable.run();
+			if (timedOut[0]) {
+				throw new TimeoutException();
 			}
 		} else {
-			if (timeout != 0) {
-				new Thread("ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
+			if (timeout > 0) {
+				new Thread(runnable, "ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
 					{
 						setDaemon(true);
-					}
-
-					@Override
-					public void run() {
-						try {
-							commandExecutor.waitForProcessEnd(timeout, timeoutUnit);
-						} catch (InterruptedException e) {
-							throw new UnexpectedError(e);
-						} finally {
-							commandExecutor.disconnectProcess();
-						}
 					}
 				}.start();
 			} else {
 				commandExecutor.disconnectProcess();
 			}
 		}
-		return timedOut ? null : commandExecutor.getLaunchedProcess();
+		return commandExecutor.getLaunchedProcess();
 	}
 
 	public static Process run(final String command, boolean wait, final OutputStream outReceiver,
-			final OutputStream errReceiver) throws IOException {
+			final OutputStream errReceiver) throws IOException, TimeoutException {
 		return run(command, wait, outReceiver, errReceiver, null, 0, null);
 	}
 

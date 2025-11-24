@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.ValidationError;
@@ -73,10 +74,15 @@ public class ExecuteCommand implements Operation {
 		ByteArrayOutputStream errReceiver = runAsynchronously ? null : new ByteArrayOutputStream();
 		String commandLine = CommandExecutor.quoteArgument(executable) + " "
 				+ Arrays.stream(arguments).map(CommandExecutor::quoteArgument).collect(Collectors.joining(" "));
-		Process process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
-				new File(workingDirectoryPath),
-				(timeoutMilliseconds != null) ? timeoutMilliseconds : (runAsynchronously ? 0 : -1),
-				TimeUnit.MILLISECONDS);
+		Process process;
+		try {
+			process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
+					new File(workingDirectoryPath),
+					(timeoutMilliseconds != null) ? timeoutMilliseconds : (runAsynchronously ? 0 : -1),
+					TimeUnit.MILLISECONDS);
+		} catch (TimeoutException e) {
+			process = null;
+		}
 		boolean timedOut = (process == null);
 		return runAsynchronously ? null
 				: new CommandResult(timedOut ? null : process.exitValue(), outReceiver.toString(),
@@ -116,8 +122,8 @@ public class ExecuteCommand implements Operation {
 
 	public static class Builder implements OperationBuilder<ExecuteCommand> {
 
-		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				ExecuteCommand.class.getSimpleName() + "Input", ExecuteCommand.class.getName());
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder("CommandInput",
+				ExecuteCommand.class.getName());
 		private boolean runAsynchronously = false;
 
 		public RootInstanceBuilder getInstanceBuilder() {

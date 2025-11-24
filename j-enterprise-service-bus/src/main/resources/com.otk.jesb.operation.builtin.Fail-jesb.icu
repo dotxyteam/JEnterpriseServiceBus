@@ -20,6 +20,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-21f0b112:19a86e7de25:-485e</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:521d</uniqueIdentifier>
+                <caption>Exception</caption>
+                <name>exception</name>
+            </category>
+            <categoryCaption>exception</categoryCaption>
+            <categoryName>exception</categoryName>
             <hidden>false</hidden>
             <customFieldCaption>Constructor</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -48,6 +55,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-7afcaa81:198b1e859cd:4ecb</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:521e</uniqueIdentifier>
+                <caption>Input</caption>
+                <name>input</name>
+            </category>
+            <categoryCaption>input</categoryCaption>
+            <categoryName>input</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -76,8 +90,15 @@
         <fieldsCustomization>
             <uniqueIdentifier>-ecff956:198b2535732:4f64</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:521f</uniqueIdentifier>
+                <caption>Exception</caption>
+                <name>exception</name>
+            </category>
+            <categoryCaption>exception</categoryCaption>
+            <categoryName>exception</categoryName>
             <hidden>false</hidden>
-            <customFieldCaption>Exception Class</customFieldCaption>
+            <customFieldCaption>Class</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>exceptionClassName</fieldName>
@@ -104,6 +125,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-ecff956:198b2535732:4f69</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:5220</uniqueIdentifier>
+                <caption>Exception</caption>
+                <name>exception</name>
+            </category>
+            <categoryCaption>exception</categoryCaption>
+            <categoryName>exception</categoryName>
             <hidden>false</hidden>
             <customFieldCaption>Constructor</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -139,6 +167,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-ecff956:198b2535732:4f6e</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:5221</uniqueIdentifier>
+                <caption>Exception</caption>
+                <name>exception</name>
+            </category>
+            <categoryCaption>exception</categoryCaption>
+            <categoryName>exception</categoryName>
             <hidden>false</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
@@ -167,6 +202,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>72d24e4e:198af40f699:4d59</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>4392c485:19ab77c5aa9:5222</uniqueIdentifier>
+                <caption>Input</caption>
+                <name>input</name>
+            </category>
+            <categoryCaption>input</categoryCaption>
+            <categoryName>input</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -193,6 +235,16 @@
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>4392c485:19ab77c5aa9:-5cf9</uniqueIdentifier>
+            <caption>Exception</caption>
+            <name>exception</name>
+        </memberCategory>
+        <memberCategory>
+            <uniqueIdentifier>4392c485:19ab77c5aa9:-5cec</uniqueIdentifier>
+            <caption>Input</caption>
+            <name>input</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>72d24e4e:198af40f699:4d00</uniqueIdentifier>
         </menuModel>

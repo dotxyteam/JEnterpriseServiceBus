@@ -13,36 +13,15 @@
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
         <fieldsCustomization>
-            <uniqueIdentifier>4ed005a4:198bede7bfb:514d</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customFieldCaption>Asynchronously</customFieldCaption>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>runAsynchronously</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>4ed005a4:198bede7bfb:514f</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>4ed005a4:198bede7bfb:514e</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
             <uniqueIdentifier>4ed005a4:198bede7bfb:5152</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>759e392d:19ab721879e:-5070</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -68,10 +47,51 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>4ed005a4:198bede7bfb:514d</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>759e392d:19ab721879e:-506f</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
+            <hidden>false</hidden>
+            <customFieldCaption>Asynchronously</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>runAsynchronously</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>4ed005a4:198bede7bfb:514f</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>4ed005a4:198bede7bfb:514e</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>759e392d:19ab721879e:-5b33</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>4ed005a4:198bede7bfb:4f4a</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.ExecuteCommand$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
