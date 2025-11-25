@@ -15,6 +15,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>574a060d:198b7812faa:2b94</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>148be5cc:19abc663a80:585a</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -42,9 +49,15 @@
         </fieldsCustomization>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>148be5cc:19abc663a80:4ccd</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>574a060d:198b7812faa:2445</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.DeleteFileOrDirectory$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

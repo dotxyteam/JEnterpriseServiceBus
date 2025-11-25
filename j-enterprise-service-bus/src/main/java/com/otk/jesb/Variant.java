@@ -79,8 +79,8 @@ public class Variant<T> {
 		if (variable) {
 			requireExpression();
 			String valueString = expression.evaluate(
-					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION),
-					Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT));
+					Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION),
+					Collections.singletonList(EnvironmentSettings.ROOT_VARIABLE_ROOT));
 			if (valueString == null) {
 				if (valueClass.isPrimitive()) {
 					throw new PotentialError("Unexpected <null> environment variable value. <" + valueClass.getName()
@@ -118,7 +118,7 @@ public class Variant<T> {
 	public List<Expression<String>> getVariableReferenceExpressionOptions() {
 		List<Expression<String>> result = new ArrayList<Expression<String>>();
 		PathOptionsProvider pathOptionsProvider = new PathOptionsProvider(
-				Collections.singletonList(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION));
+				Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION));
 		result.addAll(getVariableReferenceExpressionOptions(pathOptionsProvider.getRootPathNodes()));
 		return result;
 	}

@@ -1,6 +1,11 @@
 - strategy: 
 	. focus on an original main feature and make it work
 	. implement quickly and minimally all the other features
+		* bug-fixes, new features or refactorings that are risky (time-consuming,
+		difficult to test and stabilize) must be circumvented using simple/quick
+		solutions and postponed.
+		* small features that are easy and quick to implement but bring a lot of 
+		value (by adding use cases, ..) must be implemented.
 	. release a first version
 	. advertise
 	. improve the features

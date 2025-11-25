@@ -209,7 +209,7 @@ public class Plan extends Asset {
 		try {
 			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
 				synchronized (context) {
-					context.getVariables().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT);
+					context.getVariables().add(EnvironmentSettings.ROOT_VARIABLE_ROOT);
 				}
 			}
 			Class<?> inputClass = activator.getInputClass();
@@ -480,7 +480,7 @@ public class Plan extends Asset {
 		} else {
 			result = new ValidationContext(this, currentStep);
 			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
-				result.getVariableDeclarations().add(EnvironmentSettings.ENVIRONMENT_VARIABLES_ROOT_DECLARATION);
+				result.getVariableDeclarations().add(EnvironmentSettings.ROOT_VALUE_DECLARATION);
 			}
 			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {

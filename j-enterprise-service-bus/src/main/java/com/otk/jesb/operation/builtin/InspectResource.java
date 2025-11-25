@@ -1,5 +1,6 @@
 package com.otk.jesb.operation.builtin;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -40,16 +41,36 @@ public class InspectResource implements Operation {
 		String name = nioPath.getFileName().toString();
 		boolean existing = Files.exists(nioPath, LinkOption.NOFOLLOW_LINKS);
 		WatchFileSystem.ResourceKind resourceKind = existing ? WatchFileSystem.ResourceKind.get(nioPath) : null;
-		String owner = existing ? Files.getOwner(nioPath, LinkOption.NOFOLLOW_LINKS).getName() : null;
+		String owner;
+		try {
+			owner = existing ? Files.getOwner(nioPath, LinkOption.NOFOLLOW_LINKS).getName() : null;
+		} catch (UnsupportedOperationException | IOException e) {
+			owner = null;
+		}
 		boolean readable = existing ? Files.isReadable(nioPath) : false;
 		boolean writable = existing ? Files.isWritable(nioPath) : false;
 		boolean executable = existing ? Files.isExecutable(nioPath) : false;
-		boolean hidden = existing ? Files.isHidden(nioPath) : false;
+		boolean hidden;
+		try {
+			hidden = existing ? Files.isHidden(nioPath) : false;
+		} catch (IOException e) {
+			hidden = false;
+		}
 		boolean symbolicLink = existing ? Files.isSymbolicLink(nioPath) : false;
-		String fileStoreName = existing ? Files.getFileStore(nioPath).name() : null;
-		Date lastModificationTimestamp = existing
-				? new Date(Files.getLastModifiedTime(nioPath, LinkOption.NOFOLLOW_LINKS).toMillis())
-				: null;
+		String fileStoreName;
+		try {
+			fileStoreName = existing ? Files.getFileStore(nioPath).name() : null;
+		} catch (IOException e) {
+			fileStoreName = null;
+		}
+		Date lastModificationTimestamp;
+		try {
+			lastModificationTimestamp = existing
+					? new Date(Files.getLastModifiedTime(nioPath, LinkOption.NOFOLLOW_LINKS).toMillis())
+					: null;
+		} catch (IOException e) {
+			lastModificationTimestamp = null;
+		}
 		return new PathInpectionResult(absolutePath, name, existing, resourceKind, owner, readable, writable,
 				executable, hidden, symbolicLink, fileStoreName, lastModificationTimestamp);
 	}

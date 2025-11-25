@@ -15,6 +15,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>4cdfb0d4:198b92e287a:5165</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>791dfe90:19abc48a912:-5573</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -42,9 +49,15 @@
         </fieldsCustomization>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>791dfe90:19abc48a912:-5a62</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>4cdfb0d4:198b92e287a:5102</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.CreateDirectory$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

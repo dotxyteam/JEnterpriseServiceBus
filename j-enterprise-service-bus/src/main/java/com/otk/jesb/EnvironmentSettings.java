@@ -38,7 +38,7 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
  */
 public class EnvironmentSettings {
 
-	public static final VariableDeclaration ENVIRONMENT_VARIABLES_ROOT_DECLARATION = new VariableDeclaration() {
+	public static final VariableDeclaration ROOT_VALUE_DECLARATION = new VariableDeclaration() {
 		@Override
 		public String getVariableName() {
 			return "ENVIRONMENT";
@@ -46,30 +46,30 @@ public class EnvironmentSettings {
 
 		@Override
 		public Class<?> getVariableType() {
-			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRootClass();
+			return Solution.INSTANCE.getEnvironmentSettings().getRootValueClass();
 		}
 
 	};
 
-	public static final Variable ENVIRONMENT_VARIABLES_ROOT = new Variable() {
+	public static final Variable ROOT_VARIABLE_ROOT = new Variable() {
 
 		@Override
 		public String getName() {
-			return ENVIRONMENT_VARIABLES_ROOT_DECLARATION.getVariableName();
+			return ROOT_VALUE_DECLARATION.getVariableName();
 		}
 
 		@Override
 		public Object getValue() {
-			return Solution.INSTANCE.getEnvironmentSettings().getVariablesRoot();
+			return Solution.INSTANCE.getEnvironmentSettings().getRootValue();
 		}
 
 	};
 
 	private List<EnvironmentVariableTreeElement> environmentVariableTreeElements = new ArrayList<EnvironmentSettings.EnvironmentVariableTreeElement>();
 
-	private UpToDate<Class<?>> upToDateVariablesRootClass = new UpToDateVariablesRootClass();
+	private UpToDate<Class<?>> upToDateRootValueClass = new UpToDateRootValueClass();
 
-	private UpToDate<Object> upToDateVariablesRoot = new UpToDateVariablesRoot();
+	private UpToDate<Object> upToDateRootValue = new UpToDateRootValue();
 
 	public List<EnvironmentVariableTreeElement> getEnvironmentVariableTreeElements() {
 		return environmentVariableTreeElements;
@@ -80,23 +80,23 @@ public class EnvironmentSettings {
 		this.environmentVariableTreeElements = environmentVariableTreeElements;
 	}
 
-	public Object getVariablesRoot() {
+	public Object getRootValue() {
 		try {
-			return upToDateVariablesRoot.get();
+			return upToDateRootValue.get();
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public Class<?> getVariablesRootClass() {
+	public Class<?> getRootValueClass() {
 		try {
-			return upToDateVariablesRootClass.get();
+			return upToDateRootValueClass.get();
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	private ClassicStructure getVariablesRootStructure() {
+	private ClassicStructure getRootValueStructure() {
 		ClassicStructure result = new ClassicStructure();
 		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {
 			result.getElements().add(toStructure(element));
@@ -104,8 +104,8 @@ public class EnvironmentSettings {
 		return result;
 	}
 
-	private RootInstanceBuilder getVariablesRootBuilder() {
-		RootInstanceBuilder result = new RootInstanceBuilder("VariablesRoot", new VariableRootClassNameAccessor());
+	private RootInstanceBuilder getRootValueBuilder() {
+		RootInstanceBuilder result = new RootInstanceBuilder("Root", new VariableRootClassNameAccessor());
 		ParameterInitializerFacade rootInitializerFacade = (ParameterInitializerFacade) result.getFacade().getChildren()
 				.get(0);
 		rootInitializerFacade.setConcrete(true);
@@ -229,7 +229,7 @@ public class EnvironmentSettings {
 
 	public void validate() throws ValidationError {
 		try {
-			upToDateVariablesRoot.get();
+			upToDateRootValue.get();
 		} catch (VersionAccessException e) {
 			throw new ValidationError("Failed to validate environment variables", e);
 		}
@@ -240,7 +240,7 @@ public class EnvironmentSettings {
 		@Override
 		public String get() {
 			try {
-				return upToDateVariablesRootClass.get().getName();
+				return upToDateRootValueClass.get().getName();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
@@ -248,11 +248,11 @@ public class EnvironmentSettings {
 
 	}
 
-	private class UpToDateVariablesRootClass extends UpToDate<Class<?>> {
+	private class UpToDateRootValueClass extends UpToDate<Class<?>> {
 
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
-			return MiscUtils.serialize(getVariablesRootStructure());
+			return MiscUtils.serialize(getRootValueStructure());
 		}
 
 		@Override
@@ -261,7 +261,7 @@ public class EnvironmentSettings {
 					.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this));
 			try {
 				return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-						getVariablesRootStructure().generateJavaTypeSourceCode(className));
+						getRootValueStructure().generateJavaTypeSourceCode(className));
 			} catch (CompilationError e) {
 				throw new VersionAccessException(e);
 			}
@@ -269,12 +269,12 @@ public class EnvironmentSettings {
 
 	};
 
-	private class UpToDateVariablesRoot extends UpToDate<Object> {
+	private class UpToDateRootValue extends UpToDate<Object> {
 
 		@Override
 		protected Object retrieveLastVersionIdentifier() {
 			try {
-				return new Pair<Class<?>, String>(upToDateVariablesRootClass.get(),
+				return new Pair<Class<?>, String>(upToDateRootValueClass.get(),
 						MiscUtils.serialize(environmentVariableTreeElements));
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
@@ -284,7 +284,7 @@ public class EnvironmentSettings {
 		@Override
 		protected Object obtainLatest(Object versionIdentifier) throws VersionAccessException {
 			try {
-				return getVariablesRootBuilder()
+				return getRootValueBuilder()
 						.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
 			} catch (Exception e) {
 				throw new PotentialError(e);

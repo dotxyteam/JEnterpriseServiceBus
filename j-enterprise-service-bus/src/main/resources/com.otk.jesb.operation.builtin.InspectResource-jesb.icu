@@ -15,6 +15,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-768da96f:198b8bab560:1a72</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>148be5cc:19abc78afdb:2ef7</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -42,9 +49,15 @@
         </fieldsCustomization>
         <formSpacing>0</formSpacing>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>148be5cc:19abc78afdb:-130</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>-768da96f:198b8bab560:-14fa</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.InspectResource$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

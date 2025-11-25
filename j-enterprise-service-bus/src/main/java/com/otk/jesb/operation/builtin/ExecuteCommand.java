@@ -25,7 +25,7 @@ public class ExecuteCommand implements Operation {
 	private String executable;
 	private String[] arguments = new String[0];
 	private String workingDirectoryPath = ".";
-	private Integer timeoutMilliseconds;
+	private int timeoutMilliseconds = 0;
 	private boolean runAsynchronously = false;
 
 	public ExecuteCommand(String executable) {
@@ -52,11 +52,11 @@ public class ExecuteCommand implements Operation {
 		this.workingDirectoryPath = workingDirectoryPath;
 	}
 
-	public Integer getTimeoutMilliseconds() {
+	public int getTimeoutMilliseconds() {
 		return timeoutMilliseconds;
 	}
 
-	public void setTimeoutMilliseconds(Integer timeoutMilliseconds) {
+	public void setTimeoutMilliseconds(int timeoutMilliseconds) {
 		this.timeoutMilliseconds = timeoutMilliseconds;
 	}
 
@@ -78,7 +78,7 @@ public class ExecuteCommand implements Operation {
 		try {
 			process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
 					new File(workingDirectoryPath),
-					(timeoutMilliseconds != null) ? timeoutMilliseconds : (runAsynchronously ? 0 : -1),
+					timeoutMilliseconds,
 					TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
 			process = null;

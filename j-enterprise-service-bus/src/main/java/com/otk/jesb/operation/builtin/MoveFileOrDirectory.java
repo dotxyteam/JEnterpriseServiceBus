@@ -25,21 +25,21 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class MoveFileOrDirectory implements Operation {
 
-	private String sourceFilePath;
-	private String targetFilePath;
+	private String sourcePath;
+	private String targetPath;
 	private boolean overwriting = false;
 
-	public MoveFileOrDirectory(String sourceFilePath, String destinationFilePath) {
-		this.sourceFilePath = sourceFilePath;
-		this.targetFilePath = destinationFilePath;
+	public MoveFileOrDirectory(String sourcePath, String targetPath) {
+		this.sourcePath = sourcePath;
+		this.targetPath = targetPath;
 	}
 
-	public String getSourceFilePath() {
-		return sourceFilePath;
+	public String getSourcePath() {
+		return sourcePath;
 	}
 
-	public String getTargetFilePath() {
-		return targetFilePath;
+	public String getTargetPath() {
+		return targetPath;
 	}
 
 	public boolean isOverwriting() {
@@ -52,8 +52,8 @@ public class MoveFileOrDirectory implements Operation {
 
 	@Override
 	public Object execute() throws IOException {
-		Path source = Paths.get(sourceFilePath);
-		Path target = Paths.get(targetFilePath);
+		Path source = Paths.get(sourcePath);
+		Path target = Paths.get(targetPath);
 		try {
 			move(source, target, overwriting ? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 					: new StandardCopyOption[] {});

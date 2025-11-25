@@ -204,9 +204,10 @@ public class CommandExecutor {
 		commandExecutor.setWorkingDir(workingDir);
 		commandExecutor.startProcess();
 		final boolean[] timedOut = new boolean[] { false };
-		Runnable runnable = new Runnable() {
+		Runnable waitingJob = new Runnable() {
 			@Override
 			public void run() {
+				commandExecutor.destroyProcessOnExit();
 				try {
 					if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {
 						commandExecutor.killProcess();
@@ -220,14 +221,13 @@ public class CommandExecutor {
 			}
 		};
 		if (synchronous) {
-			commandExecutor.destroyProcessOnExit();
-			runnable.run();
+			waitingJob.run();
 			if (timedOut[0]) {
 				throw new TimeoutException();
 			}
 		} else {
 			if (timeout > 0) {
-				new Thread(runnable, "ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
+				new Thread(waitingJob, "ProcessMonitor [of=" + commandExecutor.getCommandDescription() + "]") {
 					{
 						setDaemon(true);
 					}
