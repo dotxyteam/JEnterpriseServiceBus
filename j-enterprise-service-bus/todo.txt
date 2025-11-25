@@ -24,7 +24,6 @@
 - add ExecutePlan.fork option ???
 - add an ExecutePlan option to dynamically select the target plan
 (maybe allow to do it via the JESB API)
-- 
 - harmonize http request paths automatically
 - allow to provide Structure.SimpleElement.customTypeName 
 (same for Evaluate$SimpleValueKind)   
@@ -32,6 +31,7 @@
 (not the historical one)
 - allow to access step error variables
 - allow to throw/handle REST http errors
+- allow to select *File.charsetName options
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 - simplify the reuse of the JESB API:
 	- allow the use of Solution instances other than the default
