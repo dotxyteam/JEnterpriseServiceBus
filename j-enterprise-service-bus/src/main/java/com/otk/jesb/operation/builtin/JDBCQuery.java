@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
-
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Session;
@@ -91,11 +89,9 @@ public class JDBCQuery extends JDBCOperation {
 		for (int i = 0; i < metaData.getColumnCount(); i++) {
 			String columnClassName = metaData.getColumnClassName(i + 1);
 			String columnName = metaData.getColumnLabel(i + 1);
-			while (result.stream().map(ColumnDefinition::getColumnName).anyMatch(Predicate.isEqual(columnName))) {
-				columnName = MiscUtils.nextNumbreredName(columnName);
-			}
 			result.add(new ColumnDefinition(columnName, columnClassName));
 		}
+		MiscUtils.makeNumberedNamesUnique(result, ColumnDefinition::getColumnName, ColumnDefinition::setColumnName);
 		return result;
 	}
 

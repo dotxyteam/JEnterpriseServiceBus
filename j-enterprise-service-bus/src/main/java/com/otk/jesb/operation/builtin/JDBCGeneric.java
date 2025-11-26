@@ -25,13 +25,13 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import xy.reflect.ui.info.ResourcePath;
 
-public class JDBCGenericOperation implements Operation {
+public class JDBCGeneric implements Operation {
 
 	protected Session session;
 	protected JDBCConnection connection;
 	protected String statement;
 
-	public JDBCGenericOperation(Session session, JDBCConnection connection) {
+	public JDBCGeneric(Session session, JDBCConnection connection) {
 		this.session = session;
 		this.connection = connection;
 	}
@@ -82,11 +82,11 @@ public class JDBCGenericOperation implements Operation {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata<JDBCGenericOperation> {
+	public static class Metadata implements OperationMetadata<JDBCGeneric> {
 
 		@Override
 		public String getOperationTypeName() {
-			return "JDBC Generic Operation";
+			return "JDBC Generic";
 		}
 
 		@Override
@@ -95,19 +95,19 @@ public class JDBCGenericOperation implements Operation {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder<JDBCGenericOperation>> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<JDBCGeneric>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
 			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(JDBCGenericOperation.class.getName().replace(".", "/") + ".png"));
+					.specifyClassPathResourceLocation(JDBCGeneric.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}
 
-	public static class Builder implements OperationBuilder<JDBCGenericOperation> {
+	public static class Builder implements OperationBuilder<JDBCGeneric> {
 
 		protected Reference<JDBCConnection> connectionReference = new Reference<JDBCConnection>(JDBCConnection.class);
 		protected RootInstanceBuilder statementBuilder = new RootInstanceBuilder("Statement", String.class.getName());
@@ -141,9 +141,9 @@ public class JDBCGenericOperation implements Operation {
 		}
 
 		@Override
-		public JDBCGenericOperation build(ExecutionContext context, ExecutionInspector executionInspector)
+		public JDBCGeneric build(ExecutionContext context, ExecutionInspector executionInspector)
 				throws Exception {
-			JDBCGenericOperation result = new JDBCGenericOperation(context.getSession(), getConnection());
+			JDBCGeneric result = new JDBCGeneric(context.getSession(), getConnection());
 			result.setStatement((String) getStatementBuilder().build(new InstantiationContext(context.getVariables(),
 					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
 			return result;

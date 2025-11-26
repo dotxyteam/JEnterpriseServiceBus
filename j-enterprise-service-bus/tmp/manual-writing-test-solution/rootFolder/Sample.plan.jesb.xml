@@ -1,0 +1,142 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.ReadCommandLine">
+    <enabledVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </enabledVariant>
+    <promptVariant>
+      <constantValue class="string">jesb&gt; </constantValue>
+      <valueClass>java.lang.String</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </promptVariant>
+  </activator>
+  <name>Sample</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>198</diagramX>
+      <diagramY>327</diagramY>
+      <name>jDBCProcedureCall</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder">
+        <catalogName class="null"/>
+        <connectionReference>
+          <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>db</path>
+        </connectionReference>
+        <parameterValuesBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor">
+                  <outer-class class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder$Util">
+                    <connectionReference reference="../../../../../../../connectionReference"/>
+                    <statementVariant>
+                      <constantValue class="null"/>
+                      <valueClass>java.lang.String</valueClass>
+                      <variable>false</variable>
+                      <variableReferenceExpression class="null"/>
+                    </statementVariant>
+                    <parameterDefinitions/>
+                    <parameterDefinitionAutomatic>false</parameterDefinitionAutomatic>
+                    <upToDateParameterValuesClass class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$UpToDateParameterValuesClass">
+                      <outer-class class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder$Util" reference="../.."/>
+                    </upToDateParameterValuesClass>
+                    <parameterValuesBuilder reference="../../../../../.."/>
+                    <upToDateMetaParameterDefinitions>
+                      <outer-class class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder$Util" reference="../.."/>
+                    </upToDateMetaParameterDefinitions>
+                    <resultColumnDefinitions/>
+                    <resultColumnDefinitionAutomatic>true</resultColumnDefinitionAutomatic>
+                    <upToDateResultClass class="com.otk.jesb.operation.builtin.JDBCQuery$Builder$UpToDateResultClass">
+                      <outer-class class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder$Util" reference="../.."/>
+                    </upToDateResultClass>
+                    <upToDateMetaResultColumnDefinitions>
+                      <outer-class class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder$Util" reference="../.."/>
+                    </upToDateMetaResultColumnDefinitions>
+                    <outer-class reference="../../../../../../.."/>
+                  </outer-class>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="int">0</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.JDBCOperation$Builder$ParameterValuesClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>Parameters</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValuesBuilder>
+        <procedure>
+          <callQueryString>{call &quot;PUBLIC&quot;.&quot;PUBLIC&quot;.&quot;PROCEDURE_TEST&quot;(?)}</callQueryString>
+          <catalogName class="null"/>
+          <parameters>
+            <com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+              <columnKind>2</columnKind>
+              <name>VAL</name>
+              <sqlType>4</sqlType>
+              <typeName>java.lang.Integer</typeName>
+            </com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+          </parameters>
+          <procedureName>PROCEDURE_TEST</procedureName>
+          <remarks class="null"/>
+          <returnParameter class="null"/>
+          <schemaName class="null"/>
+        </procedure>
+        <schemaName class="null"/>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions/>
+</com.otk.jesb.solution.Plan>

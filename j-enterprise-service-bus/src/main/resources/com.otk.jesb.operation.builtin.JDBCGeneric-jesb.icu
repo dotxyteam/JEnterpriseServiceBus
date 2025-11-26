@@ -15,6 +15,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-14e6619a:19a370e6880:57c4</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>450eab98:19ac1c3c4f3:-5d39</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption>Connection</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -43,6 +50,13 @@
         <fieldsCustomization>
             <uniqueIdentifier>-14e6619a:19a370e6880:57dd</uniqueIdentifier>
             <specificProperties/>
+            <category>
+                <uniqueIdentifier>450eab98:19ac1c3c4f3:-5d38</uniqueIdentifier>
+                <caption>Settings</caption>
+                <name>settings</name>
+            </category>
+            <categoryCaption>settings</categoryCaption>
+            <categoryName>settings</categoryName>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
@@ -69,11 +83,16 @@
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <immutableForced>false</immutableForced>
+        <memberCategory>
+            <uniqueIdentifier>450eab98:19ac1c3c4f3:-63d1</uniqueIdentifier>
+            <caption>Settings</caption>
+            <name>settings</name>
+        </memberCategory>
         <menuModel>
             <uniqueIdentifier>-14e6619a:19a370e6880:57bc</uniqueIdentifier>
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
-        <typeName>com.otk.jesb.operation.builtin.JDBCGenericOperation$Builder</typeName>
+        <typeName>com.otk.jesb.operation.builtin.JDBCGeneric$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

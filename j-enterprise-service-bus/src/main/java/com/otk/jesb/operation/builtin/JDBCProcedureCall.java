@@ -23,16 +23,16 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
-
+import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.solution.Step;
 
 import xy.reflect.ui.info.ResourcePath;
 
-public class JDBCStoredProcedureCall extends JDBCQuery {
+public class JDBCProcedureCall extends JDBCQuery {
 
 	private ProcedureDescriptor procedure;
 
-	public JDBCStoredProcedureCall(Session session, JDBCConnection connection, ProcedureDescriptor procedure,
+	public JDBCProcedureCall(Session session, JDBCConnection connection, ProcedureDescriptor procedure,
 			Class<?> customResultClass) {
 		super(session, connection, customResultClass);
 		this.procedure = procedure;
@@ -46,8 +46,7 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 	public Object execute() throws Exception {
 		JDBCConnection connection = getConnection();
 		Connection connectionInstance = connection.during(getSession());
-		try (CallableStatement preparedStatement = connectionInstance
-				.prepareCall(procedure.getCallQueryString(connectionInstance))) {
+		try (CallableStatement preparedStatement = connectionInstance.prepareCall(procedure.getCallQueryString())) {
 			ParameterValues parametervalues = getParameterValues();
 			int parameterIndex = 1;
 			if (procedure.getReturnParameter() != null) {
@@ -98,7 +97,7 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 		}
 	}
 
-	public static class Builder implements OperationBuilder<JDBCStoredProcedureCall> {
+	public static class Builder implements OperationBuilder<JDBCProcedureCall> {
 
 		private String catalogName;
 		private String schemaName;
@@ -144,45 +143,44 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 
 		public void setProcedure(ProcedureDescriptor procedure) {
 			this.procedure = procedure;
-			updateStatement();
-		}
-
-		private void updateStatement() {
-			try {
-				util.getStatementVariant()
-						.setConstantValue(
-								((util.getConnection() != null) && (procedure != null))
-										? util.getConnection().during(
-												connectionInstance -> procedure.getCallQueryString(connectionInstance))
-										: null);
-			} catch (Exception e) {
-				throw new UnexpectedError(e);
-			}
 		}
 
 		public List<ProcedureDescriptor> getProcedureOptions() {
+			List<ProcedureDescriptor> result = new ArrayList<JDBCProcedureCall.ProcedureDescriptor>();
 			JDBCConnection connection = util.getConnection();
-			if (connection == null) {
-				return Collections.emptyList();
+			if (connection != null) {
+				try {
+					connection.during(connectionInstance -> {
+						try {
+							result.addAll(ProcedureDescriptor
+									.list(connectionInstance,
+											(catalogName != null) ? catalogName : connectionInstance.getCatalog(),
+											(schemaName != null) ? schemaName : connectionInstance.getSchema(), null)
+									.stream().filter(procedure -> {
+										procedure.setCatalogName(catalogName);
+										procedure.setSchemaName(schemaName);
+										procedure.fix(connection);
+										return true;
+									}).collect(Collectors.toList()));
+							return null;
+						} catch (Exception e) {
+							throw new PotentialError(e);
+						}
+					});
+				} catch (Exception ignore) {
+				}
 			}
-			try {
-				return connection.during(connectionInstance -> {
-					try {
-						return ProcedureDescriptor.list(connectionInstance, catalogName, schemaName, null);
-					} catch (Exception e) {
-						throw new PotentialError(e);
-					}
-				});
-			} catch (Exception e) {
-				return Collections.emptyList();
+			if ((procedure != null) && !result.contains(procedure)) {
+				result.add(procedure);
 			}
+			return result;
 		}
 
 		@Override
-		public JDBCStoredProcedureCall build(ExecutionContext context, ExecutionInspector executionInspector)
+		public JDBCProcedureCall build(ExecutionContext context, ExecutionInspector executionInspector)
 				throws Exception {
-			JDBCStoredProcedureCall result = new JDBCStoredProcedureCall(context.getSession(), util.getConnection(),
-					procedure, util.upToDateResultClass.get());
+			JDBCProcedureCall result = new JDBCProcedureCall(context.getSession(), util.getConnection(), procedure,
+					util.upToDateResultClass.get());
 			result.setParameterValues(util.buildParameterValues(context));
 			return result;
 		}
@@ -197,6 +195,9 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 			if (util.getConnection() == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
 			}
+			if (procedure == null) {
+				throw new ValidationError("Procedure not selected");
+			}
 			try {
 				util.upToDateParameterValuesClass.get();
 			} catch (Throwable t) {
@@ -207,6 +208,18 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 				util.upToDateResultClass.get();
 			} catch (Throwable t) {
 				throw new ValidationError("Failed to get compiled result column definitions", t);
+			}
+			try {
+				util.getConnection().during(connectionInstance -> {
+					try {
+						procedure.validate(connectionInstance);
+					} catch (ValidationError e) {
+						throw new PotentialError(e);
+					}
+					return null;
+				});
+			} catch (Exception e) {
+				throw new ValidationError("Failed to validate the procedure descriptor", e);
 			}
 			if (recursively) {
 				RootInstanceBuilder parameterValuesBuilder = util.getParameterValuesBuilder();
@@ -253,6 +266,8 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 							returnParameter.getTypeName());
 					result.add(resultColumnDefinition);
 				}
+				MiscUtils.makeNumberedNamesUnique(result, ColumnDefinition::getColumnName,
+						ColumnDefinition::setColumnName);
 				return result;
 			}
 
@@ -277,6 +292,8 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 					parameterDefinition.setParameterTypeName(parameter.getTypeName());
 					result.add(parameterDefinition);
 				}
+				MiscUtils.makeNumberedNamesUnique(result, ParameterDefinition::getParameterName,
+						ParameterDefinition::setParameterName);
 				return result;
 			}
 
@@ -297,6 +314,62 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 		private String remarks;
 		private ProcedureParameterDescriptor returnParameter;
 		private List<ProcedureParameterDescriptor> parameters = new ArrayList<>();
+		private String callQueryString;
+
+		public static List<ProcedureDescriptor> list(Connection connectionInstance, String catalogName,
+				String schemaPattern, String procedureNamePattern) throws Exception {
+			List<ProcedureDescriptor> result = new ArrayList<>();
+			DatabaseMetaData meta = connectionInstance.getMetaData();
+			try (ResultSet procedureResultSet = meta.getProcedures(catalogName, schemaPattern, procedureNamePattern)) {
+				while (procedureResultSet.next()) {
+					ProcedureDescriptor procedure = new ProcedureDescriptor();
+					procedure.setCatalogName(procedureResultSet.getString("PROCEDURE_CAT"));
+					procedure.setSchemaName(procedureResultSet.getString("PROCEDURE_SCHEM"));
+					procedure.setProcedureName(procedureResultSet.getString("PROCEDURE_NAME"));
+					procedure.setRemarks(procedureResultSet.getString("REMARKS"));
+					List<ProcedureParameterDescriptor> parameters = new ArrayList<ProcedureParameterDescriptor>();
+					try (ResultSet columnResultSet = meta.getProcedureColumns(procedure.getCatalogName(),
+							procedure.getSchemaName(), procedure.getProcedureName(), "%")) {
+						while (columnResultSet.next()) {
+							ProcedureParameterDescriptor parameter = new ProcedureParameterDescriptor();
+							parameter.setColumnKind(columnResultSet.getInt("COLUMN_TYPE"));
+							parameter.setSqlType(columnResultSet.getInt("DATA_TYPE"));
+							if (parameter.getColumnKind() == DatabaseMetaData.procedureColumnReturn) {
+								parameter.setName(RETURN_VALUE_NAME);
+								procedure.setReturnParameter(parameter);
+							} else {
+								parameter.setName(columnResultSet.getString("COLUMN_NAME"));
+								parameters.add(parameter);
+							}
+						}
+					}
+					procedure.setParameters(parameters);
+					procedure.setCallQueryString(procedure.buildCallQueryString(connectionInstance));
+					try {
+						procedure.updateParameterTypeNames(connectionInstance);
+					} catch (SQLException ignore) {
+					}
+					result.add(procedure);
+				}
+			}
+			return result;
+		}
+
+		public void fix(JDBCConnection connection) {
+			if (connection != null) {
+				String driverClassName = connection.getDriverClassNameVariant().getValue();
+				if (driverClassName != null) {
+					if (driverClassName.contains("microsoft.sqlserver")) {
+						if (callQueryString != null) {
+							String newProcedureName = procedureName.replaceAll(";\\d+$", "");
+							if (!newProcedureName.equals(procedureName)) {
+								callQueryString = callQueryString.replace(procedureName, newProcedureName);
+							}
+						}
+					}
+				}
+			}
+		}
 
 		public String getCatalogName() {
 			return catalogName;
@@ -350,7 +423,15 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 			this.parameters = parameters;
 		}
 
-		public String getCallQueryString(Connection connectionInstance) {
+		public String getCallQueryString() {
+			return callQueryString;
+		}
+
+		public void setCallQueryString(String callQueryString) {
+			this.callQueryString = callQueryString;
+		}
+
+		public String buildCallQueryString(Connection connectionInstance) {
 			String placeHolders = String.join(",", Collections.nCopies(getParameters().size(), "?"));
 			String procedureQualifiedName;
 			try {
@@ -366,58 +447,24 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 			}
 		}
 
-		public static List<ProcedureDescriptor> list(Connection connectionInstance, String catalogName,
-				String schemaPattern, String procedureNamePattern) throws Exception {
-			List<ProcedureDescriptor> result = new ArrayList<>();
-			DatabaseMetaData meta = connectionInstance.getMetaData();
-			try (ResultSet procedureResultSet = meta.getProcedures(catalogName, schemaPattern, procedureNamePattern)) {
-				while (procedureResultSet.next()) {
-					ProcedureDescriptor procedure = new ProcedureDescriptor();
-					procedure.setCatalogName(procedureResultSet.getString("PROCEDURE_CAT"));
-					procedure.setSchemaName(procedureResultSet.getString("PROCEDURE_SCHEM"));
-					procedure.setProcedureName(procedureResultSet.getString("PROCEDURE_NAME"));
-					procedure.setRemarks(procedureResultSet.getString("REMARKS"));
-					List<ProcedureParameterDescriptor> parameters = new ArrayList<ProcedureParameterDescriptor>();
-					try (ResultSet columnResultSet = meta.getProcedureColumns(procedure.getCatalogName(),
-							procedure.getSchemaName(), procedure.getProcedureName(), "%")) {
-						while (columnResultSet.next()) {
-							ProcedureParameterDescriptor parameter = new ProcedureParameterDescriptor();
-							parameter.setColumnKind(columnResultSet.getInt("COLUMN_TYPE"));
-							parameter.setSqlType(columnResultSet.getInt("DATA_TYPE"));
-							if (parameter.getColumnKind() == DatabaseMetaData.procedureColumnReturn) {
-								parameter.setName(RETURN_VALUE_NAME);
-								procedure.setReturnParameter(parameter);
-							} else {
-								parameter.setName(columnResultSet.getString("COLUMN_NAME"));
-								parameters.add(parameter);
-							}
-						}
-					}
-					procedure.setParameters(parameters);
-					ParameterMetaData parameterMetaData;
-					try {
-						CallableStatement preparedStatement = connectionInstance
-								.prepareCall(procedure.getCallQueryString(connectionInstance));
-						parameterMetaData = preparedStatement.getParameterMetaData();
-					} catch (SQLException e) {
-						continue;
-					}
-					if (procedure.isOfFunctionKind()) {
-						procedure.getReturnParameter()
-								.setTypeName((parameterMetaData != null) ? parameterMetaData.getParameterClassName(1)
-										: Object.class.getName());
-					}
-					for (int i = 0; i < procedure.parameters.size(); i++) {
-						procedure.parameters.get(i)
-								.setTypeName((parameterMetaData != null)
-										? parameterMetaData
-												.getParameterClassName((procedure.isOfFunctionKind() ? +1 : 0) + i + 1)
-										: Object.class.getName());
-					}
-					result.add(procedure);
+		public void updateParameterTypeNames(Connection connectionInstance) throws SQLException {
+			ParameterMetaData parameterMetaData = null;
+			try {
+				CallableStatement preparedStatement = connectionInstance.prepareCall(getCallQueryString());
+				parameterMetaData = preparedStatement.getParameterMetaData();
+			} finally {
+				if (isOfFunctionKind()) {
+					getReturnParameter()
+							.setTypeName((parameterMetaData != null) ? parameterMetaData.getParameterClassName(1)
+									: Object.class.getName());
+				}
+				for (int i = 0; i < parameters.size(); i++) {
+					parameters.get(i)
+							.setTypeName((parameterMetaData != null)
+									? parameterMetaData.getParameterClassName((isOfFunctionKind() ? +1 : 0) + i + 1)
+									: Object.class.getName());
 				}
 			}
-			return result;
 		}
 
 		private String getProcedureQualifiedName(String quote) {
@@ -435,6 +482,14 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 			return result;
 		}
 
+		public void validate(Connection connectionInstance) throws ValidationError {
+			try {
+				connectionInstance.prepareCall(getCallQueryString());
+			} catch (SQLException e) {
+				throw new ValidationError("Failed to validate the procedure call query string", e);
+			}
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -445,6 +500,7 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 			result = prime * result + ((remarks == null) ? 0 : remarks.hashCode());
 			result = prime * result + ((returnParameter == null) ? 0 : returnParameter.hashCode());
 			result = prime * result + ((schemaName == null) ? 0 : schemaName.hashCode());
+			result = prime * result + ((callQueryString == null) ? 0 : callQueryString.hashCode());
 			return result;
 		}
 
@@ -486,6 +542,11 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 				if (other.schemaName != null)
 					return false;
 			} else if (!schemaName.equals(other.schemaName))
+				return false;
+			if (callQueryString == null) {
+				if (other.callQueryString != null)
+					return false;
+			} else if (!callQueryString.equals(other.callQueryString))
 				return false;
 			return true;
 		}
@@ -601,11 +662,11 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 		}
 	}
 
-	public static class Metadata implements OperationMetadata<JDBCStoredProcedureCall> {
+	public static class Metadata implements OperationMetadata<JDBCProcedureCall> {
 
 		@Override
 		public String getOperationTypeName() {
-			return "JDBC Stored Procedure Call";
+			return "JDBC Procedure Call";
 		}
 
 		@Override
@@ -614,14 +675,14 @@ public class JDBCStoredProcedureCall extends JDBCQuery {
 		}
 
 		@Override
-		public Class<? extends OperationBuilder<JDBCStoredProcedureCall>> getOperationBuilderClass() {
+		public Class<? extends OperationBuilder<JDBCProcedureCall>> getOperationBuilderClass() {
 			return Builder.class;
 		}
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath.specifyClassPathResourceLocation(
-					JDBCStoredProcedureCall.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(ResourcePath
+					.specifyClassPathResourceLocation(JDBCProcedureCall.class.getName().replace(".", "/") + ".png"));
 		}
 
 	}

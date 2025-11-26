@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
@@ -187,14 +186,12 @@ public abstract class JDBCOperation implements Operation {
 						String parameterTypeName = parameterMetaData.getParameterClassName(i + 1);
 						String parameterName = MiscUtils.extractSimpleNameFromClassName(parameterTypeName);
 						parameterName = parameterName.substring(0, 1).toLowerCase() + parameterName.substring(1);
-						while (result.stream().map(ParameterDefinition::getParameterName)
-								.anyMatch(Predicate.isEqual(parameterName))) {
-							parameterName = MiscUtils.nextNumbreredName(parameterName);
-						}
 						parameterDefinition.setParameterName(parameterName);
 						parameterDefinition.setParameterTypeName(parameterTypeName);
 						result.add(parameterDefinition);
 					}
+					MiscUtils.makeNumberedNamesUnique(result, ParameterDefinition::getParameterName,
+							ParameterDefinition::setParameterName);
 					return result;
 				} catch (SQLException e) {
 					throw new PotentialError(e);

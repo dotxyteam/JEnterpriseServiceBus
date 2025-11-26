@@ -46,6 +46,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -81,9 +83,9 @@ import com.otk.jesb.operation.builtin.ExecutePlan;
 import com.otk.jesb.operation.builtin.Fail;
 import com.otk.jesb.operation.builtin.GenerateXML;
 import com.otk.jesb.operation.builtin.InspectResource;
-import com.otk.jesb.operation.builtin.JDBCGenericOperation;
+import com.otk.jesb.operation.builtin.JDBCGeneric;
 import com.otk.jesb.operation.builtin.JDBCQuery;
-import com.otk.jesb.operation.builtin.JDBCStoredProcedureCall;
+import com.otk.jesb.operation.builtin.JDBCProcedureCall;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.Log;
 import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
@@ -128,8 +130,8 @@ public class MiscUtils {
 			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),
 			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
 			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
-			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCGenericOperation.Metadata(),
-			new JDBCStoredProcedureCall.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
+			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCGeneric.Metadata(),
+			new JDBCProcedureCall.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),
 			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());
 	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
 			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
@@ -156,7 +158,7 @@ public class MiscUtils {
 			return new MapperWrapper(next) {
 				@Override
 				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
-					if (type.isAnonymousClass()) {
+					if ((type != null) && type.isAnonymousClass()) {
 						throw new UnexpectedError("Cannot serialize instance of class " + type
 								+ ": Anonymous class instance serialization is forbidden");
 					}
@@ -1333,6 +1335,18 @@ public class MiscUtils {
 			return isInterruptionException(t.getCause());
 		}
 		return false;
+	}
+
+	public static <T> void makeNumberedNamesUnique(List<T> ts, Function<T, String> nameGetter,
+			BiConsumer<T, String> nameSetter) {
+		for (int i = 0; i < ts.size(); i++) {
+			T t = ts.get(i);
+			String name = nameGetter.apply(t);
+			while (ts.subList(0, i).stream().map(nameGetter).anyMatch(Predicate.isEqual(name))) {
+				name = nextNumbreredName(name);
+			}
+			nameSetter.accept(t, name);
+		}
 	}
 
 }
