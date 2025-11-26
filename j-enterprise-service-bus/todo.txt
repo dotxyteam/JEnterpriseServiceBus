@@ -36,6 +36,7 @@
 (not the historical one)
 - allow to access step error variables
 - allow to read big files
+- JDBC Query: allow to use subsets
 - allow to throw/handle REST http errors
 - allow to select *File.charsetName options
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
