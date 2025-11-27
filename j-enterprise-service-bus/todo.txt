@@ -6,6 +6,8 @@
 		solutions and postponed.
 		* small features that are easy and quick to implement but bring a lot of 
 		value (by adding use cases, ..) must be implemented.
+	. document (javadoc, manual) to avoid design errors
+	. add at least some small automated tests to avoid blocking implementation errors
 	. release a first version
 	. advertise
 	. improve the features
