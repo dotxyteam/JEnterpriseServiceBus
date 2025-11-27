@@ -46,11 +46,10 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>198</diagramX>
-      <diagramY>327</diagramY>
+      <diagramX>304</diagramX>
+      <diagramY>79</diagramY>
       <name>jDBCProcedureCall</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder">
-        <catalogName class="null"/>
         <connectionReference>
           <assetClass>com.otk.jesb.resource.builtin.JDBCConnection</assetClass>
           <assetFilter class="null"/>
@@ -100,12 +99,7 @@
                 <fieldInitializers/>
                 <initializationSwitches/>
                 <listItemInitializers/>
-                <parameterInitializers>
-                  <com.otk.jesb.instantiation.ParameterInitializer>
-                    <parameterPosition>0</parameterPosition>
-                    <parameterValue class="int">0</parameterValue>
-                  </com.otk.jesb.instantiation.ParameterInitializer>
-                </parameterInitializers>
+                <parameterInitializers/>
                 <selectedConstructorSignature class="null"/>
                 <typeName>&lt;Dynamic&gt;</typeName>
               </parameterValue>
@@ -118,22 +112,45 @@
           <typeName>&lt;Dynamic&gt;</typeName>
         </parameterValuesBuilder>
         <procedure>
-          <callQueryString>{call &quot;PUBLIC&quot;.&quot;PUBLIC&quot;.&quot;PROCEDURE_TEST&quot;(?)}</callQueryString>
-          <catalogName class="null"/>
+          <callQueryStringVariant>
+            <constantValue class="null"/>
+            <valueClass class="null"/>
+            <variable>false</variable>
+            <variableReferenceExpression class="null"/>
+          </callQueryStringVariant>
           <parameters>
             <com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
-              <columnKind>2</columnKind>
-              <name>VAL</name>
+              <columnKind>1</columnKind>
+              <mode>IN</mode>
+              <name>B_ADDR</name>
               <sqlType>4</sqlType>
               <typeName>java.lang.Integer</typeName>
             </com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+            <com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+              <columnKind>1</columnKind>
+              <mode>IN</mode>
+              <name>B_COUNT</name>
+              <sqlType>4</sqlType>
+              <typeName>java.lang.Integer</typeName>
+            </com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+            <com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+              <columnKind>1</columnKind>
+              <mode>IN</mode>
+              <name>B_OFFSET</name>
+              <sqlType>4</sqlType>
+              <typeName>java.lang.Integer</typeName>
+            </com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+            <com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
+              <columnKind>1</columnKind>
+              <mode>IN</mode>
+              <name>L_ID</name>
+              <sqlType>-5</sqlType>
+              <typeName>java.lang.Long</typeName>
+            </com.otk.jesb.operation.builtin.JDBCProcedureCall_-ProcedureParameterDescriptor>
           </parameters>
-          <procedureName>PROCEDURE_TEST</procedureName>
-          <remarks class="null"/>
+          <procedureName>CONVERT_BLOCK</procedureName>
           <returnParameter class="null"/>
-          <schemaName class="null"/>
         </procedure>
-        <schemaName class="null"/>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>

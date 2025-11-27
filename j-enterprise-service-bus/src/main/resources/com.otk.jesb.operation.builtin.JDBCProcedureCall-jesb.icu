@@ -12,12 +12,13 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrderEntry>procedure.duplicate</customFieldsOrderEntry>
+        <customFieldsOrderEntry>searchCatalogName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>searchSchemaName</customFieldsOrderEntry>
         <customFieldsOrderEntry>connectionReference</customFieldsOrderEntry>
+        <customFieldsOrderEntry>procedureGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>procedureChoiceGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>procedure.duplicate</customFieldsOrderEntry>
         <customFieldsOrderEntry>parameterValuesBuilder</customFieldsOrderEntry>
-        <customFieldsOrderEntry>catalogName</customFieldsOrderEntry>
-        <customFieldsOrderEntry>schemaName</customFieldsOrderEntry>
-        <customFieldsOrderEntry>procedureBox</customFieldsOrderEntry>
         <customFieldsOrderEntry>procedure</customFieldsOrderEntry>
         <customFieldsOrderEntry>procedureOptions</customFieldsOrderEntry>
         <fieldsCustomization>
@@ -80,7 +81,7 @@
             <uniqueIdentifier>38b55ecf:198c93dcb20:5194</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>604160aa:19ac1efab68:578e</uniqueIdentifier>
+                <uniqueIdentifier>403885b7:19ac59f4f3e:741e</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -117,7 +118,7 @@
             <hidden>false</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>true</duplicateGenerated>
-            <encapsulationFieldName>procedureBox</encapsulationFieldName>
+            <encapsulationFieldName>procedureGroup</encapsulationFieldName>
             <fieldName>procedure</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
@@ -142,7 +143,6 @@
                 </enumerationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
-            <valueOptionsFieldName>procedureOptions</valueOptionsFieldName>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <fieldsCustomization>
@@ -151,7 +151,7 @@
             <hidden>false</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>procedureBox</encapsulationFieldName>
+            <encapsulationFieldName>procedureChoiceGroup</encapsulationFieldName>
             <fieldName>procedureOptions</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
@@ -207,7 +207,7 @@
             <hidden>false</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>procedureBox</encapsulationFieldName>
+            <encapsulationFieldName>procedureChoiceGroup</encapsulationFieldName>
             <fieldName>procedure.duplicate</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
@@ -257,6 +257,118 @@
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55ada3c:7b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>procedureChoiceGroup</encapsulationFieldName>
+            <fieldName>searchCatalogName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55ada3c:7d</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55ada3c:7c</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55ada3c:85</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>procedureChoiceGroup</encapsulationFieldName>
+            <fieldName>searchSchemaName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55ada3c:87</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55ada3c:86</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5306</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>procedureGroup</encapsulationFieldName>
+            <fieldName>procedureChoiceGroup</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5304</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5305</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47c3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Procedure</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedureGroup</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47c1</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47c2</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <immutableForced>false</immutableForced>
         <memberCategory>
             <uniqueIdentifier>38b55ecf:198c93dcb20:580c</uniqueIdentifier>
@@ -278,14 +390,11 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
-        <customFieldsOrderEntry>ofFunctionKind</customFieldsOrderEntry>
-        <customFieldsOrderEntry>catalogName</customFieldsOrderEntry>
-        <customFieldsOrderEntry>schemaName</customFieldsOrderEntry>
-        <customFieldsOrderEntry>remarks</customFieldsOrderEntry>
         <customFieldsOrderEntry>procedureName</customFieldsOrderEntry>
+        <customFieldsOrderEntry>ofFunctionKind</customFieldsOrderEntry>
         <customFieldsOrderEntry>parameters</customFieldsOrderEntry>
         <customFieldsOrderEntry>returnParameter</customFieldsOrderEntry>
-        <customFieldsOrderEntry>callQueryString</customFieldsOrderEntry>
+        <customFieldsOrderEntry>callQueryStringVariant</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>450eab98:19ac1b853a1:-5d91</uniqueIdentifier>
             <specificProperties/>
@@ -372,6 +481,11 @@
                         <hidden>true</hidden>
                     </columnCustomization>
                     <columnCustomization>
+                        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f55</uniqueIdentifier>
+                        <columnName>modeOptions</columnName>
+                        <hidden>true</hidden>
+                    </columnCustomization>
+                    <columnCustomization>
                         <uniqueIdentifier>450eab98:19ac1b853a1:-3802</uniqueIdentifier>
                         <columnName>sqlType</columnName>
                         <hidden>true</hidden>
@@ -387,11 +501,21 @@
                         <customCaption>Type</customCaption>
                         <hidden>false</hidden>
                     </columnCustomization>
-                    <editOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                    <editOptions>
+                        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3ed</uniqueIdentifier>
+                        <itemCreationEnabled>true</itemCreationEnabled>
+                        <itemDeletionEnabled>true</itemDeletionEnabled>
+                        <itemMoveEnabled>true</itemMoveEnabled>
+                    </editOptions>
                     <fieldColumnsAdded>true</fieldColumnsAdded>
+                    <height>
+                        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-23d9</uniqueIdentifier>
+                        <unit>PIXELS</unit>
+                        <value>200</value>
+                    </height>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
-                    <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureParameterDescriptor</itemTypeName>
@@ -479,6 +603,33 @@
             <specificTypeCustomizations>
                 <applicationCustomization>
                     <uniqueIdentifier>450eab98:19ac1b853a1:-5d69</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>2047537:19ac56ca277:53d0</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedureName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>true</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>2047537:19ac56ca277:53d2</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>2047537:19ac56ca277:53d1</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
@@ -635,6 +786,34 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5aed</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>fix</methodName>
+            <methodSignature>void fix(com.otk.jesb.resource.builtin.JDBCConnection)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5aec</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5aeb</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>connection</parameterName>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -651,99 +830,6 @@
         <customFieldsOrderEntry>procedure</customFieldsOrderEntry>
         <customFieldsOrderEntry>procedureOptions</customFieldsOrderEntry>
         <customFieldsOrderEntry>procedure.duplicate</customFieldsOrderEntry>
-        <fieldsCustomization>
-            <uniqueIdentifier>450eab98:19ac1b853a1:-57f8</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customFieldCaption></customFieldCaption>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>procedure</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>38b55ecf:198c93dcb20:519f</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>38b55ecf:198c93dcb20:519e</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-                <enumerationCustomization>
-                    <uniqueIdentifier>38b55ecf:198c93dcb20:597a</uniqueIdentifier>
-                    <dynamicEnumerationForced>true</dynamicEnumerationForced>
-                    <enumerationTypeName>ValueOptions [ownerType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder, field=procedure]</enumerationTypeName>
-                </enumerationCustomization>
-                <enumerationCustomization>
-                    <uniqueIdentifier>450eab98:19ac1b853a1:-52a1</uniqueIdentifier>
-                    <dynamicEnumerationForced>true</dynamicEnumerationForced>
-                    <enumerationTypeName>ValueOptions [ownerType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureBox], field=procedure]</enumerationTypeName>
-                </enumerationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueOptionsFieldName>procedureOptions</valueOptionsFieldName>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
-            <uniqueIdentifier>450eab98:19ac1b853a1:-573f</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>procedure.duplicate</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>true</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>450eab98:19ac1b853a1:-5824</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>450eab98:19ac1b853a1:-5825</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
-            <uniqueIdentifier>450eab98:19ac1b853a1:-5535</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>procedureOptions</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>38b55ecf:198c93dcb20:51b0</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>38b55ecf:198c93dcb20:51af</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
         <fieldsCustomization>
             <uniqueIdentifier>450eab98:19ac1b853a1:-5233</uniqueIdentifier>
             <specificProperties/>
@@ -783,24 +869,6 @@
         <menuModel>
             <uniqueIdentifier>450eab98:19ac1b853a1:-57f9</uniqueIdentifier>
         </menuModel>
-        <methodsCustomization>
-            <uniqueIdentifier>450eab98:19ac1b853a1:-5237</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>displayButtonBox</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>procedure.duplicate.get</methodName>
-            <methodSignature>com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureDescriptor procedure.duplicate.get()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -818,24 +886,6 @@
         <menuModel>
             <uniqueIdentifier>450eab98:19ac1b853a1:-522f</uniqueIdentifier>
         </menuModel>
-        <methodsCustomization>
-            <uniqueIdentifier>450eab98:19ac1b853a1:-5212</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customMethodCaption>...</customMethodCaption>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>procedure.duplicate.get</methodName>
-            <methodSignature>com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureDescriptor procedure.duplicate.get()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureBox]], fieldName=displayButtonBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -855,6 +905,492 @@
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=MethodContext [methodSignature=com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureDescriptor procedure.duplicate.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureBox]], fieldName=displayButtonBox]], subContext=MethodResult, encapsulatedObjectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureDescriptor]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5b8d</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2fa7</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>columnKind</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2fa5</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2fa6</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f9a</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>sqlType</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f98</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f99</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f8d</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>mode</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f8b</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f8c</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueOptionsFieldName>modeOptions</valueOptionsFieldName>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f73</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Type</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>typeName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f71</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f72</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f62</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>modeOptions</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f60</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-2f61</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5b8c</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>2047537:19ac56ca277:5465</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>com.otk.jesb.operation.builtin.JDBCProcedureCall$ProcedureParameterDescriptor</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5303</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5301</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Procedure</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedure.duplicate</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>450eab98:19ac1b853a1:-5824</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>450eab98:19ac1b853a1:-5825</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <enumerationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-f58</uniqueIdentifier>
+                    <dynamicEnumerationForced>true</dynamicEnumerationForced>
+                    <enumerationTypeName>ValueOptions [ownerType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup], field=procedure.duplicate]</enumerationTypeName>
+                </enumerationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueOptionsFieldName>procedureOptions</valueOptionsFieldName>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47fc</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedureOptions</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>38b55ecf:198c93dcb20:51b0</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>38b55ecf:198c93dcb20:51af</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-4c35</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Catalog</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>searchCatalogName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55ada3c:7d</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>true</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55ada3c:7c</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>true</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-490c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Schema</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>searchSchemaName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55ada3c:87</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>true</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55ada3c:86</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>true</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <formWidth>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-f0e</uniqueIdentifier>
+            <unit>PIXELS</unit>
+            <value>200</value>
+        </formWidth>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5302</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47c0</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <customFieldsOrderEntry>procedureChoiceGroup</customFieldsOrderEntry>
+        <customFieldsOrderEntry>choiceButtonBox</customFieldsOrderEntry>
+        <customFieldsOrderEntry>procedure</customFieldsOrderEntry>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47be</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedureChoiceGroup</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>true</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5304</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-5305</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-4794</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>procedure</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>38b55ecf:198c93dcb20:519f</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>38b55ecf:198c93dcb20:519e</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <enumerationCustomization>
+                    <uniqueIdentifier>38b55ecf:198c93dcb20:597a</uniqueIdentifier>
+                    <dynamicEnumerationForced>true</dynamicEnumerationForced>
+                    <enumerationTypeName>ValueOptions [ownerType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder, field=procedure]</enumerationTypeName>
+                </enumerationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c76</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>choiceButtonBox</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c74</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c75</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-47bf</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c7a</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>choiceButtonBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>procedureChoiceGroup.get</methodName>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup] procedureChoiceGroup.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureGroup]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c73</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <formSpacing>0</formSpacing>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c72</uniqueIdentifier>
+        </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-3c55</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Choose...</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>procedureChoiceGroup.get</methodName>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup] procedureChoiceGroup.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureGroup]], fieldName=choiceButtonBox]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-3d28e7e1:19ac55b4899:-10a8</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <customTypeCaption>Procedure Choice</customTypeCaption>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-3d28e7e1:19ac55b4899:-10a7</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>Encapsulation [context=MethodContext [methodSignature=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup] procedureChoiceGroup.get(), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureGroup]], fieldName=choiceButtonBox]], subContext=MethodResult, encapsulatedObjectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCProcedureCall$Builder], fieldName=procedureChoiceGroup]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

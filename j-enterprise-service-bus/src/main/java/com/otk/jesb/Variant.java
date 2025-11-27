@@ -153,6 +153,47 @@ public class Variant<T> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((constantValue == null) ? 0 : constantValue.hashCode());
+		result = prime * result + ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result + ((valueClass == null) ? 0 : valueClass.hashCode());
+		result = prime * result + (variable ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		Variant other = (Variant) obj;
+		if (constantValue == null) {
+			if (other.constantValue != null)
+				return false;
+		} else if (!constantValue.equals(other.constantValue))
+			return false;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (valueClass == null) {
+			if (other.valueClass != null)
+				return false;
+		} else if (!valueClass.equals(other.valueClass))
+			return false;
+		if (variable != other.variable)
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		if (variable) {
 			return "(" + expression + ")";
