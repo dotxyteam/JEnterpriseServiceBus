@@ -10,7 +10,7 @@ It is a Java-based open source visual development platform allowing to automate 
 It has a graphical user interface for process modeling and debugging. 
 ![alt GUI](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg?raw=true)
 
-The dynamism/intelligence of processes is expressed through (essentially) generated Java code snippets, which eliminates the need to learn any specific syntax.
+The dynamism/intelligence of the processes is expressed through (essentially) Java code snippets, which eliminates the need to learn any specific syntax.
 
 Extensibility is almost a key feature allowing any user to model and mostly generate plugins complementing core features as needed.
 
