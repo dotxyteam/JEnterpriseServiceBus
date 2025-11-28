@@ -1,14 +1,14 @@
 JEnterpriseServiceBus
 =====================
 
-![alt JESB icon](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg?raw=true)
+![alt JESB icon](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/j-enterprise-service-bus.png?raw=true)
 
 # Overview
 
 It is a Java-based open source visual development platform allowing to automate business processes and connect heterogeneous applicative systems. 
 
 It has a graphical user interface for process modeling and debugging. 
-![alt GUI](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/misc/GUI-screenshots/gui.png?raw=true)
+![alt GUI](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg?raw=true)
 
 The dynamism/intelligence of processes is expressed through (essentially) generated Java code snippets, which eliminates the need to learn any specific syntax.
 
