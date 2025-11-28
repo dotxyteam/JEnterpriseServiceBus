@@ -1,7 +1,7 @@
 JEnterpriseServiceBus
 =====================
 
-![alt JESB icon](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/j-enterprise-service-bus.png?raw=true)
+![alt JESB icon](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg?raw=true)
 
 # Overview
 
