@@ -6,8 +6,10 @@
 		solutions and postponed.
 		* small features that are easy and quick to implement but bring a lot of 
 		value (by adding use cases, ..) must be implemented.
-	. document (javadoc, manual) to avoid design errors
+	. document quickly (javadoc, manual) to avoid design errors
 	. add at least some small automated tests to avoid blocking implementation errors
+		* write 1 test by palette/category (XML, JDBC, ...)
+		* write the test scenarii with jesb itsel (to traverse as many layers as possible)
 	. release a first version
 	. advertise
 	. improve the features
