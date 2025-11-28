@@ -138,6 +138,7 @@
             <uniqueIdentifier>-3df525ef:1983c23913f:47ec</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
+            <customFieldCaption>Operation</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>operationSignature</fieldName>

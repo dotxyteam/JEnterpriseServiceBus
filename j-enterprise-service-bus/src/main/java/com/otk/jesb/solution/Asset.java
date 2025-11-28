@@ -46,9 +46,9 @@ public abstract class Asset {
 
 	public String getFullName() {
 		if (this instanceof Folder) {
-			return name;
+			return (name != null) ? name : "";
 		} else {
-			return name + "." + getClass().getSimpleName().toLowerCase();
+			return ((name != null) ? name : "") + "." + getClass().getSimpleName().toLowerCase();
 		}
 	}
 

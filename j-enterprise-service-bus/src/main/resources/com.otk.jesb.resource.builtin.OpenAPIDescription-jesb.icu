@@ -336,7 +336,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:4a42</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>552d3431:19aad3c7e86:-524b</uniqueIdentifier>
+                <uniqueIdentifier>47ee6381:19acae1f0a8:7690</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -922,7 +922,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>source</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
             <getterGenerated>false</getterGenerated>
             <nullReplacement>
@@ -1217,7 +1217,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:49f9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>552d3431:19aad3c7e86:-524a</uniqueIdentifier>
+                <uniqueIdentifier>47ee6381:19acae1f0a8:7691</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -1251,7 +1251,7 @@
             <uniqueIdentifier>205ced4:19838f13b69:470f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>552d3431:19aad3c7e86:-5249</uniqueIdentifier>
+                <uniqueIdentifier>47ee6381:19acae1f0a8:7692</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -1311,7 +1311,7 @@
             <uniqueIdentifier>-1ccf00b9:19838dcf645:-5f70</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>552d3431:19aad3c7e86:-5248</uniqueIdentifier>
+                <uniqueIdentifier>47ee6381:19acae1f0a8:7693</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -1400,7 +1400,7 @@
             <uniqueIdentifier>-67c7e284:1983933ccaf:461c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>552d3431:19aad3c7e86:-5247</uniqueIdentifier>
+                <uniqueIdentifier>47ee6381:19acae1f0a8:7694</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>

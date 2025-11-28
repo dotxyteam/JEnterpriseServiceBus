@@ -22,6 +22,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.cxf.jaxrs.impl.ResponseBuilderImpl;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.config.CodegenConfigurator;
@@ -459,7 +461,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 			if (responsesAnnotation != null) {
 				for (ApiResponse responseAnnotation : responsesAnnotation.value()) {
 					ResponseException responseException = new ResponseException(responseAnnotation.code());
-					if ((responseAnnotation.response() != null) && (responseAnnotation.response() != Void.class)) {
+					if ((responseAnnotation.response() != null) && (responseAnnotation.response() != Void.class)
+							&& (responseAnnotation.response() != Object.class)) {
 						responseException.setContentType(MediaType.APPLICATION_JSON);
 						Object sampleEntity;
 						try {
@@ -643,24 +646,35 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	public static class ResponseException extends StandardError {
 
 		private static final long serialVersionUID = 1L;
-		private Status status;
+		private int statusCode;
+		private String statusText;
 		private String contentType;
 		private String body;
 
 		public ResponseException(Status status) {
-			this.status = status;
+			this(status.getStatusCode());
 		}
-
+			
 		public ResponseException(int statusCode) {
-			this.status = Status.fromStatusCode(statusCode);
-		}
-
-		public Status getStatus() {
-			return status;
+			this.statusCode = statusCode;
+			Status status = Status.fromStatusCode(statusCode);
+			this.statusText = (status != null) ? status.getReasonPhrase() : "<Unknown>";
 		}
 
 		public int getStatusCode() {
-			return status.getStatusCode();
+			return statusCode;
+		}
+
+		public void setStatusCode(int statusCode) {
+			this.statusCode = statusCode;
+		}
+
+		public String getStatusText() {
+			return statusText;
+		}
+
+		public void setStatusText(String statusText) {
+			this.statusText = statusText;
 		}
 
 		public String getContentType() {
@@ -680,7 +694,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 
 		public WebApplicationException toWebApplicationException() {
-			ResponseBuilder responseBuilder = Response.status(status);
+			Status status = Status.fromStatusCode(statusCode);
+			ResponseBuilder responseBuilder = (status != null) ? Response.status(status) : new ResponseBuilderImpl();
 			if (contentType != null) {
 				responseBuilder = responseBuilder.type(contentType);
 			}
@@ -692,7 +707,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 
 		@Override
 		public String toString() {
-			return "ResponseException [status=" + status + ", contentType=" + contentType + ", body=" + body + "]";
+			return "ResponseException [statusCode=" + statusCode + ", statusText=" + statusText + ", contentType="
+					+ contentType + ", body=" + body + "]";
 		}
 
 	}

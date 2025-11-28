@@ -25,7 +25,7 @@
             <uniqueIdentifier>68d9c596:198282cf253:4405</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>fde5128:199a938838f:-224e</uniqueIdentifier>
+                <uniqueIdentifier>-4af6c72a:19acc824ae4:-5625</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -338,6 +338,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.HTTPServer</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -411,6 +412,7 @@
         <menuModel>
             <uniqueIdentifier>fde5128:199a938838f:-34a2</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.HTTPServer], fieldName=bindingGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
