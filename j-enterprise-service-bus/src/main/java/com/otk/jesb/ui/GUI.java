@@ -112,8 +112,10 @@ import xy.reflect.ui.control.FieldControlDataProxy;
 import xy.reflect.ui.control.FieldControlInputProxy;
 import xy.reflect.ui.control.IFieldControlData;
 import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.IMethodControlInput;
 import xy.reflect.ui.control.plugin.IFieldControlPlugin;
 import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.MethodAction;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
@@ -167,6 +169,7 @@ import xy.reflect.ui.info.type.source.ITypeInfoSource;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
 import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
@@ -970,6 +973,31 @@ public class GUI extends MultiSwingCustomizer {
 						}
 					} else {
 						super.validateForm(session);
+					}
+				}
+
+			};
+		}
+
+		@Override
+		public MethodAction createMethodAction(IMethodControlInput input) {
+			return new MethodAction(this, input) {
+
+				private static final long serialVersionUID = 1L;
+				
+				/*
+				 * Fix (for forms not refreshing when an invoked method is read-only) in
+				 * reflection-ui-6.0.1.
+				 */
+
+				@Override
+				public void invokeAndObtainReturnValue(InvocationData invocationData, Component activatorComponent) {
+					try {
+						super.invokeAndObtainReturnValue(invocationData, activatorComponent);
+					} finally {
+						if (data.isReadOnly()) {
+							modificationStack.apply(IModification.VOLATILE_MODIFICATION);
+						}
 					}
 				}
 
