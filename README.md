@@ -48,29 +48,12 @@ It is distributed under this
     *   Choose the one corresponding to your OS
     *   Extract it
 *   Run the executable (with "--help" command-line argument to see available options).
-    *   IMPORTANT:
-        *    On Windows you must run the CMD executable (**j-enterprise-service-bus-cmd.exe**) if you intend to use the command-line options.
+    *   NOTE: On Windows you must run the CMD executable (**j-enterprise-service-bus-cmd.exe**) if you intend to use the command-line options.
 
-# Concepts
 
-- JESB allows to develop one **solution** at a time.
-- Each **solution** is composed of **plans** and **resources**.
-- Each **plan** has its own activation mode (**activator**).
-- **Resources** are shared configurations referenced by **plans** or other **resources**.
+# Documentation
 
-# Java API
-
-JESB processes can be called from any Java code. 
-The required Maven dependency is as follows:
-
-    <dependency>
-    <groupId>com.github.dotxyteam</groupId>
-    <artifactId>j-enterprise-service-bus</artifactId>
-    <version>LATEST</version>
-    </dependency>
-
-The following class demonstrates the use of this API: 
-https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/unpackaged-src/com/otk/jesb/JesbAPIExample.java
+Explore the [Wiki](https://github.com/dotxyteam/JEnterpriseServiceBus/wiki) to learn more.
 
 # Support
 
